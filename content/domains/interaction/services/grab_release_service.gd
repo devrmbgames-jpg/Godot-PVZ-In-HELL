@@ -2,6 +2,7 @@ extends RefCounted
 ## Освобождает живую связь хвата и однократно очищает её физические, input и cache эффекты.
 class_name GrabReleaseService
 
+
 #region Operations
 ## Удаляет соответствующую связь и её эффекты, сохраняя физическую инерцию тела.
 static func release(holder: Entity, held: Entity, notify_player: bool = true) -> void:

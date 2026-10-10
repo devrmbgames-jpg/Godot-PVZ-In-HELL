@@ -35,10 +35,10 @@ static func begin(actor: Entity, cart: Entity) -> void:
 	if not can_begin(actor, cart):
 		return
 
-	var data: R_CartDrivenBy = R_CartDrivenBy.new()
-	var binding: Relationship = Relationship.new(data, actor)
+	var drive_state: R_CartDrivenBy = R_CartDrivenBy.new()
+	var binding: Relationship = Relationship.new(drive_state, actor)
 	cart.add_relationship(binding)
-	if not data.lifecycle_applied and not driver_added(cart, binding):
+	if not drive_state.lifecycle_applied and not driver_added(cart, binding):
 		cart.remove_relationship(binding)
 
 
@@ -71,16 +71,16 @@ static func current(actor: Entity) -> Entity:
 	cache.cart = null
 	return null
 
-
 #endregion
+
 
 #region Эффекты водительской связи
 ## Применяет новую связь водителя, производный кеш и захват приоритета TRANSPORT.
 static func driver_added(cart: Entity, binding: Relationship) -> bool:
-	var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
+	var drive_state: R_CartDrivenBy = binding.relation as R_CartDrivenBy
 	var actor: Entity = binding.target as Entity
-	if data == null or data.lifecycle_applied:
-		return data != null
+	if drive_state == null or drive_state.lifecycle_applied:
+		return drive_state != null
 	if not GrabQueries.holder_available(actor) or not GrabQueries.entity_available(cart):
 		return false
 	if relationship(cart) != binding:
@@ -95,12 +95,12 @@ static func driver_added(cart: Entity, binding: Relationship) -> bool:
 		cache = C_CartDriver.new()
 		actor.add_component(cache)
 	cache.cart = cart
-	data.capture_token = InteractionControlFocus.acquire(
+	drive_state.capture_token = InteractionControlFocus.acquire(
 		actor,
 		cart,
 		InteractionControlFocus.Priority.TRANSPORT,
 	)
-	data.lifecycle_applied = true
+	drive_state.lifecycle_applied = true
 
 	var cleanup: Callable = _on_driver_exiting.bind(cart)
 	if not actor.tree_exiting.is_connected(cleanup):
@@ -110,14 +110,14 @@ static func driver_added(cart: Entity, binding: Relationship) -> bool:
 
 ## Однократно освобождает токен/кеш/обработчики и обнуляет моторную скорость тележки.
 static func driver_removed(cart: Entity, binding: Relationship) -> void:
-	var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
-	if data == null or not data.lifecycle_applied:
+	var drive_state: R_CartDrivenBy = binding.relation as R_CartDrivenBy
+	if drive_state == null or not drive_state.lifecycle_applied:
 		return
 
-	data.lifecycle_applied = false
+	drive_state.lifecycle_applied = false
 	var actor: Entity = binding.target as Entity if is_instance_valid(binding.target) else null
 	if is_instance_valid(actor):
-		InteractionControlFocus.release(actor, data.capture_token)
+		InteractionControlFocus.release(actor, drive_state.capture_token)
 		var cache: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
 		if cache != null and cache.cart == cart:
 			cache.cart = null
@@ -140,8 +140,8 @@ static func entity_unavailable(entity: Entity) -> void:
 	if cache != null and is_instance_valid(cache.cart):
 		end(cache.cart)
 
-
 #endregion
+
 
 #region Дистанция и точка ручки
 ## Проверяет доступного водителя и предельную дистанцию от физической тележки.

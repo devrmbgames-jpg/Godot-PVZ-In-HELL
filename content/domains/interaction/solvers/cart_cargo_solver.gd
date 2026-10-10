@@ -13,7 +13,7 @@ static func integrate(cargo: Entity, state: PhysicsDirectBodyState3D) -> bool:
 		return false
 
 	var cart: Entity = binding.target as Entity
-	var data: R_CartCargo = binding.relation as R_CartCargo
+	var cargo_state: R_CartCargo = binding.relation as R_CartCargo
 	if not GrabQueries.entity_available(cart) or not GrabQueries.entity_available(cargo):
 		CartCargoService.release(cargo)
 		return false
@@ -23,11 +23,11 @@ static func integrate(cargo: Entity, state: PhysicsDirectBodyState3D) -> bool:
 
 	var cart_body: Node3D = cart as Node as Node3D
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
-	if cart_body == null or config == null or data == null:
+	if cart_body == null or config == null or cargo_state == null:
 		CartCargoService.release(cargo)
 		return false
 
-	var desired: Transform3D = cart_body.global_transform * data.local_pose
+	var desired: Transform3D = cart_body.global_transform * cargo_state.local_pose
 	var offset: Vector3 = desired.origin - state.transform.origin
 	if offset.length() > config.cargo_break_distance:
 		CartCargoService.release(cargo)

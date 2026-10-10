@@ -40,16 +40,16 @@ static func aim_point(target: Entity) -> Vector3:
 
 ## Исключает тело атакующего и удерживаемые им физические предметы из его луча.
 static func exclusions(actor: Entity) -> Array[RID]:
-	var result: Array[RID] = []
+	var excluded_rids: Array[RID] = []
 	var body: PhysicsBody3D = actor as Node as PhysicsBody3D
 	if body != null:
-		result.append(body.get_rid())
+		excluded_rids.append(body.get_rid())
 	for slot: int in 3:
 		var held: Entity = GrabQueries.held_in_slot(actor, slot)
 		var held_body: RigidBody3D = GrabQueries.physical_body(held)
 		if held_body != null:
-			result.append(held_body.get_rid())
-	return result
+			excluded_rids.append(held_body.get_rid())
+	return excluded_rids
 
 
 ## Проверяет первое физическое препятствие; пустой луч либо попадание в цель разрешают атаку.
@@ -58,9 +58,19 @@ static func clear_line(actor: Entity, target: Entity, mask: int) -> bool:
 	if node == null or not node.is_inside_tree() or not is_instance_valid(target):
 		return false
 
-	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin(actor), aim_point(target), mask, exclusions(actor))
+	var ray: PhysicsRayQueryParameters3D = (
+		PhysicsRayQueryParameters3D.create(
+			origin(actor),
+			aim_point(target),
+			mask,
+			exclusions(actor),
+		)
+	)
 	var hit: Dictionary = node.get_world_3d().direct_space_state.intersect_ray(ray)
-	return hit.is_empty() or InteractionTargetingGeometry.collider_entity(hit.get("collider") as Object) == target
+	return (
+		hit.is_empty()
+		or InteractionTargetingGeometry.collider_entity(hit.get("collider") as Object) == target
+	)
 
 
 ## Проверяет дальность в метрах и половину угла сектора в градусах.
@@ -69,4 +79,7 @@ static func in_cone(actor: Entity, target: Entity, reach: float, half_angle_degr
 		return false
 
 	var direction: Vector3 = aim_point(target) - origin(actor)
-	return direction.length() <= reach and forward(actor).dot(direction.normalized()) >= cos(deg_to_rad(half_angle_degrees))
+	return (
+		direction.length() <= reach
+		and forward(actor).dot(direction.normalized()) >= cos(deg_to_rad(half_angle_degrees))
+	)

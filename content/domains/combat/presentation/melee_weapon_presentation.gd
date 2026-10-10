@@ -47,8 +47,8 @@ static func reset(weapon: Entity) -> void:
 		player.advance(0.0)
 	player.stop()
 
-
 #endregion
+
 
 #region Обратная связь инструмента
 ## Фиксация использует замах только как обратную связь без боевого попадания.

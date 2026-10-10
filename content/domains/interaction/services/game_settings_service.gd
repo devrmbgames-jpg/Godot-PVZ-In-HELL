@@ -5,25 +5,46 @@ class_name GameSettingsService
 const FILE_PATH: String = "user://settings.cfg"
 const MAX_BINDINGS_PER_ACTION: int = 16
 const ACTIONS: Dictionary[StringName, String] = {
-	&"forward": "Вперёд", &"back": "Назад", &"left": "Влево", &"right": "Вправо",
-	&"sprint": "Бег", &"jump": "Прыжок", &"crouch": "Присесть", &"interact": "Взаимодействие",
-	&"use": "Использовать", &"action_primary": "Основное действие", &"action_secondary": "Второе действие",
-	&"physical_override": "Бросок / силовое действие", &"rotate_held": "Вращать предмет",
-	&"drop": "Положить / удерживать для броска", &"inventory": "Инвентарь", &"menu": "Настройки / закрыть",
-	&"look_left": "Камера влево", &"look_right": "Камера вправо", &"look_up": "Камера вверх", &"look_down": "Камера вниз",
+	&"forward": "Вперёд",
+	&"back": "Назад",
+	&"left": "Влево",
+	&"right": "Вправо",
+	&"sprint": "Бег",
+	&"jump": "Прыжок",
+	&"crouch": "Присесть",
+	&"interact": "Взаимодействие",
+	&"use": "Использовать",
+	&"action_primary": "Основное действие",
+	&"action_secondary": "Второе действие",
+	&"physical_override": "Бросок / силовое действие",
+	&"rotate_held": "Вращать предмет",
+	&"drop": "Положить / удерживать для броска",
+	&"inventory": "Инвентарь",
+	&"menu": "Настройки / закрыть",
+	&"look_left": "Камера влево",
+	&"look_right": "Камера вправо",
+	&"look_up": "Камера вверх",
+	&"look_down": "Камера вниз",
 }
 const DEFAULTS: Dictionary[String, Variant] = {
-	"volume": 1.0, "fullscreen": false, "vsync": true, "reduced_motion": false, "sprint_toggle": false,
-	"mouse_sensitivity": 1.0, "gamepad_sensitivity": 1.0, "deadzone": 0.2,
+	"volume": 1.0,
+	"fullscreen": false,
+	"vsync": true,
+	"reduced_motion": false,
+	"sprint_toggle": false,
+	"mouse_sensitivity": 1.0,
+	"gamepad_sensitivity": 1.0,
+	"deadzone": 0.2,
 }
 
 static var _initialized: bool = false
-static var _defaults: Dictionary[StringName, Array] = {}
+static var _defaults: Dictionary[StringName, Array] = { }
 static var _values: Dictionary[String, Variant] = DEFAULTS.duplicate()
 
 
 #region Настройки процесса
-## Однократно запоминает исходный InputMap, загружает профиль и применяет настройки текущего процесса.
+## Однократно запоминает исходный InputMap, загружает профиль и применяет настройки текущего
+## процесса.
 static func initialize(path: String = FILE_PATH) -> void:
 	if _initialized:
 		return
@@ -41,7 +62,8 @@ static func value(key: String) -> Variant:
 	return _values.get(key, DEFAULTS.get(key))
 
 
-## Принимает только известный ключ и правильный тип; числовые значения ограничивает допустимым диапазоном.
+## Принимает только известный ключ и правильный тип; числовые значения ограничивает допустимым
+## диапазоном.
 static func set_value(key: String, setting: Variant) -> void:
 	if not DEFAULTS.has(key):
 		return
@@ -56,29 +78,40 @@ static func set_value(key: String, setting: Variant) -> void:
 		if not is_finite(number):
 			return
 
-		_values[key] = clampf(number, 0.0, 1.0) if key == "volume" else clampf(number, 0.05, 0.75) if key == "deadzone" else clampf(number, 0.1, 4.0)
+		_values[key] = (
+			clampf(number, 0.0, 1.0)
+			if key == "volume"
+			else clampf(number, 0.05, 0.75)
+			if key == "deadzone"
+			else clampf(number, 0.1, 4.0)
+		)
 
 
 ## Применяет громкость, окно/vsync и deadzone InputMap; в headless пропускает настройки окна.
 static func apply() -> void:
 	AudioServer.set_bus_volume_linear(0, float(value("volume")))
 	if DisplayServer.get_name() != "headless":
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if bool(value("fullscreen")) else DisplayServer.WINDOW_MODE_WINDOWED)
-		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if bool(value("vsync")) else DisplayServer.VSYNC_DISABLED)
+		var window_mode: DisplayServer.WindowMode = DisplayServer.WINDOW_MODE_WINDOWED
+		if bool(value("fullscreen")):
+			window_mode = DisplayServer.WINDOW_MODE_FULLSCREEN
+		DisplayServer.window_set_mode(window_mode)
+		DisplayServer.window_set_vsync_mode(
+			DisplayServer.VSYNC_ENABLED if bool(value("vsync")) else DisplayServer.VSYNC_DISABLED
+		)
 	for action: StringName in ACTIONS:
 		if InputMap.has_action(action):
 			InputMap.action_set_deadzone(action, float(value("deadzone")))
 
-
 #endregion
+
 
 #region Привязки и конфликты
 ## Возвращает конфликты, не меняя InputMap; игрок подтверждает их удаление явно.
 static func conflicts(action: StringName, event: InputEvent) -> Array[StringName]:
-	var result: Array[StringName] = []
+	var conflicting_actions: Array[StringName] = []
 	var candidate: InputEvent = InputBindingCodec.normalized(event)
 	if candidate == null:
-		return result
+		return conflicting_actions
 
 	for other: StringName in ACTIONS:
 		if other == action or not InputMap.has_action(other):
@@ -86,9 +119,9 @@ static func conflicts(action: StringName, event: InputEvent) -> Array[StringName
 
 		for existing: InputEvent in InputMap.action_get_events(other):
 			if InputBindingCodec.overlaps(existing, candidate):
-				result.append(other)
+				conflicting_actions.append(other)
 				break
-	return result
+	return conflicting_actions
 
 
 ## Заменяет назначения выбранного устройства; другой тип устройства сохраняется.
@@ -113,7 +146,10 @@ static func rebind(action: StringName, event: InputEvent, resolve_conflicts: boo
 			if InputBindingCodec.overlaps(existing, candidate):
 				InputMap.action_erase_event(other, existing)
 	for existing: InputEvent in InputMap.action_get_events(action):
-		if InputBindingCodec.is_gamepad(existing) == InputBindingCodec.is_gamepad(candidate) and not is_safety_back(existing):
+		if (
+			InputBindingCodec.is_gamepad(existing) == InputBindingCodec.is_gamepad(candidate)
+			and not is_safety_back(existing)
+		):
 			InputMap.action_erase_event(action, existing)
 	InputMap.action_add_event(action, candidate)
 	InputPromptService.invalidate()
@@ -125,13 +161,17 @@ static func is_safety_back(event: InputEvent) -> bool:
 	if event is InputEventKey:
 		var key: InputEventKey = event as InputEventKey
 		return key.physical_keycode == KEY_ESCAPE or key.keycode == KEY_ESCAPE
-	return event is InputEventJoypadButton and (event as InputEventJoypadButton).button_index == JOY_BUTTON_BACK
-
+	return (
+		event is InputEventJoypadButton
+		and (event as InputEventJoypadButton).button_index == JOY_BUTTON_BACK
+	)
 
 #endregion
 
+
 #region Исходный профиль и запись
-## Восстанавливает настройки и сохранённый исходный InputMap, применяет их и обновляет ревизию подсказок.
+## Восстанавливает настройки и сохранённый исходный InputMap, применяет их и обновляет ревизию
+## подсказок.
 static func reset_defaults() -> void:
 	_values.assign(DEFAULTS)
 	for action: StringName in _defaults:
@@ -142,7 +182,8 @@ static func reset_defaults() -> void:
 	InputPromptService.invalidate()
 
 
-## Записывает пользовательский ConfigFile с переносимыми привязками; возвращает ошибку записи без изменения мира.
+## Записывает пользовательский ConfigFile с переносимыми привязками; возвращает ошибку записи без
+## изменения мира.
 static func save(path: String = FILE_PATH) -> Error:
 	var config: ConfigFile = ConfigFile.new()
 	for key: String in _values:
@@ -150,14 +191,15 @@ static func save(path: String = FILE_PATH) -> Error:
 	for action: StringName in ACTIONS:
 		var bindings: Array[Dictionary] = []
 		for event: InputEvent in InputMap.action_get_events(action):
-			var data: Dictionary = InputBindingCodec.encode(event)
-			if not data.is_empty():
-				bindings.append(data)
+			var stored_binding: Dictionary = InputBindingCodec.encode(event)
+			if not stored_binding.is_empty():
+				bindings.append(stored_binding)
 		config.set_value("input", String(action), bindings)
 	return config.save(path)
 
 
-## Читает профиль: значения проверяются, привязки заменяются только после успешного декодирования всей группы действия.
+## Читает профиль: значения проверяются, привязки заменяются только после успешного декодирования
+## всей группы действия.
 static func load_settings(path: String = FILE_PATH) -> void:
 	var config: ConfigFile = ConfigFile.new()
 	if config.load(path) != OK:
@@ -170,13 +212,20 @@ static func load_settings(path: String = FILE_PATH) -> void:
 			continue
 
 		var stored: Variant = config.get_value("input", String(action))
-		if not stored is Array or not InputMap.has_action(action) or (stored as Array).size() > MAX_BINDINGS_PER_ACTION:
+		if (
+			not stored is Array or not InputMap.has_action(action)
+			or (stored as Array).size() > MAX_BINDINGS_PER_ACTION
+		):
 			continue
 
 		var decoded: Array[InputEvent] = []
 		var valid: bool = true
-		for data: Variant in stored as Array:
-			var event: InputEvent = InputBindingCodec.decode(data as Dictionary) if data is Dictionary else null
+		for stored_binding: Variant in stored as Array:
+			var event: InputEvent = (
+				InputBindingCodec.decode(stored_binding as Dictionary)
+				if stored_binding is Dictionary
+				else null
+			)
 			if event == null:
 				valid = false
 				break

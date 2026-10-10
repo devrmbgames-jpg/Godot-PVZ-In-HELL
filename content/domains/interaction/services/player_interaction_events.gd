@@ -6,7 +6,10 @@ class_name PlayerInteractionEvents
 #region Committed interaction facts
 ## Публикует подтверждённый переход с живыми ссылками и стабильными ID участников.
 static func publish(actor: Entity, target: Entity, kind: PlayerInteractionEvent.Kind) -> void:
-	if not EntityAvailability.contains(actor, ECS.world) or not actor.has_component(C_PlayerInputController):
+	if (
+		not EntityAvailability.contains(actor, ECS.world)
+		or not actor.has_component(C_PlayerInputController)
+	):
 		return
 	if not EntityAvailability.contains(target, ECS.world):
 		return
@@ -22,9 +25,13 @@ static func publish(actor: Entity, target: Entity, kind: PlayerInteractionEvent.
 	if parcel != null:
 		event.package_id = parcel.package_id
 
-	BoundaryTrace.record(&"interaction.fact", event.operation_id,
+	BoundaryTrace.record(
+		&"interaction.fact",
+		event.operation_id,
 		BoundaryTraceEntry.Stage.COMPLETED,
 		StringName(String(PlayerInteractionEvent.Kind.keys()[kind]).to_lower()),
-		ActorIdentityRules.trace_key_for(actor), ActorIdentityRules.trace_key_for(target))
+		ActorIdentityRules.trace_key_for(actor),
+		ActorIdentityRules.trace_key_for(target),
+	)
 	ECS.world.emit_event(PlayerInteractionEvent.EVENT, target, event)
 #endregion

@@ -1,5 +1,6 @@
 extends RefCounted
-## Выполняет фиксацию и восстановление снимка; при снятии однократно определяет зависимые закреплённые опоры.
+## Выполняет фиксацию и восстановление снимка; при снятии однократно определяет зависимые
+## закреплённые опоры.
 class_name AnchoringService
 
 const DIRECTION_EPSILON: float = 0.0001
@@ -16,7 +17,8 @@ static func state(target: Entity) -> C_PlayerAnchored:
 	)
 
 
-## Проверяет инструмент основной руки, доступную неподконтрольную цель, дистанцию и достаточный покой.
+## Проверяет инструмент основной руки, доступную неподконтрольную цель, дистанцию и достаточный
+## покой.
 static func can_anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	if (
 		not GrabQueries.holder_available(actor) or not GrabQueries.entity_available(tool)
@@ -37,7 +39,10 @@ static func can_anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 		return false
 	if controlled(target) or not GrabReachQueries.within_pickup_reach(actor, target):
 		return false
-	if not AnchoringRules.valid_config(config) or not AnchoringRules.within_motion_limits(body, config):
+	if (
+		not AnchoringRules.valid_config(config)
+		or not AnchoringRules.within_motion_limits(body, config)
+	):
 		return false
 	return config.stable_seconds + DIRECTION_EPSILON >= config.minimum_rest_seconds
 
@@ -68,8 +73,8 @@ static func anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	body.sleeping = true
 	return state(target) == anchored and body.freeze
 
-
 #endregion
+
 
 #region Снятие фиксации
 ## Проверяет инструмент в любой руке, собственный длительный сеанс и снимок закреплённой цели.
@@ -97,7 +102,8 @@ static func can_unfix(actor: Entity, target: Entity) -> bool:
 	)
 
 
-## Определяет цель и зависимые закреплённые объекты, затем последовательно восстанавливает их снимки.
+## Определяет цель и зависимые закреплённые объекты, затем последовательно восстанавливает их
+## снимки.
 static func unfix(actor: Entity, target: Entity) -> bool:
 	if not can_unfix(actor, target):
 		return false
@@ -116,8 +122,8 @@ static func unfix(actor: Entity, target: Entity) -> bool:
 static func is_player_anchored(target: Entity) -> bool:
 	return state(target) != null
 
-
 #endregion
+
 
 #region Восстановление снимка и физические опоры
 static func _restore(target: Entity) -> bool:
@@ -141,20 +147,21 @@ static func _restore(target: Entity) -> bool:
 
 
 static func _support_cluster(root: Entity) -> Array[Entity]:
-	var result: Array[Entity] = [root]
+	var cluster: Array[Entity] = [root]
 	if not is_instance_valid(ECS.world):
-		return result
+		return cluster
 
 	var queue: Array[Entity] = [root]
 	while not queue.is_empty():
 		var supporter: Entity = queue.pop_front() as Entity
-		for candidate: Entity in ECS.world.query.with_all([C_PlayerAnchored, C_Anchorable]).execute():
-			if candidate == supporter or result.has(candidate):
+		var support_query: QueryBuilder = ECS.world.query.with_all([C_PlayerAnchored, C_Anchorable])
+		for candidate: Entity in support_query.execute():
+			if candidate == supporter or cluster.has(candidate):
 				continue
 			if _supported_by(candidate, supporter):
-				result.append(candidate)
+				cluster.append(candidate)
 				queue.append(candidate)
-	return result
+	return cluster
 
 
 static func _supported_by(candidate: Entity, supporter: Entity) -> bool:
@@ -172,7 +179,9 @@ static func _supported_by(candidate: Entity, supporter: Entity) -> bool:
 
 	direction = direction.normalized()
 	var excluded: Array[RID] = [candidate_body.get_rid()]
-	var collision_nodes: Array[Node] = candidate_body.find_children("*", "CollisionShape3D", true, false)
+	var collision_nodes: Array[Node] = (
+		candidate_body.find_children("*", "CollisionShape3D", true, false)
+	)
 	for node: Node in collision_nodes:
 		var collision: CollisionShape3D = node as CollisionShape3D
 		if collision == null or collision.disabled or collision.shape == null:
@@ -187,18 +196,18 @@ static func _supported_by(candidate: Entity, supporter: Entity) -> bool:
 		query.exclude = excluded
 		query.collide_with_bodies = true
 		query.collide_with_areas = false
-		var hits: Array[Dictionary] = candidate_body.get_world_3d().direct_space_state.intersect_shape(
-			query,
-			SUPPORT_QUERY_LIMIT,
-		)
+		var hits: Array[Dictionary] = candidate_body \
+				.get_world_3d() \
+				.direct_space_state \
+				.intersect_shape(query, SUPPORT_QUERY_LIMIT)
 		for hit: Dictionary in hits:
 			var collider: Object = hit.get("collider") as Object
 			if InteractionTargetingGeometry.collider_rigid_body(collider) == supporter_body:
 				return true
 	return false
 
-
 #endregion
+
 
 #region Участники и авторские пределы
 ## Reads current live ownership and prolonged participation without advancing their clocks.
@@ -226,6 +235,5 @@ static func _anchor_tool_in_hand(actor: Entity) -> Entity:
 		if GrabQueries.entity_available(item) and item.has_component(C_AnchorTool):
 			return item
 	return null
-
 
 #endregion

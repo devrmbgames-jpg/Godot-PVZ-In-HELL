@@ -6,7 +6,10 @@ class_name CombatService
 #region Противник и завершение боя
 ## Повторная та же цель идемпотентна; смена завершает прежнее действие перед новой связью.
 static func bind_target(actor: Entity, target: Entity) -> bool:
-	if not GrabQueries.holder_available(actor) or not GrabQueries.holder_available(target) or actor == target:
+	if (
+		not GrabQueries.holder_available(actor)
+		or not GrabQueries.holder_available(target) or actor == target
+	):
 		return false
 	if CombatQueries.target_for(actor) == target:
 		return true
@@ -30,8 +33,8 @@ static func end_combat(actor: Entity) -> void:
 		NpcIntentService.stop(actor)
 		NpcIntentService.look_along_movement(actor)
 
-
 #endregion
+
 
 #region Удар игрока
 ## Проверяет готовность игрока и настоящее оружие в его руках.
@@ -42,7 +45,10 @@ static func can_strike(actor: Entity, weapon: Entity) -> bool:
 	var state: C_Combat = actor.get_component(C_Combat) as C_Combat
 	var config: C_MeleeWeapon = weapon.get_component(C_MeleeWeapon) as C_MeleeWeapon
 	var grip: Relationship = GrabQueries.held_relationship(weapon)
-	return state != null and state.phase == C_Combat.Phase.READY and config != null and config.attack != null and grip != null and grip.target == actor
+	return (
+		state != null and state.phase == C_Combat.Phase.READY and config != null
+		and config.attack != null and grip != null and grip.target == actor
+	)
 
 
 ## Фиксирует удар/оружие один раз, запускает визуальный замах и слышимый шум.
@@ -66,7 +72,10 @@ static func start_strike(actor: Entity, weapon: Entity) -> bool:
 
 ## Запрашивает ближний урон с множителем голода; здоровье меняет O_Damage.
 static func hit(actor: Entity, source: Entity, target: Entity, damage: float) -> bool:
-	if not GrabQueries.holder_available(actor) or not GrabQueries.holder_available(target) or actor == target:
+	if (
+		not GrabQueries.holder_available(actor)
+		or not GrabQueries.holder_available(target) or actor == target
+	):
 		return false
 	if actor.has_component(C_NoDamage):
 		return false
@@ -79,7 +88,9 @@ static func hit(actor: Entity, source: Entity, target: Entity, damage: float) ->
 	request.source = source
 	request.instigator = actor
 	request.target = target
-	request.amount = damage * HungerRules.damage_multiplier(actor.get_component(C_Hunger) as C_Hunger)
+	request.amount = (
+		damage * HungerRules.damage_multiplier(actor.get_component(C_Hunger) as C_Hunger)
+	)
 	request.damage_type = DamageRequest.Type.MELEE
 	return DamageRequestService.submit(request)
 
@@ -94,8 +105,8 @@ static func entity_unavailable(actor: Entity) -> void:
 		if CombatQueries.target_for(opponent) == actor:
 			end_combat(opponent)
 
-
 #endregion
+
 
 #region Геометрия и очистка удара
 

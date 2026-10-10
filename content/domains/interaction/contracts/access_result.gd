@@ -2,7 +2,13 @@ extends RefCounted
 ## Временный результат проверки доступа; не заменяет авторитетное владение и повторную проверку.
 class_name AccessResult
 
-enum Outcome { ALLOWED, ACTOR_UNAVAILABLE, ITEM_REQUIRED, CONSUMPTION_UNAVAILABLE, INVALID_REQUIREMENT }
+enum Outcome {
+	ALLOWED,
+	ACTOR_UNAVAILABLE,
+	ITEM_REQUIRED,
+	CONSUMPTION_UNAVAILABLE,
+	INVALID_REQUIREMENT,
+}
 
 ## Результат проверки требования и возможности расходования.
 var outcome: Outcome = Outcome.ITEM_REQUIRED

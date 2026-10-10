@@ -2,7 +2,11 @@ extends RefCounted
 ## Снимок для представления без живых ссылок, пригодный после удаления повреждённой Entity.
 class_name DamageFeedback
 
-enum Audience { PLAYER, PACKAGE, OTHER }
+enum Audience {
+	PLAYER,
+	PACKAGE,
+	OTHER,
+}
 
 ## Категория получателя для выбора интерфейсной реакции.
 var audience: Audience = Audience.OTHER

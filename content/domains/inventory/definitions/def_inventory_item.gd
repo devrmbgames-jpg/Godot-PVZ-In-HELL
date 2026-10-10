@@ -28,4 +28,4 @@ enum Kind {
 ## Восстанавливаемое здоровье для MED_ITEM; применяется через контур урона.
 @export var healing: float = 35.0
 ## Уровень защиты посылки после использования BUBBLE_WRAP.
-@export var protection_tier: ImpactResult.Severity = ImpactResult.Severity.Medium
+@export var protection_tier: ImpactResult.Severity = ImpactResult.Severity.MEDIUM

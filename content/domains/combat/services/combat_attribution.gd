@@ -5,7 +5,10 @@ class_name CombatAttribution
 
 ## Создаёт контекст melee/impact/projectile; при распознавании дополняет instigator запроса.
 static func describe(request: DamageRequest) -> CombatContext:
-	if request.damage_type not in [DamageRequest.Type.MELEE, DamageRequest.Type.IMPACT, DamageRequest.Type.PROJECTILE]:
+	if (
+		request.damage_type
+		not in [DamageRequest.Type.MELEE, DamageRequest.Type.IMPACT, DamageRequest.Type.PROJECTILE]
+	):
 		return null
 
 	var actor: Entity = request.instigator
@@ -22,7 +25,9 @@ static func describe(request: DamageRequest) -> CombatContext:
 	context.actor_is_player = actor.has_component(C_PlayerInputController)
 	var customer: Entity = request.target if context.actor_is_player else actor
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id) if agent != null else null
+	var visit: CustomerVisit = (
+		CustomerFlowQueries.find_visit(agent.visit_id) if agent != null else null
+	)
 	if visit != null:
 		context.customer_id = visit.customer_id
 		context.visit_id = visit.visit_id
@@ -36,7 +41,11 @@ static func describe(request: DamageRequest) -> CombatContext:
 		elif CombatQueries.target_for(customer) == actor:
 			context.reason = CombatContext.Reason.SELF_DEFENSE
 
-	var weapon: C_MeleeWeapon = request.source.get_component(C_MeleeWeapon) as C_MeleeWeapon if is_instance_valid(request.source) else null
+	var weapon: C_MeleeWeapon = (
+		request.source.get_component(C_MeleeWeapon) as C_MeleeWeapon
+		if is_instance_valid(request.source)
+		else null
+	)
 	if weapon != null and weapon.attack != null:
 		context.weapon_key = weapon.attack.key
 	return context
@@ -49,6 +58,9 @@ static func retaliation_allowed(customer_id: StringName, day: int) -> bool:
 		return false
 
 	for visit: CustomerVisit in flow.visits:
-		if visit.customer_id == customer_id and CustomerOutcomeService.retaliation_allowed(visit, day):
+		if (
+			visit.customer_id == customer_id
+			and CustomerOutcomeService.retaliation_allowed(visit, day)
+		):
 			return true
 	return false

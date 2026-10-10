@@ -2,6 +2,7 @@ extends RefCounted
 ## Повторно проверяет текущую цель луча и допустимую дистанцию подбора.
 class_name GrabReachQueries
 
+
 #region Operations
 ## Повторно проверяет первое попадание луча и общий предел дистанции взаимодействия.
 ## Игровая цель может быть CharacterBody3D или AnimatableBody3D; только обычный Carry

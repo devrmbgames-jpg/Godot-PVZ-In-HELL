@@ -47,5 +47,4 @@ static func begin(actor: Entity, tool: Entity, target: Entity) -> void:
 	if not tool.tree_exiting.is_connected(cleanup):
 		tool.tree_exiting.connect(cleanup, CONNECT_ONE_SHOT)
 
-
 #endregion

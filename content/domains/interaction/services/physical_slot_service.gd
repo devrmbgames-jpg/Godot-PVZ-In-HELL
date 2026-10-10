@@ -18,7 +18,9 @@ static func occupant(slot: Entity) -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null
 
-	for item: Entity in ECS.world.query.with_relationship([Relationship.new(R_StoredIn.new(), slot)]).execute():
+	for item: Entity in (ECS.world.query.with_relationship([
+			Relationship.new(R_StoredIn.new(), slot)
+		]).execute()):
 		return item
 	return null
 
@@ -55,7 +57,10 @@ static func can_store(actor: Entity, slot: E_PhysicalSlot, hand: int) -> bool:
 	var config: C_PhysicalSlot = slot.get_component(C_PhysicalSlot) as C_PhysicalSlot
 	if body.mass > config.maximum_mass:
 		return false
-	return config.filter == null or ItemAccessRules.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter)
+	return (
+		config.filter == null
+		or ItemAccessRules.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter)
+	)
 
 
 ## После проверки освобождает руку, создаёт R_StoredIn и применяет крепление.
@@ -73,14 +78,14 @@ static func store(actor: Entity, slot: E_PhysicalSlot, hand: int) -> bool:
 		return false
 	return true
 
-
 #endregion
+
 
 #region Обратимое физическое крепление
 ## Применяет крепление однократно для прямого вызова и наблюдателя связи.
 static func attach(item: Entity, binding: Relationship) -> bool:
-	var data: R_StoredIn = binding.relation as R_StoredIn
-	if data.applied:
+	var slot_state: R_StoredIn = binding.relation as R_StoredIn
+	if slot_state.applied:
 		return true
 
 	var slot: E_PhysicalSlot = binding.target as E_PhysicalSlot
@@ -88,20 +93,29 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 	if (
 		not GrabQueries.entity_available(item) or not GrabQueries.entity_available(slot)
 		or not is_instance_valid(slot.anchor) or not is_instance_valid(slot.driver)
-		or body == null or body.freeze
-		or not slot.has_component(C_PhysicalSlot) or relationship(item) != binding
-		or GrabQueries.held_relationship(item) != null or CartCargoQueries.relationship(item) != null
+		or body == null or body.freeze or not slot.has_component(C_PhysicalSlot)
+		or relationship(item) != binding or GrabQueries.held_relationship(item) != null
+		or CartCargoQueries.relationship(item) != null
 		or (body as Node) != (item as Node) or item.is_ancestor_of(slot)
 	):
 		return false
 
 	var config: C_PhysicalSlot = slot.get_component(C_PhysicalSlot) as C_PhysicalSlot
-	if body.mass > config.maximum_mass or (
-		config.filter != null and not ItemAccessRules.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter)
+	if (
+		body.mass > config.maximum_mass
+		or (
+			config.filter != null
+			and not ItemAccessRules.matches(
+				item.get_component(C_AccessItem) as C_AccessItem,
+				config.filter,
+			)
+		)
 	):
 		return false
 
-	for other: Entity in ECS.world.query.with_relationship([Relationship.new(R_StoredIn.new(), slot)]).execute():
+	for other: Entity in (ECS.world.query.with_relationship([
+			Relationship.new(R_StoredIn.new(), slot)
+		]).execute()):
 		if other != item:
 			return false
 
@@ -112,8 +126,8 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 	snapshot.collision_mask = body.collision_mask
 	snapshot.physics_processing = body.is_physics_processing()
 	snapshot.top_level = body.top_level
-	data.snapshot = snapshot
-	data.applied = true
+	slot_state.snapshot = snapshot
+	slot_state.applied = true
 	body.freeze = true
 	body.freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
 	body.collision_layer = 0
@@ -143,18 +157,18 @@ static func release(item: Entity) -> void:
 		return
 	# Удаление связи обычно синхронно вызывает наблюдатель жизненного цикла.
 	item.remove_relationship(binding)
-	var data: R_StoredIn = binding.relation as R_StoredIn
-	if data.applied:
+	var slot_state: R_StoredIn = binding.relation as R_StoredIn
+	if slot_state.applied:
 		detach(item, binding)
 
 
 ## Однократно снимает RemoteTransform-крепление и возвращает настройки из снимка.
 static func detach(item: Entity, binding: Relationship) -> void:
-	var data: R_StoredIn = binding.relation as R_StoredIn
-	if not data.applied:
+	var slot_state: R_StoredIn = binding.relation as R_StoredIn
+	if not slot_state.applied:
 		return
 
-	data.applied = false
+	slot_state.applied = false
 	var slot: Entity = binding.target as Entity
 	var cleanup: Callable = release.bind(item)
 	for participant: Entity in [item, slot]:
@@ -164,7 +178,7 @@ static func detach(item: Entity, binding: Relationship) -> void:
 	if body == null:
 		return
 
-	var snapshot: StoredBodySnapshot = data.snapshot
+	var snapshot: StoredBodySnapshot = slot_state.snapshot
 	var storage_slot: E_PhysicalSlot = slot as E_PhysicalSlot
 	if storage_slot != null and is_instance_valid(storage_slot.driver):
 		storage_slot.driver.remote_path = NodePath()
@@ -178,8 +192,8 @@ static func detach(item: Entity, binding: Relationship) -> void:
 	body.angular_velocity = Vector3.ZERO
 	body.sleeping = false
 
-
 #endregion
+
 
 #region Недоступность и надетые предметы
 ## Освобождает предмет и входящие крепления недоступного слота.
@@ -189,7 +203,9 @@ static func entity_unavailable(entity: Entity) -> void:
 	if item != null:
 		release(item)
 	if is_instance_valid(ECS.world):
-		for slot: Entity in ECS.world.query.with_relationship([Relationship.new(R_SlotMountedOn.new(), entity)]).execute():
+		for slot: Entity in (ECS.world.query.with_relationship([
+				Relationship.new(R_SlotMountedOn.new(), entity)
+			]).execute()):
 			var stored: Entity = occupant(slot)
 			if stored != null:
 				release(stored)
@@ -209,15 +225,17 @@ static func entity_removed(entity: Entity) -> void:
 
 ## Возвращает реальные предметы слотов, связанных с актором через R_SlotMountedOn.
 static func worn_items(actor: Entity) -> Array[Entity]:
-	var result: Array[Entity] = []
+	var stored_entities: Array[Entity] = []
 	if not GrabQueries.holder_available(actor):
-		return result
+		return stored_entities
 
-	for slot: Entity in ECS.world.query.with_relationship([Relationship.new(R_SlotMountedOn.new(), actor)]).execute():
+	for slot: Entity in (ECS.world.query.with_relationship([
+			Relationship.new(R_SlotMountedOn.new(), actor)
+		]).execute()):
 		if GrabQueries.entity_available(slot):
 			var item: Entity = occupant(slot)
 			if GrabQueries.entity_available(item):
-				result.append(item)
-	return result
+				stored_entities.append(item)
+	return stored_entities
 
 #endregion

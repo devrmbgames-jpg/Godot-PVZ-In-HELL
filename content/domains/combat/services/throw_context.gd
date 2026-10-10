@@ -24,11 +24,11 @@ static func arm(source: Entity, instigator: Entity) -> void:
 		return
 
 	cancel(source)
-	var data: R_ThrownBy = R_ThrownBy.new()
-	data.remaining_seconds = maxf(0.0, config.window_seconds)
-	data.armed_tick = Engine.get_physics_frames()
-	if data.remaining_seconds > 0.0:
-		source.add_relationship(Relationship.new(data, instigator))
+	var throw_state: R_ThrownBy = R_ThrownBy.new()
+	throw_state.remaining_seconds = maxf(0.0, config.window_seconds)
+	throw_state.armed_tick = Engine.get_physics_frames()
+	if throw_state.remaining_seconds > 0.0:
+		source.add_relationship(Relationship.new(throw_state, instigator))
 
 
 ## Идемпотентно снимает действующую связь броска.

@@ -10,15 +10,21 @@ const TERRAIN_MASK: int = 1
 #region Физический шаг
 ## Applies native look/impulse/transport/slide motion and returns the callback-local contact sample.
 static func step(
-	actor: E_CharacterBodyPlayer, body: CharacterBody3D, control: C_Controller,
-	motion: C_Motion, config: C_CharacterBody, delta: float,
+	actor: E_CharacterBodyPlayer,
+	body: CharacterBody3D,
+	control: C_Controller,
+	motion: C_Motion,
+	config: C_CharacterBody,
+	delta: float,
 ) -> KinematicMotionSample:
 	_update_view(actor, body, control, config, delta)
 	var old_impulse: Vector3 = config.impulse_velocity
 	var impulse: Vector3 = motion.pending_impulse / maxf(config.mass_kg, MINIMUM_MASS)
 	motion.pending_impulse = Vector3.ZERO
 	config.impulse_velocity += Vector3(impulse.x, 0.0, impulse.z)
-	config.impulse_velocity = config.impulse_velocity.move_toward(Vector3.ZERO, config.impulse_decay_per_second * delta)
+	config.impulse_velocity = (
+		config.impulse_velocity.move_toward(Vector3.ZERO, config.impulse_decay_per_second * delta)
+	)
 
 	var controlled: Vector3 = body.velocity - old_impulse
 	controlled.y += impulse.y
@@ -31,14 +37,20 @@ static func step(
 	else:
 		controlled += body.get_gravity() * config.gravity_scale * delta
 
-	var desired: Vector3 = control.direction_motion.limit_length(1.0) if motion.control_enabled else Vector3.ZERO
+	var desired: Vector3 = (
+		control.direction_motion.limit_length(1.0) if motion.control_enabled else Vector3.ZERO
+	)
 	desired.y = 0.0
 	var speed: float = MotionRules.effective_speed(
-		motion, actor.get_component(C_CarryLoad) as C_CarryLoad,
-		actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger,
+		motion,
+		actor.get_component(C_CarryLoad) as C_CarryLoad,
+		actor.get_component(C_Strength) as C_Strength,
+		actor.get_component(C_Hunger) as C_Hunger,
 	)
 	var planar: Vector3 = Vector3(controlled.x, 0.0, controlled.z)
-	var acceleration: float = motion.ground_acceleration if not desired.is_zero_approx() else motion.ground_deceleration
+	var acceleration: float = (
+		motion.ground_acceleration if not desired.is_zero_approx() else motion.ground_deceleration
+	)
 	if not body.is_on_floor():
 		acceleration = motion.air_acceleration
 	planar = planar.move_toward(desired * speed, acceleration * delta)
@@ -57,10 +69,14 @@ static func step(
 	return KinematicMotionSample.new(incoming, desired * speed)
 
 
-## Samples actual support after independent push/impact contributions; called by the physical Entity callback.
+## Samples actual support after independent push/impact contributions; called by the physical Entity
+## callback.
 static func update_support(
-	actor: E_CharacterBodyPlayer, body: CharacterBody3D, motion: C_Motion,
-	config: C_CharacterBody, delta: float,
+	actor: E_CharacterBodyPlayer,
+	body: CharacterBody3D,
+	motion: C_Motion,
+	config: C_CharacterBody,
+	delta: float,
 ) -> void:
 	motion.is_on_floor = body.is_on_floor()
 	motion.floor_normal = body.get_floor_normal() if motion.is_on_floor else Vector3.UP
@@ -68,12 +84,21 @@ static func update_support(
 	motion.floor_body_rid = RID()
 	_push_support(actor, body, motion, config, delta)
 
-
 #endregion
 
+
 #region Взгляд и движение с транспортом
-static func _update_view(actor: E_PhysicalCharacter, body: CharacterBody3D, control: C_Controller, config: C_CharacterBody, delta: float) -> void:
-	if actor.head_axis_y == null or actor.head_axis_x == null or control.direction_look.is_zero_approx():
+static func _update_view(
+	actor: E_PhysicalCharacter,
+	body: CharacterBody3D,
+	control: C_Controller,
+	config: C_CharacterBody,
+	delta: float,
+) -> void:
+	if (
+		actor.head_axis_y == null or actor.head_axis_x == null
+		or control.direction_look.is_zero_approx()
+	):
 		return
 
 	var grab: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
@@ -96,21 +121,32 @@ static func _update_view(actor: E_PhysicalCharacter, body: CharacterBody3D, cont
 			target = yaw
 		elif absf(relative) > limit:
 			target = yaw - signf(relative) * limit
-		body.rotation.y = rotate_toward(body.rotation.y, target, deg_to_rad(look.motion_alignment_acceleration) * delta)
+		body.rotation.y = (
+			rotate_toward(
+				body.rotation.y,
+				target,
+				deg_to_rad(look.motion_alignment_acceleration) * delta,
+			)
+		)
 	actor.head_axis_y.rotation.y = wrapf(yaw - body.rotation.y, -PI, PI)
 	actor.head_axis_x.rotation.x = pitch
 
 
 static func _follow_transport(actor: Entity, body: CharacterBody3D, delta: float) -> float:
 	var transport: Entity = CartTransportService.current(actor)
-	if transport != null and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.TRANSPORT:
+	if (
+		transport != null
+		and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.TRANSPORT
+	):
 		var cart: CharacterBody3D = transport as Node as CharacterBody3D
 		var config: C_CartTransport = transport.get_component(C_CartTransport) as C_CartTransport
 		if not CartTransportService.driver_valid(cart, config, actor):
 			CartTransportService.end(transport)
 			return 0.0
 
-		var offset: Vector3 = CartTransportService.handle_position(cart, config) - body.global_position
+		var offset: Vector3 = (
+			CartTransportService.handle_position(cart, config) - body.global_position
+		)
 		offset.y = 0.0
 		var follow: Vector3 = (offset / maxf(delta, MINIMUM_STEP)).limit_length(config.follow_speed)
 		body.velocity.x = follow.x
@@ -118,22 +154,33 @@ static func _follow_transport(actor: Entity, body: CharacterBody3D, delta: float
 		return config.step_height
 
 	var pushed: Entity = PushService.pushed_object(actor)
-	if pushed != null and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PUSH:
+	if (
+		pushed != null
+		and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PUSH
+	):
 		if not PushService.valid_pair(actor, pushed):
 			PushService.end(actor, pushed)
 			return 0.0
 
 		var cart: RigidBody3D = pushed as Node as RigidBody3D
 		var config: C_Pushable = pushed.get_component(C_Pushable) as C_Pushable
-		var offset: Vector3 = cart.global_position - PushService.forward(pushed) * config.handle_distance - body.global_position
+		var offset: Vector3 = (
+			cart.global_position - PushService.forward(pushed) * config.handle_distance
+			- body.global_position
+		)
 		offset.y = 0.0
-		var follow: Vector3 = (cart.linear_velocity + (offset / maxf(delta, MINIMUM_STEP)).limit_length(config.follow_speed)).limit_length(config.forward_speed + config.follow_speed)
+		var follow: Vector3 = (
+			(
+				cart.linear_velocity
+				+ (offset / maxf(delta, MINIMUM_STEP)).limit_length(config.follow_speed)
+			).limit_length(config.forward_speed + config.follow_speed)
+		)
 		body.velocity.x = follow.x
 		body.velocity.z = follow.z
 	return 0.0
 
-
 #endregion
+
 
 #region Ступени и контакт с опорой
 ## Перед подъёмом на ступень тело проверяет весь путь вверх, вперёд и вниз.
@@ -152,8 +199,17 @@ static func _lift_step(body: CharacterBody3D, height: float, delta: float) -> vo
 	if obstruction.get_normal().y >= cos(body.floor_max_angle):
 		return
 
-	var support_probe: Vector3 = obstruction.get_position() + travel.normalized() * height + Vector3.UP * height
-	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(support_probe, support_probe - Vector3.UP * height * 2.0, TERRAIN_MASK, [body.get_rid()])
+	var support_probe: Vector3 = (
+		obstruction.get_position() + travel.normalized() * height + Vector3.UP * height
+	)
+	var ray: PhysicsRayQueryParameters3D = (
+		PhysicsRayQueryParameters3D.create(
+			support_probe,
+			support_probe - Vector3.UP * height * 2.0,
+			TERRAIN_MASK,
+			[body.get_rid()],
+		)
+	)
 	var support: Dictionary = body.get_world_3d().direct_space_state.intersect_ray(ray)
 	if support.is_empty() or (support["normal"] as Vector3).y < cos(body.floor_max_angle):
 		return
@@ -179,7 +235,13 @@ static func _lift_step(body: CharacterBody3D, height: float, delta: float) -> vo
 		body.move_and_collide(Vector3.UP * rise)
 
 
-static func _push_support(actor: E_CharacterBodyPlayer, body: CharacterBody3D, motion: C_Motion, config: C_CharacterBody, delta: float) -> void:
+static func _push_support(
+	actor: E_CharacterBodyPlayer,
+	body: CharacterBody3D,
+	motion: C_Motion,
+	config: C_CharacterBody,
+	delta: float,
+) -> void:
 	if actor.ground_ray == null or not motion.is_on_floor:
 		return
 

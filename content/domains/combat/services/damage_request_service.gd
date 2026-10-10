@@ -7,17 +7,32 @@ class_name DamageRequestService
 ## Dispatches a snapshot; true means accepted, completion is exclusively DamageResult.EVENT.
 static func submit(request: DamageRequest) -> bool:
 	if request == null:
-		BoundaryTrace.record(&"damage.submit", &"", BoundaryTraceEntry.Stage.REJECTED, &"invalid_target")
+		BoundaryTrace.record(
+			&"damage.submit",
+			&"",
+			BoundaryTraceEntry.Stage.REJECTED,
+			&"invalid_target",
+		)
 		return false
 	if not EntityAvailability.contains(request.target, ECS.world):
-		BoundaryTrace.record(&"damage.submit", request.correlation_id,
-			BoundaryTraceEntry.Stage.REJECTED, &"invalid_target", request.origin_id,
-			request.target_id)
+		BoundaryTrace.record(
+			&"damage.submit",
+			request.correlation_id,
+			BoundaryTraceEntry.Stage.REJECTED,
+			&"invalid_target",
+			request.origin_id,
+			request.target_id,
+		)
 		return false
 	if not request.target.has_component(C_Health):
-		BoundaryTrace.record(&"damage.submit", request.correlation_id,
-			BoundaryTraceEntry.Stage.REJECTED, &"missing_health", request.origin_id,
-			ActorIdentityRules.trace_key_for(request.target))
+		BoundaryTrace.record(
+			&"damage.submit",
+			request.correlation_id,
+			BoundaryTraceEntry.Stage.REJECTED,
+			&"missing_health",
+			request.origin_id,
+			ActorIdentityRules.trace_key_for(request.target),
+		)
 		return false
 
 	var snapshot: DamageRequest = DamageRequest.new()
@@ -40,11 +55,20 @@ static func submit(request: DamageRequest) -> bool:
 	if snapshot.correlation_id.is_empty():
 		snapshot.correlation_id = BoundaryTrace.next_id(&"damage")
 	if request.operation == DamageRequest.Operation.DAMAGE:
-		snapshot.combat_context = request.combat_context.duplicate(true) as CombatContext if request.combat_context != null else CombatAttribution.describe(snapshot)
+		snapshot.combat_context = (
+			request.combat_context.duplicate(true) as CombatContext
+			if request.combat_context != null
+			else CombatAttribution.describe(snapshot)
+		)
 
-	BoundaryTrace.record(&"damage.submit", snapshot.correlation_id,
-		BoundaryTraceEntry.Stage.ACCEPTED, &"dispatched", snapshot.origin_id,
-		snapshot.target_id)
+	BoundaryTrace.record(
+		&"damage.submit",
+		snapshot.correlation_id,
+		BoundaryTraceEntry.Stage.ACCEPTED,
+		&"dispatched",
+		snapshot.origin_id,
+		snapshot.target_id,
+	)
 	ECS.world.emit_event(DamageRequest.EVENT, snapshot.target, snapshot)
 	return true
 #endregion

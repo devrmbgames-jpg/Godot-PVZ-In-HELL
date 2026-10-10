@@ -5,6 +5,7 @@ class_name GrabQueries
 ## Группа тел, исключённых из обычной переноски.
 const NO_CARRY_GROUP: StringName = &"no_carry"
 
+
 #region Live grip and slot queries
 ## Читает авторитетную связь удержания непосредственно у предмета.
 static func held_relationship(entity: Entity) -> Relationship:
@@ -47,8 +48,8 @@ static func held_in_slot(holder: Entity, slot_index: int) -> Entity:
 		GrabHoldCache.reset_holder(holder, slot_index)
 	return null
 
-
 #endregion
+
 
 #region Carry eligibility and hand selection
 ## Проверяет физический кандидат Carry без учёта текущего Strength держателя.
@@ -63,8 +64,7 @@ static func is_carry_candidate(body: RigidBody3D) -> bool:
 ## Возвращает true, только если подходящее тело невозможно поднять именно из-за массы.
 static func is_too_heavy(body: RigidBody3D, strength: C_Strength) -> bool:
 	return (
-		is_carry_candidate(body)
-		and strength != null
+		is_carry_candidate(body) and strength != null
 		and not CarryLoadPolicy.can_carry(body.mass, strength)
 	)
 
@@ -141,8 +141,8 @@ static func pickup_slot_for_body(
 		return pickup_slot(holder, handle, replacement_button)
 	return C_Grabbable.HoldSlot.CARRY if not replacement_button else -1
 
-
 #endregion
+
 
 #region Physical anchors and actor availability
 ## Возвращает луч держателя для наведения и повторной проверки подбора.
@@ -208,10 +208,7 @@ static func carry_distance(control: C_GrabControl, config: C_Grabbable) -> float
 
 
 ## Выбирает дистанцию Carry в метрах из фактического профиля либо настроек держателя.
-static func carry_distance_profile(
-	control: C_GrabControl,
-	profile: GrabControlProfile,
-) -> float:
+static func carry_distance_profile(control: C_GrabControl, profile: GrabControlProfile) -> float:
 	if control == null or profile == null:
 		return 0.0
 	if profile.allowed_hand_slots != 0:

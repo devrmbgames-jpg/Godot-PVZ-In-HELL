@@ -2,7 +2,13 @@ extends Resource
 ## Постоянная атрибуция боя без живых ссылок участника, оружия и цели.
 class_name CombatContext
 
-enum Reason { ORDINARY_ATTACK, SELF_DEFENSE, FRAUD_ESCALATION, JUSTIFIED_RETALIATION, CHALLENGE_ESCALATION }
+enum Reason {
+	ORDINARY_ATTACK,
+	SELF_DEFENSE,
+	FRAUD_ESCALATION,
+	JUSTIFIED_RETALIATION,
+	CHALLENGE_ESCALATION,
+}
 
 ## Причина конфликта для последующего учёта результата.
 @export var reason: Reason = Reason.ORDINARY_ATTACK

@@ -18,7 +18,13 @@ static func can_place(actor: Entity, area: E_PlacementArea) -> bool:
 	var item: Entity = GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
 	if config == null or not GrabQueries.entity_available(item):
 		return false
-	if config.filter != null and not ItemAccessRules.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter):
+	if (
+		config.filter != null
+		and not ItemAccessRules.matches(
+			item.get_component(C_AccessItem) as C_AccessItem,
+			config.filter,
+		)
+	):
 		return false
 
 	var body: RigidBody3D = GrabQueries.physical_body(item)
@@ -44,12 +50,26 @@ static func can_place(actor: Entity, area: E_PlacementArea) -> bool:
 	query.exclude = excluded
 	if not body.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty():
 		return false
-	return _clear_path(body, area.anchor.global_transform, excluded, config.collision_mask | body.collision_mask, config.clearance_margin)
+	return (
+		_clear_path(
+			body,
+			area.anchor.global_transform,
+			excluded,
+			config.collision_mask | body.collision_mask,
+			config.clearance_margin,
+		)
+	)
 
 
 ## Перед полкой можно выровнять посылку по высоте, затем задвинуть её внутрь.
 ## Каждый сегмент проверяется до отпускания; обход стен и занятых мест не допускается.
-static func _clear_path(body: RigidBody3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
+static func _clear_path(
+	body: RigidBody3D,
+	destination: Transform3D,
+	excluded: Array[RID],
+	mask: int,
+	margin: float,
+) -> bool:
 	if BodyPlacementQuery.clear_path(body, destination, excluded, mask, margin):
 		return true
 

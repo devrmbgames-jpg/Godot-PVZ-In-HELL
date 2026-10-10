@@ -2,7 +2,13 @@ extends Resource
 ## Сохраняемый прогресс действия на цели; живые участники и управление UI здесь не хранятся.
 class_name ProlongedInteractionProgress
 
-enum Phase { IDLE, ADVANCING, READY, WAITING_FOR_RELEASE, COMPLETED }
+enum Phase {
+	IDLE,
+	ADVANCING,
+	READY,
+	WAITING_FOR_RELEASE,
+	COMPLETED,
+}
 
 ## Постоянный ID действия, связывающий его с прогрессом на цели.
 @export var action_id: StringName = &""

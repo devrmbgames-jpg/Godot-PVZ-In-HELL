@@ -7,15 +7,29 @@ const ROTATION_EPSILON: float = 0.001
 
 
 #region Физическая проверка пути
-## Проверяет путь от текущего transform без перемещения тела; mask задаёт слои, margin — зазор в метрах.
-static func clear_path(body: RigidBody3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
+## Проверяет путь от текущего transform без перемещения тела; mask задаёт слои, margin — зазор в
+## метрах.
+static func clear_path(
+	body: RigidBody3D,
+	destination: Transform3D,
+	excluded: Array[RID],
+	mask: int,
+	margin: float,
+) -> bool:
 	if not is_instance_valid(body):
 		return false
 	return clear_path_from(body, body.global_transform, destination, excluded, mask, margin)
 
 
 ## Проверяет сегмент предполагаемого пути без перемещения физического тела.
-static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
+static func clear_path_from(
+	body: RigidBody3D,
+	start: Transform3D,
+	destination: Transform3D,
+	excluded: Array[RID],
+	mask: int,
+	margin: float,
+) -> bool:
 	if not is_instance_valid(body) or not body.is_inside_tree() or not destination.is_finite():
 		return false
 	if not start.is_finite():

@@ -6,4 +6,4 @@ class_name C_ImpactProtection
 const SAVE_FIELDS: Array[String] = ["tier"]
 
 ## Полностью блокирует физическую тяжесть до этого уровня; более сильный удар не ослабляется.
-@export var tier: ImpactResult.Severity = ImpactResult.Severity.None
+@export var tier: ImpactResult.Severity = ImpactResult.Severity.NONE

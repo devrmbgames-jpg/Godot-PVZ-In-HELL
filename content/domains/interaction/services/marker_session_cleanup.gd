@@ -2,6 +2,7 @@ extends RefCounted
 ## Очищает transient marker session и непрерывность штриха, сохраняя чернила коробки.
 class_name MarkerSessionCleanup
 
+
 #region Session cleanup
 ## Сбрасывает штрих и токен; actor_hint сохраняет держателя после удаления хвата.
 static func end(tool_or_marker: Variant, actor_hint: Entity = null) -> void:

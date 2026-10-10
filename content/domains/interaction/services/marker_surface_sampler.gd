@@ -43,8 +43,8 @@ static func sample(tool: Entity, actor: Entity, marker: C_Marker) -> MarkerSurfa
 	if not PackageMarkService.drawable(parcel):
 		return null
 
-	var result: MarkerSurfaceSample = MarkerSurfaceSample.new()
-	result.parcel = parcel
-	result.world_point = hit["position"] as Vector3
-	result.world_normal = hit["normal"] as Vector3
-	return result
+	var surface_sample: MarkerSurfaceSample = MarkerSurfaceSample.new()
+	surface_sample.parcel = parcel
+	surface_sample.world_point = hit["position"] as Vector3
+	surface_sample.world_normal = hit["normal"] as Vector3
+	return surface_sample

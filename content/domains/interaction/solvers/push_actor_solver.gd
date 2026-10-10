@@ -6,7 +6,10 @@ class_name PushActorSolver
 ## Корректирует горизонтальную скорость к ручке; true означает, что движение занято толканием.
 static func integrate(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	var cart: Entity = PushService.pushed_object(actor)
-	if cart == null or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.PUSH:
+	if (
+		cart == null
+		or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.PUSH
+	):
 		return false
 	if not PushService.valid_pair(actor, cart):
 		PushService.end(actor, cart)
@@ -22,8 +25,8 @@ static func integrate(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	var correction: Vector3 = handle_position - state.transform.origin
 	correction.y = 0.0
 	var correction_speed: Vector3 = (correction / state.step).limit_length(config.follow_speed)
-	var desired: Vector3 = (body.linear_velocity + correction_speed).limit_length(
-		config.forward_speed + config.follow_speed
-	)
+	var desired: Vector3 = (
+		body.linear_velocity + correction_speed
+	).limit_length(config.forward_speed + config.follow_speed)
 	state.linear_velocity = Vector3(desired.x, state.linear_velocity.y, desired.z)
 	return true

@@ -4,10 +4,10 @@ class_name ImpactResult
 
 const EVENT: StringName = &"physical_impact"
 enum Severity {
-	None,
-	Weak,
-	Medium,
-	Strong,
+	NONE,
+	WEAK,
+	MEDIUM,
+	STRONG,
 }
 
 ## Настоящая повреждающая Entity; null означает физическое окружение.
@@ -15,7 +15,7 @@ var source: Entity = null
 ## Получатель оценённого столкновения.
 var target: Entity = null
 ## Тяжесть потенциального удара до ограничения фактической потери HP.
-var severity: Severity = Severity.None
+var severity: Severity = Severity.NONE
 ## Расчётная сумма урона, после защиты и ограничения при дальнейшей обработке.
 var amount: float = 0.0
 ## Переданная энергия в джоулях.

@@ -11,10 +11,10 @@ class_name E_PushableBody
 func _ready() -> void:
 	var self_node: Node = self
 	var self_rigid: RigidBody3D = self_node as RigidBody3D
-	if self_rigid :
-		for col in exception_collision_list :
+	if self_rigid:
+		for col in exception_collision_list:
 			self_rigid.add_collision_exception_with(col)
-			if col is StaticBody3D :
+			if col is StaticBody3D:
 				col.add_collision_exception_with(self_rigid)
 
 

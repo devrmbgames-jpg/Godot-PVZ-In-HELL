@@ -8,7 +8,8 @@ const TERRAIN_MASK: int = 1
 
 
 #region Следование водителя
-## В callback корректирует скорость водителя к ручке; true резервирует его движение транспортным сеансом.
+## В callback корректирует скорость водителя к ручке; true резервирует его движение транспортным
+## сеансом.
 static func integrate(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	var cart: Entity = CartTransportService.current(actor)
 	if (
@@ -34,8 +35,8 @@ static func integrate(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	_lift_driver(actor, body, config, state)
 	return true
 
-
 #endregion
+
 
 #region Проход водителя по ступеньке
 static func _lift_driver(

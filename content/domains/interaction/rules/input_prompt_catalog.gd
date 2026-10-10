@@ -3,9 +3,15 @@ extends RefCounted
 class_name InputPromptCatalog
 
 const SOURCE: String = "res://resources/kenney/kenney_input_prompts/"
-const FAMILIES: PackedStringArray = ["keyboard_mouse", "xbox_series", "playstation_series", "steam_controller", "steam_deck"]
+const FAMILIES: PackedStringArray = [
+	"keyboard_mouse",
+	"xbox_series",
+	"playstation_series",
+	"steam_controller",
+	"steam_deck",
+]
 
-static var _textures: Dictionary[String, Texture2D] = {}
+static var _textures: Dictionary[String, Texture2D] = { }
 
 
 ## Путь к исходному спрайту; отсутствующая кнопка возвращает пустую строку для fallback устройства.

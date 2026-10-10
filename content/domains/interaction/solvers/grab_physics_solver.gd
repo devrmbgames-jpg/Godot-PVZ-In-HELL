@@ -9,7 +9,8 @@ const ANCHOR_TRANSITION_SECONDS: float = 0.5
 
 
 #region Физические адаптеры
-## Применяет силу и угловую скорость через PhysicsDirectBodyState3D; false требует освобождения хвата.
+## Применяет силу и угловую скорость через PhysicsDirectBodyState3D; false требует освобождения
+## хвата.
 static func integrate_state(
 	state: PhysicsDirectBodyState3D,
 	anchor: Node3D,
@@ -22,13 +23,7 @@ static func integrate_state(
 
 	var desired_position: Vector3 = _desired_position(anchor, grip)
 	var position_error: Vector3 = desired_position - state.transform.origin
-	if not _sample_anchor(
-		anchor,
-		grip,
-		state.step,
-		position_error,
-		allowed_break_distance,
-	):
+	if not _sample_anchor(anchor, grip, state.step, position_error, allowed_break_distance):
 		return false
 
 	var anchor_velocity: Vector3 = _sampled_anchor_velocity(
@@ -74,21 +69,10 @@ static func integrate_body(
 
 	var desired_position: Vector3 = _desired_position(anchor, grip)
 	var position_error: Vector3 = desired_position - body.global_position
-	if not _sample_anchor(
-		anchor,
-		grip,
-		step,
-		position_error,
-		allowed_break_distance,
-	):
+	if not _sample_anchor(anchor, grip, step, position_error, allowed_break_distance):
 		return false
 
-	var anchor_velocity: Vector3 = _sampled_anchor_velocity(
-		anchor,
-		grip,
-		desired_position,
-		step,
-	)
+	var anchor_velocity: Vector3 = _sampled_anchor_velocity(anchor, grip, desired_position, step)
 	body.apply_central_force(
 		position_force(
 			position_error,
@@ -107,8 +91,8 @@ static func integrate_body(
 	_commit_anchor_sample(anchor, grip, desired_position)
 	return true
 
-
 #endregion
+
 
 #region Расчёт силы и скорости
 ## Рассчитывает ограниченную силу в ньютонах с массой, гравитацией и демпфированием.
@@ -123,13 +107,12 @@ static func position_force(
 		return Vector3.ZERO
 
 	var acceleration: Vector3 = (
-		position_error * profile.position_stiffness
-		+ velocity_error * profile.position_damping
+		position_error * profile.position_stiffness + velocity_error * profile.position_damping
 		- gravity
 	)
-	return (acceleration * maxf(body_mass, MIN_MASS)).limit_length(
-		maxf(profile.max_hold_force, 0.0)
-	)
+	return (
+		acceleration * maxf(body_mass, MIN_MASS)
+	).limit_length(maxf(profile.max_hold_force, 0.0))
 
 
 ## Рассчитывает кратчайший поворот как ограниченную угловую скорость в рад/с; step в секундах.
@@ -152,18 +135,21 @@ static func rotation_velocity(
 		rotation_error = axis_vector.normalized() * 2.0 * atan2(axis_vector.length(), error.w)
 	return (rotation_error / step).limit_length(maxf(profile.max_rotation_speed, 0.0))
 
-
 #endregion
+
 
 #region Точка удержания и её движение
 static func _desired_position(anchor: Node3D, grip: R_HeldBy) -> Vector3:
 	return anchor.global_position - anchor.global_basis.z * grip.hold_distance
 
 
-static func _desired_rotation(anchor: Node3D, grip: R_HeldBy, profile: GrabControlProfile) -> Quaternion:
+static func _desired_rotation(
+	anchor: Node3D,
+	grip: R_HeldBy,
+	profile: GrabControlProfile,
+) -> Quaternion:
 	var desired: Quaternion = (
-		anchor.global_basis.orthonormalized().get_rotation_quaternion()
-		* grip.rotation_offset
+		anchor.global_basis.orthonormalized().get_rotation_quaternion() * grip.rotation_offset
 	).normalized()
 	if not profile.keep_upright:
 		return desired
@@ -202,8 +188,7 @@ static func _sampled_anchor_velocity(
 ) -> Vector3:
 	if (
 		grip.anchor_sample_valid
-		and grip.previous_anchor_id == anchor.get_instance_id()
-		and step > 0.0
+		and grip.previous_anchor_id == anchor.get_instance_id() and step > 0.0
 	):
 		return (desired_position - grip.previous_anchor_position) / step
 	return Vector3.ZERO
@@ -219,6 +204,7 @@ static func _commit_anchor_sample(
 	grip.anchor_sample_valid = true
 
 #endregion
+
 
 #region Entity physical callback and suspended-hand allowance
 ## В физическом callback применяет удержание по точке живой связи; не перемещает transform напрямую.
@@ -248,19 +234,8 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		GrabReleaseService.release(holder, entity, false)
 		return
 
-	var break_limit: float = allowed_break_distance(
-		holder,
-		anchor,
-		grip_data,
-		profile,
-	)
-	if not GrabPhysicsSolver.integrate_state(
-		state,
-		anchor,
-		grip_data,
-		profile,
-		break_limit,
-	):
+	var break_limit: float = allowed_break_distance(holder, anchor, grip_data, profile)
+	if not GrabPhysicsSolver.integrate_state(state, anchor, grip_data, profile, break_limit):
 		GrabReleaseService.release(holder, entity, false)
 
 
@@ -287,8 +262,8 @@ static func allowed_break_distance(
 		allowed += normal_anchor.global_position.distance_to(anchor.global_position)
 	return allowed
 
-
 #endregion
+
 
 #region Manual rotation and throw impulse
 ## Применяет ручной поворот с ограничением авторских осей вращения.

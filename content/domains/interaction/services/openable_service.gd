@@ -2,7 +2,11 @@ extends RefCounted
 ## Владеет логическими переходами и предложением движения; физическое тело не перемещает.
 class_name OpenableService
 
-enum Operation { OPEN, CLOSE, UNLOCK }
+enum Operation {
+	OPEN,
+	CLOSE,
+	UNLOCK,
+}
 
 ## Допуск доли открытия для подтверждения достижения: мотор подходит к границе асимптотически.
 const ENDPOINT_TOLERANCE: float = 0.02
@@ -24,7 +28,10 @@ static func can_request(actor: Entity, target: Entity, operation: Operation) -> 
 	if breakable != null and health != null:
 		if breakable.mode == C_BreakableDoor.Mode.LEAF and health.depleted:
 			return false
-		if breakable.mode == C_BreakableDoor.Mode.PADLOCK and not health.depleted and operation == Operation.UNLOCK:
+		if (
+			breakable.mode == C_BreakableDoor.Mode.PADLOCK
+			and not health.depleted and operation == Operation.UNLOCK
+		):
 			return false
 
 	match operation:
@@ -48,7 +55,12 @@ static func request(actor: Entity, target: Entity, operation: Operation) -> bool
 	match operation:
 		Operation.OPEN:
 			state.requested_open = true
-			_track_player_request(actor, target, true, state.actual_fraction < 1.0 - ENDPOINT_TOLERANCE)
+			_track_player_request(
+				actor,
+				target,
+				true,
+				state.actual_fraction < 1.0 - ENDPOINT_TOLERANCE,
+			)
 		Operation.CLOSE:
 			state.requested_open = false
 			_track_player_request(actor, target, false, state.actual_fraction > ENDPOINT_TOLERANCE)
@@ -81,11 +93,16 @@ static func cancel_player_request(target: Entity) -> void:
 		if binding.relation is R_OpenableRequestedBy:
 			target.remove_relationship(binding)
 
-
 #endregion
 
+
 #region Атрибуция запроса игрока
-static func _track_player_request(actor: Entity, target: Entity, goal_open: bool, needs_motion: bool) -> void:
+static func _track_player_request(
+	actor: Entity,
+	target: Entity,
+	goal_open: bool,
+	needs_motion: bool,
+) -> void:
 	cancel_player_request(target)
 	if not needs_motion or not actor.has_component(C_PlayerInputController):
 		return
@@ -102,16 +119,25 @@ static func _complete_player_request(target: Entity, state: C_Openable) -> void:
 			continue
 
 		var actor: Entity = binding.target as Entity if is_instance_valid(binding.target) else null
-		if not GrabQueries.holder_available(actor) or pending.goal_open != state.requested_open or state.locked:
+		if (
+			not GrabQueries.holder_available(actor)
+			or pending.goal_open != state.requested_open or state.locked
+		):
 			target.remove_relationship(binding)
 			continue
 
-		var reached: bool = state.actual_fraction >= 1.0 - ENDPOINT_TOLERANCE if pending.goal_open else state.actual_fraction <= ENDPOINT_TOLERANCE
+		var reached: bool = false
+		if pending.goal_open:
+			reached = state.actual_fraction >= 1.0 - ENDPOINT_TOLERANCE
+		else:
+			reached = state.actual_fraction <= ENDPOINT_TOLERANCE
 		if reached:
 			# Связь удаляется первой: вложенный подписчик не увидит тот же ожидающий переход.
 			target.remove_relationship(binding)
-			PlayerInteractionEvents.publish(actor, target, PlayerInteractionEvent.Kind.DOOR_OPENED if pending.goal_open else PlayerInteractionEvent.Kind.DOOR_CLOSED)
-
+			var event_kind: PlayerInteractionEvent.Kind = PlayerInteractionEvent.Kind.DOOR_CLOSED
+			if pending.goal_open:
+				event_kind = PlayerInteractionEvent.Kind.DOOR_OPENED
+			PlayerInteractionEvents.publish(actor, target, event_kind)
 
 #endregion
 

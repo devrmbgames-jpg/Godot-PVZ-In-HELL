@@ -7,7 +7,10 @@ const EVENT: StringName = &"light_flickering"
 ## Стартовый интервал смены видимости лампы в секундах.
 const DEFAULT_INTERVAL_SECONDS: float = 0.15
 
-enum Kind { START, STOP }
+enum Kind {
+	START,
+	STOP,
+}
 
 ## Запуск или отмена запроса мерцания.
 var kind: Kind = Kind.START

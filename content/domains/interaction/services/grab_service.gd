@@ -3,9 +3,6 @@ extends RefCounted
 class_name GrabService
 
 
-
-
-
 #region Команды хвата и физическое исполнение
 ## Проверяет всю транзакцию до освобождения предмета из занятой руки.
 static func can_pickup(
@@ -44,7 +41,10 @@ static func can_pickup_body(
 	if resolved_handle == null:
 		resolved_handle = PhysicsGrabTarget.handle_for(body, false)
 	if resolved_handle != null:
-		if not GrabQueries.entity_available(resolved_handle) or GrabQueries.held_relationship(resolved_handle) != null:
+		if (
+			not GrabQueries.entity_available(resolved_handle)
+			or GrabQueries.held_relationship(resolved_handle) != null
+		):
 			return false
 		if CustomerInspectionQueries.owner_for(resolved_handle) != null:
 			return false
@@ -103,15 +103,34 @@ static func try_pickup(
 
 
 ## Проверяет луч по слоту хранения: у закреплённого предмета столкновения отключены.
-static func can_take_from_storage(holder: Entity, target: Entity, slot_index: int, replace: bool = false) -> bool:
+static func can_take_from_storage(
+	holder: Entity,
+	target: Entity,
+	slot_index: int,
+	replace: bool = false,
+) -> bool:
 	var binding: Relationship = PhysicalSlotService.relationship(target)
 	if binding == null:
 		return false
-	return can_pickup_body(holder, GrabQueries.physical_body(target), slot_index, replace, target, binding)
+	return (
+		can_pickup_body(
+			holder,
+			GrabQueries.physical_body(target),
+			slot_index,
+			replace,
+			target,
+			binding,
+		)
+	)
 
 
 ## Повторно проверяет перенос из слота, освобождает прежний предмет руки и приобретает хват.
-static func take_from_storage(holder: Entity, target: Entity, slot_index: int, replace: bool = false) -> bool:
+static func take_from_storage(
+	holder: Entity,
+	target: Entity,
+	slot_index: int,
+	replace: bool = false,
+) -> bool:
 	if not can_take_from_storage(holder, target, slot_index, replace):
 		return false
 
@@ -202,7 +221,6 @@ static func throw(holder: Entity, held: Entity) -> void:
 	if not impulse.is_zero_approx():
 		ThrowContext.arm(held, holder)
 
-
 #endregion
 
 
@@ -214,8 +232,8 @@ static func refresh_carry_mass(held: Entity) -> void:
 	if grip == null or body == null:
 		return
 
-	var data: R_HeldBy = grip.relation as R_HeldBy
-	if not data.lifecycle_applied or data.slot != C_Grabbable.HoldSlot.CARRY:
+	var held_state: R_HeldBy = grip.relation as R_HeldBy
+	if not held_state.lifecycle_applied or held_state.slot != C_Grabbable.HoldSlot.CARRY:
 		return
 
 	var holder: Entity = grip.target as Entity
@@ -236,9 +254,9 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 		grip_data.profile = GrabQueries.profile_for(held)
 	var profile: GrabControlProfile = grip_data.profile
 	var is_invalid: bool = (
-		not GrabQueries.holder_available(holder) or not GrabQueries.entity_available(held) or body == null
-		or PhysicalSlotService.relationship(held) != null
-		or body.freeze or profile == null or not is_instance_valid(GrabQueries.object_anchor(holder, held))
+		not GrabQueries.holder_available(holder) or not GrabQueries.entity_available(held)
+		or body == null or PhysicalSlotService.relationship(held) != null or body.freeze
+		or profile == null or not is_instance_valid(GrabQueries.object_anchor(holder, held))
 	)
 	if is_invalid:
 		return false
@@ -249,10 +267,14 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 		return false
 
 	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
-	if grip_data.slot == C_Grabbable.HoldSlot.CARRY and not GrabQueries.can_carry_body(body, strength):
+	if (
+		grip_data.slot == C_Grabbable.HoldSlot.CARRY
+		and not GrabQueries.can_carry_body(body, strength)
+	):
 		return false
 	if (
-		GrabQueries.held_relationship(held) != grip or not GrabQueries.profile_slot_allowed(profile, grip_data.slot)
+		GrabQueries.held_relationship(held) != grip
+		or not GrabQueries.profile_slot_allowed(profile, grip_data.slot)
 		or GrabQueries.held_in_slot(holder, grip_data.slot) != null
 	):
 		return false
@@ -289,6 +311,5 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	if held.has_component(C_Package):
 		PlayerInteractionEvents.publish(holder, held, PlayerInteractionEvent.Kind.PARCEL_PICKED)
 	return true
-
 
 #endregion

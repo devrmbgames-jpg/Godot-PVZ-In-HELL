@@ -2,6 +2,7 @@ extends RefCounted
 ## Сопоставляет ID и теги предмета с авторским требованием без выбора или расходования.
 class_name ItemAccessRules
 
+
 #region Authored requirement matching
 ## Проверяет точный ID и все заданные теги на одном предмете.
 static func matches(identity: C_AccessItem, requirement: DEF_AccessRequirement) -> bool:

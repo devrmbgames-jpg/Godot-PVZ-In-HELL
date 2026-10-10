@@ -211,7 +211,10 @@ func test_wrap_only_consumes_on_valid_package_protection_increase() -> void:
 	parcel.component_resources = [C_Package.new(), health]
 	EntityCompositionFixture.register(_world, parcel)
 	assert_true(InventoryService.use(_owner, item, parcel))
-	assert_eq((parcel.get_component(C_ImpactProtection) as C_ImpactProtection).tier, ImpactResult.Severity.Medium)
+	assert_eq(
+		(parcel.get_component(C_ImpactProtection) as C_ImpactProtection).tier,
+		ImpactResult.Severity.MEDIUM,
+	)
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 1)
 	assert_false(InventoryService.use(_owner, item, parcel))
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 1)

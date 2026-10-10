@@ -151,9 +151,7 @@ static func commit(request: SmartObjectRequest, world: World) -> void:
 	receipt.status = (
 		SmartObjectReceipt.Status.SUCCEEDED
 		if succeeded
-		else SmartObjectReceipt \
-				.Status \
-				.REJECTED
+		else SmartObjectReceipt.Status.REJECTED
 	)
 	receipt.reason = &"executed" if succeeded else &"executor_rejected"
 #endregion

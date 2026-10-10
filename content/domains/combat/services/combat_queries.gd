@@ -2,6 +2,7 @@ extends RefCounted
 ## Читает живую цель боя из авторитетного R_CombatTarget без combat commands.
 class_name CombatQueries
 
+
 #region Operations
 ## Читает живого противника из R_CombatTarget.
 static func target_for(actor: Entity) -> Entity:

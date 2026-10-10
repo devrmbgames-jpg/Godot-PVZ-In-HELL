@@ -11,7 +11,8 @@ const INPUT_ACTIONS: Array[StringName] = [
 
 
 #region Действия и подсказки
-## Выбирает доступное действие канала без исполнения; excluded_capture исключает собственный токен сеанса.
+## Выбирает доступное действие канала без исполнения; excluded_capture исключает собственный токен
+## сеанса.
 static func resolve(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,
@@ -25,7 +26,9 @@ static func resolve(
 	if interactor == null or controller == null:
 		return null
 
-	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor, excluded_capture)
+	var focus: InteractionControlFocus.Priority = (
+		InteractionControlFocus.current(actor, excluded_capture)
+	)
 	if focus >= InteractionControlFocus.Priority.PROLONGED:
 		return null
 
@@ -93,11 +96,11 @@ static func resolve(
 	):
 		var target_action: InteractionActionChoice = _target_action(actor, target, input_slot)
 		var authored_grab: bool = (
-			target != null
-			and (target.get_component(C_Grabbable) as C_Grabbable) != null
+			target != null and (target.get_component(C_Grabbable) as C_Grabbable) != null
 			and GrabQueries.physical_body(target) == physics_target
 		)
-		# Авторское действие имеет приоритет, если сущность не определила собственное поведение Grab.
+		# Авторское действие имеет приоритет, если сущность не определила собственное поведение
+		# Grab.
 		if target_action != null and not authored_grab:
 			return target_action
 
@@ -114,7 +117,9 @@ static func resolve(
 			pickup.hold_slot = selected
 			pickup.replace_occupant = replace
 			pickup.physical_body = physics_target
-			pickup.caption = "Заменить" if GrabQueries.held_in_slot(actor, selected) != null else "Взять"
+			pickup.caption = (
+				"Заменить" if GrabQueries.held_in_slot(actor, selected) != null else "Взять"
+			)
 
 			if selected != C_Grabbable.HoldSlot.CARRY:
 				var right_hand: bool = selected == C_Grabbable.HoldSlot.RIGHT_HAND
@@ -123,7 +128,6 @@ static func resolve(
 			return _choice(pickup, handle, target)
 		return target_action
 
-
 	var held: Entity = GrabQueries.held_in_slot(
 		actor,
 		GrabQueries.mapped_hand(actor, input_slot == DEF_InteractionAction.Slot.SECONDARY),
@@ -131,7 +135,8 @@ static func resolve(
 	if held != null:
 		if controller.physical_override:
 			return _physical(actor, held, DEF_GrabAction.Kind.THROW)
-		# PRIMARY означает применение инструмента независимо от сопоставления физической руки кнопке.
+		# PRIMARY означает применение инструмента независимо от сопоставления физической руки
+		# кнопке.
 		return _from_source(actor, held, target, DEF_InteractionAction.Slot.PRIMARY)
 	return _from_source(actor, actor, target, input_slot)
 
@@ -142,10 +147,12 @@ static func rotation_choice(actor: Entity) -> InteractionActionChoice:
 		return null
 
 	for secondary: bool in [false, true]:
-		var held: Entity = GrabQueries.held_in_slot(actor, GrabQueries.mapped_hand(actor, secondary))
-		var result: InteractionActionChoice = _physical(actor, held, DEF_GrabAction.Kind.ROTATE)
-		if result != null:
-			return result
+		var held: Entity = (
+			GrabQueries.held_in_slot(actor, GrabQueries.mapped_hand(actor, secondary))
+		)
+		var choice: InteractionActionChoice = _physical(actor, held, DEF_GrabAction.Kind.ROTATE)
+		if choice != null:
+			return choice
 
 	return null
 
@@ -199,14 +206,31 @@ static func refresh_prompt(actor: Entity) -> void:
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var lines: PackedStringArray = []
 	var prolonged: Relationship = ProlongedInteractionService.session(actor)
-	if prolonged != null and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PROLONGED:
-		var data: R_ProlongedOn = prolonged.relation as R_ProlongedOn
-		interactor.prompt_text = "[удерживать %s] %s" % [button_label(data.input_slot), data.action.caption]
+	if (
+		prolonged != null
+		and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PROLONGED
+	):
+		var session_state: R_ProlongedOn = prolonged.relation as R_ProlongedOn
+		interactor.prompt_text = (
+			"[удерживать %s] %s"
+			% [button_label(session_state.input_slot), session_state.action.caption]
+		)
 		return
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.TRANSPORT:
-		lines.append("%s / %s Вперёд / назад · %s / %s Поворот" % [InputPromptService.token(&"forward"), InputPromptService.token(&"back"), InputPromptService.token(&"left"), InputPromptService.token(&"right")])
+		lines.append(
+			"%s / %s Вперёд / назад · %s / %s Поворот"
+			% [
+				InputPromptService.token(&"forward"),
+				InputPromptService.token(&"back"),
+				InputPromptService.token(&"left"),
+				InputPromptService.token(&"right"),
+			]
+		)
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.DRAWING:
-		interactor.prompt_text = "Маркер · кнопка руки + мышь · %s / %s Завершить" % [InputPromptService.token(&"interact"), InputPromptService.token(&"menu")]
+		interactor.prompt_text = (
+			"Маркер · кнопка руки + мышь · %s / %s Завершить"
+			% [InputPromptService.token(&"interact"), InputPromptService.token(&"menu")]
+		)
 		return
 
 	var interact_choice: InteractionActionChoice = resolve(
@@ -232,13 +256,16 @@ static func refresh_prompt(actor: Entity) -> void:
 			):
 				lines.append(
 					"%s + %s Бросить"
-					% [InputPromptService.token(&"physical_override"), button_label(
-						(
-							DEF_InteractionAction.Slot.SECONDARY
-							if secondary
-							else DEF_InteractionAction.Slot.PRIMARY
-						)
-					)]
+					% [
+						InputPromptService.token(&"physical_override"),
+						button_label(
+							(
+								DEF_InteractionAction.Slot.SECONDARY
+								if secondary
+								else DEF_InteractionAction.Slot.PRIMARY
+							)
+						),
+					]
 				)
 		if rotation_choice(actor) != null:
 			lines.append("%s + мышь Вращать" % InputPromptService.token(&"rotate_held"))
@@ -266,8 +293,8 @@ static func _access_denial(actor: Entity, interactor: C_Interactor) -> String:
 	if lock == null or not lock.locked:
 		return ""
 
-	var result: AccessResult = ItemAccessService.evaluate(actor, lock.access)
-	match result.outcome:
+	var access: AccessResult = ItemAccessService.evaluate(actor, lock.access)
+	match access.outcome:
 		AccessResult.Outcome.ITEM_REQUIRED:
 			return "Заперто · нужен подходящий ключ или предмет"
 
@@ -311,7 +338,8 @@ static func button_label(slot_index: int) -> String:
 
 
 #region Исполнение и выбор источника
-## Resolves and executes one explicit channel request; scheduled input arbitration belongs to S_InteractionInput.
+## Resolves and executes one explicit channel request; scheduled input arbitration belongs to
+## S_InteractionInput.
 static func execute_slot(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,
@@ -347,8 +375,7 @@ static func _target_action(
 		if (
 			action != null
 			and (
-				action.action is DEF_PhysicalSlotAction
-				or not action.action.allow_interact_fallback
+				action.action is DEF_PhysicalSlotAction or not action.action.allow_interact_fallback
 			)
 		):
 			return null

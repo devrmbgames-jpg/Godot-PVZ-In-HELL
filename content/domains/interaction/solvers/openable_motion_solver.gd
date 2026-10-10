@@ -1,6 +1,8 @@
 extends RefCounted
-## Pure physical motion proposals; body callbacks own transforms and report actual fractions separately.
+## Pure physical motion proposals; body callbacks own transforms and report actual fractions
+## separately.
 class_name OpenableMotionSolver
+
 
 #region Предложение движения
 ## Предлагает ограниченную долю движения за delta секунд, сохраняя положение при замке или ошибке.
@@ -13,7 +15,9 @@ static func proposed_fraction(state: C_Openable, delta: float) -> float:
 	var duration: float = state.motion.duration_seconds
 	if not is_finite(duration) or duration <= 0.0:
 		return state.actual_fraction
-	return move_toward(state.actual_fraction, 1.0 if state.requested_open else 0.0, delta / duration)
+	return (
+		move_toward(state.actual_fraction, 1.0 if state.requested_open else 0.0, delta / duration)
+	)
 
 
 ## Интерполирует авторские локальные положения по ограниченной доле 0–1.

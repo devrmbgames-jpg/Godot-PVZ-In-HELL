@@ -5,7 +5,14 @@ class_name PlayerInteractionEvent
 ## Канал World с подтверждённым взаимодействием игрока.
 const EVENT: StringName = &"player_interaction"
 
-enum Kind { TERMINAL_OPENED, TERMINAL_CLOSED, PARCEL_PICKED, PARCEL_PLACED, DOOR_OPENED, DOOR_CLOSED }
+enum Kind {
+	TERMINAL_OPENED,
+	TERMINAL_CLOSED,
+	PARCEL_PICKED,
+	PARCEL_PLACED,
+	DOOR_OPENED,
+	DOOR_CLOSED,
+}
 
 ## Вид уже состоявшегося перехода.
 var kind: Kind = Kind.TERMINAL_OPENED

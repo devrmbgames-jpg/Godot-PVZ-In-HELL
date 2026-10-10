@@ -24,10 +24,10 @@ static func try_begin(actor: Entity, cart: Entity) -> bool:
 	if not can_begin(actor, cart):
 		return false
 
-	var data: R_PushedBy = R_PushedBy.new()
-	var binding: Relationship = Relationship.new(data, actor)
+	var push_state: R_PushedBy = R_PushedBy.new()
+	var binding: Relationship = Relationship.new(push_state, actor)
 	cart.add_relationship(binding)
-	if not data.lifecycle_applied and not push_added(cart, binding):
+	if not push_state.lifecycle_applied and not push_added(cart, binding):
 		cart.remove_relationship(binding)
 	return pushed_object(actor) == cart
 
@@ -41,8 +41,8 @@ static func end(actor: Entity, cart: Entity) -> void:
 	cart.remove_relationship(binding)
 	push_removed(cart, binding)
 
-
 #endregion
+
 
 #region Эффекты живой связи
 ## Проверяет новую связь, захватывает PUSH и обновляет производный кеш и настройки сна.
@@ -57,18 +57,18 @@ static func push_added(cart: Entity, binding: Relationship) -> bool:
 	if pushed_object(actor) != null:
 		return false
 
-	var data: R_PushedBy = binding.relation as R_PushedBy
+	var push_state: R_PushedBy = binding.relation as R_PushedBy
 	var body: RigidBody3D = cart as Node as RigidBody3D
-	if data == null or body == null:
+	if push_state == null or body == null:
 		return false
 
-	data.previous_can_sleep = body.can_sleep
-	data.capture_token = InteractionControlFocus.acquire(
+	push_state.previous_can_sleep = body.can_sleep
+	push_state.capture_token = InteractionControlFocus.acquire(
 		actor,
 		cart,
 		InteractionControlFocus.Priority.PUSH,
 	)
-	data.lifecycle_applied = true
+	push_state.lifecycle_applied = true
 	control.pushed_object = cart
 	body.can_sleep = false
 	body.sleeping = false
@@ -83,15 +83,15 @@ static func push_added(cart: Entity, binding: Relationship) -> bool:
 
 ## Однократно освобождает токен, кеш и обработчики, восстанавливая разрешение сна тележки.
 static func push_removed(cart: Entity, binding: Relationship) -> void:
-	var data: R_PushedBy = binding.relation as R_PushedBy
-	if data == null or not data.lifecycle_applied:
+	var push_state: R_PushedBy = binding.relation as R_PushedBy
+	if push_state == null or not push_state.lifecycle_applied:
 		return
 
-	data.lifecycle_applied = false
+	push_state.lifecycle_applied = false
 	var actor: Entity = binding.target as Entity if is_instance_valid(binding.target) else null
 	var cleanup: Callable = end.bind(actor, cart)
 	if is_instance_valid(actor):
-		InteractionControlFocus.release(actor, data.capture_token)
+		InteractionControlFocus.release(actor, push_state.capture_token)
 		var control: C_PushControl = actor.get_component(C_PushControl) as C_PushControl
 		if control != null and control.pushed_object == cart:
 			control.pushed_object = null
@@ -101,7 +101,7 @@ static func push_removed(cart: Entity, binding: Relationship) -> void:
 	if is_instance_valid(cart):
 		var body: RigidBody3D = cart as Node as RigidBody3D
 		if body != null:
-			body.can_sleep = data.previous_can_sleep
+			body.can_sleep = push_state.previous_can_sleep
 		if cart.tree_exiting.is_connected(cleanup):
 			cart.tree_exiting.disconnect(cleanup)
 
@@ -115,8 +115,8 @@ static func entity_unavailable(entity: Entity) -> void:
 	if cart != null:
 		end(entity, cart)
 
-
 #endregion
+
 
 #region Кеш и допустимость пары
 ## Читает авторитетную R_PushedBy непосредственно у тележки.
@@ -188,8 +188,8 @@ static func forward(cart: Entity) -> Vector3:
 	direction.y = 0.0
 	return direction.normalized()
 
-
 #endregion
+
 
 #region Физическая видимость
 static func _clear_path(actor: Entity, body: RigidBody3D) -> bool:

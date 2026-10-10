@@ -6,8 +6,14 @@ const MOTION_EPSILON: float = 0.0001
 
 
 #region Мотор и измеренный прогресс
-## Измеряет фактическое положение, подтверждает прогресс и задаёт мотор шарнира либо линейного joint.
-static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: Generic6DOFJoint3D) -> void:
+## Измеряет фактическое положение, подтверждает прогресс и задаёт мотор шарнира либо линейного
+## joint.
+static func step(
+	entity: Entity,
+	body: RigidBody3D,
+	hinge: HingeJoint3D,
+	slide: Generic6DOFJoint3D,
+) -> void:
 	var state: C_Openable = entity.get_component(C_Openable) as C_Openable
 	if state == null or state.motion == null or not EntityAvailability.contains(entity, ECS.world):
 		return
@@ -25,7 +31,9 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 			return
 
 		var axis: Vector3 = rotation.get_axis()
-		var actual: Quaternion = (closed.inverse() * local.basis.get_rotation_quaternion()).normalized()
+		var actual: Quaternion = (
+			(closed.inverse() * local.basis.get_rotation_quaternion()).normalized()
+		)
 		var actual_angle: float = actual.get_angle() * actual.get_axis().dot(axis)
 		OpenableService.report_fraction(state, clampf(actual_angle / angle, 0.0, 1.0), entity)
 		var error: float = target_fraction * angle - actual_angle
@@ -43,7 +51,9 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 		if distance <= MOTION_EPSILON:
 			return
 
-		var actual_distance: float = (local.origin - motion.closed_transform.origin).dot(travel / distance)
+		var actual_distance: float = (
+			(local.origin - motion.closed_transform.origin).dot(travel / distance)
+		)
 		OpenableService.report_fraction(state, clampf(actual_distance / distance, 0.0, 1.0), entity)
 		var error: float = target_fraction * distance - actual_distance
 		var velocity: float = _motor_velocity(error, distance, state)
@@ -58,8 +68,8 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 		slide.set("linear_motor_y/force_limit", motion.slide_motor_force_limit)
 		slide.set("linear_motor_z/force_limit", motion.slide_motor_force_limit)
 
-
 #endregion
+
 
 #region Ограничение скорости
 static func _motor_velocity(error: float, extent: float, state: C_Openable) -> float:

@@ -3,13 +3,17 @@ extends RefCounted
 class_name ProjectileService
 
 const PROJECTILE_SCENE: PackedScene = preload(
-	"res://content/domains/combat/entities/combat_projectile.tscn")
+	"res://content/domains/combat/entities/combat_projectile.tscn"
+)
+
 
 #region Launch construction
 ## Prepares velocity/damage/attribution/source before one compiled native registration.
 static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool:
-	if not GrabQueries.holder_available(actor) or not GrabQueries.holder_available(target) \
-			or not is_instance_valid(ECS.world):
+	if (
+		not GrabQueries.holder_available(actor)
+		or not GrabQueries.holder_available(target) or not is_instance_valid(ECS.world)
+	):
 		return false
 
 	var projectile: Entity = PROJECTILE_SCENE.instantiate() as Entity
@@ -30,7 +34,8 @@ static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool
 	state.velocity = origin.direction_to(CombatGeometry.aim_point(target)) * attack.projectile_speed
 	state.remaining_seconds = attack.projectile_lifetime
 	state.damage = attack.damage * HungerRules.damage_multiplier(
-		actor.get_component(C_Hunger) as C_Hunger)
+		actor.get_component(C_Hunger) as C_Hunger
+	)
 	state.collision_mask = attack.collision_mask
 	var request: DamageRequest = DamageRequest.new()
 	request.instigator = actor
@@ -44,8 +49,11 @@ static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool
 	# Initial pose is owned by this construction boundary; no flight tick has run yet.
 	ECS.world.add_child(projectile)
 	(projectile as Node as Node3D).global_position = origin
-	var context: EntitySpawnContext = EntityCompositionService.context_for(projectile, ECS.world,
-		projectile.id if not projectile.id.is_empty() else GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		projectile,
+		ECS.world,
+		projectile.id if not projectile.id.is_empty() else GECSIO.uuid(),
+	)
 	context.bindings[&"source"] = actor
 	var source_intent: EntityInitialBinding = EntityInitialBinding.new()
 	source_intent.relation = R_ProjectileSource.new()

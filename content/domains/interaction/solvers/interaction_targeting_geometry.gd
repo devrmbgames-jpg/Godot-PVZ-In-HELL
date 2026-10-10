@@ -61,22 +61,23 @@ static func visual_target(holder: Entity, interactor: C_Interactor) -> Node:
 		else null
 	)
 
-
 #endregion
+
 
 #region Авторитетный луч
 static func _raycast_collider(holder: Entity, interactor: C_Interactor) -> Object:
 	var interaction_raycast: RayCast3D = GrabQueries.interaction_raycast(holder)
 	if (
 		not is_instance_valid(interaction_raycast)
-		or not interaction_raycast.is_inside_tree()
-		or interactor == null
+		or not interaction_raycast.is_inside_tree() or interactor == null
 	):
 		return null
 
 	interaction_raycast.enabled = true
 	# Объём площадки помогает наводиться с Carry; без груза луч видит саму посылку.
-	interaction_raycast.collide_with_areas = GrabQueries.held_in_slot(holder, C_Grabbable.HoldSlot.CARRY) != null
+	interaction_raycast.collide_with_areas = (
+		GrabQueries.held_in_slot(holder, C_Grabbable.HoldSlot.CARRY) != null
+	)
 	interaction_raycast.target_position = Vector3.FORWARD * maxf(
 		interactor.interaction_distance,
 		0.1,

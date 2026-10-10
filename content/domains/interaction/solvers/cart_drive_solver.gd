@@ -9,7 +9,8 @@ const TERRAIN_MASK: int = 1
 
 
 #region Физический шаг тележки
-## Продвигает физическую тележку, ограничивает отставание водителя без clock определения груза; delta в секундах.
+## Продвигает физическую тележку, ограничивает отставание водителя без clock определения груза;
+## delta в секундах.
 static func step(cart: E_TransportCart, delta: float) -> void:
 	if not GrabQueries.entity_available(cart) or delta <= 0.0:
 		CartCargoService.release_all(cart)
@@ -25,12 +26,12 @@ static func step(cart: E_TransportCart, delta: float) -> void:
 	var binding: Relationship = CartTransportService.relationship(cart)
 	if binding != null:
 		var actor: Entity = binding.target as Entity
-		var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
+		var drive_state: R_CartDrivenBy = binding.relation as R_CartDrivenBy
 		var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 		if not CartTransportService.driver_valid(body, config, actor):
 			CartTransportService.end(cart)
 		elif (
-			data != null and data.capture_token != 0
+			drive_state != null and drive_state.capture_token != 0
 			and focus == InteractionControlFocus.Priority.TRANSPORT
 		):
 			var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
@@ -68,15 +69,11 @@ static func step(cart: E_TransportCart, delta: float) -> void:
 		body.move_and_slide()
 	config.actual_velocity = (body.global_position - previous_position) / delta
 
-
 #endregion
 
+
 #region Отставание, поворот и ступенька
-static func _driver_lag(
-	body: CharacterBody3D,
-	config: C_CartTransport,
-	actor: Entity,
-) -> float:
+static func _driver_lag(body: CharacterBody3D, config: C_CartTransport, actor: Entity) -> float:
 	var actor_node: Node3D = actor as Node as Node3D
 	if actor_node == null:
 		return 0.0

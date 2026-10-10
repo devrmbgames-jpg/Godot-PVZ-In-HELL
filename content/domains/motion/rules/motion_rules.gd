@@ -4,6 +4,7 @@ class_name MotionRules
 
 const DEFAULT_FRICTION: float = 1.0
 
+
 #region Shared locomotion calculations
 ## Speed in metres per second from authored speed, sprint, carry Strength and hunger policies.
 static func effective_speed(
@@ -15,7 +16,10 @@ static func effective_speed(
 	var carry_multiplier: float = 1.0
 	if carry_load != null and carry_load.active:
 		carry_multiplier = CarryLoadPolicy.active_multiplier(carry_load, strength)
-	return motion.max_speed * motion.sprint_multiplier * carry_multiplier * HungerRules.speed_multiplier(hunger)
+	return (
+		motion.max_speed * motion.sprint_multiplier
+		* carry_multiplier * HungerRules.speed_multiplier(hunger)
+	)
 
 
 ## Computes control traction from an optional authored support material.

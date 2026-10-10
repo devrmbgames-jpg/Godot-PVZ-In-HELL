@@ -32,11 +32,12 @@ func _physics_process(delta: float) -> void:
 	if not _leaf_broken:
 		super._physics_process(delta)
 
-
 #endregion
 
+
 #region Представление разрушения и точка удара
-## Синхронизирует видимость и столкновения разрушенной двери; запись истощённого Health остаётся для сохранения.
+## Синхронизирует видимость и столкновения разрушенной двери; запись истощённого Health остаётся для
+## сохранения.
 func sync_destruction_view() -> void:
 	var config: C_BreakableDoor = get_component(C_BreakableDoor) as C_BreakableDoor
 	var health: C_Health = get_component(C_Health) as C_Health
@@ -49,7 +50,8 @@ func sync_destruction_view() -> void:
 		status.visible = DebugHudService.is_enabled()
 		status.text = "%s · HP %.0f/%.0f\n%s" % [
 			"Замок" if config.mode == C_BreakableDoor.Mode.PADLOCK else "Дверь",
-			health.get_hp_current(), health.get_hp_max(),
+			health.get_hp_current(),
+			health.get_hp_max(),
 			"Разрушено" if broken else "Ударьте ножом или молотком",
 		]
 	if config.mode == C_BreakableDoor.Mode.PADLOCK:
@@ -74,7 +76,10 @@ func sync_destruction_view() -> void:
 func strike_point() -> Vector3:
 	var config: C_BreakableDoor = get_component(C_BreakableDoor) as C_BreakableDoor
 	var aim: Node3D = get_node_or_null("ColInteract") as Node3D
-	if config != null and config.mode == C_BreakableDoor.Mode.PADLOCK and is_instance_valid(door_root):
+	if (
+		config != null and config.mode == C_BreakableDoor.Mode.PADLOCK
+		and is_instance_valid(door_root)
+	):
 		aim = door_root.get_node_or_null("Padlock") as Node3D
 	return aim.global_position if aim != null else (self as Node as Node3D).global_position
 

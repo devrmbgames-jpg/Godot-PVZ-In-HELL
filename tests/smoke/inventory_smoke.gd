@@ -68,7 +68,10 @@ func _run() -> void:
 	_click("Аптечка")
 	assert((_actor.get_component(C_Health) as C_Health).current == 85.0)
 	_click("Пузырчатая плёнка")
-	assert((parcel.get_component(C_ImpactProtection) as C_ImpactProtection).tier == ImpactResult.Severity.Medium)
+	var protection: C_ImpactProtection = (
+		parcel.get_component(C_ImpactProtection) as C_ImpactProtection
+	)
+	assert(protection.tier == ImpactResult.Severity.MEDIUM)
 	assert((InventoryService.item_by_id(_actor, _item_id("bubble_wrap")).get_component(C_InventoryItem) as C_InventoryItem).quantity == 2)
 	assert(EntityAvailability.contains(parcel, ECS.world))
 

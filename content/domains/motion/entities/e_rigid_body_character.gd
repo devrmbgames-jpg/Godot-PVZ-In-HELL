@@ -4,7 +4,6 @@ extends E_PhysicalCharacter
 class_name E_RigidBodyCharacter
 
 
-
 #region Настройка физического типа
 func _init() -> void:
 	if Engine.is_editor_hint():
@@ -12,8 +11,8 @@ func _init() -> void:
 		set_process(false)
 	assert(self as Node as RigidBody3D, "is not rigid!")
 
-
 #endregion
+
 
 #region Физический callback
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:

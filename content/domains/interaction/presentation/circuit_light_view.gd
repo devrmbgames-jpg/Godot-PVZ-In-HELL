@@ -41,8 +41,8 @@ func _process(delta: float) -> void:
 func _exit_tree() -> void:
 	_disconnect()
 
-
 #endregion
+
 
 #region Публичное состояние представления
 ## Возвращает фазу часов мерцания; состояние выключателя проверяется отдельно.
@@ -55,8 +55,8 @@ func cancel_flicker() -> void:
 	_remaining = 0.0
 	_request_id = &""
 
-
 #endregion
+
 
 #region Подписка на события текущего мира
 func _bind_observer() -> void:
@@ -91,7 +91,10 @@ func _on_flicker(event: LightFlickerRequest) -> void:
 		if event.request_id == _request_id:
 			cancel_flicker()
 		return
-	if not is_finite(event.duration_seconds) or event.duration_seconds <= 0.0 or not is_finite(event.interval_seconds) or event.interval_seconds <= 0.0:
+	if (
+		not is_finite(event.duration_seconds) or event.duration_seconds <= 0.0
+		or not is_finite(event.interval_seconds) or event.interval_seconds <= 0.0
+	):
 		return
 
 	_request_id = event.request_id

@@ -5,6 +5,7 @@ class_name CartCargoGeometry
 const SUPPORT_DISTANCE: float = 0.06
 const MIN_SUPPORT_NORMAL: float = 0.7
 
+
 #region Native support geometry
 ## Tests real physical support on the cart or already-bound stacked cargo.
 static func supported(body: RigidBody3D, cart: Entity) -> bool:
@@ -22,6 +23,5 @@ static func supported(body: RigidBody3D, cart: Entity) -> bool:
 
 	var binding: Relationship = CartCargoQueries.relationship(support)
 	return binding != null and binding.target == cart
-
 
 #endregion

@@ -12,38 +12,38 @@ static func evaluate(
 	normal_impulse: float,
 	profile: DEF_ImpactProfile,
 ) -> ImpactResult:
-	var result: ImpactResult = ImpactResult.new()
+	var impact: ImpactResult = ImpactResult.new()
 	if profile == null or not is_finite(source_mass) or source_mass <= 0.0:
-		return result
+		return impact
 	if not is_finite(normal_speed) or not is_finite(normal_impulse):
-		return result
+		return impact
 	if normal_speed <= 0.0 or normal_impulse <= 0.0:
-		return result
+		return impact
 	if normal_speed < profile.minimum_speed or normal_impulse < profile.minimum_impulse:
-		return result
+		return impact
 
 	var kinetic_energy: float = ENERGY_FACTOR * source_mass * normal_speed * normal_speed
 	var contact_work: float = ENERGY_FACTOR * normal_impulse * normal_speed
-	result.transferred_energy = minf(kinetic_energy, contact_work)
-	result.amount = maxf(0.0, result.transferred_energy - profile.absorption_joules)
-	result.amount *= maxf(0.0, profile.damage_per_joule)
-	if not is_finite(result.amount):
+	impact.transferred_energy = minf(kinetic_energy, contact_work)
+	impact.amount = maxf(0.0, impact.transferred_energy - profile.absorption_joules)
+	impact.amount *= maxf(0.0, profile.damage_per_joule)
+	if not is_finite(impact.amount):
 		return ImpactResult.new()
 
-	result.qualifies = true
-	result.severity = classify(result.amount, profile)
-	return result
+	impact.qualifies = true
+	impact.severity = classify(impact.amount, profile)
+	return impact
 
 
 ## Классифицирует потенциальный урон с возможным бонусом действующего броска.
 static func classify(amount: float, profile: DEF_ImpactProfile) -> ImpactResult.Severity:
 	if amount <= 0.0:
-		return ImpactResult.Severity.None
+		return ImpactResult.Severity.NONE
 	if amount >= profile.strong_damage:
-		return ImpactResult.Severity.Strong
+		return ImpactResult.Severity.STRONG
 	if amount >= profile.medium_damage:
-		return ImpactResult.Severity.Medium
-	return ImpactResult.Severity.Weak
+		return ImpactResult.Severity.MEDIUM
+	return ImpactResult.Severity.WEAK
 
 
 ## Ограничивает только численную потерю HP; тяжесть определяется до этого вызова.

@@ -31,11 +31,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		)
 		var position: Vector3 = entity.camera_root.position
 		var previous_height: float = position.y
-		position.y = move_toward(
-			position.y,
-			target_height,
-			crouch.transition_speed * delta,
-		)
+		position.y = move_toward(position.y, target_height, crouch.transition_speed * delta)
 		entity.camera_root.position = position
 		# Авторизованная геометрия крепления StaticBody; stored body ведёт его RemoteTransform.
 		var belt_delta: float = (position.y - previous_height) * crouch.belt_lowering_ratio

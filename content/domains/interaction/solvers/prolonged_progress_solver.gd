@@ -26,7 +26,9 @@ static func advance(
 	if progress.phase == ProlongedInteractionProgress.Phase.WAITING_FOR_RELEASE:
 		return false
 
-	progress.fraction = clampf(progress.fraction + delta / definition.duration_seconds, 0.0, COMPLETE_FRACTION)
+	progress.fraction = (
+		clampf(progress.fraction + delta / definition.duration_seconds, 0.0, COMPLETE_FRACTION)
+	)
 	if progress.fraction >= COMPLETE_FRACTION:
 		progress.phase = ProlongedInteractionProgress.Phase.READY
 		return true
@@ -43,7 +45,10 @@ static func commit_success(
 ) -> bool:
 	if not _valid(progress, definition):
 		return false
-	if progress.phase != ProlongedInteractionProgress.Phase.READY or progress.fraction < COMPLETE_FRACTION:
+	if (
+		progress.phase != ProlongedInteractionProgress.Phase.READY
+		or progress.fraction < COMPLETE_FRACTION
+	):
 		return false
 	if definition.reset_policy == DEF_ProlongedInteraction.ResetPolicy.NEVER:
 		progress.phase = ProlongedInteractionProgress.Phase.COMPLETED
@@ -69,8 +74,8 @@ static func interrupt(
 		progress.fraction = 0.0
 	progress.phase = ProlongedInteractionProgress.Phase.IDLE
 
-
 #endregion
+
 
 #region Допустимость авторских данных
 static func _valid(
@@ -81,10 +86,10 @@ static func _valid(
 		progress != null and definition != null
 		and progress.phase >= ProlongedInteractionProgress.Phase.IDLE
 		and progress.phase <= ProlongedInteractionProgress.Phase.COMPLETED
-		and is_finite(progress.fraction)
-		and progress.fraction >= 0.0 and progress.fraction <= COMPLETE_FRACTION
-		and is_finite(definition.duration_seconds) and definition.duration_seconds > 0.0
-		and is_finite(definition.decay_per_second) and definition.decay_per_second >= 0.0
+		and is_finite(progress.fraction) and progress.fraction >= 0.0
+		and progress.fraction <= COMPLETE_FRACTION and is_finite(definition.duration_seconds)
+		and definition.duration_seconds > 0.0 and is_finite(definition.decay_per_second)
+		and definition.decay_per_second >= 0.0
 		and definition.reset_policy >= DEF_ProlongedInteraction.ResetPolicy.DECAY
 		and definition.reset_policy <= DEF_ProlongedInteraction.ResetPolicy.NEVER
 	)

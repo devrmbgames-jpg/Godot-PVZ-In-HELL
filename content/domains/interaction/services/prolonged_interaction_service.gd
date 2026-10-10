@@ -18,7 +18,9 @@ static func progress_for(target: Entity, action_id: StringName) -> ProlongedInte
 	if not is_instance_valid(target):
 		return null
 
-	var state: C_ProlongedInteraction = target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	var state: C_ProlongedInteraction = (
+		target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	)
 	if state != null:
 		for progress: ProlongedInteractionProgress in state.actions:
 			if progress.action_id == action_id:
@@ -26,9 +28,14 @@ static func progress_for(target: Entity, action_id: StringName) -> ProlongedInte
 	return null
 
 
-## Задаёт отладочный прогресс 0–1, не перехватывая активный сеанс и не возобновляя завершённое действие.
+## Задаёт отладочный прогресс 0–1, не перехватывая активный сеанс и не возобновляя завершённое
+## действие.
 static func debug_set_progress(target: Entity, action: DEF_InteractionAction, value: float) -> bool:
-	if not EntityAvailability.contains(target, ECS.world) or action == null or action.timing == null or action.action_id == &"" or not is_finite(value) or value < 0.0 or value > 1.0:
+	if (
+		not EntityAvailability.contains(target, ECS.world)
+		or action == null or action.timing == null or action.action_id == &""
+		or not is_finite(value) or value < 0.0 or value > 1.0
+	):
 		return false
 
 	for actor: Entity in ECS.world.entities:
@@ -37,10 +44,18 @@ static func debug_set_progress(target: Entity, action: DEF_InteractionAction, va
 			return false
 
 	var progress: ProlongedInteractionProgress = progress_for(target, action.action_id)
-	if progress != null and (progress.phase == ProlongedInteractionProgress.Phase.COMPLETED or progress.timing != action.timing):
+	if (
+		progress != null
+		and (
+			progress.phase == ProlongedInteractionProgress.Phase.COMPLETED
+			or progress.timing != action.timing
+		)
+	):
 		return false
 	if progress == null:
-		var state: C_ProlongedInteraction = target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+		var state: C_ProlongedInteraction = (
+			target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+		)
 		if state == null:
 			state = C_ProlongedInteraction.new()
 			target.add_component(state)
@@ -59,12 +74,16 @@ static func active_progress(actor: Entity) -> ProlongedInteractionProgress:
 	if binding == null:
 		return null
 
-	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
-	return progress_for(binding.target as Entity, data.action.action_id)
+	var session_state: R_ProlongedOn = binding.relation as R_ProlongedOn
+	return progress_for(binding.target as Entity, session_state.action.action_id)
 
 
 ## Проверяет участников и свободную цель, создаёт связи и захватывает приоритет PROLONGED.
-static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_InteractionAction.Slot) -> bool:
+static func begin(
+	actor: Entity,
+	choice: InteractionActionChoice,
+	slot: DEF_InteractionAction.Slot,
+) -> bool:
 	if choice == null or choice.action == null or session(actor) != null:
 		return false
 
@@ -93,7 +112,9 @@ static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_Inte
 		if occupied != null and occupied.target == target:
 			return false
 
-	var state: C_ProlongedInteraction = target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	var state: C_ProlongedInteraction = (
+		target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	)
 	if state == null:
 		state = C_ProlongedInteraction.new()
 		target.add_component(state)
@@ -103,17 +124,23 @@ static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_Inte
 		progress.action_id = action.action_id
 		progress.timing = action.timing
 		state.actions.append(progress)
-	if progress.timing != action.timing or progress.phase in [ProlongedInteractionProgress.Phase.COMPLETED, ProlongedInteractionProgress.Phase.READY]:
+	if (
+		progress.timing != action.timing
+		or progress.phase
+		in [ProlongedInteractionProgress.Phase.COMPLETED, ProlongedInteractionProgress.Phase.READY]
+	):
 		return false
 
-	var data: R_ProlongedOn = R_ProlongedOn.new()
-	data.action = action
-	data.input_slot = slot
-	data.capture_token = InteractionControlFocus.acquire(actor, target, InteractionControlFocus.Priority.PROLONGED)
-	if data.capture_token == 0:
+	var session_state: R_ProlongedOn = R_ProlongedOn.new()
+	session_state.action = action
+	session_state.input_slot = slot
+	session_state.capture_token = (
+		InteractionControlFocus.acquire(actor, target, InteractionControlFocus.Priority.PROLONGED)
+	)
+	if session_state.capture_token == 0:
 		return false
 
-	var binding: Relationship = Relationship.new(data, target)
+	var binding: Relationship = Relationship.new(session_state, target)
 	actor.add_relationship(binding)
 	if choice.source != target:
 		actor.add_relationship(Relationship.new(R_ProlongedUsing.new(), choice.source))
@@ -123,8 +150,8 @@ static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_Inte
 			participant.tree_exiting.connect(cleanup)
 	return true
 
-
 #endregion
+
 
 #region Исполнение и освобождение участия
 ## Очищает ресурсы сеанса и удаляет его связь; повтор безопасен.
@@ -138,21 +165,24 @@ static func cancel(actor: Entity) -> void:
 
 ## Освобождает токен и обработчики удалённой связи однократно, учитывая завершение эффекта.
 static func removed(actor: Entity, binding: Relationship) -> void:
-	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
-	if data == null or data.cleaned:
+	var session_state: R_ProlongedOn = binding.relation as R_ProlongedOn
+	if session_state == null or session_state.cleaned:
 		return
 
-	data.cleaned = true
+	session_state.cleaned = true
 	var target: Entity = binding.target as Entity
 	var source: Entity = source_for(actor, target)
 	var cleanup: Callable = _cancel_session.bind(actor, binding)
 	for participant: Entity in [actor, target, source]:
 		if is_instance_valid(participant) and participant.tree_exiting.is_connected(cleanup):
 			participant.tree_exiting.disconnect(cleanup)
-	var progress: ProlongedInteractionProgress = progress_for(target, data.action.action_id)
-	if progress != null and not data.finishing:
-		ProlongedProgressSolver.interrupt(progress, data.action.timing)
-	InteractionControlFocus.release(actor, data.capture_token)
+	var progress: ProlongedInteractionProgress = progress_for(
+		target,
+		session_state.action.action_id,
+	)
+	if progress != null and not session_state.finishing:
+		ProlongedProgressSolver.interrupt(progress, session_state.action.timing)
+	InteractionControlFocus.release(actor, session_state.capture_token)
 	for relation: Relationship in actor.relationships.duplicate():
 		if relation.relation is R_ProlongedUsing:
 			actor.remove_relationship(relation)
@@ -166,7 +196,10 @@ static func entity_unavailable(entity: Entity) -> void:
 	cancel(entity)
 	for actor: Entity in ECS.world.entities.duplicate():
 		var binding: Relationship = session(actor)
-		if binding != null and (binding.target == entity or source_for(actor, binding.target as Entity) == entity):
+		if (
+			binding != null
+			and (binding.target == entity or source_for(actor, binding.target as Entity) == entity)
+		):
 			cancel(actor)
 
 
@@ -181,14 +214,14 @@ static func source_removed(actor: Entity, source_binding: Relationship) -> void:
 	var cleanup: Callable = _cancel_session.bind(actor, binding)
 	if is_instance_valid(source) and source.tree_exiting.is_connected(cleanup):
 		source.tree_exiting.disconnect(cleanup)
-	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
-	if data.cleaned:
+	var session_state: R_ProlongedOn = binding.relation as R_ProlongedOn
+	if session_state.cleaned:
 		return
 
 	cancel(actor)
 
-
 #endregion
+
 
 #region Живые связи и канал ввода
 ## Resolves the authoritative live tool relationship, otherwise the target itself.
@@ -202,6 +235,5 @@ static func source_for(actor: Entity, target: Entity) -> Entity:
 static func _cancel_session(actor: Entity, binding: Relationship) -> void:
 	if session(actor) == binding:
 		cancel(actor)
-
 
 #endregion

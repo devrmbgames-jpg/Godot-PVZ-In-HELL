@@ -49,11 +49,7 @@ static func active_multiplier(carry_load: C_CarryLoad, strength: C_Strength) -> 
 
 
 ## Масштабирует неотрицательное базовое значение общим коэффициентом активного Carry.
-static func scaled_value(
-	base_value: float,
-	carry_load: C_CarryLoad,
-	strength: C_Strength,
-) -> float:
+static func scaled_value(base_value: float, carry_load: C_CarryLoad, strength: C_Strength) -> float:
 	return maxf(base_value, 0.0) * active_multiplier(carry_load, strength)
 
 

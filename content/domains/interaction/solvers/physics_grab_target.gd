@@ -41,8 +41,11 @@ static func handle_for(body: RigidBody3D, create_proxy: bool = false) -> Entity:
 	var reference: C_PhysicsBodyRef = C_PhysicsBodyRef.new()
 	reference.body = body
 	proxy.component_resources = [reference]
-	var context: EntitySpawnContext = EntityCompositionService.context_for(proxy, ECS.world,
-		GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		proxy,
+		ECS.world,
+		GECSIO.uuid(),
+	)
 	if not EntityCompositionService.try_register(context):
 		proxy.free()
 		return null
@@ -64,8 +67,8 @@ static func is_proxy(handle: Entity) -> bool:
 		and (handle.get_component(C_PhysicsBodyRef) as C_PhysicsBodyRef) != null
 	)
 
-
 #endregion
+
 
 #region Кеш и освобождение прокси
 static func _cached_proxy(body: RigidBody3D) -> Entity:
@@ -83,8 +86,7 @@ static func _cached_proxy(body: RigidBody3D) -> Entity:
 
 static func _registered(entity: Entity) -> bool:
 	return (
-		is_instance_valid(entity)
-		and is_instance_valid(ECS.world)
+		is_instance_valid(entity) and is_instance_valid(ECS.world)
 		and ECS.world.entity_to_archetype.has(entity)
 	)
 

@@ -4,6 +4,7 @@ class_name AnchoringRules
 
 const DIRECTION_EPSILON: float = 0.0001
 
+
 #region Authored rest policy
 ## Checks authored stable-time, motion and support bounds.
 static func valid_config(config: C_Anchorable) -> bool:

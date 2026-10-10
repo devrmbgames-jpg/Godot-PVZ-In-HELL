@@ -2,6 +2,7 @@ extends RefCounted
 ## Пишет производный slot cache и очищает Carry modifiers; владение остаётся в R_HeldBy.
 class_name GrabHoldCache
 
+
 #region Derived slot cache
 ## Очищает производный кеш слота и модификаторы Carry, не создавая владение.
 static func reset_holder(holder: Entity, slot_index: int = C_Grabbable.HoldSlot.CARRY) -> void:

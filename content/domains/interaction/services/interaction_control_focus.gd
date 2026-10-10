@@ -55,8 +55,8 @@ static func current(actor: Entity, excluded_token: int = 0) -> Priority:
 
 	return priority as Priority
 
-
 #endregion
+
 
 #region Данные актора
 static func _control(actor: Entity) -> C_GrabControl:

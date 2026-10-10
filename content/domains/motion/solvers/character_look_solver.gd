@@ -6,7 +6,8 @@ const ANGLE_EPSILON: float = 0.001
 
 
 #region Физический вход
-## Применяет прямой ввод или ограниченный поворот головы/корпуса; вызывается только из физического callback.
+## Применяет прямой ввод или ограниченный поворот головы/корпуса; вызывается только из физического
+## callback.
 static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectBodyState3D) -> void:
 	var grab_control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 	if grab_control != null and grab_control.rotation_active:
@@ -36,9 +37,7 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 		return
 
 	var max_rotation_step: float = (
-		deg_to_rad(look.look_acceleration)
-		* state.step
-		* mobility_multiplier
+		deg_to_rad(look.look_acceleration) * state.step * mobility_multiplier
 	)
 
 	_integrate_yaw(
@@ -53,8 +52,8 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 
 	_integrate_pitch(entity, look_direction, max_rotation_step)
 
-
 #endregion
+
 
 #region Прямой ввод и ориентация
 static func _integrate_direct_look(
@@ -62,7 +61,8 @@ static func _integrate_direct_look(
 	state: PhysicsDirectBodyState3D,
 	look_direction: Vector3,
 ) -> void:
-	# Поворот корпуса остаётся у физического тела; камера применяет прямой ввод без дополнительного лимита.
+	# Поворот корпуса остаётся у физического тела; камера применяет прямой ввод без дополнительного
+	# лимита.
 	var yaw: float = atan2(-look_direction.x, -look_direction.z)
 	var pose: Transform3D = state.transform
 	pose.basis = Basis(Vector3.UP, yaw)
@@ -83,11 +83,7 @@ static func _integrate_yaw(
 	max_rotation_step: float,
 	mobility_multiplier: float,
 ) -> void:
-	var flat_look_direction := Vector3(
-		look_direction.x,
-		0.0,
-		look_direction.z
-	)
+	var flat_look_direction := Vector3(look_direction.x, 0.0, look_direction.z)
 
 	if flat_look_direction.is_zero_approx():
 		return
@@ -102,15 +98,9 @@ static func _integrate_yaw(
 
 	body_forward = body_forward.normalized()
 
-	var body_yaw: float = atan2(
-		-body_forward.x,
-		-body_forward.z
-	)
+	var body_yaw: float = atan2(-body_forward.x, -body_forward.z)
 
-	var look_yaw: float = atan2(
-		-flat_look_direction.x,
-		-flat_look_direction.z
-	)
+	var look_yaw: float = atan2(-flat_look_direction.x, -flat_look_direction.z)
 
 	# ---------------------------------------------------------------------
 	# Движение.
@@ -134,54 +124,33 @@ static func _integrate_yaw(
 
 		# В Godot forward персонажа — -Z.
 		# Для направления -Z этот cross даёт +X, то есть вправо.
-		var look_right: Vector3 = (
-			flat_look_direction
-			.cross(Vector3.UP)
-			.normalized()
-		)
+		var look_right: Vector3 = (flat_look_direction.cross(Vector3.UP).normalized())
 
 		# -1 = движение полностью влево
 		#  0 = движение вперёд или назад
 		# +1 = движение полностью вправо
-		var lateral_motion: float = clampf(
-			motion_direction.dot(look_right),
-			-1.0,
-			1.0
-		)
+		var lateral_motion: float = clampf(motion_direction.dot(look_right), -1.0, 1.0)
 
-		var strafe_yaw_limit: float = deg_to_rad(
-			look.strafe_body_yaw_limit
-		)
+		var strafe_yaw_limit: float = deg_to_rad(look.strafe_body_yaw_limit)
 
 		# В используемой системе yaw движение вправо соответствует
 		# отрицательному углу.
-		var body_yaw_offset: float = (
-			-lateral_motion
-			* strafe_yaw_limit
-		)
+		var body_yaw_offset: float = (-lateral_motion * strafe_yaw_limit)
 
-		var motion_target_body_yaw: float = (
-			look_yaw
-			+ body_yaw_offset
-		)
+		var motion_target_body_yaw: float = (look_yaw + body_yaw_offset)
 
 		var motion_rotation_step: float = (
-			deg_to_rad(look.motion_alignment_acceleration)
-			* state.step
-			* mobility_multiplier
+			deg_to_rad(look.motion_alignment_acceleration) * state.step * mobility_multiplier
 		)
 
 		var motion_new_body_yaw: float = _move_toward_angle(
 			body_yaw,
 			motion_target_body_yaw,
-			motion_rotation_step
+			motion_rotation_step,
 		)
 
 		var motion_transform := state.transform
-		motion_transform.basis = Basis(
-			Vector3.UP,
-			motion_new_body_yaw
-		)
+		motion_transform.basis = Basis(Vector3.UP, motion_new_body_yaw)
 		state.transform = motion_transform
 
 		body_yaw = motion_new_body_yaw
@@ -190,26 +159,17 @@ static func _integrate_yaw(
 	# Голова компенсирует отклонение корпуса и продолжает смотреть
 	# точно в direction_look.
 	# ---------------------------------------------------------------------
-	var relative_yaw: float = angle_difference(
-		body_yaw,
-		look_yaw
-	)
+	var relative_yaw: float = angle_difference(body_yaw, look_yaw)
 
-	var head_limit: float = deg_to_rad(
-		look.head_yaw_limit
-	)
+	var head_limit: float = deg_to_rad(look.head_yaw_limit)
 
-	var desired_head_yaw: float = clampf(
-		relative_yaw,
-		-head_limit,
-		head_limit
-	)
+	var desired_head_yaw: float = clampf(relative_yaw, -head_limit, head_limit)
 
 	if entity.head_axis_y != null:
 		entity.head_axis_y.rotation.y = _move_toward_angle(
 			entity.head_axis_y.rotation.y,
 			desired_head_yaw,
-			max_rotation_step
+			max_rotation_step,
 		)
 
 	# Во время движения корпус уже управляется логикой выше.
@@ -228,28 +188,18 @@ static func _integrate_yaw(
 	if entity.head_axis_y != null:
 		var head_yaw_error: float = angle_difference(
 			entity.head_axis_y.rotation.y,
-			desired_head_yaw
+			desired_head_yaw,
 		)
 
 		if absf(head_yaw_error) > ANGLE_EPSILON:
 			return
 
-	var target_body_yaw: float = (
-		look_yaw
-		- signf(relative_yaw) * head_limit
-	)
+	var target_body_yaw: float = (look_yaw - signf(relative_yaw) * head_limit)
 
-	var new_body_yaw: float = _move_toward_angle(
-		body_yaw,
-		target_body_yaw,
-		max_rotation_step
-	)
+	var new_body_yaw: float = _move_toward_angle(body_yaw, target_body_yaw, max_rotation_step)
 
 	var transform := state.transform
-	transform.basis = Basis(
-		Vector3.UP,
-		new_body_yaw
-	)
+	transform.basis = Basis(Vector3.UP, new_body_yaw)
 
 	state.transform = transform
 
