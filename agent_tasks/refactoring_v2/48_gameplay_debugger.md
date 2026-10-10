@@ -51,7 +51,7 @@ events are capped at24 and include Entity/NPC/package/current-visit identities. 
 LimboAI Brain status/node/instance references route detailed inspection to its own debugger.
 
 Owner QA rejected oversized buttons/text and unreadable console overlap. Revised UI is
-REVIEW_PENDING, then OWNER_QA_PENDING. Controls use Unique Name; authored opaque background
+implemented and re-reviewed; OWNER_QA_PENDING. Controls use Unique Name; authored opaque background
 and theme_developer_console.tres provide14px fonts, compact styles and local base scale1.
 Adapter themes both text context menus and restores console presentation on teardown.
 Native container sizing keeps debugger/output/input separate, including640x360 half-height.
@@ -59,10 +59,16 @@ The owner conducts rendered/editor recheck;42 also remains pending.
 
 ## Validation / Evidence
 
-- Revised native layout/provider/lifecycle GUT PASS:15 tests/142 assertions,6.526s.
+- Revised native layout/provider/lifecycle/dock controller GUT PASS:17 tests/154 assertions,
+  7.142s.
   Includes640x360 half-height geometry, both context menus, opaque background and teardown.
   Log: tests/artifacts/refactoring_v2_42_48_ui_fix_gut.log. Fresh seven-script parser,
   formatter, strict architecture, structure and staged-agent checks PASS.
+- Content Doctor PASS92 scenes/three dialogues/zero errors and review gates,13.07s.
+  UI source226e127409cbb9af7dc8a4bda43e98055189851e; authoring review delta repair
+  9920424403941c6e6b816ffa52739968a63a5a52 and final lifetime fix
+  4fdf9867f50a3bee0718a783e17b26929602420e. Bounded re-review ARCHITECTURE/STYLE PASS;
+  reviewer VALIDATION NOT_RUN. Fresh final delta parser two/zero PASS.
 - Visual recheck NOT_RUN; headless layout does not prove subjective readability/focus.
 
 - PASS: provider/native panel/existing console GUT,21 tests /323 assertions

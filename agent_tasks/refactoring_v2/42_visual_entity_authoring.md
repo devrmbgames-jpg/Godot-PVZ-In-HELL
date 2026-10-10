@@ -49,7 +49,7 @@ Editor/tool tests где возможно + owner visual QA.
 
 Active Goal authorizes tasks 42–66 in dependency order. Task 41 is DONE.
 Owner QA rejected Inspector placement and found stale Level ID display; instance repair
-and validation were reported working. Revised implementation is **REVIEW_PENDING** and
+and validation were reported working. Revised implementation/re-review are complete and
 requires owner recheck; previous visual acceptance is not PASS.
 Baseline: `dc7e9490e59510fefa820793874ae117fbb07d01`.
 Project-owned EditorPlugin installs a separate EditorDock once per session via an idempotent
@@ -67,19 +67,39 @@ RV-001: FIXED (`4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`). Non-Entity edited ro
 Level ID panel and explicit repair; native root suppression/repair/undo/redo check PASS.
 RV-002: FIXED (`4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`). Per-field sources and embedded diagnostic
 sources map back to authored Traits; real native capture/save/reload regression PASS.
-Next: immutable review of the revised dock, then owner recheck before archiving42.
+Next: owner recheck before archiving42; **OWNER_QA_PENDING**.
 The native editor harness now asserts displayed Level/Instance IDs and unchanged base
 Inspector selection. No new editor/visual PASS is claimed.
 
+Revised source:226e127409cbb9af7dc8a4bda43e98055189851e; reviewed delta repair:
+9920424403941c6e6b816ffa52739968a63a5a52 and final lifetime fix
+4fdf9867f50a3bee0718a783e17b26929602420e. Bounded re-review ARCHITECTURE/STYLE PASS;
+reviewer VALIDATION NOT_RUN. Native editor/owner acceptance remains pending.
+RV-003: FIXED(9920424403941c6e6b816ffa52739968a63a5a52). Null intrinsic recipes now
+show missing_recipe diagnostics instead of dereferencing null during selection.
+RV-004: FIXED(4fdf9867f50a3bee0718a783e17b26929602420e). Metadata composition changes
+reconcile the weak binding/native resource Inspector; creation do/undo explicitly notifies
+the actor. Nested resource navigation remains intact when composition identity is unchanged.
+Real-controller root notification/selection/null recipe/metadata removal-rebind GUT PASS.
+Expired weak compositions also clear detached input after delayed notifications; the
+regression releases all strong references and verifies expiry before reconciliation.
+
 ## Automated evidence
 
-- Revised UI: fresh parser PASS, seven scripts/zero failures; formatter, strict architecture,
-  project structure and staged-agent checks PASS.
-- Native Editor harness NOT_RUN successfully: original-project launch conflicts with the
+- Revised UI: fresh parser PASS, seven scripts/zero failures, review delta three/zero and
+  final lifetime delta two/zero;
+  formatter across the full baseline, strict architecture, structure and staged checks PASS.
+  Native-controller/layout/provider GUT PASS17/154,7.142s:
+  tests/artifacts/refactoring_v2_42_48_ui_fix_gut.log.
+  Content Doctor PASS92 scenes/three dialogues/zero errors and review gates,13.07s.
+  The scene's authored resource host is populated by a native Inspector only when installed.
+- Native Editor acceptance NOT_RUN: original-project launch conflicts with the
   open editor's LimboAI hot-reload DLL; disposable project boot fails existing GECS
   autoload/UID compilation before the harness. Both stopped; no test markers/PASS.
   Logs: tests/artifacts/refactoring_v2_42_dock_editor{,_isolated}.log.
   Dock operations require owner recheck; earlier headless results below refer to old source.
+- Disposable editor project removed after verified path/process/reparse checks:720127926
+  bytes. Logs retained; audit:.artifacts/cleanup_qa42_editor_project_20261010.json.
 
 - Formatter/lint: **PASS**, 8 changed/new scripts; parser **PASS**, 8 checked / 0 failed.
 - GUT: **PASS**, 10/10 tests, 66 assertions; includes native physical actor structure,
