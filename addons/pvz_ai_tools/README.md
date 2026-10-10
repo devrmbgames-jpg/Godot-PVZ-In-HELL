@@ -14,12 +14,13 @@ Promoted tools appear as first-class `custom_*` MCP tools:
 - `custom_pvz_gecs_find_entities`
 - `custom_pvz_gecs_entity_inspect`
 - `custom_pvz_gecs_relationships`
+- `custom_pvz_editor_ownership` — lists current/open/unsaved editor scenes before save or reload; no gameplay access
 
 They are also discoverable through Godot AI's `custom_manage(op="list")` surface.
 
 ## Safety
 
-All v0.1 tools are read-only. They do not add/remove entities, components, relationships,
+All currently registered tools are read-only. They do not add/remove entities, components, relationships,
 or mutate gameplay state.
 
 By default (`source="auto"`) the tools prefer the **running game's** `ECS.world`
@@ -42,9 +43,10 @@ The runtime bridge is read-only and uses Godot's debugger IPC. It does not use a
 ## Quick verification
 
 1. Open the project in Godot and confirm both **Godot AI** and **PVZ Godot AI Tools** are enabled.
-2. In Godot AI -> Tools, confirm the four `pvz_gecs_*` tools are registered.
-3. With the game stopped, call `custom_pvz_gecs_world_summary` with `source="editor"`.
-4. Run the game and call the same tool with `source="runtime"`; the response should report `source="runtime_gecs_world"`.
+2. In Godot AI -> Tools, confirm the four `pvz_gecs_*` tools plus `pvz_editor_ownership` are registered.
+3. Call `custom_pvz_editor_ownership`; it should return the current scene, open scenes, and any unsaved scene paths. Unsaved plugin-external data is not covered.
+4. With the game stopped, call `custom_pvz_gecs_world_summary` with `source="editor"`.
+5. Run the game and call the same tool with `source="runtime"`; the response should report `source="runtime_gecs_world"`.
 
 ## Adding project-owned MCP capabilities
 
