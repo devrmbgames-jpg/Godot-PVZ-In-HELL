@@ -37,8 +37,8 @@ the editor's in-memory scene/resource model, not an external shell writer.
    `filesystem_manage(op="write_file")` or a direct text replacement of an open
    `.tscn`/`.tres`. MCP *filesystem* writes are external-file writes too.
 4. Offline mass migration: with the graphical editor closed, prefer one native
-   headless Godot EditorScript / PackedScene + ResourceSaver pass over hand-writing
-   the `.tscn` grammar. `utils/godot_agent.ps1 -Action EditorScript` is guarded
+   headless Godot SceneTree/MainLoop batch script using PackedScene + ResourceSaver over hand-writing
+   the `.tscn` grammar. `utils/godot_agent.ps1 -Action OfflineScript` is guarded
    against an open project editor. Direct-file patches to provably closed scenes
    remain an exception for small, reviewable changes.
 5. When MCP is missing while a target scene is open, do **not** fall back to a
