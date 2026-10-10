@@ -40,3 +40,6 @@ mono_crash.*.json
 __pycache__/
 *.pyc
 *.pyo
+
+# Project-local Codex/Godot execution and guarded editor recovery logs
+/.artifacts/godot_agent/

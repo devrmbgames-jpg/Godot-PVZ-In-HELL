@@ -171,7 +171,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.changed:
             paths.update(origins)
         paths = {p.replace("\\", "/") for p in paths if p.endswith(".gd")
-                 and not p.replace("\\", "/").startswith("addons/")}
+                 and (not p.replace("\\", "/").startswith("addons/")
+                      or p.replace("\\", "/").startswith("addons/pvz_ai_tools/"))}
         paths = {p for p in paths if (root / p).is_file() and (root / p).resolve().is_relative_to(root)}
         if not paths:
             print("PASS: no changed project-owned GDScript")

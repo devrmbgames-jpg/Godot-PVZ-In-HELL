@@ -21,10 +21,44 @@ Inspect the nearest existing scene/controller, not the entire project.
   inspectable in the Godot Scene dock.
 - Runtime gameplay must not generate `.gd` scripts or permanently authored
   `.tscn`. Editor scripts/import processors may save native reviewed output.
-- A scene open/loaded in Godot Editor is editor-owned. Use Godot Editor or MCP
-  scene operations while it is open; raw `.tscn` patches are allowed only when
-  it is not open. If editor state blocks a needed update, close the editor,
-  update the file, then relaunch if needed. Never select "Ignore External Changes".
+## Active-editor ownership and mutation route
+
+An opened `.tscn` and the `.tres` resources being edited in a live Godot Editor belong to
+the editor's in-memory scene/resource model, not an external shell writer.
+
+1. Check live `editor_state`, `scene_manage` and, when installed,
+   `custom_pvz_editor_ownership` before changing or reloading a scene.
+   The custom tool reports `unsaved_scenes` and `current_scene_unsaved`;
+   ordinary `editor_state` alone does not. Respect unsaved user work:
+   never force-reload a scene with unknown or dirty state.
+2. If the editor is open, **prefer live MCP authoring**: `scene_open`, `node_create`,
+   `node_set_property`, `node_manage`, `resource_manage`, `scene_save`.
+   For coherent repetitive edits use bounded `batch_execute` (only UndoRedo-backed
+   steps are rollback-safe). Preserve sub-scene instance links and native owner/UID
+   semantics. Confirm that `scene_open` completed before writing.
+3. Never bypass editor ownership with PowerShell, Python, `git checkout`,
+   `filesystem_manage(op="write_file")` or a direct text replacement of an open
+   `.tscn`/`.tres`. MCP *filesystem* writes are external-file writes too.
+4. Offline mass migration: with the graphical editor closed, prefer one native
+   headless Godot SceneTree/MainLoop batch script using PackedScene + ResourceSaver over hand-writing
+   the `.tscn` grammar. `utils/godot_agent.ps1 -Action OfflineScript` is guarded
+   against an open project editor. Direct-file patches to provably closed scenes
+   remain an exception for small, reviewable changes.
+5. When MCP is missing while a target scene is open, do **not** fall back to a
+   conflicting file rewrite. Work on code/tests, or arrange a controlled editor
+   close before offline scene mutation. A generic MCP outage is **not** a reason
+   to kill the user's editor.
+6. While the editor runs, mutate `project.godot` through Godot's native
+   `ProjectSettings` / `project_manage` / `autoload_manage` only. Such changes
+   may still require a restart or encounter Godot's external-change modal.
+   For *confirmed* `project.godot` blockage follow the recovery policy in
+   [godot-ai-mcp](../godot-ai-mcp/SKILL.md); never auto-select
+   `Ignore External Changes` or erase unsaved work without the authorized
+   recovery procedure.
+
+Use external editors for GDScript with native Godot syntax checks afterwards; do
+not confuse an LSP/VS Code formatter pass with a successful Godot parse. Headless
+parser/GUT/smoke validation remains available independently of MCP.
 - Preserve node names, UIDs, ownership, signals, exported fields, physics and
   component/relationship contracts. `MeshInstance3D.material_overlay` is reserved
   for interactive highlights; authored highlight materials remain external `.tres`.

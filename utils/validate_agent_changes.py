@@ -38,7 +38,8 @@ def is_runtime(path: str) -> bool:
 
 
 def is_authoring_tool(path: str) -> bool:
-    return (path.startswith("utils/") and path.endswith((".py", ".gd"))
+    return (path.startswith(("utils/", "addons/pvz_ai_tools/"))
+            and path.endswith((".py", ".gd"))
             and not path.startswith(("utils/validate_", "utils/check_")))
 
 

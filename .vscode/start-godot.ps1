@@ -11,7 +11,7 @@ $PidFile = Join-Path $BinDir ".godot-editor.pid"
 
 if (-not (Test-Path -LiteralPath $BinDir)) {
     Write-Warning "[Godot] Missing .bin directory: $BinDir"
-    exit 0
+    exit 2
 }
 
 # Avoid launching a duplicate editor when VS Code reloads the workspace.
@@ -57,12 +57,18 @@ $Candidates = @(
 
 if ($Candidates.Count -eq 0) {
     Write-Warning "[Godot] No Godot editor executable found in $BinDir. Put a Godot 4.7+ Windows binary there and reopen VS Code."
-    exit 0
+    exit 2
 }
 
-$GodotExe = $Candidates[0]
+# Prefer the project's pinned 4.7.1 binary even if another Godot was copied later.
+$PinnedCandidates = @($Candidates | Where-Object { $_.Name -match "4\.7\.1" })
+if ($PinnedCandidates.Count -eq 0) {
+    Write-Error "[Godot] Project requires Godot 4.7.1; no matching executable was found in .bin."
+    exit 2
+}
+$GodotExe = $PinnedCandidates[0]
 if ($Candidates.Count -gt 1) {
-    Write-Host "[Godot] Multiple editor binaries found; using newest: $($GodotExe.Name)"
+    Write-Host "[Godot] Multiple editor binaries found; using selected: $($GodotExe.Name)"
 }
 
 if ($null -eq (Get-Command uvx.exe -ErrorAction SilentlyContinue) -and
@@ -70,8 +76,9 @@ if ($null -eq (Get-Command uvx.exe -ErrorAction SilentlyContinue) -and
     Write-Warning "[Godot AI] uvx is not available in PATH. Godot will open, but the MCP bridge cannot start until uv is installed and VS Code is restarted."
 }
 
-# Keep Godot AI's Codex mutations project-local instead of touching ~/.codex.
-$env:CODEX_HOME = Join-Path $ProjectRoot ".codex"
+# Do not redirect CODEX_HOME for Godot alone. Codex started by VS Code may be
+# reading the actual user-level config.toml instead of <project>/.codex/config.toml.
+# If a custom CODEX_HOME is required, supply the same environment to BOTH processes.
 
 # Keep this development integration local-only.
 $env:GODOT_AI_DISABLE_TELEMETRY = "true"
