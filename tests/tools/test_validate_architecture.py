@@ -1,4 +1,4 @@
-"""Behavioral fixtures for architecture discovery, debt budgets and false positives."""
+"""Behavioral fixtures for permanent architecture guards and false positives."""
 
 from __future__ import annotations
 
@@ -6,9 +6,12 @@ import tempfile
 from pathlib import Path
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "utils"))
-from validate_architecture import scan, validate
+from validate_architecture import main, scan, validate
 
 
 class ArchitectureValidationTest(unittest.TestCase):
@@ -23,44 +26,34 @@ class ArchitectureValidationTest(unittest.TestCase):
         destination.write_text(text, encoding="utf-8")
         return destination
 
-    def allowance(self, findings: list) -> dict:
-        return {"version": 1, "entries": [
-            {"rule": f.rule, "owner": f.owner, "method": f.method, "target": f.target,
-             "count": 1, "reason": "Legacy scheduled step", "task": "17_combat.md",
-             "removal_gate": "26/27"} for f in findings
-        ]}
-
-    def test_new_service_step_fails_and_budgeted_legacy_passes(self) -> None:
+    def test_service_step_always_fails_without_allowances(self) -> None:
         self.write("content/services/a.gd", "class_name LegacyService\nstatic func tick():\n\tpass\n")
         findings = scan(self.root)
         self.assertEqual(1, len(findings))
-        self.assertTrue(validate(findings, {"entries": []}))
-        self.assertEqual([], validate(findings, self.allowance(findings)))
+        self.assertTrue(validate(findings))
 
     def test_direct_and_deferred_forwarding_are_detected(self) -> None:
         self.write("content/systems/a.gd", "extends System\nclass_name S_A\nfunc process():\n\tFooService.tick()\n\tcmd.add_custom(BarService.update.bind(1))\n")
         self.assertEqual({"FooService.tick", "BarService.update"}, {f.target for f in scan(self.root)})
 
-    def test_additional_call_cannot_hide_in_old_allowance(self) -> None:
+    def test_repeated_call_reports_all_occurrences(self) -> None:
         path = self.write("content/systems/a.gd", "extends System\nclass_name S_A\nfunc process():\n\tFooService.tick()\n")
-        baseline = self.allowance(scan(self.root))
         path.write_text(path.read_text() + "\tFooService.tick()\n", encoding="utf-8")
-        self.assertTrue(validate(scan(self.root), baseline))
+        self.assertIn("2 occurrences; allowed 0", validate(scan(self.root))[0])
 
     def test_custom_system_base_cannot_bypass_role_or_symbol_discovery(self) -> None:
         self.write("content/domains/npc/systems/a.gd", "extends CustomSystem\nfunc process():\n\tFooService.tick()\n")
         self.write("logic/b.gd", "extends CustomSystem\nclass_name S_B\nfunc process():\n\tBarService.tick()\n")
         self.assertEqual(2, len(scan(self.root)))
 
-    def test_symbol_baseline_survives_move_and_other_paths_are_discovered(self) -> None:
+    def test_moved_debt_and_other_paths_are_discovered(self) -> None:
         old = self.write("content/services/a.gd", "class_name LegacyService\nstatic func tick():\n\tpass\n")
-        baseline = self.allowance(scan(self.root))
         target = self.root / "content/domains/combat/services/a.gd"
         target.parent.mkdir(parents=True)
         old.rename(target)
-        self.assertEqual([], validate(scan(self.root), baseline))
+        self.assertTrue(validate(scan(self.root)))
         self.write("tools/rogue.gd", "class_name RogueService\nstatic func process():\n\tpass\n")
-        self.assertTrue(validate(scan(self.root), baseline))
+        self.assertEqual(2, len(validate(scan(self.root))))
 
     def test_query_only_in_step_body_is_detected(self) -> None:
         self.write("content/services/a.gd", "class_name FooService\nstatic func tick():\n\tECS.world.query.execute()\nstatic func lookup():\n\tECS.world.query.execute()\n")
@@ -87,28 +80,23 @@ ECS.world.query.execute()
         self.write("addons/a.gd", "class_name AddonService\nstatic func tick():\n\tpass\n")
         self.assertEqual([], scan(self.root))
 
-    def test_removed_debt_rejects_stale_allowance(self) -> None:
+    def test_removed_debt_passes_without_baseline_file(self) -> None:
         path = self.write("content/services/a.gd", "class_name FooService\nstatic func tick():\n\tpass\n")
-        baseline = self.allowance(scan(self.root))
         path.unlink()
-        self.assertTrue(validate(scan(self.root), baseline))
+        self.assertEqual([], validate(scan(self.root)))
 
-    def test_strict_gate_rejects_legacy_and_passes_empty_model(self) -> None:
+    def test_cli_normal_and_strict_have_same_zero_debt_gate(self) -> None:
         self.write("content/services/a.gd", "class_name FooService\nstatic func tick():\n\tpass\n")
-        findings = scan(self.root)
-        self.assertTrue(validate(findings, self.allowance(findings), strict=True))
-        self.assertEqual([], validate([], {"entries": []}, strict=True))
+        for flags in ([], ["--strict"]):
+            with patch.object(sys, "argv", ["validate_architecture", "--root", str(self.root), *flags]), redirect_stdout(StringIO()):
+                self.assertEqual(1, main())
+        self.assertEqual([], validate([]))
 
-    def test_reason_task_removal_gate_and_duplicate_budgets_are_required(self) -> None:
-        self.write("content/services/a.gd", "class_name FooService\nstatic func tick():\n\tpass\n")
-        findings = scan(self.root)
-        for field in ("reason", "task", "removal_gate"):
-            baseline = self.allowance(findings)
-            baseline["entries"][0].pop(field)
-            self.assertTrue(validate(findings, baseline))
-        baseline = self.allowance(findings)
-        baseline["entries"] *= 2
-        self.assertTrue(validate(findings, baseline))
+    def test_cli_rejects_removed_baseline_option(self) -> None:
+        with patch.object(sys, "argv", ["validate_architecture", "--baseline", "allowance.json"]), redirect_stderr(StringIO()):
+            with self.assertRaises(SystemExit) as rejected:
+                main()
+        self.assertEqual(2, rejected.exception.code)
 
     def test_nested_untracked_and_ignored_directories_do_not_trigger(self) -> None:
         self.write(".godot/a.gd", "class_name CacheService\nstatic func tick():\n\tpass\n")

@@ -217,28 +217,6 @@ def _cycle(graph: dict[str, set[str]]) -> list[tuple[str, str]]:
     return []
 
 
-def _edge_in_cycle(graph: dict[str, set[str]], source: str, target: str) -> bool:
-    if target not in graph.get(source, set()):
-        return False
-    pending = [target]
-    visited: set[str] = set()
-    while pending:
-        node = pending.pop()
-        if node == source:
-            return True
-        if node not in visited:
-            visited.add(node)
-            pending.extend(graph.get(node, set()))
-    return False
-
-
-def _task_for(info: ScriptInfo, plan: dict) -> str:
-    row = next((row for row in plan.get("files", []) if row["source"] == info.stable_path), None)
-    if row and row["task"] != "retain":
-        return row["task"]
-    return "29" if info.owner in {"npc", "customers"} else "30" if info.owner in {"interaction", "combat", "motion"} else "32" if info.owner == "shared" else "31"
-
-
 def analyze(root: Path, manifest: dict, plan: dict) -> tuple[list[Finding], dict[str, set[str]], dict[str, ScriptInfo], list[str]]:
     scripts, symbols = script_index(root, plan)
     errors: list[str] = []
@@ -319,51 +297,14 @@ def analyze(root: Path, manifest: dict, plan: dict) -> tuple[list[Finding], dict
 
 
 def validate_dependencies(root: Path = ROOT, strict: bool = False) -> list[str]:
-    """Check current code against explicit rights and exact, still-open legacy exemptions."""
+    """Permanent zero-debt gate; strict remains a compatibility argument."""
     try:
         manifest = _json(root / "utils/domain_contracts.json", {"public_edges": []})
         plan = _json(root / "utils/domain_migration_map.json", {"files": []})
-        baseline = _json(root / "utils/domain_dependency_baseline.json", {"entries": []})
-        findings, graph, scripts, errors = analyze(root, manifest, plan)
+        findings, graph, _scripts, errors = analyze(root, manifest, plan)
     except (OSError, ValueError, KeyError, TypeError) as error:
         return [f"Invalid dependency metadata: {error}"]
-    by_stable = {info.stable_path: info for info in scripts.values()}
-    by_symbol = {info.symbol: info for info in scripts.values()}
-    raw_graph = {path: set(targets) for path, targets in graph.items()}
-    current = {finding.key: finding for finding in findings}
-    exemptions: dict[tuple[str, str, str], dict] = {}
-    for entry in baseline.get("entries", []):
-        key = (entry.get("rule", ""), entry.get("source", ""), entry.get("target_symbol", ""))
-        if key in exemptions:
-            errors.append(f"Duplicate legacy exemption: {key}.")
-        exemptions[key] = entry
-        if strict:
-            errors.append(f"Strict mode requires an empty legacy baseline: {key}.")
-            continue
-        tasks = list((root / "agent_tasks/refactoring_v2").glob(entry.get("removal_task", "") + "_*.md"))
-        if not entry.get("source_owner") or not entry.get("reason") or len(tasks) != 1:
-            errors.append(f"Legacy exemption requires exact source/owner/reason/removal task: {key}.")
-            continue
-        status = re.search(r"^Status:\s*\*\*([^*]+)\*\*", tasks[0].read_text(encoding="utf-8"), re.MULTILINE)
-        if status is None or status.group(1).startswith("DONE"):
-            errors.append(f"Expired legacy exemption after task {entry['removal_task']}: {key}.")
-            continue
-        source = by_stable.get(key[1])
-        target = by_symbol.get(key[2])
-        active = key in current if key[0] != "implementation-cycle" else source is not None and target is not None and _edge_in_cycle(raw_graph, source.path, target.path)
-        if not active or source is None or source.owner != entry["source_owner"]:
-            errors.append(f"Stale/mismatched legacy exemption must be removed: {key}.")
-            continue
-        if key[0] == "implementation-cycle" and not target:
-            errors.append(f"Unknown cycle target: {key}.")
-            continue
-        if target and entry.get("target_path") != target.stable_path:
-            errors.append(f"Mismatched exact legacy target path: {key}.")
-            continue
-        if source and target:
-            graph[source.path].discard(target.path)
-        current.pop(key, None)
-    for finding in current.values():
+    for finding in findings:
         errors.append(f"{finding.source}: {finding.rule} -> {finding.target_symbol} ({finding.target_owner}): {finding.reason}.")
     found = _cycle(graph)
     if found:
@@ -371,77 +312,19 @@ def validate_dependencies(root: Path = ROOT, strict: bool = False) -> list[str]:
     return errors
 
 
-def capture_baseline(root: Path) -> list[str]:
-    """Freeze current exact debt once before migration; default validation never expands this baseline."""
-    if (root / "utils/domain_dependency_baseline.json").exists():
-        return ["Legacy dependency baseline is already frozen; default/capture validation cannot expand it."]
-    manifest = _json(root / "utils/domain_contracts.json", {"public_edges": []})
-    plan = _json(root / "utils/domain_migration_map.json", {"files": []})
-    findings, graph, scripts, errors = analyze(root, manifest, plan)
-    if errors:
-        return errors
-    by_stable = {info.stable_path: info for info in scripts.values()}
-    symbols = {info.symbol: info for info in scripts.values()}
-    entries: list[dict] = []
-    for finding in findings:
-        source = by_stable[finding.source]
-        target = symbols.get(finding.target_symbol)
-        removal = _task_for(source, plan) if source.owner != "global" else _task_for(target, plan) if target else "31"
-        entries.append(dict(rule=finding.rule, source=finding.source, source_owner=finding.source_owner, target_symbol=finding.target_symbol, target_path=finding.target_path, removal_task=removal, reason=finding.reason))
-        if target:
-            graph[source.path].discard(target.path)
-    while found := _cycle(graph):
-        source_path, target_path = found[0]
-        source, target = scripts[source_path], scripts[target_path]
-        removal = min(_task_for(scripts[node], plan) for edge in found for node in edge)
-        entries.append(dict(rule="implementation-cycle", source=source.stable_path, source_owner=source.owner, target_symbol=target.symbol, target_path=target.path, removal_task=removal, reason="Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."))
-        graph[source_path].discard(target_path)
-    path = root / "utils/domain_dependency_baseline.json"
-    path.write_text(json.dumps({"version": 1, "entries": sorted(entries, key=lambda row: (row["removal_task"], row["source"], row["target_symbol"], row["rule"]))}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return []
-
-
-def prune_resolved(root: Path) -> list[str]:
-    """Remove only resolved existing debt; this operation cannot authorize a new violation."""
-    path = root / "utils/domain_dependency_baseline.json"
-    baseline = _json(path, {"version": 1, "entries": []})
-    manifest = _json(root / "utils/domain_contracts.json", {"public_edges": []})
-    plan = _json(root / "utils/domain_migration_map.json", {"files": []})
-    findings, graph, scripts, errors = analyze(root, manifest, plan)
-    if errors:
-        return errors
-    current = {finding.key for finding in findings}
-    by_stable = {info.stable_path: info for info in scripts.values()}
-    by_symbol = {info.symbol: info for info in scripts.values()}
-    retained: list[dict] = []
-    for entry in baseline.get("entries", []):
-        key = (entry["rule"], entry["source"], entry["target_symbol"])
-        source, target = by_stable.get(key[1]), by_symbol.get(key[2])
-        active = key in current if key[0] != "implementation-cycle" else source is not None and target is not None and _edge_in_cycle(graph, source.path, target.path)
-        if active:
-            retained.append(entry)
-    removed = len(baseline.get("entries", [])) - len(retained)
-    baseline["entries"] = retained
-    path.write_text(json.dumps(baseline, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Resolved legacy exemptions removed: {removed}; remaining: {len(retained)}")
-    return []
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
-    parser.add_argument("--strict", action="store_true")
-    parser.add_argument("--capture-baseline", action="store_true", help="freeze exact legacy debt before the first owner move")
-    parser.add_argument("--prune-resolved", action="store_true", help="remove only resolved frozen legacy entries; never grants new access")
+    parser.add_argument("--strict", action="store_true", help="Compatibility flag; validation is always strict")
     args = parser.parse_args()
     root = args.root.resolve()
-    errors = capture_baseline(root) if args.capture_baseline else prune_resolved(root) if args.prune_resolved else validate_dependencies(root, args.strict)
+    errors = validate_dependencies(root, args.strict)
     if errors:
         print("Domain dependency validation: FAIL")
         for error in errors:
             print("- " + error)
         return 1
-    print("Domain dependency validation: PASS" + (" (strict)" if args.strict else " (transition)"))
+    print("Domain dependency validation: PASS (strict)")
     return 0
 
 

@@ -33,10 +33,12 @@ def inventory(root: Path) -> dict:
         if contract is None:
             raise ValueError(f"missing explicit Component schema contract: {name}")
         fields[name] = re.findall(r'"([^\"]+)"', contract.group(1))
-    records = re.search(r"^static var _record_types[^=]*= \[([^\n]+)\]$", codec, re.MULTILINE)
+    records = re.search(r"^static var _record_types[^=]*= \[([^\]]*)\]$", codec, re.MULTILINE)
     if not fields or not records:
         raise ValueError("closed codec declarations changed shape; update inventory explicitly")
-    record_names = [name.strip() for name in records.group(1).split(",")]
+    record_names = [name.strip() for name in records.group(1).split(",") if name.strip()]
+    if not record_names or any(not re.fullmatch(r"[A-Za-z_]\w*", name) for name in record_names):
+        raise ValueError("record inventory requires an explicit flat list of Script symbols")
     classes = {}
     for path in (root / "content").rglob("*.gd"):
         match = re.search(r"^class_name\s+(\w+)", path.read_text(encoding="utf-8"), re.MULTILINE)

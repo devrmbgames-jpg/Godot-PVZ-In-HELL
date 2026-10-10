@@ -75,7 +75,7 @@ Persistence owns the envelope/schema/codec and composes domain snapshot contract
 
 | Debt | Implementation owner | Removal/acceptance gate |
 | --- | --- | --- |
-| Hidden service steps and System forwarding | Explicit per-symbol tasks in architecture_baseline.json | Empty baseline in 26, strict execution PASS in 27. |
+| Hidden service steps and System forwarding | Explicit per-symbol migration tasks | Migration closed; architecture validator always rejects findings without allowances. |
 | Horizontal type paths, prefix guards and authored asset dependencies | 25 stable-ID/resource preflight, 28 migration map, 29–32 whole-owner moves | No path aliases; 32/33 strict layout/dependency acceptance and current-format roundtrip. |
 | Explicit placed identity, immutable retry, pending-work drain, raw receiving recipe checks | 25: closed | Schema-4 roundtrip/rejection and passive startup PASS; rechecked after moves in 49. |
 | Rejected startup preserves the incompatible file immediately, but later Night write can overwrite the same path | 25 | Protect rejected slot across subsequent autosave; test startup rejection followed by Night without byte changes. Phase 1 fixture proves immediate preservation only. |

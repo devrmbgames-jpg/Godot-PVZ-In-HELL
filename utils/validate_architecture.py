@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Detect lexical hidden-System patterns without parsing gameplay semantics.
 
-All project-owned GDScript is discovered independently of role layout. The
-temporary baseline budgets occurrences by class/method/target, so moving a file
-cannot erase debt and adding another occurrence cannot hide behind old debt.
+All project-owned GDScript is discovered independently of role layout. Every
+finding fails the gate; no migration allowances remain after Refactoring v2.
 Indirect scheduling, aliases and authority require architecture review.
 """
 
@@ -18,7 +17,6 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = ROOT / "utils/architecture_baseline.json"
 EXCLUDED = {"addons", "tests", "node_modules", "__pycache__"}
 STEP = r"(?:tick|update|process)"
 FUNCTION = re.compile(r"^(?P<static>static\s+)?func\s+(?P<name>\w+)\s*\(")
@@ -185,61 +183,30 @@ def scan(root: Path) -> list[Finding]:
     return findings
 
 
-def validate(findings: list[Finding], baseline: dict, strict: bool = False) -> list[str]:
+def validate(findings: list[Finding]) -> list[str]:
     errors: list[str] = []
-    budgets: dict[tuple[str, str, str, str], int] = {}
-    rules = {"service-step", "system-service-step", "service-step-query"}
-    for entry in baseline.get("entries", []):
-        key = tuple(entry.get(name, "") for name in ("rule", "owner", "method", "target"))
-        if key in budgets:
-            errors.append(f"duplicate baseline entry: {key}")
-        if (
-            key[0] not in rules or not key[1] or not key[2]
-            or type(entry.get("count")) is not int or entry["count"] < 1
-            or not entry.get("reason", "").strip()
-            or not entry.get("task", "").strip()
-            or entry.get("removal_gate") != "26/27"
-        ):
-            errors.append(f"invalid baseline entry: {key}")
-            continue
-        budgets[key] = entry["count"]
-
     counts = Counter(finding.key for finding in findings)
     for key, count in counts.items():
-        allowed = 0 if strict else budgets.get(key, 0)
-        if count > allowed:
-            location = next(f for f in findings if f.key == key)
-            errors.append(
-                f"{location.path}:{location.line}: {key[0]} {key[1]}.{key[2]}"
-                f" {key[3]} ({count} occurrences; allowed {allowed})"
-            )
-    # Removing debt also removes its permission. Never leave stale allowances.
-    for key, count in budgets.items():
-        if counts.get(key, 0) < count:
-            errors.append(f"stale baseline budget: {key}; trim/remove with the owning migration")
-    if strict and budgets:
-        errors.append("strict execution gate requires an empty migration baseline (task 26/27)")
+        location = next(f for f in findings if f.key == key)
+        errors.append(
+            f"{location.path}:{location.line}: {key[0]} {key[1]}.{key[2]}"
+            f" {key[3]} ({count} occurrences; allowed 0)"
+        )
     return errors
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
-    parser.add_argument("--baseline", type=Path, default=BASELINE)
-    parser.add_argument("--strict", action="store_true")
+    parser.add_argument("--strict", action="store_true",
+                        help="Compatibility flag; validation is always strict")
     parser.add_argument("--inventory", action="store_true", help="Print findings; do not generate allowances")
     args = parser.parse_args()
     findings = scan(args.root.resolve())
     if args.inventory:
         print(json.dumps([finding.__dict__ for finding in findings], indent=2))
         return 0
-    try:
-        baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
-        if baseline.get("version") != 1 or not isinstance(baseline.get("entries"), list):
-            raise ValueError("expected version 1 and an entries list")
-        errors = validate(findings, baseline, args.strict)
-    except (OSError, ValueError, TypeError, AttributeError) as error:
-        errors = [f"invalid/missing architecture baseline: {error}"]
+    errors = validate(findings)
     print(f"Architecture validation: {'FAIL' if errors else 'PASS'} ({len(findings)} lexical findings)")
     for error in errors:
         print(f"- {error}")

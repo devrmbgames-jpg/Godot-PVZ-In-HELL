@@ -39,6 +39,17 @@ class PersistenceBaselineTest(unittest.TestCase):
     def test_inline_definition_file_is_resolved(self) -> None:
         self.assertEqual([], validate(self.root))
 
+    def test_wrapped_record_list_preserves_closed_inventory(self) -> None:
+        self.codec.write_text(self.codec.read_text().replace(
+            "[MoneyOperation]", "[\n\tMoneyOperation,\n]"), encoding="utf-8")
+        self.assertEqual([], validate(self.root))
+
+    def test_record_list_expressions_are_rejected(self) -> None:
+        self.codec.write_text(self.codec.read_text().replace(
+            "[MoneyOperation]", "[\n\tMoneyOperation.new(),\n]"), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "explicit flat list"):
+            inventory(self.root)
+
     def test_codec_field_change_requires_explicit_baseline_decision(self) -> None:
         contract = self.root / "content/components/c_health.gd"
         contract.write_text(contract.read_text().replace('"current"', '"current", "base"'), encoding="utf-8")

@@ -1,64 +1,28 @@
 # Refactoring v2 — owner QA
 
-Status: **OWNER_QA**
+Status: **OWNER_QA** — remaining subjective gameplay acceptance.
 
-Implementation follows `agent_tasks/refactoring_v2/README.md`; this list owns subjective
-acceptance that cannot be proved by detached/headless checks. No rendered QA is claimed.
+Owner accepted the current Inspector / Direct Traits and Gameplay Debugger interfaces
+on 2026-10-10. That acceptance is preserved. Agent performed no rendered playtest or
+visual QA. Automated evidence belongs to the final acceptance task.
 
-## Entity authoring (42)
+Windows QA launcher: [.export/LATEST.cmd](../.export/LATEST.cmd). The build manifest
+records the exact implementation checkpoint, existing dirty owner worktree and separate
+QA save profile. Exported menu and main-level startup are checked headless.
 
-Accepted by owner on 2026-10-10, including current direct Traits Inspector. The earlier
-dock-only/session-installer instructions below are historical. Current workflow uses the
-persistent Gameplay Traits Inspector; see `qa_tasks/direct_entity_traits_inspector.md`.
+Check the following in a normal rendered session:
 
-- Run `content/editor/entity_authoring/install_entity_authoring.gd` once in the script editor;
-  select an NPC/Trader and an interactable. Open the separate Entity Authoring dock;
-  the base Inspector must remain unchanged. Check the authored dock's readability,
-  separate instance/Template IDs, recipe/provider diagnostics and named binding editing.
-- Place/duplicate the real scenes: mesh, collision and markers remain visible/editable.
-  Assign/repair the new instance and nested slot IDs; Undo/Redo restores the previous values.
-- Select the level scene root and repair Level ID: the dock's Level ID updates immediately.
-  Selecting an Entity or clearing selection hides the Level ID repair button; child objects
-  cannot change their parent level's ID. Undo/Redo and switching between Entities keep the
-  read-only displayed value current.
-- Change an unsaved Template/Profile value, validate, and confirm the report reflects it
-  without overwriting the authored asset. A duplicate ID/missing binding/conflicting provider
-  must show an actionable failure before play.
-- Follow `docs/entity_authoring.md` for two NPC/Trader/combat variants and a reused-assets
-  level. Assess whether the documented manual editing locations are practical.
+- Main menu, settings/rebinding, HUD and inventory: readable prompts at your resolutions,
+  keyboard/gamepad focus, modal close/back and mouse capture after returning to play.
+- Customer, neighbour and trader conversations: understandable dialogue branching,
+  coherent tone, panel transitions, terminal delivery/complaint text and feedback.
+- NPC arrival/departure and active/dormant transitions: animation, collision and
+  conversation continuity, including repeated sleep and reload.
+- Carry, drop, throw, cart transport, anchoring and doors: weight, control response,
+  stable contacts and useful interaction/combat feedback.
+- Full shift through delivery, hazards/challenges, purchases, night and next morning:
+  pacing, difficulty, visual continuity and the restored layout feeling consistent.
 
-## NPC participation (45)
-
-- Latest Windows QA launcher: `.export/LATEST.cmd`; build
-  `20261009-225258Z-180e403f-gameplay-debugger-review` (menu/level headless startup PASS).
-- Check daytime arrival/departure and repeated sleep/reload in the actual level for animation,
-  collision and conversation continuity. Headless mode, identity, state and routing acceptance
-  passed; subjective presentation remains owner QA. The build preserves current user edits
-  and records a dirty worktree in its manifest.
-
-## Gameplay Debugger (48)
-
-Accepted by owner on 2026-10-10 for the current interface. Keep the checklist as regression
-guidance; no additional visual run by Codex is claimed.
-
-- Windows QA build: `.export/LATEST.cmd` -> `20261009-225258Z-180e403f-gameplay-debugger-review`; exported menu/level headless120-frame startup PASS, rendered QA PENDING.
-
-- In the actual editor-run level, open the developer console; use `debug_targets`, then
-  `debug_inspect target` or `debug_inspect entity:<id>`. Check the two-column Tree, long
-  node/asset paths, readable scale, scrolling and keyboard focus at the owner's resolutions.
-- Check compact 14px text/buttons, an opaque dark debugger background, and small right-click
-  context menus on both console output and command input. Output/input must not overlap.
-- Select one live and one dormant NPC. Compare obligation, selection/cancel reasons,
-  Intent, perception and physical/cadence participation with their authoritative Components
-  and roster. Use Refresh after a meaningful gameplay transition; no automatic logging runs.
-- Check a Smart Object reservation on its owner and object; owner/slot/token agree with the
-  live Relationship. Recent events must concern the selected Entity/domain identities.
-- Follow the displayed Brain node/instance in the native LimboAI debugger. Its tree inspector
-  remains the detailed tree UI. Removing the selected actor must show UNAVAILABLE on Refresh.
-- Close panel and console using buttons/normal keyboard paths; command input and mouse/focus
-  restore correctly. Reopen without stale state. See `docs/gameplay_debugger.md`.
-
-Owner feedback2026-10-10: instance repair/validation worked; Level ID display failed.
-Inspector extension placement and console debugger readability were rejected. The revised
-separate scene-authored dock and compact console layout require owner recheck. Owner handles
-rendered/editor acceptance; headless checks do not close it.
+Record any observed issue with scene/action and expected behaviour. Existing automated
+identity, ownership, save/restore and scheduling checks need no manual re-certification.
+The accepted Inspector and Gameplay Debugger remain available for diagnosing issues.

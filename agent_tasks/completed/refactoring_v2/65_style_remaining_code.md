@@ -1,6 +1,6 @@
 # Refactoring v2.65 — Code Style: remaining project-owned GDScript
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 Зависимости: 64_style_gameplay_services.md.
 
@@ -38,7 +38,7 @@ Full project-owned style check, parser, structure.
 
 ## Current checkpoint
 
-Implementation complete; independent immutable review pending. Manifest task65 owns330
+Implementation and independent immutable review complete. Manifest task65 owns330
 scripts; all980 project-owned scripts are assigned exactly once across tasks61–65.
 Formatting, typed local expressions and explicit conditional branches preserve guards,
 ordering, paths, signals and authored state. Private fixture probes use native Object
@@ -67,7 +67,15 @@ repaired with focused regression tests; its review is part of this checkpoint.
 - Incremental agent guard FAIL2/REVIEW: developer_console_commands crosses its size
   threshold through formatting, with the same console-command dispatch responsibility;
   gltf_import_split_script preserves the existing offline @tool import/save operation.
-  No runtime scaffolding is introduced. Both candidates require independent review
-  before their final triage; the raw automated result remains FAIL, not PASS.
+  No runtime scaffolding is introduced. Independent review confirms both conclusions;
+  raw automated result remains FAIL, not PASS. RV-001 and RV-002: REJECTED with this
+  source evidence, because neither candidate violates the architecture contract.
 - Owner accepted current Inspector/Direct Traits and Gameplay Debugger2026-10-10.
   No rendered/visual QA by agent is claimed.
+
+## Independent review
+
+Base `3f0499aab47bf2ad0a93e69b29ec2b40ac26db0a` to source
+`287933e0c19c141ade715503063844fb7606a75f`: ARCHITECTURE PASS, STYLE PASS,
+no material findings; reviewer VALIDATION NOT_RUN. Main ran the checks above.
+The self-compilation defect is reviewed/closed with the same checkpoint.

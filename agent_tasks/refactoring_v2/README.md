@@ -56,7 +56,8 @@ Phase 1 запрещено начинать до результата `READY_FOR
 ## Global constraints
 
 - Godot 4.7, Forward Plus, Jolt, GECS v8, LimboAI и Dialogue Manager сохраняются.
-- `addons/` не изменять.
+- Third-party `addons/` не изменять; project-owned companion tooling подчиняется
+  editor ownership, native extension APIs и обязательной проверке.
 - Components/Relationships остаются authoritative gameplay state.
 - Systems владеют scheduled поведением; Observers — discrete reactions.
 - Service не должен становиться скрытой System.
@@ -135,7 +136,7 @@ Typed contracts уже закреплены задачей 40 перед executi
 46. [NPC и Customers](../completed/refactoring_v2/62_style_npc_customers.md)
 47. [Interaction, Combat и Motion](../completed/refactoring_v2/63_style_interaction_combat_motion.md)
 48. [Gameplay services, Economy, Inventory, Persistence](../completed/refactoring_v2/64_style_gameplay_services.md)
-49. [Entities, UI, AI, scene scripts, tests и utils](65_style_remaining_code.md)
+49. [Entities, UI, AI, scene scripts, tests и utils](../completed/refactoring_v2/65_style_remaining_code.md)
 50. [Финальная приёмка Refactoring v2](66_final_acceptance.md)
 
 ## Current
@@ -151,10 +152,12 @@ Inspector restored, authored content unchanged. Independent current repair revie
 
 Phase3 tasks60–66 are now permitted by the archived gate49. See the individual owning
 files for their actual implementation status; no remaining Phase2 owner approval blocks them.
-Tasks60–62 are archived DONE after independent review. Task61 passes full style,
-native diagnostics for309 ECS scripts, profile GUT and headless hazards smoke.
-Task62 passes full style/native compilation for163 scripts, profile regression and strict
-dependency/structure gates. Its independently evidenced schedule-completion cycle is repaired.
+Tasks60–65 and the native diagnostics self-compilation defect are archived DONE after
+independent immutable review. Manifest native checks cover309+163+106+72+330=980 scripts;
+task65's six mandatory enum callers were checked again with MCP at final acceptance.
+Full formatter/linter covers all980; strict structure/domain/dependency gates pass.
+Task66 owns final all-suite GUT, connected/save-restore smokes, Windows export and review.
+Task62's independently evidenced schedule-completion cycle is repaired.
 General CLI runner reports shutdown-retention FAIL for a lifecycle fixture; actual isolated
 compiler PASS,exit0. This remains owner-deferred engine retention, with logs preserved.
 Phase3 manifest owns980 authored scripts exactly once and excludes generated artifacts.

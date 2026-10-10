@@ -8,7 +8,10 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "utils"))
-from validate_domain_dependencies import validate_dependencies, capture_baseline
+from validate_domain_dependencies import validate_dependencies, main
+from contextlib import redirect_stderr
+from io import StringIO
+from unittest.mock import patch
 
 
 class DependencyTests(unittest.TestCase):
@@ -123,20 +126,16 @@ class DependencyTests(unittest.TestCase):
         self.edges[0]["rights"].append("request")
         self.assertEqual([], self._check())
 
-    def test_exact_exemption_expires_and_cannot_hide_new_edge(self) -> None:
+    def test_legacy_file_cannot_authorize_undeclared_edges(self) -> None:
         self._pair("extends RefCounted\nvar request: DamageRequest\n")
-        tasks = self.root / "agent_tasks/refactoring_v2"
-        tasks.mkdir(parents=True)
-        task = tasks / "30_owner.md"
-        task.write_text("Status: **PLANNED**", encoding="utf-8")
         self._metadata()
-        self.assertEqual([], capture_baseline(self.root))
-        self.assertEqual([], self._check())
+        (self.root / "utils/domain_dependency_baseline.json").write_text(
+            json.dumps({"entries": [{"rule": "undeclared-public-edge"}]}), encoding="utf-8")
+        normal = self._check()
+        self.assertTrue(normal)
+        self.assertEqual(normal, self._check(strict=True))
         self._script("interaction", "services", "new.gd", "extends RefCounted\nvar request: DamageRequest\n")
         self.assertTrue(any("new.gd: undeclared-public-edge" in error for error in self._check()))
-        task.write_text("Status: **DONE**", encoding="utf-8")
-        self.assertTrue(any("Expired legacy exemption" in error for error in self._check()))
-        self.assertTrue(any("empty legacy baseline" in error for error in self._check(strict=True)))
 
     def test_typed_instance_private_operation_is_not_a_public_contract(self) -> None:
         target = self._script("combat", "services", "api.gd", "extends RefCounted\nclass_name PublicApi\nfunc _private() -> void:\n\tpass\n")
@@ -154,27 +153,22 @@ class DependencyTests(unittest.TestCase):
             edge["method_rights"] = {"act": "request"}
         self.assertTrue(any("Actual implementation cycle" in error for error in self._check()))
 
-    def test_frozen_baseline_cannot_be_recaptured_to_hide_added_debt(self) -> None:
-        self._pair("extends RefCounted\nvar request: DamageRequest\n")
-        self._metadata()
-        self.assertEqual([], capture_baseline(self.root))
-        self._script("interaction", "services", "new.gd", "extends RefCounted\nvar request: DamageRequest\n")
-        self.assertTrue(any("already frozen" in error for error in capture_baseline(self.root)))
+    def test_removed_baseline_commands_fail_closed(self) -> None:
+        for option in ("--capture-baseline", "--prune-resolved"):
+            with patch.object(sys, "argv", ["validate_domain_dependencies", option]), redirect_stderr(StringIO()):
+                with self.assertRaises(SystemExit) as rejected:
+                    main()
+            self.assertEqual(2, rejected.exception.code)
 
-    def test_resolved_cycle_exemption_is_stale_even_when_the_old_edge_remains(self) -> None:
+    def test_breaking_cycle_restores_strict_acceptance(self) -> None:
         left = self._script("combat", "services", "left.gd", "extends RefCounted\nclass_name LeftService\nstatic func act() -> void:\n\tRightService.act()\n")
         right = self._script("interaction", "services", "right.gd", "extends RefCounted\nclass_name RightService\nstatic func act() -> void:\n\tLeftService.act()\n")
         self._public("combat", "interaction", "RightService", right, ["act"])
         self._public("interaction", "combat", "LeftService", left, ["act"])
-        tasks = self.root / "agent_tasks/refactoring_v2"
-        tasks.mkdir(parents=True)
-        (tasks / "30_owner.md").write_text("Status: **PLANNED**", encoding="utf-8")
-        self._metadata()
-        self.assertEqual([], capture_baseline(self.root))
-        self.assertEqual([], self._check())
+        self.assertTrue(any("Actual implementation cycle" in error for error in self._check()))
         self._script("interaction", "services", "right.gd", "extends RefCounted\nclass_name RightService\nstatic func act() -> void:\n\tpass\n")
-        self.assertTrue(any("Stale/mismatched" in error for error in self._check()))
-
+        self.assertEqual([], self._check())
+        self.assertEqual([], self._check(strict=True))
 
 if __name__ == "__main__":
     unittest.main()
