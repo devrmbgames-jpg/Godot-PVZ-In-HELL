@@ -61,7 +61,7 @@ text = "Advanced diagnostics"
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ResourceInspector" type="EditorInspector" parent="Details"]
+[node name="ResourceInspector" type="VBoxContainer" parent="Details"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2

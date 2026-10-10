@@ -2,6 +2,9 @@ extends "res://tests/gut/test_district_population.gd"
 ## Exercises detached production diagnostics, dormant selections and native console teardown.
 
 const VIEW: PackedScene = preload("res://content/debug/gameplay_debugger_view.tscn")
+const AUTHORING_VIEW: PackedScene = preload(
+	"res://content/editor/entity_authoring/entity_authoring_dock.tscn"
+)
 
 
 #region Data provider acceptance
@@ -145,6 +148,53 @@ func test_retired_selection_is_unavailable_even_if_object_still_exists() -> void
 
 
 #region Native view lifecycle
+func test_authoring_labels_follow_root_notifications_and_selection_without_editor_host() -> void:
+	var level: Node = Node.new()
+	level.set_meta(&"persistent_world_id", &"before_repair")
+	add_child(level)
+	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
+	var other: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[1].npc_id)
+	var dock: VBoxContainer = AUTHORING_VIEW.instantiate() as VBoxContainer
+	add_child(dock)
+	dock.call("bind_actor", actor, level)
+	var level_label: Label = dock.get_node("%LevelId") as Label
+	assert_eq(level_label.text, "Level ID: before_repair")
+	level.set_meta(&"persistent_world_id", &"after_repair")
+	level.notify_property_list_changed()
+	assert_eq(level_label.text, "Level ID: after_repair")
+	dock.call("bind_actor", other, level)
+	assert_eq(level_label.text, "Level ID: after_repair")
+	level.set_meta(&"persistent_world_id", &"before_repair")
+	level.notify_property_list_changed()
+	assert_eq(level_label.text, "Level ID: before_repair")
+	dock.free()
+	assert_false(level.property_list_changed.has_connections())
+	level.free()
+
+
+func test_authoring_null_recipe_is_diagnostic_and_removed_composition_clears_binding() -> void:
+	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
+	var dock: VBoxContainer = AUTHORING_VIEW.instantiate() as VBoxContainer
+	add_child(dock)
+	actor.component_resources.append(null)
+	var authoring: EntityAuthoring = EntityAuthoring.new()
+	actor.set_meta(&"entity_composition", authoring)
+	dock.call("bind_actor", actor, _world)
+	dock.call("_set_advanced", true)
+	assert_true((dock.get_node("%Recipes") as RichTextLabel).text.contains("missing_recipe"))
+	assert_same((dock.get("_authoring_ref") as WeakRef).get_ref(), authoring)
+	actor.remove_meta(&"entity_composition")
+	actor.notify_property_list_changed()
+	assert_null(dock.get("_authoring_ref"))
+	assert_eq((dock.get_node("%TemplateId") as Label).text, "Template ID: scene intrinsic")
+	actor.set_meta(&"entity_composition", authoring)
+	actor.notify_property_list_changed()
+	assert_same((dock.get("_authoring_ref") as WeakRef).get_ref(), authoring)
+	actor.component_resources.pop_back()
+	actor.remove_meta(&"entity_composition")
+	dock.free()
+
+
 func test_native_layout_preserves_output_and_command_space_in_half_height_console() -> void:
 	var viewport: SubViewport = SubViewport.new()
 	viewport.size = Vector2i(640, 360)

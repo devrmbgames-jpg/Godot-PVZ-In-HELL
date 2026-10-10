@@ -87,17 +87,27 @@ func _check() -> void:
 	history.undo()
 	history.clear_history()
 	var base_inspected: Object = EditorInterface.get_inspector().get_edited_object()
+	var previous_authoring: Resource = actor.get_meta(&"entity_composition") as Resource
+	actor.remove_meta(&"entity_composition")
+	actor.notify_property_list_changed()
 	(panel.get_node("%Configure") as Button).pressed.emit()
 	valid = valid and EditorInterface.get_inspector().get_edited_object() == base_inspected
-	var resource_inspector: EditorInspector = (
-		panel.get_node("%ResourceInspector") as EditorInspector
-	)
+	var resource_inspector: EditorInspector = (panel.get("_resource_inspector") as EditorInspector)
 	var inspected_resource: Resource = resource_inspector.get_edited_object() as Resource
 	valid = (
 		valid and inspected_resource != null
 		and inspected_resource.get_script().resource_path
 		== "res://content/shared/authoring/entity_authoring.gd"
 	)
+	history.undo()
+	valid = valid and resource_inspector.get_edited_object() == null
+	history.redo()
+	valid = valid and resource_inspector.get_edited_object() == inspected_resource
+	history.undo()
+	history.clear_history()
+	actor.set_meta(&"entity_composition", previous_authoring)
+	actor.notify_property_list_changed()
+	valid = valid and resource_inspector.get_edited_object() == previous_authoring
 	selection.clear()
 	plugin.free()
 	valid = valid and editor_root.get_node_or_null("ProjectEntityAuthoring") == null

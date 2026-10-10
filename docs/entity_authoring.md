@@ -18,6 +18,9 @@ Inspector extension, then run the installer.
 Edit the permanent layout in `content/editor/entity_authoring/entity_authoring_dock.tscn`.
 Its controller binds controls by Unique Name. The dock's own native resource Inspector
 edits Template/Profile/binding inputs; resource navigation stays inside this dock.
+The authored ResourceInspector container defines its position and size. The plugin creates
+Godot's native property editor there only while installed, so the UI scene also loads in
+detached non-editor content validation.
 
 Select an Entity in the scene tree. The dock shows the instance and Template IDs separately,
 provides explicit ID commands and opens the single scene-owned `EntityAuthoring` Resource.

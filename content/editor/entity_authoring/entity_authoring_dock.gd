@@ -12,7 +12,9 @@ const _PREVIEW_DIRECTORY: String = ".artifacts/authoring_preview"
 var host_plugin: EditorPlugin = null
 var _actor_ref: WeakRef
 var _root_ref: WeakRef
+var _authoring_ref: WeakRef
 var _advanced: bool = false
+var _resource_inspector: EditorInspector
 
 @onready var _selection_label: Label = %Selection
 @onready var _instance_id: Label = %InstanceId
@@ -25,11 +27,17 @@ var _advanced: bool = false
 @onready var _advanced_toggle: CheckButton = %Advanced
 @onready var _recipes: RichTextLabel = %Recipes
 @onready var _diagnostics: RichTextLabel = %Diagnostics
-@onready var _resource_inspector: EditorInspector = %ResourceInspector
+@onready var _resource_host: VBoxContainer = %ResourceInspector
 
 
 #region Dock presentation and selection
 func _ready() -> void:
+	# Native property editors belong to the plugin, not the authored scene's runtime graph.
+	if host_plugin == null:
+		return
+	_resource_inspector = EditorInspector.create_default_inspector()
+	_resource_inspector.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_resource_host.add_child(_resource_inspector)
 	_repair_instance.pressed.connect(_repair_selected_instance)
 	_repair_level.pressed.connect(_repair_selected_level)
 	_configure.pressed.connect(_configure_selected)
@@ -61,7 +69,8 @@ func bind_actor(actor: Node, edited_root: Node) -> void:
 		if actor is Entity and actor.has_meta(_AUTHORING_META)
 		else null
 	)
-	_resource_inspector.edit(authoring)
+	if _resource_inspector != null:
+		_resource_inspector.edit(authoring)
 
 
 func _disconnect_identity_signals() -> void:
@@ -94,21 +103,31 @@ func _refresh_identity() -> void:
 		if actor is Entity and actor.has_meta(_AUTHORING_META)
 		else null
 	)
+	var previous_authoring: Resource = (
+		_authoring_ref.get_ref() as Resource if _authoring_ref != null else null
+	)
+	if authoring != previous_authoring:
+		_authoring_ref = weakref(authoring) if authoring != null else null
+		if _resource_inspector != null:
+			_resource_inspector.edit(authoring)
 	_template_id.visible = actor is Entity
 	_template_id.text = "Template ID: %s" % (
 		authoring.entity_template.key
 		if authoring != null and authoring.entity_template != null
 		else "scene intrinsic"
 	)
-	_repair_instance.disabled = not actor is Entity
-	_repair_level.disabled = edited_root == null or edited_root is Entity
-	_configure.disabled = not actor is Entity
-	_validate.disabled = actor == null or edited_root == null
+	_repair_instance.disabled = host_plugin == null or not actor is Entity
+	_repair_level.disabled = (host_plugin == null or edited_root == null or edited_root is Entity)
+	_configure.disabled = host_plugin == null or not actor is Entity
+	_validate.disabled = host_plugin == null or actor == null or edited_root == null
 	_recipes.visible = _advanced
 	var recipes: PackedStringArray = PackedStringArray(["Scene Component recipes:"])
 	if actor is Entity:
 		for component: Resource in (actor as Entity).component_resources:
-			recipes.append(str(component) + " / " + component.resource_path)
+			if component == null:
+				recipes.append("Missing Component recipe: validate for missing_recipe diagnostics")
+			else:
+				recipes.append(str(component) + " / " + component.resource_path)
 	_recipes.text = "\n".join(recipes)
 
 
@@ -176,6 +195,8 @@ func _edit_authoring(actor_ref: WeakRef) -> void:
 		undo.create_action("Create Scene Composition", UndoRedo.MERGE_DISABLE, actor)
 		undo.add_do_method(actor, "set_meta", _AUTHORING_META, authoring)
 		undo.add_undo_method(actor, "set_meta", _AUTHORING_META, previous)
+		undo.add_do_method(actor, "notify_property_list_changed")
+		undo.add_undo_method(actor, "notify_property_list_changed")
 		undo.commit_action()
 	_resource_inspector.edit(authoring)
 #endregion
