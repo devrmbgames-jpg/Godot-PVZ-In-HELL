@@ -174,6 +174,7 @@ func _register_tools() -> void:
 		_editor_traits_signal_spec(),
 		_gdscript_style_spec(),
 		_style_script_validation_spec(),
+		_translation_sources_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -286,6 +287,27 @@ func _style_script_validation_spec() -> McpCustomToolSpec:
 	spec.requires_writable = true
 	spec.undoable = false
 	spec.timeout_ms = 15000
+	return spec
+
+
+## Fixed native PackedStringArray cleanup; no scene, gameplay or arbitrary-setting access.
+func _translation_sources_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_translation_sources"
+	spec.description = "Preview/apply vanished diagnostic dialogue sources with native types."
+	spec.params_schema = {
+		"type": "object",
+		"properties": { "action": { "type": "string", "enum": ["preview", "apply"] } },
+		"required": ["action"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/translation_sources_tool.gd"
+	spec.method = &"configure"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = false
 	return spec
 
 

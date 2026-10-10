@@ -1,6 +1,7 @@
 # PVZ Godot AI Tools
 
-Project-specific companion MCP extensions for `addons/godot_ai`. The **currently registered** tools are read-only; agents may add narrowly scoped editor-authoring tools when native Godot AI tools cannot satisfy a task.
+Project-specific companion MCP extensions for `addons/godot_ai`. Inspection tools are
+read-only; explicit native configuration/verification tools declare their bounded mutations.
 
 The addon intentionally starts small. It exposes compact GECS/entity inspection so an
 agent does not need to dump a full SceneTree or reconstruct entity composition from many
@@ -64,6 +65,18 @@ when authored/editor state is required. Responses always report their `source`.
 
 The runtime bridge is read-only and uses Godot's debugger IPC. It does not use arbitrary
 `game_eval` and does not expose mutation shortcuts.
+
+## Diagnostic translation-source cleanup
+
+`custom_manage(op="invoke", params={"tool_name":"pvz_translation_sources",
+"params":{"action":"preview"}})` lists missing dialogue copies from the four known
+historical `.bin/` snapshots. `action="apply"` removes only those absent copies through
+native `ProjectSettings`, retaining `PackedStringArray` and all authored/custom sources.
+It removes matching stale Dialogue Manager cache entries to prevent their reintroduction.
+No scene, arbitrary setting, existing file or gameplay state is changed. Save errors restore
+the in-memory setting; the synchronous handler retains no Nodes or requests. The operation
+is not undoable. Reload Godot AI through `editor_reload_plugin` after tool registration.
+Focused tests: `res://tests/gut/test_pvz_translation_sources_tool.gd`.
 
 ## Dependencies
 
