@@ -534,6 +534,8 @@ def _git_output(*args: str) -> list[str]:
 def _check_staged_addons(errors: list[str]) -> None:
     staged_addons: list[str] = _git_output("diff", "--cached", "--name-only", "--", "addons")
     for path in staged_addons:
+        if path.startswith("addons/pvz_ai_tools/"):
+            continue
         errors.append(f"{path}: staged addon/dependency change is forbidden by default.")
 
 

@@ -2,7 +2,7 @@
 
 **Репозиторий:** `https://github.com/devrmbgames-jpg/Godot-PVZ-In-HELL`
 **Ветка:** `dev`
-**Статус:** `OWNER_QA`
+**Статус:** `IN_PROGRESS`
 **Файл прогресса:** этот файл (один источник; отдельный task не создаётся).
 **Тип:** архитектурный UX-рефакторинг / миграция authoring-контракта.
 
@@ -34,7 +34,10 @@
   Legacy Template resources remain editor-only presets, never production scene/runtime providers.
 - Implementation checkpoint: `b2b6a80e6d8d347b5977e0ff2418b986bc09ec2b`.
 - Current: implementation, automated acceptance and independent review/triage complete.
-- Next: owner Inspector/gameplay checklist, then record acceptance; №42 stays OWNER_QA_PENDING.
+- Owner explicitly accepted current Inspector/Direct Traits and Gameplay Debugger on 2026-10-10.
+- Live MCP found source disposal during New Trait signal; native navigation now deferred.
+  Companion live regression PASS9/9, Inspector restored, authored content unchanged; no new editor errors.
+- Next: immutable repair review/triage, then archive accepted authoring tasks with gate49.
 
 ### Validation
 - GUT PASS: 225 tests / 1845 assertions, `.artifacts/direct_traits/gut_final.log`.
@@ -72,7 +75,7 @@
 
 ### Owner QA / blockers
 - Inspector ergonomics, actual resource picker/drag-drop, inherited scene editing and gameplay:
-  OWNER_QA_PENDING; [owner checklist](../../qa_tasks/direct_entity_traits_inspector.md).
+  owner accepted 2026-10-10; [owner checklist](../../qa_tasks/direct_entity_traits_inspector.md).
   No visual gameplay launch or visual PASS is claimed.
 
 Разработчик выбирает Entity в дереве Godot и **непосредственно в стандартном Inspector** видит секцию **Gameplay Traits** и действие **Add Trait**. Он может добавить, выбрать, настроить, удалить или переставить Traits, не создавая вручную `DEF_EntityTemplate`, `EntityAuthoring` и `metadata/entity_composition`.

@@ -20,8 +20,22 @@ They are also discoverable through Godot AI's `custom_manage(op="list")` surface
 
 ## Safety
 
-All currently registered tools are read-only. They do not add/remove entities, components, relationships,
-or mutate gameplay state.
+The inspection tools are read-only. They do not add/remove entities, components, relationships,
+or mutate gameplay state. The explicit `pvz_editor_traits_signal_check` verification tool briefly
+changes the Inspector's viewed resource using disposable controls and restores its original object.
+It never changes authored content, scene selection or Undo/Redo history.
+
+## Native Traits signal verification
+
+Call `custom_manage(op="invoke", params={"tool_name":"pvz_editor_traits_signal_check","params":{}})`
+with gameplay stopped. It checks New Trait, Make Unique and local-resource settings navigation:
+the source button must survive its signal, then be disposed during deferred native Inspector
+navigation. The response contains nine assertions, failures and `inspector_restored`.
+No script paths or arbitrary actions are accepted. Calls are bounded to 18 editor frames,
+overlapping requests are rejected, and hot swaps wait until signals/temporary Nodes are released.
+After adding the tool, reload Godot AI through `editor_reload_plugin`; the companion registry
+re-registers it. The live MCP check is editor acceptance; `test_pvz_editor_traits_signal_tool.gd`
+covers parameter rejection, overlap and hot-swap safety without an editor.
 
 By default (`source="auto"`) the tools prefer the **running game's** `ECS.world`
 through a dedicated Godot debugger-channel bridge. If no game is connected they fall

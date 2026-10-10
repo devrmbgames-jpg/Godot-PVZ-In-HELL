@@ -47,48 +47,17 @@ Editor/tool tests где возможно + owner visual QA.
 
 ## Current / Next
 
-Active Goal authorizes tasks 42–66 in dependency order. Task 41 is DONE.
-Owner QA rejected Inspector placement and found stale Level ID display; instance repair
-and validation were reported working. Revised implementation/re-review are complete and
-requires owner recheck; previous visual acceptance is not PASS.
-Baseline: `dc7e9490e59510fefa820793874ae117fbb07d01`.
-Project-owned EditorPlugin installs a separate EditorDock once per session via an idempotent
-EditorScript. Its native entity_authoring_dock.tscn owns the permanent UI, with Unique Name
-bindings and its own resource Inspector. Base Inspector fields/controls are unchanged;
-the old EditorInspectorPlugin execution path is removed. IDs use native Undo/Redo.
-Dock subscriptions track both selected actor and root property-list changes, fixing root
-Level ID display across Repair/Undo/Redo without rebuilding the selected actor's Inspector.
-Owner selection contract: Level ID repair is visible only when the non-Entity level root
-is explicitly selected. Child objects, Entity prefab roots and an empty selection cannot
-repair the parent level, including a direct handler invocation. Child views retain a
-read-only Level ID. Empty editor selection no longer falls back to the level root.
-Selection fix: `42b0127414f7f7ebb4ecb8176aa1e8f3cae6c46a`; native harness/manual checklist updated.
-Current external authored Resource values are copied into a disposable scene snapshot,
-retaining original provenance and external Script/scene refs. The task-41 compiler runs
-only on detached actors after autoload registration; no ECS registration or ready callback.
-Named endpoints, native dependency cycles and whole-level identity use existing providers.
-Review checkpoint: `4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`; targeted re-review PASS.
-RV-001: FIXED (`4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`). Non-Entity edited roots have a read-only
-Level ID panel and explicit repair; native root suppression/repair/undo/redo check PASS.
-RV-002: FIXED (`4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`). Per-field sources and embedded diagnostic
-sources map back to authored Traits; real native capture/save/reload regression PASS.
-Next: owner recheck before archiving42; **OWNER_QA_PENDING**.
-The native editor harness now asserts displayed Level/Instance IDs and unchanged base
-Inspector selection. No new editor/visual PASS is claimed.
-
-Revised source:226e127409cbb9af7dc8a4bda43e98055189851e; reviewed delta repair:
-9920424403941c6e6b816ffa52739968a63a5a52 and final lifetime fix
-4fdf9867f50a3bee0718a783e17b26929602420e. Bounded re-review ARCHITECTURE/STYLE PASS;
-reviewer VALIDATION NOT_RUN. Native editor/owner acceptance remains pending.
-RV-003: FIXED(9920424403941c6e6b816ffa52739968a63a5a52). Null intrinsic recipes now
-show missing_recipe diagnostics instead of dereferencing null during selection.
-RV-004: FIXED(4fdf9867f50a3bee0718a783e17b26929602420e). Metadata composition changes
-reconcile the weak binding/native resource Inspector; creation do/undo explicitly notifies
-the actor. Nested resource navigation remains intact when composition identity is unchanged.
-Real-controller root notification/selection/null recipe/metadata removal-rebind GUT PASS.
-Expired weak compositions also clear detached input after delayed notifications; the
-regression releases all strong references and verifies expiry before reconciliation.
-
+Owner explicitly accepted the current Inspector/Direct Traits and Gameplay Debugger
+on 2026-10-10. Earlier rejected dock/Inspector ergonomics are superseded by this acceptance.
+Direct Traits supersedes the original Template/dock editing contract; native scene ownership,
+stable IDs, detached preview and runtime parity remain mandatory and verified.
+Baseline for current acceptance: `c8b84b801d674a293d4519e266e2f656883617dd`, dev with owner edits preserved.
+Current core GUT PASS: 220 tests /2373 assertions across 16 suites; Content Doctor PASS92/3,
+zero errors/review gates. Current automated source diagnostics and strict architecture PASS.
+A live MCP signal-lifetime error in New Trait was repaired under the Direct Traits task:
+deferred Inspector navigation; live native companion regression PASS9/9, restores Inspector,
+changes no authored content, and produces no new editor errors.
+Next: immutable repair review/triage, then archive this accepted owning task with49.
 ## Automated evidence
 
 - Latest selection fix: GUT **PASS18/164**,7.637s; fresh parser **PASS4/0**;

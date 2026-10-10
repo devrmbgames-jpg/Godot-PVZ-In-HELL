@@ -150,6 +150,7 @@ func _register_tools() -> void:
 			},
 		),
 		_editor_ownership_spec(),
+		_editor_traits_signal_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -198,6 +199,26 @@ func _editor_ownership_spec() -> McpCustomToolSpec:
 	spec.undoable = false
 	spec.deferred = false
 	spec.timeout_ms = 3000
+	return spec
+
+
+## Disposable Inspector navigation check; no authored-content or undo-history mutation.
+func _editor_traits_signal_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_editor_traits_signal_check"
+	spec.description = (
+		"Check direct Traits Inspector signal lifetime with temporary controls "
+		+ "and restore the current Inspector."
+	)
+	spec.params_schema = {"type": "object", "properties": {}, "additionalProperties": false}
+	spec.script_path = "res://addons/pvz_ai_tools/editor_traits_signal_tool.gd"
+	spec.method = &"inspect"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = true
+	spec.timeout_ms = 7000
 	return spec
 
 

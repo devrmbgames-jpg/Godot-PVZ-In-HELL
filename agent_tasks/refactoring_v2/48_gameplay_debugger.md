@@ -50,14 +50,20 @@ BoundaryTrace. Snapshot values contain no live Objects; recent selected incoming
 events are capped at24 and include Entity/NPC/package/current-visit identities. Native
 LimboAI Brain status/node/instance references route detailed inspection to its own debugger.
 
-Owner QA rejected oversized buttons/text and unreadable console overlap. Revised UI is
-implemented and re-reviewed; OWNER_QA_PENDING. Controls use Unique Name; authored opaque background
+Earlier owner QA rejected oversized buttons/text and unreadable console overlap. Revised UI is
+implemented and re-reviewed; owner accepted the current interface on 2026-10-10. Controls use Unique Name; authored opaque background
 and theme_developer_console.tres provide14px fonts, compact styles and local base scale1.
 Adapter themes both text context menus and restores console presentation on teardown.
 Native container sizing keeps debugger/output/input separate, including640x360 half-height.
-The owner conducts rendered/editor recheck;42 also remains pending.
+Owner explicitly accepted both current interfaces (42/48); next: archive after gate49 review.
 
-## Validation / Evidence
+## Current acceptance (2026-10-10)
+
+Owner Inspector/Direct Traits and Gameplay Debugger acceptance: PASS (explicit user result).
+Current core GUT: PASS220/2373,16 suites,47.516s; full Doctor PASS92/3,zero errors/review gates.
+Existing immutable debugger architecture/style reviews remain applicable; current gate49 review pending.
+
+## Prior automated evidence
 
 - Revised native layout/provider/lifecycle/dock controller GUT PASS:17 tests/154 assertions,
   7.142s.

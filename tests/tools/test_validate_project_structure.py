@@ -35,6 +35,18 @@ class ProjectStructureValidatorTest(unittest.TestCase):
         validator._check_private_member_naming(errors)
         return errors
 
+    def test_staged_companion_tools_are_allowed_but_vendored_addons_are_not(self) -> None:
+        paths = ["addons/pvz_ai_tools/plugin.gd", "addons/gecs/ecs/entity.gd",
+                 "addons/godot_ai/plugin.gd", "addons/pvz_ai_tools_other/plugin.gd"]
+        errors: list[str] = []
+        with patch.object(validator, "_git_output", return_value=paths):
+            validator._check_staged_addons(errors)
+        self.assertEqual(3, len(errors))
+        self.assertFalse(any("addons/pvz_ai_tools/plugin.gd" in error for error in errors))
+        self.assertTrue(any("addons/gecs/" in error for error in errors))
+        self.assertTrue(any("addons/godot_ai/" in error for error in errors))
+        self.assertTrue(any("addons/pvz_ai_tools_other/" in error for error in errors))
+
     def test_done_tasks_must_be_archived_including_nested_tasks(self) -> None:
         for path in ("agent_tasks/finished.md", "agent_tasks/refactoring_v2/finished.md"):
             self._write(path, "Status: **DONE — PASS**\n")

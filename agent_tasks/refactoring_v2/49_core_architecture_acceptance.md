@@ -1,6 +1,6 @@
 # Refactoring v2.49 — core architecture acceptance
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Зависимости: [48_gameplay_debugger.md](48_gameplay_debugger.md); все Phase 2 tasks завершены, strict rerun 32/33 PASS.
 
@@ -55,7 +55,21 @@ findings in bounded cross-owner review. Reviewer VALIDATION NOT_RUN (source only
 Compiler/registration, reservation retirement, capped System cadence, schedule receipts,
 retained participation/save ownership and read-only tooling contracts remain coherent.
 
-All listed preparatory automatic gates passed. Required42/48 owner editor QA is still
-pending, so49 remains PLANNED and60-66 have not started. No independent implementation
-remains before those gates: next action is the pending owner approval/result, then actual
-editor/visual validation and gate49 closure. Goal completion is not claimed.
+Owner explicitly accepted both current Inspector/Direct Traits and Gameplay Debugger on
+2026-10-10. Phase 3 remains gated until current automatic acceptance and review finish.
+
+## Current acceptance (2026-10-10)
+
+- Baseline: `c8b84b801d674a293d4519e266e2f656883617dd`, `dev` with owner edits preserved.
+- Strict architecture/domain structure/dependencies PASS, empty migration baseline.
+- Structure/Content Doctor PASS: 92 scenes, three dialogues, zero errors/review gates.
+- Current core GUT PASS: 16 suites, 220 tests /2373 assertions, 47.516s; stderr empty.
+  Covers typed flows, reservations, schedule, participation/save, time/random, direct Traits,
+  placed bootstrap, authoring preview, debugger/provider and console presentation.
+  Logs: `.artifacts/godot_agent/core49.{stdout,stderr}.log`.
+- Live MCP found New Trait synchronous Inspector navigation disposing its signal source.
+  Deferred native navigation fixes New/Make Unique/local settings; live companion regression
+  PASS nine assertions, Inspector restored and no authored-content changes. Fresh MCP and
+  headless parser diagnostics clean. This repair belongs to the Direct Traits task.
+- Mandatory CLI runner repaired/verified under [tooling integration](../godot_agent_tooling_integration.md).
+- Next: current smoke, immutable repair review/triage, archive accepted 42/48 and close49.

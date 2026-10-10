@@ -28,9 +28,12 @@ func test_reports_unsaved_current_and_other_scenes() -> void:
 
 func test_other_dirty_scene_is_not_silently_treated_as_safe_to_close() -> void:
 	var report: Dictionary = EditorOwnershipTool.describe(
-		PackedStringArray(["res://current.tscn", "res://other.tscn"]),
-		PackedStringArray(["res://other.tscn"]),
-		"res://current.tscn",
+		PackedStringArray([
+			"res://content/scenes/main_level.tscn",
+			"res://content/domains/npc/entities/district_npc.tscn",
+		]),
+		PackedStringArray(["res://content/domains/npc/entities/district_npc.tscn"]),
+		"res://content/scenes/main_level.tscn",
 	)
 	assert_false(report["current_scene_unsaved"])
 	assert_true(report["has_unsaved_scenes"])
@@ -39,9 +42,9 @@ func test_other_dirty_scene_is_not_silently_treated_as_safe_to_close() -> void:
 
 func test_clean_and_unsaved_new_scene_are_distinct() -> void:
 	var clean: Dictionary = EditorOwnershipTool.describe(
-		PackedStringArray(["res://current.tscn"]),
+		PackedStringArray(["res://content/scenes/main_level.tscn"]),
 		PackedStringArray(),
-		"res://current.tscn",
+		"res://content/scenes/main_level.tscn",
 	)
 	assert_false(clean["has_unsaved_scenes"])
 	assert_false(clean["current_scene_unsaved"])

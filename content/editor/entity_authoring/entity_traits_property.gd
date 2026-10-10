@@ -113,7 +113,8 @@ func _add_new() -> void:
 	var updated: Array[EntityTrait] = _last_traits.duplicate()
 	updated.append(capability)
 	_submit(updated)
-	EditorInterface.edit_resource(capability)
+	# Switching the Inspector must wait until the originating control signal returns.
+	EditorInterface.edit_resource.call_deferred(capability)
 
 
 func _assign(resource: Resource, index: int) -> void:
@@ -145,7 +146,7 @@ func _inspect(resource: Resource, _inspect_requested: bool, _index: int) -> void
 		resource.resource_path.is_empty() or resource.resource_path.contains("::")
 	)
 	if resource.resource_local_to_scene and is_builtin:
-		EditorInterface.edit_resource(resource)
+		EditorInterface.edit_resource.call_deferred(resource)
 	else:
 		_issues.text = "Shared Trait: use Make Unique & Edit to configure this instance."
 
@@ -156,7 +157,8 @@ func _make_unique(index: int) -> void:
 	capability.resource_local_to_scene = true
 	updated[index] = capability
 	_submit(updated)
-	EditorInterface.edit_resource(capability)
+	# Switching the Inspector must wait until the originating control signal returns.
+	EditorInterface.edit_resource.call_deferred(capability)
 #endregion
 
 
