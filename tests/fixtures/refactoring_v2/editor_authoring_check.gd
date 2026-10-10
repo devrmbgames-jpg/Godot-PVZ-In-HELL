@@ -5,10 +5,13 @@ const _PLUGIN_NAME: String = "project_entity_traits"
 const _PROPERTY_PATH: String = "res://content/editor/entity_authoring/entity_traits_property.gd"
 const _PLUGIN_PATH: String = "res://addons/project_entity_traits/plugin.gd"
 var _failures: PackedStringArray = PackedStringArray()
+var _configured_on_disk: bool = false
 
 
 #region Headless editor acceptance
 func _init() -> void:
+	var configured: PackedStringArray = ProjectSettings.get_setting("editor_plugins/enabled")
+	_configured_on_disk = configured.has("res://addons/project_entity_traits/plugin.cfg")
 	ProjectSettings.set_setting(
 		"editor_plugins/enabled",
 		PackedStringArray(["res://addons/project_entity_traits/plugin.cfg"]),
@@ -28,6 +31,7 @@ func _check() -> void:
 	await _settle()
 	var editor_root: Node = root
 	var plugin: EditorPlugin = _script_node(editor_root, _PLUGIN_PATH) as EditorPlugin
+	_expect(_configured_on_disk, "Plugin configuration persists between editor processes")
 	_expect(plugin != null, "Persistent plugin restores at editor startup")
 	if plugin == null:
 		_finish()
@@ -85,23 +89,82 @@ func _check() -> void:
 	_expect(local_trait != original[0], "Make Unique creates a local copy")
 	local_trait.set("trait_id", &"local_impact")
 	_expect(original[0].trait_id == &"physical_impact", "Local settings preserve shared resource")
-	history.undo()
-	await _settle()
-	_expect((actor.get("traits") as Array)[0] == original[0], "Make Unique undo")
 	EditorInterface.inspect_object(actor)
 	await _settle()
+	property = _script_node(EditorInterface.get_inspector(), _PROPERTY_PATH) as EditorProperty
+	property.call("_inspect", original[0], true, 0)
+	_expect(
+		EditorInterface.get_inspector().get_edited_object() == actor,
+		"Shared external Trait remains protected",
+	)
 	var packed: PackedScene = PackedScene.new()
 	_expect(packed.pack(scene_root) == OK, "Native pack of edited nested prefab")
 	var scene_path: String = "res://".path_join(".artifacts/direct_traits/editor_saved.tscn")
-	_expect(ResourceSaver.save(packed, scene_path) == OK, "Save edited scene")
-	var reloaded: PackedScene = ResourceLoader.load(
-		scene_path,
-		"",
-		ResourceLoader.CACHE_MODE_IGNORE,
-	) as PackedScene
-	var detached: Node = reloaded.instantiate()
-	_expect(detached.get_node("Box").get("traits") == actor.get("traits"), "Save/reopen Traits")
-	detached.free()
+	_expect(
+		ResourceSaver.save(packed, scene_path, ResourceSaver.FLAG_REPLACE_SUBRESOURCE_PATHS) == OK,
+		"Save edited scene with native built-in resource paths",
+	)
+	EditorInterface.open_scene_from_path(scene_path)
+	await _settle()
+	var reopened_root: Node = EditorInterface.get_edited_scene_root()
+	var reopened_actor: Node = reopened_root.get_node("Box")
+	EditorInterface.inspect_object(reopened_actor)
+	await _settle()
+	property = _script_node(EditorInterface.get_inspector(), _PROPERTY_PATH) as EditorProperty
+	var saved_trait: Resource = (reopened_actor.get("traits") as Array)[0] as Resource
+	_expect(saved_trait.get("trait_id") == &"local_impact", "Save/reopen local Trait settings")
+	var reopened_history: UndoRedo = manager.get_history_undo_redo(
+		manager.get_object_history_id(reopened_actor)
+	)
+	var undo_version: int = reopened_history.get_version()
+	property.call("_inspect", saved_trait, true, 0)
+	await _settle()
+	_expect(
+		EditorInterface.get_inspector().get_edited_object() == saved_trait,
+		"Reopened local Trait settings use the existing resource",
+	)
+	_expect(
+		reopened_history.get_version() == undo_version,
+		"Opening settings creates no unique copy or undo action",
+	)
+	_expect(original[0].trait_id == &"physical_impact", "Reopened settings preserve shared Trait")
+	var saved_scene: PackedScene = load(scene_path) as PackedScene
+	var saved_state: SceneState = saved_scene.get_state()
+	var builtin_trait: Resource
+	for node_index: int in saved_state.get_node_count():
+		if saved_state.get_node_name(node_index) != &"Box":
+			continue
+		for property_index: int in saved_state.get_node_property_count(node_index):
+			if saved_state.get_node_property_name(node_index, property_index) == &"traits":
+				var saved_traits: Array = saved_state.get_node_property_value(
+					node_index, property_index,
+				)
+				builtin_trait = saved_traits[0] as Resource
+	_expect(
+		builtin_trait != null and builtin_trait.resource_path.contains("::"),
+		"Saved SceneState retains the built-in Trait path",
+	)
+	EditorInterface.inspect_object(reopened_actor)
+	await _settle()
+	property = _script_node(EditorInterface.get_inspector(), _PROPERTY_PATH) as EditorProperty
+	property.call("_inspect", builtin_trait, true, 0)
+	await _settle()
+	_expect(
+		EditorInterface.get_inspector().get_edited_object() == builtin_trait,
+		"Saved built-in Trait settings open without another copy",
+	)
+	_expect(
+		(reopened_actor.get("traits") as Array)[0] == saved_trait
+		and reopened_history.get_version() == undo_version,
+		"Opening saved built-in settings preserves the Entity array and undo history",
+	)
+	EditorInterface.open_scene_from_path("res://tests/fixtures/refactoring_v2/authoring_level.tscn")
+	await _settle()
+	EditorInterface.inspect_object(actor)
+	await _settle()
+	history.undo()
+	await _settle()
+	_expect((actor.get("traits") as Array)[0] == original[0], "Make Unique undo")
 	while history.has_undo():
 		history.undo()
 	history.clear_history()

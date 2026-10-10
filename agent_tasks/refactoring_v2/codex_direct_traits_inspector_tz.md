@@ -31,13 +31,16 @@
   `tests/fixtures/refactoring_v2/direct_traits_migration.json`; offline tool is editor-only/idempotent.
 - EntityAuthoring runtime Resource/reader and session installer removed; dock is IDs/diagnostics only.
   Legacy Template resources remain editor-only presets, never production scene/runtime providers.
-- Current: acceptance regression passed; preparing coherent commit and immutable-SHA review.
-- Next: collect review, triage/fix findings, finish evidence checkpoint. №42 remains OWNER_QA_PENDING.
+- Implementation checkpoint: `b2b6a80e6d8d347b5977e0ff2418b986bc09ec2b`.
+- Current: independent review collected; RV-001 repaired, native regression passed.
+- Next: commit RV-001 fix, targeted re-review, final evidence checkpoint; №42 stays OWNER_QA_PENDING.
 
 ### Validation
 - GUT PASS: 225 tests / 1845 assertions, `.artifacts/direct_traits/gut_final.log`.
 - Native headless Inspector PASS: add/new/type rejection/assign/reorder/remove/Make Unique,
   Undo/Redo, nested instance save/reopen, enable/disable/fallback/restart; `editor.log`.
+- RV-001 repair: native reopened scene local copy and saved SceneState built-in path both open
+  without another unique copy, shared .tres protected; `editor_local_reopen.log`. Parser 2/0 PASS.
 - Parser PASS: 45 changed scripts / 0 failures. Formatter, strict architecture, agent gate PASS.
 - Structure PASS after separately evidenced unused owner Theme rename (bytes/UID preserved,
   still untracked); [independent scope](../completed/developer_console_theme_naming.md).
@@ -50,10 +53,20 @@
 - Logs/baseline patches/timings retained under `.artifacts/direct_traits/`; shutdown-only 4.7.1
   retention is KNOWN_ENGINE_LIMITATION / DEFERRED, not runtime regression evidence.
 
+### Review
+- Base `cb257c3469f4e05acba310199d93f0faee2db77a` → target
+  `b2b6a80e6d8d347b5977e0ff2418b986bc09ec2b`: independent source review collected.
+- RV-001 (reviewer R1, P2): `_inspect` rejected saved local built-in resource paths (`scene::id`).
+  ACCEPTED/repair verified: allow local-to-scene empty/built-in paths; keep shared .tres protected.
+  Native evidence distinguishes empty-path instance copies from built-in paths in saved SceneState;
+  both open settings. Targeted save/reload regression PASS; fix commit/re-review next, cycle 1/2.
+  No other substantial findings; reviewer tests NOT_RUN. Current review state REVIEW_PENDING.
+- Review efficiency telemetry: NOT_MEASURED (single substantive checkpoint).
+
 ### Owner QA / blockers
-- Review: REVIEW_PENDING (commit-bound reviewer next).
 - Inspector ergonomics, actual resource picker/drag-drop, inherited scene editing and gameplay:
-  OWNER_QA_PENDING; no visual gameplay launch or visual PASS is claimed.
+  OWNER_QA_PENDING; [owner checklist](../../qa_tasks/direct_entity_traits_inspector.md).
+  No visual gameplay launch or visual PASS is claimed.
 
 Разработчик выбирает Entity в дереве Godot и **непосредственно в стандартном Inspector** видит секцию **Gameplay Traits** и действие **Add Trait**. Он может добавить, выбрать, настроить, удалить или переставить Traits, не создавая вручную `DEF_EntityTemplate`, `EntityAuthoring` и `metadata/entity_composition`.
 

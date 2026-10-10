@@ -141,7 +141,10 @@ func _move(index: int, direction: int) -> void:
 func _inspect(resource: Resource, _inspect_requested: bool, _index: int) -> void:
 	if resource == null:
 		return
-	if resource.resource_local_to_scene and resource.resource_path.is_empty():
+	var is_builtin: bool = (
+		resource.resource_path.is_empty() or resource.resource_path.contains("::")
+	)
+	if resource.resource_local_to_scene and is_builtin:
 		EditorInterface.edit_resource(resource)
 	else:
 		_issues.text = "Shared Trait: use Make Unique & Edit to configure this instance."
