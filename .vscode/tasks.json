@@ -156,8 +156,7 @@
     {
       "id": "godotOfflineScript",
       "type": "promptString",
-      "description": "Offline SceneTree/MainLoop script (not EditorScript)",
-      "default": "res://utils/parse_gdscript.gd"
+      "description": "Offline SceneTree/MainLoop script (not EditorScript)"
     },
     {
       "id": "godotSmokeName",
