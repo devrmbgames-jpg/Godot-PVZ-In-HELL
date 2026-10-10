@@ -1,13 +1,31 @@
 # R26.4 — Two dialogue variants per NPC archetype
 Status: **PLANNED**
 
-Parent: `agent_tasks/r26_items_npc_expansion.md`
+Parent: [R26](r26_items_npc_expansion.md).
 
-## Goal
+## Task state
+
+### Goal
 
 Create **two independent dialogue variants for every requested NPC archetype** using the existing Dialogue Manager integration.
 
 The owner will later copy these resources and add more variants. Therefore paths/data must make adding a third/fourth variant trivial without changing code.
+
+### Current
+
+PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
+in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
+The 2026-10-10 audit updates specification only.
+
+### Validation
+
+NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
+[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+
+### Owner QA / blockers
+
+Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
+Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
 
 ## Authoring structure
 
@@ -20,6 +38,11 @@ content/dialogue/npc/archetypes/<archetype>/
 ```
 
 The archetype definition exposes available dialogue variants. `NpcRecord` stores the selected variant for persistent identity.
+
+Use [dialogue-systems](../.agents/skills/dialogue-systems/SKILL.md) and
+[Dialogue Manager v4.1](../.agents/skills/dialogue-manager-v4.1/SKILL.md) for resource APIs,
+cues/mutations and response tags. Stable communication UI is an editable `.tscn`; use
+editor/MCP for open assets. Existing `content/ui/` adapters retain their ownership.
 
 Do not choose a random dialogue resource every time the same NPC opens dialogue.
 
@@ -115,6 +138,11 @@ Variant B: mocking/tempting.
 
 Decline/cancel paths must not accidentally apply the deal.
 
+Soul/blood acceptance submits one typed operation with a stable confirmation key and an
+observable committed result. Reopening a line, retrying a callback or restoring a save
+must not apply it again. Max-Health/Strength changes use a declared authoritative transaction;
+HP damage/healing and death still follow the common combat/lifecycle boundary.
+
 ### Жуткий
 Two variants:
 - unsettling questions;
@@ -149,21 +177,3 @@ Vampire blood request uses current HP, not max HP, and must not bypass the commo
 - Soul/blood interactions are idempotent and authoritative gameplay effects.
 - Angel uses signs instead of full spoken conversation.
 - Dialogue parser/import passes with no broken cues/titles.
-
-## Task state
-
-### Goal
-
-Implement the scope and acceptance specified in the Goal and required-design sections above.
-
-### Current
-
-PLANNED. Specification only; implementation has not started. Phase 1 task 03 normalizes metadata only; no R26 gameplay work is authorized by this repair.
-
-### Validation
-
-Specification only; no R26 engine or gameplay tests run. Use the validation requirements above when implementation is scheduled.
-
-### Owner QA / blockers
-
-No implementation blocker assessed. Subjective gameplay, dialogue, assets and balance require owner QA after implementation.

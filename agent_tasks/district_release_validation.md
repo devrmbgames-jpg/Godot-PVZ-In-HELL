@@ -14,13 +14,20 @@ Status: **PLANNED**
 
 ### Current
 
-Выполнять после закрытия функциональных задач и схемы 3. Итоговая сборка и многодневная приёмка новой реализации ещё не выполнены.
+Выполнять после закрытия функциональных задач и snapshot-аудита текущего поддерживаемого
+формата (сейчас schema 10). Итоговая сборка и многодневная приёмка ещё не выполнены.
 
 ### Validation
 
 Эта выделенная задача ещё не прошла приёмку. Ранее выполненные проверки в Current или родительском файле — контрольные точки; новые проверки записывать только после фактического запуска.
 
-Итоговый parser, импорт диалогов, `python utils/validate_project_structure.py`, профильный GUT, многодневный headless smoke, Windows export/startup и `git diff --check`.
+Итоговый реальный parser через `utils/godot_agent.ps1`, incremental formatter,
+`validate_agent_changes.py`, strict architecture/domain, структура, импорт диалогов,
+профильный GUT, fresh-process roundtrip/rejected-slot protection, многодневный headless
+smoke, Windows export/headless startup и `git diff --check`. Записать immutable-SHA
+review/triage по [review-orchestration](../.agents/skills/review-orchestration/SKILL.md).
+MCP недоступность не заменяет engine checks; shutdown-only retention классифицировать
+по текущей политике KNOWN_ENGINE_LIMITATION / DEFERRED.
 
 ### Owner QA / blockers
 
@@ -39,7 +46,10 @@ Rendered gameplay, визуальная съёмка и субъективная
 - [ ] Провести один ограниченный многодневный headless smoke: второй день, очередь/свет, терминал/ручной LOST, доставка, мебель, машина и сохранение без повторных операций.
 - [ ] Собрать Windows QA в .export штатным способом и проверить запуск в разрешённом headless режиме.
 - [ ] Записать фактические команды/результаты; не считать раннюю контрольную точку или остановленный по лимиту прогон итоговым PASS.
-- [ ] Оформить владельцу ручные пункты маршрутов, BT, мерцания, UI, ловушки, мебели и машины; завершить этап 4 и общий статус только после закрытия требований.
+- [ ] Оформить ручные пункты маршрутов, BT, мерцания, UI, ловушки, мебели и машины.
+  Обязательная owner acceptance оставляет задачу активной до решения владельца;
+  чеклист не отменяет её. DONE/архивирование — после всех required gates и review/triage;
+  явно отложенные subjective polish пункты можно передать в `qa_tasks/`.
 
 ## Критерии завершения
 

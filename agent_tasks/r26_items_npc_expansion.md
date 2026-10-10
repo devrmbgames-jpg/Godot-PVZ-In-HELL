@@ -1,7 +1,9 @@
 # R26 — Physical items and modular NPC archetypes
 Status: **PLANNED**
 
-## Goal
+## Task state
+
+### Goal
 
 Implement a data-driven expansion of physical items and district NPCs.
 
@@ -10,16 +12,38 @@ The feature has two pillars:
 1. Every world item is a real `RigidBody3D` and reuses the existing physical grab / impact / inventory / damage / hazard contracts.
 2. NPC identity is composed from a base archetype plus persistent modular traits/variation, while LimboAI Behavior Trees visibly own decision flow.
 
-This root task owns overall status/current/next. Supporting specifications:
-- `agent_tasks/r26_1_physical_items_and_effects.md`
-- `agent_tasks/r26_2_npc_archetypes_and_variation.md`
-- `agent_tasks/r26_3_npc_behavior_trees.md`
-- `agent_tasks/r26_4_dialogue_variants.md`
-- `agent_tasks/r26_5_integration_persistence_validation.md`
+This root task owns overall status/current/next. Each supporting task owns its own acceptance/evidence:
+- [R26.1 — physical items](r26_1_physical_items_and_effects.md)
+- [R26.2 — archetypes and variation](r26_2_npc_archetypes_and_variation.md)
+- [R26.3 — Behavior Trees](r26_3_npc_behavior_trees.md)
+- [R26.4 — dialogue variants](r26_4_dialogue_variants.md)
+- [R26.5 — integration and persistence](r26_5_integration_persistence_validation.md)
+
+### Current
+
+PLANNED; no R26 implementation or acceptance is claimed. The task audit on 2026-10-10
+uses current vertical domains, direct Entity Traits and save schema 10 as its baseline.
+Existing NPCs already use decomposed native BTs; R26 extends this execution model.
+
+### Next
+
+Start with R26.1. Stabilize shared item tags/effects and R26.2 data before archetype behavior.
+This documentation audit does not start gameplay implementation.
+
+### Validation
+
+Specification only; no R26 engine/gameplay tests run. Future milestones use
+[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and immutable-SHA
+[review-orchestration](../.agents/skills/review-orchestration/SKILL.md) before DONE.
+
+### Owner QA / blockers
+
+Final assets, prose, names, balance, music/shadows and feel require owner QA.
+Keep mandatory owner acceptance open; explicitly deferred polish may have a separate checklist.
 
 ## Existing contracts to preserve
 
-- Godot 4.7 / Jolt / GECS v8.
+- Godot 4.7.1 / Forward Plus / Jolt / pinned GECS v8; third-party addons are read-only.
 - Physical holding authority remains `item --R_HeldBy--> actor`; use `GrabService` / `E_GrabbableBody`.
 - Native rigid-body physics owns transform and velocity.
 - Damage enters only through `DamageRequest` / `DamageRequestService`; `C_Health` remains sole HP authority.
@@ -29,6 +53,21 @@ This root task owns overall status/current/next. Supporting specifications:
 - LimboAI Behavior Tree is the decision pattern. Do not hide a FSM/dispatcher in one `BTAction`.
 - Dialogue uses the existing Dialogue Manager adapters/resources.
 - Preserve current parcel service, schedule, memory, relationships, navigation, save/load, and existing owner-authored level geometry.
+- Components own state; Relationships own live Entity bindings; Systems own cadence;
+  Observers own discrete reactions; Services perform explicit synchronous operations.
+- Author actors/UI as editable `.tscn`, tuning as typed `.tres`; use editor/MCP for open
+  editor-owned assets and settings. No runtime source/scene generation.
+- Extend `E_TraitedEntity.traits` and its existing compiler; Templates are optional editor
+  presets. Behavioral `DEF_NpcTrait` data is distinct from Entity capability Traits.
+- New gameplay lives in `content/domains/<owner>/<role>/`; use Shared only for genuine
+  cross-domain contracts. Preserve stable IDs, exported bindings and mandatory references.
+- Implementation uses [gdscript-style](../.agents/skills/gdscript-style/SKILL.md) for project
+  scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
+- Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
+  native physics delta retains its existing authority.
+- Current save schema is `AutosaveStore.SCHEMA_VERSION = 10`; version incompatible
+  serialized changes from the actual implementation baseline. No old-save conversion,
+  defaults that accept an unsupported format, or automatic rejected-slot overwrite.
 
 ## Architecture direction
 
@@ -84,37 +123,3 @@ Shared traits must be reusable across archetypes so future NPCs can combine unex
 - Save/load reproduces the same person, name, traits and dialogue variant.
 - Focused automated tests and headless acceptance pass.
 - Subjective gameplay, visuals, tuning, music/shadow presentation and dialogue quality remain owner QA.
-
-## Current
-
-Specifications created. Implementation not started.
-
-## Next
-
-Start with R26.1. Do not implement NPC behavior before the shared item damage/tags contracts and archetype/trait data model are stable.
-
-## Validation
-
-Specification only; no engine/tests run.
-
-## Owner QA / blockers
-
-Exact balance values, final names, final dialogue prose, final models/animations/VFX/SFX and final item prices are intentionally author-tunable placeholders.
-
-## Task state
-
-### Goal
-
-Implement the scope and acceptance specified in the Goal and required-design sections above.
-
-### Current
-
-PLANNED. Specification only; implementation has not started. Phase 1 task 03 normalizes metadata only; no R26 gameplay work is authorized by this repair.
-
-### Validation
-
-Specification only; no R26 engine or gameplay tests run. Use the validation requirements above when implementation is scheduled.
-
-### Owner QA / blockers
-
-No implementation blocker assessed. Subjective gameplay, dialogue, assets and balance require owner QA after implementation.

@@ -1,11 +1,29 @@
 # R26.5 — Integration, persistence and acceptance for R26
 Status: **PLANNED**
 
-Parent: `agent_tasks/r26_items_npc_expansion.md`
+Parent: [R26](r26_items_npc_expansion.md).
 
-## Goal
+## Task state
+
+### Goal
 
 Integrate physical items, modular NPC archetypes, LimboAI behavior and dialogue into the existing district/parcel/save systems without regressing current gameplay.
+
+### Current
+
+PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
+in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
+The 2026-10-10 audit updates specification only.
+
+### Validation
+
+NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
+[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+
+### Owner QA / blockers
+
+Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
+Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
 
 ## Persistence
 
@@ -22,7 +40,6 @@ Persist only durable facts:
 - selected optional traits;
 - selected dialogue variant;
 - durable NPC personal memories already owned by `NpcRecord`;
-- durable state needed for “three accepted soul deals” if that state survives save/load.
 
 Do **not** persist:
 - live Node/Object references;
@@ -34,6 +51,10 @@ Do **not** persist:
 - derived hazard interest that can be reconstructed.
 
 Restore authoritative data first, then rebuild derived BT/perception/presentation state.
+
+Extend domain `SAVE_FIELDS` and the closed `SaveDataCodec` whitelist/preflight, with the
+existing passive restore/readiness boundary. Persist links by stable endpoint keys and
+rebuild Relationships before gameplay resumes; no default spawn/damage reactions during restore.
 
 ## Existing-system integration
 
@@ -85,28 +106,20 @@ Gameplay logic must not depend on a renderer/audio node completing successfully.
 
 Use placeholders if final assets do not exist.
 
-## Migration/backward compatibility
+## Schema and new-game construction
 
-Current saves/profiles without R26 fields must load to deterministic valid defaults where feasible.
-
-Do not silently mutate shared authored Resources during migration.
-
-If an old NPC has no archetype/seed:
-- assign a deterministic compatible baseline from existing profile data;
-- persist it on next save.
-
-If exact compatibility is impossible, fail validation explicitly rather than partially corrupting district identity.
+Current `AutosaveStore.SCHEMA_VERSION` is 10. When serialized fields/paths/meaning change,
+advance the actual supported version, guards, golden fixture and save-visible inventory.
+Unsupported old/newer/invalid saves reject before live mutation, preserve original bytes
+and remain protected from later autosave. No conversion, previous-format aliases or load defaults.
+Initialize new-game records deterministically from existing authored profiles without mutating
+shared Resources. Use [save-systems](../.agents/skills/save-systems/SKILL.md).
 
 ## Debugging support
 
-Extend developer diagnostics with compact read-only output:
-- item capabilities/categories/effect source;
-- NPC archetype;
-- selected traits;
-- dialogue variant;
-- species/receiver tags;
-- current important BT branch/status where LimboAI exposes it cheaply;
-- blood/light/gaze special-condition state only when relevant.
+Extend compact read-only diagnostics with item capabilities/categories/effect source,
+NPC archetype, selected traits/dialogue variant and species/receiver tags. Show important
+BT branch/status where LimboAI exposes it cheaply, and relevant blood/light/gaze conditions.
 
 Do not add per-frame verbose logging.
 
@@ -166,42 +179,18 @@ Do not add per-frame verbose logging.
 
 Use coherent batches.
 
-1. Static/structure validation.
-2. Godot parser on changed project GDScript.
-3. Focused GUT by subsystem.
-4. Save/load roundtrip tests.
-5. One bounded connected district headless smoke covering several archetypes/items.
-6. Build/export only at the final large milestone if normal project policy requires it.
+1. Incremental formatter, agent-change, strict architecture/domain and structure validators.
+2. Actual Godot parser through `utils/godot_agent.ps1`, independent of MCP availability.
+3. Focused GUT by subsystem and dialogue import/parser, using current project skills.
+4. Fresh-process current-format roundtrip, passive restore and incompatible-slot protection.
+5. One bounded connected district headless smoke; immutable-SHA review and finding triage.
+6. Runnable Windows QA export under `.export/` at the completed large gameplay milestone.
 
 Do not run rendered gameplay automatically.
 
 ## Owner QA
 
-Manual owner checks should focus on:
-- feel/readability of scythe AOE and thrown knife;
-- barrel/flask physics;
-- hazard readability;
-- Angel “look/freeze” feel;
-- Night Hunter light transition/music/shadows;
-- Creepy stalking feel;
-- Vampire visibility/cloud escape;
-- final dialogue prose;
-- balance of aggression, probabilities, order weights and karma thresholds.
-
-## Task state
-
-### Goal
-
-Implement the scope and acceptance specified in the Goal and required-design sections above.
-
-### Current
-
-PLANNED. Specification only; implementation has not started. Phase 1 task 03 normalizes metadata only; no R26 gameplay work is authorized by this repair.
-
-### Validation
-
-Specification only; no R26 engine or gameplay tests run. Use the validation requirements above when implementation is scheduled.
-
-### Owner QA / blockers
-
-No implementation blocker assessed. Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
+Manual owner checks cover scythe AOE/thrown-knife feel, barrel/flask physics and hazard
+readability; Angel look/freeze; Night Hunter light/music/shadows; Creepy stalking;
+Vampire visibility/cloud escape; final prose and balance of aggression, probabilities,
+order weights and karma thresholds.

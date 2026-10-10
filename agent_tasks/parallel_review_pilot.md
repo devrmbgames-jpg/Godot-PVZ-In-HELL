@@ -14,8 +14,10 @@ checkpoints без вмешательства GitHub CI и без одновре
 
 - [x] Main единственный writer/Review Manager; один child reviewer read-only.
 - [x] Review pinned `BASE_SHA..TARGET_SHA`, без живого Godot и worktree writes.
-- [x] P0/P1/P2 блокируют DONE до FIXED, P3 можно обоснованно отложить.
-- [x] Два repair rounds максимум, иначе BLOCKED.
+- [x] Принятые P0/P1/P2 блокируют DONE до FIXED; отклонённые/устаревшие findings
+  требуют evidence, P3 можно обоснованно отложить.
+- [x] Максимум два targeted repair/re-review cycles на checkpoint;
+  неуспешная приёмка — BLOCKED с evidence по project workflow.
 - [x] Примеры промптов и ссылки опубликованы в `docs/`.
 - [x] Native read-only reviewer запущен из Codex; Main продолжил независимую сверку logs/SHA.
 - [ ] Сравнены 2–3 значимых checkpoint с серийным режимом.
@@ -29,7 +31,8 @@ elapsed time, замечания и доступные token usage.
 
 2026-10-09: Main запустил один native read-only reviewer для task 41 на полном
 `857ec02d7703eab840dbf496730be48d29294d99..da636b0c5c46cd82260e58db1a508ca00f531fb8`.
-Результат собран и triaged в owning task; benchmark 2–3 checkpoints ещё не завершён.
+Результат собран и triaged в [owning task 41](completed/refactoring_v2/41_entity_templates_traits.md);
+benchmark 2–3 checkpoints ещё не завершён.
 Статусы ошибок и исправления принадлежат task 41, отдельная очередь не создаётся.
 
 ### Validation
@@ -39,6 +42,12 @@ elapsed time, замечания и доступные token usage.
 - NOT_MEASURED: review overlap и сравнительная эффективность 2–3 checkpoints.
 - NOT_RUN: Godot/GUT для policy-файлов; runtime validation task 41 записана в owning task.
 - Reviewer GUI/editor QA не выполняет.
+
+Применять текущий [review-orchestration](../.agents/skills/review-orchestration/SKILL.md):
+один read-only child на immutable SHA, Main единственный writer, без competing editor/tests.
+Нет доступной telemetry — NOT_MEASURED; self-review помечать NON_INDEPENDENT.
+Следующее действие — выбрать representative checkpoint и собрать сравнимые измерения,
+а не переоткрывать завершённый task 41 или запускать дополнительные review без checkpoint.
 
 ### Owner QA / blockers
 

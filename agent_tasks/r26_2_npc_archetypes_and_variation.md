@@ -1,15 +1,33 @@
 # R26.2 — NPC archetypes, composable traits and persistent variation
 Status: **PLANNED**
 
-Parent: `agent_tasks/r26_items_npc_expansion.md`
+Parent: [R26](r26_items_npc_expansion.md).
 
-## Goal
+## Task state
+
+### Goal
 
 Replace “one fixed profile == one fixed NPC personality” with a data-driven model:
 
 **base archetype + mandatory traits + compatible optional traits + persistent per-person variation.**
 
 The system must make it easy to create later NPC combinations not explicitly anticipated today.
+
+### Current
+
+PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
+in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
+The 2026-10-10 audit updates specification only.
+
+### Validation
+
+NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
+[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+
+### Owner QA / blockers
+
+Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
+Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
 
 ## Required data model
 
@@ -30,6 +48,11 @@ Introduce/extend a base archetype definition containing:
 - archetype-specific presentation hooks as data, not direct UI/audio ownership.
 
 Keep `DEF_NpcTrait` as reusable behavior capability. If the current fixed enum becomes a bottleneck, migrate toward authored trait definitions/keys rather than adding one giant enum/match forever.
+
+`DEF_NpcTrait` is NPC behavior/tuning data; Entity Traits compose C/R capabilities through
+the existing `E_TraitedEntity.traits` compiler. Extend that boundary rather than inventing
+another runtime composition registry. `C_District.people` owns `NpcRecord` aggregates;
+runtime Components/Relationships retain live state/bindings without a second identity store.
 
 ### Persistent person variation
 
@@ -54,6 +77,10 @@ Trait selection must:
 - have explicit bounded counts/weights;
 - never reroll every scene load.
 
+Derive choices through `DecisionRandomRules` from the durable world seed, stable NPC ID
+and a named creation decision. Commit selected values once. No independent global RNG,
+frame-time/instance-ID seed or sequence advance during preview/reload.
+
 ## Placeholder names
 
 Use two initial names per archetype; they are placeholders and must live in authored data.
@@ -72,86 +99,44 @@ Use two initial names per archetype; they are placeholders and must live in auth
 ## Archetypes and mandatory behavior traits
 
 ### Скромник
-Mandatory:
-- dislikes direct gaze;
-- likes observing others while trying not to be observed;
-- sustained player stare escalates to aggression;
-- order preference heavily weighted to CLOTHING.
-
-Optional variation examples:
-- patience before aggression;
-- preferred observation distance;
-- timid vs resentful social response.
+Dislikes direct gaze, observes others while avoiding being observed, and escalates sustained
+player staring to aggression. Orders strongly favor CLOTHING. Optional variation controls
+patience, observation distance and timid/resentful social response.
 
 ### Плачущий ангел
-Mandatory:
-- can move only while player is not looking at it;
-- only HOLY damage can meaningfully hurt it;
-- other NPCs should strongly avoid voluntary conflict with it;
-- cannot hold normal spoken dialogue; communicates with signs/boards;
-- order preference: ARTIFACT;
-- when aggressive, attack/movement are still possible only while unobserved;
-- aggressive movement speed is several times the peaceful value, authored as tuning.
-
-Do not implement “looked at” as omniscient bool; use real player camera/frustum/line-of-sight contract.
+Moves/attacks only while unobserved, including aggression; aggressive speed is several times
+peaceful speed, authored as tuning. Only HOLY meaningfully hurts it; other NPCs strongly avoid
+voluntary conflict. Uses signs/boards instead of spoken dialogue; orders ARTIFACT.
+Visibility uses the actual player camera/frustum/line of sight, never an omniscient boolean.
 
 ### Ночной охотник
-Mandatory:
-- dark -> aggressive attack behavior;
-- light -> peaceful/flee behavior;
-- always retreats from sufficiently bright zones;
-- appearance warning presentation: music change + denser shadow presentation;
-- order preference: WEAPON + CLOTHING.
-
-Presentation warning must not own AI state.
+Darkness produces aggressive attacks; light produces peaceful/flee behavior, with retreat
+from sufficiently bright zones. Appearance warns through music and denser shadows without
+presentation owning AI state. Orders WEAPON + CLOTHING. Preserve authored light-zone/circuit
+queries; do not introduce renderer sampling or repeated route light scans.
 
 ### Карга
-Mandatory:
-- deceptive dialogue tendencies;
-- riddles;
-- grudge/long memory affects later reactions;
-- ranged combat preference;
-- order preference: REAGENT + ARTIFACT.
+Deceptive dialogue/riddles, long-lived grudges affecting later reactions, ranged combat
+preference; orders REAGENT + ARTIFACT.
 
 ### Бугай
-Mandatory:
-- respects demonstrated strength;
-- dislikes weakness;
-- threatening dialogue tone;
-- order preference: WEAPON;
-- low-probability TOY order;
-- prefers private booth when unpacking;
-- if player visibly witnesses it holding/unpacking a toy, immediately escalates to attack.
-
-The toy trigger must use actual perception/visibility, not global knowledge.
+Respects demonstrated strength, dislikes weakness, speaks threateningly. Orders WEAPON with
+low-probability TOY, prefers a private unpacking booth. Player witnessing it holding/unpacking
+a toy immediately triggers attack through actual perception/visibility, never global knowledge.
 
 ### Огненный элементаль
-Mandatory:
-- fire immune;
-- fire aura;
-- thin floor Hazard around it with authored radius default **10 m**;
-- floor effect should force/encourage player to get off the floor through real Hazard rules, not scripted teleport;
-- order preference strongly weighted to fire REAGENT;
-- often opens parcels immediately;
-- authored chance that relevant parcel contents explode while held/opened.
-
-Do not create duplicate custom fire damage authority; reuse hazard/damage systems.
+Fire immune; fire aura and thin floor Hazard with authored default radius **10 m** encourage
+the player to get off the floor through real hazard rules, never teleportation. Orders strongly
+favor fire REAGENT; often opens parcels immediately, with authored explosion probability for
+relevant contents held/opened. Reuse hazard/damage owners; commit the roll once per opening.
 
 ### Потерянный
-Mandatory:
-- neutral baseline;
-- medium aggression;
-- no strong supernatural rule required;
-- can order any available category.
-
-This is the control/baseline archetype for generic behavior.
+Neutral baseline/control archetype with medium aggression, no required supernatural rule,
+and orders from any available category.
 
 ### Цепной дьявол
-Mandatory:
-- repeatedly offers soul trade in appropriate dialogue;
-- easy to anger;
-- fire immune;
-- order preference: WEAPON + ARTIFACT, sometimes CLOTHING.
+Repeated appropriate soul offers, easy to anger, fire immune; orders WEAPON + ARTIFACT,
+sometimes CLOTHING.
 
 Soul trade:
 - accepted deal gives player **+1 Strength**;
@@ -163,27 +148,16 @@ Soul trade:
 Future ending hooks should have a clean event/state boundary.
 
 ### Жуткий
-Mandatory:
-- stalks behind player;
-- asks unsettling questions;
-- especially likes approaching behind player while player is using the terminal during parcel issuing;
-- before being noticed, tries to stay outside direct player visibility;
-- once noticed, normal fallback behavior may resume according to traits/memory.
-
-Use perception and authored approach positions; do not teleport behind the player.
+Stalks behind the player and asks unsettling questions, especially during terminal parcel
+issuing. Avoids direct visibility until noticed, then may resume normal fallback according
+to traits/memory. Use perception and authored approach positions; no teleporting behind player.
 
 ### Вампир
-Mandatory:
-- prefers attacking wounded player but intentionally avoids killing them in ordinary feeding aggression;
-- dislikes light but is not forced to flee solely from light;
-- Blood Hazard immediately calms it;
-- if it perceives a Blood Hazard, prefers to enter/remain in that zone while valid;
-- may ask to drink player blood, removing authored **5–40% of current HP** on accepted interaction;
-- may become invisible;
-- may turn into a cloud and escape when threatened;
-- receiver tags make it react correctly to blood and unholy/holy rules.
-
-“Do not finish wounded player” requires an authored health floor/stop condition, not brittle exact-HP comparisons.
+Prefers wounded-player feeding attacks, stopping before ordinary lethal damage through an
+authored health floor/stop condition rather than exact-HP comparisons. Dislikes light without
+unconditional flight. Perceived Blood Hazard immediately calms it and attracts/retains it
+while valid. May request **5–40% of current HP** by consent, become invisible or escape as a
+cloud when threatened. Receiver tags implement blood/holy/unholy behavior.
 
 ## Order preference contract
 
@@ -202,23 +176,6 @@ Missing categories/items must degrade gracefully instead of generating invalid o
 - New trait can be attached to multiple archetypes.
 - Incompatible traits are rejected before spawn.
 - Rolled traits and dialogue variant persist through save/load.
-- Existing district people migrate/retain deterministic valid data.
+- New-game district records from existing authored profiles receive deterministic valid data.
+  Unsupported pre-R26 saves reject before mutation and remain protected; no save conversion.
 - Traits do not become another gameplay-state authority parallel to GECS/Relationships.
-
-## Task state
-
-### Goal
-
-Implement the scope and acceptance specified in the Goal and required-design sections above.
-
-### Current
-
-PLANNED. Specification only; implementation has not started. Phase 1 task 03 normalizes metadata only; no R26 gameplay work is authorized by this repair.
-
-### Validation
-
-Specification only; no R26 engine or gameplay tests run. Use the validation requirements above when implementation is scheduled.
-
-### Owner QA / blockers
-
-No implementation blocker assessed. Subjective gameplay, dialogue, assets and balance require owner QA after implementation.

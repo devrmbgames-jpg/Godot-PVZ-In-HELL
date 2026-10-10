@@ -1,15 +1,36 @@
 # R26.3 — LimboAI Behavior Trees for NPC archetypes
 Status: **PLANNED**
 
-Parent: `agent_tasks/r26_items_npc_expansion.md`
+Parent: [R26](r26_items_npc_expansion.md).
 
-## Goal
+## Task state
+
+### Goal
 
 Implement the requested NPC behaviors as **real Behavior Trees** using LimboAI v1.8.1.
 
-Load and follow `.agents/skills/limboai-v1.8/SKILL.md`.
+Follow [limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md) and
+[game-ai](../.agents/skills/game-ai/SKILL.md).
 
-The tree hierarchy must expose decision flow. Do not reproduce the current anti-pattern where one configurable `BTAction` calls a generic service that secretly selects/executes an entire behavior branch.
+The current `bt_npc_action.gd` is a narrow movement/lifecycle base; `NpcDecisionService`
+exposes explicit operations, and current trees already expose branch selection. Extend this
+model. A single configurable leaf dispatching an entire decision tree remains prohibited.
+
+### Current
+
+PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
+in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
+The 2026-10-10 audit updates specification only.
+
+### Validation
+
+NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
+[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+
+### Owner QA / blockers
+
+Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
+Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
 
 ## Mandatory BT pattern
 
@@ -30,6 +51,13 @@ Composite
 - Subtrees represent semantic reusable branches.
 - Blackboard stores transient context/references, not a hidden mode FSM.
 - Domain services may implement algorithms but may not choose among sibling BT behaviors.
+
+Preserve `S_NpcCadence` -> perception/traits -> `S_NpcDecision` and native manual BT updates;
+route planning/motion intent and combat keep their existing Systems/physics owners. Do not
+add another automatic BT tick or Service clock. Gaze/blood/light emergencies use existing
+`NpcDecisionService.request_wake` urgent invalidation; test reaction latency at the actual
+decision/physics boundary. Timed trait state stays in its authoritative Component/System.
+Long-lived target/zone bindings use Relationships, not a second Blackboard registry.
 
 Architectural acceptance test:
 
@@ -82,110 +110,55 @@ Do not force all of these into one generic mega-task with an enum.
 ## Archetype trees
 
 ### Скромник
-
-Expected visible structure:
-- prolonged direct gaze condition -> warning/escalation -> combat;
-- otherwise observe player from a safe angle/distance;
-- if player starts looking directly -> break gaze/reposition;
-- service/schedule remains reachable when not threatened.
+Prolonged gaze -> warning/escalation -> combat; otherwise observe from a safe angle/distance.
+Direct gaze interrupts observation for repositioning; service/schedule remains reachable.
 
 ### Плачущий ангел
-
-Highest-priority condition:
-- **player currently sees/looks at angel -> Freeze subtree**.
-
-When not observed:
-- peaceful: schedule/service/approach as authored;
-- aggressive: high-speed pursuit/attack;
-- if observed again, immediately interrupt motion/attack and freeze.
-
-Freeze must actually stop movement intent/attack execution safely; it must not fight the physics owner by directly forcing transforms every frame.
-
-Only HOLY damage vulnerability belongs to damage resistance, not BT.
-
-Other NPC conflict selection must treat angel as a target to avoid unless an explicit future rule overrides it.
+Highest priority: **player sees/looks at angel -> Freeze**. Unobserved peaceful actors use
+schedule/service/approach; aggressive actors pursue/attack at high speed. Observation must
+immediately interrupt motion/attack safely through their owners, never per-frame transform
+forcing. HOLY-only vulnerability belongs to resistance data. Other NPCs avoid selecting angel
+for conflict unless an explicit future rule overrides it.
 
 ### Ночной охотник
-
-Visible selector:
-- bright exposure -> flee to authored darker refuge;
-- dark + valid player target -> attack;
-- otherwise service/schedule.
-
-Music/shadow warning is a presentation side effect/event around appearance/state transition, not a hidden AI switch.
+Visible selector: bright exposure -> authored dark refuge; dark + valid player target ->
+attack; otherwise service/schedule. Read authored light zones/circuit state, not renderer
+samples. Music/shadows react to appearance/committed state without choosing AI branches.
 
 ### Карга
-
-- threat/emergency;
-- maintain ranged distance;
-- ranged attack preference;
-- grudge/memory may lower aggression threshold;
-- service/social/schedule;
-- riddles/deception stay in dialogue, not combat BT logic.
+Threat/emergency -> maintain ranged distance/ranged attack -> service/social/schedule.
+Grudges may lower aggression thresholds; riddles/deception remain in dialogue.
 
 ### Бугай
-
-- witnessed toy embarrassment -> immediate aggression;
-- strength/respect memory can suppress or end aggression;
-- combat;
-- private unpacking/service preference;
-- threatening social behavior;
-- ordinary schedule.
-
-Toy witnessing must use perception condition and real held/opened item category.
+Witnessed toy -> immediate aggression; strength/respect memory can suppress/end it, then
+combat -> private unpacking/service -> threatening social behavior -> ordinary schedule.
+Toy witnessing requires real perception and the actual held/opened item category.
 
 ### Огненный элементаль
-
-- maintain/ensure aura through narrow action/owner service;
-- danger/route logic;
-- optional immediate parcel opening;
-- relevant parcel explosion chance is authored once per opening event, not rolled every tick;
-- combat/service/schedule.
-
-Fire immunity belongs to resistance data, not BT.
+Aura materialization through its idempotent explicit owner -> danger/route -> optional
+immediate parcel opening -> combat/service/schedule. Roll explosion once per committed
+opening; fire immunity belongs to resistance data. Hazard Systems own aura progression.
 
 ### Потерянный
-
-Use as baseline tree:
-- safety;
-- combat only from ordinary social/aggression rules;
-- service;
-- schedule;
-- social;
-- idle.
-
-No special dispatcher.
+Baseline tree: safety -> ordinary social/aggression combat -> service -> schedule -> social
+-> idle. No special dispatcher.
 
 ### Цепной дьявол
-
-- ordinary safety/combat;
-- anger/escalation;
-- social opportunity can offer soul trade;
-- service/schedule;
-- repeated soul-offer cadence controlled by dialogue state/cooldown, not every tick.
-
-Fire immunity and soul stat mutations remain outside BT.
+Ordinary safety/combat -> anger/escalation -> social soul offer -> service/schedule.
+Offers use authoritative dialogue state/cooldown, not repeated tick effects. Fire immunity
+and soul stat transactions remain outside BT.
 
 ### Жуткий
-
-Before detected:
-- if player is busy at terminal / facing away -> approach behind;
-- if entering player's direct visibility -> stop/reposition/avoid LOS;
-- if player notices it -> mark detection and transition to normal social/combat behavior.
-
+Before detection: terminal-busy/facing-away player -> approach behind; entering visibility
+-> stop/reposition/avoid LOS; noticed -> record detection and use normal social/combat.
 No teleporting.
 
 ### Вампир
-
-Priority:
-- immediate danger -> cloud escape when conditions allow;
-- perceived Blood Hazard -> calm/end ordinary combat -> enter/stay in blood zone;
-- wounded player opportunity -> controlled attack/feed behavior;
-- light discomfort influences path/position but is not unconditional flee;
-- service/social/schedule;
-- optional invisibility behavior.
-
-Ordinary vampire aggression must stop before killing the player according to authored health floor. Explicit future lethal contexts may override via separate data/branch.
+Priority: immediate danger -> conditional cloud escape; perceived Blood Hazard -> calm/end
+ordinary combat -> enter/stay in zone; wounded player -> controlled feed/attack; light
+discomfort adjusts position without unconditional flight; service/social/schedule and optional
+invisibility. Ordinary aggression stops before lethal damage at the authored health floor;
+future lethal contexts require a separate explicit data/branch rule.
 
 ## Interruptions/lifecycle
 
@@ -198,7 +171,7 @@ Every long-running action must define:
 
 No stale move targets, attack phase, invisibility, reserved booth, hazard interest, or animation state after branch interruption.
 
-## Validation
+## Validation requirements
 
 Create focused BT tests proving:
 - tree resources have meaningful composites/conditions, not single dispatcher leaves;
@@ -209,21 +182,3 @@ Create focused BT tests proving:
 - behavior remains deterministic enough for headless tests with authored seeds.
 
 Near completion run parser + focused GUT + bounded headless district smoke. Rendered feel remains owner QA.
-
-## Task state
-
-### Goal
-
-Implement the scope and acceptance specified in the Goal and required-design sections above.
-
-### Current
-
-PLANNED. Specification only; implementation has not started. Phase 1 task 03 normalizes metadata only; no R26 gameplay work is authorized by this repair.
-
-### Validation
-
-Specification only; no R26 engine or gameplay tests run. Use the validation requirements above when implementation is scheduled.
-
-### Owner QA / blockers
-
-No implementation blocker assessed. Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
