@@ -210,6 +210,20 @@ func after_each() -> void:
 #region Current-format roundtrip and rejection
 ## Reads the committed native-Variant fixture, writes an isolated slot and restores real
 ## links/bodies.
+func test_valid_snapshot_cannot_capture_or_restore_during_cargo_transaction() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+	var session: Entity = _fixture_world.query.with_all([C_Receiving]).execute_one()
+	var receiving: C_Receiving = session.get_component(C_Receiving) as C_Receiving
+	receiving.cargo_commit_in_progress = true
+	assert_true(WorldSnapshotService.capture(_fixture_root, MORNING_DAY).is_empty())
+	assert_false(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+	assert_false(WorldSnapshotService.restore(snapshot, _fixture_root))
+	assert_true(receiving.cargo_commit_in_progress)
+	receiving.cargo_commit_in_progress = false
+	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+
+
 func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	var expected_roll: int = GameTimeQueries \
 			.decision(String(_active_id), MORNING_DAY, "npc/activity", 19) \

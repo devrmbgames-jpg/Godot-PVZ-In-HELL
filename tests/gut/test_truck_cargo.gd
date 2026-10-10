@@ -110,6 +110,46 @@ func _parcel(truck: E_MorningTruck, refused: bool) -> Entity:
 
 
 #region Состав и доход
+## Extracts the real scene's authored bindings without starting its World or autosave.
+func test_primitive_scene_replacement_dispatches_real_cargo_through_start_shift() -> void:
+	var level: Node3D = (
+		load("res://content/scenes/primitive_test_level.tscn") as PackedScene
+	).instantiate() as Node3D
+	assert_null(level.get_node_or_null("Entityes/PackageReturnPoint"))
+	var authored_zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
+	var parking: Marker3D = level.get_node("TruckParking") as Marker3D
+	assert_same(authored_zone.truck_parking, parking)
+	authored_zone.owner = null
+	parking.owner = null
+	authored_zone.get_parent().remove_child(authored_zone)
+	level.remove_child(parking)
+	_world.remove_entity(_zone)
+	_root.add_child(parking)
+	authored_zone.package_parent = _root
+	_world.add_entity(authored_zone)
+	_zone = authored_zone
+	_state = _zone.get_component(C_Receiving) as C_Receiving
+	_state.last_started_day = _cycle.day_index
+	_state.batch_id = "primitive/cargo/2"
+	level.free()
+	var truck: E_MorningTruck = await _ready_truck()
+	var item: Entity = _item(truck, 25, 3)
+	var transition: DayTransitionRequest = DayTransitionRequest.new()
+	transition.kind = DayTransitionRequest.Kind.START_SHIFT
+	transition.expected_day = _cycle.day_index
+	transition.expected_phase = _cycle.phase
+	var phase_system: S_DayPhase = S_DayPhase.new()
+	_world.add_system(phase_system)
+	assert_true(DayPhaseService.submit(transition))
+	phase_system.process([_session], [[_cycle]], 0.0)
+	phase_system.cmd.execute()
+	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY)
+	assert_false(_world.entities.has(item))
+	assert_eq(_wallet.balance, 7)
+	assert_eq(_state.dispatched_batch_id, _state.batch_id)
+
+
+
 func test_loading_and_extraction_do_not_sell_before_shift() -> void:
 	var truck: E_MorningTruck = await _ready_truck()
 	var item: Entity = _item(truck, 25, 3)
@@ -225,12 +265,17 @@ func test_reentrant_removal_and_repeated_commit_cannot_pay_twice() -> void:
 	var truck: E_MorningTruck = await _ready_truck()
 	var item: Entity = _item(truck, 25, 3)
 	var attempts: Array[bool] = []
+	var captures: Array[Dictionary] = []
 	var on_removal: Callable = func(removed: Entity) -> void:
 		if removed == item:
 			attempts.append(TruckCargoService.commit(_zone, _cycle))
+			captures.append(WorldSnapshotService.capture(_root, _cycle.day_index))
 	_world.entity_removed.connect(on_removal)
 	assert_true(ReceivingShiftService.commit_departure(_cycle))
 	assert_eq(attempts, [false])
+	assert_eq(captures.size(), 1)
+	assert_true(captures[0].is_empty(), "Structural callback cannot save an intermediate world")
+	assert_false(WorldSnapshotService.capture(_root, _cycle.day_index).is_empty())
 	assert_true(TruckCargoService.commit(_zone, _cycle))
 	assert_eq(_wallet.balance, 7)
 	assert_eq(_wallet.operations.size(), 1)

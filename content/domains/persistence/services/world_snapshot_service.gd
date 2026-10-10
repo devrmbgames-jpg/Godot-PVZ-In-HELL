@@ -4,9 +4,20 @@ class_name WorldSnapshotService
 
 
 #region Ключи и снимок
+static func _cargo_transaction_in_progress() -> bool:
+	for owner: Entity in ECS.world.query.with_all([C_Receiving]).execute():
+		var receiving: C_Receiving = owner.get_component(C_Receiving) as C_Receiving
+		if receiving.cargo_commit_in_progress:
+			return true
+	return false
+
+
 ## Снимает постоянные сущности, включая отключённых NPC; копия цикла всегда задаёт указанное утро.
 static func capture(root: Node, morning_day: int) -> Dictionary:
-	if not is_instance_valid(ECS.world) or root == null or morning_day < 1:
+	if (
+		not is_instance_valid(ECS.world) or root == null or morning_day < 1
+		or _cargo_transaction_in_progress()
+	):
 		return { }
 
 	var records: Array[Dictionary] = []
@@ -314,6 +325,8 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 
 ## Проверяет роли и prefab-контракты без регистрации Entities и без изменения живого World.
 static func can_restore(snapshot: Dictionary, root: Node) -> bool:
+	if is_instance_valid(ECS.world) and _cargo_transaction_in_progress():
+		return false
 	if not valid(snapshot, root):
 		return false
 

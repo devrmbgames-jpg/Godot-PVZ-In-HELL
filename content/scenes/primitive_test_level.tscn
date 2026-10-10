@@ -843,9 +843,10 @@ mode = 4
 ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_valve_f_never"
 
-[node name="ReceivingZone" parent="Entityes" unique_id=440386287 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
+[node name="ReceivingZone" parent="Entityes" unique_id=440386287 node_paths=PackedStringArray("package_parent", "truck_parking") instance=ExtResource("Receiving_zone")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -14)
 package_parent = NodePath("..")
+truck_parking = NodePath("../../TruckParking")
 ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w1axo")])
 metadata/persistent_local_id = &"placed_entityes_receivingzone"
@@ -1097,6 +1098,9 @@ billboard = 1
 text = "РАСПАКОВКА: полка / 5 аптечек / 5 хлеба
 F → вскрыть посылку. Полка закрепляется молотком."
 font_size = 28
+
+[node name="TruckParking" type="Marker3D" parent="." unique_id=550885970]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0.35, -14)
 
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]
