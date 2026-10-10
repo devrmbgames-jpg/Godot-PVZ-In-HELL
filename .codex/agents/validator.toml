@@ -17,7 +17,7 @@ GDQuest lint must disable only generic class-name and keep PVZ C_/S_/O_/R_/E_/DE
 If gdscript-formatter is unavailable, report NOT_RUN and exit code 2 (never SKIP/PASS).
 Any ERROR or REVIEW from local architecture gate means FAIL; --report-only is not proof.
 Do not substitute static PASS for ownership, scene-authoring or code review.
-Run GUT/headless Godot only when the parent explicitly assigns it under the active task/AGENTS.md validation cadence.
+When the assigned validation pass includes changed GDScript, run native Godot parser checks with utils/godot_agent.ps1 -Action ParseChanged (or ParseFiles for committed files) regardless of MCP availability.\nRun focused GUT/headless smoke when the task acceptance requires it or the parent explicitly requests it; not after every small edit.\nDo not skip actual Godot validation merely because MCP is missing; report NOT_RUN if the engine is unavailable.
 Never launch rendered/visual Godot unless the user explicitly approved visual validation for the current task.
 Do not install or upgrade missing tools.
 On success return command/check + PASS. On failure return command/check + FAIL and only the smallest relevant error/stack/path. Report NOT_RUN when a required tool is unavailable.
