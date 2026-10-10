@@ -25,6 +25,145 @@
         "close": true,
         "clear": true
       }
+    },
+    {
+      "label": "Godot: Validate changed GDScript",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\utils\\godot_agent.ps1",
+        "-Action",
+        "ParseChanged"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Godot: Run focused GUT",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\utils\\godot_agent.ps1",
+        "-Action",
+        "GUT",
+        "-TestPath",
+        "${input:godotGutTest}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Godot: Import project (editor closed)",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\utils\\godot_agent.ps1",
+        "-Action",
+        "Import"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Godot: Offline scene script (editor closed)",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\utils\\godot_agent.ps1",
+        "-Action",
+        "OfflineScript",
+        "-ScriptPath",
+        "${input:godotOfflineScript}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Godot: Run focused smoke",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\utils\\run_smoke.ps1",
+        "-Name",
+        "${input:godotSmokeName}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "godotGutTest",
+      "type": "promptString",
+      "description": "Focused GUT test (res://tests/gut/....gd)",
+      "default": "res://tests/gut/test_entity_build_rules.gd"
+    },
+    {
+      "id": "godotOfflineScript",
+      "type": "promptString",
+      "description": "Offline SceneTree/MainLoop script (not EditorScript)",
+      "default": "res://utils/parse_gdscript.gd"
+    },
+    {
+      "id": "godotSmokeName",
+      "type": "promptString",
+      "description": "Existing smoke name (utils/run_smoke.ps1 -List)",
+      "default": "district"
     }
   ]
 }
