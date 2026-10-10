@@ -71,6 +71,12 @@ inventory and tooling143 PASS; Content Doctor92 scenes/3 dialogues/0 errors/0 re
 MCP Inspector regression9/9 PASS, authored_content_changed=false, Inspector restored.
 Headless vertical_slice and customer_inspection PASS. Night write + fresh-process restore
 PASS (`night_persistence-write-20261010-202715021`, `restore-20261010-202733311`).
-Full112 GUT suites, exported Windows menu/main startup and final immutable review pending.
+Full112 GUT run:1641 loaded,1637 PASS,four FAIL; acceptance remains open. The independent
+[fixture isolation defect](gut_definition_isolation.md) owns repair, ordered rerun and review.
+Windows QA export PASS: `.export/windows/20261010-103204Z-4eca2941-refactoring-v2-final`,
+menu/main-level120 frames each PASS, dirty owner worktree recorded, QA profile separate.
+Independent final source review base `287933e0c19c141ade715503063844fb7606a75f` to
+`4eca294128c4acd78f4d53cf0ec1b4616c970bcc`: ARCHITECTURE/STYLE PASS, no material
+findings; reviewer VALIDATION NOT_RUN. Startup ordering/UI/zero-debt detection reviewed.
 Subjective QA is consolidated in qa_tasks/refactoring_v2.md; owner acceptance of both
 Inspector / Direct Traits and Gameplay Debugger2026-10-10 remains authoritative.

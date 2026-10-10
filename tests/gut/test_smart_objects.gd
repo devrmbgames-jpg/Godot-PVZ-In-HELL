@@ -357,6 +357,14 @@ func test_schema_errors_are_reported_by_common_compiler_provider() -> void:
 	var authoring: E_TraitedEntity = actor as E_TraitedEntity
 	authoring.traits = [authoring.traits[0].duplicate(true) as EntityTrait]
 	var capability: ET_SmartObject = authoring.traits[0] as ET_SmartObject
+	var authored: DEF_SmartObject = capability.definition
+	var original_slot: StringName = authored.affordances[0].slot_id
+	var original_executor: DEF_InteractionAction = authored.affordances[0].executor
+	capability.definition = authored.duplicate() as DEF_SmartObject
+	capability.definition.affordances = authored.affordances.duplicate()
+	capability.definition.affordances[0] = (
+		authored.affordances[0].duplicate() as DEF_SmartAffordance
+	)
 	capability.definition.affordances[0].executor = null
 	capability.definition.affordances[0].slot_id = &"missing"
 	actor.get_node("ReturnMarker").free()
@@ -366,4 +374,6 @@ func test_schema_errors_are_reported_by_common_compiler_provider() -> void:
 	assert_string_contains(messages, "concrete executor")
 	assert_string_contains(messages, "missing slot")
 	assert_string_contains(messages, "Marker3D")
+	assert_eq(authored.affordances[0].slot_id, original_slot)
+	assert_same(authored.affordances[0].executor, original_executor)
 #endregion

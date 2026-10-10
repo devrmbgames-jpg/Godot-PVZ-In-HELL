@@ -223,7 +223,10 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 		snapshot = decoded as Dictionary
 
 	assert_eq(snapshot.version, AutosaveStore.SCHEMA_VERSION)
-	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+	assert_true(
+		WorldSnapshotService.can_restore(snapshot, _fixture_root),
+		"Golden snapshot data valid: %s" % WorldSnapshotService.valid(snapshot, _fixture_root),
+	)
 	assert_eq(AutosaveStore.write(snapshot, SLOT_PATH), OK)
 	var stored_snapshot: Dictionary = AutosaveStore.read(SLOT_PATH)
 	assert_eq(stored_snapshot, snapshot)

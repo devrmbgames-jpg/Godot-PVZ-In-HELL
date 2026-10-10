@@ -62,9 +62,12 @@ func test_target_loss_fails_without_fabricated_completion_then_retries() -> void
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
 	var previous: int = decision.action_generation
-	_district.definition = _district.definition.duplicate() as DEF_District
+	var authored_definition: DEF_District = _district.definition
+	_district.definition = authored_definition.duplicate() as DEF_District
 	var places: Array[DEF_DistrictPlace] = _district.definition.places.duplicate()
+	_district.definition.places = places.duplicate()
 	_district.definition.places.erase(_district.definition.place_for(person.goal_id))
+	assert_eq(authored_definition.places, places)
 	body.place_at(Vector3.ZERO)
 	_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
 	assert_eq(decision.action_status, C_NpcDecision.ActionStatus.FAILED)
