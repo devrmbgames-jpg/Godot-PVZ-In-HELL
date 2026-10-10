@@ -8,6 +8,7 @@ var _session: Entity
 var _cycle: C_DayCycle
 var _clock_owner: S_GameTime
 
+
 #region Clock fixture
 ## Builds the required calendar aggregate and actual elapsed-clock owner.
 func before_each() -> void:
@@ -33,6 +34,7 @@ func after_each() -> void:
 func _step(delta: float) -> void:
 	_clock_owner.process([_session], [[_cycle]], delta)
 #endregion
+
 
 #region Elapsed ticks versus calendar
 ## Carries fractional ticks across partitioned callback deltas.
@@ -82,6 +84,7 @@ func test_invalid_callback_delta_cannot_corrupt_the_clock() -> void:
 	assert_true(GameTimeRules.valid(_cycle.clock))
 #endregion
 
+
 #region Canonical seed and pinned native RNG
 ## Checks independent byte/seed oracles and exact pinned native RNG bits.
 func test_independent_utf8_sha256_golden_and_pinned_rng_outputs() -> void:
@@ -89,8 +92,10 @@ func test_independent_utf8_sha256_golden_and_pinned_rng_outputs() -> void:
 	var fixture: Dictionary = parsed as Dictionary
 	assert_eq(String(fixture.algorithm), DecisionRandomRules.ALGORITHM)
 	var engine_version: Dictionary = Engine.get_version_info()
-	assert_eq("%s.%s.%s" % [engine_version.major, engine_version.minor, engine_version.patch],
-		String(fixture.godot))
+	assert_eq(
+		"%s.%s.%s" % [engine_version.major, engine_version.minor, engine_version.patch],
+		String(fixture.godot),
+	)
 	for sample: Dictionary in fixture.cases:
 		var world_seed: int = String(sample.world_seed).to_int()
 		var actor_id: String = String(sample.actor_id)
@@ -98,20 +103,32 @@ func test_independent_utf8_sha256_golden_and_pinned_rng_outputs() -> void:
 		var kind: String = String(sample.kind)
 		var sequence: int = int(sample.sequence)
 		var encoded_key: PackedByteArray = DecisionRandomRules.key_bytes(
-			world_seed, actor_id, day, kind, sequence,
+			world_seed,
+			actor_id,
+			day,
+			kind,
+			sequence,
 		)
 		assert_eq(encoded_key.hex_encode(), String(sample.key_hex))
-		assert_eq(DecisionRandomRules.seed_for(world_seed, actor_id, day, kind, sequence),
-			String(sample.seed).to_int())
+		assert_eq(
+			DecisionRandomRules.seed_for(world_seed, actor_id, day, kind, sequence),
+			String(sample.seed).to_int(),
+		)
 
 		var random: RandomNumberGenerator = DecisionRandomRules.generator(
-			world_seed, actor_id, day, kind, sequence,
+			world_seed,
+			actor_id,
+			day,
+			kind,
+			sequence,
 		)
 		for expected: float in sample.integers:
 			assert_eq(random.randi(), int(expected))
 		random = DecisionRandomRules.generator(world_seed, actor_id, day, kind, sequence)
 		for expected_bits: String in sample.fraction_bits:
-			var actual_bits: String = PackedFloat64Array([random.randf()]).to_byte_array().hex_encode()
+			var actual_bits: String = (
+				PackedFloat64Array([random.randf()]).to_byte_array().hex_encode()
+			)
 			assert_eq(actual_bits, expected_bits)
 
 
@@ -123,9 +140,12 @@ func test_framing_and_each_key_dimension_distinguish_decisions() -> void:
 	assert_ne(canonical, DecisionRandomRules.seed_for(7, "npc/1", 4, "activity", 5))
 	assert_ne(canonical, DecisionRandomRules.seed_for(7, "npc/1", 3, "social", 5))
 	assert_ne(canonical, DecisionRandomRules.seed_for(7, "npc/1", 3, "activity", 6))
-	assert_ne(DecisionRandomRules.seed_for(7, "a:1", 3, "b", 5),
-		DecisionRandomRules.seed_for(7, "a", 3, "1:b", 5))
+	assert_ne(
+		DecisionRandomRules.seed_for(7, "a:1", 3, "b", 5),
+		DecisionRandomRules.seed_for(7, "a", 3, "1:b", 5),
+	)
 #endregion
+
 
 #region Durable replay and malformed data
 ## Restores durable clock state and reproduces a repeated-decision preview.
@@ -143,7 +163,11 @@ func test_clock_remainder_seed_and_calendar_roundtrip_without_consuming_preview(
 	assert_eq(restored.day_index, 12)
 	assert_eq(restored.clock.world_seed, -42)
 	var restored_random: RandomNumberGenerator = DecisionRandomRules.generator(
-		restored.clock.world_seed, "npc/7", restored.day_index, "activity", 19,
+		restored.clock.world_seed,
+		"npc/7",
+		restored.day_index,
+		"activity",
+		19,
 	)
 	assert_eq(restored_random.randi(), first_roll)
 	assert_eq(GameTimeQueries.decision("npc/7", 12, "activity", 19).randi(), first_roll)
@@ -165,6 +189,7 @@ func test_incomplete_negative_nonfinite_and_out_of_quantum_clock_records_are_rej
 	(incomplete.fields as Dictionary).erase("world_seed")
 	assert_null(SaveDataCodec.decode(incomplete))
 #endregion
+
 
 #region Canonical random candidate order
 ## Proves canonical sorting makes physical variants independent of container order.
@@ -194,15 +219,26 @@ func test_macro_schedule_goal_uses_sorted_ids_without_consuming_activity_sequenc
 		place.kind = DEF_DistrictPlace.Kind.ACTIVITY
 		district.places.append(place)
 	var goal: StringName = NpcScheduleRules.goal_for(
-		district, person, DEF_NpcSchedule.Location.STREET, -42, 12, C_DayCycle.Phase.DAY,
+		district,
+		person,
+		DEF_NpcSchedule.Location.STREET,
+		-42,
+		12,
+		C_DayCycle.Phase.DAY,
 	)
 	district.places.reverse()
 	var reordered_goal: StringName = NpcScheduleRules.goal_for(
-		district, person, DEF_NpcSchedule.Location.STREET, -42, 12, C_DayCycle.Phase.DAY,
+		district,
+		person,
+		DEF_NpcSchedule.Location.STREET,
+		-42,
+		12,
+		C_DayCycle.Phase.DAY,
 	)
 	assert_eq(reordered_goal, goal)
 	assert_eq(person.activity_sequence, 19)
 #endregion
+
 
 #region Storage retry clock
 ## Storage retries make bounded progress during Night while elapsed gameplay remains frozen.
@@ -233,8 +269,10 @@ func test_night_storage_retry_progress_does_not_advance_gameplay_timestamp() -> 
 	assert_false(_cycle.night_ready)
 #endregion
 
+
 #region Exclusive clock aggregate ownership
-## Two GECS entities using one authored recipe receive independent live clocks and leave the recipe intact.
+## Two GECS entities using one authored recipe receive independent live clocks and leave the recipe
+## intact.
 func test_reused_component_recipe_does_not_share_mutable_clock_state() -> void:
 	var recipe: C_DayCycle = C_DayCycle.new()
 	recipe.clock.world_seed = -42

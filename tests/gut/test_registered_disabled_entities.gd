@@ -1,14 +1,18 @@
 extends GutTest
-## Proves dormant registered actors remain indexed through component and relationship lifecycle changes.
+## Proves dormant registered actors remain indexed through component and relationship lifecycle
+## changes.
+
 
 class FixtureWorld extends GameWorld:
 	# Isolate the production registration API from authored level startup.
 	func _ready() -> void:
 		initialize()
 
+
 var _world: GameWorld
 var _disabled_events: int = 0
 var _added_events: int = 0
+
 
 #region Isolated production World
 ## Uses GameWorld's actual disabled lifecycle without constructing gameplay or a save slot.
@@ -44,6 +48,7 @@ func _on_added(_subject: Entity, _component: Variant) -> void:
 	_added_events += 1
 #endregion
 
+
 #region Dormant registered structure
 ## Matches the restore regression: a disabled NPC loses its service role before later reactivation.
 func test_disabled_component_removal_and_replacement_keep_queries_current() -> void:
@@ -64,7 +69,8 @@ func test_disabled_component_removal_and_replacement_keep_queries_current() -> v
 	assert_eq(_world.query.with_all([C_Challenge, C_CustomerAgent]).execute(), [subject])
 
 
-## Both per-link and batched operations maintain structural relationship query membership while dormant.
+## Both per-link and batched operations maintain structural relationship query membership while
+## dormant.
 func test_disabled_relationship_changes_keep_native_index_current() -> void:
 	var subject: Entity = _entity([])
 	var endpoint: Entity = _entity([])
@@ -85,7 +91,8 @@ func test_disabled_relationship_changes_keep_native_index_current() -> void:
 	assert_false(subject.enabled)
 
 
-## Repeated disable/enable cannot duplicate the World's signal subscriptions or published component facts.
+## Repeated disable/enable cannot duplicate the World's signal subscriptions or published component
+## facts.
 func test_repeated_participation_changes_do_not_duplicate_tracking() -> void:
 	var subject: Entity = _entity([])
 	_world.disable_entity(subject)

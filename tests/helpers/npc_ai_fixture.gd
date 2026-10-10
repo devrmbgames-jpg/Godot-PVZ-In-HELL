@@ -5,10 +5,24 @@ class_name NpcAiFixture
 ## Isolated World group used only for real-owner fixture execution.
 const GROUP: String = "npc_ai_fixture"
 
+
 #region Real owner execution
 ## Advances the complete production cadence/sensing/trait/native-decision/noise dependency graph.
 static func advance(_district: C_District, delta: float) -> void:
-	_run([S_GameTime, S_NpcCadence, S_NpcFootsteps, S_NpcPerception, S_NpcTraits, S_NpcDecision, S_NpcRoute, S_NpcRoutePlanning, S_NpcNoise], delta)
+	_run(
+		[
+			S_GameTime,
+			S_NpcCadence,
+			S_NpcFootsteps,
+			S_NpcPerception,
+			S_NpcTraits,
+			S_NpcDecision,
+			S_NpcRoute,
+			S_NpcRoutePlanning,
+			S_NpcNoise,
+		],
+		delta,
+	)
 
 
 ## Runs actual sensing in isolation so geometry assertions do not advance unrelated trait clocks.
@@ -34,6 +48,8 @@ static func footsteps(body: Entity, delta: float) -> void:
 		var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
 		_select_only(body as E_DistrictNpc, NpcPopulationQueries.person_for(identity.npc_id), delta)
 	_run([S_NpcFootsteps], delta)
+
+
 ## Runs route progress without consuming the fair queue, matching isolated regression phases.
 static func route(body: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 	_select_only(body, person, delta)
@@ -45,6 +61,7 @@ static func plan_routes(_district: C_District) -> void:
 	_clear_due()
 	_run([S_NpcRoutePlanning], 0.0)
 #endregion
+
 
 #region Isolated due-step setup
 static func _clear_due() -> void:

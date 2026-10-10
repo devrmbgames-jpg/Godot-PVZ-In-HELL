@@ -5,6 +5,9 @@ const FRAME_DELTA: float = 1.0 / 60.0
 const SETTLE_FRAMES: int = 180
 const TICK_ROUNDING_MARGIN_FRAMES: int = 2
 
+const DEF_CHALLENGE_FLOOR_PATH: String = (
+	"res://content/domains/challenges/definitions/def_challenge_floor.tres"
+)
 var _world: World = null
 
 
@@ -16,11 +19,16 @@ func _ready() -> void:
 func _run() -> void:
 	await _physical_support()
 	await _main_customer()
-	print("Challenge floor real support box airborne damage default customer HUD and cleanup smoke PASS")
+	print(
+		(
+			"Challenge floor real support box airborne damage default "
+			+ "customer HUD and cleanup smoke PASS"
+		)
+	)
 	get_tree().quit.call_deferred()
 
-
 #endregion
+
 
 #region Изолированная физическая опора
 ## В изолированном World проверяет контакт пола, высокой коробки и состояние без опоры.
@@ -49,7 +57,10 @@ func _physical_support() -> void:
 	floor_body.position.y = -0.1
 	_world.add_child(floor_body)
 
-	var box: RigidBody3D = (load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate() as RigidBody3D
+	var box: RigidBody3D = (
+		(load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate()
+		as RigidBody3D
+	)
 	box.position.x = 1.5
 	EntityCompositionFixture.register(_world, box as Node as Entity)
 	var body: RigidBody3D = RigidBody3D.new()
@@ -81,7 +92,9 @@ func _physical_support() -> void:
 	assert(absf(motion.floor_contact_position.y) < 0.06)
 	var subject: Entity = Entity.new()
 	var challenge: C_Challenge = C_Challenge.new()
-	challenge.definition = (load("res://content/domains/challenges/definitions/def_challenge_floor.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	challenge.definition = (
+		(load(DEF_CHALLENGE_FLOOR_PATH) as DEF_Challenge).duplicate(true) as DEF_Challenge
+	)
 	challenge.definition.preparation_seconds = 0.0
 	challenge.definition.timeout_seconds = 30.0
 	challenge.definition.violation_grace_seconds = 10.0
@@ -90,7 +103,9 @@ func _physical_support() -> void:
 	_world.add_entity(subject)
 	assert(ChallengeService.arm(subject, actor) and ChallengeService.activate(subject))
 	var effect: Entity = _world.query.with_all([C_FloorHazard]).execute_one()
-	var profile: DEF_FloorHazard = (effect.get_component(C_Hazard) as C_Hazard).definition as DEF_FloorHazard
+	var profile: DEF_FloorHazard = (
+		(effect.get_component(C_Hazard) as C_Hazard).definition as DEF_FloorHazard
+	)
 	var damage_frames: int = ceili(profile.tick_seconds / FRAME_DELTA) + TICK_ROUNDING_MARGIN_FRAMES
 	for frame: int in damage_frames:
 		_world.process(FRAME_DELTA)
@@ -106,7 +121,10 @@ func _physical_support() -> void:
 	for frame: int in damage_frames:
 		_world.process(FRAME_DELTA)
 		await get_tree().physics_frame
-	assert(health.current == safe_health, "Player on a movable box must not be damaged by the floor projection")
+	assert(
+		health.current == safe_health,
+		"Player on a movable box must not be damaged by the floor projection",
+	)
 	body.global_position.y = 2.0
 	body.linear_velocity = Vector3.ZERO
 	for frame: int in 3:
@@ -131,8 +149,8 @@ func _wait_support(motion: C_Motion, expected: RID) -> void:
 
 	assert(false, "Real physics support must match the floor/box collider")
 
-
 #endregion
+
 
 #region Историческая встреча в основной сцене
 ## Checks the authored floor condition through the current main World and an isolated legacy visit.
@@ -154,11 +172,16 @@ func _main_customer() -> void:
 	visit.visit_id = &"smoke/floor"
 	visit.definition = DEF_Customer.new()
 	visit.definition.key = &"floor_customer"
-	visit.definition.challenge = load("res://content/domains/challenges/definitions/def_challenge_floor.tres") as DEF_Challenge
+	visit.definition.challenge = (load(DEF_CHALLENGE_FLOOR_PATH) as DEF_Challenge)
 	visit.started = true
 	visit.visit_count = 1
 	flow.visits = [visit]
-	var customer: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	var customer: E_NpcCharacter = (
+		(
+			load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+		).instantiate()
+		as E_NpcCharacter
+	)
 	var body: RigidBody3D = customer as Node as RigidBody3D
 	body.position = CustomerFlowQueries.counter().waiting_position()
 	body.freeze = true
@@ -186,7 +209,10 @@ func _main_customer() -> void:
 			break
 
 		await get_tree().process_frame
-	assert(debug.text.contains("Пол:") and debug.text.contains("Таймер урона"), "Floor debug must show contact and damage clock: " + debug.text)
+	assert(
+		debug.text.contains("Пол:") and debug.text.contains("Таймер урона"),
+		"Floor debug must show contact and damage clock: " + debug.text,
+	)
 	GameTimeFixture.gameplay(ECS.world, state.definition.timeout_seconds)
 	assert(state.result == ChallengeResult.Type.SUCCESS)
 	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)

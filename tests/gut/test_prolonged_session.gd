@@ -27,7 +27,9 @@ class ProbeAction extends DEF_InteractionAction:
 		if removes_session:
 			ProlongedInteractionService.cancel(actor)
 		if replacement_action != null:
-			(actor.get_component(C_InteractionActionSet) as C_InteractionActionSet).actions.assign([replacement_action])
+			(actor.get_component(C_InteractionActionSet) as C_InteractionActionSet).actions.assign(
+				[replacement_action]
+			)
 			var choice: InteractionActionChoice = InteractionActionChoice.new()
 			choice.action = replacement_action
 			choice.source = actor
@@ -93,8 +95,8 @@ func _tick(delta: float) -> void:
 	_controller.input_tick += 1
 	InteractionInputFixture.advance(_actor, delta)
 
-
 #endregion
+
 
 #region Ввод и фиксация эффекта
 ## The completed callback can replace the session; cleanup may affect only its captured binding.
@@ -206,14 +208,20 @@ func test_duplicate_input_tick_does_not_advance_progress_twice() -> void:
 	_tick(0.5)
 	InteractionInputFixture.advance(_actor, 1.0)
 	assert_eq(_action.calls, 0)
-	assert_almost_eq(ProlongedInteractionService.active_progress(_actor).fraction, 1.0 / 3.0, 0.0001)
+	assert_almost_eq(
+		ProlongedInteractionService.active_progress(_actor).fraction,
+		1.0 / 3.0,
+		0.0001,
+	)
 
 
 ## Модальный захват отменяет действие, сохраняя токен чужого владельца.
 func test_modal_capture_interrupts_without_releasing_other_owner() -> void:
 	_start()
 	_tick(0.5)
-	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	var token: int = (
+		InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	)
 	_tick(5.0)
 	assert_null(ProlongedInteractionService.session(_actor))
 	assert_eq(_action.calls, 0)
@@ -237,7 +245,9 @@ func test_failed_effect_does_not_commit_never_policy() -> void:
 	_action.succeeds = false
 	_start()
 	_tick(1.5)
-	var progress: ProlongedInteractionProgress = ProlongedInteractionService.progress_for(_actor, &"probe")
+	var progress: ProlongedInteractionProgress = (
+		ProlongedInteractionService.progress_for(_actor, &"probe")
+	)
 	assert_eq(_action.calls, 1)
 	assert_eq(progress.phase, ProlongedInteractionProgress.Phase.IDLE)
 	assert_null(ProlongedInteractionService.session(_actor))
@@ -249,12 +259,14 @@ func test_success_survives_reentrant_session_removal() -> void:
 	_action.removes_session = true
 	_start()
 	_tick(1.5)
-	var progress: ProlongedInteractionProgress = ProlongedInteractionService.progress_for(_actor, &"probe")
+	var progress: ProlongedInteractionProgress = (
+		ProlongedInteractionService.progress_for(_actor, &"probe")
+	)
 	assert_eq(progress.phase, ProlongedInteractionProgress.Phase.COMPLETED)
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.HANDS)
 
-
 #endregion
+
 
 #region Владение и освобождение
 ## Одной целью владеет один участник; удаление цели освобождает обе живые связи.
@@ -279,7 +291,10 @@ func test_external_relationship_removal_releases_capture() -> void:
 	_start()
 	_actor.remove_relationship(ProlongedInteractionService.session(_actor))
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.HANDS)
-	assert_eq(ProlongedInteractionService.progress_for(_actor, &"probe").phase, ProlongedInteractionProgress.Phase.IDLE)
+	assert_eq(
+		ProlongedInteractionService.progress_for(_actor, &"probe").phase,
+		ProlongedInteractionProgress.Phase.IDLE,
+	)
 
 
 ## Затухание незавершённой доли продолжается после отпускания кнопки.
@@ -290,7 +305,9 @@ func test_idle_decay_continues_after_release() -> void:
 	_tick(0.75)
 	_controller.action_main = false
 	_tick(0.0)
-	var state: C_ProlongedInteraction = _actor.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	var state: C_ProlongedInteraction = (
+		_actor.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	)
 	InteractionInputFixture.decay(_actor, 1.0)
 	assert_eq(state.actions[0].fraction, 0.25)
 

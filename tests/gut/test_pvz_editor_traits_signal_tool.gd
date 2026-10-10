@@ -56,6 +56,25 @@ func test_batch_diagnostics_compile_native_paths_without_instantiating() -> void
 	assert_eq(reports[0].get("diagnostics"), [])
 
 
+func test_batch_diagnostics_can_compile_its_own_tool_script() -> void:
+	var handler: RefCounted = _BATCH_TOOL.new() as RefCounted
+	var report: Dictionary = handler.call("_compile_path", _BATCH_TOOL.resource_path)
+	assert_eq(report.get("error_code"), OK)
+	assert_eq(report.get("diagnostics_status"), "checked")
+	assert_eq(report.get("diagnostics"), [])
+
+
+func test_batch_diagnostics_compile_editor_plugin_without_creating_nodes() -> void:
+	var handler: RefCounted = _BATCH_TOOL.new() as RefCounted
+	var report: Dictionary = handler.call(
+		"_compile_path",
+		"res://addons/project_entity_traits/plugin.gd",
+	)
+	assert_eq(report.get("error_code"), OK)
+	assert_eq(report.get("diagnostics_status"), "checked")
+	assert_eq(report.get("diagnostics"), [])
+
+
 func test_batch_diagnostics_accept_integral_json_numbers_and_reject_fractional_limits() -> void:
 	var handler: RefCounted = _BATCH_TOOL.new() as RefCounted
 	var parsed: Dictionary = JSON.parse_string('{"task":"61","offset":0,"limit":1}')

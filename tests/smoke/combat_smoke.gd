@@ -15,11 +15,16 @@ func _ready() -> void:
 func _run() -> void:
 	await _physical_impacts()
 	await _customer_combat()
-	print("NPC melee/ranged animation-ready combat light escalation navigation weapon and real R08 impacts smoke PASS")
+	print(
+		(
+			"NPC melee/ranged animation-ready combat light escalation "
+			+ "navigation weapon and real R08 impacts smoke PASS"
+		)
+	)
 	get_tree().quit.call_deferred()
 
-
 #endregion
+
 
 #region Изолированные удары Jolt
 ## Проверяет реальные слабый и тяжёлый контакты игрока и клиента через общую цепочку урона.
@@ -32,7 +37,12 @@ func _physical_impacts() -> void:
 	world.add_system(S_Impact.new())
 	var characters: Array[Entity] = []
 	for index: int in 2:
-		var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn" if index == 1 else "res://content/domains/motion/entities/physical_character.tscn") as PackedScene
+		var scene_path: String
+		if index == 1:
+			scene_path = "res://content/domains/customers/entities/customer.tscn"
+		else:
+			scene_path = "res://content/domains/motion/entities/physical_character.tscn"
+		var scene: PackedScene = load(scene_path) as PackedScene
 		var target: Entity = scene.instantiate() as Entity
 		var body: RigidBody3D = target as Node as RigidBody3D
 		body.freeze = true
@@ -48,7 +58,12 @@ func _physical_impacts() -> void:
 		body.global_position = Vector3(index * 5.0, 0, 0)
 		characters.append(target)
 	for target: Entity in characters:
-		var prop: Entity = (load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate() as Entity
+		var prop: Entity = (
+			(
+				load("res://content/domains/interaction/entities/box.tscn") as PackedScene
+			).instantiate()
+			as Entity
+		)
 		EntityCompositionFixture.register(world, prop)
 		var body: RigidBody3D = prop as Node as RigidBody3D
 		body.gravity_scale = 0.0
@@ -81,8 +96,8 @@ func _physical_impacts() -> void:
 	world.free()
 	ECS.world = null
 
-
 #endregion
+
 
 #region Исторический бой в основной сцене
 ## Историческая световая эскалация проверяет преследование, дальнюю атаку и самооборону игрока.
@@ -108,7 +123,12 @@ func _customer_combat() -> void:
 	visit.started = true
 	visit.visit_count = 1
 	flow.visits = [visit]
-	var customer: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	var customer: E_NpcCharacter = (
+		(
+			load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+		).instantiate()
+		as E_NpcCharacter
+	)
 	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
 	customer_body.position = CustomerFlowQueries.counter().waiting_position()
@@ -118,24 +138,41 @@ func _customer_combat() -> void:
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	var original_rid: RID = customer_body.get_rid()
-	var definition: DEF_Challenge = load("res://content/domains/challenges/definitions/def_challenge_light_entrance.tres") as DEF_Challenge
+	var definition: DEF_Challenge = (
+		load("res://content/domains/challenges/definitions/def_challenge_light_entrance.tres")
+		as DEF_Challenge
+	)
 	var rule: DEF_LightChallengeCondition = definition.condition as DEF_LightChallengeCondition
 	assert(LightCircuitService.set_by_id(rule.circuit_id, true))
 	assert(ChallengeService.debug_start(customer, _actor, definition))
 	var npc_state: C_NpcCombat = customer.get_component(C_NpcCombat) as C_NpcCombat
-	npc_state.ranged_attacks = [load("res://content/domains/combat/definitions/def_npc_shot.tres") as DEF_NpcAttack]
-	var authored_melee: Array[DEF_NpcAttack] = [load("res://content/domains/combat/definitions/def_npc_punch.tres") as DEF_NpcAttack]
+	npc_state.ranged_attacks = ([
+		load("res://content/domains/combat/definitions/def_npc_shot.tres") as DEF_NpcAttack
+	])
+	var authored_melee: Array[DEF_NpcAttack] = ([
+		load("res://content/domains/combat/definitions/def_npc_punch.tres") as DEF_NpcAttack
+	])
 	npc_state.melee_attacks = []
 
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	GameTimeFixture.gameplay(ECS.world, challenge.definition.timeout_seconds)
 	assert(challenge.result == ChallengeResult.Type.FAILURE)
-	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
+	assert(
+		(customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase
+		== C_CustomerAgent.Phase.AGGRESSIVE
+	)
 	assert(CombatQueries.target_for(customer) == _actor)
 	assert(customer_body.get_rid() == original_rid and customer.navigation_agent != null)
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
-	assert(intent.move_uses_entity and intent.movement_active, "Combat must use generic NPC pursuit")
-	assert(intent.arrival_distance > npc_state.ranged_attacks[0].minimum_range and intent.arrival_distance < npc_state.ranged_attacks[0].maximum_range, "Ranged-only NPC must stop within its usable attack range")
+	assert(
+		intent.move_uses_entity and intent.movement_active,
+		"Combat must use generic NPC pursuit",
+	)
+	assert(
+		intent.arrival_distance > npc_state.ranged_attacks[0].minimum_range
+		and intent.arrival_distance < npc_state.ranged_attacks[0].maximum_range,
+		"Ranged-only NPC must stop within its usable attack range",
+	)
 	npc_state.melee_attacks = authored_melee
 	CombatService.end_combat(customer)
 	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
@@ -154,8 +191,13 @@ func _customer_combat() -> void:
 	DebugHudService.set_enabled(true)
 	await get_tree().process_frame
 	var summary: String = CombatPresentation.debug_text(_actor)
-	assert(summary.contains("Задача:") and summary.contains("cooldown") and summary.contains("Дистанция"))
-	var debug: Label = _level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/CombatDebug") as Label
+	assert(
+		summary.contains("Задача:") and summary.contains("cooldown")
+		and summary.contains("Дистанция")
+	)
+	var debug: Label = (
+		_level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/CombatDebug") as Label
+	)
 	assert(debug.text == summary.split("\n")[0])
 	var weapon: Entity = _level.get_node("Entityes/UtilityBlade") as Entity
 	var weapon_body: RigidBody3D = weapon as Node as RigidBody3D
@@ -178,11 +220,13 @@ func _customer_combat() -> void:
 	assert(customer.has_component(C_Death))
 	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(visit.finished and visit.customer_dead and visit.defeated_by_player)
-	assert(visit.last_combat_context != null and visit.last_combat_context.reason == CombatContext.Reason.SELF_DEFENSE)
+	assert(
+		visit.last_combat_context != null
+		and visit.last_combat_context.reason == CombatContext.Reason.SELF_DEFENSE
+	)
 	_level.free()
 	_level = null
 	_actor = null
 	ECS.world = null
-
 
 #endregion

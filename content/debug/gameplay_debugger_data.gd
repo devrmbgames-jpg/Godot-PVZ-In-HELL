@@ -186,8 +186,10 @@ static func _events(identities: PackedStringArray) -> Array[Dictionary]:
 	for entry: Dictionary in BoundaryTrace.snapshots():
 		var origin: String = String(entry["origin_id"])
 		var target: String = String(entry["target_id"])
-		if (not origin.is_empty() and identities.has(origin)) \
-				or (not target.is_empty() and identities.has(target)):
+		if (
+			(not origin.is_empty() and identities.has(origin))
+			or (not target.is_empty() and identities.has(target))
+		):
 			rows.append(entry)
 			if rows.size() > RECENT_EVENT_LIMIT:
 				rows.pop_front()
@@ -205,8 +207,9 @@ static func _reference(value: Variant) -> String:
 		if value is Script:
 			return _script_name(value as Script)
 		var object: Object = value as Object
-		return _script_name(object.get_script() as Script) if object.get_script() != null \
-				else object.get_class()
+		if object.get_script() != null:
+			return _script_name(object.get_script() as Script)
+		return object.get_class()
 	return str(value)
 
 

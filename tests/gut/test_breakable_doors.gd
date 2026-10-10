@@ -1,5 +1,6 @@
 extends GutTest
-## Проверяет разрушение замка/полотна реальным ударом и сохранение результата без повторного создания двери.
+## Проверяет разрушение замка/полотна реальным ударом и сохранение результата без повторного
+## создания двери.
 
 var _root: Node3D
 var _world: World
@@ -75,8 +76,8 @@ func _strike() -> void:
 	assert_true(CombatService.start_strike(_actor, _weapon))
 	CombatFixture.melee(_actor, 1.0)
 
-
 #endregion
+
 
 #region Разрушение физических преград
 ## Молоток ломает замок, сохраняя физическое полотно и открывание двери.
@@ -87,7 +88,10 @@ func test_hammer_breaks_padlock_and_preserves_door_leaf_and_open_action() -> voi
 	await get_tree().physics_frame
 	var health: C_Health = door.get_component(C_Health) as C_Health
 	assert_false(OpenableService.request(_actor, door, OpenableService.Operation.OPEN))
-	assert_false(OpenableService.request(_actor, door, OpenableService.Operation.UNLOCK), "Empty access requirement cannot bypass a physical padlock")
+	assert_false(
+		OpenableService.request(_actor, door, OpenableService.Operation.UNLOCK),
+		"Empty access requirement cannot bypass a physical padlock",
+	)
 	assert_true(CombatGeometry.clear_line(_actor, door, 31))
 	_strike()
 	assert_gt(health.current, 0.0)
@@ -136,12 +140,15 @@ func test_knife_breaks_leaf_and_removes_all_physical_blockers() -> void:
 	await get_tree().physics_frame
 
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-		Vector3(0, 1.3, 0), Vector3(0, 1.3, -3), 31, CombatGeometry.exclusions(_actor),
+		Vector3(0, 1.3, 0),
+		Vector3(0, 1.3, -3),
+		31,
+		CombatGeometry.exclusions(_actor),
 	)
 	assert_true(_root.get_world_3d().direct_space_state.intersect_ray(ray).is_empty())
 
-
 #endregion
+
 
 #region Сохранение состояния двери
 ## Snapshot и ночь сохраняют разрушенный замок и возможность открыть дверь.
@@ -163,7 +170,8 @@ func test_padlock_depletion_and_unlocked_state_survive_snapshot_and_night() -> v
 	assert_true(OpenableService.can_request(_actor, door, OpenableService.Operation.OPEN))
 
 
-## Restore меняет состояние одного авторского экземпляра двери, восстанавливая либо отключая столкновения.
+## Restore меняет состояние одного авторского экземпляра двери, восстанавливая либо отключая
+## столкновения.
 func test_broken_leaf_and_intact_physics_restore_without_respawning_authored_door() -> void:
 	var door: E_Door = _door("res://content/domains/interaction/entities/breakable_door.tscn")
 	var intact: Dictionary = WorldSnapshotService.capture(_root, 2)

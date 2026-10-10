@@ -18,7 +18,7 @@ func quiesce_for_script_swap() -> Dictionary:
 			"ok": false,
 			"error": "PVZ runtime GECS inspection still has a pending debugger request.",
 		}
-	return {"ok": true}
+	return { "ok": true }
 
 
 ## Returns compact counts for entities, components and relationships.
@@ -31,9 +31,9 @@ func world_summary(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var source: Dictionary = _entity_source()
 	var entities: Array[Entity] = _entities_from_source(source)
 
-	var entity_classes: Dictionary = {}
-	var component_classes: Dictionary = {}
-	var relationship_classes: Dictionary = {}
+	var entity_classes: Dictionary = { }
+	var component_classes: Dictionary = { }
+	var relationship_classes: Dictionary = { }
 	var relationship_count: int = 0
 
 	for entity: Entity in entities:
@@ -80,9 +80,15 @@ func find_entities(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 		if not is_instance_valid(entity):
 			continue
 		var summary: Dictionary = _entity_summary(entity)
-		if not class_filter.is_empty() and not String(summary["class_name"]).to_lower().contains(class_filter):
+		if (
+			not class_filter.is_empty()
+			and not String(summary["class_name"]).to_lower().contains(class_filter)
+		):
 			continue
-		if not component_filter.is_empty() and not _entity_has_component_name(entity, component_filter):
+		if (
+			not component_filter.is_empty()
+			and not _entity_has_component_name(entity, component_filter)
+		):
 			continue
 		if not query.is_empty() and not _entity_matches_query(summary, query):
 			continue
@@ -112,7 +118,7 @@ func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var source: Dictionary = _entity_source()
 	var resolution: Dictionary = _resolve_entity(params, _entities_from_source(source))
 	if not resolution.get("ok", false):
-		return {"data": resolution}
+		return { "data": resolution }
 
 	var entity: Entity = resolution["entity"] as Entity
 	var include_private: bool = bool(params.get("include_private", false))
@@ -145,10 +151,7 @@ func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 			"scene": source.get("scene", ""),
 			"entity": _entity_summary(entity),
 			"components": components,
-			"relationships": {
-				"outgoing": outgoing_count,
-				"incoming": incoming_count,
-			},
+			"relationships": { "outgoing": outgoing_count, "incoming": incoming_count },
 			"runtime_note": _runtime_note(source),
 		},
 	}
@@ -164,24 +167,22 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 	var entities: Array[Entity] = _entities_from_source(source)
 	var resolution: Dictionary = _resolve_entity(params, entities)
 	if not resolution.get("ok", false):
-		return {"data": resolution}
+		return { "data": resolution }
 
 	var entity: Entity = resolution["entity"] as Entity
 	var relation_filter: String = String(params.get("relation", "")).strip_edges().to_lower()
 	var direction: String = String(params.get("direction", "both"))
 	if direction not in ["both", "outgoing", "incoming"]:
-		return {
-			"data": {
-				"ok": false,
-				"error": "direction must be both, outgoing, or incoming",
-			},
-		}
+		return { "data": { "ok": false, "error": "direction must be both, outgoing, or incoming" } }
 	var limit: int = clampi(int(params.get("limit", DEFAULT_LIMIT)), 1, 200)
 	var rows: Array[Dictionary] = []
 
 	if direction == "both" or direction == "outgoing":
 		for outgoing_relationship: Relationship in entity.relationships:
-			if outgoing_relationship == null or not _relation_matches(outgoing_relationship, relation_filter):
+			if (
+				outgoing_relationship == null
+				or not _relation_matches(outgoing_relationship, relation_filter)
+			):
 				continue
 			rows.append(_relationship_snapshot(entity, outgoing_relationship, "outgoing"))
 			if rows.size() >= limit:
@@ -196,7 +197,9 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 					continue
 				if not _relation_matches(incoming_relationship, relation_filter):
 					continue
-				rows.append(_relationship_snapshot(source_entity, incoming_relationship, "incoming"))
+				rows.append(
+					_relationship_snapshot(source_entity, incoming_relationship, "incoming")
+				)
 				if rows.size() >= limit:
 					break
 			if rows.size() >= limit:
@@ -220,21 +223,12 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 
 #region Runtime routing
 
-func _runtime_request(
-	operation: String,
-	params: Dictionary,
-	ctx: McpCallContext,
-) -> Dictionary:
+func _runtime_request(operation: String, params: Dictionary, ctx: McpCallContext) -> Dictionary:
 	var source_mode: String = String(params.get("source", "auto")).strip_edges().to_lower()
 	if source_mode not in ["auto", "runtime", "editor"]:
-		return {
-			"data": {
-				"ok": false,
-				"error": "source must be auto, runtime, or editor",
-			},
-		}
+		return { "data": { "ok": false, "error": "source must be auto, runtime, or editor" } }
 	if source_mode == "editor":
-		return {}
+		return { }
 
 	var bridge: PvzAiDebuggerBridge = PvzAiDebuggerBridge.get_instance()
 	if bridge != null and bridge.runtime_ready():
@@ -248,7 +242,7 @@ func _runtime_request(
 				"error": "No running game is connected to the PVZ runtime inspection bridge.",
 			},
 		}
-	return {}
+	return { }
 
 #endregion
 
@@ -269,11 +263,7 @@ func _entity_source() -> Dictionary:
 
 	var root: Node = EditorInterface.get_edited_scene_root()
 	if root == null:
-		return {
-			"source": "none",
-			"scene": "",
-			"entities": [],
-		}
+		return { "source": "none", "scene": "", "entities": [] }
 
 	var scene_entities: Array[Entity] = []
 	if root is Entity:
@@ -306,10 +296,7 @@ func _resolve_entity(params: Dictionary, entities: Array[Entity]) -> Dictionary:
 	var node_path: String = String(params.get("node_path", "")).strip_edges()
 	var entity_name: String = String(params.get("name", "")).strip_edges()
 	if entity_id.is_empty() and node_path.is_empty() and entity_name.is_empty():
-		return {
-			"ok": false,
-			"error": "Provide entity_id, node_path, or name.",
-		}
+		return { "ok": false, "error": "Provide entity_id, node_path, or name." }
 
 	var matches: Array[Entity] = []
 	for entity: Entity in entities:
@@ -339,10 +326,7 @@ func _resolve_entity(params: Dictionary, entities: Array[Entity]) -> Dictionary:
 			"matches": candidates,
 		}
 
-	return {
-		"ok": true,
-		"entity": matches[0],
-	}
+	return { "ok": true, "entity": matches[0] }
 
 
 func _edited_scene_path() -> String:
@@ -353,7 +337,12 @@ func _edited_scene_path() -> String:
 func _runtime_note(source: Dictionary) -> String:
 	if source.get("source", "") == "none":
 		return "No editor-side GECS world or edited scene is available."
-	return "Custom tools execute in the Godot Editor process; this is editor-side state, not the separate running-game ECS world."
+	return (
+		(
+			"Custom tools execute in the Godot Editor process; this is "
+			+ "editor-side state, not the separate running-game ECS world."
+		)
+	)
 
 #endregion
 
@@ -379,7 +368,7 @@ func _entity_summary(entity: Entity) -> Dictionary:
 
 func _components_for(entity: Entity) -> Array[Component]:
 	var result: Array[Component] = []
-	var seen: Dictionary = {}
+	var seen: Dictionary = { }
 
 	for runtime_value: Variant in entity.components.values():
 		var runtime_component: Component = runtime_value as Component
@@ -402,12 +391,8 @@ func _components_for(entity: Entity) -> Array[Component]:
 	return result
 
 
-func _component_snapshot(
-	component: Component,
-	include_private: bool,
-	max_items: int,
-) -> Dictionary:
-	var properties: Dictionary = {}
+func _component_snapshot(component: Component, include_private: bool, max_items: int) -> Dictionary:
+	var properties: Dictionary = { }
 	for info: Dictionary in component.get_property_list():
 		var usage: int = int(info.get("usage", 0))
 		if (usage & PROPERTY_USAGE_SCRIPT_VARIABLE) == 0:
@@ -444,8 +429,8 @@ func _relationship_snapshot(
 
 func _component_properties(component: Component) -> Dictionary:
 	if component == null:
-		return {}
-	var result: Dictionary = {}
+		return { }
+	var result: Dictionary = { }
 	for info: Dictionary in component.get_property_list():
 		var usage: int = int(info.get("usage", 0))
 		if (usage & PROPERTY_USAGE_SCRIPT_VARIABLE) == 0:
@@ -489,7 +474,10 @@ func _entity_matches_query(summary: Dictionary, query: String) -> bool:
 
 
 func _relation_matches(relationship: Relationship, filter_text: String) -> bool:
-	return filter_text.is_empty() or _object_type(relationship.relation).to_lower().contains(filter_text)
+	return (
+		filter_text.is_empty()
+		or _object_type(relationship.relation).to_lower().contains(filter_text)
+	)
 
 
 func _object_type(value: Object) -> String:
@@ -514,10 +502,10 @@ func _json_value(value: Variant, depth: int, max_items: int) -> Variant:
 			return String(value)
 		TYPE_VECTOR2:
 			var vector2_value: Vector2 = value
-			return {"x": vector2_value.x, "y": vector2_value.y}
+			return { "x": vector2_value.x, "y": vector2_value.y }
 		TYPE_VECTOR3:
 			var vector3_value: Vector3 = value
-			return {"x": vector3_value.x, "y": vector3_value.y, "z": vector3_value.z}
+			return { "x": vector3_value.x, "y": vector3_value.y, "z": vector3_value.z }
 		TYPE_VECTOR4:
 			var vector4_value: Vector4 = value
 			return {
@@ -541,7 +529,7 @@ func _json_value(value: Variant, depth: int, max_items: int) -> Variant:
 			return array_result
 		TYPE_DICTIONARY:
 			var dictionary_value: Dictionary = value
-			var dictionary_result: Dictionary = {}
+			var dictionary_result: Dictionary = { }
 			var keys: Array = dictionary_value.keys()
 			for index: int in range(mini(keys.size(), max_items)):
 				var key: Variant = keys[index]
@@ -572,7 +560,7 @@ func _json_value(value: Variant, depth: int, max_items: int) -> Variant:
 					"class_name": _object_type(resource_value),
 					"resource_path": String(resource_value.resource_path),
 				}
-			return {"class_name": _object_type(object_value)}
+			return { "class_name": _object_type(object_value) }
 		_:
 			return str(value)
 
@@ -585,17 +573,14 @@ func _increment(counts: Dictionary, key: String) -> void:
 func _rank_counts(counts: Dictionary, limit: int) -> Array[Dictionary]:
 	var rows: Array[Dictionary] = []
 	for key: Variant in counts:
-		rows.append({
-			"name": String(key),
-			"count": int(counts[key]),
-		})
+		rows.append({ "name": String(key), "count": int(counts[key]) })
 	rows.sort_custom(
 		func(left: Dictionary, right: Dictionary) -> bool:
 			var left_count: int = int(left["count"])
 			var right_count: int = int(right["count"])
 			if left_count == right_count:
 				return String(left["name"]) < String(right["name"])
-			return left_count > right_count
+			return left_count > right_count,
 	)
 	var ranked: Array[Dictionary] = []
 	var ranked_limit: int = mini(rows.size(), limit)

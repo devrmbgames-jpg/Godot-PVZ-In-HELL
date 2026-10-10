@@ -1,14 +1,22 @@
 extends RefCounted
-## Проверяет покрытие/связность авторских точек ПВЗ и района на отдельной native-карте; runtime-граф не строит.
+## Проверяет покрытие/связность авторских точек ПВЗ и района на отдельной native-карте; runtime-граф
+## не строит.
 
 const POINT_TOLERANCE: float = 1.0
 const MAX_SYNCHRONIZATION_FRAMES: int = 120
 const WAREHOUSE_MARKERS: PackedStringArray = [
-	"MainDoor", "BackDoor", "RoomClient", "RoomPrivate", "ReceivingZone", "TraderClientZone",
+	"MainDoor",
+	"BackDoor",
+	"RoomClient",
+	"RoomPrivate",
+	"ReceivingZone",
+	"TraderClientZone",
 ]
 
+
 #region Покрытие авторских точек
-## Асинхронно возвращает нарушения покрытия/маршрутов; временные RID освобождаются, авторская сетка не меняется.
+## Асинхронно возвращает нарушения покрытия/маршрутов; временные RID освобождаются, авторская сетка
+## не меняется.
 static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]:
 	var errors: Array[String] = []
 	var mesh: NavigationMesh = region.navigation_mesh
@@ -30,7 +38,10 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 	var synchronized: bool = false
 	for frame_index: int in MAX_SYNCHRONIZATION_FRAMES:
 		await level.get_tree().physics_frame
-		if NavigationServer3D.map_get_iteration_id(map_rid) > 0 and NavigationServer3D.map_get_closest_point_owner(map_rid, probe) == region_rid:
+		if (
+			NavigationServer3D.map_get_iteration_id(map_rid) > 0
+			and NavigationServer3D.map_get_closest_point_owner(map_rid, probe) == region_rid
+		):
 			synchronized = true
 			break
 	if not synchronized:
@@ -39,8 +50,10 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 		errors.append("Navigation map did not synchronize within the bounded frame limit")
 		return errors
 
-	var points: Dictionary[String, Vector3] = {}
-	var station: E_DeliveryCounter = level.get_node_or_null("Entityes/DeliveryCounter") as E_DeliveryCounter
+	var points: Dictionary[String, Vector3] = { }
+	var station: E_DeliveryCounter = (
+		level.get_node_or_null("Entityes/DeliveryCounter") as E_DeliveryCounter
+	)
 	if station == null:
 		errors.append("DeliveryCounter is missing")
 	else:
@@ -72,13 +85,27 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 		var target: Vector3 = points[point_key]
 		var nearest: Vector3 = NavigationServer3D.map_get_closest_point(map_rid, target)
 		if nearest.distance_to(target) > POINT_TOLERANCE:
-			errors.append("%s is off mesh: distance=%.2f point=%s nearest=%s" % [point_key, nearest.distance_to(target), target, nearest])
+			errors.append(
+				"%s is off mesh: distance=%.2f point=%s nearest=%s"
+				% [point_key, nearest.distance_to(target), target, nearest]
+			)
 			continue
 		if station == null or point_key == "counter_waiting":
 			continue
 
-		var path: PackedVector3Array = NavigationServer3D.map_get_path(map_rid, waiting, target, true, region.navigation_layers)
-		if path.is_empty() or path[0].distance_to(waiting) > POINT_TOLERANCE or path[-1].distance_to(target) > POINT_TOLERANCE:
+		var path: PackedVector3Array = (
+			NavigationServer3D.map_get_path(
+				map_rid,
+				waiting,
+				target,
+				true,
+				region.navigation_layers,
+			)
+		)
+		if (
+			path.is_empty() or path[0].distance_to(waiting) > POINT_TOLERANCE
+			or path[-1].distance_to(target) > POINT_TOLERANCE
+		):
 			errors.append("No complete counter route to " + point_key)
 		else:
 			checked_routes += 1
@@ -88,14 +115,22 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 
 	NavigationServer3D.free_rid(region_rid)
 	NavigationServer3D.free_rid(map_rid)
-	print("Navigation coverage: %d points, %d connected counter routes, %d failures" % [points.size(), checked_routes, errors.size()])
+	print(
+		"Navigation coverage: %d points, %d connected counter routes, %d failures"
+		% [points.size(), checked_routes, errors.size()]
+	)
 	return errors
 #endregion
 
+
 #region Проверка авторской связности
-static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_layers: int) -> Array[String]:
+static func _graph_failures(
+	definition: DEF_District,
+	map_rid: RID,
+	navigation_layers: int,
+) -> Array[String]:
 	var errors: Array[String] = []
-	var junctions: Dictionary[StringName, DEF_DistrictPlace] = {}
+	var junctions: Dictionary[StringName, DEF_DistrictPlace] = { }
 	for place: DEF_DistrictPlace in definition.places:
 		if place.kind == DEF_DistrictPlace.Kind.JUNCTION:
 			junctions[place.key] = place
@@ -112,13 +147,19 @@ static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_l
 				continue
 
 			var target: Vector3 = NpcPopulationQueries.position_for(next_key)
-			var path: PackedVector3Array = NavigationServer3D.map_get_path(map_rid, start, target, true, navigation_layers)
-			if path.is_empty() or path[0].distance_to(start) > POINT_TOLERANCE or path[-1].distance_to(target) > POINT_TOLERANCE:
+			var path: PackedVector3Array = (
+				NavigationServer3D.map_get_path(map_rid, start, target, true, navigation_layers)
+			)
+			if (
+				path.is_empty() or path[0].distance_to(start) > POINT_TOLERANCE
+				or path[-1].distance_to(target) > POINT_TOLERANCE
+			):
 				errors.append("Unreachable hazard-route edge: %s > %s" % [junction_key, next_key])
 			else:
 				connected_edges += 1
 
-	# Каждый авторский узел должен достигать всех других по направленным связям; это offline-проверка.
+	# Каждый авторский узел должен достигать всех других по направленным связям; это
+	# offline-проверка.
 	for origin_key: StringName in junctions:
 		var pending: Array[StringName] = [origin_key]
 		var visited: Array[StringName] = []
@@ -136,6 +177,9 @@ static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_l
 			errors.append("Hazard-route graph is disconnected from " + str(origin_key))
 			break
 
-	print("Navigation hazard graph: %d junctions, %d traversable directed edges" % [junctions.size(), connected_edges])
+	print(
+		"Navigation hazard graph: %d junctions, %d traversable directed edges"
+		% [junctions.size(), connected_edges]
+	)
 	return errors
 #endregion

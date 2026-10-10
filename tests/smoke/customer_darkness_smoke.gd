@@ -35,8 +35,13 @@ func _run() -> void:
 
 	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:oil")
 	assert(parcel != null)
-	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
-	var relay: O_LightFlicker = _level.get_node("World/Systems/GamePlay/O_LightFlicker") as O_LightFlicker
+	assert(
+		PackageRegistrationService.register_package(parcel).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
+	var relay: O_LightFlicker = (
+		_level.get_node("World/Systems/GamePlay/O_LightFlicker") as O_LightFlicker
+	)
 	relay.flickering_light.connect(_on_flicker)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
@@ -65,11 +70,14 @@ func _run() -> void:
 	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
 	var offset: Vector3 = (first as Node as Node3D).global_position - station.entry_position()
 	offset.y = 0.0
-	assert(offset.length() < ARRIVAL_POSITION_EPSILON, "Stopped entrance intent must keep its horizontal position; native gravity owns Y")
+	assert(
+		offset.length() < ARRIVAL_POSITION_EPSILON,
+		"Stopped entrance intent must keep its horizontal position; native gravity owns Y",
+	)
 	for node: Node in get_tree().get_nodes_in_group(&"warehouse_lights"):
 		var light: Light3D = node as Light3D
 		var view: CircuitLightView = light.get_node("CircuitLightView") as CircuitLightView
-		view._process(0.16)
+		view.call("_process", 0.16)
 		assert(not light.visible)
 	assert(LightCircuitService.is_enabled(&"warehouse"))
 	assert(LightCircuitService.set_by_id(&"warehouse", false))
@@ -93,8 +101,14 @@ func _run() -> void:
 	retry.definition = visit.definition
 	retry.arrival_day = cycle.day_index
 	CustomerFlowQueries.current().visits.append(retry)
-	assert(not CustomerFlowFixture.spawn(CustomerFlowQueries.current(), cycle), "New visit must respect the authored gap")
-	GameTimeFixture.gameplay(ECS.world, CustomerFlowQueries.current().arrival_cooldown_seconds + FRAME_DELTA)
+	assert(
+		not CustomerFlowFixture.spawn(CustomerFlowQueries.current(), cycle),
+		"New visit must respect the authored gap",
+	)
+	GameTimeFixture.gameplay(
+		ECS.world,
+		CustomerFlowQueries.current().arrival_cooldown_seconds + FRAME_DELTA,
+	)
 
 	var second: E_NpcCharacter = CustomerFlowQueries.customer_for(retry.visit_id)
 	assert(second != null)
@@ -106,7 +120,10 @@ func _run() -> void:
 	assert(state.result == ChallengeResult.Type.FAILURE)
 	assert(not LightCircuitService.is_enabled(&"warehouse"))
 	assert(retry.aggressive)
-	assert((second.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
+	assert(
+		(second.get_component(C_CustomerAgent) as C_CustomerAgent).phase
+		== C_CustomerAgent.Phase.AGGRESSIVE
+	)
 	assert(CombatQueries.target_for(second) == actor)
 	for node: Node in get_tree().get_nodes_in_group(&"warehouse_lights"):
 		assert(not (node as Light3D).visible)

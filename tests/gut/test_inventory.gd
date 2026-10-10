@@ -36,7 +36,9 @@ func _new_owner() -> Entity:
 	health.current = 50.0
 	health.value = 100.0
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = (
+		load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
+	)
 	hunger.value = 75.0
 	actor.component_resources = [C_Inventory.new(), C_Living.new(), health, hunger]
 	_world.add_entity(actor)
@@ -46,14 +48,17 @@ func _new_owner() -> Entity:
 func _item(key: String, quantity: int = 1) -> Entity:
 	var item: Entity = Entity.new()
 	var state: C_InventoryItem = C_InventoryItem.new()
-	state.definition = load("res://content/domains/inventory/definitions/def_item_%s.tres" % key) as DEF_InventoryItem
+	state.definition = (
+		load("res://content/domains/inventory/definitions/def_item_%s.tres" % key)
+		as DEF_InventoryItem
+	)
 	state.quantity = quantity
 	item.component_resources = [state]
 	_world.add_entity(item)
 	return item
 
-
 #endregion
+
 
 #region Владение и объединение
 ## Передача сверяет прежнего владельца и сохраняет одну авторитетную связь.
@@ -100,8 +105,8 @@ func test_stack_overflow_keeps_remainder_in_second_owned_stack() -> void:
 	assert_eq(InventoryService.items(_owner).size(), 2)
 	assert_eq(InventoryService.owner_for(second), _owner)
 
-
 #endregion
+
 
 #region Эффекты и повторный вход
 ## Еда расходуется только после эффекта; пустой стек удаляется.
@@ -144,10 +149,11 @@ func test_reentrant_health_notification_cannot_use_or_transfer_twice() -> void:
 	var item: Entity = _item("med", 2)
 	assert_true(InventoryService.transfer(item, _owner))
 	var health: C_Health = _owner.get_component(C_Health) as C_Health
-	health.property_changed.connect(func(_component: Component, property: StringName, _old: Variant, _new: Variant) -> void:
-		if property == &"current":
-			assert_false(InventoryService.use(_owner, item))
-			assert_false(InventoryService.transfer(item, _other, _owner))
+	health.property_changed.connect(
+		func(_component: Component, property: StringName, _old: Variant, _new: Variant) -> void:
+			if property == &"current":
+				assert_false(InventoryService.use(_owner, item))
+				assert_false(InventoryService.transfer(item, _other, _owner)),
 	)
 	assert_true(InventoryService.use(_owner, item))
 	assert_eq(health.current, 85.0)
@@ -218,10 +224,13 @@ func test_wrap_only_consumes_on_valid_package_protection_increase() -> void:
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 1)
 	assert_false(InventoryService.use(_owner, item, parcel))
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 1)
-	assert_true(EntityAvailability.contains(parcel, _world), "The physical package remains in the world")
-
+	assert_true(
+		EntityAvailability.contains(parcel, _world),
+		"The physical package remains in the world",
+	)
 
 #endregion
+
 
 #region Допуск и lifecycle
 ## Коробка, обычный инструмент, неверное количество и неоднозначное владение недоступны инвентарю.
@@ -253,7 +262,10 @@ func test_disabled_stored_items_count_capacity_and_cleanup_on_owner_removal() ->
 	assert_false(InventoryService.use(_owner, item))
 	assert_false(InventoryService.transfer(_item("med"), _owner))
 	_world.remove_entity(_owner)
-	assert_false(_world.entity_to_archetype.has(item), "Disabled stored items must be removed before their owner disappears")
+	assert_false(
+		_world.entity_to_archetype.has(item),
+		"Disabled stored items must be removed before their owner disappears",
+	)
 
 
 ## Снятие владения отключённого предмета или смерть владельца очищает его из ECS.
@@ -270,7 +282,8 @@ func test_disabled_item_explicit_owner_detachment_and_death_cleanup() -> void:
 	assert_false(_world.entity_to_archetype.has(item))
 
 
-## A buffered death cannot dereference a freed owner after synchronous removal already cleared its items.
+## A buffered death cannot dereference a freed owner after synchronous removal already cleared its
+## items.
 func test_queued_death_revalidates_owner_after_removal() -> void:
 	_lifecycle.command_buffer_flush_mode = Observer.FlushMode.MANUAL
 	var item: Entity = _item("food")
@@ -318,7 +331,10 @@ func test_owner_removal_disable_and_death_cleanup_virtual_items() -> void:
 	assert_eq(InventoryService.items(_other).size(), 3)
 	_other.add_component(C_Death.new())
 	assert_false(EntityAvailability.contains(item, _world))
-	assert_true(InventoryService.items(_other).is_empty(), "Cleanup snapshots the query before structural mutation")
+	assert_true(
+		InventoryService.items(_other).is_empty(),
+		"Cleanup snapshots the query before structural mutation",
+	)
 	assert_false(InventoryService.transfer(_item("food"), _other))
 
 #endregion

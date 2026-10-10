@@ -1,11 +1,13 @@
 extends RefCounted
-## Test-only scoped World execution of real combat owners, with explicit command-driven NPC selection.
+## Test-only scoped World execution of real combat owners, with explicit command-driven NPC
+## selection.
 class_name CombatFixture
 
 ## Temporary target group restricts clock-focused tests to their selected actor/projectile.
 const TARGET_GROUP: String = "combat_fixture_target"
 ## Temporary owner group excludes unrelated gameplay scheduling from focused assertions.
 const OWNER_GROUP: String = "combat_fixture_owner"
+
 
 ## Uses the real player clock/scan with only a test query filter.
 class MeleeOwner extends S_PlayerMelee:
@@ -15,6 +17,7 @@ class MeleeOwner extends S_PlayerMelee:
 		return super.query().with_group([CombatFixture.TARGET_GROUP])
 	#endregion
 
+
 ## Uses the real NPC clock with only a test query filter.
 class NpcOwner extends S_NpcCombat:
 	#region Fixture query
@@ -22,6 +25,7 @@ class NpcOwner extends S_NpcCombat:
 	func query() -> QueryBuilder:
 		return super.query().with_group([CombatFixture.TARGET_GROUP])
 	#endregion
+
 
 ## Uses the real flight/collision owner with only a test query filter.
 class ProjectileOwner extends S_CombatProjectile:
@@ -31,6 +35,7 @@ class ProjectileOwner extends S_CombatProjectile:
 		return super.query().with_group([CombatFixture.TARGET_GROUP])
 	#endregion
 
+
 ## Uses the real isolated-customer owner with only a test query filter.
 class CustomerOwner extends S_CustomerCombat:
 	#region Fixture query
@@ -38,6 +43,7 @@ class CustomerOwner extends S_CustomerCombat:
 	func query() -> QueryBuilder:
 		return super.query().with_group([CombatFixture.TARGET_GROUP])
 	#endregion
+
 
 #region Real owner execution
 ## Advances the real strike clock/scan/cancellation after the test explicitly started the strike.
@@ -64,6 +70,7 @@ static func projectile(subject: Entity, delta: float) -> void:
 static func customer(subject: Entity) -> void:
 	_run(CustomerOwner.new(), subject, 0.0)
 #endregion
+
 
 #region Scoped World group
 static func _run(owner: System, subject: Entity, delta: float) -> void:

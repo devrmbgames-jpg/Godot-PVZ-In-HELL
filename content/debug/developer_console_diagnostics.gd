@@ -58,7 +58,9 @@ static func package_info(target: DebugTarget) -> PackedStringArray:
 			lines.append("hp=%.1f/%.1f" % [health.get_hp_current(), health.get_hp_max()])
 			lines.append("depleted=%s" % str(health.depleted))
 		if state != null:
-			lines.append("registration=%s" % _enum_name(C_PackageState.Registration, state.registration))
+			lines.append(
+				"registration=%s" % _enum_name(C_PackageState.Registration, state.registration)
+			)
 			lines.append("scan=%s" % _enum_name(C_PackageState.Scan, state.scan))
 			lines.append("opening=%s" % _enum_name(C_PackageState.Opening, state.opening))
 			lines.append("damage=%s" % _enum_name(C_PackageState.Damage, state.damage))
@@ -91,29 +93,43 @@ static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 		"money_delta=%d" % visit.money_delta,
 	]
 	if visit.definition != null:
-		lines.append("profile=%s introduction=%s inspection=%s interests=%s" % [visit.definition.key, DEF_Customer.Introduction.keys()[visit.definition.introduction], visit.definition.private_inspection, ", ".join(visit.definition.interests)])
+		lines.append(
+			"profile=%s introduction=%s inspection=%s interests=%s"
+			% [
+				visit.definition.key,
+				DEF_Customer.Introduction.keys()[visit.definition.introduction],
+				visit.definition.private_inspection,
+				", ".join(visit.definition.interests),
+			]
+		)
 
 	var customer: E_NpcCharacter = CustomerFlowQueries.customer_for(visit.visit_id)
 	if customer != null:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-		lines.append("phase=%s announced=%s dialogue_started=%s elapsed=%.1fs" % [C_CustomerAgent.Phase.keys()[agent.phase], agent.order_announced, agent.dialogue_started, agent.elapsed])
+		lines.append(
+			"phase=%s announced=%s dialogue_started=%s elapsed=%.1fs"
+			% [
+				C_CustomerAgent.Phase.keys()[agent.phase],
+				agent.order_announced,
+				agent.dialogue_started,
+				agent.elapsed,
+			]
+		)
 	if visit.complaint == null:
 		lines.append("complaint=none")
 	else:
 		lines.append("complaint=%s" % String(visit.complaint.complaint_id))
 		lines.append(
-			"complaint_reason=%s"
-			% _enum_name(CustomerComplaint.Reason, visit.complaint.reason)
+			"complaint_reason=%s" % _enum_name(CustomerComplaint.Reason, visit.complaint.reason)
 		)
 		lines.append(
-			"complaint_outcome=%s"
-			% _enum_name(CustomerComplaint.Outcome, visit.complaint.outcome)
+			"complaint_outcome=%s" % _enum_name(CustomerComplaint.Outcome, visit.complaint.outcome)
 		)
 		lines.append("complaint_resolve_day=%d" % visit.complaint.resolve_day)
 	return lines
 
-
 #endregion
+
 
 #region Деньги и фазы
 ## Показывает кошелёк, итог текущего дня и последние пять денежных операций.
@@ -176,8 +192,8 @@ static func day_info() -> PackedStringArray:
 		)
 	return lines
 
-
 #endregion
+
 
 #region Доступные цели
 ## Показывает доступные цели разных контрактов с ограничением в 64 строки.
@@ -202,18 +218,12 @@ static func debug_targets() -> PackedStringArray:
 			var identity: C_Package = entity.get_component(C_Package) as C_Package
 			var number_text: String = _package_number_text(identity.package_id, ledger)
 			lines.append(
-				"%s | pkg:%s | entity:%s | PACKAGE"
-				% [number_text, identity.package_id, entity.id]
+				"%s | pkg:%s | entity:%s | PACKAGE" % [number_text, identity.package_id, entity.id]
 			)
 			continue
 		if entity.has_component(C_CustomerAgent):
-			var agent: C_CustomerAgent = (
-				entity.get_component(C_CustomerAgent) as C_CustomerAgent
-			)
-			lines.append(
-				"visit:%s | entity:%s | CUSTOMER"
-				% [String(agent.visit_id), entity.id]
-			)
+			var agent: C_CustomerAgent = (entity.get_component(C_CustomerAgent) as C_CustomerAgent)
+			lines.append("visit:%s | entity:%s | CUSTOMER" % [String(agent.visit_id), entity.id])
 			continue
 		if entity.has_component(C_Health):
 			lines.append("entity:%s | HEALTH_TARGET" % entity.id)
@@ -229,18 +239,15 @@ static func debug_targets() -> PackedStringArray:
 	return lines
 
 
-static func _package_number_text(
-	package_id: String,
-	ledger: C_PackageLedger,
-) -> String:
+static func _package_number_text(package_id: String, ledger: C_PackageLedger) -> String:
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
 			if record.active and record.package_id == package_id:
 				return "#%03d" % record.number
 	return "---"
 
-
 #endregion
+
 
 #region HP и формат строк
 ## Фактические HP, жизнь/смерть и повреждение коробки; недоступная цель отмечается отдельно.
@@ -251,10 +258,7 @@ static func health_info(target: DebugTarget) -> PackedStringArray:
 	var entity: Entity = target.entity
 	var health: C_Health = entity.get_component(C_Health) as C_Health
 	if health == null:
-		return PackedStringArray([
-			"entity=%s" % entity.id,
-			"health=none",
-		])
+		return PackedStringArray(["entity=%s" % entity.id, "health=none"])
 
 	var lines: PackedStringArray = [
 		"entity=%s" % entity.id,

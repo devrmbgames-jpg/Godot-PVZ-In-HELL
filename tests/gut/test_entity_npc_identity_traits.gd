@@ -73,8 +73,9 @@ func test_native_publication_has_identity_persistent_key_and_profile_speed_once(
 	_world.entity_added.connect(
 		func(published: Entity) -> void:
 			var identity: C_NpcIdentity = published.get_component(C_NpcIdentity) as C_NpcIdentity
-			var persistent: C_PersistentIdentity = published.get_component(C_PersistentIdentity) \
-					as C_PersistentIdentity
+			var persistent: C_PersistentIdentity = (
+				published.get_component(C_PersistentIdentity) as C_PersistentIdentity
+			)
 			var motion: C_Motion = published.get_component(C_Motion) as C_Motion
 			assert_eq(identity.npc_id, person.npc_id)
 			assert_eq(persistent.key, String(person.npc_id))
@@ -90,8 +91,9 @@ func test_native_publication_has_identity_persistent_key_and_profile_speed_once(
 			var hunger: C_Hunger = published.get_component(C_Hunger) as C_Hunger
 			assert_eq(hunger.value, _DISTRICT.npc_start_hunger)
 			assert_not_null(hunger.policy)
-			var actions: C_InteractionActionSet = published.get_component(C_InteractionActionSet) \
-					as C_InteractionActionSet
+			var actions: C_InteractionActionSet = (
+				published.get_component(C_InteractionActionSet) as C_InteractionActionSet
+			)
 			assert_eq(actions.actions.size(), 3)
 			assert_eq(actions.actions[2].action_id, &"npc_street_dialogue")
 			assert_eq(actions.actions[2].slot, DEF_InteractionAction.Slot.INTERACT)

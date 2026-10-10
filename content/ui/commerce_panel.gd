@@ -5,7 +5,16 @@ class_name CommercePanel
 const PANEL_SIZE: Vector2 = Vector2(720, 450)
 const MARGIN: float = 32.0
 const REFRESH_SECONDS: float = 0.2
-const RESULT_TEXT: Array[String] = ["Готово", "Уже выполнено", "Действие недоступно", "Запрос конфликтует", "Недостаточно денег", "Инвентарь заполнен", "Сейчас недоступно", "Освободите место в зоне выдачи мебели"]
+const RESULT_TEXT: Array[String] = [
+	"Готово",
+	"Уже выполнено",
+	"Действие недоступно",
+	"Запрос конфликтует",
+	"Недостаточно денег",
+	"Инвентарь заполнен",
+	"Сейчас недоступно",
+	"Освободите место в зоне выдачи мебели",
+]
 
 var _actor: Entity = null
 var _trader: WeakRef = null
@@ -90,7 +99,13 @@ func _process(delta: float) -> void:
 		return
 
 	var trader: Entity = _shop()
-	if not GrabQueries.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and (not GrabQueries.holder_available(trader) or trader.has_component(C_Death))):
+	if (
+		not GrabQueries.holder_available(_actor) or _actor.has_component(C_Death)
+		or (
+			not _order_mode
+			and (not GrabQueries.holder_available(trader) or trader.has_component(C_Death))
+		)
+	):
 		close_panel()
 		return
 
@@ -99,13 +114,16 @@ func _process(delta: float) -> void:
 		_refresh_remaining = REFRESH_SECONDS
 		_refresh()
 
-
 #endregion
+
 
 #region Модальный сеанс
 ## Захватывает ввод для торговли/заказа и запрашивает доступное задание торговца.
 func open_for(actor: Entity, trader: Entity = null, order_mode: bool = false) -> bool:
-	if _capture != 0 or not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null:
+	if (
+		_capture != 0 or not GrabQueries.holder_available(actor)
+		or actor.has_component(C_Death) or CommerceService.current() == null
+	):
 		return false
 
 	_actor = actor
@@ -137,10 +155,15 @@ func _release() -> void:
 	_cancel_purchase(false)
 	InteractionControlFocus.release(_actor, _capture)
 	_capture = 0
-	Input.mouse_mode = _previous_mouse if not is_instance_valid(_actor) or InteractionControlFocus.current(_actor) < InteractionControlFocus.Priority.MODAL else Input.MOUSE_MODE_VISIBLE
-
+	Input.mouse_mode = (
+		_previous_mouse
+		if not is_instance_valid(_actor)
+		or InteractionControlFocus.current(_actor) < InteractionControlFocus.Priority.MODAL
+		else Input.MOUSE_MODE_VISIBLE
+	)
 
 #endregion
+
 
 #region Производное представление
 func _shop() -> Entity:
@@ -157,23 +180,89 @@ func _refresh() -> void:
 	var shop: Entity = _shop()
 	var shop_state: C_Trader = shop.get_component(C_Trader) as C_Trader if shop != null else null
 	var profile: DEF_TraderProfile = shop_state.profile if shop_state != null else null
-	var allowed: bool = cycle.phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING] if _order_mode else TraderCatalogRules.is_open(shop_state, cycle)
-	_title.text = "Заказ на следующее утро" if _order_mode else profile.display_name if profile != null else "Торговец"
+	var allowed: bool = (
+		cycle.phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
+		if _order_mode
+		else TraderCatalogRules.is_open(shop_state, cycle)
+	)
+	if _order_mode:
+		_title.text = "Заказ на следующее утро"
+	else:
+		if profile != null:
+			_title.text = profile.display_name
+		else:
+			_title.text = "Торговец"
 	var inventory: C_Inventory = _actor.get_component(C_Inventory) as C_Inventory
-	var capacity: String = "%d / %d" % [InventoryService.items(_actor).size(), inventory.maximum_stacks] if inventory != null else "нет"
-	_status.text = "День %d · деньги %d · инвентарь %s\nУсловие: %s · доставка в Morning дня %d\nЗадача: подготовьтесь к следующей смене. %s" % [cycle.day_index, wallet.balance, capacity, "заказы доступны" if allowed else "дождитесь Morning / Evening" if _order_mode else "торговец закрыт", cycle.day_index + 1, _message]
+	var capacity: String = (
+		"%d / %d" % [InventoryService.items(_actor).size(), inventory.maximum_stacks]
+		if inventory != null
+		else "нет"
+	)
+	var availability_text: String
+	if allowed:
+		availability_text = "заказы доступны"
+	elif _order_mode:
+		availability_text = "дождитесь Morning / Evening"
+	else:
+		availability_text = "торговец закрыт"
+	_status.text = (
+		(
+			"День %d · деньги %d · инвентарь %s\nУсловие: %s · доставка в "
+			+ "Morning дня %d\nЗадача: подготовьтесь к следующей смене. %s"
+		)
+		% [
+			cycle.day_index,
+			wallet.balance,
+			capacity,
+			availability_text,
+			cycle.day_index + 1,
+			_message,
+		]
+	)
 	if not _order_mode and shop_state != null:
-		_status.text = "День %d · деньги %d · инвентарь %s\n%s · %s\nМебель: забрать в зоне возле торговца, перенести и закрепить молотком. %s" % [cycle.day_index, wallet.balance, capacity, TraderCatalogRules.schedule_text(shop_state), "открыто" if allowed else "закрыто", _message]
+		_status.text = (
+			(
+				"День %d · деньги %d · инвентарь %s\n%s · %s\nМебель: забрать "
+				+ "в зоне возле торговца, перенести и закрепить молотком. %s"
+			)
+			% [
+				cycle.day_index,
+				wallet.balance,
+				capacity,
+				TraderCatalogRules.schedule_text(shop_state),
+				"открыто" if allowed else "закрыто",
+				_message,
+			]
+		)
 
 	var catalog: Array[DEF_InventoryItem] = commerce.catalog
 	if not _order_mode and shop != null:
 		catalog = TraderCatalogRules.catalog(shop_state)
 	var record: RefusalQuestRecord = RefusalQuestService.find(_quest_id)
-	var signature: String = "%d:%d:%d:%s:%s:%d" % [cycle.day_index, cycle.phase, wallet.balance, capacity, _message, record.state if record != null else -1]
+	var signature: String = (
+		"%d:%d:%d:%s:%s:%d"
+		% [
+			cycle.day_index,
+			cycle.phase,
+			wallet.balance,
+			capacity,
+			_message,
+			record.state if record != null else -1,
+		]
+	)
 	for item: DEF_InventoryItem in catalog:
 		signature += "%s:%d;" % [item.key, item.market_price]
 	if profile != null:
-		signature += "%s:%s:%d:%d:%s" % [allowed, profile.display_name, profile.delivery_fee, profile.delivery_delay_days, profile.home_delivery_enabled]
+		signature += (
+			"%s:%s:%d:%d:%s"
+			% [
+				allowed,
+				profile.display_name,
+				profile.delivery_fee,
+				profile.delivery_delay_days,
+				profile.home_delivery_enabled,
+			]
+		)
 	for delivery: PendingDelivery in commerce.pending_deliveries:
 		signature += "%s:%d:%s;" % [delivery.delivery_id, delivery.delivery_day, delivery.fulfilled]
 	if signature == _last_signature:
@@ -186,7 +275,18 @@ func _refresh() -> void:
 		var row: VBoxContainer = VBoxContainer.new()
 		_offers.add_child(row)
 		var button: Button = Button.new()
-		button.text = "%s · %d · %s" % [item.display_name, item.market_price, "Заказать ×1" if _order_mode else "Купить мебель" if item.kind == DEF_InventoryItem.Kind.FURNITURE else "Купить ×1"]
+		button.text = (
+			"%s · %d · %s"
+			% [
+				item.display_name,
+				item.market_price,
+				"Заказать ×1"
+				if _order_mode
+				else "Купить мебель"
+				if item.kind == DEF_InventoryItem.Kind.FURNITURE
+				else "Купить ×1",
+			]
+		)
 		button.disabled = not allowed or wallet.balance < item.market_price
 		button.pressed.connect(_buy.bind(item))
 		row.add_child(button)
@@ -195,7 +295,10 @@ func _refresh() -> void:
 		for delivery: PendingDelivery in commerce.pending_deliveries:
 			if not delivery.fulfilled:
 				var label: Label = Label.new()
-				label.text = "Ожидается: %s ×%d · утро дня %d" % [delivery.item.display_name, delivery.quantity, delivery.delivery_day]
+				label.text = (
+					"Ожидается: %s ×%d · утро дня %d"
+					% [delivery.item.display_name, delivery.quantity, delivery.delivery_day]
+				)
 				_quest.add_child(label)
 	elif allowed and shop != null:
 		_show_quest(record, cycle)
@@ -207,10 +310,14 @@ func _show_quest(record: RefusalQuestRecord, cycle: C_DayCycle) -> void:
 	if record == null:
 		label.text = "Нет нового задания: нужна зарегистрированная посылка для будущего клиента."
 	else:
-		label.text = record.definition.offer_text.format({
-			"number": "%03d" % record.display_number, "deadline": record.deadline_day,
-			"days": maxi(0, record.deadline_day - cycle.day_index), "reward": record.reward,
-		})
+		label.text = record.definition.offer_text.format(
+			{
+				"number": "%03d" % record.display_number,
+				"deadline": record.deadline_day,
+				"days": maxi(0, record.deadline_day - cycle.day_index),
+				"reward": record.reward,
+			}
+		)
 	_quest.add_child(label)
 	if record == null:
 		return
@@ -229,8 +336,8 @@ func _show_quest(record: RefusalQuestRecord, cycle: C_DayCycle) -> void:
 		resolved.text = "Исход задания: %s" % RefusalQuestRecord.State.keys()[record.state]
 		_quest.add_child(resolved)
 
-
 #endregion
+
 
 #region Сервисные запросы
 func _buy(item: DEF_InventoryItem) -> void:
@@ -243,10 +350,24 @@ func _buy(item: DEF_InventoryItem) -> void:
 	if not _order_mode and TraderCatalogRules.can_deliver(shop, item):
 		_purchase_item = item
 		_purchase_id = operation_id
-		_purchase_focus = weakref(get_viewport().gui_get_focus_owner()) if get_viewport().gui_get_focus_owner() != null else null
-		_purchase_dialog.dialog_text = "%s\nСамовывоз: %d$ · доставка: %d$\nДоставка утром дня %d." % [item.display_name, item.market_price, item.market_price + shop.profile.delivery_fee, DayPhaseQueries.current().day_index + shop.profile.delivery_delay_days]
+		_purchase_focus = (
+			weakref(get_viewport().gui_get_focus_owner())
+			if get_viewport().gui_get_focus_owner() != null
+			else null
+		)
+		_purchase_dialog.dialog_text = (
+			"%s\nСамовывоз: %d$ · доставка: %d$\nДоставка утром дня %d."
+			% [
+				item.display_name,
+				item.market_price,
+				item.market_price + shop.profile.delivery_fee,
+				DayPhaseQueries.current().day_index + shop.profile.delivery_delay_days,
+			]
+		)
 		_delivery_button.text = "Доставить +%d$" % shop.profile.delivery_fee
-		_delivery_button.disabled = WalletService.current().balance < item.market_price + shop.profile.delivery_fee
+		_delivery_button.disabled = (
+			WalletService.current().balance < item.market_price + shop.profile.delivery_fee
+		)
 		_purchase_dialog.popup_centered()
 		_purchase_dialog.get_ok_button().grab_focus()
 		return
@@ -255,12 +376,18 @@ func _buy(item: DEF_InventoryItem) -> void:
 
 
 func _submit_purchase(item: DEF_InventoryItem, operation_id: StringName, delivered: bool) -> void:
-	var result: CommerceService.Status = CommerceService.order(_actor, item, 1, operation_id) if _order_mode else CommerceService.home_delivery(_actor, _shop(), item, 1, operation_id) if delivered else CommerceService.purchase(_actor, _shop(), item, 1, operation_id)
+	var result: CommerceService.Status = (
+		CommerceService.order(_actor, item, 1, operation_id)
+		if _order_mode
+		else CommerceService.home_delivery(_actor, _shop(), item, 1, operation_id)
+		if delivered
+		else CommerceService.purchase(_actor, _shop(), item, 1, operation_id)
+	)
 	_message = RESULT_TEXT[result]
 	_refresh()
 
-
 #endregion
+
 
 #region Выбор способа получения
 func _create_purchase_dialog() -> void:
@@ -302,16 +429,21 @@ func _cancel_purchase(restore_focus: bool = true) -> void:
 	if _purchase_dialog != null:
 		_purchase_dialog.hide()
 
-	var previous: Control = _purchase_focus.get_ref() as Control if _purchase_focus != null else null
+	var previous: Control = (
+		_purchase_focus.get_ref() as Control if _purchase_focus != null else null
+	)
 	_purchase_focus = null
 	if restore_focus and _capture != 0:
-		if is_instance_valid(previous) and previous.is_inside_tree() and not previous.is_queued_for_deletion():
+		if (
+			is_instance_valid(previous) and previous.is_inside_tree()
+			and not previous.is_queued_for_deletion()
+		):
 			previous.grab_focus()
 		elif _close != null:
 			_close.grab_focus()
 
-
 #endregion
+
 
 #region Сервисные запросы
 
@@ -319,7 +451,9 @@ func _quest_choice(quest_id: StringName, accept: bool) -> void:
 	if not _can_click():
 		return
 
-	var applied: bool = RefusalQuestService.accept(quest_id) if accept else RefusalQuestService.ignore(quest_id)
+	var applied: bool = (
+		RefusalQuestService.accept(quest_id) if accept else RefusalQuestService.ignore(quest_id)
+	)
 	_message = "Решение сохранено" if applied else "Задание недоступно"
 	_refresh()
 
@@ -334,7 +468,11 @@ func _can_click() -> bool:
 
 
 func _has_input() -> bool:
-	return _capture != 0 and GrabQueries.holder_available(_actor) and InteractionControlFocus.current(_actor, _capture) < InteractionControlFocus.Priority.MODAL
+	return (
+		_capture != 0 and GrabQueries.holder_available(_actor)
+		and InteractionControlFocus.current(_actor, _capture)
+		< InteractionControlFocus.Priority.MODAL
+	)
 
 
 func _clear(container: VBoxContainer) -> void:

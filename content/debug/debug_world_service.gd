@@ -42,12 +42,8 @@ static func day_next() -> DebugServiceResult:
 	result.success = true
 	result.message = "day transition queued"
 	result.details.append("day=%d" % cycle.day_index)
-	result.details.append(
-		"phase=%s" % String(C_DayCycle.Phase.keys()[cycle.phase])
-	)
-	result.details.append(
-		"kind=%s" % String(DayTransitionRequest.Kind.keys()[request.kind])
-	)
+	result.details.append("phase=%s" % String(C_DayCycle.Phase.keys()[cycle.phase]))
+	result.details.append("kind=%s" % String(DayTransitionRequest.Kind.keys()[request.kind]))
 	return result
 
 
@@ -94,15 +90,12 @@ static func customer_next() -> DebugServiceResult:
 		result.message = "no due unstarted CustomerVisit"
 		return result
 
-	var customer: E_NpcCharacter = (
-		ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_NpcCharacter
-	)
+	var customer_query: QueryBuilder = ECS.world.query.with_all([C_CustomerAgent])
+	var customer: E_NpcCharacter = customer_query.execute_one() as E_NpcCharacter
 	result.success = true
 	result.message = "next due Customer started"
 	if customer != null:
-		var agent: C_CustomerAgent = (
-			customer.get_component(C_CustomerAgent) as C_CustomerAgent
-		)
+		var agent: C_CustomerAgent = (customer.get_component(C_CustomerAgent) as C_CustomerAgent)
 		if agent != null:
 			result.details.append("visit=%s" % String(agent.visit_id))
 	return result

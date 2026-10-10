@@ -29,7 +29,8 @@ func begin() -> bool:
 	return CustomerDialogueService.begin(_actor, _customer, _visit_id)
 
 
-## После ручного закрытия возвращает к выдаче; уходящий или погибший NPC не возобновляет обслуживание.
+## После ручного закрытия возвращает к выдаче; уходящий или погибший NPC не возобновляет
+## обслуживание.
 func end() -> void:
 	if _closed:
 		return
@@ -48,35 +49,49 @@ func is_valid() -> bool:
 		return false
 	var visit: CustomerVisit = _visit()
 	var agent: C_CustomerAgent = _agent()
-	if not is_instance_valid(_actor) or not is_instance_valid(_customer) or _actor.has_component(C_Death):
+	if (
+		not is_instance_valid(_actor) or not is_instance_valid(_customer)
+		or _actor.has_component(C_Death)
+	):
 		return false
 	if _customer is E_DistrictNpc:
 		var player_body: Node3D = _actor as Node as Node3D
 		var district: C_District = NpcPopulationQueries.current()
-		if not GrabQueries.holder_available(_actor) or not GrabQueries.holder_available(_customer) or player_body == null or district == null:
+		if (
+			not GrabQueries.holder_available(_actor) or not GrabQueries.holder_available(_customer)
+			or player_body == null or district == null
+		):
 			return false
-		if _customer.global_position.distance_to(player_body.global_position) > district.definition.conversation_range:
+		if (
+			_customer.global_position.distance_to(player_body.global_position)
+			> district.definition.conversation_range
+		):
 			return false
 
 	return (
-		is_instance_valid(_actor)
-		and is_instance_valid(_customer)
-		and visit != null
-		and agent != null
-		and agent.visit_id == _visit_id
-		and not visit.finished
-		and _customer.get_component(C_Death) == null
+		is_instance_valid(_actor) and is_instance_valid(_customer)
+		and visit != null and agent != null and agent.visit_id == _visit_id
+		and not visit.finished and _customer.get_component(C_Death) == null
 	)
 
 
 ## Требует того же живого собеседника и непрерванной фазы обслуживания.
 func can_continue() -> bool:
 	var agent: C_CustomerAgent = _agent()
-	var awareness: C_NpcAwareness = _customer.get_component(C_NpcAwareness) as C_NpcAwareness if is_instance_valid(_customer) else null
-	return is_valid() and NpcDialogueService.participant(_customer) == _actor and agent.phase == C_CustomerAgent.Phase.DIALOGUE and CombatQueries.target_for(_customer) == null and (awareness == null or not awareness.fleeing)
-
+	var awareness: C_NpcAwareness
+	if is_instance_valid(_customer):
+		awareness = _customer.get_component(C_NpcAwareness) as C_NpcAwareness
+	else:
+		awareness = null
+	return (
+		is_valid() and NpcDialogueService.participant(_customer) == _actor
+		and agent.phase == C_CustomerAgent.Phase.DIALOGUE
+		and CombatQueries.target_for(_customer) == null
+		and (awareness == null or not awareness.fleeing)
+	)
 
 #endregion
+
 
 #region Диалог и адаптер заказа
 ## Возвращает фазу дня, которой управляет игрок.
@@ -88,9 +103,21 @@ func day_phase() -> int:
 ## Читает интересы постоянной личности или правила старого клиента.
 func interests_text() -> String:
 	var visit: CustomerVisit = _visit()
-	var identity: C_NpcIdentity = _customer.get_component(C_NpcIdentity) as C_NpcIdentity if is_instance_valid(_customer) else null
-	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
-	return ", ".join(person.profile.interests) if person != null else ", ".join(visit.definition.interests) if visit != null and visit.definition != null else ""
+	var identity: C_NpcIdentity
+	if is_instance_valid(_customer):
+		identity = _customer.get_component(C_NpcIdentity) as C_NpcIdentity
+	else:
+		identity = null
+	var person: NpcRecord = (
+		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	)
+	return (
+		", ".join(person.profile.interests)
+		if person != null
+		else ", ".join(visit.definition.interests)
+		if visit != null and visit.definition != null
+		else ""
+	)
 
 
 ## Возвращает текущую фазу обслуживания.
@@ -122,37 +149,41 @@ func satisfaction() -> int:
 ## Выбирает ветку по личности NPC, сохраняя ветки результатов обслуживания.
 func dialogue_cue() -> String:
 	var visit: CustomerVisit = _visit()
-	var identity: C_NpcIdentity = _customer.get_component(C_NpcIdentity) as C_NpcIdentity if is_instance_valid(_customer) else null
-	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	var identity: C_NpcIdentity
+	if is_instance_valid(_customer):
+		identity = _customer.get_component(C_NpcIdentity) as C_NpcIdentity
+	else:
+		identity = null
+	var person: NpcRecord = (
+		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	)
 	if false_taken_detected():
 		return "false_taken"
 	if has_pending_challenge():
 		return "challenge"
 	if (
-		visit != null
-		and visit.definition != null
-		and visit.definition.voluntary_refusal
+		visit != null and visit.definition != null and visit.definition.voluntary_refusal
 		and visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED
 	):
 		return "voluntary_refusal"
 	if has_broken_promise():
 		return "broken_promise"
-	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null and not visit.riddle_solved:
+	if (
+		person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null
+		and not visit.riddle_solved
+	):
 		return "riddle"
 	if can_offer_delivery():
 		return "home_request"
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null:
 		return "provocation"
 	if (
-		visit != null
-		and visit.visit_count > 1
+		visit != null and visit.visit_count > 1
 		and visit.declaration == CustomerVisit.Declaration.NONE
 	):
 		return "followup"
 	if (
-		person == null
-		and visit != null
-		and visit.definition != null
+		person == null and visit != null and visit.definition != null
 		and visit.definition.dialogue_mode == DEF_Customer.DialogueMode.RIDDLE
 		and not visit.riddle_solved
 	):
@@ -165,7 +196,12 @@ func apply_response_tags(tags: PackedStringArray) -> bool:
 	if not is_valid():
 		return false
 	if tags.has("sub") and _customer is E_DistrictNpc:
-		NpcSocialService.react(_customer as E_DistrictNpc, _actor, NpcMemory.Kind.SUBMISSION, StringName("dialogue/%s/sub" % _visit_id))
+		NpcSocialService.react(
+			_customer as E_DistrictNpc,
+			_actor,
+			NpcMemory.Kind.SUBMISSION,
+			StringName("dialogue/%s/sub" % _visit_id),
+		)
 		return true
 
 	var intent: CustomerDialogueIntent.Type = CustomerDialogueIntent.from_tags(tags)
@@ -175,33 +211,58 @@ func apply_response_tags(tags: PackedStringArray) -> bool:
 	var visit: CustomerVisit = _visit()
 	var applied: bool = CustomerOutcomeService.apply_dialogue_intent(visit, intent)
 	if applied and _customer is E_DistrictNpc:
-		CustomerSocialService.dialogue_response(_customer as E_DistrictNpc, _actor, intent, StringName("dialogue/%s/%d" % [_visit_id, intent]))
+		CustomerSocialService.dialogue_response(
+			_customer as E_DistrictNpc,
+			_actor,
+			intent,
+			StringName("dialogue/%s/%d" % [_visit_id, intent]),
+		)
 	return applied
 
 
 ## Проверяет, может ли получатель предложить реальную зарегистрированную коробку на вечер.
 func can_offer_delivery() -> bool:
-	return _customer is E_DistrictNpc and NpcHomeDeliveryService.offer_for(_customer as E_DistrictNpc) != null
+	return (
+		_customer is E_DistrictNpc
+		and NpcHomeDeliveryService.offer_for(_customer as E_DistrictNpc) != null
+	)
 
 
 ## Принимает допуслугу через сервис домашних доставок.
 func accept_home_delivery() -> bool:
-	return is_valid() and _customer is E_DistrictNpc and NpcHomeDeliveryService.accept(_customer as E_DistrictNpc)
+	return (
+		is_valid() and _customer is E_DistrictNpc
+		and NpcHomeDeliveryService.accept(_customer as E_DistrictNpc)
+	)
+
 
 ## Отказывает в допуслуге; получатель заберёт эту же коробку через 1–3 дня.
 func decline_home_delivery() -> bool:
-	return is_valid() and _customer is E_DistrictNpc and NpcHomeDeliveryService.decline(_customer as E_DistrictNpc)
+	return (
+		is_valid() and _customer is E_DistrictNpc
+		and NpcHomeDeliveryService.decline(_customer as E_DistrictNpc)
+	)
+
 
 ## Позволяет синхронно закрыть именно разговор с этим NPC перед нападением.
 func speaks_with(npc: Entity) -> bool:
 	return _customer == npc
 
+
 func _delivery_offer() -> NpcHomeDelivery:
-	var visit: CustomerVisit = NpcHomeDeliveryService.offer_for(_customer as E_DistrictNpc) if _customer is E_DistrictNpc else null
-	return HomeDeliveryQueries.personal_for(visit.customer_id, visit.visit_id) if visit != null else null
+	var visit: CustomerVisit
+	if _customer is E_DistrictNpc:
+		visit = NpcHomeDeliveryService.offer_for(_customer as E_DistrictNpc)
+	else:
+		visit = null
+	if visit != null:
+		return HomeDeliveryQueries.personal_for(visit.customer_id, visit.visit_id)
+	return null
+
 
 func _delivery_npc() -> E_DistrictNpc:
 	return _customer as E_DistrictNpc
+
 
 func _delivery_player() -> Entity:
 	return _actor
@@ -258,10 +319,8 @@ func schedule_non_delivery_complaint() -> bool:
 func false_taken_detected() -> bool:
 	var visit: CustomerVisit = _visit()
 	return (
-		visit != null
-		and visit.declaration == CustomerVisit.Declaration.TAKEN
-		and visit.actual != CustomerVisit.Actual.DELIVERED
-		and visit.aggressive
+		visit != null and visit.declaration == CustomerVisit.Declaration.TAKEN
+		and visit.actual != CustomerVisit.Actual.DELIVERED and visit.aggressive
 	)
 
 
@@ -314,8 +373,7 @@ func complaint_reason() -> int:
 func complaint_pending() -> bool:
 	var visit: CustomerVisit = _visit()
 	return (
-		visit != null
-		and visit.complaint != null
+		visit != null and visit.complaint != null
 		and visit.complaint.outcome == CustomerComplaint.Outcome.PENDING
 	)
 
@@ -408,16 +466,22 @@ func arm_challenge() -> bool:
 
 ## Читает уровень голода без изменения Hunger и личности получателя.
 func hunger_tier() -> int:
-	return HungerRules.tier(_actor.get_component(C_Hunger) as C_Hunger) if is_instance_valid(_actor) else DEFAULT_HUNGER_TIER
+	if is_instance_valid(_actor):
+		return HungerRules.tier(_actor.get_component(C_Hunger) as C_Hunger)
+	return DEFAULT_HUNGER_TIER
 
 
 ## Меняет только восприятие реплики; настоящую ветку и текст выбирает DialogueManager.
 func perceived_text(actual_text: String) -> String:
-	var hunger: C_Hunger = _actor.get_component(C_Hunger) as C_Hunger if is_instance_valid(_actor) else null
-	return "Съешь меня" if HungerRules.sees_npcs_as_food(hunger) and not actual_text.is_empty() else actual_text
-
+	var hunger: C_Hunger = (
+		_actor.get_component(C_Hunger) as C_Hunger if is_instance_valid(_actor) else null
+	)
+	if HungerRules.sees_npcs_as_food(hunger) and not actual_text.is_empty():
+		return "Съешь меня"
+	return actual_text
 
 #endregion
+
 
 #region Чтение заказа
 func _visit() -> CustomerVisit:

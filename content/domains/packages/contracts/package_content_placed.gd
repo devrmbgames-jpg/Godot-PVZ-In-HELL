@@ -1,5 +1,6 @@
 extends RefCounted
-## Committed physical package content; captured native relationship identities are lifetime witnesses only.
+## Committed physical package content; captured native relationship identities are lifetime
+## witnesses only.
 class_name PackageContentPlaced
 
 ## Event published after the item enters World at a verified pose.
@@ -10,6 +11,7 @@ var item_reference: WeakRef
 var item_id: String
 ## Borrowed binding identities at placement; no role state is copied or written here.
 var source_bindings: Array[Relationship] = []
+
 
 #region Committed fact construction
 ## Captures the committed item and the source's current native relationship identities.

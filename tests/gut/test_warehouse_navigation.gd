@@ -1,11 +1,13 @@
 extends GutTest
-## Проверки покрытия ПВЗ и связности native navmesh; неполный путь между островами не считается успехом.
+## Проверки покрытия ПВЗ и связности native navmesh; неполный путь между островами не считается
+## успехом.
 
 const CHECKS: GDScript = preload("res://utils/warehouse_navigation_checks.gd")
 
 var _level: Node3D = null
 var _region: NavigationRegion3D = null
 var _station: E_DeliveryCounter = null
+
 
 #region Подготовка и очистка
 ## Создаёт минимальную стойку и регион без запуска районной симуляции.
@@ -40,14 +42,21 @@ func _mesh_for(tiles: Array[Vector2]) -> NavigationMesh:
 	var vertices: PackedVector3Array = []
 	for tile: Vector2 in tiles:
 		var offset: int = vertices.size()
-		vertices.append_array(PackedVector3Array([
-			Vector3(tile.x, 0, -2), Vector3(tile.x, 0, 2),
-			Vector3(tile.y, 0, 2), Vector3(tile.y, 0, -2),
-		]))
+		vertices.append_array(
+			PackedVector3Array(
+				[
+					Vector3(tile.x, 0, -2),
+					Vector3(tile.x, 0, 2),
+					Vector3(tile.y, 0, 2),
+					Vector3(tile.y, 0, -2),
+				]
+			)
+		)
 		mesh.add_polygon(PackedInt32Array([offset, offset + 1, offset + 2, offset + 3]))
 	mesh.vertices = vertices
 	return mesh
 #endregion
+
 
 #region Покрытие и связность навигации
 ## Перенос региона сохраняет полный путь между двумя точками стойки.

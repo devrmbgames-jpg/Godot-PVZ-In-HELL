@@ -16,8 +16,9 @@ signal note_changed(history_id: String, text: String)
 var _history_id: String = ""
 var _syncing_note: bool = false
 var _reported_note: String = ""
-var _note_carets: Dictionary[String, Vector2i] = {}
-var _note_scrolls: Dictionary[String, Vector2] = {}
+var _note_carets: Dictionary[String, Vector2i] = { }
+var _note_scrolls: Dictionary[String, Vector2] = { }
+
 
 #region Выбранная запись
 func _ready() -> void:
@@ -58,11 +59,15 @@ func present(
 	if record.received_day > 0:
 		lines.append("Дата поступления: день %d" % record.received_day)
 	lines.append(
-		"Дата регистрации: день %d" % record.day_index
-		if record.number > 0
-		else "Ещё не зарегистрирована. Номер выдачи не назначен."
+		(
+			"Дата регистрации: день %d" % record.day_index
+			if record.number > 0
+			else "Ещё не зарегистрирована. Номер выдачи не назначен."
+		)
 	)
-	lines.append("Отметка: %s" % UI_TerminalButtonPackage.status_text(record, state, visit, debug_status))
+	lines.append(
+		"Отметка: %s" % UI_TerminalButtonPackage.status_text(record, state, visit, debug_status)
+	)
 	if visit != null and visit.registration_overdue_day > 0:
 		lines.append("Пропущен срок регистрации: день %d" % visit.registration_overdue_day)
 		if visit.registration_penalty_committed:
@@ -95,8 +100,8 @@ func clear_info() -> void:
 	_label_package_name.text = "Посылка не выбрана"
 	_rich_label_description.text = ""
 
-
 #endregion
+
 
 #region Примечание и положение ввода
 ## Проверяет текстовый фокус, чтобы клавиша взаимодействия не закрывала терминал во время ввода.
@@ -134,8 +139,12 @@ func _present_note(record: PackageRegistrationRecord) -> void:
 
 func _remember_note_position() -> void:
 	if not _history_id.is_empty():
-		_note_carets[_history_id] = Vector2i(_line_edit_ps.get_caret_line(), _line_edit_ps.get_caret_column())
-		_note_scrolls[_history_id] = Vector2(_line_edit_ps.scroll_horizontal, _line_edit_ps.scroll_vertical)
+		_note_carets[_history_id] = (
+			Vector2i(_line_edit_ps.get_caret_line(), _line_edit_ps.get_caret_column())
+		)
+		_note_scrolls[_history_id] = (
+			Vector2(_line_edit_ps.scroll_horizontal, _line_edit_ps.scroll_vertical)
+		)
 
 
 func _on_note_text_changed() -> void:
@@ -150,13 +159,22 @@ func _flush_note() -> void:
 	note_changed.emit(_history_id, _reported_note)
 #endregion
 
+
 #region Форматирование состояния и жалобы
 static func _complaint_lines(visit: CustomerVisit) -> PackedStringArray:
 	if visit == null or visit.complaint == null:
 		return []
 	var complaint: CustomerComplaint = visit.complaint
-	var claimant: String = complaint.customer_name if not complaint.customer_name.is_empty() else CustomerPresentation.customer_name(visit)
-	var reason: String = "Не получил посылку" if complaint.reason == CustomerComplaint.Reason.NOT_DELIVERED else "Повреждённая посылка"
+	var claimant: String = (
+		complaint.customer_name
+		if not complaint.customer_name.is_empty()
+		else CustomerPresentation.customer_name(visit)
+	)
+	var reason: String
+	if complaint.reason == CustomerComplaint.Reason.NOT_DELIVERED:
+		reason = "Не получил посылку"
+	else:
+		reason = "Повреждённая посылка"
 	var lines: PackedStringArray = [
 		"Жалоба от %s · день %d" % [claimant, complaint.created_day],
 		"Причина жалобы: %s" % reason,
@@ -183,8 +201,16 @@ static func _delivery_lines(delivery: TerminalDeliveryInfo) -> PackedStringArray
 	]
 	if not delivery.status_text.is_empty():
 		lines.append("Статус доставки: " + delivery.status_text)
-	if not delivery.job_id.is_empty() and delivery.status == NpcHomeDelivery.Status.OFFERED and not delivery.can_respond:
-		lines.append("Предложение сейчас недоступно. Получатель и зарегистрированная посылка должны быть доступны; срок — до сна.")
+	if (
+		not delivery.job_id.is_empty() and delivery.status == NpcHomeDelivery.Status.OFFERED
+		and not delivery.can_respond
+	):
+		lines.append(
+			(
+				"Предложение сейчас недоступно. Получатель и "
+				+ "зарегистрированная посылка должны быть доступны; срок — до " + "сна."
+			)
+		)
 	return lines
 
 

@@ -87,64 +87,85 @@ func _register_tools() -> void:
 	var specs: Array[McpCustomToolSpec] = [
 		_make_spec(
 			"pvz_gecs_world_summary",
-			"Summarize PVZ GECS entities, component types and relationships from runtime when available or the edited scene.",
+			(
+				"Summarize PVZ GECS entities, component types and "
+				+ "relationships from runtime when available or the edited " + "scene."
+			),
 			&"world_summary",
 			{
 				"type": "object",
 				"properties": {
 					"source": _source_property(),
-					"max_types": {"type": "integer", "minimum": 1, "maximum": 100, "default": 30},
+					"max_types": { "type": "integer", "minimum": 1, "maximum": 100, "default": 30 },
 				},
 				"additionalProperties": false,
 			},
 		),
 		_make_spec(
 			"pvz_gecs_find_entities",
-			"Find PVZ GECS entities by id/name/path/class/component without dumping the full SceneTree.",
+			(
+				"Find PVZ GECS entities by id/name/path/class/component "
+				+ "without dumping the full SceneTree."
+			),
 			&"find_entities",
 			{
 				"type": "object",
 				"properties": {
 					"source": _source_property(),
-					"query": {"type": "string", "default": ""},
-					"class_name": {"type": "string", "default": ""},
-					"component": {"type": "string", "default": ""},
-					"limit": {"type": "integer", "minimum": 1, "maximum": 200, "default": 50},
+					"query": { "type": "string", "default": "" },
+					"class_name": { "type": "string", "default": "" },
+					"component": { "type": "string", "default": "" },
+					"limit": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 },
 				},
 				"additionalProperties": false,
 			},
 		),
 		_make_spec(
 			"pvz_gecs_entity_inspect",
-			"Inspect one PVZ GECS entity, including compact component values and relationship counts.",
+			(
+				"Inspect one PVZ GECS entity, including compact component "
+				+ "values and relationship counts."
+			),
 			&"entity_inspect",
 			{
 				"type": "object",
 				"properties": {
 					"source": _source_property(),
-					"entity_id": {"type": "string", "default": ""},
-					"node_path": {"type": "string", "default": ""},
-					"name": {"type": "string", "default": ""},
-					"include_private": {"type": "boolean", "default": false},
-					"max_collection_items": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20},
+					"entity_id": { "type": "string", "default": "" },
+					"node_path": { "type": "string", "default": "" },
+					"name": { "type": "string", "default": "" },
+					"include_private": { "type": "boolean", "default": false },
+					"max_collection_items": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 100,
+						"default": 20,
+					},
 				},
 				"additionalProperties": false,
 			},
 		),
 		_make_spec(
 			"pvz_gecs_relationships",
-			"Inspect outgoing and incoming PVZ GECS relationships for one entity with optional relation filtering.",
+			(
+				"Inspect outgoing and incoming PVZ GECS relationships for one "
+				+ "entity with optional relation filtering."
+			),
 			&"relationships_inspect",
 			{
 				"type": "object",
 				"properties": {
 					"source": _source_property(),
-					"entity_id": {"type": "string", "default": ""},
-					"node_path": {"type": "string", "default": ""},
-					"name": {"type": "string", "default": ""},
-					"relation": {"type": "string", "default": ""},
-					"direction": {"type": "string", "enum": ["both", "outgoing", "incoming"], "default": "both"},
-					"limit": {"type": "integer", "minimum": 1, "maximum": 200, "default": 50},
+					"entity_id": { "type": "string", "default": "" },
+					"node_path": { "type": "string", "default": "" },
+					"name": { "type": "string", "default": "" },
+					"relation": { "type": "string", "default": "" },
+					"direction": {
+						"type": "string",
+						"enum": ["both", "outgoing", "incoming"],
+						"default": "both",
+					},
+					"limit": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 },
 				},
 				"additionalProperties": false,
 			},
@@ -157,7 +178,9 @@ func _register_tools() -> void:
 
 	_registered = _registry.batch_register(specs)
 	if not _registered:
-		push_warning("PVZ Godot AI Tools: custom tool registration failed; see Godot AI diagnostics.")
+		push_warning(
+			"PVZ Godot AI Tools: custom tool registration failed; see Godot AI diagnostics."
+		)
 
 
 func _make_spec(
@@ -186,12 +209,10 @@ func _make_spec(
 func _editor_ownership_spec() -> McpCustomToolSpec:
 	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
 	spec.name = "pvz_editor_ownership"
-	spec.description = "List currently open and unsaved Godot Editor scenes before authoring, reload or save."
-	spec.params_schema = {
-		"type": "object",
-		"properties": {},
-		"additionalProperties": false,
-	}
+	spec.description = (
+		"List currently open and unsaved Godot Editor scenes before " + "authoring, reload or save."
+	)
+	spec.params_schema = { "type": "object", "properties": { }, "additionalProperties": false }
 	spec.script_path = "res://addons/pvz_ai_tools/editor_ownership_tool.gd"
 	spec.method = &"inspect"
 	spec.source_path = SOURCE_CFG
@@ -212,7 +233,7 @@ func _editor_traits_signal_spec() -> McpCustomToolSpec:
 		"Check direct Traits Inspector signal lifetime with temporary controls "
 		+ "and restore the current Inspector."
 	)
-	spec.params_schema = {"type": "object", "properties": {}, "additionalProperties": false}
+	spec.params_schema = { "type": "object", "properties": { }, "additionalProperties": false }
 	spec.script_path = "res://addons/pvz_ai_tools/editor_traits_signal_tool.gd"
 	spec.method = &"inspect"
 	spec.source_path = SOURCE_CFG
@@ -231,7 +252,7 @@ func _gdscript_style_spec() -> McpCustomToolSpec:
 	spec.description = "Inspect or apply the project's pinned native GDQuest formatter settings."
 	spec.params_schema = {
 		"type": "object",
-		"properties": {"action": {"type": "string", "enum": ["inspect", "apply"]}},
+		"properties": { "action": { "type": "string", "enum": ["inspect", "apply"] } },
 		"additionalProperties": false,
 	}
 	spec.script_path = "res://addons/pvz_ai_tools/gdscript_style_tool.gd"
@@ -251,9 +272,9 @@ func _style_script_validation_spec() -> McpCustomToolSpec:
 	spec.params_schema = {
 		"type": "object",
 		"properties": {
-			"task": {"type": "string", "enum": ["61", "62", "63", "64", "65"]},
-			"offset": {"type": "integer", "minimum": 0, "default": 0},
-			"limit": {"type": "integer", "minimum": 1, "maximum": 25, "default": 25},
+			"task": { "type": "string", "enum": ["61", "62", "63", "64", "65"] },
+			"offset": { "type": "integer", "minimum": 0, "default": 0 },
+			"limit": { "type": "integer", "minimum": 1, "maximum": 25, "default": 25 },
 		},
 		"required": ["task"],
 		"additionalProperties": false,
@@ -273,7 +294,9 @@ func _source_property() -> Dictionary:
 		"type": "string",
 		"enum": ["auto", "runtime", "editor"],
 		"default": "auto",
-		"description": "auto prefers the running game's GECS world, then falls back to editor-side state.",
+		"description": (
+			"auto prefers the running game's GECS world, then falls back " + "to editor-side state."
+		),
 	}
 
 #endregion

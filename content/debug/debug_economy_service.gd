@@ -49,15 +49,11 @@ static func manual_penalty_outstanding(wallet: C_Wallet) -> int:
 			outstanding -= operation.amount
 	return maxi(0, outstanding)
 
-
 #endregion
 
+
 #region Проверка и запись операции
-static func _submit(
-	reason: MoneyOperation.Reason,
-	amount: int,
-	note: String,
-) -> DebugServiceResult:
+static func _submit(reason: MoneyOperation.Reason, amount: int, note: String) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if amount <= 0 or amount > WalletService.MAX_AMOUNT:
 		result.message = "amount must be between 1 and %d" % WalletService.MAX_AMOUNT

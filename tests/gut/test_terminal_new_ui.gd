@@ -1,9 +1,11 @@
 extends GutTest
-## Проверки терминала: заявления игрока отделены от физической истины, скрытые данные доступны только в debug.
+## Проверки терминала: заявления игрока отделены от физической истины, скрытые данные доступны
+## только в debug.
 
 
 #region Заявления, архив и скрытая информация
-## Обычный статус строки следует только заявлению игрока, независимо от физического состояния коробки.
+## Обычный статус строки следует только заявлению игрока, независимо от физического состояния
+## коробки.
 func test_package_line_status_tracks_only_terminal_declarations() -> void:
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = "package/test"
@@ -31,11 +33,14 @@ func test_archive_follows_declaration_not_physical_departure_for_customer_visit(
 	record.departure = C_PackageState.Registration.DELIVERED
 	var visit: CustomerVisit = CustomerVisit.new()
 
-	assert_false(TerminalPanel._is_archived(record, visit))
+	assert_false((TerminalPanel as Script).call("_is_archived", record, visit))
 	visit.declaration = CustomerVisit.Declaration.TAKEN
-	assert_true(TerminalPanel._is_archived(record, visit))
-	assert_false(TerminalPanel._is_archived(record, null), "Unreported physical departure cannot hide the record")
-	assert_true(TerminalPanel._is_archived(record, null, true))
+	assert_true((TerminalPanel as Script).call("_is_archived", record, visit))
+	assert_false(
+		(TerminalPanel as Script).call("_is_archived", record, null),
+		"Unreported physical departure cannot hide the record",
+	)
+	assert_true((TerminalPanel as Script).call("_is_archived", record, null, true))
 
 
 ## Скрытые повреждения и факт выдачи не влияют на обычный статус/поиск; debug раскрывает их явно.
@@ -52,18 +57,23 @@ func test_hidden_truth_does_not_change_normal_status_or_search_but_debug_can_sho
 
 	var panel: TerminalPanel = TerminalPanel.new()
 	assert_false(panel.debug_package_status_enabled)
-	assert_false(panel._matches_search(record, state, visit, "повреждена"))
+	assert_false(panel.call("_matches_search", record, state, visit, "повреждена"))
 	panel.debug_package_status_enabled = true
-	assert_true(panel._matches_search(record, state, visit, "повреждена"))
+	assert_true(panel.call("_matches_search", record, state, visit, "повреждена"))
 	visit.actual = CustomerVisit.Actual.DELIVERED
 	assert_eq(UI_TerminalButtonPackage.status_text(record, null, visit), "БЕЗ ОТМЕТКИ")
-	assert_eq(UI_TerminalButtonPackage.status_text(record, null, visit, true), "ВЫДАНА · НЕ ОТМЕЧЕНА")
+	assert_eq(
+		UI_TerminalButtonPackage.status_text(record, null, visit, true),
+		"ВЫДАНА · НЕ ОТМЕЧЕНА",
+	)
 	panel.free()
 
 
 ## Реальная панель деталей показывает повреждение и течь только при разрешённом debug-представлении.
 func test_real_terminal_detail_only_reveals_condition_when_opted_into_debug() -> void:
-	var packed: PackedScene = load("res://content/ui/ui_terminal_package_detail_info.tscn") as PackedScene
+	var packed: PackedScene = (
+		load("res://content/ui/ui_terminal_package_detail_info.tscn") as PackedScene
+	)
 	var detail: UI_TerminalPackageDetailInfo = packed.instantiate() as UI_TerminalPackageDetailInfo
 	add_child(detail)
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
@@ -83,7 +93,8 @@ func test_real_terminal_detail_only_reveals_condition_when_opted_into_debug() ->
 	detail.free()
 
 
-## Строка публикует только запросы трёх заявлений, не подменяя физические операции отказа/выкупа/возврата.
+## Строка публикует только запросы трёх заявлений, не подменяя физические операции
+## отказа/выкупа/возврата.
 func test_package_line_exposes_only_three_terminal_outcome_signals() -> void:
 	var line: UI_TerminalButtonPackage = UI_TerminalButtonPackage.new()
 	assert_true(line.has_signal("taken_requested"))

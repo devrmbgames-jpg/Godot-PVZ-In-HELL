@@ -39,8 +39,8 @@ func _complaint_visit(actual: CustomerVisit.Actual) -> CustomerVisit:
 	CustomerOutcomeService.create_complaint(visit, 1)
 	return visit
 
-
 #endregion
+
 
 #region Выдача и заявления
 ## Выдача требует регистрации, точного ID, живого назначения и освобождённой коробки.
@@ -49,21 +49,39 @@ func test_delivery_requires_registration_identity_assignment_and_released_box() 
 	var package: C_Package = C_Package.new()
 	package.package_id = "shipment1"
 	var state: C_PackageState = C_PackageState.new()
-	assert_eq(CustomerOutcomeService.check(visit, null, null, false, false).result, PackageDeliveryCheck.Result.MISSING)
-	assert_eq(CustomerOutcomeService.check(visit, package, state, true, false).result, PackageDeliveryCheck.Result.UNREGISTERED)
+	assert_eq(
+		CustomerOutcomeService.check(visit, null, null, false, false).result,
+		PackageDeliveryCheck.Result.MISSING,
+	)
+	assert_eq(
+		CustomerOutcomeService.check(visit, package, state, true, false).result,
+		PackageDeliveryCheck.Result.UNREGISTERED,
+	)
 	state.registration = C_PackageState.Registration.REGISTERED
 	package.package_id = "different_shipment_with_same_display_number"
 	state.registration_number = 1
-	assert_eq(CustomerOutcomeService.check(visit, package, state, true, false).result, PackageDeliveryCheck.Result.WRONG_PACKAGE)
+	assert_eq(
+		CustomerOutcomeService.check(visit, package, state, true, false).result,
+		PackageDeliveryCheck.Result.WRONG_PACKAGE,
+	)
 	package.package_id = "shipment1"
-	assert_eq(CustomerOutcomeService.check(visit, package, state, false, false).result, PackageDeliveryCheck.Result.UNASSIGNED)
-	assert_eq(CustomerOutcomeService.check(visit, package, state, true, true).result, PackageDeliveryCheck.Result.HELD)
+	assert_eq(
+		CustomerOutcomeService.check(visit, package, state, false, false).result,
+		PackageDeliveryCheck.Result.UNASSIGNED,
+	)
+	assert_eq(
+		CustomerOutcomeService.check(visit, package, state, true, true).result,
+		PackageDeliveryCheck.Result.HELD,
+	)
 	assert_eq(
 		CustomerOutcomeService.check(visit, package, state, true, true, true).result,
 		PackageDeliveryCheck.Result.READY,
 	)
 	state.damage = C_PackageState.Damage.DESTROYED
-	assert_eq(CustomerOutcomeService.check(visit, package, state, true, false).result, PackageDeliveryCheck.Result.DESTROYED)
+	assert_eq(
+		CustomerOutcomeService.check(visit, package, state, true, false).result,
+		PackageDeliveryCheck.Result.DESTROYED,
+	)
 
 
 ## Факт передачи отделён от заявления в журнале; повторный расчёт не удваивает оплату.
@@ -168,8 +186,8 @@ func test_false_taken_is_legal_and_can_trigger_aggression() -> void:
 	assert_true(visit.aggressive)
 	assert_false(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.LOST))
 
-
 #endregion
+
 
 #region Жалобы и расчёты
 ## Отложенная жалоба рассматривается по постоянной записи и списывает штраф один раз.
@@ -244,11 +262,12 @@ func test_return_does_not_erase_valid_refusal_complaint() -> void:
 	assert_eq(wallet.balance, -200)
 	assert_eq(visit.complaint.outcome, CustomerComplaint.Outcome.CONFIRMED)
 
-
 #endregion
 
+
 #region Старое расписание и копии записей
-## Проверяет старое авторское расписание без районной сессии: повторное планирование и поздний визит.
+## Проверяет старое авторское расписание без районной сессии: повторное планирование и поздний
+## визит.
 func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_late_visit() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -260,7 +279,10 @@ func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_la
 	EntityCompositionFixture.register(_world, session)
 
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
-	flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	flow.schedule = (
+		load("res://content/domains/customers/definitions/def_customer_schedule_default.tres")
+		as DEF_CustomerSchedule
+	)
 	CustomerFlowFixture.plan(flow, 1, 100)
 	CustomerFlowFixture.plan(flow, 1, 100)
 	assert_eq(flow.visits.size(), 8)
@@ -301,8 +323,8 @@ func test_persistent_record_copy_retains_dispute_and_settlement_flags() -> void:
 	assert_eq(restored.complaint.outcome, CustomerComplaint.Outcome.CONFIRMED)
 	assert_true(restored.settlement_committed)
 
-
 #endregion
+
 
 #region Живой World и назначения
 func _live_fixture() -> CustomerVisit:
@@ -329,7 +351,8 @@ func _live_parcel(visit: CustomerVisit) -> Entity:
 	return parcel
 
 
-## Назначение коробки принадлежит Relationship; удаление клиента убирает живую связь, сохраняя ID заказа.
+## Назначение коробки принадлежит Relationship; удаление клиента убирает живую связь, сохраняя ID
+## заказа.
 func test_live_assignment_is_relationship_and_disappears_with_customer() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	var parcel: Entity = _live_parcel(visit)
@@ -409,9 +432,8 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 	CustomerOutcomeService.resolve_complaint(visit, WalletService.current(), 2)
 	assert_eq(visit.complaint.outcome, CustomerComplaint.Outcome.WAIVED_PLAYER_DEFEAT)
 
-
-
 #endregion
+
 
 #region Регистрация и ночной переход
 ## Получатель ждёт регистрации, кроме событий с явно отключённым требованием.
@@ -493,11 +515,7 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.MORNING
 	assert_eq(
-		CustomerFlowFixture.morning(
-			CustomerFlowQueries.current(),
-			cycle,
-			WalletService.current(),
-		),
+		CustomerFlowFixture.morning(CustomerFlowQueries.current(), cycle, WalletService.current()),
 		0,
 	)
 	assert_eq(registered.declaration, CustomerVisit.Declaration.NONE)
@@ -508,6 +526,7 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	assert_eq(WalletService.current().balance, 0)
 
 #endregion
+
 
 #region Повторные визиты и независимость сессий
 ## Обещанный завтрашний визит возвращается точно на следующий день и не создаёт жалобу.
@@ -604,10 +623,14 @@ func test_main_scene_sessions_do_not_share_mutable_customer_records() -> void:
 	var second: Node = scene.instantiate()
 	var first_flow: C_CustomerFlow = null
 	var second_flow: C_CustomerFlow = null
-	for component: Component in (first.get_node("Entityes/DaySession") as Entity).component_resources:
+	for component: Component in (
+		(first.get_node("Entityes/DaySession") as Entity).component_resources
+	):
 		if component is C_CustomerFlow:
 			first_flow = component as C_CustomerFlow
-	for component: Component in (second.get_node("Entityes/DaySession") as Entity).component_resources:
+	for component: Component in (
+		(second.get_node("Entityes/DaySession") as Entity).component_resources
+	):
 		if component is C_CustomerFlow:
 			second_flow = component as C_CustomerFlow
 	first_flow.visits.append(_visit())

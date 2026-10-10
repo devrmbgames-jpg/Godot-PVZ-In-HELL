@@ -120,7 +120,6 @@ func _set_advanced(enabled: bool) -> void:
 	_advanced = enabled
 	_refresh_identity()
 
-
 #endregion
 
 
@@ -141,7 +140,6 @@ func _repair_identity(actor_ref: WeakRef, metadata_key: StringName) -> void:
 	undo.add_do_method(actor, "notify_property_list_changed")
 	undo.add_undo_method(actor, "notify_property_list_changed")
 	undo.commit_action()
-
 
 #endregion
 

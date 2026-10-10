@@ -1,15 +1,16 @@
 extends RefCounted
-## Типизированное событие состояния коробки; последствия для опасностей и клиентов применяют подписчики.
+## Типизированное событие состояния коробки; последствия для опасностей и клиентов применяют
+## подписчики.
 class_name PackageLifecycleEvent
 
 ## Постоянный канал World для передачи этой записи события.
 const EVENT: StringName = &"package_lifecycle"
 
 enum Kind {
-	Damaged,
-	Destroyed,
-	Opened,
-	Leaking,
+	DAMAGED,
+	DESTROYED,
+	OPENED,
+	LEAKING,
 }
 
 ## Стабильный ID коробки сохраняется после удаления физической сущности.
@@ -21,6 +22,6 @@ var actor: Entity = null
 ## Captured initiator identity survives removal before deferred contents release.
 var actor_id: String = ""
 ## Зафиксированный переход состояния коробки.
-var kind: Kind = Kind.Damaged
+var kind: Kind = Kind.DAMAGED
 ## Причина урона для повреждения и уничтожения, иначе null.
 var cause: DamageResult = null

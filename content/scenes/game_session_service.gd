@@ -10,7 +10,7 @@ const TEST_MANUAL_SAVE: String = "user://primitive_manual_save.pvzh"
 const TEST_AUTOSAVE: String = "user://primitive_test_level.pvzh"
 
 static var _pending_level: String = ""
-static var _pending_snapshot: Dictionary = {}
+static var _pending_snapshot: Dictionary = { }
 
 
 #region Пути игровых слотов
@@ -28,8 +28,8 @@ static func manual_path(level: String) -> String:
 static func autosave_path(level: String) -> String:
 	return TEST_AUTOSAVE if level == TEST_LEVEL else AutosaveStore.DEFAULT_PATH
 
-
 #endregion
+
 
 #region Ручное сохранение и выбор слота
 ## Собственный modal token меню можно исключить; другие захваты и живые связи остаются запретом.
@@ -50,24 +50,37 @@ static func save_reason(root: Node, menu_owner: Object = null) -> String:
 			continue
 
 		var challenge: C_Challenge = actor.get_component(C_Challenge) as C_Challenge
-		if challenge != null and challenge.phase in [C_Challenge.Phase.ARMED, C_Challenge.Phase.ACTIVE]:
+		if (
+			challenge != null
+			and challenge.phase in [C_Challenge.Phase.ARMED, C_Challenge.Phase.ACTIVE]
+		):
 			return "Завершите активное испытание."
 
 		var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 		if control != null:
 			for capture: InteractionControlCapture in control.captures.values():
 				var owner: Object = capture.owner.get_ref() if capture.owner != null else null
-				if owner != null and owner != menu_owner and capture.priority > InteractionControlFocus.Priority.HANDS:
+				if (
+					owner != null and owner != menu_owner
+					and capture.priority > InteractionControlFocus.Priority.HANDS
+				):
 					return "Завершите взаимодействие и положите предметы из рук."
 
 		for binding: Relationship in actor.relationships:
-			if binding.relation is R_HeldBy or binding.relation is R_ProlongedOn or binding.relation is R_PushedBy or binding.relation is R_CartDrivenBy:
+			if (
+				binding.relation is R_HeldBy or binding.relation is R_ProlongedOn
+				or binding.relation is R_PushedBy or binding.relation is R_CartDrivenBy
+			):
 				return "Положите предметы из рук и завершите взаимодействие."
 	return ""
 
 
 ## Сохраняет допустимое утро после проверки восстановления; отказ сохраняет прежний слот.
-static func save_game(root: Node, menu_owner: Object = null, path_override: String = "") -> GameSaveResult:
+static func save_game(
+	root: Node,
+	menu_owner: Object = null,
+	path_override: String = "",
+) -> GameSaveResult:
 	var result: GameSaveResult = GameSaveResult.new()
 	result.message = save_reason(root, menu_owner)
 	if not result.message.is_empty():
@@ -77,13 +90,19 @@ static func save_game(root: Node, menu_owner: Object = null, path_override: Stri
 	var snapshot: Dictionary = WorldSnapshotService.capture(root, cycle.day_index)
 	snapshot["level_scene"] = root.scene_file_path
 	if not WorldSnapshotService.can_restore(snapshot, root):
-		result.message = "Состояние уровня нельзя сохранить. Предыдущее сохранение осталось на месте."
+		result.message = (
+			"Состояние уровня нельзя сохранить. Предыдущее сохранение осталось " + "на месте."
+		)
 		return result
 
 	result.path = manual_path(root.scene_file_path) if path_override.is_empty() else path_override
 	var error: Error = AutosaveStore.write(snapshot, result.path)
 	result.success = error == OK
-	result.message = "Сохранено: утро %d." % cycle.day_index if result.success else "Не удалось сохранить: %s." % error_string(error)
+	result.message = (
+		"Сохранено: утро %d." % cycle.day_index
+		if result.success
+		else "Не удалось сохранить: %s." % error_string(error)
+	)
 	return result
 
 
@@ -106,7 +125,10 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 	else:
 		paths.assign(path_overrides)
 	var manual_slot: String = manual_path(level) if path_overrides.is_empty() else path_overrides[0]
-	paths.sort_custom(func(left: String, right: String) -> bool: return FileAccess.get_modified_time(left) > FileAccess.get_modified_time(right))
+	paths.sort_custom(
+		func(left: String, right: String) -> bool:
+			return FileAccess.get_modified_time(left) > FileAccess.get_modified_time(right),
+	)
 
 	var found_file: bool = false
 	var incompatible_version: bool = false
@@ -118,31 +140,45 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 		var data: Dictionary = AutosaveStore.read(path)
 		if not data.is_empty() and data.get("version") != AutosaveStore.SCHEMA_VERSION:
 			incompatible_version = true
-		if data.is_empty() or data.get("level_scene", level) != level or not WorldSnapshotService.can_restore(data, probe):
+		if (
+			data.is_empty() or data.get("level_scene", level) != level
+			or not WorldSnapshotService.can_restore(data, probe)
+		):
 			continue
 
 		result.success = true
 		result.path = path
 		result.snapshot = data
-		result.message = "%s · утро %d" % ["Ручное сохранение" if path == manual_slot else "Автосохранение", int(data.morning_day)]
+		result.message = (
+			"%s · утро %d"
+			% [
+				"Ручное сохранение" if path == manual_slot else "Автосохранение",
+				int(data.morning_day),
+			]
+		)
 		break
 
 	probe.free()
 	if not result.success:
-		result.message = "Сохранение повреждено или несовместимо." if found_file else "Сохранений пока нет."
+		result.message = (
+			"Сохранение повреждено или несовместимо." if found_file else "Сохранений пока нет."
+		)
 		if incompatible_version:
-			result.message = "Старый формат несовместим с живым районом. Файл сохранён; начните новое прохождение."
+			result.message = (
+				"Старый формат несовместим с живым районом. Файл сохранён; начните "
+				+ "новое прохождение."
+			)
 	return result
 
-
 #endregion
+
 
 #region Передача снимка и смена сцены
 ## Returns a detached startup candidate without consuming the one-shot scene handoff.
 static func startup_snapshot(root: Node, path: String) -> Dictionary:
 	if not _pending_level.is_empty() and _pending_level == root.scene_file_path:
 		return _pending_snapshot.duplicate(true)
-	return AutosaveStore.read(path) if not path.is_empty() else {}
+	return AutosaveStore.read(path) if not path.is_empty() else { }
 
 
 ## Предварительная проверка происходит до закрытия текущей сцены. Новый старт не удаляет слоты.
@@ -154,7 +190,10 @@ static func start_game(tree: SceneTree, level: String, saved: GameSaveResult = n
 	if packed == null:
 		return ERR_CANT_OPEN
 	if saved != null:
-		if not saved.success or saved.snapshot.is_empty() or saved.snapshot.get("level_scene", level) != level:
+		if (
+			not saved.success or saved.snapshot.is_empty()
+			or saved.snapshot.get("level_scene", level) != level
+		):
 			return ERR_INVALID_DATA
 
 		var probe: Node = packed.instantiate()
@@ -165,12 +204,12 @@ static func start_game(tree: SceneTree, level: String, saved: GameSaveResult = n
 
 	var was_paused: bool = tree.paused
 	_pending_level = level
-	_pending_snapshot = saved.snapshot.duplicate(true) if saved != null else {}
+	_pending_snapshot = saved.snapshot.duplicate(true) if saved != null else { }
 	tree.paused = false
 	var error: Error = tree.change_scene_to_packed(packed)
 	if error != OK:
 		_pending_level = ""
-		_pending_snapshot = {}
+		_pending_snapshot = { }
 		tree.paused = was_paused
 	return error
 
@@ -183,7 +222,7 @@ static func restore_startup(root: Node, state: C_Autosave) -> void:
 
 	var snapshot: Dictionary = _pending_snapshot
 	_pending_level = ""
-	_pending_snapshot = {}
+	_pending_snapshot = { }
 	if snapshot.is_empty():
 		state.startup_status = "Новое прохождение"
 	else:

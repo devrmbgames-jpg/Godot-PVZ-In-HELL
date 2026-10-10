@@ -3,6 +3,10 @@ extends "res://tests/gut/test_district_service.gd"
 
 const FIRE_AURA_PREFAB: String = "res://content/domains/hazards/entities/npc_fire_aura.tscn"
 
+const DEF_NPC_FIRE_AURA_PATH: String = (
+	"res://content/domains/hazards/definitions/def_npc_fire_aura.tres"
+)
+
 
 #region Тестовое окружение
 func _stage(index: int, point: Vector3 = Vector3.ZERO) -> E_DistrictNpc:
@@ -170,7 +174,8 @@ func test_footsteps_do_not_pull_idle_npc_into_a_crowd() -> void:
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
 
-## Шаги игрока сохраняют интерес слушателя к месту звука без раскрытия личности и назначения противника.
+## Шаги игрока сохраняют интерес слушателя к месту звука без раскрытия личности и назначения
+## противника.
 func test_player_footsteps_still_prompt_anonymous_investigation() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var player: E_DistrictNpc = _player()
@@ -211,10 +216,14 @@ func test_observation_watches_visible_neighbour_and_loses_hidden_focus() -> void
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	NpcActivityService.observe(body, person, false)
-	assert_true(body.get_relationships(Relationship.new(R_NpcLookTarget.new(), neighbour)).is_empty())
+	var bindings: Array[Relationship] = body.get_relationships(
+		Relationship.new(R_NpcLookTarget.new(), neighbour),
+	)
+	assert_true(bindings.is_empty())
 
 
-## Свободная активность однократно выбирает точку окна и запрашивает движение, сохраняя физическое положение.
+## Свободная активность однократно выбирает точку окна и запрашивает движение, сохраняя физическое
+## положение.
 func test_window_activity_moves_then_observes_an_authored_focus() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -270,7 +279,8 @@ func test_shop_visit_uses_a_clear_standing_point_and_requires_a_merchant() -> vo
 	assert_null(NpcActivityService.choose(body, person))
 
 
-## Авторский пул имеет совместимые правила и требуемые виды занятий; личные темы разговора необязательны.
+## Авторский пул имеет совместимые правила и требуемые виды занятий; личные темы разговора
+## необязательны.
 func test_authored_profiles_and_activity_types_are_complete() -> void:
 	for person: NpcRecord in _district.people:
 		assert_true(person.profile.valid_rules(), person.display_name)
@@ -427,7 +437,8 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 
 
 #region Интеграция обслуживания
-## Проверка силы использует последнее наблюдаемое уважение/подчинение без скрытых характеристик игрока.
+## Проверка силы использует последнее наблюдаемое уважение/подчинение без скрытых характеристик
+## игрока.
 func test_strength_test_uses_latest_observed_response() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -455,7 +466,8 @@ func test_strength_test_uses_latest_observed_response() -> void:
 	assert_true(awareness.warned_rules.has(rule.kind))
 
 
-## Ожидающий получатель удерживает уличный разговор, сохраняя роль обслуживания без движения к стойке.
+## Ожидающий получатель удерживает уличный разговор, сохраняя роль обслуживания без движения к
+## стойке.
 func test_queued_street_conversation_holds_the_service_role() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var player: E_DistrictNpc = _player()
@@ -588,7 +600,8 @@ func _flat_map() -> Dictionary[StringName, RID]:
 	return { &"map": map, &"region": region }
 
 
-## Физическое зависание прекращает формально достижимую задачу и освобождает зарезервированный предмет.
+## Физическое зависание прекращает формально достижимую задачу и освобождает зарезервированный
+## предмет.
 func test_stalled_reachable_route_releases_pickup() -> void:
 	var body: E_DistrictNpc = _stage(0, Vector3(-8, 0, 0))
 	var person: NpcRecord = _district.people[0]
@@ -649,7 +662,7 @@ func test_route_risk_matches_actual_speed_modifiers() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var fire: Entity = (load(FIRE_AURA_PREFAB) as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()
-	hazard.definition = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
+	hazard.definition = (load(DEF_NPC_FIRE_AURA_PATH) as DEF_ToxicArea)
 	_world.add_entity(fire, [hazard])
 	(fire as Node as Node3D).global_position = Vector3(0, 1, 0)
 	var path: PackedVector3Array = PackedVector3Array([Vector3(-8, 0, 0), Vector3(8, 0, 0)])
@@ -680,7 +693,7 @@ func test_native_route_replans_around_moving_fire() -> void:
 	var person: NpcRecord = _district.people[0]
 	var fire: Entity = (load(FIRE_AURA_PREFAB) as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()
-	hazard.definition = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
+	hazard.definition = (load(DEF_NPC_FIRE_AURA_PATH) as DEF_ToxicArea)
 	_world.add_entity(fire, [hazard])
 	(fire as Node as Node3D).global_position = Vector3(0, 1, 0)
 

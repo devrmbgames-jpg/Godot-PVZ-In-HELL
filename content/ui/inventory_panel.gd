@@ -1,5 +1,6 @@
 extends CanvasLayer
-## Представление инвентаря: кнопки отправляют сервисные запросы, количество и связи принадлежат игре.
+## Представление инвентаря: кнопки отправляют сервисные запросы, количество и связи принадлежат
+## игре.
 class_name InventoryPanel
 
 const REFRESH_INTERVAL: float = 0.15
@@ -65,17 +66,23 @@ func _process(delta: float) -> void:
 		_refresh_remaining = REFRESH_INTERVAL
 		_refresh()
 
-
 #endregion
+
 
 #region Открытие и закрытие
 ## Захватывает модальный ввод и запоминает слабую цель посылки; возвращает успех открытия.
 func open_inventory() -> bool:
-	if _capture != 0 or not GrabQueries.holder_available(player) or player.has_component(C_Death) or not player.has_component(C_Inventory) or InteractionControlFocus.current(player) >= InteractionControlFocus.Priority.PUSH:
+	if (
+		_capture != 0 or not GrabQueries.holder_available(player)
+		or player.has_component(C_Death) or not player.has_component(C_Inventory)
+		or InteractionControlFocus.current(player) >= InteractionControlFocus.Priority.PUSH
+	):
 		return false
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	var target: Entity = InteractionTargetingGeometry.find_target(player, interactor) if interactor != null else null
+	var target: Entity = (
+		InteractionTargetingGeometry.find_target(player, interactor) if interactor != null else null
+	)
 	_target = weakref(target) if target != null and target.has_component(C_Package) else null
 	_capture = InteractionControlFocus.acquire(player, self, InteractionControlFocus.Priority.MODAL)
 	if _capture == 0:
@@ -98,13 +105,18 @@ func close_inventory() -> void:
 
 	InteractionControlFocus.release(player, _capture)
 	_capture = 0
-	Input.mouse_mode = _previous_mouse if not is_instance_valid(player) or InteractionControlFocus.current(player) < InteractionControlFocus.Priority.MODAL else Input.MOUSE_MODE_VISIBLE
+	Input.mouse_mode = (
+		_previous_mouse
+		if not is_instance_valid(player)
+		or InteractionControlFocus.current(player) < InteractionControlFocus.Priority.MODAL
+		else Input.MOUSE_MODE_VISIBLE
+	)
 	_target = null
 	if is_instance_valid(_root):
 		_root.hide()
 
-
 #endregion
+
 
 #region Производное представление
 func _package_target() -> Entity:
@@ -113,13 +125,21 @@ func _package_target() -> Entity:
 		return null
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	return target if interactor != null and InteractionTargetingGeometry.find_target(player, interactor) == target else null
+	return (
+		target
+		if interactor != null
+		and InteractionTargetingGeometry.find_target(player, interactor) == target
+		else null
+	)
 
 
 func _refresh() -> void:
 	var owned: Array[Entity] = InventoryService.items(player)
 	var inventory: C_Inventory = player.get_component(C_Inventory) as C_Inventory
-	_condition.text = "Стеков %d / %d\nВыберите предмет. Для плёнки наведитесь на посылку перед открытием." % [owned.size(), inventory.maximum_stacks]
+	_condition.text = (
+		"Стеков %d / %d\nВыберите предмет. Для плёнки наведитесь на посылку перед открытием."
+		% [owned.size(), inventory.maximum_stacks]
+	)
 	_feedback.text = _status
 	var target: Entity = _package_target()
 	var selected: Entity = InventoryService.item_by_id(player, _selected_id)
@@ -127,12 +147,29 @@ func _refresh() -> void:
 		selected = owned[0]
 	_selected_id = selected.id if selected != null else ""
 
-	var reason: String = InventoryService.use_reason(player, selected, target) if selected != null else "Выберите предмет"
+	var reason: String
+	if selected != null:
+		reason = InventoryService.use_reason(player, selected, target)
+	else:
+		reason = "Выберите предмет"
 	_use.disabled = not reason.is_empty()
-	_drop.disabled = selected == null or not InventoryDropService.drop_reason(player, selected).is_empty()
-	_details.text = "%s\n%s" % [(selected.get_component(C_InventoryItem) as C_InventoryItem).definition.display_name, "Можно использовать" if reason.is_empty() else reason] if selected != null else "Пусто. Подберите небольшой расходник кнопкой E."
+	_drop.disabled = (
+		selected == null or not InventoryDropService.drop_reason(player, selected).is_empty()
+	)
+	_details.text = (
+		"%s\n%s"
+		% [
+			(selected.get_component(C_InventoryItem) as C_InventoryItem).definition.display_name,
+			"Можно использовать" if reason.is_empty() else reason,
+		]
+		if selected != null
+		else "Пусто. Подберите небольшой расходник кнопкой E."
+	)
 	_use.tooltip_text = reason
-	_drop.tooltip_text = InventoryDropService.drop_reason(player, selected) if selected != null else "Выберите предмет"
+	if selected != null:
+		_drop.tooltip_text = InventoryDropService.drop_reason(player, selected)
+	else:
+		_drop.tooltip_text = "Выберите предмет"
 	var signature: String = "%d:%s;" % [inventory.maximum_stacks, _selected_id]
 	for item: Entity in owned:
 		var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
@@ -189,8 +226,8 @@ func _add_slot(item: Entity, index: int) -> void:
 	button.tooltip_text = "%s ×%d" % [state.definition.display_name, state.quantity]
 	button.pressed.connect(_select_item.bind(item.id))
 
-
 #endregion
+
 
 #region Выбор и сервисные запросы
 func _select_item(item_id: String) -> void:
@@ -212,12 +249,19 @@ func _drop_selected() -> void:
 		return
 
 	var item: Entity = InventoryService.item_by_id(player, _selected_id)
-	_status = "Весь стек выложен на землю" if InventoryDropService.drop(player, item) else "Не удалось выложить стек. Нужно свободное место на полу рядом."
+	if InventoryDropService.drop(player, item):
+		_status = "Весь стек выложен на землю"
+	else:
+		_status = "Не удалось выложить стек. Нужно свободное место на полу рядом."
 	_refresh()
 
 
 func _can_submit() -> bool:
-	return _capture != 0 and GrabQueries.holder_available(player) and InteractionControlFocus.current(player, _capture) < InteractionControlFocus.Priority.MODAL
+	return (
+		_capture != 0 and GrabQueries.holder_available(player)
+		and InteractionControlFocus.current(player, _capture)
+		< InteractionControlFocus.Priority.MODAL
+	)
 
 
 func _use_item(item_id: String) -> void:
@@ -227,7 +271,10 @@ func _use_item(item_id: String) -> void:
 	var item: Entity = InventoryService.item_by_id(player, item_id)
 	var reason: String = InventoryService.use_reason(player, item, _package_target())
 	if reason.is_empty():
-		_status = "Применено" if InventoryService.use(player, item, _package_target()) else "Эффект не применён; предмет сохранён"
+		if InventoryService.use(player, item, _package_target()):
+			_status = "Применено"
+		else:
+			_status = "Эффект не применён; предмет сохранён"
 	else:
 		_status = reason
 	_refresh()

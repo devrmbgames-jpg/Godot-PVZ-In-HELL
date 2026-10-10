@@ -72,9 +72,7 @@ func _run() -> void:
 			and state.registration == C_PackageState.Registration.UNREGISTERED
 		)
 		found_tags |= identity.definition.tags
-		found_damage_hazard = (
-			found_damage_hazard or identity.definition.hazard_on_damaged != null
-		)
+		found_damage_hazard = (found_damage_hazard or identity.definition.hazard_on_damaged != null)
 		found_destroyed_hazard = (
 			found_destroyed_hazard or identity.definition.hazard_on_destroyed != null
 		)
@@ -209,8 +207,10 @@ func _run() -> void:
 	await get_tree().physics_frame
 	GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
-	assert(receiving.blocked
-		and ECS.world.query.with_all([C_Package]).execute().size() == batch_size)
+	var batch_blocked: bool = false
+	if receiving.blocked:
+		batch_blocked = ECS.world.query.with_all([C_Package]).execute().size() == batch_size
+	assert(batch_blocked)
 	for blocker: StaticBody3D in blockers:
 		blocker.queue_free()
 	# Тест убирает вчерашнюю поставку на полки, оставляя первую коробку на месте.
@@ -248,7 +248,10 @@ func _run() -> void:
 	assert(not PackageRegistrationService.release_number(first))
 	assert(PackageRegistrationService.smallest_free_number(registry) == 1)
 	assert(_has_active_number(registry, 2))
-	assert(registry.last_departed_package_id == (first.get_component(C_Package) as C_Package).package_id)
+	assert(
+		registry.last_departed_package_id
+		== (first.get_component(C_Package) as C_Package).package_id
+	)
 
 	var replacement: Entity = level.get_node("Entityes/Parcel_002_02") as Entity
 	await _prepare_target(actor, replacement, Vector3(0.0, -0.2, -2.2))
@@ -261,8 +264,8 @@ func _run() -> void:
 	print("R05/R06 receiving -> scan -> terminal -> next day smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Тестовый ввод и наведение
 func _drive(actor: Entity, interact: bool, use: bool, primary: bool) -> void:
@@ -312,9 +315,16 @@ func _transition(kind: DayTransitionRequest.Kind) -> void:
 	request.expected_day = initial_day
 	request.expected_phase = initial_phase
 	var submitted: bool = DayPhaseService.submit(request)
-	assert(submitted, "kind=%s; start=%s; finish=%s; sleep=%s"
-		% [kind, DayPhaseService.start_blockers(cycle), DayPhaseService.finish_blockers(cycle),
-			NpcSleepService.blockers()])
+	assert(
+		submitted,
+		"kind=%s; start=%s; finish=%s; sleep=%s"
+		% [
+			kind,
+			DayPhaseService.start_blockers(cycle),
+			DayPhaseService.finish_blockers(cycle),
+			NpcSleepService.blockers(),
+		],
+	)
 	for frame: int in MAX_FRAMES:
 		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 		if cycle.phase != initial_phase and cycle.phase != C_DayCycle.Phase.NIGHT:

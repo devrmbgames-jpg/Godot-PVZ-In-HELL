@@ -137,8 +137,9 @@ static func _walk_expression(
 ) -> void:
 	if payload is Array:
 		var items: Array = payload as Array
-		if not items.is_empty() and items[0] is Dictionary \
-				and (items[0] as Dictionary).has("type"):
+		if (
+			not items.is_empty() and items[0] is Dictionary and (items[0] as Dictionary).has("type")
+		):
 			_check_tokens(items, methods, source, field, issues)
 		else:
 			for item: Variant in items:
@@ -159,12 +160,16 @@ static func _check_tokens(
 	while index < tokens.size():
 		var token: Dictionary = tokens[index] as Dictionary
 		var token_type: StringName = StringName(token.get("type", ""))
-		if token_type == DMConstants.TOKEN_VARIABLE and token.get("value") == "ctx" \
-				and index + 2 < tokens.size():
+		if (
+			token_type == DMConstants.TOKEN_VARIABLE
+			and token.get("value") == "ctx" and index + 2 < tokens.size()
+		):
 			var dot: Dictionary = tokens[index + 1] as Dictionary
 			var call: Dictionary = tokens[index + 2] as Dictionary
-			if dot.get("type") == DMConstants.TOKEN_DOT \
-					and call.get("type") == DMConstants.TOKEN_FUNCTION:
+			if (
+				dot.get("type") == DMConstants.TOKEN_DOT
+				and call.get("type") == DMConstants.TOKEN_FUNCTION
+			):
 				_check_context_call(call, methods, source, field, issues)
 				index += 3
 				continue
@@ -208,8 +213,10 @@ static func _check_context_call(
 	# The pinned compiler keeps a lone closing-paren group for a zero-argument call.
 	if argument_count > 0:
 		var final_argument: Array = arguments[argument_count - 1] as Array
-		if final_argument.size() == 1 \
-				and (final_argument[0] as Dictionary).get("type") == DMConstants.TOKEN_PARENS_CLOSE:
+		if (
+			final_argument.size() == 1
+			and (final_argument[0] as Dictionary).get("type") == DMConstants.TOKEN_PARENS_CLOSE
+		):
 			argument_count -= 1
 	if not methods.has(method_name):
 		issues.append(

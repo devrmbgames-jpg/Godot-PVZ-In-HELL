@@ -3,14 +3,21 @@ extends "res://tests/gut/test_district_service.gd"
 
 var _supply: DEF_Delivery = null
 
+
 #region Тестовое окружение
 ## Использует настоящий ассортимент и дешёвые компоненты физических коробок.
 func before_each() -> void:
 	super.before_each()
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
-	flow.schedule.events = (load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events
+	flow.schedule.events = (
+		(
+			load("res://content/domains/customers/definitions/def_customer_schedule_default.tres")
+			as DEF_CustomerSchedule
+		).events
+	)
 	_supply = flow.schedule.supply
+
 
 func _waiting_package(index: int) -> CustomerVisit:
 	var parcel_node: Node = Node.new()
@@ -25,6 +32,7 @@ func _waiting_package(index: int) -> CustomerVisit:
 	visit.package_id = identity.package_id
 	return visit
 #endregion
+
 
 #region Политика поставки
 ## Пять коробок за день; длинная фаза и повторная команда не создают новую партию.
@@ -41,8 +49,11 @@ func test_daily_batch_is_limited_rotates_and_does_not_accumulate() -> void:
 	assert_eq(receiving.pending.size(), 1)
 	assert_eq(receiving.pending[0].day_index, 2)
 	assert_ne(receiving.pending[0].package_keys, first_keys)
-	var decoded: ReceivingBatch = SaveDataCodec.decode(SaveDataCodec.encode(receiving.pending[0])) as ReceivingBatch
+	var decoded: ReceivingBatch = (
+		SaveDataCodec.decode(SaveDataCodec.encode(receiving.pending[0])) as ReceivingBatch
+	)
 	assert_eq(decoded.package_keys, receiving.pending[0].package_keys)
+
 
 ## Остаток лимита сокращает партию; пятьдесят ожидающих полностью останавливают поставку.
 func test_waiting_capacity_limits_supply_without_new_backlog() -> void:
@@ -58,6 +69,7 @@ func test_waiting_capacity_limits_supply_without_new_backlog() -> void:
 	assert_eq(receiving.pending.size(), 0)
 	assert_eq(receiving.last_started_day, 2)
 
+
 ## Потеря, отказ, выдача и окончательная смерть не занимают место ожидающего заказа.
 func test_terminal_cases_and_dead_recipients_do_not_count() -> void:
 	var lost: CustomerVisit = _waiting_package(0)
@@ -72,6 +84,7 @@ func test_terminal_cases_and_dead_recipients_do_not_count() -> void:
 	assert_eq(ReceivingDeliveryService.waiting_count(), 1)
 	active.customer_dead = true
 	assert_eq(ReceivingDeliveryService.waiting_count(), 0)
+
 
 ## Каждая позиция авторского ассортимента имеет визит и живого получателя.
 func test_every_supply_package_has_a_real_recipient_case() -> void:

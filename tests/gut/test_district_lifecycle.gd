@@ -192,7 +192,8 @@ func test_pending_preparation_rejects_superseded_calendar_context() -> void:
 	assert_eq(_district.prepared_morning, 1)
 
 
-## Night barrier drains queued preparation before capture and retries retain the same prepared graph.
+## Night barrier drains queued preparation before capture and retries retain the same prepared
+## graph.
 func test_night_save_waits_for_preparation_and_then_retries_without_resetting() -> void:
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
 	session.add_component(C_Autosave.new())

@@ -66,8 +66,8 @@ func _commit_leak(entity_reference: WeakRef, condition: C_PackageState, amount: 
 	var newly_damaged: bool = condition.damage == C_PackageState.Damage.UNDAMAGED
 	condition.damage = C_PackageState.Damage.DAMAGED
 	if newly_damaged:
-		PackageLifecycle.publish(entity, PackageLifecycleEvent.Kind.Damaged)
-	PackageLifecycle.publish(entity, PackageLifecycleEvent.Kind.Leaking)
+		PackageLifecycle.publish(entity, PackageLifecycleEvent.Kind.DAMAGED)
+	PackageLifecycle.publish(entity, PackageLifecycleEvent.Kind.LEAKING)
 
 	if amount > 0.0 and EntityAvailability.contains(entity, _world):
 		var request: DamageRequest = DamageRequest.new()

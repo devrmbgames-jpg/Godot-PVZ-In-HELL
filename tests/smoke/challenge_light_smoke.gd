@@ -4,7 +4,9 @@ extends Node
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 900
 const UI_WAIT_FRAMES: int = 32
-const LIGHT_OFF_FIXTURE: DEF_Challenge = preload("res://content/domains/challenges/definitions/def_challenge_light_off.tres")
+const LIGHT_OFF_FIXTURE: DEF_Challenge = preload(
+	"res://content/domains/challenges/definitions/def_challenge_light_off.tres"
+)
 
 var _level: Node = null
 var _actor: Entity = null
@@ -26,7 +28,10 @@ func _run() -> void:
 	_actor = _level.get_node("Entityes/Player") as Entity
 	(_actor as Node as RigidBody3D).freeze = true
 
-	var receiver: O_CustomerChallengeOutcome = _level.get_node("World/Systems/GamePlay/O_CustomerChallengeOutcome") as O_CustomerChallengeOutcome
+	var receiver: O_CustomerChallengeOutcome = (
+		_level.get_node("World/Systems/GamePlay/O_CustomerChallengeOutcome")
+		as O_CustomerChallengeOutcome
+	)
 	receiver.escalation_requested.connect(_on_escalation)
 	for frame: int in WAIT_FRAMES:
 		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
@@ -35,13 +40,17 @@ func _run() -> void:
 			break
 
 	var books: Entity = PackageQueries.find_live_package("base_supply:1:books")
-	# Обычный клиент не получает испытание; изолированный тест явно назначает требование выключить свет.
+	# Обычный клиент не получает испытание; изолированный тест явно назначает требование выключить
+	# свет.
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	for visit: CustomerVisit in flow.visits:
 		if visit.definition.key == &"ordinary":
 			visit.definition = visit.definition.duplicate(true) as DEF_Customer
 			visit.definition.challenge = LIGHT_OFF_FIXTURE
-	assert(PackageRegistrationService.register_package(books).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(books).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
@@ -54,9 +63,15 @@ func _run() -> void:
 	var first_state: C_Challenge = first.get_component(C_Challenge) as C_Challenge
 	await _show_demand(first)
 	GameTimeFixture.gameplay(ECS.world, first_state.definition.timeout_seconds + FRAME_DELTA)
-	assert(first_state.phase == C_Challenge.Phase.INACTIVE, "Reading the demand must not consume the timer")
+	assert(
+		first_state.phase == C_Challenge.Phase.INACTIVE,
+		"Reading the demand must not consume the timer",
+	)
 	# Закрытие до подтверждения оставляет требование доступным следующему разговору.
-	(get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)[0] as CustomerDialoguePanel).close_dialogue()
+	(
+		get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)[0]
+		as CustomerDialoguePanel
+	).close_dialogue()
 	await get_tree().process_frame
 	assert(not first_state.consumed)
 	await _start_after_demand(first)
@@ -72,7 +87,10 @@ func _run() -> void:
 	assert(CustomerFlowService.deny(first_visit.visit_id))
 	GameTimeFixture.gameplay(ECS.world, first_visit.definition.leaving_seconds)
 	var glass: Entity = PackageQueries.find_live_package("base_supply:1:glass")
-	assert(PackageRegistrationService.register_package(glass).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(glass).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 	var second: E_NpcCharacter = await _wait_for_customer()
 	await _start_after_demand(second)
 
@@ -91,15 +109,24 @@ func _run() -> void:
 	GameTimeFixture.gameplay(ECS.world, second_visit.definition.aggressive_seconds)
 	GameTimeFixture.gameplay(ECS.world, second_visit.definition.leaving_seconds)
 	var clothes: Entity = PackageQueries.find_live_package("base_supply:1:clothes")
-	assert(PackageRegistrationService.register_package(clothes).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(clothes).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 	var third: E_NpcCharacter = await _wait_for_customer()
 	var third_state: C_Challenge = third.get_component(C_Challenge) as C_Challenge
-	assert(third_state.phase == C_Challenge.Phase.ACTIVE, "Arrival variant starts without a dialogue")
+	assert(
+		third_state.phase == C_Challenge.Phase.ACTIVE,
+		"Arrival variant starts without a dialogue",
+	)
 	assert(third_state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE)
 	assert(ChallengePresentation.text_for(_actor).contains("до ухода"))
 	await _use_switch()
 	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
-	assert(third_state.phase == C_Challenge.Phase.ACTIVE, "Correct light must not end the visit challenge early")
+	assert(
+		third_state.phase == C_Challenge.Phase.ACTIVE,
+		"Correct light must not end the visit challenge early",
+	)
 	await get_tree().process_frame
 
 	var debug: Label3D = third.get_node("DebugStatus") as Label3D
@@ -118,8 +145,8 @@ func _run() -> void:
 	print("Challenge light demand switch success timeout visit-lifetime and debug HUD smoke PASS")
 	get_tree().quit.call_deferred()
 
-
 #endregion
+
 
 #region Ожидание встречи и тестовый ввод
 func _wait_for_customer() -> E_NpcCharacter:
@@ -133,7 +160,24 @@ func _wait_for_customer() -> E_NpcCharacter:
 	for entity: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
 		var intent: C_NpcIntent = entity.get_component(C_NpcIntent) as C_NpcIntent
-		print("Customer wait diagnostic: ", agent.visit_id, " phase=", agent.phase, " elapsed=", agent.elapsed, " position=", (entity as Node as Node3D).global_position, " target=", intent.move_position, " arrived=", intent.arrived, " pending=", intent.navigation_pending, " blocked=", intent.navigation_blocked)
+		print(
+			"Customer wait diagnostic: ",
+			agent.visit_id,
+			" phase=",
+			agent.phase,
+			" elapsed=",
+			agent.elapsed,
+			" position=",
+			(entity as Node as Node3D).global_position,
+			" target=",
+			intent.move_position,
+			" arrived=",
+			intent.arrived,
+			" pending=",
+			intent.navigation_pending,
+			" blocked=",
+			intent.navigation_blocked,
+		)
 	assert(false, "Customer must reach service phase")
 	return null
 
@@ -142,13 +186,18 @@ func _show_demand(customer: E_NpcCharacter) -> void:
 	assert(CustomerDialogueService.request_open(_actor, customer))
 	for frame: int in UI_WAIT_FRAMES:
 		await get_tree().process_frame
-		var panels: Array[Node] = get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)
+		var panels: Array[Node] = (
+			get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)
+		)
 		if panels.is_empty():
 			continue
 
 		for node: Node in panels[0].find_children("*", "RichTextLabel", true, false):
 			if (node as RichTextLabel).text.contains("свет"):
-				assert(InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.MODAL)
+				assert(
+					InteractionControlFocus.current(_actor)
+					== InteractionControlFocus.Priority.MODAL
+				)
 				return
 
 	assert(false, "Compiled dialogue must show the actual challenge demand")
@@ -194,7 +243,11 @@ func _use_switch() -> void:
 
 
 func _visit(customer: E_NpcCharacter) -> CustomerVisit:
-	return CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	return (
+		CustomerFlowQueries.find_visit(
+			(customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id
+		)
+	)
 
 
 func _on_escalation(_customer: Entity, actor: Entity, event: ChallengeResolution) -> void:

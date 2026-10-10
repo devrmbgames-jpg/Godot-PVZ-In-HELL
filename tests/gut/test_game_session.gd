@@ -46,13 +46,15 @@ func after_each() -> void:
 	for path: String in [SAVE_PATH, SAVE_PATH + ".tmp", SETTINGS_PATH]:
 		DirAccess.remove_absolute(path)
 
-
 #endregion
+
 
 #region Условия записи и загрузки сессии
 ## Собственный modal-токен меню допускает запись; чужой захват остаётся причиной отказа.
 func test_own_pause_token_allows_save_and_real_slot_round_trip() -> void:
-	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	var token: int = (
+		InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	)
 	assert_eq(GameSessionService.save_reason(_root, self), "")
 	assert_false(GameSessionService.save_reason(_root).is_empty(), "Другой modal не игнорируется")
 	var result: GameSaveResult = GameSessionService.save_game(_root, self, SAVE_PATH)
@@ -72,7 +74,9 @@ func test_day_and_capture_refuse_save_without_overwriting_slot() -> void:
 	assert_false(GameSessionService.save_game(_root, null, SAVE_PATH).success)
 	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), saved)
 	_cycle.phase = C_DayCycle.Phase.MORNING
-	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.CARRY)
+	var token: int = (
+		InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.CARRY)
+	)
 	assert_false(GameSessionService.save_reason(_root).is_empty())
 	assert_false(GameSessionService.save_game(_root, null, SAVE_PATH).success)
 	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), saved)
@@ -101,17 +105,29 @@ func test_preflight_rejects_bad_prefab_roles_without_live_world_changes() -> voi
 	assert_eq(_world.entities.size(), size_before)
 	for record: Dictionary in data.entities:
 		if String(record.authored_id) == "placed/fixture/Actor":
-			record.anchor = {"freeze": false, "freeze_mode": 0, "can_sleep": true}
-	assert_false(WorldSnapshotService.can_restore(data, _root), "Entity без native anchor нельзя загрузить")
+			record.anchor = { "freeze": false, "freeze_mode": 0, "can_sleep": true }
+	assert_false(
+		WorldSnapshotService.can_restore(data, _root),
+		"Entity без native anchor нельзя загрузить",
+	)
 	assert_eq(_world.entities.size(), size_before)
 	assert_eq(_cycle.phase, C_DayCycle.Phase.MORNING)
 
 
 ## Основной и примитивный уровни используют разные слоты; неигровая сцена не имеет профиля загрузки.
 func test_profile_paths_separate_main_and_primitive() -> void:
-	assert_ne(GameSessionService.manual_path(GameSessionService.MAIN_LEVEL), GameSessionService.manual_path(GameSessionService.TEST_LEVEL))
-	assert_eq(GameSessionService.autosave_path(GameSessionService.MAIN_LEVEL), AutosaveStore.DEFAULT_PATH)
-	assert_eq(GameSessionService.autosave_path(GameSessionService.TEST_LEVEL), "user://primitive_test_level.pvzh")
+	assert_ne(
+		GameSessionService.manual_path(GameSessionService.MAIN_LEVEL),
+		GameSessionService.manual_path(GameSessionService.TEST_LEVEL),
+	)
+	assert_eq(
+		GameSessionService.autosave_path(GameSessionService.MAIN_LEVEL),
+		AutosaveStore.DEFAULT_PATH,
+	)
+	assert_eq(
+		GameSessionService.autosave_path(GameSessionService.TEST_LEVEL),
+		"user://primitive_test_level.pvzh",
+	)
 	assert_false(GameSessionService.saved_game("res://content/ui/main_menu.tscn").success)
 
 

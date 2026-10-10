@@ -35,7 +35,10 @@ const HASH_LENGTH: int = 5
 func serialize() -> String:
 	if day_index < 1 or number < 1:
 		return ""
-	if hazard_class < DEF_Package.HazardClass.NORMAL or hazard_class > DEF_Package.HazardClass.OTHER:
+	if (
+		hazard_class < DEF_Package.HazardClass.NORMAL
+		or hazard_class > DEF_Package.HazardClass.OTHER
+	):
 		return ""
 	if size_class < SizeClass.SMALL or size_class > SizeClass.OVERSIZED:
 		return ""
@@ -91,8 +94,8 @@ static func parse(value: String) -> PackageHistoryId:
 	parsed.mass_tenths_kg = mass_value
 	return parsed if not parsed.serialize().is_empty() else null
 
-
 #endregion
+
 
 #region Кодирование массы base36
 static func _encode_base36(value: int, width: int) -> String:

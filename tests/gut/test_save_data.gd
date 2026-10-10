@@ -1,5 +1,6 @@
 extends GutTest
-## Проверки закрытой схемы данных и атомарной записи слота; живые Node и временные блокировки не сериализуются.
+## Проверки закрытой схемы данных и атомарной записи слота; живые Node и временные блокировки не
+## сериализуются.
 
 const SAVE_PATH: String = "user://gut_r21_autosave.pvzh"
 
@@ -11,8 +12,8 @@ func after_each() -> void:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
-
 #endregion
+
 
 #region Схема данных и атомарное хранилище
 ## Round-trip спора сохраняет факт, заявление, расчёт и личность участника ответного нападения.
@@ -48,10 +49,13 @@ func test_customer_dispute_round_trip_keeps_actual_declaration_and_retaliation_i
 	assert_ne(decoded.complaint, visit.complaint)
 
 
-## Авторское определение предмета остаётся каноническим; временные блокировки передачи не сохраняются.
+## Авторское определение предмета остаётся каноническим; временные блокировки передачи не
+## сохраняются.
 func test_inventory_definition_remains_canonical_and_transient_locks_are_excluded() -> void:
 	var original: C_InventoryItem = C_InventoryItem.new()
-	original.definition = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
+	original.definition = (
+		load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
+	)
 	original.quantity = 4
 	original.pending_use_id = &"temporary"
 	original.transfer_in_progress = true
@@ -65,7 +69,8 @@ func test_inventory_definition_remains_canonical_and_transient_locks_are_exclude
 	assert_false((data.fields as Dictionary).has("transfer_in_progress"))
 
 
-## Типизированные ресурсы заказов и словарь поставок восстанавливают значения и ссылки на определения.
+## Типизированные ресурсы заказов и словарь поставок восстанавливают значения и ссылки на
+## определения.
 func test_typed_resource_arrays_and_receiving_dictionary_round_trip() -> void:
 	var commerce: C_Commerce = C_Commerce.new()
 	var delivery: PendingDelivery = PendingDelivery.new()
@@ -77,7 +82,12 @@ func test_typed_resource_arrays_and_receiving_dictionary_round_trip() -> void:
 	commerce.next_request = 7
 
 	var copied: C_Commerce = C_Commerce.new()
-	assert_true(SaveDataCodec.apply_fields(copied, SaveDataCodec.component_data(commerce).fields as Dictionary))
+	assert_true(
+		SaveDataCodec.apply_fields(
+			copied,
+			SaveDataCodec.component_data(commerce).fields as Dictionary,
+		)
+	)
 	assert_eq(copied.pending_deliveries.size(), 1)
 	if copied.pending_deliveries.is_empty():
 		return
@@ -94,7 +104,12 @@ func test_typed_resource_arrays_and_receiving_dictionary_round_trip() -> void:
 	receiving.pending.append(batch)
 
 	var other: C_Receiving = C_Receiving.new()
-	assert_true(SaveDataCodec.apply_fields(other, SaveDataCodec.component_data(receiving).fields as Dictionary))
+	assert_true(
+		SaveDataCodec.apply_fields(
+			other,
+			SaveDataCodec.component_data(receiving).fields as Dictionary,
+		)
+	)
 	assert_eq(other.delivered_counts.get(9), 8)
 	assert_eq(other.pending[0].next_package, 4)
 
@@ -102,7 +117,12 @@ func test_typed_resource_arrays_and_receiving_dictionary_round_trip() -> void:
 ## Повторная атомарная запись заменяет слот, сохраняя native Transform3D и массивы точек.
 func test_store_replaces_same_slot_and_preserves_native_physical_values() -> void:
 	var pose: Transform3D = Transform3D(Basis.from_euler(Vector3(0.1, 0.2, 0.3)), Vector3(1, 2, 3))
-	var data: Dictionary = {"version": 1, "day": 2, "pose": pose, "ink": PackedVector3Array([Vector3.ONE, Vector3.UP])}
+	var data: Dictionary = ({
+		"version": 1,
+		"day": 2,
+		"pose": pose,
+		"ink": PackedVector3Array([Vector3.ONE, Vector3.UP]),
+	})
 	assert_eq(AutosaveStore.write(data, SAVE_PATH), OK)
 	assert_eq(AutosaveStore.read(SAVE_PATH), data)
 	data.day = 3
@@ -118,7 +138,7 @@ func test_missing_corrupt_and_truncated_slot_are_safe() -> void:
 	file.store_string("not a save")
 	file.close()
 	assert_true(AutosaveStore.read(SAVE_PATH).is_empty())
-	assert_eq(AutosaveStore.write({"day": 2}, SAVE_PATH), OK)
+	assert_eq(AutosaveStore.write({ "day": 2 }, SAVE_PATH), OK)
 	file = FileAccess.open(SAVE_PATH, FileAccess.READ_WRITE)
 	file.seek_end(-1)
 	file.store_8(255)
@@ -128,12 +148,14 @@ func test_missing_corrupt_and_truncated_slot_are_safe() -> void:
 
 ## Закрытая схема отклоняет посторонние скрипты, неверные типы, transient-поля и живые Node.
 func test_unknown_script_fields_wrong_types_and_runtime_objects_are_rejected() -> void:
-	assert_null(SaveDataCodec.decode({"type": "res://content/scenes/main_level.gd", "fields": {}}))
-	assert_null(SaveDataCodec.decode({"definition": "res://project.godot"}))
+	assert_null(
+		SaveDataCodec.decode({ "type": "res://content/scenes/main_level.gd", "fields": { } })
+	)
+	assert_null(SaveDataCodec.decode({ "definition": "res://project.godot" }))
 	var item: C_InventoryItem = C_InventoryItem.new()
-	assert_false(SaveDataCodec.apply_fields(item, {"quantity": "three"}))
-	assert_false(SaveDataCodec.apply_fields(item, {"definition": 3}))
-	assert_false(SaveDataCodec.apply_fields(item, {"pending_use_id": &"bad"}))
+	assert_false(SaveDataCodec.apply_fields(item, { "quantity": "three" }))
+	assert_false(SaveDataCodec.apply_fields(item, { "definition": 3 }))
+	assert_false(SaveDataCodec.apply_fields(item, { "pending_use_id": &"bad" }))
 	var node: Node = Node.new()
 	var encoded: Dictionary = SaveDataCodec.encode(node) as Dictionary
 	node.free()

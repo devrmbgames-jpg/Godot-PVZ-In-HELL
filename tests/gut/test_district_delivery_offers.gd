@@ -1,6 +1,7 @@
 extends "res://tests/gut/test_district_delivery.gd"
 ## Реальные зарегистрированные заказы, устойчивый выбор источника и сохраняемые решения доставки.
 
+
 #region Настройки fixture
 ## Оставляет выбор личного минимума и трёх терминальных заказов детерминированным.
 func before_each() -> void:
@@ -8,14 +9,17 @@ func before_each() -> void:
 	_district.definition.terminal_delivery_minimum = 3
 	_district.definition.terminal_delivery_maximum = 3
 
+
 func _pause_offers() -> void:
 	_district.definition.terminal_delivery_minimum = 0
 	_district.definition.terminal_delivery_maximum = 0
 	_district.definition.personal_delivery_daily_minimum = 0
 
+
 func _next_day() -> void:
 	DayPhaseQueries.current().day_index += 1
 	NpcDeliveryOfferService.refresh()
+
 
 func _job(visit: CustomerVisit) -> NpcHomeDelivery:
 	for job: NpcHomeDelivery in _district.home_deliveries:
@@ -23,6 +27,7 @@ func _job(visit: CustomerVisit) -> NpcHomeDelivery:
 			return job
 	return null
 #endregion
+
 
 #region Пригодность и однократный выбор
 ## Четыре реальные регистрации создают личный минимум и три разных терминальных предложения.
@@ -48,6 +53,7 @@ func test_daily_choice_has_one_personal_and_three_terminal_orders() -> void:
 	assert_false(_district.home_deliveries[0].published)
 	assert_eq(WalletService.current().operations.size(), 0)
 
+
 ## При единственном кандидате личный минимум не создаёт вымышленные терминальные коробки.
 func test_candidate_shortage_preserves_private_personal_minimum() -> void:
 	_delivery_case(_district.people[0], "single")
@@ -57,12 +63,17 @@ func test_candidate_shortage_preserves_private_personal_minimum() -> void:
 	assert_eq(_district.terminal_offer_target, 3)
 	assert_eq(NpcHomeDeliveryService.status_text(), "")
 
+
 ## Приезжий, погибший, незарегистрированный и закрытый заказ не получают предложения.
 func test_ineligible_orders_are_excluded_from_next_morning_choice() -> void:
 	_pause_offers()
 	_delivery_case(_district.people[8], "visitor")
 	_delivery_case(_district.people[3], "dead")
-	DistrictPopulationService.mark_dead(_district.people[3], NpcPopulationQueries.body_for(_district.people[3].npc_id), 1)
+	DistrictPopulationService.mark_dead(
+		_district.people[3],
+		NpcPopulationQueries.body_for(_district.people[3].npc_id),
+		1,
+	)
 	var lost: CustomerVisit = _delivery_case(_district.people[6], "lost")
 	lost.declaration = CustomerVisit.Declaration.LOST
 	var delivered: CustomerVisit = _delivery_case(_district.people[1], "delivered")
@@ -79,6 +90,7 @@ func test_ineligible_orders_are_excluded_from_next_morning_choice() -> void:
 	assert_eq(_district.home_deliveries[0].visit_id, eligible.visit_id)
 	assert_eq(_district.delivery_considered.size(), 1)
 
+
 ## Изменение вероятности не перебрасывает уже рассмотренный заказ внутри дня.
 func test_considered_order_waits_for_next_day_before_new_roll() -> void:
 	_pause_offers()
@@ -92,6 +104,7 @@ func test_considered_order_waits_for_next_day_before_new_roll() -> void:
 	assert_eq(_district.home_deliveries.size(), 1)
 	assert_eq(_district.home_deliveries[0].day_index, 2)
 
+
 ## Даже ошибочно продублированный визит не создаёт два предложения одной коробке.
 func test_duplicate_visits_cannot_compete_for_one_package() -> void:
 	_pause_offers()
@@ -103,6 +116,7 @@ func test_duplicate_visits_cannot_compete_for_one_package() -> void:
 	assert_eq(_district.home_deliveries.size(), 1)
 	assert_eq(_district.home_deliveries[0].visit_id, first.visit_id)
 #endregion
+
 
 #region Решения и цена
 ## Принятие трёх предложений не имеет общего лимита; отказ терминалу не переносит клиента.
@@ -129,6 +143,7 @@ func test_accept_and_decline_are_idempotent_without_two_job_cap() -> void:
 	assert_eq(HomeDeliveryQueries.terminal_offers().size(), 0)
 	assert_eq(WalletService.current().balance, 0)
 
+
 ## Фиксированная цена терминала сохраняется при изменении базовой оплаты и настроек.
 func test_terminal_price_is_captured_and_cannot_be_bargained() -> void:
 	_district.definition.terminal_delivery_bonus = 27
@@ -141,6 +156,7 @@ func test_terminal_price_is_captured_and_cannot_be_bargained() -> void:
 	NpcDeliveryOfferService.refresh()
 	assert_eq(job.bonus, 27)
 	assert_eq(NpcDeliveryOfferService.negotiate(job.job_id), NpcHomeDelivery.Bargain.NONE)
+
 
 ## Успешный торг применяется один раз и выплачивает сохранённую доплату.
 func test_successful_bargain_has_one_increment_and_one_bonus_operation() -> void:
@@ -155,14 +171,20 @@ func test_successful_bargain_has_one_increment_and_one_bonus_operation() -> void
 	assert_true(NpcDeliveryOfferService.accept(job.job_id))
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(visit.customer_id)
 	assert_true(NpcHomeDeliveryService.knock(_player, _door(job.address_id)))
-	(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase = C_CustomerAgent \
+			.Phase \
+			.WAITING_FOR_PACKAGE
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _player))
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.READY)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_player, body),
+		PackageDeliveryCheck.Result.READY,
+	)
 	assert_true(NpcHomeDeliveryService.complete(job))
 	assert_eq(WalletService.current().balance, 25)
 	assert_true(NpcHomeDeliveryService.complete(job))
 	assert_eq(WalletService.current().operations.size(), 2)
+
 
 ## Отказ в торге сохраняет исходную цену и не превращает повторный разговор в новый бросок.
 func test_failed_bargain_still_allows_original_offer() -> void:
@@ -175,12 +197,15 @@ func test_failed_bargain_still_allows_original_offer() -> void:
 	assert_eq(job.bonus, 10)
 	assert_true(NpcDeliveryOfferService.accept(job.job_id))
 
+
 ## Авторское назначение переиспользует непринятое предложение, сохраняя один ID и частность.
 func test_scripted_personal_offer_has_stable_identity_and_scenario() -> void:
 	_delivery_case(_district.people[0], "minimum")
 	var visit: CustomerVisit = _delivery_case(_district.people[3], "scripted")
 	var previous: NpcHomeDelivery = _job(visit)
-	var job: NpcHomeDelivery = NpcDeliveryOfferService.assign_personal(visit.visit_id, &"delivery_trap")
+	var job: NpcHomeDelivery = (
+		NpcDeliveryOfferService.assign_personal(visit.visit_id, &"delivery_trap")
+	)
 	assert_same(job, previous)
 	assert_eq(job.source, NpcHomeDelivery.Source.PERSONAL)
 	assert_false(job.published)
@@ -188,6 +213,7 @@ func test_scripted_personal_offer_has_stable_identity_and_scenario() -> void:
 	assert_same(NpcDeliveryOfferService.assign_personal(visit.visit_id, &"delivery_trap"), job)
 	assert_null(NpcDeliveryOfferService.assign_personal(visit.visit_id, &"different"))
 	assert_eq(_district.home_deliveries.size(), 2)
+
 
 ## Уничтоженная коробка не позволяет принять старое уведомление и не объявляется потерянной.
 func test_stale_offer_cannot_accept_missing_box() -> void:
@@ -199,6 +225,7 @@ func test_stale_offer_cannot_accept_missing_box() -> void:
 	assert_false(NpcDeliveryOfferService.accept(job.job_id))
 	assert_eq(job.status, NpcHomeDelivery.Status.OFFERED)
 	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
+
 
 ## Непринятые предложения истекают без неприязни; повтор сна не создаёт нового предложения.
 func test_unaccepted_offers_expire_without_broken_promise() -> void:
@@ -212,6 +239,7 @@ func test_unaccepted_offers_expire_without_broken_promise() -> void:
 	assert_eq(WalletService.current().balance, 0)
 #endregion
 
+
 #region Постоянный снимок
 ## Codec восстанавливает выбор, частное предложение, цену и торг без временных Node-ссылок.
 func test_offer_catalogue_round_trip_keeps_ids_decisions_and_selection() -> void:
@@ -222,7 +250,9 @@ func test_offer_catalogue_round_trip_keeps_ids_decisions_and_selection() -> void
 	NpcDeliveryOfferService.negotiate(job.job_id)
 	var roll: float = job.bargain_roll
 	var job_id: StringName = job.job_id
-	_district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	_district.definition = (
+		load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	)
 	var copy: C_District = C_District.new()
 	var fields: Dictionary = SaveDataCodec.component_data(_district).fields as Dictionary
 	assert_true(SaveDataCodec.apply_fields(copy, fields))

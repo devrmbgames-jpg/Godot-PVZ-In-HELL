@@ -1,14 +1,17 @@
 extends GutTest
 ## Проверяет события владельцев фактических переходов и их реальные GECS-подписки.
 
+
 ## Записывает настоящие опубликованные переходы для проверки атрибуции и однократности.
 class Probe extends Observer:
 	## Полученные события текущего теста в порядке публикации.
 	var events: Array[PlayerInteractionEvent] = []
 
+
 	## Подписывается на общий канал фактических действий игрока.
 	func query() -> QueryBuilder:
 		return q.on_event(PlayerInteractionEvent.EVENT)
+
 
 	## Сохраняет только типизированный переход соответствующего объекта.
 	func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
@@ -52,7 +55,14 @@ func before_each() -> void:
 	ray.enabled = true
 	body.add_child(ray)
 	_actor.interaction_ray_cast = ray
-	_actor.component_resources = [C_PlayerInputController.new(), C_Controller.new(), C_Interactor.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
+	_actor.component_resources = ([
+		C_PlayerInputController.new(),
+		C_Controller.new(),
+		C_Interactor.new(),
+		C_GrabControl.new(),
+		C_CarryLoad.new(),
+		C_Strength.new(),
+	])
 	_root.add_child(body)
 	_actor.owner = _root
 	FixturePlacedIdentity.assign(_root, _actor, &"actor")
@@ -76,7 +86,12 @@ func after_each() -> void:
 
 
 func _door() -> E_Door:
-	var door: E_Door = (load("res://content/domains/interaction/entities/door_template.tscn") as PackedScene).instantiate() as E_Door
+	var door: E_Door = (
+		(
+			load("res://content/domains/interaction/entities/door_template.tscn") as PackedScene
+		).instantiate()
+		as E_Door
+	)
 	_root.add_child(door)
 	door.owner = _root
 	FixturePlacedIdentity.assign(_root, door, &"door")
@@ -102,13 +117,15 @@ func _parcel() -> Entity:
 	EntityCompositionFixture.register(_world, parcel)
 	return parcel
 
-
 #endregion
+
 
 #region NPC consumption of committed facts
 func _noise_consumer(manual: bool = false) -> C_District:
 	var district: C_District = C_District.new()
-	district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	district.definition = (
+		load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	)
 	(_root.get_node("Session") as Entity).add_component(district)
 	var observer: O_PlayerInteractionNoise = O_PlayerInteractionNoise.new()
 	if manual:
@@ -169,10 +186,14 @@ func test_rejected_pickup_and_replaced_district_do_not_generate_noise() -> void:
 	assert_true(replacement.noises.is_empty())
 #endregion
 
+
 #region Фактические переходы и атрибуция
 ## Открытие и закрытие панели дают по одному событию и корректно возвращают ввод.
 func test_terminal_reports_actual_visibility_and_releases_capture_once() -> void:
-	var terminal: E_Terminal = (load("res://content/domains/packages/entities/terminal.tscn") as PackedScene).instantiate() as E_Terminal
+	var terminal: E_Terminal = (
+		(load("res://content/domains/packages/entities/terminal.tscn") as PackedScene).instantiate()
+		as E_Terminal
+	)
 	_world.add_entity(terminal)
 	terminal.open_for(_actor)
 	terminal.open_for(_actor)
@@ -190,7 +211,8 @@ func test_terminal_reports_actual_visibility_and_releases_capture_once() -> void
 	assert_eq(_probe.events[1].kind, PlayerInteractionEvent.Kind.TERMINAL_CLOSED)
 
 
-## Событие соответствует принятому хвату и реальному отпусканию; удаление предмета не означает размещение игроком.
+## Событие соответствует принятому хвату и реальному отпусканию; удаление предмета не означает
+## размещение игроком.
 func test_parcel_reports_accepted_grip_and_real_release_not_repeat_or_failure() -> void:
 	var parcel: Entity = _parcel()
 	await get_tree().physics_frame

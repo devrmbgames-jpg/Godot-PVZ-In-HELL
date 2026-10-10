@@ -21,7 +21,11 @@ func before_each() -> void:
 	cycle.phase = C_DayCycle.Phase.DAY
 	cycle.day_index = 3
 	owner.component_resources = [
-		flow, cycle, C_Wallet.new(), C_PackageLedger.new(), C_BoundaryTrace.new()
+		flow,
+		cycle,
+		C_Wallet.new(),
+		C_PackageLedger.new(),
+		C_BoundaryTrace.new(),
 	]
 	_world.add_entity(owner)
 
@@ -92,8 +96,8 @@ func _reaction(
 	reaction.followup_probability_delta = followup_delta
 	return reaction
 
-
 #endregion
+
 
 #region Намерения и реакции
 ## Tree teardown seals the session without restarting its gameplay phase.
@@ -104,8 +108,10 @@ func test_invalidated_context_rejects_late_actions_without_returning_to_service(
 	assert_false(_context.begin())
 	assert_false(_context.answer_riddle_wrong())
 	assert_false(_context.apply_response_tags(PackedStringArray(["lie"])))
-	assert_eq((_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase,
-		C_CustomerAgent.Phase.DIALOGUE)
+	assert_eq(
+		(_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase,
+		C_CustomerAgent.Phase.DIALOGUE,
+	)
 
 
 ## Repeated semantic response is a duplicate committed result, not a second mutation.
@@ -174,11 +180,12 @@ func test_persuasion_modifier_reduces_complaint_and_increases_followup() -> void
 	assert_almost_eq(_visit.complaint_probability_delta, -0.55, 0.001)
 	assert_almost_eq(_visit.followup_probability_delta, 0.25, 0.001)
 
-
 #endregion
 
+
 #region Условия и отложенные последствия
-## Ошибка загадки снижает итоговую удовлетворённость однократно; верный ответ открывает обычную выдачу.
+## Ошибка загадки снижает итоговую удовлетворённость однократно; верный ответ открывает обычную
+## выдачу.
 func test_riddle_wrong_answer_is_idempotent_and_affects_final_satisfaction() -> void:
 	_visit.definition.dialogue_mode = DEF_Customer.DialogueMode.RIDDLE
 	_visit.definition.riddle_wrong_satisfaction_penalty = 20
@@ -220,8 +227,8 @@ func test_forced_delayed_complaint_is_idempotent() -> void:
 	assert_same(_visit.complaint, first)
 	assert_true(_context.complaint_pending())
 
-
 #endregion
+
 
 #region Жизненный цикл обслуживания
 ## A closed context cannot replay late mutations or re-enter its finished UI session.
@@ -259,7 +266,10 @@ func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void
 	agent.elapsed = 2.0
 	assert_true(CustomerFlowService.enter_aggressive(_customer))
 	assert_eq(agent.elapsed, 2.0, "Repeated aggression must not reset the bounded conflict")
-	assert_true((_customer.get_component(C_NpcIntent) as C_NpcIntent).movement_active, "A subsequent hit must not stop pursuit")
+	assert_true(
+		(_customer.get_component(C_NpcIntent) as C_NpcIntent).movement_active,
+		"A subsequent hit must not stop pursuit",
+	)
 
 
 ## Добровольный отказ возникает после передачи; подтверждение диалога завершает его один раз.
@@ -289,57 +299,80 @@ func test_context_invalidates_when_customer_dies_or_visit_finishes() -> void:
 	_visit.finished = true
 	assert_false(_context.is_valid())
 
-
 #endregion
+
 
 #region Ресурсы и представление ответов
 ## Префикс намерения оформляет UI, сохраняя исходные текст и теги DialogueResponse.
 func test_response_prefixes_preserve_authored_text_and_routing_tags() -> void:
 	var cases: Dictionary[String, String] = {
-		"hon": "[честно]", "lie": "[обман]", "prs": "[убедить]",
-		"thr": "[угроза]", "flr": "[флирт]", "jok": "[шутка]",
+		"hon": "[честно]",
+		"lie": "[обман]",
+		"prs": "[убедить]",
+		"thr": "[угроза]",
+		"flr": "[флирт]",
+		"jok": "[шутка]",
 	}
 	for tag: String in cases:
 		var response: DialogueResponse = DialogueResponse.new()
 		response.text = "Посылки ещё не было"
 		response.tags = PackedStringArray([tag])
 		var intent: CustomerDialogueIntent.Type = CustomerDialogueIntent.from_tags(response.tags)
-		var displayed: String = CustomerDialoguePanel.format_response_text(response.text, response.tags)
+		var displayed: String = (
+			CustomerDialoguePanel.format_response_text(response.text, response.tags)
+		)
 		assert_eq(displayed, cases[tag] + " " + response.text)
 		assert_eq(CustomerDialoguePanel.format_response_text(displayed, response.tags), displayed)
 		assert_eq(response.text, "Посылки ещё не было")
 		assert_eq(response.tags, PackedStringArray([tag]))
 		assert_eq(CustomerDialogueIntent.from_tags(response.tags), intent)
 	assert_eq(CustomerDialoguePanel.format_response_text("Хорошо.", PackedStringArray()), "Хорошо.")
-	assert_eq(CustomerDialoguePanel.format_response_text("Хорошо.", PackedStringArray(["unknown"])), "Хорошо.")
+	assert_eq(
+		CustomerDialoguePanel.format_response_text("Хорошо.", PackedStringArray(["unknown"])),
+		"Хорошо.",
+	)
 
 
-## Авторский ресурс содержит прямую выдачу, отказы и загадки; тест освобождает ссылки строк на ресурс.
+## Авторский ресурс содержит прямую выдачу, отказы и загадки; тест освобождает ссылки строк на
+## ресурс.
 func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	var resource: DialogueResource = load(CustomerDialogueService.DIALOGUE_PATH) as DialogueResource
 	assert_not_null(resource)
-	var direct: DialogueLine = await resource.get_next_dialogue_line("direct", [{"ctx": _context}])
+	var direct: DialogueLine = await resource.get_next_dialogue_line(
+		"direct",
+		[{ "ctx": _context }],
+	)
 	assert_not_null(direct)
 	assert_eq(direct.character, "Клиент")
-	var deny_start: DialogueLine = await resource.get_next_dialogue_line("deny_start", [{"ctx": _context}])
+	var deny_start: DialogueLine = (
+		await resource.get_next_dialogue_line("deny_start", [{ "ctx": _context }])
+	)
 	assert_not_null(deny_start)
 	assert_eq(deny_start.responses.size(), 6)
 	assert_true((deny_start.responses[1] as DialogueResponse).has_tag("lie"))
 	assert_true((deny_start.responses[4] as DialogueResponse).has_tag("thr"))
 	assert_true((deny_start.responses[5] as DialogueResponse).has_tag("jok"))
 
-	var persuade: DialogueLine = await resource.get_next_dialogue_line("deny_persuade", [{"ctx": _context}])
+	var persuade: DialogueLine = (
+		await resource.get_next_dialogue_line("deny_persuade", [{ "ctx": _context }])
+	)
 	assert_not_null(persuade)
 	_visit.visit_count = 2
 	assert_eq(_context.dialogue_cue(), "followup")
 	_visit.visit_count = 1
 	_visit.definition.dialogue_mode = DEF_Customer.DialogueMode.RIDDLE
-	var riddle: DialogueLine = await resource.get_next_dialogue_line("riddle", [{"ctx": _context}])
+	var riddle: DialogueLine = await resource.get_next_dialogue_line(
+		"riddle",
+		[{ "ctx": _context }],
+	)
 	assert_not_null(riddle)
 	assert_eq(riddle.responses.size(), 3)
 	DialogueResourceLifecycle.release_runtime_references(resource)
 	for value: Variant in resource.lines.values():
 		var data: Dictionary = value as Dictionary
-		assert_false(data.has("resource"), "Session close must break per-line resource self references")
+		assert_false(
+			data.has("resource"),
+			"Session close must break per-line resource self references",
+		)
 
 #endregion

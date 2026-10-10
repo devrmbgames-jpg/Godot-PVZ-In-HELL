@@ -1,5 +1,6 @@
 extends GutTest
-## Проверяет доступ по живому владению ключом и предложения движения отдельно от физического исполнения.
+## Проверяет доступ по живому владению ключом и предложения движения отдельно от физического
+## исполнения.
 
 
 ## Тестовый поставщик разрешает оценку доступа, но отказывает при фиксации расхода.
@@ -7,6 +8,7 @@ class RefusingConsumption extends DEF_HeldItemAccess:
 	## Возвращает отказ без удаления ключа или изменения его владения.
 	func consume(_actor: Entity, _item: Entity) -> bool:
 		return false
+
 
 var _world: World
 var _actor: Entity
@@ -61,8 +63,8 @@ func _key(slot: C_Grabbable.HoldSlot = C_Grabbable.HoldSlot.LEFT_HAND) -> Entity
 		control.held_right = item
 	return item
 
-
 #endregion
+
 
 #region Доступ и расходование
 ## ID и все обязательные теги должны принадлежать одному подходящему предмету.
@@ -82,7 +84,10 @@ func test_id_and_all_tags_must_match_one_item() -> void:
 
 ## Ключ в любой руке даёт доступ по Relationship; устаревший кеш руки не даёт.
 func test_either_hand_grants_access_but_stale_cache_does_not() -> void:
-	for slot: C_Grabbable.HoldSlot in [C_Grabbable.HoldSlot.LEFT_HAND, C_Grabbable.HoldSlot.RIGHT_HAND]:
+	for slot: C_Grabbable.HoldSlot in ([
+		C_Grabbable.HoldSlot.LEFT_HAND,
+		C_Grabbable.HoldSlot.RIGHT_HAND,
+	]):
 		var item: Entity = _key(slot)
 		assert_true(ItemAccessService.evaluate(_actor, _requirement).is_allowed())
 		item.remove_all_relationships()
@@ -132,7 +137,10 @@ func test_empty_consuming_requirement_never_consumes_arbitrary_item() -> void:
 	_key()
 	_requirement.required_item_id = &""
 	_requirement.consume_item = true
-	assert_eq(ItemAccessService.evaluate(_actor, _requirement).outcome, AccessResult.Outcome.INVALID_REQUIREMENT)
+	assert_eq(
+		ItemAccessService.evaluate(_actor, _requirement).outcome,
+		AccessResult.Outcome.INVALID_REQUIREMENT,
+	)
 	assert_false(OpenableService.request(_actor, _target, OpenableService.Operation.UNLOCK))
 
 
@@ -149,11 +157,12 @@ func test_provider_refusal_keeps_lock_and_item_unchanged() -> void:
 	assert_true(GrabQueries.entity_available(item))
 	assert_not_null(GrabQueries.held_relationship(item))
 
-
 #endregion
 
+
 #region Запрос и фактическое движение
-## Предложение движения ограничено диапазоном; реальная доля меняется только отчётом физического исполнителя.
+## Предложение движения ограничено диапазоном; реальная доля меняется только отчётом физического
+## исполнителя.
 func test_motion_proposal_is_bounded_and_does_not_advance_blocked_state() -> void:
 	_state.locked = false
 	_state.motion = DEF_OpenableMotion.new()

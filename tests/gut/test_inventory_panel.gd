@@ -24,14 +24,25 @@ func before_each() -> void:
 	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = (
+		load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
+	)
 	hunger.value = 60.0
-	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new(), C_Controller.new(), C_Health.new(), hunger]
+	_actor.component_resources = ([
+		C_Inventory.new(),
+		C_GrabControl.new(),
+		C_Controller.new(),
+		C_Health.new(),
+		hunger,
+	])
 	_root.add_child(body)
 	_actor.owner = _root
 	_world.add_entity(_actor, null, false)
 	_floor(Vector3(0, -0.1, 0), Vector3(10, 0.2, 10))
-	_panel = (load("res://content/ui/inventory_panel.tscn") as PackedScene).instantiate() as InventoryPanel
+	_panel = (
+		(load("res://content/ui/inventory_panel.tscn") as PackedScene).instantiate()
+		as InventoryPanel
+	)
 	_panel.player = _actor
 	_root.add_child(_panel)
 	await get_tree().physics_frame
@@ -59,7 +70,10 @@ func _floor(position: Vector3, size: Vector3) -> void:
 
 
 func _item(key: String, quantity: int = 1) -> Entity:
-	var definition: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_%s.tres" % key) as DEF_InventoryItem
+	var definition: DEF_InventoryItem = (
+		load("res://content/domains/inventory/definitions/def_item_%s.tres" % key)
+		as DEF_InventoryItem
+	)
 	var item: Entity = Entity.new()
 	var stack: C_InventoryItem = C_InventoryItem.new()
 	stack.definition = definition
@@ -77,8 +91,8 @@ func _grid() -> GridContainer:
 func _button(name: String) -> Button:
 	return _panel.get_node("Root/Center/Panel/Content/Actions/" + name) as Button
 
-
 #endregion
+
 
 #region Выбор, применение и выброс
 ## Сетка показывает пустую ёмкость и отдельные авторские иконки четырёх типов предметов.
@@ -93,18 +107,22 @@ func test_capacity_grid_has_empty_slots_and_four_unused_authored_icons() -> void
 	_panel.close_inventory()
 	for key: String in ["food", "med", "bubble_wrap", "npc_meat"]:
 		var item: Entity = _item(key)
-		var icon: Texture2D = (item.get_component(C_InventoryItem) as C_InventoryItem).definition.icon
+		var icon: Texture2D = (
+			(item.get_component(C_InventoryItem) as C_InventoryItem).definition.icon
+		)
 		assert_not_null(icon)
 		assert_true(icon.resource_path.begins_with("res://addons/at-icons/mesh/"))
 	assert_true(_panel.open_inventory())
 	for index: int in 4:
-		var icon: TextureRect = _grid().get_child(index).get_child(0).get_child(0).get_child(0) as TextureRect
+		var icon: TextureRect = (
+			_grid().get_child(index).get_child(0).get_child(0).get_child(0) as TextureRect
+		)
 		assert_not_null(icon.texture)
 	assert_eq(_grid().get_child_count(), 8)
 
 
 ## Выбор аптечки не расходует её; кнопка применения учитывает актуальное HP и количество.
-func test_selecting_med_does_not_consume_and_use_follows_actual_health_then_updates_quantity() -> void:
+func test_med_selection_and_use_preserve_health_quantity_contract() -> void:
 	var med: Entity = _item("med", 2)
 	var health: C_Health = _actor.get_component(C_Health) as C_Health
 	health.value = 100.0
@@ -115,7 +133,7 @@ func test_selecting_med_does_not_consume_and_use_follows_actual_health_then_upda
 	assert_true(_button("Use").disabled)
 	assert_false(_button("Drop").disabled)
 	health.current = 50.0
-	_panel._process(1.0)
+	_panel.call("_process", 1.0)
 	assert_false(_button("Use").disabled)
 	_button("Use").pressed.emit()
 	assert_eq(health.current, 85.0)
@@ -168,7 +186,9 @@ func test_nested_modal_prevents_grid_actions_and_close_preserves_other_capture()
 	assert_true(_panel.open_inventory())
 	var modal_owner: Node = Node.new()
 	_root.add_child(modal_owner)
-	var token: int = InteractionControlFocus.acquire(_actor, modal_owner, InteractionControlFocus.Priority.MODAL)
+	var token: int = (
+		InteractionControlFocus.acquire(_actor, modal_owner, InteractionControlFocus.Priority.MODAL)
+	)
 	_button("Use").pressed.emit()
 	_button("Drop").pressed.emit()
 	assert_eq((food.get_component(C_InventoryItem) as C_InventoryItem).quantity, 2)

@@ -1,9 +1,11 @@
 extends RefCounted
-## Test-only native World execution of real physical interaction owners with one temporary target filter.
+## Test-only native World execution of real physical interaction owners with one temporary target
+## filter.
 class_name InteractionPhysicsFixture
 
 const TARGET_GROUP: String = "interaction_physics_fixture_target"
 const OWNER_GROUP: String = "interaction_physics_fixture_owner"
+
 
 ## Narrows only the production anchor-rest query.
 class AnchorOwner extends S_AnchorStability:
@@ -11,6 +13,7 @@ class AnchorOwner extends S_AnchorStability:
 	func query() -> QueryBuilder:
 		return super.query().with_group([InteractionPhysicsFixture.TARGET_GROUP])
 	#endregion
+
 
 #region Actual owner execution
 ## Advances real scheduled physical rest for the selected authored target.

@@ -1,10 +1,13 @@
 extends Node
-## Проверяет спринт в основной сцене через реальный ввод; headless подменяет только захват курсора ОС.
+## Проверяет спринт в основной сцене через реальный ввод; headless подменяет только захват курсора
+## ОС.
+
 
 ## В headless-тесте подменяет только проверку захвата курсора операционной системой.
 class CapturedInput extends S_PlayerInput:
 	func _accepts_input() -> bool:
 		return true
+
 
 ## Отдельный файл настроек сценария; не использует основной профиль игрока.
 const TEST_PATH: String = "user://r33_smoke_settings.cfg"
@@ -30,8 +33,8 @@ func _key(code: Key, pressed: bool = true) -> void:
 	Input.flush_buffered_events()
 	await get_tree().process_frame
 
-
 #endregion
+
 
 #region Native спринт и настройки
 ## Прогоняет native движение и ввод Shift, режим переключения, паузу настроек и консольный запрос.
@@ -54,7 +57,9 @@ func _run() -> void:
 	assert(menu != null)
 	menu.setup(actor, TEST_PATH)
 
-	var producer: S_PlayerInput = _level.get_node("World/Systems/Input/S_PlayerInput") as S_PlayerInput
+	var producer: S_PlayerInput = (
+		_level.get_node("World/Systems/Input/S_PlayerInput") as S_PlayerInput
+	)
 	assert(producer != null)
 	producer.set_script(CapturedInput)
 	producer.group = "Input"
@@ -79,7 +84,24 @@ func _run() -> void:
 	var walk_speed: float = Vector2(body.velocity.x, body.velocity.z).length()
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
-	print("walk speed=", walk_speed, " position=", body.global_position, " floor=", motion.is_on_floor, " axis=", controller.move_axis, " direction=", controller.direction_motion, " active=", producer.active, " group=", producer.group, " W=", Input.is_action_pressed(&"forward"))
+	print(
+		"walk speed=",
+		walk_speed,
+		" position=",
+		body.global_position,
+		" floor=",
+		motion.is_on_floor,
+		" axis=",
+		controller.move_axis,
+		" direction=",
+		controller.direction_motion,
+		" active=",
+		producer.active,
+		" group=",
+		producer.group,
+		" W=",
+		Input.is_action_pressed(&"forward"),
+	)
 	assert(is_equal_approx(walk_speed, motion.max_speed), "Normal walking reaches authored speed")
 	await _key(KEY_SHIFT)
 	await _frames(40)
@@ -108,9 +130,12 @@ func _run() -> void:
 
 	var result: DebugServiceResult = DebugGameplayService.info("stamina", "self")
 	assert(result.success)
-	Console._on_text_entered("stamina_info")
-	assert(Console.rich_label.get_parsed_text().contains("reserve="), "Bare console parser defaults to self")
-	Console._on_text_entered("help stamina_info")
+	Console.call("_on_text_entered", "stamina_info")
+	assert(
+		Console.rich_label.get_parsed_text().contains("reserve="),
+		"Bare console parser defaults to self",
+	)
+	Console.call("_on_text_entered", "help stamina_info")
 	assert(Console.rich_label.get_parsed_text().contains("Read sprint reserve"))
 	GameSettingsService.reset_defaults()
 	DirAccess.remove_absolute(TEST_PATH)

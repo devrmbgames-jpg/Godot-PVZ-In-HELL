@@ -1,5 +1,6 @@
 extends GutTest
-## Проверяет авторскую стойкость коробок, предел урона одного контакта и пороги видимого повреждения.
+## Проверяет авторскую стойкость коробок, предел урона одного контакта и пороги видимого
+## повреждения.
 
 const REGULAR: DEF_ImpactProfile = preload(
 	"res://content/domains/combat/definitions/def_impact_default.tres"

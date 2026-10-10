@@ -13,7 +13,8 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
-## Проверяет создание/регистрацию коробки, урон, расчёты и QA-сброс через строки команд реальной консоли.
+## Проверяет создание/регистрацию коробки, урон, расчёты и QA-сброс через строки команд реальной
+## консоли.
 func _run() -> void:
 	_level = MAIN_LEVEL.instantiate() as Node3D
 	_level.set("autosave_path", "")
@@ -44,10 +45,7 @@ func _run() -> void:
 	var definition_keys: PackedStringArray = DebugPackageService.definition_keys()
 	assert(not definition_keys.is_empty())
 	var definition_key: String = definition_keys[0]
-	_expect_console(
-		"pkg_spawn %s 1 self 1" % definition_key,
-		"OK pkg_spawn",
-	)
+	_expect_console("pkg_spawn %s 1 self 1" % definition_key, "OK pkg_spawn")
 
 	var parcel: Entity = _single_debug_package()
 	assert(parcel != null)
@@ -57,22 +55,18 @@ func _run() -> void:
 	assert(identity != null and state != null and package_health != null)
 	var package_id: String = identity.package_id
 	var package_hp: float = package_health.current
-	var registration: PackageRegistrationRecord = DebugTargetResolver.resolve(package_id).registration
+	var registration: PackageRegistrationRecord = (
+		DebugTargetResolver.resolve(package_id).registration
+	)
 	assert(registration != null and registration.active)
 
 	var number: int = registration.number
 
 	_expect_console("debug_resolve #%03d" % number, "OK debug_resolve")
-	_expect_console(
-		"apply_damage %s %.1f impact" % [package_id, HEALTH_DELTA],
-		"OK apply_damage",
-	)
+	_expect_console("apply_damage %s %.1f impact" % [package_id, HEALTH_DELTA], "OK apply_damage")
 	_process_gameplay(2)
 	assert(is_equal_approx(package_health.current, package_hp - HEALTH_DELTA))
-	_expect_console(
-		"heal %s %.1f" % [package_id, HEALTH_DELTA],
-		"OK heal",
-	)
+	_expect_console("heal %s %.1f" % [package_id, HEALTH_DELTA], "OK heal")
 	_process_gameplay(2)
 	assert(is_equal_approx(package_health.current, package_hp))
 
@@ -90,16 +84,10 @@ func _run() -> void:
 	assert(visit.actual == CustomerVisit.Actual.DELIVERED)
 	assert(visit.declaration == CustomerVisit.Declaration.TAKEN)
 
-	_expect_console(
-		"pkg_complaint %s not_delivered pending" % package_id,
-		"OK pkg_complaint",
-	)
+	_expect_console("pkg_complaint %s not_delivered pending" % package_id, "OK pkg_complaint")
 	assert(visit.complaint != null)
 	assert(visit.complaint.outcome == CustomerComplaint.Outcome.PENDING)
-	_expect_console(
-		"complaint_resolve %s" % package_id,
-		"OK complaint_resolve",
-	)
+	_expect_console("complaint_resolve %s" % package_id, "OK complaint_resolve")
 	assert(visit.complaint.outcome != CustomerComplaint.Outcome.PENDING)
 
 	var wallet: C_Wallet = WalletService.current()
@@ -129,10 +117,7 @@ func _run() -> void:
 	assert(player_health != null)
 	var player_hp: float = player_health.current
 	assert(player_hp > HEALTH_DELTA)
-	_expect_console(
-		"apply_damage self %.1f generic" % HEALTH_DELTA,
-		"OK apply_damage",
-	)
+	_expect_console("apply_damage self %.1f generic" % HEALTH_DELTA, "OK apply_damage")
 	_process_gameplay(2)
 	assert(is_equal_approx(player_health.current, player_hp - HEALTH_DELTA))
 	_expect_console("heal self %.1f" % HEALTH_DELTA, "OK heal")
@@ -160,8 +145,8 @@ func _run() -> void:
 	print("Developer console testing smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Команды и наблюдение результата
 ## Подаёт строку настоящему parser консоли и проверяет маркер результата в выводе.
@@ -171,8 +156,7 @@ func _expect_console(command: String, expected_marker: String) -> void:
 	var output: String = Console.rich_label.get_parsed_text()
 	assert(
 		expected_marker in output,
-		"Expected '%s' for command '%s', got: %s"
-		% [expected_marker, command, output],
+		"Expected '%s' for command '%s', got: %s" % [expected_marker, command, output],
 	)
 	print("%s -> %s" % [command, expected_marker])
 
@@ -182,7 +166,10 @@ func _single_debug_package() -> Entity:
 	var found: Array[Entity] = []
 	for entity: Entity in ECS.world.query.with_all([C_Package]).execute():
 		var identity: C_Package = entity.get_component(C_Package) as C_Package
-		if identity != null and identity.package_id.begins_with(DebugPackageService.DEBUG_ID_PREFIX):
+		if (
+			identity != null
+			and identity.package_id.begins_with(DebugPackageService.DEBUG_ID_PREFIX)
+		):
 			found.append(entity)
 	assert(found.size() == 1)
 	return found[0] if found.size() == 1 else null

@@ -27,8 +27,8 @@ func clear_log(title: String) -> void:
 	_entries = []
 	_rich_text_label.text = ""
 
-
 #endregion
+
 
 #region Локальный поиск
 func _on_filter_changed(value: String) -> void:

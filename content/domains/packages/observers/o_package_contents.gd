@@ -13,7 +13,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
 	if (
 		event != null and event.package == entity
-		and event.kind == PackageLifecycleEvent.Kind.Opened
+		and event.kind == PackageLifecycleEvent.Kind.OPENED
 	):
 		var contents: C_PackageContents = (
 			entity.get_component(C_PackageContents) as C_PackageContents

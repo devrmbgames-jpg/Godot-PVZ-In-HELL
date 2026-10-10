@@ -3,6 +3,7 @@ extends "res://tests/gut/test_district_service.gd"
 
 var _player: Entity = null
 
+
 #region Домашняя fixture
 ## Добавляет реальные журналы денег/регистрации и физические крепления посылок к районной fixture.
 func before_each() -> void:
@@ -25,21 +26,46 @@ func before_each() -> void:
 	actor_node.add_child(anchor)
 	(_player as E_RigidBodyCharacter).head_axis_x = anchor
 	(_player as E_RigidBodyCharacter).hold_anchor = anchor
-	_player.component_resources = [C_PlayerInputController.new(), C_GrabControl.new(), C_Health.new(), C_Controller.new(), C_CarryLoad.new(), C_Strength.new(), C_Motion.new()]
+	_player.component_resources = ([
+		C_PlayerInputController.new(),
+		C_GrabControl.new(),
+		C_Health.new(),
+		C_Controller.new(),
+		C_CarryLoad.new(),
+		C_Strength.new(),
+		C_Motion.new(),
+	])
 	_world.add_observer(O_GrabLifecycle.new())
 	_world.add_entity(_player)
 	actor_node.freeze = true
+
 
 func _delivery_case(person: NpcRecord, suffix: String) -> CustomerVisit:
 	var visit: CustomerVisit = _case(person, suffix)
 	visit.payment = 10
 	visit.definition = DEF_Customer.new()
-	var parcel: E_Package = (load("res://content/domains/packages/entities/package_a.tscn") as PackedScene).instantiate() as E_Package
+	var parcel: E_Package = (
+		(
+			load("res://content/domains/packages/entities/package_a.tscn") as PackedScene
+		).instantiate()
+		as E_Package
+	)
 	parcel.package_id = visit.package_id
-	parcel.package_definition = (load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule).supply.packages[0]
+	parcel.package_definition = (
+		(
+			load("res://content/domains/customers/definitions/def_customer_schedule_default.tres")
+			as DEF_CustomerSchedule
+		)
+		.supply
+		.packages[0]
+	)
 	EntityCompositionFixture.register(_world, parcel)
-	assert_eq(PackageRegistrationService.register_package(parcel).outcome, PackageScanResult.Outcome.REGISTERED)
+	assert_eq(
+		PackageRegistrationService.register_package(parcel).outcome,
+		PackageScanResult.Outcome.REGISTERED,
+	)
 	return visit
+
 
 func _door(address_id: StringName) -> Entity:
 	for door: Entity in _world.query.with_all([C_NpcAddress]).execute():
@@ -48,13 +74,17 @@ func _door(address_id: StringName) -> Entity:
 	return null
 #endregion
 
+
 #region Обязательства и деньги
 ## Отказ переносит тот же заказ на 1–3 дня, освобождая очередь без обещания и штрафа.
 func test_declined_home_delivery_returns_once_after_one_to_three_days() -> void:
 	DayPhaseQueries.current().phase = C_DayCycle.Phase.DAY
 	var person: NpcRecord = _district.people[0]
 	var visit: CustomerVisit = _delivery_case(person, "home_decline")
-	visit.definition = load("res://content/domains/customers/definitions/def_customer_prototype.tres") as DEF_Customer
+	visit.definition = (
+		load("res://content/domains/customers/definitions/def_customer_prototype.tres")
+		as DEF_Customer
+	)
 	visit.riddle_solved = true
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	NpcServiceRole.begin(body, person, visit, 1)
@@ -81,6 +111,7 @@ func test_declined_home_delivery_returns_once_after_one_to_three_days() -> void:
 	assert_true(copy.home_delivery_declined)
 	assert_eq(copy.arrival_day, expected_day)
 
+
 ## Три принятых обязательства не ограничиваются двумя и не перемещают коробки при сне.
 func test_three_optional_jobs_and_night_failure_keep_physical_boxes() -> void:
 	_district.definition.terminal_delivery_minimum = 2
@@ -104,6 +135,7 @@ func test_three_optional_jobs_and_night_failure_keep_physical_boxes() -> void:
 	assert_eq(_district.people[0].memories.size(), 1)
 	assert_eq(WalletService.current().balance, 0)
 
+
 ## Выдача у двери использует настоящую удерживаемую коробку и ровно две денежные операции.
 func test_home_handoff_and_bonus_are_once() -> void:
 	var person: NpcRecord = _district.people[0]
@@ -118,18 +150,26 @@ func test_home_handoff_and_bonus_are_once() -> void:
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _player))
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.READY)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_player, body),
+		PackageDeliveryCheck.Result.READY,
+	)
 	assert_eq(visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_null(PackageQueries.find_live_package(visit.package_id))
 	assert_true(NpcHomeDeliveryService.complete(job))
 
 	var balance: int = WalletService.current().balance
 	assert_eq(WalletService.current().operations.size(), 2)
-	assert_eq(balance, visit.payment * visit.satisfaction / CustomerOutcomeService.SATISFACTION_SCALE + visit.payment)
+	assert_eq(
+		balance,
+		visit.payment * visit.satisfaction / CustomerOutcomeService.SATISFACTION_SCALE
+		+ visit.payment,
+	)
 	assert_true(NpcHomeDeliveryService.complete(job))
 	NpcHomeDeliveryService.finish_evening(1)
 	assert_eq(WalletService.current().balance, balance)
 	assert_eq(WalletService.current().operations.size(), 2)
+
 
 ## Отказ сохраняет физическую коробку и не начисляет доплату доставки.
 func test_refusal_has_no_bonus() -> void:
@@ -142,6 +182,7 @@ func test_refusal_has_no_bonus() -> void:
 	assert_not_null(PackageQueries.find_live_package(visit.package_id))
 	assert_false(_district.home_deliveries[0].bonus_committed)
 	assert_eq(WalletService.current().balance, 0)
+
 
 ## Домашний осмотр резервирует дверь и физическую коробку; прерывание освобождает обе связи.
 func test_home_inspection_stays_at_door_and_releases_cargo() -> void:

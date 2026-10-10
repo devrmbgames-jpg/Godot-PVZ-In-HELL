@@ -50,11 +50,12 @@ func _visit(day: int, registered: bool = true) -> CustomerVisit:
 	_flow.visits.append(visit)
 	return visit
 
-
 #endregion
 
+
 #region Условия и фиксация перехода
-## Поступление без номера не блокирует смену; после сканирования возможный приход учитывается отдельно.
+## Поступление без номера не блокирует смену; после сканирования возможный приход учитывается
+## отдельно.
 func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explicit() -> void:
 	var pending: CustomerVisit = _visit(1, false)
 	pending.package_id = "pending"
@@ -64,23 +65,38 @@ func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explic
 	receipt.received_day = 1
 	PackageQueries.ledger().records.append(receipt)
 	var future: CustomerVisit = _visit(2)
-	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Legacy actionable filter does not trap unregistered visits")
+	assert_true(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"Legacy actionable filter does not trap unregistered visits",
+	)
 	_cycle.require_all_planned_arrivals = true
 	_cycle.minimum_shift_seconds = 240.0
 	assert_eq(DayPhaseService.finish_blockers(_cycle).size(), 1)
 	assert_false(DayPhaseService.submit(_request(DayTransitionRequest.Kind.FINISH_SHIFT)))
 	_cycle.clock.elapsed_ticks = GameTimeRules.duration_ticks(240.0)
-	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Receipt without registration cannot enable an unreachable arrival")
+	assert_true(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"Receipt without registration cannot enable an unreachable arrival",
+	)
 	receipt.number = 1
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	pending.started = true
-	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Arrived still requires service when legacy gate enabled")
+	assert_false(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"Arrived still requires service when legacy gate enabled",
+	)
 	_cycle.require_finished_customers = false
-	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Future visit does not block today's planned arrivals")
+	assert_true(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"Future visit does not block today's planned arrivals",
+	)
 	assert_false(future.started)
 	pending.started = false
 	pending.finished = true
-	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Explicitly closed/cancelled visit cannot trap the day")
+	assert_true(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"Explicitly closed/cancelled visit cannot trap the day",
+	)
 	assert_true(CustomerDebugPresentation.summary().contains("Завершение доступно"))
 
 
@@ -122,8 +138,8 @@ func test_queued_finish_revalidates_and_clock_advances_only_during_shift() -> vo
 	_system.process([_owner], [[_cycle]], NAN)
 	assert_eq(GameTimeQueries.shift_seconds(_cycle), 0.0)
 
-
 #endregion
+
 
 #region Физическое присутствие в комнате
 ## Настроенная Area учитывает живые тела внутри; отсутствующая зона блокирует завершение.
@@ -131,7 +147,10 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	_cycle.require_finished_customers = false
 	_cycle.require_empty_customer_room = true
 	_cycle.customer_room_path = NodePath("Room")
-	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Missing configured room fails closed")
+	assert_false(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"Missing configured room fails closed",
+	)
 	var room: Area3D = Area3D.new()
 	room.name = "Room"
 	room.collision_mask = 2
@@ -157,9 +176,15 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_eq(DayPhaseService.customers_in_room(_cycle), 0)
-	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Outside customer doesn't block configured building")
+	assert_true(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"Outside customer doesn't block configured building",
+	)
 	_cycle.customer_room_path = NodePath("")
-	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "No room means conservative all-live fallback")
+	assert_false(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"No room means conservative all-live fallback",
+	)
 	_cycle.customer_room_path = NodePath("Room")
 	body.global_position = Vector3.ZERO
 	await get_tree().physics_frame
@@ -167,6 +192,9 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	assert_eq(DayPhaseService.customers_in_room(_cycle), 1)
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	customer.add_component(C_Death.new())
-	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Dead remains are not live visitors")
+	assert_true(
+		DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT),
+		"Dead remains are not live visitors",
+	)
 
 #endregion

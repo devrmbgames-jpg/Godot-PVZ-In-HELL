@@ -10,6 +10,7 @@ const MAXIMUM_WIDTH: float = 560.0
 var _label: Label = null
 var _elapsed: float = 0.0
 
+
 #region Отображение
 func _ready() -> void:
 	layer = 12
@@ -24,12 +25,14 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_place_label)
 	_place_label()
 
+
 func _process(delta: float) -> void:
 	_elapsed += delta
 	if _elapsed >= REFRESH_SECONDS:
 		_elapsed = 0.0
 		_label.text = NpcHomeDeliveryService.status_text()
 		_label.visible = not _label.text.is_empty()
+
 
 func _place_label() -> void:
 	var viewport_width: float = get_viewport().get_visible_rect().size.x

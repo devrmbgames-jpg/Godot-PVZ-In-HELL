@@ -1,9 +1,12 @@
 extends SceneTree
-## Parser по фактическим путям после регистрации autoload; скрипты загружаются без запуска игровых сцен.
+## Parser по фактическим путям после регистрации autoload; скрипты загружаются без запуска игровых
+## сцен.
+
 
 #region Проверка скриптов
 func _init() -> void:
 	_validate.call_deferred()
+
 
 func _validate() -> void:
 	var failures: int = 0

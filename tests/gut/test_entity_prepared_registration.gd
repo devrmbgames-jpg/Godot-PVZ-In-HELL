@@ -333,9 +333,10 @@ func test_physical_impact_trait_rejects_nonphysical_root_before_native_publicati
 	add_child(world)
 	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
 	var authoring: E_TraitedEntity = actor as E_TraitedEntity
-	authoring.traits = (load(
-		"res://content/domains/combat/definitions/def_entity_physical_impact.tres"
-	) as DEF_EntityTemplate).traits
+	authoring.traits = (
+		load("res://content/domains/combat/definitions/def_entity_physical_impact.tres")
+		as DEF_EntityTemplate
+	).traits
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		actor,
 		world,
@@ -497,9 +498,10 @@ func _loot_session_actor() -> Entity:
 	var actor: Entity = E_TraitedEntity.new()
 	actor.component_resources = [C_DayCycle.new()]
 	var authoring: E_TraitedEntity = actor as E_TraitedEntity
-	authoring.traits = (load(
-		"res://content/domains/time/definitions/def_entity_day_session.tres"
-	) as DEF_EntityTemplate).traits
+	authoring.traits = (
+		load("res://content/domains/time/definitions/def_entity_day_session.tres")
+		as DEF_EntityTemplate
+	).traits
 	return actor
 
 

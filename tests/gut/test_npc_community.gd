@@ -1,5 +1,11 @@
 extends "res://tests/gut/test_district_population.gd"
-## Регрессии участия сообщества, сохранности имущества, уличных диалогов и воспринимаемых конфликтов.
+## Регрессии участия сообщества, сохранности имущества, уличных диалогов и воспринимаемых
+## конфликтов.
+
+const DEF_ITEM_NPC_MEAT_PATH: String = (
+	"res://content/domains/inventory/definitions/def_item_npc_meat.tres"
+)
+
 
 #region Контракты сообщества
 ## Отключение вне карты сохраняет предметы владельца; возвращение не выдаёт ещё одну стопку.
@@ -7,7 +13,7 @@ func test_absence_preserves_owned_inventory() -> void:
 	_world.add_observer(O_InventoryLifecycle.new())
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
-	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_npc_meat.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = (load(DEF_ITEM_NPC_MEAT_PATH) as DEF_InventoryItem)
 	assert_true(InventoryService.grant(body, food, 2))
 	var item: Entity = InventoryService.items(body)[0]
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.OUTSIDE)
@@ -16,6 +22,7 @@ func test_absence_preserves_owned_inventory() -> void:
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
 	assert_eq(InventoryService.items(body).size(), 1)
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 2)
+
 
 ## Торговец сохраняет каталог; замена получает отдельное имя и адресный alias будущих заказов.
 func test_replacement_is_new_person_with_existing_address_alias() -> void:
@@ -36,10 +43,11 @@ func test_replacement_is_new_person_with_existing_address_alias() -> void:
 	assert_not_null((body.get_component(C_Trader) as C_Trader).profile)
 	assert_eq(replacement.memories.size(), 0)
 
+
 ## NPC однократно расходует реальный мясной предмет через обычное использование инвентаря.
 func test_npc_consumes_real_meat_once() -> void:
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
-	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_npc_meat.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = (load(DEF_ITEM_NPC_MEAT_PATH) as DEF_InventoryItem)
 	assert_true(InventoryService.grant(body, food, 1))
 	var hunger: C_Hunger = body.get_component(C_Hunger) as C_Hunger
 	hunger.value = 50.0
@@ -49,13 +57,17 @@ func test_npc_consumes_real_meat_once() -> void:
 	assert_eq(InventoryService.items(body).size(), 0)
 	assert_false(InventoryService.use(body, item))
 
+
 ## Авторские уличные ветви доступны через закреплённый Dialogue Manager и явные entry cues.
 func test_street_dialogue_resource_has_explicit_entry_cues() -> void:
-	var resource: DialogueResource = load("res://content/domains/npc/dialogue/npc_street.dialogue") as DialogueResource
+	var resource: DialogueResource = (
+		load("res://content/domains/npc/dialogue/npc_street.dialogue") as DialogueResource
+	)
 	assert_not_null(resource)
 	if resource != null:
 		assert_true(resource.cues.has("street"))
 		assert_true(resource.cues.has("provocation"))
+
 
 ## Самостоятельный конфликт расходует бюджет фазы; защита жертвы остаётся доступной.
 func test_phase_budget_does_not_block_self_defense() -> void:
@@ -75,9 +87,13 @@ func test_phase_budget_does_not_block_self_defense() -> void:
 	assert_true(NpcCommunityService.begin_conflict(attacker, _district.people[1], victim))
 	assert_eq(_district.ambient_conflicts, 1)
 	assert_false(NpcCommunityService.begin_conflict(second, _district.people[2], victim))
-	assert_eq(NpcSocialService.react(victim, attacker, NpcMemory.Kind.ATTACK, &"test/defense"), NpcMemory.Reaction.ATTACK)
+	assert_eq(
+		NpcSocialService.react(victim, attacker, NpcMemory.Kind.ATTACK, &"test/defense"),
+		NpcMemory.Reaction.ATTACK,
+	)
 	assert_same(CombatQueries.target_for(victim), attacker)
 	assert_eq(_district.ambient_conflicts, 1)
+
 
 ## Свидетель запоминает видимого виновника смерти; стена препятствует атрибуции.
 func test_killing_witness_requires_visible_actor_and_victim() -> void:
@@ -118,11 +134,17 @@ func test_killing_witness_requires_visible_actor_and_victim() -> void:
 	NpcSocialService.observe_damage(result)
 	assert_eq(_district.people[0].memories.size(), 1)
 
+
 ## Предмет резервируется одним участником; приоритетное прерывание сразу освобождает резервирование.
 func test_loot_claim_is_exclusive_until_interrupted() -> void:
 	var first: E_DistrictNpc = _stage_person(0, Vector3.ZERO)
 	var second: E_DistrictNpc = _stage_person(3, Vector3(2, 0, 0))
-	var pickup: Entity = (load("res://content/domains/inventory/entities/npc_meat_pickup.tscn") as PackedScene).instantiate() as Entity
+	var pickup: Entity = (
+		(
+			load("res://content/domains/inventory/entities/npc_meat_pickup.tscn") as PackedScene
+		).instantiate()
+		as Entity
+	)
 	_world.add_entity(pickup)
 	(pickup as Node as Node3D).global_position = Vector3(0, 0, -2)
 	await get_tree().physics_frame
@@ -134,6 +156,7 @@ func test_loot_claim_is_exclusive_until_interrupted() -> void:
 	assert_true(NpcCommunityService.choose_loot(second, _district.people[3]))
 	assert_eq(second.get_relationships(Relationship.new(R_NpcLootTarget.new(), pickup)).size(), 1)
 
+
 ## Свидетель чужого нападения сохраняет память, но не получает личный повод начать новый бой.
 func test_witness_memory_does_not_start_personal_revenge() -> void:
 	var witness: E_DistrictNpc = _stage_person(1, Vector3.ZERO)
@@ -142,17 +165,31 @@ func test_witness_memory_does_not_start_personal_revenge() -> void:
 	var person: NpcRecord = _district.people[1]
 	person.profile.initiates_conflicts = true
 	(witness.get_component(C_Hunger) as C_Hunger).value = 0.0
-	NpcSocialService.remember(person, attacker, victim, NpcMemory.Kind.ATTACK, &"test/foreign_attack")
+	NpcSocialService.remember(
+		person,
+		attacker,
+		victim,
+		NpcMemory.Kind.ATTACK,
+		&"test/foreign_attack",
+	)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_false(NpcCommunityService.begin_conflict(witness, person, attacker))
 	assert_eq(_district.ambient_conflicts, 0)
 	assert_null(CombatQueries.target_for(witness))
-	NpcSocialService.remember(person, attacker, witness, NpcMemory.Kind.ATTACK, &"test/personal_attack")
+	NpcSocialService.remember(
+		person,
+		attacker,
+		witness,
+		NpcMemory.Kind.ATTACK,
+		&"test/personal_attack",
+	)
 	assert_true(NpcCommunityService.begin_conflict(witness, person, attacker))
 	assert_same(CombatQueries.target_for(witness), attacker)
 
-## Боль от окружающего огня слышна, но не заманивает соседей в ауру; подтверждённый удар остаётся поводом проверить звук.
+
+## Боль от окружающего огня слышна, но не заманивает соседей в ауру; подтверждённый удар остаётся
+## поводом проверить звук.
 func test_environmental_damage_noise_does_not_lure_neighbours() -> void:
 	var listener: E_DistrictNpc = _stage_person(1, Vector3.ZERO)
 	var victim: E_DistrictNpc = _stage_person(3, Vector3(0, 0, -2))
@@ -176,6 +213,7 @@ func test_environmental_damage_noise_does_not_lure_neighbours() -> void:
 	result.request.combat_context = CombatContext.new()
 	NpcSocialService.observe_damage(result)
 	assert_true((_district.noises.back() as NpcNoise).investigate)
+
 
 func _stage_person(index: int, point: Vector3) -> E_DistrictNpc:
 	var person: NpcRecord = _district.people[index]

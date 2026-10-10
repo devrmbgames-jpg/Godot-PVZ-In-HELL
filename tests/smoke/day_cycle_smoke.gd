@@ -1,5 +1,6 @@
 extends Node
-## Исторический smoke фаз main_level через реальные станции; отдельно проверяет устаревшие запросы перехода.
+## Исторический smoke фаз main_level через реальные станции; отдельно проверяет устаревшие запросы
+## перехода.
 
 var _level: Node = null
 var _actor: Entity = null
@@ -17,7 +18,8 @@ func _run() -> void:
 	_level = scene.instantiate()
 	add_child(_level)
 	_level.set_physics_process(false)
-	## Убираем очередь клиентов, чтобы изолировать фазы и деньги; полный поток обслуживания проверяется отдельно.
+	## Убираем очередь клиентов, чтобы изолировать фазы и деньги; полный поток обслуживания
+	## проверяется отдельно.
 	var session: Entity = _level.get_node("Entityes/DaySession") as Entity
 	session.remove_component(C_CustomerFlow)
 	_actor = _level.get_node("Entityes/Player") as Entity

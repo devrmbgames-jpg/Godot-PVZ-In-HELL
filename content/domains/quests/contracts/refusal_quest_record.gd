@@ -2,7 +2,14 @@ extends Resource
 ## Постоянные факты задания; живые связи с выдавшим NPC и посылкой принадлежат Relationships.
 class_name RefusalQuestRecord
 
-enum State { OFFERED, ACTIVE, COMPLETED, FAILED, IGNORED, EXPIRED }
+enum State {
+	OFFERED,
+	ACTIVE,
+	COMPLETED,
+	FAILED,
+	IGNORED,
+	EXPIRED,
+}
 ## Immutable authored variant reference; reward/deadline remain the accepted operation snapshots.
 @export var definition: DEF_RefusalQuest = null
 ## Неповторяющийся ID задания для исхода и выплаты.

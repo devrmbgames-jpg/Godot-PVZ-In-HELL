@@ -7,6 +7,7 @@ var _phase_system: S_DayPhase
 var _session: Entity
 var _player_body: RigidBody3D
 
+
 #region Сессия фаз и физический игрок
 ## Дополняет реальную машину журналом визитов и простым зарегистрированным телом игрока.
 func before_each() -> void:
@@ -16,7 +17,10 @@ func before_each() -> void:
 	_session.add_component(C_CustomerFlow.new())
 	_session.add_component(C_Wallet.new())
 	_flow = _session.get_component(C_CustomerFlow) as C_CustomerFlow
-	_flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	_flow.schedule = (
+		load("res://content/domains/customers/definitions/def_customer_schedule_default.tres")
+		as DEF_CustomerSchedule
+	)
 	_phase_system = S_DayPhase.new()
 	_world.add_system(_phase_system)
 
@@ -104,7 +108,7 @@ func test_partial_supply_and_loaded_box_share_ui_and_execution_blockers() -> voi
 	var debug_result: DebugServiceResult = DebugWorldService.day_next()
 	assert_false(debug_result.success)
 	assert_eq(debug_result.details, status.reasons)
-	_zone._process(1.0)
+	_zone.call("_process", 1.0)
 	var sign: Label3D = _zone.get_node("Sign") as Label3D
 	assert_true(sign.text.contains("Выгрузите коробки из машины: 1"))
 
@@ -132,11 +136,17 @@ func test_partial_exit_and_rotated_cargo_use_full_body_bounds() -> void:
 	var local_bounds: AABB = solver.bounds_at(Transform3D.IDENTITY)
 	var partial_exit: Vector3 = Vector3(volume.end.x + local_bounds.size.x * 0.25, 0.0, 0.0)
 	body.global_transform = cargo_shape.global_transform * Transform3D(Basis.IDENTITY, partial_exit)
-	assert_gt(partial_exit.x, volume.end.x, "The body origin is already outside the authored cargo volume")
+	assert_gt(
+		partial_exit.x,
+		volume.end.x,
+		"The body origin is already outside the authored cargo volume",
+	)
 	assert_eq(ReceivingShiftService.status(_cycle).inside, 1)
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.START_SHIFT))
 
-	var complete_exit: Vector3 = Vector3(volume.end.x - local_bounds.position.x + truck.placement.clearance, 0.0, 0.0)
+	var complete_exit: Vector3 = (
+		Vector3(volume.end.x - local_bounds.position.x + truck.placement.clearance, 0.0, 0.0)
+	)
 	body.global_position = cargo_shape.global_transform * complete_exit
 	assert_eq(ReceivingShiftService.status(_cycle).inside, 0)
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.START_SHIFT))
@@ -224,13 +234,14 @@ func test_command_buffer_revalidates_player_before_commit() -> void:
 ## Обратный груз обрабатывается один раз вне итерации и до перехода в DAY; ID фиксации сохраняется.
 func test_cargo_hook_precedes_phase_change_and_is_idempotent() -> void:
 	var truck: E_MorningTruck = await _complete_and_unload()
-	var observations: Dictionary[String, int] = {"calls": 0, "phase": -1}
+	var observations: Dictionary[String, int] = { "calls": 0, "phase": -1 }
 	var extra: Entity = Entity.new()
 	_world.add_entity(extra)
-	_zone.cargo_commit_requested.connect(func(_truck_instance: E_MorningTruck, _batch_id: String) -> void:
-		observations["calls"] += 1
-		observations["phase"] = _cycle.phase
-		_world.remove_entity(extra)
+	_zone.cargo_commit_requested.connect(
+		func(_truck_instance: E_MorningTruck, _batch_id: String) -> void:
+			observations["calls"] += 1
+			observations["phase"] = _cycle.phase
+			_world.remove_entity(extra),
 	)
 	assert_true(DayPhaseService.submit(_request()))
 	_execute_transition()
@@ -242,7 +253,12 @@ func test_cargo_hook_precedes_phase_change_and_is_idempotent() -> void:
 	assert_eq(_state.dispatched_batch_id, _state.batch_id)
 
 	var copied: C_Receiving = C_Receiving.new()
-	assert_true(SaveDataCodec.apply_fields(copied, SaveDataCodec.component_data(_state).fields as Dictionary))
+	assert_true(
+		SaveDataCodec.apply_fields(
+			copied,
+			SaveDataCodec.component_data(_state).fields as Dictionary,
+		)
+	)
 	assert_eq(copied.dispatched_batch_id, _state.batch_id)
 	assert_false(ReceivingShiftService.commit_departure(_cycle))
 	assert_eq(observations["calls"], 1)
@@ -254,20 +270,20 @@ func test_player_entering_during_close_reopens_door_without_blocking_day() -> vo
 	assert_true(DayPhaseService.submit(_request()))
 	_execute_transition()
 	truck.set_physics_process(false)
-	truck._physics_process(0.1)
+	truck.call("_physics_process", 0.1)
 	assert_eq(truck.door_animation.current_animation, "door_close")
 	_enter_truck(truck)
-	truck._physics_process(0.1)
+	truck.call("_physics_process", 0.1)
 	assert_lt((truck.get_node("Door") as Node3D).scale.y, 0.2)
 	assert_true((truck.get_node("CollisionShapeDoor") as CollisionShape3D).disabled)
-	truck._physics_process(truck.departure_timeout_seconds + 1.0)
+	truck.call("_physics_process", truck.departure_timeout_seconds + 1.0)
 	assert_false(truck.is_queued_for_deletion())
 	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY)
 
 	_player_body.global_position.x += 5
-	truck._physics_process(0.1)
+	truck.call("_physics_process", 0.1)
 	truck.door_animation.advance(1.0)
-	truck._physics_process(0.1)
+	truck.call("_physics_process", 0.1)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert_false(is_instance_valid(truck))
@@ -281,9 +297,9 @@ func test_animation_failure_has_bounded_departure() -> void:
 	_execute_transition()
 	truck.set_physics_process(false)
 	truck.door_animation.speed_scale = 0.0
-	truck._physics_process(0.1)
+	truck.call("_physics_process", 0.1)
 	assert_false(truck.is_queued_for_deletion())
-	truck._physics_process(truck.departure_timeout_seconds)
+	truck.call("_physics_process", truck.departure_timeout_seconds)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert_false(is_instance_valid(truck))

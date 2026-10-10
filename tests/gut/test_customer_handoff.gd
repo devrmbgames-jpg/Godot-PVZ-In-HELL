@@ -13,7 +13,8 @@ var _parcel: E_Package
 #region Физическое тестовое окружение
 ## Создаёт физического игрока, клиента и зарегистрированную коробку в его руках.
 func before_each() -> void:
-	if bool(Console.is_visible()): Console.toggle_console()
+	if bool(Console.is_visible()):
+		Console.toggle_console()
 	_world = World.new()
 	add_child(_world)
 	ECS.world = _world
@@ -40,27 +41,48 @@ func before_each() -> void:
 	body.add_child(anchor)
 	_actor.head_axis_x = anchor
 	_actor.hold_anchor = anchor
-	_actor.component_resources = [C_PlayerInputController.new(), C_Controller.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new(), C_Motion.new(), C_Health.new()]
+	_actor.component_resources = ([
+		C_PlayerInputController.new(),
+		C_Controller.new(),
+		C_GrabControl.new(),
+		C_CarryLoad.new(),
+		C_Strength.new(),
+		C_Motion.new(),
+		C_Health.new(),
+	])
 	_world.add_entity(_actor)
 	(_actor.get_component(C_Health) as C_Health).current = 10.0
-	_customer = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	_customer = (
+		(
+			load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+		).instantiate()
+		as E_NpcCharacter
+	)
 	(_customer as Node as RigidBody3D).freeze = true
 	(_customer as Node as Node3D).position = Vector3(0, 0, -1)
 	EntityCompositionFixture.register_visit(_world, _customer, _visit)
 	_agent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	_parcel = (load("res://content/domains/packages/entities/package_a.tscn") as PackedScene).instantiate() as E_Package
+	_parcel = (
+		(
+			load("res://content/domains/packages/entities/package_a.tscn") as PackedScene
+		).instantiate()
+		as E_Package
+	)
 	(_parcel as Node as RigidBody3D).gravity_scale = 0.0
 	EntityCompositionFixture.register(_world, _parcel)
 	(_parcel.get_component(C_Package) as C_Package).package_id = _visit.package_id
-	(_parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.REGISTERED
+	(_parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState \
+			.Registration \
+			.REGISTERED
 	CustomerParcelAssignment.bind_parcel(_customer, _visit)
 	_parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
 
 
 ## Удаляет World и даёт отложенным удалениям завершиться перед следующим тестом.
 func after_each() -> void:
-	if bool(Console.is_visible()): Console.toggle_console()
+	if bool(Console.is_visible()):
+		Console.toggle_console()
 	_world.purge(false)
 	_world.free()
 	ECS.world = null
@@ -71,8 +93,8 @@ func _expect_held() -> void:
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(GrabQueries.held_object(_actor), _parcel)
 
-
 #endregion
+
 
 #region Автоприём и ограничения
 ## Автоприём забирает правильную коробку один раз, не открывая диалог и не подменяя учёт.
@@ -86,7 +108,11 @@ func test_waiting_customer_takes_correct_carry_once_without_button_or_greeting_d
 	assert_false(EntityAvailability.contains(_parcel, _world))
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	assert_false(_agent.dialogue_started)
-	assert_eq(_visit.declaration, CustomerVisit.Declaration.NONE, "Actual delivery does not replace terminal accounting")
+	assert_eq(
+		_visit.declaration,
+		CustomerVisit.Declaration.NONE,
+		"Actual delivery does not replace terminal accounting",
+	)
 
 
 ## Неподходящая коробка остаётся в руках; повторные попытки не засоряют реплики отказами.
@@ -110,7 +136,8 @@ func test_wrong_unregistered_destroyed_and_unassigned_orders_stay_held_silently(
 	_expect_held()
 	state.damage = C_PackageState.Damage.UNDAMAGED
 	for binding: Relationship in _parcel.relationships.duplicate():
-		if binding.relation is R_AssignedTo: _parcel.remove_relationship(binding)
+		if binding.relation is R_AssignedTo:
+			_parcel.remove_relationship(binding)
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	assert_eq(message.text, original_text, "Automatic retries must not spam rejection bubbles")
@@ -145,7 +172,11 @@ func test_profile_distance_and_wall_reject_then_clear_path_allows_receive() -> v
 ## Занятый ввод, диалог, уход, агрессия и поражение участника блокируют автоприём.
 func test_busy_controls_dialogue_departure_and_defeated_participants_reject() -> void:
 	await get_tree().physics_frame
-	for priority: InteractionControlFocus.Priority in [InteractionControlFocus.Priority.PUSH, InteractionControlFocus.Priority.PROLONGED, InteractionControlFocus.Priority.MODAL]:
+	for priority: InteractionControlFocus.Priority in ([
+		InteractionControlFocus.Priority.PUSH,
+		InteractionControlFocus.Priority.PROLONGED,
+		InteractionControlFocus.Priority.MODAL,
+	]):
 		var token: int = InteractionControlFocus.acquire(_actor, self, priority)
 		assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 		_expect_held()
@@ -154,7 +185,11 @@ func test_busy_controls_dialogue_departure_and_defeated_participants_reject() ->
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	Console.toggle_console()
-	for phase: C_CustomerAgent.Phase in [C_CustomerAgent.Phase.DIALOGUE, C_CustomerAgent.Phase.LEAVING, C_CustomerAgent.Phase.AGGRESSIVE]:
+	for phase: C_CustomerAgent.Phase in ([
+		C_CustomerAgent.Phase.DIALOGUE,
+		C_CustomerAgent.Phase.LEAVING,
+		C_CustomerAgent.Phase.AGGRESSIVE,
+	]):
 		_agent.phase = phase
 		assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 		_expect_held()
@@ -171,8 +206,8 @@ func test_busy_controls_dialogue_departure_and_defeated_participants_reject() ->
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 
-
 #endregion
+
 
 #region Ручной режим и осмотр
 ## Отключённый автоприём сохраняет ручную выдачу и авторскую политику отказа.
@@ -182,7 +217,10 @@ func test_disabled_automatic_mode_keeps_manual_handoff_and_refusal_policy() -> v
 	await get_tree().physics_frame
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_actor, _customer), PackageDeliveryCheck.Result.READY)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_actor, _customer),
+		PackageDeliveryCheck.Result.READY,
+	)
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 	assert_null(GrabQueries.held_object(_actor))
 	assert_true(EntityAvailability.contains(_parcel, _world))
@@ -191,7 +229,12 @@ func test_disabled_automatic_mode_keeps_manual_handoff_and_refusal_policy() -> v
 ## Осмотр временно забирает коробку в физический слот, сохраняя незавершённый исход.
 func test_automatic_receive_borrows_to_booth_without_finishing_delivery() -> void:
 	_visit.definition.private_inspection = true
-	var booth: Entity = (load("res://content/domains/customers/entities/inspection_booth.tscn") as PackedScene).instantiate() as Entity
+	var booth: Entity = (
+		(
+			load("res://content/domains/customers/entities/inspection_booth.tscn") as PackedScene
+		).instantiate()
+		as Entity
+	)
 	(booth as Node as Node3D).position.x = 4.0
 	_world.add_entity(booth)
 	await get_tree().physics_frame

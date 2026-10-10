@@ -4,7 +4,8 @@ class_name DebugTargetResolver
 
 
 #region Публичный синтаксис цели
-## Разбирает self/target/#номер/pkg:/visit:/entity: либо raw package_id; отказ возвращает INVALID с error.
+## Разбирает self/target/#номер/pkg:/visit:/entity: либо raw package_id; отказ возвращает INVALID с
+## error.
 static func resolve(raw_target: String) -> DebugTarget:
 	var result: DebugTarget = DebugTarget.new()
 	result.query = raw_target.strip_edges()
@@ -38,8 +39,8 @@ static func player() -> Entity:
 		return null
 	return ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 
-
 #endregion
+
 
 #region Игрок и наведение
 static func _resolve_self(result: DebugTarget) -> DebugTarget:
@@ -79,8 +80,8 @@ static func _resolve_interaction_target(result: DebugTarget) -> DebugTarget:
 		result.visit = _visit_for_package(identity.package_id)
 	return result
 
-
 #endregion
+
 
 #region Записи и стабильные ID
 static func _resolve_registration_number(result: DebugTarget) -> DebugTarget:
@@ -170,8 +171,8 @@ static func _resolve_entity_id(result: DebugTarget, entity_id: String) -> DebugT
 	result.error = "live entity was not found: %s" % normalized
 	return result
 
-
 #endregion
+
 
 #region Связанные данные заказа
 static func _package_entity(package_id: String) -> Entity:

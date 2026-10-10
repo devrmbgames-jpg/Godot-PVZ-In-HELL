@@ -329,9 +329,10 @@ func test_placed_district_roster_and_merchant_identity_precede_native_publicatio
 	district.definition = load(definition_path) as DEF_District
 	var session: PassiveActor = _actor("Session", [district, C_DayCycle.new()])
 	var authoring: E_TraitedEntity = session as E_TraitedEntity
-	authoring.traits = (load(
-		"res://content/domains/npc/definitions/def_entity_district_session.tres"
-	) as DEF_EntityTemplate).traits
+	authoring.traits = (
+		load("res://content/domains/npc/definitions/def_entity_district_session.tres")
+		as DEF_EntityTemplate
+	).traits
 	var npc_path: String = "res://content/domains/npc/entities/district_npc.tscn"
 	var prefab: PackedScene = load(npc_path) as PackedScene
 	var merchant: E_DistrictNpc = prefab.instantiate() as E_DistrictNpc

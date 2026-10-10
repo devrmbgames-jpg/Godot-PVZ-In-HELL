@@ -3,7 +3,11 @@ extends RefCounted
 class_name PackageOpenResult
 
 const EVENT: StringName = &"package_open_resolved"
-enum Status { PENDING, COMMITTED, REJECTED }
+enum Status {
+	PENDING,
+	COMMITTED,
+	REJECTED,
+}
 
 ## Current command status, never inferred from the fact that it was queued.
 var status: Status = Status.REJECTED

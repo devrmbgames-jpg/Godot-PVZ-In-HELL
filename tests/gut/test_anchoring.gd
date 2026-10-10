@@ -144,14 +144,17 @@ func _hold_hammer() -> void:
 func _stabilize(seconds: float = 0.5) -> void:
 	InteractionPhysicsFixture.anchor(_target, seconds)
 
-
 #endregion
+
 
 #region Инструмент и обратимая фиксация
 ## Авторский молоток проигрывает крепление без боевого урона; бросок сразу отменяет анимацию.
 func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_damage() -> void:
 	GrabReleaseService.release(_actor, _hammer)
-	_hammer = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
+	_hammer = (
+		(load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate()
+		as Entity
+	)
 	_world.add_entity(_hammer)
 	(_hammer as Node as RigidBody3D).gravity_scale = 0.0
 	(_hammer as Node as Node3D).global_position = _actor.right_hand_slot.global_position
@@ -163,7 +166,9 @@ func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_d
 	_hold_hammer()
 	_stabilize()
 
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.PRIMARY)
+	var choice: InteractionActionChoice = (
+		InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.PRIMARY)
+	)
 	assert_not_null(choice)
 	if choice != null:
 		assert_true(choice.action is DEF_AnchorAction)
@@ -185,7 +190,12 @@ func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_d
 	assert_eq(head.position, Vector3(0.0, 0.18, 0.0), "Drop cancels tool presentation immediately")
 
 
-func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delta: float = 0.0) -> void:
+func _drive_input(
+	primary_pressed: bool,
+	use_pressed: bool,
+	use_held: bool,
+	delta: float = 0.0,
+) -> void:
 	_controller.action_main_pressed = primary_pressed
 	_controller.action_main = primary_pressed
 	_controller.use_pressed = use_pressed
@@ -258,7 +268,9 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 	_drive_input(false, true, true)
 	assert_not_null(ProlongedInteractionService.session(_actor))
 
-	var half_duration: float = ProlongedInteractionService.active_progress(_actor).timing.duration_seconds * 0.5
+	var half_duration: float = (
+		ProlongedInteractionService.active_progress(_actor).timing.duration_seconds * 0.5
+	)
 	_drive_input(false, false, true, half_duration)
 	assert_true(AnchoringService.is_player_anchored(_target))
 	_drive_input(false, false, true, half_duration)

@@ -33,7 +33,16 @@ const SOUND_GAIN: float = 0.2
 const WARNING_TINT_ALPHA: float = 0.08
 const LABEL_HEIGHT: float = 0.35
 const LABEL_RISE_SPEED: float = 0.18
-const WARNING_NAMES: Array[String] = ["Ранение", "Ближняя атака", "Удар", "Взрыв", "Токсичная зона", "Протечка", "Попадание", "Огненная аура"]
+const WARNING_NAMES: Array[String] = [
+	"Ранение",
+	"Ближняя атака",
+	"Удар",
+	"Взрыв",
+	"Токсичная зона",
+	"Протечка",
+	"Попадание",
+	"Огненная аура",
+]
 
 var _remaining: float = 0.0
 var _labels: Array[Label3D] = []
@@ -87,8 +96,8 @@ func _process(delta: float) -> void:
 		if not reduced_motion:
 			_labels[index].position.y += delta * LABEL_RISE_SPEED
 
-
 #endregion
+
 
 #region Представление результата
 func _on_feedback(feedback: DamageFeedback) -> void:
@@ -105,7 +114,13 @@ func _on_feedback(feedback: DamageFeedback) -> void:
 		_warning.modulate = tint
 		_tint.color = tint
 		if sound_enabled:
-			var tone: int = 1 if feedback.damage_type == DamageRequest.Type.TOXIC else 2 if feedback.damage_type == DamageRequest.Type.EXPLOSION else 0
+			var tone: int = (
+				1
+				if feedback.damage_type == DamageRequest.Type.TOXIC
+				else 2
+				if feedback.damage_type == DamageRequest.Type.EXPLOSION
+				else 0
+			)
 			_sound.stream = _tones[tone]
 			_sound.play()
 		return
@@ -119,7 +134,13 @@ func _on_feedback(feedback: DamageFeedback) -> void:
 
 	var label: Label3D = Label3D.new()
 	label.name = "WorldDamageLabel"
-	label.text = "%s −%.0f" % ["Посылка" if feedback.audience == DamageFeedback.Audience.PACKAGE else "", feedback.amount]
+	label.text = (
+		"%s −%.0f"
+		% [
+			"Посылка" if feedback.audience == DamageFeedback.Audience.PACKAGE else "",
+			feedback.amount,
+		]
+	)
 	label.font_size = 40
 	label.pixel_size = 0.003
 	label.outline_size = 6
@@ -130,17 +151,39 @@ func _on_feedback(feedback: DamageFeedback) -> void:
 	_labels.append(label)
 	_label_times.append(world_label_seconds)
 
-
 #endregion
+
 
 #region Диагностика и визуальные ресурсы
 ## Текст фактических настроек и таймеров представления для отладочного HUD.
 func debug_text() -> String:
-	return "FEEDBACK · %s · звук %s\nТаймер предупреждения %.2f / %.2f с\nМетки урона %d / %d · время %.2f с\nДвижение: %s · задача: выйдите из опасной зоны" % ["вкл" if enabled else "выкл", "вкл" if sound_enabled else "выкл", _remaining, player_warning_seconds, _labels.size(), maximum_world_labels, world_label_seconds, "снижено" if reduced_motion else "обычное"]
+	return (
+		(
+			"FEEDBACK · %s · звук %s\nТаймер предупреждения %.2f / %.2f "
+			+ "с\nМетки урона %d / %d · время %.2f с\nДвижение: %s · "
+			+ "задача: выйдите из опасной зоны"
+		)
+		% [
+			"вкл" if enabled else "выкл",
+			"вкл" if sound_enabled else "выкл",
+			_remaining,
+			player_warning_seconds,
+			_labels.size(),
+			maximum_world_labels,
+			world_label_seconds,
+			"снижено" if reduced_motion else "обычное",
+		]
+	)
 
 
 func _color(kind: DamageRequest.Type) -> Color:
-	return toxic_color if kind == DamageRequest.Type.TOXIC else explosion_color if kind == DamageRequest.Type.EXPLOSION else fire_color if kind == DamageRequest.Type.FIRE else damage_color
+	return (
+		toxic_color
+		if kind == DamageRequest.Type.TOXIC
+		else explosion_color
+		if kind == DamageRequest.Type.EXPLOSION
+		else fire_color if kind == DamageRequest.Type.FIRE else damage_color
+	)
 
 
 func _clear_warning() -> void:

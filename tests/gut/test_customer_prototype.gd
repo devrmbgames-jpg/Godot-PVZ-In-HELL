@@ -22,11 +22,19 @@ func before_each() -> void:
 	flow.schedule.customer_scene = null
 	_visit = CustomerVisit.new()
 	_visit.visit_id = &"prototype"
-	_visit.definition = load("res://content/domains/customers/definitions/def_customer_prototype.tres") as DEF_Customer
+	_visit.definition = (
+		load("res://content/domains/customers/definitions/def_customer_prototype.tres")
+		as DEF_Customer
+	)
 	_visit.requires_registered_package = false
 	flow.visits.append(_visit)
 
-	var counter: E_DeliveryCounter = (load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
+	var counter: E_DeliveryCounter = (
+		(
+			load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
+		).instantiate()
+		as E_DeliveryCounter
+	)
 	_world.add_entity(counter)
 	CustomerFlowService.start_visit(flow, _visit, 1)
 	_customer = CustomerFlowQueries.customer_for(_visit.visit_id) as E_Customer
@@ -46,8 +54,8 @@ func after_each() -> void:
 	ECS.world = null
 	await get_tree().process_frame
 
-
 #endregion
+
 
 #region Авторские сцена, диалог и анимация
 ## Профиль выбирает prefab и диалог интересов; закрытие возвращает ввод игроку.
@@ -61,16 +69,19 @@ func test_profile_selects_copyable_scene_and_custom_dialogue_with_interests() ->
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	assert_true(CustomerDialogueService.request_open(_actor, _customer))
 
-	var panel: CustomerDialoguePanel = get_tree().get_first_node_in_group(CustomerDialogueService.ACTIVE_GROUP) as CustomerDialoguePanel
+	var panel: CustomerDialoguePanel = (
+		get_tree().get_first_node_in_group(CustomerDialogueService.ACTIVE_GROUP)
+		as CustomerDialoguePanel
+	)
 	assert_not_null(panel)
-	assert_eq(panel._resource.resource_path, _visit.definition.dialogue_resource_path)
+	assert_eq(panel.get("_resource").resource_path, _visit.definition.dialogue_resource_path)
 	for frame: int in 8:
-		if panel._line != null:
+		if panel.get("_line") != null:
 			break
 
 		await get_tree().process_frame
-	assert_not_null(panel._line)
-	assert_true(panel._text.text.contains("Рабочая одежда"))
+	assert_not_null(panel.get("_line"))
+	assert_true(panel.get("_text").text.contains("Рабочая одежда"))
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.MODAL)
 	panel.close_dialogue()
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.HANDS)
@@ -90,14 +101,14 @@ func test_authored_stationary_pose_preserves_walk_and_combat_animation_priority(
 
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.INSPECTING
-	_customer._process(0.0)
+	_customer.call("_process", 0.0)
 	assert_eq(player.current_animation, "Inspect")
 	(_customer as Node as RigidBody3D).linear_velocity = Vector3.FORWARD
-	_customer._process(0.0)
+	_customer.call("_process", 0.0)
 	assert_eq(player.current_animation, "Walk")
 	(_customer as Node as RigidBody3D).linear_velocity = Vector3.ZERO
 	_customer.inspection_animation = &"UnassignedClip"
-	_customer._process(0.0)
+	_customer.call("_process", 0.0)
 	assert_eq(player.current_animation, "Idle", "Missing authored clip safely uses Idle")
 
 	var combat: C_NpcCombat = _customer.get_component(C_NpcCombat) as C_NpcCombat
@@ -105,7 +116,11 @@ func test_authored_stationary_pose_preserves_walk_and_combat_animation_priority(
 	combat.phase = C_NpcCombat.Phase.WINDUP
 	player.play(&"Inspect")
 	agent.phase = C_CustomerAgent.Phase.WAITING
-	_customer._process(0.0)
-	assert_eq(player.current_animation, "Inspect", "Service pose must not override combat's active method-track animation")
+	_customer.call("_process", 0.0)
+	assert_eq(
+		player.current_animation,
+		"Inspect",
+		"Service pose must not override combat's active method-track animation",
+	)
 
 #endregion

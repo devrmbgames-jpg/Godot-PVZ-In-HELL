@@ -32,8 +32,8 @@ func _process(_delta: float) -> void:
 		_restore()
 	_applied = sees_food
 
-
 #endregion
+
 
 #region Восстановление видимости
 func _exit_tree() -> void:

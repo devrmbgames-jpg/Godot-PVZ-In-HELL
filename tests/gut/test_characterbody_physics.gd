@@ -62,8 +62,8 @@ func _collider(shape: Shape3D) -> CollisionShape3D:
 	collision.shape = shape
 	return collision
 
-
 #endregion
+
 
 #region Контакты, урон и опора
 ## Падение даёт ограниченный урон и отскок; повторный удар разрешается только после разделения.
@@ -80,10 +80,20 @@ func test_big_fall_damages_and_bounces_then_rearms_after_separation() -> void:
 				break
 
 		assert_true(bounced, "Fall %d causes real damage and upward rebound" % fall)
-		assert_almost_eq(_health.current, previous_hp - 25.0, 0.01, "Living impact cap still applies")
+		assert_almost_eq(
+			_health.current,
+			previous_hp - 25.0,
+			0.01,
+			"Living impact cap still applies",
+		)
 		for frame: int in 65:
 			await _tick()
-		assert_almost_eq(_health.current, previous_hp - 25.0, 0.01, "Resting floor contact does not repeatedly damage")
+		assert_almost_eq(
+			_health.current,
+			previous_hp - 25.0,
+			0.01,
+			"Resting floor contact does not repeatedly damage",
+		)
 
 
 ## Луч опоры сообщает небольшой ограниченный горизонтальный импульс реальному RigidBody.
@@ -110,7 +120,11 @@ func test_ground_ray_gently_pushes_real_rigid_support() -> void:
 	control.direction_motion = Vector3.RIGHT
 	for frame: int in 8:
 		await _tick()
-	assert_gt(support.linear_velocity.x, 0.001, "Support receives a small horizontal impulse through Ground")
+	assert_gt(
+		support.linear_velocity.x,
+		0.001,
+		"Support receives a small horizontal impulse through Ground",
+	)
 	assert_lt(support.linear_velocity.x, 1.0, "Walking support response stays bounded")
 	assert_eq(_health.current, 100.0)
 
@@ -150,11 +164,21 @@ func test_fast_rigid_hit_damages_and_knocks_back_native_player() -> void:
 			knocked = true
 			break
 
-	assert_true(knocked, "Real rigid hit: HP=%s speed=%s impulse=%s player_vz=%s rigid_z=%s" % [_health.current, highest_speed, highest_impulse, player_speed, projectile.global_position.z])
+	assert_true(
+		knocked,
+		"Real rigid hit: HP=%s speed=%s impulse=%s player_vz=%s rigid_z=%s"
+		% [
+			_health.current,
+			highest_speed,
+			highest_impulse,
+			player_speed,
+			projectile.global_position.z,
+		],
+	)
 	assert_gte(_health.current, 75.0, "One physical hit respects living damage cap")
 
-
 #endregion
+
 
 #region Приседание и ходьба
 ## Приседание переключает реальные collision shapes и общую высоту камеры.
@@ -194,7 +218,9 @@ func test_walking_pushes_small_box_without_lifting_player() -> void:
 
 
 ## Тяжёлая либо зафиксированная коробка сохраняет сопротивление ходьбе.
-func test_walking_does_not_push_heavy_or_frozen_box(frozen: bool = use_parameters([false, true])) -> void:
+func test_walking_does_not_push_heavy_or_frozen_box(
+	frozen: bool = use_parameters([false, true])
+) -> void:
 	var box: RigidBody3D = _walk_obstacle(5.0 if frozen else 80.0, frozen)
 	(_player.get_component(C_Controller) as C_Controller).direction_motion = Vector3.FORWARD
 	for frame: int in 45:
@@ -216,13 +242,15 @@ func _walk_obstacle(mass_kg: float, frozen: bool) -> RigidBody3D:
 	_world.add_child(box)
 	return box
 
-
 #endregion
+
 
 #region Тележка и восстановление
 ## Игрок следует за тележкой через малую ступень; уход из допуска освобождает сессию.
 func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
-	var packed: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
+	var packed: PackedScene = (
+		load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
+	)
 	var cart: Entity = packed.instantiate() as Entity
 	_world.add_entity(cart)
 	var cart_body: CharacterBody3D = cart as Node as CharacterBody3D
@@ -232,10 +260,25 @@ func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 		await _tick()
 
 	var control: C_Controller = _player.get_component(C_Controller) as C_Controller
-	control.direction_look = (cart_body.global_position + Vector3.UP * 0.24 + Vector3.BACK * 0.79 - _player.interaction_ray_cast.global_position).normalized()
+	control.direction_look = (
+		(
+			cart_body.global_position + Vector3.UP * 0.24 + Vector3.BACK * 0.79
+			- _player.interaction_ray_cast.global_position
+		).normalized()
+	)
 	for frame: int in 2:
 		await _tick()
-	assert_true(CartTransportService.can_begin(_player, cart), "Cart start actor=%s cart=%s reach=%s available=%s focus=%s" % [_body.global_position, cart_body.global_position, GrabReachQueries.within_pickup_reach(_player, cart), GrabQueries.holder_available(_player), InteractionControlFocus.current(_player)])
+	assert_true(
+		CartTransportService.can_begin(_player, cart),
+		"Cart start actor=%s cart=%s reach=%s available=%s focus=%s"
+		% [
+			_body.global_position,
+			cart_body.global_position,
+			GrabReachQueries.within_pickup_reach(_player, cart),
+			GrabQueries.holder_available(_player),
+			InteractionControlFocus.current(_player),
+		],
+	)
 	CartTransportService.begin(_player, cart)
 	assert_eq(CartTransportService.current(_player), cart)
 	control.move_axis = Vector2(0.0, -1.0)
@@ -254,12 +297,19 @@ func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 	step.global_position = Vector3(0.0, 0.075, -7.0)
 	for frame: int in 180:
 		await _tick()
-	assert_eq(CartTransportService.current(_player), cart, "Driver keeps session through the authored small step")
+	assert_eq(
+		CartTransportService.current(_player),
+		cart,
+		"Driver keeps session through the authored small step",
+	)
 	assert_lt(_body.global_position.z, -5.0, "Cart and player both traverse the step")
 	assert_gt(_body.global_position.y, 0.12, "Driver stands on the raised support")
 	_body.global_position.x += config.focus_distance + 1.0
 	await _tick()
-	assert_null(CartTransportService.current(_player), "Invalid session releases its relationship and focus")
+	assert_null(
+		CartTransportService.current(_player),
+		"Invalid session releases its relationship and focus",
+	)
 
 
 ## Current-format authored CharacterBody restore clears accumulated velocities and impulses.
@@ -281,7 +331,10 @@ func test_current_format_authored_characterbody_restore_clears_motion() -> void:
 	config.pending_rebound_velocity = Vector3.UP * 4.0
 	var motion: C_Motion = _player.get_component(C_Motion) as C_Motion
 	motion.pending_impulse = Vector3.UP * 350.0
-	assert_true(WorldSnapshotService.restore(snapshot, _world), "Old scene path binds to the existing authored player")
+	assert_true(
+		WorldSnapshotService.restore(snapshot, _world),
+		"Old scene path binds to the existing authored player",
+	)
 	assert_eq(_body.global_transform, saved_pose)
 	assert_eq(_body.velocity, Vector3.ZERO)
 	assert_eq(config.impulse_velocity, Vector3.ZERO)

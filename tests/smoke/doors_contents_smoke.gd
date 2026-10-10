@@ -37,26 +37,37 @@ func _run() -> void:
 	var before_count: int = ECS.world.query.with_all([C_InventoryItem]).execute().size()
 	for parcel_name: String in ["UnpackSmallShelf", "UnpackMedkits", "UnpackBread"]:
 		var parcel: E_Package = _level.get_node("Entityes/Props/" + parcel_name) as E_Package
-		(actor as Node as Node3D).global_position = (parcel as Node as Node3D).global_position + Vector3(0, 0, 1.8)
+		var parcel_position: Vector3 = (parcel as Node as Node3D).global_position
+		(actor as Node as Node3D).global_position = parcel_position + Vector3(0, 0, 1.8)
 		var ray: RayCast3D = actor.interaction_ray_cast
 		ray.look_at((parcel as Node as Node3D).global_position)
 		(actor.get_component(C_Interactor) as C_Interactor).target = parcel
 		await get_tree().physics_frame
-		assert(PackageOpening.request_open(actor, parcel).status == PackageOpenResult.Status.COMMITTED)
+		assert(
+			PackageOpening.request_open(actor, parcel).status == PackageOpenResult.Status.COMMITTED
+		)
 		assert((parcel.get_component(C_PackageContents) as C_PackageContents).released)
-		assert(PackageOpening.request_open(actor, parcel).status == PackageOpenResult.Status.REJECTED)
+		assert(
+			PackageOpening.request_open(actor, parcel).status == PackageOpenResult.Status.REJECTED
+		)
 	assert(ECS.world.query.with_all([C_InventoryItem]).execute().size() == before_count + 10)
 
 	var shelf: Entity = null
 	for candidate: Entity in ECS.world.query.with_all([C_Anchorable]).execute():
-		if candidate.scene_file_path == "res://content/domains/interaction/entities/small_shelf.tscn":
+		if (
+			candidate.scene_file_path
+			== "res://content/domains/interaction/entities/small_shelf.tscn"
+		):
 			shelf = candidate
 	assert(shelf != null)
 	var body: RigidBody3D = shelf as Node as RigidBody3D
 	for frame: int in SETTLE_FRAMES:
 		ECS.world.process(FRAME_DELTA, "Interaction")
 		await get_tree().physics_frame
-	assert(body.global_position.y > 1.4 and body.global_position.y < 1.7, "Unpacked shelf rests on the actual map floor")
+	assert(
+		body.global_position.y > 1.4 and body.global_position.y < 1.7,
+		"Unpacked shelf rests on the actual map floor",
+	)
 	ECS.world.purge(false)
 	_level.free()
 	ECS.world = null

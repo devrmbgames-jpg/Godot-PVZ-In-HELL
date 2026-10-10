@@ -42,7 +42,9 @@ func _run() -> void:
 	world.add_observer(O_GrabLifecycle.new())
 	world.add_observer(O_CartLifecycle.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(40, 1, 40))
-	var scene: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
+	)
 	var cart_body: CharacterBody3D = scene.instantiate() as CharacterBody3D
 	cart_body.position = Vector3(0, 0.8, 0)
 	_cart = cart_body as Node as Entity
@@ -115,10 +117,7 @@ func _run() -> void:
 	var head_forward: Vector3 = -actor_character.head_axis_y.global_basis.z
 	head_forward.y = 0.0
 	head_forward = head_forward.normalized()
-	assert(
-		head_forward.dot(cart_forward) > 0.98,
-		"Driver camera yaw must follow cart steering",
-	)
+	assert(head_forward.dot(cart_forward) > 0.98, "Driver camera yaw must follow cart steering")
 	assert(
 		_maximum_cargo_drift < 0.12,
 		"Cargo must follow the platform rather than slide off on turns",
@@ -136,7 +135,10 @@ func _run() -> void:
 	var target: Entity = _cargo[1]
 	ray.look_at((target as Node as Node3D).global_position + Vector3.UP * 0.2)
 	assert(GrabService.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
-	assert(CartCargoQueries.relationship(target) == null, "Picking up cargo must release the restraint")
+	assert(
+		CartCargoQueries.relationship(target) == null,
+		"Picking up cargo must release the restraint",
+	)
 	assert(not (target as Node as RigidBody3D).custom_integrator)
 	GrabReleaseService.release(_actor, target)
 
@@ -147,7 +149,10 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	for cargo: Entity in saved_cargo:
-		assert(CartCargoQueries.relationship(cargo) == null, "Disabling transport must restore free cargo")
+		assert(
+			CartCargoQueries.relationship(cargo) == null,
+			"Disabling transport must restore free cargo",
+		)
 		assert(not (cargo as Node as RigidBody3D).custom_integrator)
 
 	set_physics_process(false)
@@ -158,8 +163,8 @@ func _run() -> void:
 	print("Cart transport smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Проверки рельефа
 ## Проверяет подъём, спуск, малые неровности и стену без потери груза или водителя.
@@ -215,14 +220,16 @@ func _terrain_checks(
 	_controller.move_axis = Vector2.ZERO
 	return true
 
-
 #endregion
+
 
 #region Тестовая загрузка и размещение
 func _load_cargo(cart_body: CharacterBody3D) -> bool:
 	_cargo.clear()
 	_maximum_cargo_drift = 0.0
-	var scene: PackedScene = load("res://content/domains/packages/entities/package.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/packages/entities/package.tscn") as PackedScene
+	)
 	var offsets: Array[Vector3] = [
 		Vector3(0, 0.2, -0.85),
 		Vector3(0, 0.2, 0),

@@ -44,7 +44,9 @@ func _run() -> void:
 	assert(stats.visible)
 	assert(not (hud.get_node("Overlay/PlayerDebugPanel") as Control).visible)
 	assert(not (hud.get_node("Overlay/ChallengeDebugPanel") as Control).visible)
-	assert(is_equal_approx((stats.get_node("Stats/HealthBar") as ProgressBar).value, health.current))
+	assert(
+		is_equal_approx((stats.get_node("Stats/HealthBar") as ProgressBar).value, health.current)
+	)
 	assert(is_equal_approx((stats.get_node("Stats/HungerBar") as ProgressBar).value, hunger.value))
 	assert((stats.get_node("Stats/Hunger") as Label).text.contains("Сильный голод"))
 	assert((stats.get_node("Stats/Money") as Label).text.contains("-321"))
@@ -53,10 +55,15 @@ func _run() -> void:
 	for index: int in 4:
 		var label: Label3D = surface.get_node("PackageLabel%d" % index) as Label3D
 		assert(label.visible and label.billboard == BaseMaterial3D.BILLBOARD_DISABLED)
-		assert(label.text.contains("ХРУПКОЕ") and label.text.contains("Повреждена") and label.text.contains("Вскрыта"))
+		assert(
+			label.text.contains("ХРУПКОЕ") and label.text.contains("Повреждена")
+			and label.text.contains("Вскрыта")
+		)
 	for shipment: String in ["equipment", "oil"]:
 		var other: Entity = PackageQueries.find_live_package("base_supply:1:" + shipment)
-		var label: Label3D = (other as E_Package).get_marking_surface().get_node("PackageLabel0") as Label3D
+		var label: Label3D = (
+			(other as E_Package).get_marking_surface().get_node("PackageLabel0") as Label3D
+		)
 		assert(label.text.contains("ТЯЖЁЛОЕ" if shipment == "equipment" else "ЖИДКОСТЬ"))
 	await _check_damage(player, hud, parcel)
 	await _check_locked_prompt(level, player)
@@ -81,18 +88,29 @@ func _run() -> void:
 	assert(not stats.visible)
 	assert(is_equal_approx(health.current, hp) and is_equal_approx(hunger.value, hunger_value))
 	level.free()
-	print("PASS: player feedback: debug-disabled status/world tags, distinct damage/toxic/explosion results, bounded popup/sound/cleanup, real locked-door/key prompt, scanner confirmation/rejection, disabled UI leaves gameplay unchanged")
+	print(
+		(
+			"PASS: player feedback: debug-disabled status/world tags, "
+			+ "distinct damage/toxic/explosion results, bounded popup/sound/"
+			+ "cleanup, real locked-door/key prompt, scanner confirmation/"
+			+ "rejection, disabled UI leaves gameplay unchanged"
+		)
+	)
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Урон и доступ к двери
 func _check_damage(player: Entity, hud: CanvasLayer, parcel: Entity) -> void:
 	var view: DamageFeedbackView = hud.get_node("DamageFeedback") as DamageFeedbackView
 	var warning: Label = view.get_node("Warning") as Label
 	var player_hp: C_Health = player.get_component(C_Health) as C_Health
-	for kind: DamageRequest.Type in [DamageRequest.Type.MELEE, DamageRequest.Type.TOXIC, DamageRequest.Type.EXPLOSION]:
+	for kind: DamageRequest.Type in ([
+		DamageRequest.Type.MELEE,
+		DamageRequest.Type.TOXIC,
+		DamageRequest.Type.EXPLOSION,
+	]):
 		var before: float = player_hp.current
 		var request: DamageRequest = DamageRequest.new()
 		request.target = player
@@ -103,7 +121,19 @@ func _check_damage(player: Entity, hud: CanvasLayer, parcel: Entity) -> void:
 		await get_tree().process_frame
 		assert(is_equal_approx(player_hp.current, before - 1.0))
 		assert(warning.visible)
-		assert(warning.text.contains("Ближняя атака" if kind == DamageRequest.Type.MELEE else "Токсичная зона" if kind == DamageRequest.Type.TOXIC else "Взрыв"))
+		assert(
+			warning
+			.text
+			.contains(
+				(
+					"Ближняя атака"
+					if kind == DamageRequest.Type.MELEE
+					else ("Токсичная зона"
+						if kind == DamageRequest.Type.TOXIC
+						else "Взрыв")
+				)
+			)
+		)
 		assert(not (view.get_node("Tint") as ColorRect).visible)
 		assert((view.get_node("Sound") as AudioStreamPlayer).stream != null)
 
@@ -142,9 +172,21 @@ func _check_locked_prompt(level: Node, player: Entity) -> void:
 	var point: Vector3 = (door as Node as Node3D).global_position + Vector3(0.8, 1.4, 0)
 	await _aim(player, point)
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	assert(interactor.target == door, "door target=%s collider=%s point=%s leaf=%s" % [interactor.target, GrabQueries.interaction_raycast(player).get_collider(), point, leaf.global_position])
+	assert(
+		interactor.target == door,
+		"door target=%s collider=%s point=%s leaf=%s"
+		% [
+			interactor.target,
+			GrabQueries.interaction_raycast(player).get_collider(),
+			point,
+			leaf.global_position,
+		],
+	)
 	InteractionActionResolver.refresh_prompt(player)
-	assert(interactor.prompt_text.contains("Заперто") and not interactor.prompt_text.contains("Отпереть"))
+	assert(
+		interactor.prompt_text.contains("Заперто")
+		and not interactor.prompt_text.contains("Отпереть")
+	)
 	assert(state.locked)
 
 	var hammer: Entity = level.get_node("Entityes/Hammer") as Entity
@@ -157,7 +199,10 @@ func _check_locked_prompt(level: Node, player: Entity) -> void:
 	await _aim(player, point)
 	InteractionActionResolver.refresh_prompt(player)
 	assert(interactor.target == door)
-	assert(interactor.prompt_text.contains("Отпереть") and not interactor.prompt_text.contains("Заперто"))
+	assert(
+		interactor.prompt_text.contains("Отпереть")
+		and not interactor.prompt_text.contains("Заперто")
+	)
 	assert(not interactor.prompt_text.contains("Контекст"))
 	assert(state.locked, "Presentation must not unlock the door")
 	GrabReleaseService.release(player, hammer)

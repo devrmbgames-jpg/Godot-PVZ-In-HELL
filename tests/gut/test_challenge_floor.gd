@@ -51,7 +51,13 @@ func before_each() -> void:
 	_motion.floor_body_rid = body.get_rid()
 	_subject = Entity.new()
 	_state = C_Challenge.new()
-	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_floor.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (
+		(
+			load("res://content/domains/challenges/definitions/def_challenge_floor.tres")
+			as DEF_Challenge
+		).duplicate(true)
+		as DEF_Challenge
+	)
 	# Короткие изолированные часы отделяют механику теста от авторского темпа приёмки.
 	_state.definition.timeout_seconds = 15.0
 	_state.definition.preparation_seconds = 3.0
@@ -95,8 +101,8 @@ func _start() -> void:
 	hazard.definition = hazard.definition.duplicate(true) as DEF_FloorHazard
 	(hazard.definition as DEF_FloorHazard).tick_seconds = 0.5
 
-
 #endregion
+
 
 #region Контакт опоры и урон
 ## Условие требует реальный RID опоры, подходящую высоту контакта и авторские границы.
@@ -104,12 +110,18 @@ func test_support_contact_needs_real_support_height_and_authored_bounds() -> voi
 	var profile: DEF_FloorHazard = DEF_FloorHazard.new()
 	assert_true(FloorContactGeometry.touches_surface(_motion, Transform3D.IDENTITY, profile))
 	_motion.floor_contact_position.y = 0.4
-	assert_false(FloorContactGeometry.touches_surface(_motion, Transform3D.IDENTITY, profile), "Box top above the floor must remain safe")
+	assert_false(
+		FloorContactGeometry.touches_surface(_motion, Transform3D.IDENTITY, profile),
+		"Box top above the floor must remain safe",
+	)
 	_motion.floor_contact_position = Vector3(3.0, 0.0, 0.0)
 	assert_false(FloorContactGeometry.touches_surface(_motion, Transform3D.IDENTITY, profile))
 	_motion.floor_contact_position = Vector3.ZERO
 	_motion.is_on_floor = false
-	assert_false(FloorContactGeometry.touches_surface(_motion, Transform3D.IDENTITY, profile), "Airborne projection is not a floor hit")
+	assert_false(
+		FloorContactGeometry.touches_surface(_motion, Transform3D.IDENTITY, profile),
+		"Airborne projection is not a floor hit",
+	)
 	_motion.is_on_floor = true
 	_motion.floor_body_rid = RID()
 	assert_false(FloorContactGeometry.touches_surface(_motion, Transform3D.IDENTITY, profile))
@@ -158,8 +170,8 @@ func test_returning_to_safe_support_resets_contact_and_damage_interval() -> void
 	assert_eq(_health.current, 100.0)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 
-
 #endregion
+
 
 #region Освобождение эффекта и границы срока
 ## Смерть участника отменяет испытание и удаляет принадлежащую ему опасность.
@@ -233,6 +245,7 @@ func test_duration_end_caps_contact_budget_when_frame_crosses_timeout() -> void:
 
 #endregion
 
+
 #region Deferred activation and factory results
 ## Replaying activation queues no duplicate effect, including before the activation owner flushes.
 func test_manual_activation_replay_creates_one_effect_after_actual_flush() -> void:
@@ -268,7 +281,9 @@ func test_replaced_session_rejects_older_queued_floor_factory_result() -> void:
 	_factory.command_buffer_flush_mode = Observer.FlushMode.MANUAL
 	assert_true(ChallengeService.arm(_subject, _actor))
 	assert_true(ChallengeService.activate(_subject))
-	var previous_request: String = (_subject.get_component(C_FloorChallenge) as C_FloorChallenge).spawn_request_id
+	var previous_request: String = (
+		(_subject.get_component(C_FloorChallenge) as C_FloorChallenge).spawn_request_id
+	)
 	var definition: DEF_Challenge = _state.definition
 	ChallengeService.cancel(_subject)
 	_subject.remove_component(C_Challenge)
@@ -279,7 +294,9 @@ func test_replaced_session_rejects_older_queued_floor_factory_result() -> void:
 	_subject.add_component(C_FloorChallenge.new())
 	assert_true(ChallengeService.arm(_subject, _actor))
 	assert_true(ChallengeService.activate(_subject))
-	var current_request: String = (_subject.get_component(C_FloorChallenge) as C_FloorChallenge).spawn_request_id
+	var current_request: String = (
+		(_subject.get_component(C_FloorChallenge) as C_FloorChallenge).spawn_request_id
+	)
 	assert_ne(current_request, previous_request)
 	_world.flush_command_buffers()
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)

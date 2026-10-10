@@ -33,7 +33,10 @@ func _run() -> void:
 	(actor as Node as RigidBody3D).freeze = true
 	var books: Entity = PackageQueries.find_live_package("base_supply:1:books")
 	var glass: Entity = PackageQueries.find_live_package("base_supply:1:glass")
-	assert(PackageRegistrationService.register_package(books).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(books).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 	_transition(DayTransitionRequest.Kind.START_SHIFT)
 
 	var leaving_customer: E_NpcCharacter = await _wait_for_customer()
@@ -49,7 +52,10 @@ func _run() -> void:
 
 	var leaving_visit: CustomerVisit = CustomerFlowQueries.find_visit(leaving_agent.visit_id)
 	GameTimeFixture.gameplay(ECS.world, leaving_visit.definition.leaving_seconds)
-	assert(PackageRegistrationService.register_package(glass).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(glass).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 	var dead_customer: E_NpcCharacter = await _wait_for_customer()
 	assert(CustomerDialogueService.request_open(actor, dead_customer))
 	await get_tree().process_frame
@@ -63,8 +69,8 @@ func _run() -> void:
 	print("R12 customer dialogue lifecycle smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Переход фаз и ожидание клиента
 func _transition(kind: DayTransitionRequest.Kind) -> void:

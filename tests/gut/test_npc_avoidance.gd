@@ -34,7 +34,11 @@ func before_each() -> void:
 	add_child(_floor)
 	_region = NavigationRegion3D.new()
 	var mesh: NavigationMesh = NavigationMesh.new()
-	mesh.vertices = PackedVector3Array([Vector3(-14, 0, -14), Vector3(-14, 0, 14), Vector3(14, 0, 14), Vector3(14, 0, -14)])
+	mesh.vertices = (
+		PackedVector3Array(
+			[Vector3(-14, 0, -14), Vector3(-14, 0, 14), Vector3(14, 0, 14), Vector3(14, 0, -14)]
+		)
+	)
 	mesh.add_polygon(PackedInt32Array([0, 1, 2, 3]))
 	_region.navigation_mesh = mesh
 	add_child(_region)
@@ -64,19 +68,30 @@ func after_each() -> void:
 
 
 func _npc(at: Vector3, trader: bool = false) -> E_NpcCharacter:
-	var npc: E_NpcCharacter = (TRADER_SCENE if trader else NPC_SCENE).instantiate() as E_NpcCharacter
+	var npc: E_NpcCharacter = (
+		(TRADER_SCENE if trader else NPC_SCENE).instantiate() as E_NpcCharacter
+	)
 	npc.position = at
 	_world.add_entity(npc)
 	return npc
 
-
 #endregion
+
 
 #region Проход и участие тела
 ## Встречные капсулы обходят друг друга в узком коридоре и достигают обеих целей без контакта.
 func test_head_on_clients_pass_without_physical_pushing() -> void:
 	var narrow: NavigationMesh = NavigationMesh.new()
-	narrow.vertices = PackedVector3Array([Vector3(-6, 0, -NAV_CORRIDOR_HALF_WIDTH), Vector3(-6, 0, NAV_CORRIDOR_HALF_WIDTH), Vector3(6, 0, NAV_CORRIDOR_HALF_WIDTH), Vector3(6, 0, -NAV_CORRIDOR_HALF_WIDTH)])
+	narrow.vertices = (
+		PackedVector3Array(
+			[
+				Vector3(-6, 0, -NAV_CORRIDOR_HALF_WIDTH),
+				Vector3(-6, 0, NAV_CORRIDOR_HALF_WIDTH),
+				Vector3(6, 0, NAV_CORRIDOR_HALF_WIDTH),
+				Vector3(6, 0, -NAV_CORRIDOR_HALF_WIDTH),
+			]
+		)
+	)
 	narrow.add_polygon(PackedInt32Array([0, 1, 2, 3]))
 	_region.navigation_mesh = narrow
 	for side: float in [-CORRIDOR_HALF_WIDTH, CORRIDOR_HALF_WIDTH]:
@@ -100,12 +115,23 @@ func test_head_on_clients_pass_without_physical_pushing() -> void:
 		var separation: Vector3 = left.global_position - right.global_position
 		separation.y = 0.0
 		nearest = minf(nearest, separation.length())
-		if (left.get_component(C_NpcIntent) as C_NpcIntent).arrived and (right.get_component(C_NpcIntent) as C_NpcIntent).arrived:
+		if (
+			(left.get_component(C_NpcIntent) as C_NpcIntent).arrived
+			and (right.get_component(C_NpcIntent) as C_NpcIntent).arrived
+		):
 			break
 
 	assert_gt(nearest, CONTACT_DISTANCE, "Avoid before capsules contact")
-	assert_lt(left.global_position.distance_to(Vector3(4.0, 0.0, 0.0)), 0.4, "Left reaches destination: " + str(left.global_position))
-	assert_lt(right.global_position.distance_to(Vector3(-4.0, 0.0, 0.0)), 0.4, "Right reaches destination: " + str(right.global_position))
+	assert_lt(
+		left.global_position.distance_to(Vector3(4.0, 0.0, 0.0)),
+		0.4,
+		"Left reaches destination: " + str(left.global_position),
+	)
+	assert_lt(
+		right.global_position.distance_to(Vector3(-4.0, 0.0, 0.0)),
+		0.4,
+		"Right reaches destination: " + str(right.global_position),
+	)
 
 
 ## Клиент обходит торговца, сохраняя исходное положение неподвижного тела в пределах допуска.
@@ -119,12 +145,24 @@ func test_client_goes_around_stationary_trader_without_displacing_it() -> void:
 	var nearest: float = INF
 	for frame: int in ROUTE_FRAMES:
 		await get_tree().physics_frame
-		nearest = minf(nearest, Vector2(client.global_position.x - trader.global_position.x, client.global_position.z - trader.global_position.z).length())
+		nearest = (
+			minf(
+				nearest,
+				Vector2(
+					client.global_position.x - trader.global_position.x,
+					client.global_position.z - trader.global_position.z,
+				).length(),
+			)
+		)
 		if (client.get_component(C_NpcIntent) as C_NpcIntent).arrived:
 			break
 
 	assert_gt(nearest, CONTACT_DISTANCE)
-	assert_lt(client.global_position.distance_to(Vector3(4.0, 0.0, 0.0)), 0.4, "Client reaches destination: " + str(client.global_position))
+	assert_lt(
+		client.global_position.distance_to(Vector3(4.0, 0.0, 0.0)),
+		0.4,
+		"Client reaches destination: " + str(client.global_position),
+	)
 	assert_lt(trader.global_position.distance_to(initial), WAITING_POSITION_TOLERANCE)
 
 
@@ -145,17 +183,29 @@ func test_client_passes_three_waiting_customers_without_moving_queue() -> void:
 	for frame: int in ROUTE_FRAMES:
 		await get_tree().physics_frame
 		for waiting: E_NpcCharacter in queue:
-			nearest = minf(nearest, Vector2(client.global_position.x - waiting.global_position.x, client.global_position.z - waiting.global_position.z).length())
+			nearest = (
+				minf(
+					nearest,
+					Vector2(
+						client.global_position.x - waiting.global_position.x,
+						client.global_position.z - waiting.global_position.z,
+					).length(),
+				)
+			)
 		if (client.get_component(C_NpcIntent) as C_NpcIntent).arrived:
 			break
 
 	assert_gt(nearest, CONTACT_DISTANCE)
 	assert_lt(client.global_position.distance_to(Vector3(5.0, 0.0, 0.0)), 0.4)
 	for index: int in queue.size():
-		assert_lt(queue[index].global_position.distance_to(positions[index]), WAITING_POSITION_TOLERANCE)
+		assert_lt(
+			queue[index].global_position.distance_to(positions[index]),
+			WAITING_POSITION_TOLERANCE,
+		)
 
 
-## Смерть отключает движение/avoidance; QA-reset возвращает прежнюю авторскую политику, включая opt-out.
+## Смерть отключает движение/avoidance; QA-reset возвращает прежнюю авторскую политику, включая
+## opt-out.
 func test_dead_client_stops_navigation_avoidance_and_releases_movement() -> void:
 	var client: E_NpcCharacter = _npc(Vector3.ZERO)
 	NpcIntentService.move_to(client, Vector3.RIGHT * 4.0, 0.25)
@@ -171,7 +221,10 @@ func test_dead_client_stops_navigation_avoidance_and_releases_movement() -> void
 	assert_true(reset.success)
 	await get_tree().physics_frame
 	await get_tree().process_frame
-	assert_true(client.navigation_agent.avoidance_enabled, "Reset restores the native authored policy")
+	assert_true(
+		client.navigation_agent.avoidance_enabled,
+		"Reset restores the native authored policy",
+	)
 	# Явное авторское отключение avoidance сохраняется через смерть и QA-reset.
 	client.navigation_agent.avoidance_enabled = false
 	client.add_component(C_Death.new())

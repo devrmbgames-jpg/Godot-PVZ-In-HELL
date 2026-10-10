@@ -39,5 +39,8 @@ static func describe(
 		),
 		"has_unsaved_scenes": not unsaved_paths.is_empty(),
 		"unsaved_count": unsaved_paths.size(),
-		"note": "Read-only editor-side scene state; plugins may have additional unsaved external data.",
+		"note": (
+			"Read-only editor-side scene state; plugins may have "
+			+ "additional unsaved external data."
+		),
 	}

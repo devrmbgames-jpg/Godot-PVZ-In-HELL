@@ -13,6 +13,7 @@ var trader: C_Trader
 ## Результат открытия, записанный native UI owner.
 var opened: bool = false
 
+
 #region Request snapshot
 func _init(actor: Entity, source: Entity) -> void:
 	actor_reference = weakref(actor)

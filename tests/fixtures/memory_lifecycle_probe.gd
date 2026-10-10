@@ -221,8 +221,10 @@ func _inspection_cycle(fixture: GutTest) -> void:
 	var started: bool = CustomerInspectionService.begin(customer, visit, parcel)
 	CustomerInspectionService.end(customer)
 	_assertions += 3
-	if not started or CustomerInspectionQueries.owner_for(parcel) != null \
-			or not CustomerInspectionQueries.cargo(customer).is_empty():
+	if (
+		not started or CustomerInspectionQueries.owner_for(parcel) != null
+		or not CustomerInspectionQueries.cargo(customer).is_empty()
+	):
 		_failures += 1
 #endregion
 

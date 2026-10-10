@@ -11,12 +11,15 @@ var _link_committed: bool = false
 var _consumer_saw_link: bool = false
 var _depletion_facts: int = 0
 
+
 class DamageFacts extends Observer:
 	## Test consumer, intentionally synchronous like the pinned World event contract.
 	var receive: Callable
 
+
 	func query() -> QueryBuilder:
 		return q.on_event(DamageResult.EVENT)
+
 
 	func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 		receive.call(payload as DamageResult)
@@ -28,8 +31,10 @@ class GroupProducer extends System:
 	## Commits the terminal fact after its queued relationship mutation.
 	var commit: Callable
 
+
 	func query() -> QueryBuilder:
 		return q.with_all([C_Health])
+
 
 	func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 		for subject: Entity in entities:
@@ -41,8 +46,10 @@ class DepletionFacts extends Observer:
 	## Counts real depletion publications without spawning presentation scenes.
 	var receive: Callable
 
+
 	func query() -> QueryBuilder:
 		return q.on_event(HealthDepletionEvent.EVENT)
+
 
 	func each(_event: Variant, _entity: Entity, _payload: Variant = null) -> void:
 		receive.call()
@@ -52,11 +59,14 @@ class GroupConsumer extends System:
 	## Observes the later System, before PER_GROUP structural commit.
 	var inspect_pending: Callable
 
+
 	func deps() -> Dictionary[int, Array]:
-		return {Runs.After: [GroupProducer]}
+		return { Runs.After: [GroupProducer] }
+
 
 	func query() -> QueryBuilder:
 		return q.with_all([C_Health])
+
 
 	func process(_entities: Array[Entity], _components: Array, _delta: float) -> void:
 		inspect_pending.call()
@@ -128,6 +138,7 @@ func _receive_depletion() -> void:
 	_depletion_facts += 1
 #endregion
 
+
 #region Acceptance, completion and reentrancy
 ## MANUAL handler acceptance stays pending until the concrete observer flush.
 func test_damage_acceptance_is_not_completion_and_submission_snapshots_inputs() -> void:
@@ -145,8 +156,10 @@ func test_damage_acceptance_is_not_completion_and_submission_snapshots_inputs() 
 	assert_eq(_results.size(), 1)
 	assert_eq(_results[0].request.amount, 7.0)
 	assert_eq(_results[0].current_value, 93.0)
-	assert_eq(BoundaryTrace.snapshots(_target.id).back()["stage"],
-		BoundaryTraceEntry.Stage.COMPLETED)
+	assert_eq(
+		BoundaryTrace.snapshots(_target.id).back()["stage"],
+		BoundaryTraceEntry.Stage.COMPLETED,
+	)
 
 
 ## A result consumer may submit a bounded nested command without replaying the outer mutation.
@@ -205,8 +218,14 @@ func test_deps_does_not_make_per_group_relationships_or_facts_visible() -> void:
 ## The provider is bounded and detached; readers cannot rewrite history or gameplay.
 func test_trace_is_bounded_detached_and_uses_explicit_identities() -> void:
 	for index: int in BoundaryTrace.MAX_ENTRIES + 3:
-		BoundaryTrace.record(&"fixture.operation", StringName(str(index)),
-			BoundaryTraceEntry.Stage.REJECTED, &"fixture_reason", "origin", _target.id)
+		BoundaryTrace.record(
+			&"fixture.operation",
+			StringName(str(index)),
+			BoundaryTraceEntry.Stage.REJECTED,
+			&"fixture_reason",
+			"origin",
+			_target.id,
+		)
 	var snapshots_out: Array[Dictionary] = BoundaryTrace.snapshots(_target.id)
 	assert_eq(snapshots_out.size(), BoundaryTrace.MAX_ENTRIES)
 	assert_eq(snapshots_out[0]["correlation_id"], &"3")
@@ -220,8 +239,11 @@ func test_trace_is_bounded_detached_and_uses_explicit_identities() -> void:
 	assert_eq(ActorIdentityRules.key_for(_target, _world), "package/shipment/stable")
 
 	package_identity.package_id = "shipment/current"
-	assert_eq(ActorIdentityRules.trace_key_for(_target), "shipment/current",
-		"Shared lookup reads the actual domain field instead of a cached identity mirror")
+	assert_eq(
+		ActorIdentityRules.trace_key_for(_target),
+		"shipment/current",
+		"Shared lookup reads the actual domain field instead of a cached identity mirror",
+	)
 	_target.remove_component(C_Package)
 	var persistent_identity: C_PersistentIdentity = C_PersistentIdentity.new()
 	persistent_identity.key = "fixture/target"
@@ -230,8 +252,11 @@ func test_trace_is_bounded_detached_and_uses_explicit_identities() -> void:
 	npc_identity.npc_id = &"person/stable"
 	_target.add_component(npc_identity)
 	assert_eq(ActorIdentityRules.trace_key_for(_target), "person/stable")
-	assert_eq(ActorIdentityRules.key_for(_target, _world), "fixture/target",
-		"NPC diagnostic identity does not change its existing persistent actor key")
+	assert_eq(
+		ActorIdentityRules.key_for(_target, _world),
+		"fixture/target",
+		"NPC diagnostic identity does not change its existing persistent actor key",
+	)
 
 	_target.remove_component(C_NpcIdentity)
 	_target.remove_component(C_PersistentIdentity)

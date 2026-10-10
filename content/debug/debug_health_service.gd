@@ -21,15 +21,11 @@ static func heal(target: DebugTarget, amount: float) -> DebugServiceResult:
 			var blocked: DebugServiceResult = DebugServiceResult.new()
 			blocked.message = "target is depleted; use reset for living entities"
 			return blocked
-	return _submit(
-		target,
-		amount,
-		DamageRequest.Operation.HEAL,
-		DamageRequest.Type.GENERIC,
-	)
+	return _submit(target, amount, DamageRequest.Operation.HEAL, DamageRequest.Type.GENERIC)
 
 
-## Запрашивает GENERIC-урон по текущим HP; реальный эффект и смерть исполняются обычным damage pipeline.
+## Запрашивает GENERIC-урон по текущим HP; реальный эффект и смерть исполняются обычным damage
+## pipeline.
 static func kill(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if not EntityAvailability.contains(target.entity, ECS.world):
@@ -50,11 +46,12 @@ static func kill(target: DebugTarget) -> DebugServiceResult:
 		DamageRequest.Type.GENERIC,
 	)
 
-
 #endregion
 
+
 #region Явный QA-сброс
-## Явно снимает смерть, восстанавливает HP и освобождает хват/транспорт/управление C_Living; историю личности не пересоздаёт.
+## Явно снимает смерть, восстанавливает HP и освобождает хват/транспорт/управление C_Living; историю
+## личности не пересоздаёт.
 static func reset(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if not EntityAvailability.contains(target.entity, ECS.world):
@@ -104,8 +101,8 @@ static func reset(target: DebugTarget) -> DebugServiceResult:
 	result.details.append("hp=%.1f -> %.1f" % [previous, health.current])
 	return result
 
-
 #endregion
+
 
 #region Проверка и подача DamageRequest
 static func _submit(
@@ -143,12 +140,8 @@ static func _submit(
 	result.details.append("entity=%s" % entity.id)
 	result.details.append("hp_before=%.1f/%.1f" % [health.current, health.value])
 	result.details.append("amount=%.1f" % amount)
-	result.details.append(
-		"operation=%s" % String(DamageRequest.Operation.keys()[operation])
-	)
-	result.details.append(
-		"type=%s" % String(DamageRequest.Type.keys()[damage_type])
-	)
+	result.details.append("operation=%s" % String(DamageRequest.Operation.keys()[operation]))
+	result.details.append("type=%s" % String(DamageRequest.Type.keys()[damage_type]))
 	return result
 
 #endregion

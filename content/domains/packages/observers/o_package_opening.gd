@@ -28,7 +28,7 @@ func _commit(request: PackageOpenRequest) -> void:
 
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	condition.opening = C_PackageState.Opening.OPENED
-	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Opened, actor)
+	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.OPENED, actor)
 	resolution.status = PackageOpenResult.Status.COMMITTED
 	resolution.reason = &"opened"
 	_publish(resolution, package)

@@ -64,11 +64,12 @@ func after_each() -> void:
 	_floors.clear()
 	await get_tree().process_frame
 
-
 #endregion
 
+
 #region Камера, опора и доступные действия
-## Резкий yaw/pitch доходит до требуемого взгляда за один физический шаг независимо от скорости поворота тела.
+## Резкий yaw/pitch доходит до требуемого взгляда за один физический шаг независимо от скорости
+## поворота тела.
 func test_sharp_turn_reaches_requested_view_in_one_physics_step() -> void:
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	var requested: Vector3 = Vector3(1.0, 0.65, 0.5).normalized()
@@ -77,8 +78,16 @@ func test_sharp_turn_reaches_requested_view_in_one_physics_step() -> void:
 	await get_tree().physics_frame
 	await get_tree().process_frame
 	var view_forward: Vector3 = -_player.head_axis_x.global_basis.z
-	assert_gt(view_forward.normalized().dot(requested), 0.999, "Fast yaw/pitch is not turn-rate limited or clamped by NPC head limits")
-	assert_gt(absf(_player.head_axis_y.rotation.y), 0.01, "Immediate view stays independent of torso turn rate")
+	assert_gt(
+		view_forward.normalized().dot(requested),
+		0.999,
+		"Fast yaw/pitch is not turn-rate limited or clamped by NPC head limits",
+	)
+	assert_gt(
+		absf(_player.head_axis_y.rotation.y),
+		0.01,
+		"Immediate view stays independent of torso turn rate",
+	)
 
 
 ## Проход стыка ровных плит сохраняет продвижение и высоту в пределах FLOOR_HEIGHT_TOLERANCE.
@@ -94,11 +103,23 @@ func test_flat_tile_seam_does_not_launch_or_stop_player() -> void:
 		await get_tree().physics_frame
 		if _player.global_position.y > highest:
 			var motion: C_Motion = _player.get_component(C_Motion) as C_Motion
-			peak_state = "%s velocity=%s floor=%s normal=%s" % [_player.global_position, (_player as Node as CharacterBody3D).velocity, motion.is_on_floor, motion.floor_normal]
+			peak_state = (
+				"%s velocity=%s floor=%s normal=%s"
+				% [
+					_player.global_position,
+					(_player as Node as CharacterBody3D).velocity,
+					motion.is_on_floor,
+					motion.floor_normal,
+				]
+			)
 		highest = maxf(highest, _player.global_position.y)
 		lowest = minf(lowest, _player.global_position.y)
 	assert_gt(4.0 - _player.global_position.z, 6.0, "Player crosses the seam without sticking")
-	assert_lt(highest - initial_height, FLOOR_HEIGHT_TOLERANCE, "No unintended flat-floor hop: %s start=%f" % [peak_state, initial_height])
+	assert_lt(
+		highest - initial_height,
+		FLOOR_HEIGHT_TOLERANCE,
+		"No unintended flat-floor hop: %s start=%f" % [peak_state, initial_height],
+	)
 	assert_lt(initial_height - lowest, FLOOR_HEIGHT_TOLERANCE, "No falling through the seam")
 
 
@@ -108,11 +129,20 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 	var trader: Entity = TRADER_SCENE.instantiate() as Entity
 	EntityCompositionFixture.register(_world, trader)
 	(trader as Node as Node3D).global_position = _player.global_position + Vector3.FORWARD
-	var actions: C_InteractionActionSet = trader.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	var actions: C_InteractionActionSet = (
+		trader.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	)
 	var action: DEF_TraderAction = actions.actions[0] as DEF_TraderAction
-	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
+	for phase: C_DayCycle.Phase in ([
+		C_DayCycle.Phase.MORNING,
+		C_DayCycle.Phase.DAY,
+		C_DayCycle.Phase.EVENING,
+	]):
 		_cycle.phase = phase
-		assert_true(action.is_available(_player, trader, trader), "Trader can explain availability before Evening")
+		assert_true(
+			action.is_available(_player, trader, trader),
+			"Trader can explain availability before Evening",
+		)
 	assert_true(action.allow_interact_fallback, "E can open the same authored action as F")
 	assert_false(GrabService.can_pickup(_player, trader, C_Grabbable.HoldSlot.CARRY))
 	for frame: int in 2:
@@ -121,9 +151,13 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 
 	var interactor: C_Interactor = _player.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingGeometry.find_target(_player, interactor)
-	interactor.physics_target = InteractionTargetingGeometry.find_physics_target(_player, interactor)
+	interactor.physics_target = (
+		InteractionTargetingGeometry.find_physics_target(_player, interactor)
+	)
 	assert_eq(interactor.target, trader, "Actual head ray reaches the Trader")
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_player, DEF_InteractionAction.Slot.INTERACT)
+	var choice: InteractionActionChoice = (
+		InteractionActionResolver.resolve(_player, DEF_InteractionAction.Slot.INTERACT)
+	)
 	assert_not_null(choice, "E resolves to trading instead of physical pickup")
 	if choice != null:
 		assert_eq(choice.source, trader)
@@ -150,11 +184,16 @@ func test_ground_adhesion_preserves_authored_jump_impulse() -> void:
 	_world.process(1.0 / 60.0)
 	for frame: int in 3:
 		await get_tree().physics_frame
-	assert_gt((_player as Node as CharacterBody3D).velocity.y, 4.0, "Jump is not canceled by floor adhesion")
+	assert_gt(
+		(_player as Node as CharacterBody3D).velocity.y,
+		4.0,
+		"Jump is not canceled by floor adhesion",
+	)
 	assert_gt(_player.global_position.y, FLOOR_HEIGHT_TOLERANCE)
 
 
-## Взгляд вниз достигает обоих собственных поясных слотов, не поворачивая тело и слоты вслед за лучом.
+## Взгляд вниз достигает обоих собственных поясных слотов, не поворачивая тело и слоты вслед за
+## лучом.
 func test_looking_down_reaches_both_own_belt_slots_without_turning_them_away() -> void:
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	var interactor: C_Interactor = _player.get_component(C_Interactor) as C_Interactor
@@ -162,11 +201,22 @@ func test_looking_down_reaches_both_own_belt_slots_without_turning_them_away() -
 	for path: String in ["BeltSlotLeft", "BeltSlotRight"]:
 		var slot: Entity = _player.get_node(path) as Entity
 		var slot_body: Node3D = slot as Node as Node3D
-		controller.direction_look = (slot_body.global_position - _player.interaction_ray_cast.global_position).normalized()
+		controller.direction_look = (
+			(slot_body.global_position - _player.interaction_ray_cast.global_position).normalized()
+		)
 		for frame: int in 2:
 			await get_tree().physics_frame
 		_player.interaction_ray_cast.force_raycast_update()
-		assert_eq(InteractionTargetingGeometry.find_target(_player, interactor), slot, "Head ray reaches %s" % path)
-		assert_almost_eq((_player as Node as CharacterBody3D).rotation.y, initial_yaw, 0.001, "Belt remains still while aiming down")
+		assert_eq(
+			InteractionTargetingGeometry.find_target(_player, interactor),
+			slot,
+			"Head ray reaches %s" % path,
+		)
+		assert_almost_eq(
+			(_player as Node as CharacterBody3D).rotation.y,
+			initial_yaw,
+			0.001,
+			"Belt remains still while aiming down",
+		)
 
 #endregion

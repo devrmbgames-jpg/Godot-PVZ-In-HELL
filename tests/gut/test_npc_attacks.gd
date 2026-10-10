@@ -1,5 +1,6 @@
 extends GutTest
-## Регрессии выбора и исполнения атак NPC: реальный DamageRequest, method-track, снаряды и очистка целей.
+## Регрессии выбора и исполнения атак NPC: реальный DamageRequest, method-track, снаряды и очистка
+## целей.
 
 var _world: World = null
 var _npc: E_NpcCharacter = null
@@ -9,7 +10,8 @@ var _health: C_Health = null
 
 
 #region Физическое тестовое окружение
-## Создаёт World с реальными observers урона/боя и замороженными физическими участниками; синхронизирует лучи.
+## Создаёт World с реальными observers урона/боя и замороженными физическими участниками;
+## синхронизирует лучи.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -43,7 +45,12 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.collision_layer = 2 if npc else 4
-	body.set_script(load("res://content/domains/npc/entities/e_npc_character.gd" if npc else "res://content/domains/motion/entities/e_rigid_body_character.gd"))
+	var body_script_path: String
+	if npc:
+		body_script_path = "res://content/domains/npc/entities/e_npc_character.gd"
+	else:
+		body_script_path = "res://content/domains/motion/entities/e_rigid_body_character.gd"
+	body.set_script(load(body_script_path))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
 	var health: C_Health = C_Health.new()
 	health.current = 100.0
@@ -51,8 +58,12 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 	entity.component_resources = [health, C_Living.new(), C_Controller.new(), C_NpcIntent.new()]
 	if npc:
 		var combat: C_NpcCombat = C_NpcCombat.new()
-		combat.melee_attacks = [load("res://content/domains/combat/definitions/def_npc_punch.tres") as DEF_NpcAttack]
-		combat.ranged_attacks = [load("res://content/domains/combat/definitions/def_npc_shot.tres") as DEF_NpcAttack]
+		combat.melee_attacks = ([
+			load("res://content/domains/combat/definitions/def_npc_punch.tres") as DEF_NpcAttack
+		])
+		combat.ranged_attacks = ([
+			load("res://content/domains/combat/definitions/def_npc_shot.tres") as DEF_NpcAttack
+		])
 		entity.component_resources.append(combat)
 
 	var head: Marker3D = Marker3D.new()
@@ -69,8 +80,8 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 	_world.add_entity(entity)
 	return entity
 
-
 #endregion
+
 
 #region Scheduled replacement and automatic selection
 ## A queued old attack cannot consume windup time from its restarted replacement.
@@ -119,7 +130,10 @@ func test_full_owner_preserves_automatic_attack_and_cooldown_selection() -> void
 	assert_eq(_state.phase, C_NpcCombat.Phase.WINDUP)
 	var generation: int = _state.execution_generation
 	var attack: DEF_NpcAttack = _state.attack
-	_world.process(attack.windup_seconds + attack.active_seconds + attack.recovery_seconds, owner.group)
+	_world.process(
+		attack.windup_seconds + attack.active_seconds + attack.recovery_seconds,
+		owner.group,
+	)
 	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
 	assert_gt(_state.cooldown_remaining, 0.0)
 	_world.process(_state.cooldown_remaining, owner.group)
@@ -130,10 +144,11 @@ func test_full_owner_preserves_automatic_attack_and_cooldown_selection() -> void
 ## entity_added sees complete launch data; source intent is fixed up before launch returns.
 func test_projectile_launch_data_precedes_native_entity_added() -> void:
 	var attack: DEF_NpcAttack = _state.ranged_attacks[0]
-	var captured: Dictionary[String, Variant] = {}
+	var captured: Dictionary[String, Variant] = { }
 	var callback: Callable = func(added: Entity) -> void:
 		var launch_state: C_CombatProjectile = (
-			added.get_component(C_CombatProjectile) as C_CombatProjectile)
+			added.get_component(C_CombatProjectile) as C_CombatProjectile
+		)
 		if launch_state != null:
 			captured["velocity"] = launch_state.velocity
 			captured["damage"] = launch_state.damage
@@ -158,7 +173,9 @@ func test_manual_flight_rejects_replaced_launch_state() -> void:
 	var attack: DEF_NpcAttack = _state.ranged_attacks[0]
 	assert_true(ProjectileService.launch(_npc, _target, attack))
 	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
-	var original: C_CombatProjectile = projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+	var original: C_CombatProjectile = (
+		projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+	)
 	var position: Vector3 = (projectile as Node as Node3D).global_position
 	var owner: S_CombatProjectile = S_CombatProjectile.new()
 	owner.group = "queued_projectile"
@@ -176,6 +193,7 @@ func test_manual_flight_rejects_replaced_launch_state() -> void:
 	assert_eq(_health.current, 100.0)
 	assert_true(EntityAvailability.contains(projectile, _world))
 #endregion
+
 
 #region Выбор и таймеры
 ## Замах, однократный удар и cooldown проходят общий DamageRequest; повтор эффекта не наносит урон.
@@ -210,7 +228,8 @@ func test_explicit_variant_request_supports_three_of_each_and_rejects_fourth() -
 	assert_eq(_state.variant, 2)
 
 
-## Выбор читает приоритет/скорость урона без запуска атаки; равный результат сохраняет первый вариант.
+## Выбор читает приоритет/скорость урона без запуска атаки; равный результат сохраняет первый
+## вариант.
 func test_selector_reads_priority_then_damage_rate_without_starting_attack() -> void:
 	var slow: DEF_NpcAttack = _state.melee_attacks[0].duplicate(true) as DEF_NpcAttack
 	var fast: DEF_NpcAttack = slow.duplicate(true) as DEF_NpcAttack
@@ -231,13 +250,21 @@ func test_selector_reads_priority_then_damage_rate_without_starting_attack() -> 
 	choice = NpcAttackService.choose(_npc)
 	assert_eq(choice.kind, C_NpcCombat.Kind.MELEE)
 	assert_eq(choice.variant, 1, "Same score keeps the first matching variant")
-	assert_gt(choice.damage_rate, slow.damage / (slow.windup_seconds + slow.active_seconds + slow.recovery_seconds + slow.cooldown_seconds))
+	assert_gt(
+		choice.damage_rate,
+		slow.damage
+		/ (
+			slow.windup_seconds + slow.active_seconds
+			+ slow.recovery_seconds + slow.cooldown_seconds
+		),
+	)
 	assert_true(NpcAttackService.choose_and_start(_npc))
 	assert_eq(_state.variant, 1)
 	assert_eq(_state.kind, C_NpcCombat.Kind.MELEE)
 
 
-## Перемещение цели и препятствие требуют повторной проверки решения; отклонённый запрос не меняет HP/фазу.
+## Перемещение цели и препятствие требуют повторной проверки решения; отклонённый запрос не меняет
+## HP/фазу.
 func test_selector_rejects_unavailable_or_stale_decision_without_side_effect() -> void:
 	_state.cooldown_remaining = 0.5
 	assert_null(NpcAttackService.choose(_npc))
@@ -245,7 +272,10 @@ func test_selector_rejects_unavailable_or_stale_decision_without_side_effect() -
 	var choice: NpcAttackChoice = NpcAttackService.choose(_npc)
 	assert_not_null(choice)
 	(_target as Node as Node3D).position.z = -4.0
-	assert_false(NpcAttackService.start(_npc, choice.kind, choice.variant), "Decision is revalidated after the target moved")
+	assert_false(
+		NpcAttackService.start(_npc, choice.kind, choice.variant),
+		"Decision is revalidated after the target moved",
+	)
 	choice = NpcAttackService.choose(_npc)
 	assert_eq(choice.kind, C_NpcCombat.Kind.RANGED)
 
@@ -265,7 +295,8 @@ func test_selector_rejects_unavailable_or_stale_decision_without_side_effect() -
 	assert_eq(_health.current, 100.0)
 
 
-## Отключённый автоматический выбор сохраняет исполнение явной атаки/cooldown; включение возвращает выбор.
+## Отключённый автоматический выбор сохраняет исполнение явной атаки/cooldown; включение возвращает
+## выбор.
 func test_selector_external_control_keeps_execution_and_cooldown_then_restores_default() -> void:
 	_state.automatic_attack_selection = false
 	_world.add_system(S_NpcCombat.new())
@@ -279,14 +310,18 @@ func test_selector_external_control_keeps_execution_and_cooldown_then_restores_d
 	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
 	assert_gt(_state.cooldown_remaining, 0.0)
 	_world.process(2.0)
-	assert_eq(_state.phase, C_NpcCombat.Phase.READY, "Disabled selection cannot restart after cooldown")
+	assert_eq(
+		_state.phase,
+		C_NpcCombat.Phase.READY,
+		"Disabled selection cannot restart after cooldown",
+	)
 	assert_eq(_state.cooldown_remaining, 0.0)
 	_state.automatic_attack_selection = true
 	_world.process(0.0)
 	assert_eq(_state.phase, C_NpcCombat.Phase.WINDUP)
 
-
 #endregion
+
 
 #region Анимация и прерывание
 ## Реальные method-track управляют ударом вместо таймера; повторный ключ не дублирует урон.
@@ -302,9 +337,9 @@ func test_actual_animation_method_tracks_commit_once_and_finish_with_cooldown() 
 
 	var track: int = animation.add_track(Animation.TYPE_METHOD)
 	animation.track_set_path(track, NodePath("."))
-	animation.track_insert_key(track, 0.3, {"method": &"npc_attack_hit", "args": []})
-	animation.track_insert_key(track, 0.4, {"method": &"npc_attack_hit", "args": []})
-	animation.track_insert_key(track, 0.7, {"method": &"npc_attack_finished", "args": []})
+	animation.track_insert_key(track, 0.3, { "method": &"npc_attack_hit", "args": [] })
+	animation.track_insert_key(track, 0.4, { "method": &"npc_attack_hit", "args": [] })
+	animation.track_insert_key(track, 0.7, { "method": &"npc_attack_finished", "args": [] })
 	library.add_animation(&"Strike", animation)
 	player.add_animation_library(&"", library)
 	_state.melee_attacks[0] = _state.melee_attacks[0].duplicate(true) as DEF_NpcAttack
@@ -383,7 +418,8 @@ func test_removed_target_cancels_pending_animation_hook_and_navigation() -> void
 	assert_false((_npc.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
 
-## Смертельный DamageRequest атакующему освобождает противника и предотвращает ещё не исполненный удар.
+## Смертельный DamageRequest атакующему освобождает противника и предотвращает ещё не исполненный
+## удар.
 func test_death_cancels_strike_before_effect_and_clears_opponent() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	var request: DamageRequest = DamageRequest.new()
@@ -397,8 +433,8 @@ func test_death_cancels_strike_before_effect_and_clears_opponent() -> void:
 	assert_false(NpcAttackService.commit_effect(_npc))
 	assert_eq(_health.current, 100.0)
 
-
 #endregion
+
 
 #region Снаряды и атрибуция
 ## Однократный дальний эффект создаёт один снаряд, поражающий реальный коллайдер и затем удаляемый.
@@ -419,7 +455,9 @@ func test_ranged_effect_launches_once_and_projectile_hits_real_collider() -> voi
 ## Снаряд сохраняет эффективный урон при запуске; последующая еда не меняет его или авторскую атаку.
 func test_projectile_snapshots_hunger_damage_before_food_restores_shooter() -> void:
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = (
+		load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
+	)
 	hunger.value = 75.0
 	_npc.add_component(hunger)
 	hunger = _npc.get_component(C_Hunger) as C_Hunger
@@ -439,7 +477,8 @@ func test_projectile_snapshots_hunger_damage_before_food_restores_shooter() -> v
 	assert_eq(_state.ranged_attacks[0].damage, 8.0)
 
 
-## Луч пройденного отрезка не пропускает стену при большом шаге; выбор новой атаки также учитывает LOS.
+## Луч пройденного отрезка не пропускает стену при большом шаге; выбор новой атаки также учитывает
+## LOS.
 func test_wall_blocks_projectile_even_for_long_frame() -> void:
 	(_target as Node as Node3D).global_position.z = -4.0
 	await get_tree().physics_frame
@@ -461,7 +500,10 @@ func test_wall_blocks_projectile_even_for_long_frame() -> void:
 	assert_true(_world.query.with_all([C_CombatProjectile]).execute().is_empty())
 	NpcAttackExecutionService.finish(_npc)
 	CombatFixture.npc(_npc, 2.0)
-	assert_false(NpcAttackService.can_start(_npc, C_NpcCombat.Kind.RANGED, 0), "AI must not shoot through the wall")
+	assert_false(
+		NpcAttackService.can_start(_npc, C_NpcCombat.Kind.RANGED, 0),
+		"AI must not shoot through the wall",
+	)
 
 
 ## Снаряд наследует C_NoDamage стрелка и не обходит запрет урона.
@@ -484,7 +526,9 @@ func test_projectile_retains_generic_shooter_id_after_source_removal() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.RANGED, 0))
 	assert_true(NpcAttackService.commit_effect(_npc))
 	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
-	var state: C_CombatProjectile = projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+	var state: C_CombatProjectile = (
+		projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+	)
 	assert_eq(state.instigator_id, _npc.id)
 	assert_false(state.instigator_id.is_empty())
 	_world.remove_entity(_npc)
@@ -492,11 +536,12 @@ func test_projectile_retains_generic_shooter_id_after_source_removal() -> void:
 	CombatFixture.projectile(projectile, 1.0)
 	assert_eq(_health.current, 92.0)
 
-
 #endregion
 
+
 #region Промах и диагностика
-## Промах вне дальности расходует единственную попытку эффекта; возвращение цели не разрешает поздний удар.
+## Промах вне дальности расходует единственную попытку эффекта; возвращение цели не разрешает
+## поздний удар.
 func test_out_of_range_at_hit_time_misses_without_late_duplicate() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	(_target as Node as Node3D).global_position.z = -4.0

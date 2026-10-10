@@ -14,7 +14,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
 	if (
 		event == null
-		or event.kind not in [PackageLifecycleEvent.Kind.Damaged, PackageLifecycleEvent.Kind.Opened]
+		or event.kind not in [PackageLifecycleEvent.Kind.DAMAGED, PackageLifecycleEvent.Kind.OPENED]
 	):
 		return
 	if not is_instance_valid(entity):
@@ -27,11 +27,11 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	if PackageContentsService.is_empty(entity):
 		return
 	# При распаковке эффект переносит сервис извлечения на реальное содержимое.
-	if event.kind == PackageLifecycleEvent.Kind.Opened and definition.unpack_scene != null:
+	if event.kind == PackageLifecycleEvent.Kind.OPENED and definition.unpack_scene != null:
 		return
 
 	var scene: PackedScene
-	if event.kind == PackageLifecycleEvent.Kind.Opened:
+	if event.kind == PackageLifecycleEvent.Kind.OPENED:
 		scene = definition.hazard_on_opened
 	else:
 		scene = definition.hazard_on_damaged
@@ -47,7 +47,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 	var origin_id: String = event.package_id if not event.package_id.is_empty() else entity.id
 	var scene_key: String = _scene_key(scene)
-	var trigger: String = "opened" if event.kind == PackageLifecycleEvent.Kind.Opened else "damaged"
+	var trigger: String = "opened" if event.kind == PackageLifecycleEvent.Kind.OPENED else "damaged"
 	HazardEmitter.emit_scene(
 		entity,
 		scene,

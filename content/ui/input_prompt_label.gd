@@ -23,8 +23,8 @@ func _process(_delta: float) -> void:
 	if _revision != InputPromptService.revision():
 		_render()
 
-
 #endregion
+
 
 #region Текст и иконки
 ## Устанавливает текст с [input=action]; одинаковый текст не пересобирается без смены ревизии.
@@ -55,7 +55,11 @@ func _render() -> void:
 			for icon_index: int in icons.size():
 				if icon_index > 0:
 					add_text(" + ")
-				add_image(icons[icon_index] as Texture2D, int(InputPromptService.SIZE.x), int(InputPromptService.SIZE.y))
+				add_image(
+					icons[icon_index] as Texture2D,
+					int(InputPromptService.SIZE.x),
+					int(InputPromptService.SIZE.y),
+				)
 		if groups.is_empty():
 			add_text("—")
 		start = match_entry.get_end()

@@ -51,7 +51,7 @@ func _commit_condition(
 		PackageMarkService.clear_marks(target)
 		PackageLifecycle.publish(
 			target,
-			PackageLifecycleEvent.Kind.Destroyed,
+			PackageLifecycleEvent.Kind.DESTROYED,
 			result.request.source,
 			result,
 		)
@@ -69,7 +69,7 @@ func _commit_condition(
 		condition.damage = C_PackageState.Damage.DAMAGED
 		PackageLifecycle.publish(
 			target,
-			PackageLifecycleEvent.Kind.Damaged,
+			PackageLifecycleEvent.Kind.DAMAGED,
 			result.request.source,
 			result,
 		)

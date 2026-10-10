@@ -2,6 +2,7 @@ extends RefCounted
 ## Global composition connects native actor lifecycle to the higher Customer role owner.
 class_name NpcCustomerComposition
 
+
 #region Native World registration
 ## Binds existing and later actors, including bodies constructed by passive snapshot restore.
 static func install(world: World) -> void:

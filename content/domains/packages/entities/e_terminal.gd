@@ -10,6 +10,7 @@ signal panel_close_requested
 ## Читает текущую видимость через ответ native panel owner.
 signal panel_state_requested(query: TerminalPanelStateQuery)
 
+
 #region Native panel requests
 ## Передаёт панели запрос открытия для действующего участника.
 func open_for(actor: Entity) -> void:

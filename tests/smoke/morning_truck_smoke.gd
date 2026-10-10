@@ -1,9 +1,11 @@
 extends Node
-## Два процесса настоящего района: занятый кузов, сохранённый остаток, разгрузка и повтор восстановления.
+## Два процесса настоящего района: занятый кузов, сохранённый остаток, разгрузка и повтор
+## восстановления.
 
 const SAVE_PATH: String = "user://morning_truck_smoke.pvzh"
 const MAX_FRAMES: int = 480
 var _failed: bool = false
+
 
 #region Полный район и реальная поставка
 func _ready() -> void:
@@ -14,7 +16,9 @@ func _run() -> void:
 	var restoring: bool = "restore" in OS.get_cmdline_user_args()
 	if not restoring:
 		_cleanup()
-	var level: Node3D = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate() as Node3D
+	var level: Node3D = (
+		(load("res://content/scenes/main_level.tscn") as PackedScene).instantiate() as Node3D
+	)
 	level.set("autosave_path", "")
 	add_child(level)
 	level.set_physics_process(false)
@@ -23,13 +27,21 @@ func _run() -> void:
 	if restoring:
 		var snapshot: Dictionary = AutosaveStore.read(SAVE_PATH)
 		_check(WorldSnapshotService.valid(snapshot, level), "saved district validates")
-		_check(WorldSnapshotService.restore(snapshot, level), "pending batch restores in new process")
+		_check(
+			WorldSnapshotService.restore(snapshot, level),
+			"pending batch restores in new process",
+		)
 		if not _failed:
 			await _unload_and_finish(level, zone)
 		_cleanup()
 	else:
 		await _prepare_and_save(level, zone)
-	print("Morning truck smoke ", "restore" if restoring else "write", ": ", "FAIL" if _failed else "PASS")
+	print(
+		"Morning truck smoke ",
+		"restore" if restoring else "write",
+		": ",
+		"FAIL" if _failed else "PASS",
+	)
 	get_tree().quit(1 if _failed else 0)
 
 
@@ -38,7 +50,11 @@ func _prepare_and_save(level: Node3D, zone: E_ReceivingZone) -> void:
 	ReceivingDeliveryService.prepare_batch(zone.supply, state, 1)
 	_check(state.incoming_package_ids.size() == 5, "original five-package supply")
 	var truck: E_MorningTruck = zone.ensure_truck()
-	_check(truck != null and truck.global_transform.is_equal_approx(zone.truck_parking.global_transform), "authored parking and orientation")
+	_check(
+		truck != null
+		and truck.global_transform.is_equal_approx(zone.truck_parking.global_transform),
+		"authored parking and orientation",
+	)
 	if _failed:
 		return
 	truck.cargo_slots.assign([truck.cargo_slots[0]])
@@ -52,7 +68,10 @@ func _prepare_and_save(level: Node3D, zone: E_ReceivingZone) -> void:
 	for frame: int in 12:
 		await get_tree().physics_frame
 	ReceivingDeliveryService.deliver_one(zone, state, 1)
-	_check(state.blocked and state.pending[0].next_package == 1, "occupied cargo preserves remainder")
+	_check(
+		state.blocked and state.pending[0].next_package == 1,
+		"occupied cargo preserves remainder",
+	)
 	var first_id: String = state.incoming_package_ids[0]
 	var arrival: PackageRegistrationRecord = PackageHistoryService.record_for(first_id)
 	_check(arrival != null and arrival.number == 0, "terminal receipt without registration number")
@@ -63,11 +82,17 @@ func _prepare_and_save(level: Node3D, zone: E_ReceivingZone) -> void:
 
 func _unload_and_finish(level: Node3D, zone: E_ReceivingZone) -> void:
 	var state: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
-	_check(state.batch_id == "base_supply:1" and state.incoming_package_ids.size() == 5, "stable restored manifest")
-	_check(state.pending.size() == 1 and state.pending[0].next_package == 1 and _count() == 1, "one existing box and four pending")
+	_check(
+		state.batch_id == "base_supply:1" and state.incoming_package_ids.size() == 5,
+		"stable restored manifest",
+	)
+	_check(
+		state.pending.size() == 1 and state.pending[0].next_package == 1 and _count() == 1,
+		"one existing box and four pending",
+	)
 	_check(state.retry_remaining == 0.0 and state.reservations.is_empty(), "runtime caches rebuilt")
 	var ids: PackedStringArray = state.incoming_package_ids.duplicate()
-	var unloaded: Dictionary[String, bool] = {}
+	var unloaded: Dictionary[String, bool] = { }
 	for frame: int in MAX_FRAMES:
 		await get_tree().physics_frame
 		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
@@ -75,7 +100,8 @@ func _unload_and_finish(level: Node3D, zone: E_ReceivingZone) -> void:
 			var identity: C_Package = parcel.get_component(C_Package) as C_Package
 			if unloaded.has(identity.package_id):
 				continue
-			# Только smoke переносит тело: моделирует физический вынос игроком на прежние места склада.
+			# Только smoke переносит тело: моделирует физический вынос игроком на прежние места
+			# склада.
 			var marker: Node3D = zone.get_spawn_points().get_child(unloaded.size()) as Node3D
 			var body: RigidBody3D = parcel as Node as RigidBody3D
 			body.global_transform = marker.global_transform
@@ -84,16 +110,28 @@ func _unload_and_finish(level: Node3D, zone: E_ReceivingZone) -> void:
 			unloaded[identity.package_id] = true
 		if state.pending.is_empty():
 			break
-	_check(state.pending.is_empty() and _count() == 5, "unloading resumes and completes original batch")
-	_check(state.incoming_package_ids == ids and state.delivered_counts.get(1) == 5, "same manifest and one delivery per position")
+	_check(
+		state.pending.is_empty() and _count() == 5,
+		"unloading resumes and completes original batch",
+	)
+	_check(
+		state.incoming_package_ids == ids and state.delivered_counts.get(1) == 5,
+		"same manifest and one delivery per position",
+	)
 	for package_id: String in ids:
 		var receipt: PackageRegistrationRecord = PackageHistoryService.record_for(package_id)
-		_check(receipt != null and receipt.number == 0, "one real unregistered receipt for " + package_id)
+		_check(
+			receipt != null and receipt.number == 0,
+			"one real unregistered receipt for " + package_id,
+		)
 	var truck: E_MorningTruck = zone.get_truck()
 	_check(truck != null and zone.ensure_truck() == truck, "one reconstructed runtime truck")
 	var finished: Dictionary = WorldSnapshotService.capture(level, 1)
 	_check(WorldSnapshotService.restore(finished, level), "completed batch restores")
-	_check(WorldSnapshotService.restore(finished, level), "repeated restore does not duplicate cargo")
+	_check(
+		WorldSnapshotService.restore(finished, level),
+		"repeated restore does not duplicate cargo",
+	)
 	for frame: int in 30:
 		await get_tree().physics_frame
 		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
@@ -104,7 +142,10 @@ func _unload_and_finish(level: Node3D, zone: E_ReceivingZone) -> void:
 		await get_tree().physics_frame
 		if zone.get_truck() == null:
 			break
-	_check(zone.get_truck() == null and _count() == 5, "finite door lifecycle leaves unloaded boxes")
+	_check(
+		zone.get_truck() == null and _count() == 5,
+		"finite door lifecycle leaves unloaded boxes",
+	)
 
 
 func _count() -> int:

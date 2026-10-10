@@ -37,7 +37,9 @@ func _ready() -> void:
 	title.add_theme_font_size_override("font_size", 42)
 	column.add_child(title)
 	var subtitle: Label = Label.new()
-	subtitle.text = "Тестовая сцена" if _level == GameSessionService.TEST_LEVEL else "Почтовое отделение"
+	subtitle.text = (
+		"Тестовая сцена" if _level == GameSessionService.TEST_LEVEL else "Почтовое отделение"
+	)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(subtitle)
 	_new_button = _button(column, "Новая игра", "NewGame", _new_game)
@@ -50,9 +52,10 @@ func _ready() -> void:
 	column.add_child(_status)
 	_settings = SettingsMenu.new()
 	_settings.setup_main_menu()
-	_settings.closed.connect(func() -> void:
-		if _new_button.is_inside_tree():
-			_new_button.grab_focus()
+	_settings.closed.connect(
+		func() -> void:
+			if _new_button.is_inside_tree():
+				_new_button.grab_focus(),
 	)
 	add_child(_settings)
 	_settings.set_process_unhandled_input(false)
@@ -61,7 +64,10 @@ func _ready() -> void:
 	_exit_dialog.dialog_text = "Закрыть игру?"
 	_exit_dialog.ok_button_text = "Выйти"
 	_exit_dialog.cancel_button_text = "Остаться"
-	_exit_dialog.confirmed.connect(func() -> void: get_tree().quit())
+	_exit_dialog.confirmed.connect(
+		func() -> void:
+			get_tree().quit(),
+	)
 	add_child(_exit_dialog)
 
 	var saved: GameSaveResult = GameSessionService.saved_game(_level)
@@ -84,8 +90,8 @@ func _button(parent: Control, caption: String, node_name: String, callback: Call
 	parent.add_child(button)
 	return button
 
-
 #endregion
+
 
 #region Действия сессии и возврат
 func _new_game() -> void:

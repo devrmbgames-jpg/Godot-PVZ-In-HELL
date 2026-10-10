@@ -25,6 +25,7 @@ var _truck: E_MorningTruck = null
 func get_spawn_points() -> Node3D:
 	return _spawn_points
 
+
 ## Возвращает живой экземпляр машины без создания и изменения состояния.
 func get_truck() -> E_MorningTruck:
 	return _truck if is_instance_valid(_truck) and not _truck.is_queued_for_deletion() else null

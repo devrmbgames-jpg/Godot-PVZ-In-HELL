@@ -1,5 +1,6 @@
 extends Node
-## Headless CPU-benchmark авторского уровня: отдельно маршрут, 809 оценок света и работа групп ECS по фазам.
+## Headless CPU-benchmark авторского уровня: отдельно маршрут, 809 оценок света и работа групп ECS
+## по фазам.
 
 const SAMPLE_COUNT: int = 12
 const LIGHT_SAMPLES: int = 809
@@ -7,9 +8,11 @@ const FRAME_COUNT: int = 240
 
 var _level: Node3D = null
 
+
 #region Измерение времени CPU
 func _ready() -> void:
 	_run.call_deferred()
+
 
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
@@ -23,7 +26,12 @@ func _run() -> void:
 
 	var district: C_District = NpcPopulationQueries.current()
 	var lighting: NpcLightingContext = NpcLightingService.context_for(district)
-	print("NPC benchmark authored_light_zones=", lighting.zones.size(), " shade_points=", district.definition.shade_route.size())
+	print(
+		"NPC benchmark authored_light_zones=",
+		lighting.zones.size(),
+		" shade_points=",
+		district.definition.shade_route.size(),
+	)
 	if lighting.zones.is_empty():
 		push_error("NPC benchmark requires the authored light volumes")
 		get_tree().quit(1)
@@ -56,12 +64,19 @@ func _run() -> void:
 		var began: int = Time.get_ticks_usec()
 		for index: int in LIGHT_SAMPLES:
 			var fraction: float = float(index % 37) / 36.0
-			NpcLightingService.exposure_at(start.lerp(goal, fraction) + Vector3.UP, [actor.get_rid()])
+			NpcLightingService.exposure_at(
+				start.lerp(goal, fraction) + Vector3.UP,
+				[actor.get_rid()],
+			)
 		measurements.append(float(Time.get_ticks_usec() - began) / 1000.0)
 	_report("809_light_queries_ms", measurements)
 
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
+	for phase: C_DayCycle.Phase in ([
+		C_DayCycle.Phase.MORNING,
+		C_DayCycle.Phase.DAY,
+		C_DayCycle.Phase.EVENING,
+	]):
 		cycle.phase = phase
 		measurements.clear()
 		for frame: int in FRAME_COUNT:
@@ -76,9 +91,19 @@ func _run() -> void:
 	print("NPC benchmark PASS")
 	get_tree().quit()
 
+
 func _report(label: String, values: PackedFloat64Array) -> void:
 	values.sort()
-	print("NPC benchmark ", label, ": median=", snappedf(values[values.size() / 2], 0.001),
-		" p95=", snappedf(values[mini(values.size() - 1, int(values.size() * 0.95))], 0.001),
-		" max=", snappedf(values[values.size() - 1], 0.001), " samples=", values.size())
+	print(
+		"NPC benchmark ",
+		label,
+		": median=",
+		snappedf(values[values.size() / 2], 0.001),
+		" p95=",
+		snappedf(values[mini(values.size() - 1, int(values.size() * 0.95))], 0.001),
+		" max=",
+		snappedf(values[values.size() - 1], 0.001),
+		" samples=",
+		values.size(),
+	)
 #endregion

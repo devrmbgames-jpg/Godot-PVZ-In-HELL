@@ -38,8 +38,6 @@ const SORT_ICON_DESCENDING_PATH: String = "res://addons/at-icons/control/file_ar
 @onready var _orders_button: Button = %ButtonOrders
 @onready var _help_button: Button = %ButtonHelp
 
-
-
 var _reader: Entity = null
 var _package_line_scene: PackedScene = null
 var _capture_token: int = 0
@@ -135,7 +133,11 @@ func open_for(actor: Entity) -> void:
 	_last_data_signature = ""
 	_refresh(true)
 	_focus_selected_row()
-	PlayerInteractionEvents.publish(_reader, get_parent() as E_Terminal, PlayerInteractionEvent.Kind.TERMINAL_OPENED)
+	PlayerInteractionEvents.publish(
+		_reader,
+		get_parent() as E_Terminal,
+		PlayerInteractionEvent.Kind.TERMINAL_OPENED,
+	)
 
 
 ## Освобождает токен фокуса, возвращает мышь и публикует закрытие один раз.
@@ -151,14 +153,21 @@ func close_panel() -> void:
 	var reader: Entity = _reader
 	_reader = null
 	Input.mouse_mode = _previous_mouse_mode
-	PlayerInteractionEvents.publish(reader, get_parent() as E_Terminal, PlayerInteractionEvent.Kind.TERMINAL_CLOSED)
+	PlayerInteractionEvents.publish(
+		reader,
+		get_parent() as E_Terminal,
+		PlayerInteractionEvent.Kind.TERMINAL_CLOSED,
+	)
 #endregion
 
 
 #region Список посылок и сортировка
 func _refresh(force: bool = false) -> void:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	_orders_button.disabled = CommerceService.current() == null or cycle == null or cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
+	_orders_button.disabled = (
+		CommerceService.current() == null or cycle == null
+		or cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
+	)
 	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		_clear_package_rows()
@@ -167,7 +176,9 @@ func _refresh(force: bool = false) -> void:
 
 	var states: Dictionary[String, C_PackageState] = _live_states()
 	var visits: Dictionary[String, CustomerVisit] = _visits_by_package()
-	var deliveries: Dictionary[String, TerminalDeliveryInfo] = HomeDeliveryQueries.published_by_package(ledger, states, visits)
+	var deliveries: Dictionary[String, TerminalDeliveryInfo] = (
+		HomeDeliveryQueries.published_by_package(ledger, states, visits)
+	)
 	var signature: String = _data_signature(ledger, states, visits, deliveries)
 	if not force and signature == _last_data_signature:
 		return
@@ -198,12 +209,31 @@ func _rebuild_package_rows(
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var actions_enabled: bool = cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT
 	for record: PackageRegistrationRecord in records:
-		var delivery: TerminalDeliveryInfo = deliveries.get(record.package_id) as TerminalDeliveryInfo
-		var notice: TerminalPackageNotice = TerminalPackageNoticeService.present(record, visits.get(record.package_id) as CustomerVisit, delivery)
-		if visible and _info_mode == InfoMode.DETAIL and record.package_id == _selected_package_id and notice.severity != TerminalPackageNotice.Severity.NONE:
+		var delivery: TerminalDeliveryInfo = (
+			deliveries.get(record.package_id) as TerminalDeliveryInfo
+		)
+		var notice: TerminalPackageNotice = (
+			TerminalPackageNoticeService.present(
+				record,
+				visits.get(record.package_id) as CustomerVisit,
+				delivery,
+			)
+		)
+		if (
+			visible and _info_mode == InfoMode.DETAIL and record.package_id == _selected_package_id
+			and notice.severity != TerminalPackageNotice.Severity.NONE
+		):
 			TerminalPackageNoticeService.mark_read(record.history_id, notice.event_ids)
-			notice = TerminalPackageNoticeService.present(record, visits.get(record.package_id) as CustomerVisit, delivery)
-		var line: UI_TerminalButtonPackage = _package_line_scene.instantiate() as UI_TerminalButtonPackage
+			notice = (
+				TerminalPackageNoticeService.present(
+					record,
+					visits.get(record.package_id) as CustomerVisit,
+					delivery,
+				)
+			)
+		var line: UI_TerminalButtonPackage = (
+			_package_line_scene.instantiate() as UI_TerminalButtonPackage
+		)
 		_package_list.add_child(line)
 		line.package_selected.connect(_on_package_selected)
 		line.taken_requested.connect(_on_taken_requested)
@@ -287,8 +317,12 @@ func _compare_records(first: PackageRegistrationRecord, second: PackageRegistrat
 			return _compare_int(_record_day(first), _record_day(second))
 
 		SortMode.TYPE:
-			var first_type: String = String(first_definition.key) if first_definition != null else ""
-			var second_type: String = String(second_definition.key) if second_definition != null else ""
+			var first_type: String = (
+				String(first_definition.key) if first_definition != null else ""
+			)
+			var second_type: String = (
+				String(second_definition.key) if second_definition != null else ""
+			)
 			return first_type.nocasecmp_to(second_type)
 
 		SortMode.PRICE:
@@ -328,8 +362,8 @@ static func _is_archived(
 		return visit.declaration != CustomerVisit.Declaration.NONE
 	return debug_status and not record.active
 
-
 #endregion
+
 
 #region Подробности и истории
 func _refresh_info(
@@ -390,7 +424,12 @@ func _package_history_entries(
 				uid,
 				UI_TerminalButtonPackage.number_text(record),
 				title,
-				UI_TerminalButtonPackage.status_text(record, state, visit, debug_package_status_enabled),
+				UI_TerminalButtonPackage.status_text(
+					record,
+					state,
+					visit,
+					debug_package_status_enabled,
+				),
 			]
 		)
 	return entries
@@ -473,25 +512,42 @@ static func _reason_text(reason: MoneyOperation.Reason) -> String:
 
 static func _is_credit(reason: MoneyOperation.Reason) -> bool:
 	return (
-		reason == MoneyOperation.Reason.PAYMENT
-		or reason == MoneyOperation.Reason.DEBUG_CREDIT
+		reason == MoneyOperation.Reason.PAYMENT or reason == MoneyOperation.Reason.DEBUG_CREDIT
 		or reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL
 	)
 
 
 static func _help_entries() -> PackedStringArray:
-	return PackedStringArray([
-		"Выберите поступившую посылку слева, чтобы увидеть подробности. До сканирования она показывается без номера выдачи.",
-		"Три кнопки в строке — единственные Terminal outcome-действия: Забрали, Отказались, Потеряли.",
-		"Поиск фильтрует список. Сортировку можно менять по весу, номеру, дате, типу и цене.",
-		"Архив показывает записи, для которых outcome уже отмечен.",
-		"Отказная посылка не выкупается и не возвращается кнопкой Terminal. Её будущий исход определяется физической утренней выгрузкой/машиной/трешером.",
-		"Пропущенный срок регистрации вызывает отдельный штраф. Посылку он не удаляет и потерю за игрока не объявляет.",
-		"Потерю поступившей посылки можно заявить до регистрации и прихода клиента. Выдача и отказ доступны после начала визита.",
-	])
-
+	return PackedStringArray(
+		[
+			(
+				"Выберите поступившую посылку слева, чтобы увидеть "
+				+ "подробности. До сканирования она показывается без номера " + "выдачи."
+			),
+			(
+				"Три кнопки в строке — единственные Terminal "
+				+ "outcome-действия: Забрали, Отказались, Потеряли."
+			),
+			"Поиск фильтрует список. Сортировку можно менять по весу, номеру, дате, типу и цене.",
+			"Архив показывает записи, для которых outcome уже отмечен.",
+			(
+				"Отказная посылка не выкупается и не возвращается кнопкой "
+				+ "Terminal. Её будущий исход определяется физической утренней "
+				+ "выгрузкой/машиной/трешером."
+			),
+			(
+				"Пропущенный срок регистрации вызывает отдельный штраф. "
+				+ "Посылку он не удаляет и потерю за игрока не объявляет."
+			),
+			(
+				"Потерю поступившей посылки можно заявить до регистрации и "
+				+ "прихода клиента. Выдача и отказ доступны после начала " + "визита."
+			),
+		]
+	)
 
 #endregion
+
 
 #region Снимок данных и видимость панелей
 func _live_states() -> Dictionary[String, C_PackageState]:
@@ -499,7 +555,7 @@ func _live_states() -> Dictionary[String, C_PackageState]:
 
 
 func _visits_by_package() -> Dictionary[String, CustomerVisit]:
-	var result: Dictionary[String, CustomerVisit] = {}
+	var result: Dictionary[String, CustomerVisit] = { }
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null:
 		return result
@@ -514,7 +570,7 @@ func _data_signature(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
 	visits: Dictionary[String, CustomerVisit],
-	deliveries: Dictionary[String, TerminalDeliveryInfo] = {},
+	deliveries: Dictionary[String, TerminalDeliveryInfo] = { },
 ) -> String:
 	var parts: PackedStringArray = ["debug:%s" % debug_package_status_enabled]
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -524,22 +580,44 @@ func _data_signature(
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
 		parts.append("note:%d" % record.note.hash())
 		parts.append("read:" + "\n".join(record.read_event_ids))
-		var delivery: TerminalDeliveryInfo = deliveries.get(record.package_id) as TerminalDeliveryInfo
+		var delivery: TerminalDeliveryInfo = (
+			deliveries.get(record.package_id) as TerminalDeliveryInfo
+		)
 		if delivery != null:
-			parts.append("delivery:%s:%d:%d:%d:%s:%s" % [delivery.job_id, delivery.status, delivery.bonus, delivery.deadline_day, delivery.can_respond, delivery.address])
+			parts.append(
+				"delivery:%s:%d:%d:%d:%s:%s"
+				% [
+					delivery.job_id,
+					delivery.status,
+					delivery.bonus,
+					delivery.deadline_day,
+					delivery.can_respond,
+					delivery.address,
+				]
+			)
 		var complaint: CustomerComplaint = visit.complaint if visit != null else null
 		if complaint != null:
-			parts.append("complaint:%s:%d:%d:%d:%d:%d:%d" % [
-				complaint.complaint_id, complaint.reason, complaint.outcome,
-				complaint.created_day, complaint.money_delta,
-				complaint.customer_name.hash(), complaint.message.hash(),
-			])
-		parts.append("receipt:%d:%d:%d:%s" % [
-			record.received_day,
-			record.day_index,
-			visit.registration_overdue_day if visit != null else 0,
-			visit.registration_money_delta if visit != null else 0,
-		])
+			parts.append(
+				"complaint:%s:%d:%d:%d:%d:%d:%d"
+				% [
+					complaint.complaint_id,
+					complaint.reason,
+					complaint.outcome,
+					complaint.created_day,
+					complaint.money_delta,
+					complaint.customer_name.hash(),
+					complaint.message.hash(),
+				]
+			)
+		parts.append(
+			"receipt:%d:%d:%d:%s"
+			% [
+				record.received_day,
+				record.day_index,
+				visit.registration_overdue_day if visit != null else 0,
+				visit.registration_money_delta if visit != null else 0,
+			]
+		)
 		parts.append(
 			"%s:%s:%d:%d:%d:%d:%d:%d:%d"
 			% [
@@ -557,14 +635,13 @@ func _data_signature(
 
 	var wallet: C_Wallet = WalletService.current()
 	if wallet != null:
-		parts.append("wallet:%d:%d:%d" % [wallet.balance, wallet.penalties, wallet.operations.size()])
+		parts.append(
+			"wallet:%d:%d:%d" % [wallet.balance, wallet.penalties, wallet.operations.size()]
+		)
 	return "|".join(parts)
 
 
-static func _record_for(
-	ledger: C_PackageLedger,
-	package_id: String,
-) -> PackageRegistrationRecord:
+static func _record_for(ledger: C_PackageLedger, package_id: String) -> PackageRegistrationRecord:
 	for record: PackageRegistrationRecord in ledger.records:
 		if record.package_id == package_id:
 			return record
@@ -578,14 +655,20 @@ func _clear_designer_rows() -> void:
 func _focused_package_id() -> String:
 	var focus_owner: Control = get_viewport().gui_get_focus_owner()
 	for child: Node in _package_list.get_children():
-		if child is UI_TerminalButtonPackage and focus_owner != null and child.is_ancestor_of(focus_owner):
+		if (
+			child is UI_TerminalButtonPackage and focus_owner != null
+			and child.is_ancestor_of(focus_owner)
+		):
 			return (child as UI_TerminalButtonPackage).package_id()
 	return ""
 
 
 func _focus_selected_row() -> void:
 	for child: Node in _package_list.get_children():
-		if child is UI_TerminalButtonPackage and (child as UI_TerminalButtonPackage).package_id() == _selected_package_id:
+		if (
+			child is UI_TerminalButtonPackage
+			and (child as UI_TerminalButtonPackage).package_id() == _selected_package_id
+		):
 			(child as UI_TerminalButtonPackage).focus_row()
 			return
 
@@ -607,14 +690,11 @@ func _clear_package_rows() -> void:
 func _set_info_mode(mode: InfoMode) -> void:
 	_info_mode = mode
 	_package_detail.visible = mode == InfoMode.DETAIL
-	_package_history.visible = (
-		mode == InfoMode.PACKAGE_HISTORY
-		or mode == InfoMode.HELP
-	)
+	_package_history.visible = (mode == InfoMode.PACKAGE_HISTORY or mode == InfoMode.HELP)
 	_transaction_history.visible = mode == InfoMode.TRANSACTIONS
 
-
 #endregion
+
 
 #region Запросы пользователя
 func _on_note_changed(history_id: String, text: String) -> void:
@@ -661,10 +741,7 @@ func _respond_delivery(job_id: StringName, accept_delivery: bool) -> void:
 
 
 ## Запрашивает заявление в журнале обслуживания; физическую выдачу коробки не выполняет.
-func _declare_package(
-	package_id: String,
-	declaration: CustomerVisit.Declaration,
-) -> void:
+func _declare_package(package_id: String, declaration: CustomerVisit.Declaration) -> void:
 	var visits: Dictionary[String, CustomerVisit] = _visits_by_package()
 	var visit: CustomerVisit = visits.get(package_id) as CustomerVisit
 	if visit == null:
@@ -749,9 +826,6 @@ func _on_orders_pressed() -> void:
 	var actor: Entity = _reader
 	close_panel()
 	CommercePanelFactory.open(actor, null, true)
-
-
-
 
 #endregion
 

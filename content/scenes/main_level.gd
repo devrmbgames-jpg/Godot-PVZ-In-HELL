@@ -5,7 +5,8 @@ extends Node3D
 @export var world: World = null
 ## Авторский маркер утренней выдачи крупной мебели; перемещение/поворот меняет площадку.
 @export var furniture_delivery_anchor: Marker3D = null
-## Путь слота автосохранения; пустой отключает автоматическую загрузку, тесты могут задавать отдельный слот.
+## Путь слота автосохранения; пустой отключает автоматическую загрузку, тесты могут задавать
+## отдельный слот.
 @export var autosave_path: String = AutosaveStore.DEFAULT_PATH
 
 
@@ -16,8 +17,9 @@ func _ready() -> void:
 		for issue: String in authored_world.identity_issues():
 			push_error(issue)
 		for issue: EntityBuildPlan.Issue in authored_world.composition_issues():
-			push_error("%s: %s [%s; %s]" % [issue.instance_path, issue.message,
-				issue.code, issue.source])
+			push_error(
+				"%s: %s [%s; %s]" % [issue.instance_path, issue.message, issue.code, issue.source]
+			)
 		set_physics_process(false)
 		queue_free()
 		return
@@ -26,8 +28,10 @@ func _ready() -> void:
 	NpcCustomerComposition.install(world)
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
 	var day_session: Entity = world.query.with_all([C_DayCycle]).execute_one()
-	assert(day_session.has_component(C_BoundaryTrace),
-		"Day session requires its authored diagnostics capability before native registration")
+	assert(
+		day_session.has_component(C_BoundaryTrace),
+		"Day session requires its authored diagnostics capability before native registration",
+	)
 	var clock_owner: S_GameTime = S_GameTime.new()
 	clock_owner.group = "Clock"
 	world.add_system(clock_owner)
@@ -37,14 +41,38 @@ func _ready() -> void:
 	world.add_observer(O_CustomerGreeting.new())
 	world.add_observer(O_CustomerServiceClock.new())
 	world.add_observer(O_CustomerNpcInterruption.new())
-	for observer_type: Script in [O_CustomerNpcConversation, O_CustomerInspectionCargo, O_DialoguePanelRequest, O_GameplayPanelRequest, O_NightPreparationRequirement]:
+	for observer_type: Script in ([
+		O_CustomerNpcConversation,
+		O_CustomerInspectionCargo,
+		O_DialoguePanelRequest,
+		O_GameplayPanelRequest,
+		O_NightPreparationRequirement,
+	]):
 		var composition_observer: Observer = observer_type.new() as Observer
 		world.add_observer(composition_observer)
-	for owner_type: Script in [S_CustomerVisitPresence, S_CustomerCleanup, S_CustomerClock, S_CustomerGreeting, S_CustomerApproach, S_CustomerWaiting, S_CustomerInspection, S_CustomerDeparture, S_CustomerArrivals]:
+	for owner_type: Script in ([
+		S_CustomerVisitPresence,
+		S_CustomerCleanup,
+		S_CustomerClock,
+		S_CustomerGreeting,
+		S_CustomerApproach,
+		S_CustomerWaiting,
+		S_CustomerInspection,
+		S_CustomerDeparture,
+		S_CustomerArrivals,
+	]):
 		var customer_owner: System = owner_type.new() as System
 		customer_owner.group = "GamePlay"
 		world.add_system(customer_owner)
-	for owner_type: Script in [S_NpcCadence, S_NpcFootsteps, S_NpcPerception, S_NpcTraits, S_NpcRoute, S_NpcRoutePlanning, S_NpcNoise]:
+	for owner_type: Script in ([
+		S_NpcCadence,
+		S_NpcFootsteps,
+		S_NpcPerception,
+		S_NpcTraits,
+		S_NpcRoute,
+		S_NpcRoutePlanning,
+		S_NpcNoise,
+	]):
 		var npc_owner: System = owner_type.new() as System
 		npc_owner.group = "GamePlay"
 		world.add_system(npc_owner)
@@ -82,7 +110,11 @@ func _ready() -> void:
 func _bind_furniture_delivery() -> void:
 	for zone: Entity in world.query.with_all([C_OrderReceiving]).execute():
 		var state: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
-		state.furniture_anchor_path = zone.get_path_to(furniture_delivery_anchor) if furniture_delivery_anchor != null else NodePath("")
+		state.furniture_anchor_path = (
+			zone.get_path_to(furniture_delivery_anchor)
+			if furniture_delivery_anchor != null
+			else NodePath("")
+		)
 
 
 func _notification(what: int) -> void:
@@ -91,7 +123,14 @@ func _notification(what: int) -> void:
 		# компонентов; purge разрывает циклы перед освобождением сцены.
 		# При закрытии дерева дочерние Entity могут освободиться раньше уведомления родителя.
 		while not world.entities.is_empty():
-			world.entities = world.entities.filter(func(entity: Variant) -> bool: return is_instance_valid(entity))
+			world.entities = (
+				world
+				.entities
+				.filter(
+					func(entity: Variant) -> bool:
+						return is_instance_valid(entity),
+				)
+			)
 			if world.entities.is_empty():
 				break
 
@@ -101,8 +140,8 @@ func _notification(what: int) -> void:
 		if ECS.world == world:
 			ECS.world = null
 
-
 #endregion
+
 
 #region Игровые callbacks
 func _physics_process(delta: float) -> void:

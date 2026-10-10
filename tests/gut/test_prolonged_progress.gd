@@ -26,7 +26,9 @@ func test_default_duration_and_one_success_per_hold() -> void:
 
 ## Мгновенный сброс стирает незавершённый прогресс без эффекта.
 func test_instant_reset_does_not_complete_interrupted_action() -> void:
-	var definition: DEF_ProlongedInteraction = _definition(DEF_ProlongedInteraction.ResetPolicy.INSTANT)
+	var definition: DEF_ProlongedInteraction = (
+		_definition(DEF_ProlongedInteraction.ResetPolicy.INSTANT)
+	)
 	var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
 	ProlongedProgressSolver.advance(progress, definition, 1.0, true)
 	ProlongedProgressSolver.interrupt(progress, definition)
@@ -37,7 +39,9 @@ func test_instant_reset_does_not_complete_interrupted_action() -> void:
 
 ## Скорость затухания доли в секунду не зависит от полной длительности действия.
 func test_decay_rate_is_independent_of_action_duration() -> void:
-	var definition: DEF_ProlongedInteraction = _definition(DEF_ProlongedInteraction.ResetPolicy.DECAY)
+	var definition: DEF_ProlongedInteraction = (
+		_definition(DEF_ProlongedInteraction.ResetPolicy.DECAY)
+	)
 	definition.duration_seconds = 4.0
 	definition.decay_per_second = 0.25
 	var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
@@ -50,7 +54,9 @@ func test_decay_rate_is_independent_of_action_duration() -> void:
 
 ## Политика ON_COMPLETE сохраняет незавершённую долю и сбрасывает её после успеха.
 func test_on_complete_retains_partial_progress_and_resets_only_after_success() -> void:
-	var definition: DEF_ProlongedInteraction = _definition(DEF_ProlongedInteraction.ResetPolicy.ON_COMPLETE)
+	var definition: DEF_ProlongedInteraction = (
+		_definition(DEF_ProlongedInteraction.ResetPolicy.ON_COMPLETE)
+	)
 	var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
 	ProlongedProgressSolver.advance(progress, definition, 0.75, true)
 	ProlongedProgressSolver.advance(progress, definition, 10.0, false)
@@ -66,7 +72,9 @@ func test_on_complete_retains_partial_progress_and_resets_only_after_success() -
 
 ## Политика NEVER сохраняет однократное завершение после отпускания и копирования.
 func test_never_is_persistent_one_shot_even_after_release_and_copy() -> void:
-	var definition: DEF_ProlongedInteraction = _definition(DEF_ProlongedInteraction.ResetPolicy.NEVER)
+	var definition: DEF_ProlongedInteraction = (
+		_definition(DEF_ProlongedInteraction.ResetPolicy.NEVER)
+	)
 	var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
 	ProlongedProgressSolver.advance(progress, definition, 0.75, true)
 	ProlongedProgressSolver.interrupt(progress, definition)
@@ -74,7 +82,9 @@ func test_never_is_persistent_one_shot_even_after_release_and_copy() -> void:
 	ProlongedProgressSolver.advance(progress, definition, 0.75, true)
 	ProlongedProgressSolver.commit_success(progress, definition)
 
-	var restored: ProlongedInteractionProgress = progress.duplicate(true) as ProlongedInteractionProgress
+	var restored: ProlongedInteractionProgress = (
+		progress.duplicate(true) as ProlongedInteractionProgress
+	)
 	ProlongedProgressSolver.advance(restored, definition, 100.0, false)
 	assert_false(ProlongedProgressSolver.advance(restored, definition, 100.0, true))
 	assert_false(ProlongedProgressSolver.commit_success(restored, definition))
@@ -83,7 +93,9 @@ func test_never_is_persistent_one_shot_even_after_release_and_copy() -> void:
 
 ## Прерывание готового действия не фиксирует эффект; новое удержание может его завершить.
 func test_interruption_at_ready_never_commits_effect() -> void:
-	var definition: DEF_ProlongedInteraction = _definition(DEF_ProlongedInteraction.ResetPolicy.ON_COMPLETE)
+	var definition: DEF_ProlongedInteraction = (
+		_definition(DEF_ProlongedInteraction.ResetPolicy.ON_COMPLETE)
+	)
 	var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
 	ProlongedProgressSolver.advance(progress, definition, 1.5, true)
 	ProlongedProgressSolver.interrupt(progress, definition)

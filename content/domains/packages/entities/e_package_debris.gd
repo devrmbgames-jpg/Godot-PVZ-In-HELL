@@ -7,6 +7,7 @@ class_name E_PackageDebris
 var _source_package_id: String = ""
 var _source_definition: DEF_Package = null
 
+
 ## Задаёт исходную посылку до добавления обломков в World и создания компонентов.
 func configure_source(package_id: String, definition: DEF_Package) -> void:
 	_source_package_id = package_id

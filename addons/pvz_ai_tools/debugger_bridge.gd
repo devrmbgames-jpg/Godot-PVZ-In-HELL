@@ -8,7 +8,7 @@ const CAPTURE_PREFIX: String = "pvz_ai"
 static var _instance: PvzAiDebuggerBridge = null
 
 var _runtime_session_id: int = -1
-var _pending: Dictionary = {}
+var _pending: Dictionary = { }
 
 
 #region Lifecycle
@@ -60,11 +60,7 @@ func runtime_ready() -> bool:
 
 
 ## Schedules one runtime inspection request after the custom-tool handler returns deferred.
-func request_runtime(
-	operation: String,
-	params: Dictionary,
-	ctx: McpCallContext,
-) -> bool:
+func request_runtime(operation: String, params: Dictionary, ctx: McpCallContext) -> bool:
 	if ctx == null or ctx.request_id.is_empty() or not runtime_ready():
 		return false
 	_pending[ctx.request_id] = {
@@ -85,7 +81,7 @@ func has_pending() -> bool:
 func expire_pending() -> void:
 	for request_key: Variant in _pending.keys():
 		var request_id: String = String(request_key)
-		var entry: Dictionary = _pending.get(request_id, {})
+		var entry: Dictionary = _pending.get(request_id, { })
 		var ctx: McpCallContext = entry.get("context") as McpCallContext
 		if ctx == null or ctx.is_expired():
 			_pending.erase(request_id)
@@ -104,7 +100,7 @@ func shutdown() -> void:
 #region Request routing
 
 func _send_pending(request_id: String) -> void:
-	var entry: Dictionary = _pending.get(request_id, {})
+	var entry: Dictionary = _pending.get(request_id, { })
 	if entry.is_empty():
 		return
 
@@ -116,21 +112,19 @@ func _send_pending(request_id: String) -> void:
 	var session: EditorDebuggerSession = get_session(_runtime_session_id)
 	if session == null or not session.is_active():
 		_pending.erase(request_id)
-		ctx.send_deferred({
-			"data": {
-				"ok": false,
-				"error": "PVZ runtime bridge is not connected to an active game session.",
-			},
-		})
+		ctx.send_deferred(
+			{
+				"data": {
+					"ok": false,
+					"error": "PVZ runtime bridge is not connected to an active game session.",
+				},
+			}
+		)
 		return
 
 	session.send_message(
 		"pvz_ai:inspect",
-		[
-			request_id,
-			String(entry.get("operation", "")),
-			entry.get("params", {}) as Dictionary,
-		],
+		[request_id, String(entry.get("operation", "")), entry.get("params", { }) as Dictionary],
 	)
 
 
@@ -138,7 +132,7 @@ func _handle_response(data: Array, session_id: int) -> void:
 	if session_id != _runtime_session_id or data.size() < 2:
 		return
 	var request_id: String = String(data[0])
-	var entry: Dictionary = _pending.get(request_id, {})
+	var entry: Dictionary = _pending.get(request_id, { })
 	if entry.is_empty():
 		return
 	_pending.erase(request_id)
@@ -148,15 +142,12 @@ func _handle_response(data: Array, session_id: int) -> void:
 		return
 
 	var raw_payload: Variant = data[1]
-	var payload: Dictionary = {}
+	var payload: Dictionary = { }
 	if raw_payload is Dictionary:
 		payload = raw_payload as Dictionary
 	else:
-		payload = {
-			"ok": false,
-			"error": "PVZ runtime bridge returned a malformed payload.",
-		}
-	ctx.send_deferred({"data": payload})
+		payload = { "ok": false, "error": "PVZ runtime bridge returned a malformed payload." }
+	ctx.send_deferred({ "data": payload })
 
 
 func _on_session_stopped(session_id: int) -> void:
@@ -169,15 +160,10 @@ func _on_session_stopped(session_id: int) -> void:
 func _fail_all_pending(message: String) -> void:
 	for request_key: Variant in _pending.keys():
 		var request_id: String = String(request_key)
-		var entry: Dictionary = _pending.get(request_id, {})
+		var entry: Dictionary = _pending.get(request_id, { })
 		var ctx: McpCallContext = entry.get("context") as McpCallContext
 		if ctx != null and not ctx.is_expired():
-			ctx.send_deferred({
-				"data": {
-					"ok": false,
-					"error": message,
-				},
-			})
+			ctx.send_deferred({ "data": { "ok": false, "error": message } })
 	_pending.clear()
 
 #endregion

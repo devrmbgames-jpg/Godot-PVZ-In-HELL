@@ -148,8 +148,10 @@ func test_processing_accounting_retains_all_bodies_without_dormant_animation_wor
 			active_actors += 1
 		if body.is_processing():
 			processing_roots += 1
-		if body.animation_player != null and body.animation_player.active \
-				and body.animation_player.can_process():
+		if (
+			body.animation_player != null and body.animation_player.active
+			and body.animation_player.can_process()
+		):
 			processing_animations += 1
 		if not body.enabled:
 			assert_false(body.animation_player.can_process())

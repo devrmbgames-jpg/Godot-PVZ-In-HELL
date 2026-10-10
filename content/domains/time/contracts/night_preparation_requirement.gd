@@ -6,6 +6,7 @@ class_name NightPreparationRequirement
 const EVENT: StringName = &"night_preparation_requirement"
 var _required: bool = false
 
+
 #region Preparation response
 ## Сообщает, что ночной owner должен завершить подготовку до следующего утра.
 func require_preparation() -> void:

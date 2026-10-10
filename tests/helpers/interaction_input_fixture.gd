@@ -5,12 +5,14 @@ class_name InteractionInputFixture
 const TARGET_GROUP: String = "interaction_input_fixture_target"
 const OWNER_GROUP: String = "interaction_input_fixture_owner"
 
+
 ## Narrows only the production query, preserving actual input arbitration and command flushing.
 class InputOwner extends S_InteractionInput:
 	#region Fixture query
 	func query() -> QueryBuilder:
 		return super.query().with_group([InteractionInputFixture.TARGET_GROUP])
 	#endregion
+
 
 ## Narrows only the production marker query.
 class MarkerOwner extends S_Marker:
@@ -19,6 +21,7 @@ class MarkerOwner extends S_Marker:
 		return super.query().with_group([InteractionInputFixture.TARGET_GROUP])
 	#endregion
 
+
 ## Narrows only the production decay query.
 class DecayOwner extends S_ProlongedDecay:
 	#region Fixture query
@@ -26,8 +29,10 @@ class DecayOwner extends S_ProlongedDecay:
 		return super.query().with_group([InteractionInputFixture.TARGET_GROUP])
 	#endregion
 
+
 #region Actual scheduled steps
-## Consumes the prepared C_Controller snapshot through native World process and command-buffer execution.
+## Consumes the prepared C_Controller snapshot through native World process and command-buffer
+## execution.
 static func advance(actor: Entity, delta: float = 0.0) -> void:
 	_run(InputOwner.new(), actor, delta)
 
@@ -48,7 +53,10 @@ static func decay(target: Entity, delta: float) -> void:
 
 static func _run(owner: System, subject: Entity, delta: float) -> void:
 	subject.add_to_group(TARGET_GROUP)
-	owner.group = OWNER_GROUP + ("/marker" if owner is MarkerOwner else "/decay" if owner is DecayOwner else "/input")
+	owner.group = (
+		OWNER_GROUP
+		+ ("/marker" if owner is MarkerOwner else "/decay" if owner is DecayOwner else "/input")
+	)
 	if owner not in ECS.world.systems:
 		ECS.world.add_system(owner)
 	ECS.world.process(delta, owner.group)

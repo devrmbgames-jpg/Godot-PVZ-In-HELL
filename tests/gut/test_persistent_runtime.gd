@@ -1,5 +1,6 @@
 extends GutTest
-## Проверки сохранения завершённых действий и постоянных опасностей без повторных эффектов и восстановления устаревших связей.
+## Проверки сохранения завершённых действий и постоянных опасностей без повторных эффектов и
+## восстановления устаревших связей.
 
 var _root: Node = null
 var _world: World = null
@@ -36,8 +37,10 @@ func after_each() -> void:
 
 
 func _valve_scene() -> PackedScene:
-	return load(
-		"res://content/domains/interaction/entities/interaction_test_valve.tscn") as PackedScene
+	var valve_scene_path: String = (
+		"res://content/domains/interaction/entities/interaction_test_valve.tscn"
+	)
+	return load(valve_scene_path) as PackedScene
 
 
 func _valve() -> E_InteractionTestValve:
@@ -46,34 +49,48 @@ func _valve() -> E_InteractionTestValve:
 	_root.add_child(valve)
 	valve.owner = _root
 	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
-	valve.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName("valve_%d" % _world.entities.size()))
+	valve.set_meta(
+		PlacedIdentityRules.LOCAL_ID_META,
+		StringName("valve_%d" % _world.entities.size()),
+	)
 	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(valve, null, false)
 	return valve
 
 
 func _progress(valve: E_InteractionTestValve, id: StringName) -> ProlongedInteractionProgress:
-	var state: C_ProlongedInteraction = valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	var state: C_ProlongedInteraction = (
+		valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	)
 	if state == null:
 		state = C_ProlongedInteraction.new()
 		valve.add_component(state)
 	var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
 	progress.action_id = id
-	for action: DEF_InteractionAction in (valve.get_component(C_InteractionActionSet) as C_InteractionActionSet).actions:
+	for action: DEF_InteractionAction in (
+		(valve.get_component(C_InteractionActionSet) as C_InteractionActionSet).actions
+	):
 		if action.action_id == id:
 			progress.timing = action.timing
 	state.actions.append(progress)
 	return progress
 
-
 #endregion
+
 
 #region Завершённые действия и отображение прогресса
 ## Завершённое NEVER-действие и эффект восстанавливаются без повторного сигнала активации.
 func test_never_completion_and_effect_restore_without_executing_again() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	var progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_never")
-	assert_true(ProlongedProgressSolver.advance(progress, progress.timing, progress.timing.duration_seconds, true))
+	assert_true(
+		ProlongedProgressSolver.advance(
+			progress,
+			progress.timing,
+			progress.timing.duration_seconds,
+			true,
+		)
+	)
 	valve.activate()
 	assert_true(ProlongedProgressSolver.commit_success(progress, progress.timing))
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -88,7 +105,10 @@ func test_never_completion_and_effect_restore_without_executing_again() -> void:
 	assert_eq(progress.phase, ProlongedInteractionProgress.Phase.COMPLETED)
 	assert_false(ProlongedProgressSolver.advance(progress, progress.timing, 10.0, true))
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
-	assert_eq((valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction).actions.size(), 1)
+	assert_eq(
+		(valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction).actions.size(),
+		1,
+	)
 
 
 ## Ночь сбрасывает незавершённый прогресс, сохраняя зафиксированное NEVER-действие.
@@ -142,8 +162,14 @@ func test_fresh_completed_actions_reject_before_publication_or_live_mutation() -
 	wallet.balance = 230
 	watch_signals(_world)
 
-	var invalid_progress: Array[Variant] = ["wrong_container", [1], ["test_valve_never"],
-		[&"missing"], [&"test_valve_decay"], [&"test_valve_never", &"test_valve_never"]]
+	var invalid_progress: Array[Variant] = [
+		"wrong_container",
+		[1],
+		["test_valve_never"],
+		[&"missing"],
+		[&"test_valve_decay"],
+		[&"test_valve_never", &"test_valve_never"],
+	]
 	for invalid_ids: Variant in invalid_progress:
 		var snapshot: Dictionary = saved.duplicate(true)
 		for record: Dictionary in snapshot.entities:
@@ -166,8 +192,9 @@ func test_fresh_completed_action_rejects_changed_authored_policy() -> void:
 	EntityCompositionFixture.register(_world, valve)
 	PersistentInteractionState.restore([&"test_valve_never"], valve)
 	var saved: Dictionary = WorldSnapshotService.capture(_root, 2)
-	var actions: C_InteractionActionSet = valve.get_component(
-		C_InteractionActionSet) as C_InteractionActionSet
+	var actions: C_InteractionActionSet = (
+		valve.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	)
 	var timing: DEF_ProlongedInteraction = null
 	for action: DEF_InteractionAction in actions.actions:
 		if action.action_id == &"test_valve_never":
@@ -189,7 +216,8 @@ func test_fresh_completed_action_rejects_changed_authored_policy() -> void:
 	assert_no_new_orphans()
 
 
-## Начальное значение и непосредственные переключения публикуют только фактические изменения прогресса.
+## Начальное значение и непосредственные переключения публикуют только фактические изменения
+## прогресса.
 func test_valve_progress_initial_and_immediate_toggle_emit_only_changed_values() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	watch_signals(valve)
@@ -199,38 +227,51 @@ func test_valve_progress_initial_and_immediate_toggle_emit_only_changed_values()
 	valve.activate()
 	assert_signal_emitted_with_parameters(valve, "progress_changed", [1.0], 1)
 	valve.activate()
-	valve._process(0.0)
+	valve.call("_process", 0.0)
 	assert_signal_emit_count(valve, "progress_changed", 3)
 	assert_signal_emit_count(valve, "activated", 2)
 	assert_eq(valve.get_progress(), 0.0)
 
 
-## Видимый прогресс и колесо следуют затуханию/сбросу без повторного применения завершённого эффекта.
+## Видимый прогресс и колесо следуют затуханию/сбросу без повторного применения завершённого
+## эффекта.
 func test_valve_progress_follows_rotation_decay_and_oncomplete_reset_without_reactivation() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	valve.mode = E_InteractionTestValve.Mode.HOLD_DECAY
 	var wheel: Node3D = valve.get_node("Wheel") as Node3D
 	var rest: Basis = wheel.basis
 	var progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_decay")
-	ProlongedProgressSolver.advance(progress, progress.timing, progress.timing.duration_seconds / 2.0, true)
-	valve._process(0.0)
+	ProlongedProgressSolver.advance(
+		progress,
+		progress.timing,
+		progress.timing.duration_seconds / 2.0,
+		true,
+	)
+	valve.call("_process", 0.0)
 	assert_eq(valve.get_progress(), 0.5)
 	assert_true(wheel.basis.is_equal_approx(rest * Basis(Vector3.UP, PI / 2.0)))
 	assert_string_contains((valve.get_node("ProgressStatus") as Label3D).text, "4.0 с")
 	ProlongedProgressSolver.interrupt(progress, progress.timing)
 	InteractionInputFixture.decay(valve, 1.0)
-	valve._process(0.0)
+	valve.call("_process", 0.0)
 	assert_almost_eq(valve.get_progress(), 0.4125, 0.00001)
 	valve.mode = E_InteractionTestValve.Mode.HOLD_ON_COMPLETE
 
 	var reset_progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_on_complete")
 	watch_signals(valve)
-	assert_true(ProlongedProgressSolver.advance(reset_progress, reset_progress.timing, reset_progress.timing.duration_seconds, true))
+	assert_true(
+		ProlongedProgressSolver.advance(
+			reset_progress,
+			reset_progress.timing,
+			reset_progress.timing.duration_seconds,
+			true,
+		)
+	)
 	valve.activate()
 	assert_eq(valve.get_progress(), 1.0)
 	assert_signal_emitted_with_parameters(valve, "progress_changed", [1.0])
 	assert_true(ProlongedProgressSolver.commit_success(reset_progress, reset_progress.timing))
-	valve._process(0.0)
+	valve.call("_process", 0.0)
 	assert_eq(valve.get_progress(), 0.0)
 	assert_signal_emit_count(valve, "activated", 1)
 	assert_signal_emit_count(valve, "progress_changed", 2)
@@ -242,30 +283,37 @@ func test_valve_progress_saved_never_restores_signal_and_wheel_without_executing
 	var valve: E_InteractionTestValve = _valve()
 	valve.mode = E_InteractionTestValve.Mode.HOLD_NEVER
 	var progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_never")
-	assert_true(ProlongedProgressSolver.advance(progress, progress.timing, progress.timing.duration_seconds, true))
+	assert_true(
+		ProlongedProgressSolver.advance(
+			progress,
+			progress.timing,
+			progress.timing.duration_seconds,
+			true,
+		)
+	)
 	valve.activate()
 	assert_true(ProlongedProgressSolver.commit_success(progress, progress.timing))
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	(valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction).actions.clear()
 	(valve.get_component(C_InteractionToggle) as C_InteractionToggle).active = false
-	valve._process(0.0)
+	valve.call("_process", 0.0)
 	watch_signals(valve)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
-	valve._process(0.0)
+	valve.call("_process", 0.0)
 	assert_eq(valve.get_progress(), 1.0)
 	assert_true(valve.is_active())
 	assert_signal_emitted_with_parameters(valve, "progress_changed", [1.0])
 	assert_signal_not_emitted(valve, "activated")
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
-	valve._process(0.0)
+	valve.call("_process", 0.0)
 	assert_signal_emit_count(valve, "progress_changed", 1)
 	NightResetService.reset()
-	valve._process(0.0)
+	valve.call("_process", 0.0)
 	assert_eq(valve.get_progress(), 1.0)
 	assert_signal_emit_count(valve, "progress_changed", 1)
 
-
 #endregion
+
 
 #region Постоянные опасности и настройки тела
 func _hazard(path: String, persistent: bool) -> Entity:
@@ -316,7 +364,10 @@ func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreat
 	assert_not_null(restored_binding)
 	assert_eq(restored_binding.target, valve)
 	assert_eq((restored_binding.relation as R_HazardFollow).local_offset.origin, Vector3(2, 0, 0))
-	assert_eq(((toxin as E_ToxicArea).get_shape().shape as SphereShape3D).radius, (hazard.definition as DEF_ToxicArea).radius)
+	assert_eq(
+		((toxin as E_ToxicArea).get_shape().shape as SphereShape3D).radius,
+		(hazard.definition as DEF_ToxicArea).radius,
+	)
 
 
 ## Восстановленная связь остаётся Relationship и удаляет эффект только после потери владельца.
@@ -327,7 +378,7 @@ func test_follow_restore_preserves_despawn_effect_until_owner_relationship_is_lo
 	follow.on_loss = DEF_Hazard.OwnerLoss.DESPAWN
 	HazardFollowService.replace(toxin, valve, follow)
 	var saved: Dictionary = PersistentHazardState.capture(toxin, _root)
-	var entities: Dictionary[String, Entity] = {}
+	var entities: Dictionary[String, Entity] = { }
 	entities[ActorIdentityRules.key_for(valve, _root)] = valve
 	PersistentHazardState.restore(saved, toxin, entities)
 	assert_true(EntityAvailability.contains(toxin, _world))
@@ -356,7 +407,12 @@ func test_disabled_follow_effect_honours_owner_loss_and_cannot_resume_damage() -
 	_world.remove_entity(valve)
 	await get_tree().process_frame
 	assert_false(EntityAvailability.contains(despawned, _world))
-	assert_false(_world.entities.any(func(entity: Entity) -> bool: return entity.id == despawned_id))
+	assert_false(
+		_world.entities.any(
+			func(entity: Entity) -> bool:
+				return entity.id == despawned_id,
+		)
+	)
 	assert_true(_world.entities.has(detached))
 	assert_null(HazardFollowService.binding(detached))
 	_world.enable_entity(detached)
@@ -375,8 +431,8 @@ func test_independent_restore_cancels_deferred_owner_loss_retirement() -> void:
 
 	var lifetime: C_HazardLifetime = toxin.get_component(C_HazardLifetime) as C_HazardLifetime
 	assert_true(lifetime.owner_loss_pending)
-	var entities: Dictionary[String, Entity] = {}
-	PersistentHazardState.restore({"origin": "", "instigator": ""}, toxin, entities)
+	var entities: Dictionary[String, Entity] = { }
+	PersistentHazardState.restore({ "origin": "", "instigator": "" }, toxin, entities)
 	assert_false(lifetime.owner_loss_pending)
 	await get_tree().process_frame
 	assert_true(_world.entities.has(toxin))
@@ -428,7 +484,9 @@ func test_disabled_persistent_toxin_rebuilds_geometry_before_final_disable() -> 
 	assert_false(toxin.enabled)
 	_world.enable_entity(toxin)
 
-	var definition: DEF_ToxicArea = (toxin.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
+	var definition: DEF_ToxicArea = (
+		(toxin.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
+	)
 	assert_eq(((toxin as E_ToxicArea).get_shape().shape as SphereShape3D).radius, definition.radius)
 	assert_eq((toxin as E_ToxicArea).get_area().collision_mask, definition.collision_mask)
 
@@ -451,7 +509,10 @@ func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation(
 				elif invalid == "null":
 					(components[index].fields as Dictionary).definition = null
 				else:
-					(components[index].fields as Dictionary).definition = SaveDataCodec.encode(load("res://content/domains/hazards/definitions/def_parcel_blast.tres") as DEF_Explosion)
+					(components[index].fields as Dictionary).definition = SaveDataCodec.encode(
+						load("res://content/domains/hazards/definitions/def_parcel_blast.tres")
+						as DEF_Explosion
+					)
 				break
 
 		var count: int = _world.entities.size()
@@ -482,9 +543,16 @@ func test_night_removes_temporary_hazards_and_applies_persistent_owner_loss() ->
 	assert_null(HazardFollowService.binding(detached))
 
 
-## Загрузка незафиксированного предмета снимает старый anchor и возвращает сохранённые настройки тела.
+## Загрузка незафиксированного предмета снимает старый anchor и возвращает сохранённые настройки
+## тела.
 func test_loading_unfixed_snapshot_clears_old_anchor_and_restores_body_policy() -> void:
-	var box: Entity = (load("res://content/domains/interaction/entities/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
+	var box: Entity = (
+		(
+			load("res://content/domains/interaction/entities/anchorable_test_box.tscn")
+			as PackedScene
+		).instantiate()
+		as Entity
+	)
 	_world.add_entity(box)
 	var body: RigidBody3D = box as Node as RigidBody3D
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -501,6 +569,7 @@ func test_loading_unfixed_snapshot_clears_old_anchor_and_restores_body_policy() 
 	assert_false(body.can_sleep)
 
 #endregion
+
 
 #region Deferred hazard scheduling
 ## Renewal before flush invalidates an old expiry; the next due expiry retires the live aggregate.
@@ -544,7 +613,8 @@ func test_hazard_manual_flush_rejects_replaced_lifetime() -> void:
 	assert_eq(replacement.remaining_seconds, 20.0)
 
 
-## Disabled effects participate in cleanup even though the active EntityAvailability predicate excludes them.
+## Disabled effects participate in cleanup even though the active EntityAvailability predicate
+## excludes them.
 func test_hazard_lifetime_owner_retires_disabled_effect() -> void:
 	var effect: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	_world.disable_entity(effect)

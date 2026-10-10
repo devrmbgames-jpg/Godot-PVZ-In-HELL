@@ -6,9 +6,10 @@ var _identity_issues: Array[String] = []
 var _composition_issues: Array[EntityBuildPlan.Issue] = []
 var _placed_actors: Array[Entity] = []
 var _placed_plans: Array[EntityBuildPlan] = []
-var _startup_activity: Dictionary[Observer, bool] = {}
+var _startup_activity: Dictionary[Observer, bool] = { }
 var _restoring: bool = false
 var _starting: bool = true
+
 
 #region Validated world registration
 func _ready() -> void:
@@ -16,10 +17,15 @@ func _ready() -> void:
 	if not _identity_issues.is_empty():
 		return
 	var level: Node = get_parent()
-	var candidate: Dictionary = GameSessionService.startup_snapshot(level,
-		String(level.get("autosave_path")))
-	var construction_snapshot: Dictionary = candidate \
-		if not candidate.is_empty() and WorldSnapshotService.valid(candidate, level) else {}
+	var candidate: Dictionary = GameSessionService.startup_snapshot(
+		level,
+		String(level.get("autosave_path")),
+	)
+	var construction_snapshot: Dictionary
+	if not candidate.is_empty() and WorldSnapshotService.valid(candidate, level):
+		construction_snapshot = candidate
+	else:
+		construction_snapshot = { }
 	_restoring = not construction_snapshot.is_empty()
 	if _restoring and not WorldSnapshotService.can_restore(construction_snapshot, level):
 		var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
@@ -92,8 +98,9 @@ func process(delta: float, group: String = "") -> void:
 #region Whole placed composition
 func _prepare_placed_recipes(snapshot: Dictionary) -> bool:
 	# Match pinned discovery exactly; a missing default root contains no authored placed actors.
-	var actor_root: Node = get_node_or_null(entity_nodes_root) \
-		if not entity_nodes_root.is_empty() else null
+	var actor_root: Node = (
+		get_node_or_null(entity_nodes_root) if not entity_nodes_root.is_empty() else null
+	)
 	if actor_root == null:
 		return true
 	_placed_actors.assign(actor_root.find_children("*", "Entity"))
@@ -102,17 +109,24 @@ func _prepare_placed_recipes(snapshot: Dictionary) -> bool:
 	for actor: Entity in _placed_actors:
 		var saved: Dictionary = WorldSnapshotService.construction_record(actor, records)
 		var actor_id: String = (
-			String(saved.entity_id) if not saved.is_empty()
+			String(saved.entity_id)
+			if not saved.is_empty()
 			else (actor.id if not actor.id.is_empty() else GECSIO.uuid())
 		)
-		var context: EntitySpawnContext = EntityCompositionService.context_for(actor, self,
-			actor_id, _placed_actors)
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			actor,
+			self,
+			actor_id,
+			_placed_actors,
+		)
 		contexts.append(context)
 
 	# Roster and placed merchant identity are compiler inputs, before any native World callbacks.
-	var npc_issues: PackedStringArray = NpcConstructionService.configure_placed(contexts,
+	var npc_issues: PackedStringArray = NpcConstructionService.configure_placed(
+		contexts,
 		WorldSnapshotService.construction_district(records),
-		WorldSnapshotService.construction_npc_identities(records))
+		WorldSnapshotService.construction_npc_identities(records),
+	)
 	for message: String in npc_issues:
 		var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
 		issue.code = &"invalid_population"
@@ -148,8 +162,10 @@ func _prepare_placed_recipes(snapshot: Dictionary) -> bool:
 		var prepared: bool = EntityCompositionService.prepare(actor, plan)
 		assert(prepared, "Whole-set validation requires an uninitialized placed instance")
 		actor.id = contexts[build_index].actor_id
-		WorldSnapshotService.apply_construction_pose(actor,
-			WorldSnapshotService.construction_record(actor, records))
+		WorldSnapshotService.apply_construction_pose(
+			actor,
+			WorldSnapshotService.construction_record(actor, records),
+		)
 	return true
 
 
@@ -158,8 +174,10 @@ func _bind_placed_intents() -> void:
 	for build_index: int in _placed_actors.size():
 		var actor: Entity = _placed_actors[build_index]
 		for binding: EntityBuildPlan.Binding in _placed_plans[build_index].bindings:
-			assert(entities.has(actor) and entities.has(binding.target),
-				"Initial binding endpoints require completed placed registration")
+			assert(
+				entities.has(actor) and entities.has(binding.target),
+				"Initial binding endpoints require completed placed registration",
+			)
 			actor.add_relationship(Relationship.new(binding.relation, binding.target))
 #endregion
 

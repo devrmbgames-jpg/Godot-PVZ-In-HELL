@@ -24,7 +24,9 @@ func before_each() -> void:
 	owner_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
 	var owner_entity: Entity = owner_node as Entity
 	_district = C_District.new()
-	_district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	_district.definition = (
+		load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	)
 	owner_entity.component_resources = [_district, C_DayCycle.new()]
 	_world.add_entity(owner_entity)
 	_district = owner_entity.get_component(C_District) as C_District
@@ -86,7 +88,12 @@ func test_departure_and_return_keep_body_health_and_memory() -> void:
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.OUTSIDE)
 	assert_false(body.enabled)
 	assert_eq((body as Node as RigidBody3D).collision_layer, 0)
-	assert_true(DistrictPopulationService.request_phase(body, 2, C_DayCycle.Phase.MORNING).succeeded)
+	var phase_receipt: NpcPhasePlanRequest = DistrictPopulationService.request_phase(
+		body,
+		2,
+		C_DayCycle.Phase.MORNING,
+	)
+	assert_true(phase_receipt.succeeded)
 	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 	assert_true(body.enabled)
 	assert_eq(health.current, health.value * 0.5)

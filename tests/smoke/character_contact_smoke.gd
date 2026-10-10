@@ -12,7 +12,9 @@ func _run() -> void:
 	var world: World = World.new()
 	add_child(world)
 	ECS.world = world
-	var scene: PackedScene = load("res://content/domains/motion/entities/e_rigid_body_character.tscn")
+	var scene: PackedScene = (
+		load("res://content/domains/motion/entities/e_rigid_body_character.tscn")
+	)
 	var character: RigidBody3D = scene.instantiate() as RigidBody3D
 	var standing: CollisionShape3D = character.get_node("ColNormal") as CollisionShape3D
 	var bounds: AABB = standing.shape.get_debug_mesh().get_aabb()
@@ -48,8 +50,8 @@ func _run() -> void:
 	print("Character wall/ceiling physics smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Тестовая геометрия
 func _obstacle(location: Vector3, dimensions: Vector3) -> StaticBody3D:

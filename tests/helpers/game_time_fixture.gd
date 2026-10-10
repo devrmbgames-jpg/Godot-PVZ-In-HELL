@@ -2,6 +2,7 @@ extends RefCounted
 ## Test-only level Clock/GamePlay/Storage execution; native physics keeps its callback delta.
 class_name GameTimeFixture
 
+
 #region Headless level execution
 ## Advances the gameplay slice and operational storage after one authoritative elapsed-clock step.
 static func gameplay(world: World, delta: float) -> void:

@@ -41,7 +41,12 @@ func _create_stickers() -> void:
 	var bounds: AABB = surface.get_aabb()
 	var center: Vector3 = bounds.get_center()
 	var half: Vector3 = bounds.size * 0.5
-	var positions: Array[Vector3] = [center + Vector3(0, 0, half.z + face_label_offset), center - Vector3(0, 0, half.z + face_label_offset), center + Vector3(half.x + face_label_offset, 0, 0), center - Vector3(half.x + face_label_offset, 0, 0)]
+	var positions: Array[Vector3] = ([
+		center + Vector3(0, 0, half.z + face_label_offset),
+		center - Vector3(0, 0, half.z + face_label_offset),
+		center + Vector3(half.x + face_label_offset, 0, 0),
+		center - Vector3(half.x + face_label_offset, 0, 0),
+	])
 	var turns: Array[float] = [0.0, PI, PI * 0.5, -PI * 0.5]
 	for index: int in positions.size():
 		var sticker: Label3D = Label3D.new()
@@ -56,8 +61,8 @@ func _create_stickers() -> void:
 		_stickers.append(sticker)
 	_damage = -1
 
-
 #endregion
+
 
 #region Обновление состояния
 func _process(_delta: float) -> void:
@@ -73,8 +78,7 @@ func _process(_delta: float) -> void:
 
 	var unchanged: bool = (
 		_damage == condition.damage and _opening == condition.opening
-		and _leaking == condition.leaking
-		and _definition == package_data.definition
+		and _leaking == condition.leaking and _definition == package_data.definition
 		and _empty == PackageContentsService.is_empty(_package)
 	)
 	if unchanged:

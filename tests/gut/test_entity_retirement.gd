@@ -42,8 +42,9 @@ func test_hazard_retirement_of_registered_detached_actor() -> void:
 func test_depletion_retirement_rejects_detached_actor() -> void:
 	var actor: Entity = _actor(false)
 	var retired: WeakRef = weakref(actor)
-	var policy: C_RemoveOnHealthDepleted = actor.get_component(C_RemoveOnHealthDepleted) \
-			as C_RemoveOnHealthDepleted
+	var policy: C_RemoveOnHealthDepleted = (
+		actor.get_component(C_RemoveOnHealthDepleted) as C_RemoveOnHealthDepleted
+	)
 	var observer: O_RemoveOnHealthDepleted = O_RemoveOnHealthDepleted.new()
 	_world.add_observer(observer)
 	observer.call("_remove", retired, policy)

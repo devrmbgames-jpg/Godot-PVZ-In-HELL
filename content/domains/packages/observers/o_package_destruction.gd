@@ -12,7 +12,7 @@ func query() -> QueryBuilder:
 ## На Destroyed сохраняет положение и скорости, затем откладывает замену коробки обломками.
 func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
-	if event == null or event.kind != PackageLifecycleEvent.Kind.Destroyed:
+	if event == null or event.kind != PackageLifecycleEvent.Kind.DESTROYED:
 		return
 	if not EntityAvailability.contains(package, _world):
 		return

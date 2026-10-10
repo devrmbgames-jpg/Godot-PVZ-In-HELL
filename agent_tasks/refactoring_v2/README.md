@@ -134,7 +134,7 @@ Typed contracts уже закреплены задачей 40 перед executi
 45. [Systems, Observers, Components, Relationships](../completed/refactoring_v2/61_style_ecs_core.md)
 46. [NPC и Customers](../completed/refactoring_v2/62_style_npc_customers.md)
 47. [Interaction, Combat и Motion](../completed/refactoring_v2/63_style_interaction_combat_motion.md)
-48. [Gameplay services, Economy, Inventory, Persistence](64_style_gameplay_services.md)
+48. [Gameplay services, Economy, Inventory, Persistence](../completed/refactoring_v2/64_style_gameplay_services.md)
 49. [Entities, UI, AI, scene scripts, tests и utils](65_style_remaining_code.md)
 50. [Финальная приёмка Refactoring v2](66_final_acceptance.md)
 

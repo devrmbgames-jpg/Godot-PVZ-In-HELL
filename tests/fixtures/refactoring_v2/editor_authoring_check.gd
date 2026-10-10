@@ -137,7 +137,8 @@ func _check() -> void:
 		for property_index: int in saved_state.get_node_property_count(node_index):
 			if saved_state.get_node_property_name(node_index, property_index) == &"traits":
 				var saved_traits: Array = saved_state.get_node_property_value(
-					node_index, property_index,
+					node_index,
+					property_index,
 				)
 				builtin_trait = saved_traits[0] as Resource
 	_expect(

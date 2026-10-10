@@ -2,7 +2,11 @@ extends Resource
 ## Постоянная запись оплаченной покупки без ссылок на живые Entity.
 class_name PurchaseReceipt
 
-enum Mode { PURCHASE, ORDER, TRADER_DELIVERY }
+enum Mode {
+	PURCHASE,
+	ORDER,
+	TRADER_DELIVERY,
+}
 ## Устойчивый ID покупки; повтор с другими параметрами считается конфликтом.
 @export var operation_id: StringName = &""
 ## Способ покупки: торговец, терминал или доставка торговца.

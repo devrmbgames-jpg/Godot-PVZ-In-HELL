@@ -12,7 +12,6 @@ const FEEDBACK_SECONDS: float = 5.0
 @onready var _clear_timer: Timer = $Timer
 
 
-
 #region Жизненный цикл
 func _ready() -> void:
 	var scanner: E_Scanner = get_parent() as E_Scanner
@@ -21,34 +20,42 @@ func _ready() -> void:
 	_label.visible = false
 	_icon_mesh.visible = false
 
-
-
 #endregion
 
 
 #region Представление результата
 func _on_scan_feedback(result: PackageScanResult) -> void:
-	_label.text = result.message if result.outcome == PackageScanResult.Outcome.REJECTED else "№%03d%s" % [result.number, " · уже зарегистрировано" if result.outcome == PackageScanResult.Outcome.ALREADY_REGISTERED else " · готово"]
+	_label.text = (
+		result.message
+		if result.outcome == PackageScanResult.Outcome.REJECTED
+		else "№%03d%s"
+		% [
+			result.number,
+			" · уже зарегистрировано"
+			if result.outcome == PackageScanResult.Outcome.ALREADY_REGISTERED
+			else " · готово",
+		]
+	)
 	_label.visible = true
 	_icon_mesh.visible = true
-	
+
 	if result.outcome != PackageScanResult.Outcome.REJECTED:
 		_beep.pitch_scale = 1.0 if result.outcome == PackageScanResult.Outcome.REGISTERED else 0.8
 		_beep.play()
 	else:
 		_beep.stop()
-	
-	match result.outcome :
-		PackageScanResult.Outcome.REJECTED :
+
+	match result.outcome:
+		PackageScanResult.Outcome.REJECTED:
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.ORANGE
 			_label.modulate = Color.ORANGE
-		PackageScanResult.Outcome.REGISTERED :
+		PackageScanResult.Outcome.REGISTERED:
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.LIGHT_GREEN
 			_label.modulate = Color.LIGHT_GREEN
-		PackageScanResult.Outcome.ALREADY_REGISTERED :
+		PackageScanResult.Outcome.ALREADY_REGISTERED:
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.DARK_GRAY
 			_label.modulate = Color.DARK_GRAY
-	
+
 	_clear_timer.start(FEEDBACK_SECONDS)
 
 
@@ -56,17 +63,17 @@ func _make_beep() -> AudioStreamWAV:
 	var sample_count: int = int(SAMPLE_RATE * BEEP_SECONDS)
 	var samples: PackedByteArray = PackedByteArray()
 	samples.resize(sample_count * 2)
-	
+
 	for sample_index: int in sample_count:
 		var envelope: float = sin(PI * float(sample_index) / sample_count)
 		var amplitude: float = sin(TAU * BEEP_FREQUENCY * sample_index / SAMPLE_RATE)
 		samples.encode_s16(sample_index * 2, int(amplitude * envelope * 9000.0))
-	
+
 	var stream: AudioStreamWAV = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = SAMPLE_RATE
 	stream.data = samples
-	
+
 	return stream
 
 #endregion

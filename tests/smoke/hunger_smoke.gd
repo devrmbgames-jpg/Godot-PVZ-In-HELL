@@ -37,12 +37,17 @@ func _run() -> void:
 	assert(is_equal_approx(hunger.active_seconds, active_before + 1.0))
 	assert(HungerService.set_value(actor, hunger.policy.hungry_threshold))
 	assert(HungerRules.tier(hunger) == C_Hunger.Tier.HUNGRY)
-	var food: DEF_FoodEffect = load("res://content/domains/needs/definitions/def_food_bread.tres") as DEF_FoodEffect
+	var food: DEF_FoodEffect = (
+		load("res://content/domains/needs/definitions/def_food_bread.tres") as DEF_FoodEffect
+	)
 	assert(HungerService.apply_food(actor, food))
 	assert(hunger.value == maxf(0.0, hunger.policy.hungry_threshold - food.hunger_relief))
 
 	# The real carry body is independent of the current district supply assortment.
-	var heavy: Entity = (load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate() as Entity
+	var heavy: Entity = (
+		(load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate()
+		as Entity
+	)
 	var heavy_body: RigidBody3D = heavy as Node as RigidBody3D
 	heavy_body.mass = HEAVY_MASS_KG
 	heavy_body.gravity_scale = 0.0
@@ -61,11 +66,19 @@ func _run() -> void:
 	var baseline: float = motion.max_speed
 	var carried_speed: float = MotionRules.effective_speed(motion, carry, strength)
 	hunger.value = 75.0
-	assert(is_equal_approx(MotionRules.effective_speed(motion, carry, strength, hunger), carried_speed * hunger.policy.starving_speed_multiplier))
+	assert(
+		is_equal_approx(
+			MotionRules.effective_speed(motion, carry, strength, hunger),
+			carried_speed * hunger.policy.starving_speed_multiplier,
+		)
+	)
 	assert(HungerService.apply_food(actor, food))
 	assert(HungerService.apply_food(actor, food))
 	assert(HungerRules.tier(hunger) == C_Hunger.Tier.NORMAL)
-	assert(is_equal_approx(MotionRules.effective_speed(motion, carry, strength, hunger), carried_speed) and motion.max_speed == baseline)
+	assert(
+		is_equal_approx(MotionRules.effective_speed(motion, carry, strength, hunger), carried_speed)
+		and motion.max_speed == baseline
+	)
 	GrabReleaseService.release(actor, heavy)
 	ECS.world.remove_entity(heavy)
 
@@ -76,7 +89,12 @@ func _run() -> void:
 	visit.definition = DEF_Customer.new()
 	visit.started = true
 	flow.visits = [visit]
-	var customer: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	var customer: E_NpcCharacter = (
+		(
+			load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+		).instantiate()
+		as E_NpcCharacter
+	)
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
 	customer_body.freeze = true
 	level.add_child(customer_body)
@@ -97,7 +115,9 @@ func _run() -> void:
 	assert(customer_body.get_rid() == customer_rid and visit.package_id == order)
 	var context: CustomerDialogueContext = CustomerDialogueContext.new(actor, customer)
 	assert(context.perceived_text("Заказ клиента") == "Съешь меня")
-	var debug: Label = level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/HungerDebug") as Label
+	var debug: Label = (
+		level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/HungerDebug") as Label
+	)
 	for frame: int in UI_FRAMES:
 		await get_tree().process_frame
 		if debug.text.contains("Starving"):
@@ -105,7 +125,10 @@ func _run() -> void:
 
 	assert(debug.text == HungerPresentation.debug_text(actor).get_slice("\n", 0))
 	var full_debug: String = HungerPresentation.debug_text(actor)
-	assert(full_debug.contains("Starving") and full_debug.contains("до следующего") and full_debug.contains("Задача:"))
+	assert(
+		full_debug.contains("Starving") and full_debug.contains("до следующего")
+		and full_debug.contains("Задача:")
+	)
 	var weapon: Entity = level.get_node("Entityes/UtilityBlade") as Entity
 	assert(CombatService.hit(actor, weapon, customer, 40.0))
 	assert((customer.get_component(C_Health) as C_Health).current == 40.0)
@@ -126,6 +149,11 @@ func _run() -> void:
 	assert(visit.finished and visit.defeated_by_player)
 	level.free()
 	ECS.world = null
-	print("Hunger active time food carry attack modifiers reversible NPC perception and debug HUD smoke PASS")
+	print(
+		(
+			"Hunger active time food carry attack modifiers reversible "
+			+ "NPC perception and debug HUD smoke PASS"
+		)
+	)
 	get_tree().quit.call_deferred()
 #endregion

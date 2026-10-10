@@ -1,30 +1,44 @@
 extends GutTest
-## Проверки снимка World: стабильные ID, владение, физические слоты, lifecycle и отказ до изменения живого состояния.
+## Проверки снимка World: стабильные ID, владение, физические слоты, lifecycle и отказ до изменения
+## живого состояния.
 
 const SAVE_PATH: String = "user://gut_r21_world_snapshot.pvzh"
 const _PACKAGE_SCENE_PATH: String = "res://content/domains/packages/entities/package.tscn"
+
+const ANCHORABLE_TEST_BOX_PATH: String = (
+	"res://content/domains/interaction/entities/anchorable_test_box.tscn"
+)
+const PHYSICAL_SLOT_PATH: String = ("res://content/domains/interaction/entities/physical_slot.tscn")
+const DEF_DELIVERY_MORNING_SUPPLY_PATH: String = (
+	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
+)
 var _root: Node = null
 var _world: World = null
 var _session: Entity = null
 var _actor: Entity = null
 var _item: Entity = null
 
+
 ## Тестовая Entity считает реальные вызовы lifecycle World при восстановлении снимка.
 class LifecycleEntity extends Entity:
 	var _enable_calls: int = 0
 	var _disable_calls: int = 0
 
+
 	## Регистрирует фактическое включение, не подменяя переход World.
 	func on_enable() -> void:
 		_enable_calls += 1
+
 
 	## Регистрирует фактическое отключение, включая отключение при загрузке.
 	func on_disable() -> void:
 		_disable_calls += 1
 
+
 	## Возвращает число наблюдавшихся включений для проверки однократности перехода.
 	func enable_calls() -> int:
 		return _enable_calls
+
 
 	## Возвращает число наблюдавшихся отключений для проверки lifecycle.
 	func disable_calls() -> int:
@@ -41,12 +55,30 @@ func before_each() -> void:
 	ECS.world = _world
 	_world.add_observer(O_NightPreparationRequirement.new())
 	_world.add_observer(O_InventoryLifecycle.new())
-	_session = _authored("Session", [C_DayCycle.new(), C_Wallet.new(), C_PackageLedger.new(), C_CustomerFlow.new(), C_Commerce.new(), C_QuestSession.new(), C_Autosave.new()])
+	_session = (
+		_authored(
+			"Session",
+			[
+				C_DayCycle.new(),
+				C_Wallet.new(),
+				C_PackageLedger.new(),
+				C_CustomerFlow.new(),
+				C_Commerce.new(),
+				C_QuestSession.new(),
+				C_Autosave.new(),
+			],
+		)
+	)
 	(_session.get_component(C_Autosave) as C_Autosave).path = SAVE_PATH
 	_actor = _authored("Actor", [C_Inventory.new(), C_Hunger.new(), C_Health.new()])
 
 	var stack: C_InventoryItem = C_InventoryItem.new()
-	stack.definition = (load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem)
+	stack.definition = (
+		(
+			load("res://content/domains/inventory/definitions/def_item_food.tres")
+			as DEF_InventoryItem
+		)
+	)
 	stack.quantity = 4
 	_item = Entity.new()
 	_item.component_resources = [stack]
@@ -76,8 +108,8 @@ func after_each() -> void:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
-
 #endregion
+
 
 #region Quest variant persistence and exactly-once payment
 func _offered_quest() -> RefusalQuestRecord:
@@ -86,12 +118,23 @@ func _offered_quest() -> RefusalQuestRecord:
 	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
 	wallet.balance = 500
 	var shop: C_Trader = C_Trader.new()
-	shop.profile = (load("res://content/domains/commerce/definitions/def_trader_default.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
-	shop.profile.refusal_quest = load("res://content/domains/quests/definitions/def_refusal_patient.tres") as DEF_RefusalQuest
+	shop.profile = (
+		(
+			load("res://content/domains/commerce/definitions/def_trader_default.tres")
+			as DEF_TraderProfile
+		).duplicate()
+		as DEF_TraderProfile
+	)
+	shop.profile.refusal_quest = (
+		load("res://content/domains/quests/definitions/def_refusal_patient.tres")
+		as DEF_RefusalQuest
+	)
 	var trader: Entity = _authored("QuestIssuer", [shop])
 	var package: C_Package = C_Package.new()
 	package.package_id = "fixture/quest/parcel"
-	package.definition = load("res://content/domains/packages/definitions/def_test_bread.tres") as DEF_Package
+	package.definition = (
+		load("res://content/domains/packages/definitions/def_test_bread.tres") as DEF_Package
+	)
 	_authored("QuestParcel", [package, C_PackageState.new()])
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = package.package_id
@@ -102,7 +145,10 @@ func _offered_quest() -> RefusalQuestRecord:
 	visit.customer_id = &"fixture/quest/recipient"
 	visit.package_id = package.package_id
 	visit.arrival_day = 2
-	visit.definition = load("res://content/domains/customers/definitions/def_customer_prototype.tres") as DEF_Customer
+	visit.definition = (
+		load("res://content/domains/customers/definitions/def_customer_prototype.tres")
+		as DEF_Customer
+	)
 	(_session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(visit)
 	return RefusalQuestService.offer(trader)
 
@@ -126,7 +172,10 @@ func test_quest_variant_slot_roundtrip_and_pending_outcome_do_not_double_pay() -
 	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
 	var loaded: RefusalQuestRecord = RefusalQuestService.find(record.quest_id)
 	assert_ne(loaded, record)
-	assert_eq(loaded.definition.resource_path, "res://content/domains/quests/definitions/def_refusal_patient.tres")
+	assert_eq(
+		loaded.definition.resource_path,
+		"res://content/domains/quests/definitions/def_refusal_patient.tres",
+	)
 	assert_eq(loaded.deadline_day, 4)
 	assert_eq(loaded.reward, 90)
 	_world.flush_command_buffers()
@@ -156,19 +205,26 @@ func test_quest_variant_slot_roundtrip_and_pending_outcome_do_not_double_pay() -
 	assert_eq(loaded.definition.accepted_text, "Тестовое задание ждёт фактического отказа.")
 
 
-## Invalid current quest fields reject the full snapshot before calendar/wallet/relationships change.
+## Invalid current quest fields reject the full snapshot before calendar/wallet/relationships
+## change.
 func test_invalid_quest_snapshot_rejects_before_live_mutation() -> void:
 	var record: RefusalQuestRecord = _offered_quest()
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
-	var fields: Dictionary = {}
+	var fields: Dictionary = { }
 	for entity_row: Dictionary in snapshot.entities:
 		for component_row: Dictionary in entity_row.components:
 			if SaveDataCodec.component_script(String(component_row.type)) == C_QuestSession:
 				var quest_records: Array = (component_row.fields as Dictionary).records as Array
 				fields = (quest_records[0] as Dictionary).fields as Dictionary
 	assert_false(fields.is_empty())
-	for corruption: Dictionary in [{"definition": null}, {"quest_id": &""}, {"reward": -1}, {"reward_paid": true}, {"deadline_day": 1}]:
+	for corruption: Dictionary in ([
+		{ "definition": null },
+		{ "quest_id": &"" },
+		{ "reward": -1 },
+		{ "reward_paid": true },
+		{ "deadline_day": 1 },
+	]):
 		var saved_fields: Dictionary = fields.duplicate(true)
 		fields.merge(corruption, true)
 		assert_false(WorldSnapshotService.restore(snapshot, _root))
@@ -179,6 +235,7 @@ func test_invalid_quest_snapshot_rejects_before_live_mutation() -> void:
 		fields.clear()
 		fields.merge(saved_fields)
 #endregion
+
 
 #region Восстановление мира и проверка снимка
 ## Current-format in-place restore clears transient planning state and rebuilds it once.
@@ -226,7 +283,8 @@ func test_negative_wallet_and_owned_inventory_survive_snapshot_and_repeated_rest
 	assert_eq(restored.relationships.size(), 1)
 
 
-## Ошибка записи удерживает ночь; повтор фиксирует то же утро и не изменяет долг или номер дня дважды.
+## Ошибка записи удерживает ночь; повтор фиксирует то же утро и не изменяет долг или номер дня
+## дважды.
 func test_failed_write_holds_night_and_retry_commits_the_same_morning_in_debt() -> void:
 	var cycle: C_DayCycle = _session.get_component(C_DayCycle) as C_DayCycle
 	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
@@ -247,7 +305,11 @@ func test_failed_write_holds_night_and_retry_commits_the_same_morning_in_debt() 
 	assert_eq(state.last_error, OK)
 	assert_true(cycle.night_ready)
 	assert_eq(state.last_saved_morning, 2)
-	assert_eq(AutosaveStore.read(SAVE_PATH), captured, "I/O retry writes the original detached state")
+	assert_eq(
+		AutosaveStore.read(SAVE_PATH),
+		captured,
+		"I/O retry writes the original detached state",
+	)
 	_night_step(0.1)
 	assert_eq(state.last_saved_morning, 2)
 	assert_eq(cycle.day_index, 1)
@@ -314,7 +376,7 @@ func test_restore_replaces_previous_inventory_owner_without_retiring_item() -> v
 func test_null_package_definition_is_rejected_before_mutation() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "late:equipment"
-	identity.definition = (load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
+	identity.definition = ((load(DEF_DELIVERY_MORNING_SUPPLY_PATH) as DEF_Delivery).packages[0])
 	_authored("Package", [identity, C_PackageState.new()])
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_true(WorldSnapshotService.valid(snapshot, _root))
@@ -327,7 +389,8 @@ func test_null_package_definition_is_rejected_before_mutation() -> void:
 	assert_eq(InventoryService.owner_for(_item), _actor)
 
 
-## Восстановление enabled/disabled проходит через lifecycle World и переиспользует существующую Entity.
+## Восстановление enabled/disabled проходит через lifecycle World и переиспользует существующую
+## Entity.
 func test_restore_disabled_entity_uses_world_lifecycle_and_reenables_existing_entity() -> void:
 	var entity: LifecycleEntity = LifecycleEntity.new()
 	entity.name = "Lifecycle"
@@ -358,12 +421,15 @@ func test_restore_disabled_entity_uses_world_lifecycle_and_reenables_existing_en
 	assert_eq(entity.enable_calls(), enable_calls + 1)
 
 
-## Перед восстановлением обменённых слотов очищается вся прежняя занятость и затем возвращаются физические связи.
+## Перед восстановлением обменённых слотов очищается вся прежняя занятость и затем возвращаются
+## физические связи.
 func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> void:
 	var slots: Array[E_PhysicalSlot] = []
 	var boxes: Array[Entity] = []
 	for index: int in 2:
-		var slot: E_PhysicalSlot = (load("res://content/domains/interaction/entities/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
+		var slot: E_PhysicalSlot = (
+			(load(PHYSICAL_SLOT_PATH) as PackedScene).instantiate() as E_PhysicalSlot
+		)
 		slot.name = "Slot%d" % index
 		_root.add_child(slot)
 		slot.owner = _root
@@ -372,7 +438,7 @@ func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> v
 		assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 		_world.add_entity(slot, null, false)
 		slots.append(slot)
-		var box: Entity = (load("res://content/domains/interaction/entities/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
+		var box: Entity = ((load(ANCHORABLE_TEST_BOX_PATH) as PackedScene).instantiate() as Entity)
 		box.name = "Box%d" % index
 		_root.add_child(box)
 		box.owner = _root
@@ -412,7 +478,10 @@ func test_duplicate_owners_wrong_role_or_capacity_fail_before_any_mutation() -> 
 					(record.links as Array).append((record.links[0] as Dictionary).duplicate())
 				elif invalid == "role":
 					(record.links as Array)[0].target = ActorIdentityRules.key_for(_session, _root)
-			if invalid == "capacity" and String(record.key) == ActorIdentityRules.key_for(_actor, _root):
+			if (
+				invalid == "capacity"
+				and String(record.key) == ActorIdentityRules.key_for(_actor, _root)
+			):
 				for component: Dictionary in record.components:
 					if SaveDataCodec.component_script(String(component.type)) == C_Inventory:
 						(component.fields as Dictionary).maximum_stacks = 0
@@ -425,7 +494,8 @@ func test_duplicate_owners_wrong_role_or_capacity_fail_before_any_mutation() -> 
 		assert_eq(InventoryService.owner_for(_item), _actor)
 
 
-## Групповое восстановление авторских ID перестраивает реестр World без конфликтов при обмене значений.
+## Групповое восстановление авторских ID перестраивает реестр World без конфликтов при обмене
+## значений.
 func test_authored_ids_restore_as_a_group_and_reindex_world_lookup() -> void:
 	var session_id: String = _session.id
 	var actor_id: String = _actor.id
@@ -445,7 +515,9 @@ func test_authored_ids_restore_as_a_group_and_reindex_world_lookup() -> void:
 
 ## Двойная занятость слота и цель без нужной роли отклоняются до изменения дня.
 func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -> void:
-	var slot: E_PhysicalSlot = (load("res://content/domains/interaction/entities/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
+	var slot: E_PhysicalSlot = (
+		(load(PHYSICAL_SLOT_PATH) as PackedScene).instantiate() as E_PhysicalSlot
+	)
 	slot.name = "ValidationSlot"
 	_root.add_child(slot)
 	slot.owner = _root
@@ -454,7 +526,7 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(slot, null, false)
 	for index: int in 2:
-		var box: Entity = (load("res://content/domains/interaction/entities/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
+		var box: Entity = ((load(ANCHORABLE_TEST_BOX_PATH) as PackedScene).instantiate() as Entity)
 		box.name = "ValidationBox%d" % index
 		_root.add_child(box)
 		box.owner = _root
@@ -470,7 +542,10 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 	## Для одного оставшегося предмета проверяем отказ связи с целью без роли физического слота.
 	var first: bool = true
 	for record: Dictionary in snapshot.entities:
-		if not (record.links as Array).is_empty() and String(record.links[0].kind) == SnapshotLinks.STORED:
+		if (
+			not (record.links as Array).is_empty()
+			and String(record.links[0].kind) == SnapshotLinks.STORED
+		):
 			if first:
 				(record.links as Array)[0].target = ActorIdentityRules.key_for(_actor, _root)
 				first = false
@@ -515,7 +590,9 @@ func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> 
 	var package_scene: PackedScene = load(_PACKAGE_SCENE_PATH) as PackedScene
 	var package: E_Package = package_scene.instantiate() as E_Package
 	package.package_id = "test/required_identity"
-	package.package_definition = (load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
+	package.package_definition = (
+		(load(DEF_DELIVERY_MORNING_SUPPLY_PATH) as DEF_Delivery).packages[0]
+	)
 	EntityCompositionFixture.register(_world, package)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	_world.remove_entity(package)
@@ -557,6 +634,7 @@ func test_pre_stamina_snapshot_clears_existing_sprint_session() -> void:
 
 #endregion
 
+
 #region Scheduled persistence fixture
 func _night_step(delta: float) -> void:
 	var installed: bool = false
@@ -570,8 +648,10 @@ func _night_step(delta: float) -> void:
 	_world.process(delta, "PersistenceTest")
 #endregion
 
+
 #region Explicit identity and rejected-slot regression
-## Rename/reparent changes presentation topology while immutable identity and ownership remain stable.
+## Rename/reparent changes presentation topology while immutable identity and ownership remain
+## stable.
 func test_renamed_and_reparented_placed_actor_restores_same_identity_and_links() -> void:
 	var key: String = ActorIdentityRules.key_for(_actor, _root)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -588,7 +668,8 @@ func test_renamed_and_reparented_placed_actor_restores_same_identity_and_links()
 	assert_eq(PlacedIdentityRules.resolver(_root)[key], _actor)
 
 
-## Both duplicate and missing identity reject before any authored Entity enters the actual GameWorld.
+## Both duplicate and missing identity reject before any authored Entity enters the actual
+## GameWorld.
 func test_game_world_rejects_invalid_authored_ids_before_registration() -> void:
 	for missing: bool in [false, true]:
 		var root: Node = Node.new()
@@ -610,7 +691,10 @@ func test_game_world_rejects_invalid_authored_ids_before_registration() -> void:
 		assert_true(world.initialization_failed())
 		assert_eq(world.entities.size(), 0)
 		for child: Node in actors.get_children():
-			assert_null(PlacedIdentityRules.component_for(child as Entity), "No partially compiled identity")
+			assert_null(
+				PlacedIdentityRules.component_for(child as Entity),
+				"No partially compiled identity",
+			)
 		world.purge(false)
 		root.free()
 	ECS.world = _world
@@ -639,6 +723,7 @@ func test_rejected_schema_slot_is_protected_from_later_night_and_other_slot_is_a
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(state.path))
 #endregion
 
+
 #region Selected-slot and receiving preflight
 ## A compatible manual handoff retains automatic rejected-slot protection through the next Night.
 func test_selected_snapshot_does_not_overwrite_rejected_automatic_slot() -> void:
@@ -648,8 +733,8 @@ func test_selected_snapshot_does_not_overwrite_rejected_automatic_slot() -> void
 	old.version = AutosaveStore.SCHEMA_VERSION - 1
 	assert_eq(AutosaveStore.write(old, SAVE_PATH), OK)
 	var retained: PackedByteArray = FileAccess.get_file_as_bytes(SAVE_PATH)
-	GameSessionService._pending_level = _root.scene_file_path
-	GameSessionService._pending_snapshot = selected
+	(GameSessionService as Script).set("_pending_level", _root.scene_file_path)
+	(GameSessionService as Script).set("_pending_snapshot", selected)
 	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
 	GameSessionService.restore_startup(_root, state)
 	assert_eq(state.last_saved_morning, 1)
@@ -660,7 +745,8 @@ func test_selected_snapshot_does_not_overwrite_rejected_automatic_slot() -> void
 	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), retained)
 
 
-## A retained recipe pointing at a non-package prefab rejects before changing the live queue/calendar.
+## A retained recipe pointing at a non-package prefab rejects before changing the live
+## queue/calendar.
 func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -> void:
 	var receiving: C_Receiving = C_Receiving.new()
 	var batch: ReceivingBatch = ReceivingBatch.new()
@@ -676,7 +762,10 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 			if component.type == C_Receiving.resource_path:
 				var invalid: C_Receiving = C_Receiving.new()
 				assert_true(SaveDataCodec.apply_fields(invalid, component.fields as Dictionary))
-				invalid.pending[0].package_scenes[0] = "res://content/domains/interaction/entities/anchorable_test_box.tscn"
+				var invalid_scene_path: String = (
+					"res://content/domains/interaction/entities/anchorable_test_box.tscn"
+				)
+				invalid.pending[0].package_scenes[0] = invalid_scene_path
 				component.fields = SaveDataCodec.component_data(invalid).fields
 	var count_before: int = _world.entities.size()
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
@@ -685,6 +774,7 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 	assert_eq(batch.package_scenes[0], "res://content/domains/packages/entities/package.tscn")
 	assert_eq(DayPhaseQueries.current().day_index, 1)
 #endregion
+
 
 #region Package composition preflight
 ## Invalid authoring rejects a saved missing package before registry/calendar/ownership changes.
@@ -702,7 +792,8 @@ func test_fresh_package_template_conflict_rejects_restore_before_live_mutation()
 
 	# Simulate an authored duplicate in the shared direct Trait; restore must reject it.
 	var capability: EntityTrait = load(
-		"res://content/domains/combat/authoring/et_impact_capture.tres") as EntityTrait
+		"res://content/domains/combat/authoring/et_impact_capture.tres"
+	) as EntityTrait
 	var conflicting: EntityTrait = EntityTrait.new()
 	conflicting.trait_id = &"fixture_duplicate_health"
 	conflicting.component_recipes = [C_Health.new()]
@@ -720,18 +811,24 @@ func test_fresh_package_template_conflict_rejects_restore_before_live_mutation()
 	assert_same(InventoryService.owner_for(_item), _actor)
 #endregion
 
+
 #region Raw package recipe reconstruction
-## Fresh restored receiving prefab retains authored carry/impact/liquid settings and overlaid damaged HP.
+## Fresh restored receiving prefab retains authored carry/impact/liquid settings and overlaid
+## damaged HP.
 func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health() -> void:
-	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = (load(DEF_DELIVERY_MORNING_SUPPLY_PATH) as DEF_Delivery)
 	var definition: DEF_Package = null
 	for candidate: DEF_Package in supply.packages:
 		if candidate.tags & DEF_Package.Tag.LIQUID:
 			definition = candidate
 			break
 	assert_not_null(definition)
-	var parcel: E_Package = (load(String(definition.scene_variants[0])) as PackedScene).instantiate() as E_Package
-	assert_true(ReceivingPackageFactory.configure_recipe(parcel, definition, "fixture/liquid_recipe"))
+	var parcel: E_Package = (
+		(load(String(definition.scene_variants[0])) as PackedScene).instantiate() as E_Package
+	)
+	assert_true(
+		ReceivingPackageFactory.configure_recipe(parcel, definition, "fixture/liquid_recipe")
+	)
 	EntityCompositionFixture.register(_world, parcel)
 	(parcel.get_component(C_Health) as C_Health).current = definition.maximum_health * 0.5
 	var expected_health: float = (parcel.get_component(C_Health) as C_Health).current
@@ -769,8 +866,14 @@ func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health()
 	assert_true(EntityCompositionService.composition_ready(restored))
 	assert_true(EntityCompositionService.composition_ready(_actor))
 	assert_eq((restored.get_component(C_Health) as C_Health).current, expected_health)
-	assert_eq((restored.get_component(C_Grabbable) as C_Grabbable).throw_velocity, definition.throw_velocity)
-	assert_eq((restored.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile, definition.impact_profile)
+	assert_eq(
+		(restored.get_component(C_Grabbable) as C_Grabbable).throw_velocity,
+		definition.throw_velocity,
+	)
+	assert_eq(
+		(restored.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile,
+		definition.impact_profile,
+	)
 	var tilt: C_LiquidTilt = restored.get_component(C_LiquidTilt) as C_LiquidTilt
 	assert_not_null(tilt)
 	assert_eq(tilt.maximum_angle_degrees, definition.liquid_maximum_angle_degrees)
@@ -792,12 +895,13 @@ func test_night_preparation_query_tracks_the_configured_workflow() -> void:
 	assert_false(without_workflow.is_required())
 #endregion
 
+
 #region Fresh runtime marker reconstruction
 ## A removed physical parcel returns with terminal damage and private ink before native publication.
 func test_fresh_dead_marked_package_publishes_saved_markers_without_reinstalling() -> void:
-	var parcel: Entity = (load(
-		"res://content/domains/packages/entities/test_bread.tscn"
-	) as PackedScene).instantiate() as Entity
+	var parcel: Entity = (
+		load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene
+	).instantiate() as Entity
 	EntityCompositionFixture.register(_world, parcel)
 	(parcel.get_component(C_Health) as C_Health).current = 0.0
 	parcel.add_component(C_Death.new())
@@ -863,7 +967,8 @@ func test_fresh_anchored_furniture_publishes_complete_physical_snapshot_once() -
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	_world.entity_added.disconnect(inspect_anchor)
 	assert_eq(observed_snapshots.size(), 1)
-	var retained: C_PlayerAnchored = publications[0].get_component(
-		C_PlayerAnchored) as C_PlayerAnchored
+	var retained: C_PlayerAnchored = (
+		publications[0].get_component(C_PlayerAnchored) as C_PlayerAnchored
+	)
 	assert_same(retained.snapshot, observed_snapshots[0], "Fresh restore never replaces the marker")
 #endregion

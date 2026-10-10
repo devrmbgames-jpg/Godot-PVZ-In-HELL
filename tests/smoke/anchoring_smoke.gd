@@ -43,8 +43,14 @@ func _run() -> void:
 	assert(_aim(bottom))
 	assert(AnchoringService.unfix(_actor, bottom), "Root unfix must succeed")
 	assert(not AnchoringService.is_player_anchored(bottom))
-	assert(not AnchoringService.is_player_anchored(middle), "Direct supported anchor must join unfix")
-	assert(not AnchoringService.is_player_anchored(top), "Recursive supported anchor must join unfix")
+	assert(
+		not AnchoringService.is_player_anchored(middle),
+		"Direct supported anchor must join unfix",
+	)
+	assert(
+		not AnchoringService.is_player_anchored(top),
+		"Recursive supported anchor must join unfix",
+	)
 	assert(not GrabQueries.physical_body(bottom).freeze)
 	assert(not GrabQueries.physical_body(middle).freeze)
 	assert(not GrabQueries.physical_body(top).freeze)
@@ -55,8 +61,8 @@ func _run() -> void:
 	print("R11.1 anchoring support smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Тестовые участники и наведение
 func _make_actor() -> Entity:

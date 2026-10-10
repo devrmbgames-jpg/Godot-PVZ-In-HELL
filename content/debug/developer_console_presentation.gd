@@ -1,7 +1,17 @@
 extends Node
 ## Проектная справка и управление мышью/фокусом консоли; игровые запросы исполняют другие адаптеры.
 
-const GROUPS: PackedStringArray = ["packages", "customers", "economy", "health", "inventory", "trader", "npc", "challenges", "world"]
+const GROUPS: PackedStringArray = [
+	"packages",
+	"customers",
+	"economy",
+	"health",
+	"inventory",
+	"trader",
+	"npc",
+	"challenges",
+	"world",
+]
 const WHEEL_LINES: float = 3.0
 const EXAMPLES: Dictionary[String, String] = {
 	"pkg_spawn": "pkg_spawn books 1 receiving 1",
@@ -56,7 +66,13 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_previous_help = Console.console_commands.get("help") as Console.ConsoleCommand
 	_previous_help_subjects = Console.command_parameters.get("help", PackedStringArray())
-	Console.add_command("help", _help, ["command|group"], 0, "Show built-in instructions and project command/group syntax.")
+	Console.add_command(
+		"help",
+		_help,
+		["command|group"],
+		0,
+		"Show built-in instructions and project command/group syntax.",
+	)
 	var subjects: PackedStringArray = GROUPS.duplicate()
 	subjects.append_array(Console.console_commands.keys())
 	Console.add_command_autocomplete_list("help", subjects)
@@ -68,7 +84,7 @@ func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(_focus_changed)
 	if bool(Console.is_visible()):
 		_opened()
-	
+
 	Console.font_size = 12
 
 
@@ -82,8 +98,8 @@ func _exit_tree() -> void:
 		Console.console_commands["help"] = _previous_help
 		Console.add_command_autocomplete_list("help", _previous_help_subjects)
 
-
 #endregion
+
 
 #region Мышь и возврат фокуса
 func _opened() -> void:
@@ -98,7 +114,10 @@ func _opened() -> void:
 
 func _process(_delta: float) -> void:
 	# Диалог под консолью может завершиться по таймеру; открытая консоль сохраняет видимую мышь.
-	if _mouse_acquired and bool(Console.is_visible()) and Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+	if (
+		_mouse_acquired and bool(Console.is_visible())
+		and Input.mouse_mode != Input.MOUSE_MODE_VISIBLE
+	):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
@@ -108,7 +127,11 @@ func _closed() -> void:
 
 	_mouse_acquired = false
 	var actor: Entity = DebugTargetResolver.player()
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL else _previous_mouse_mode
+	Input.mouse_mode = (
+		Input.MOUSE_MODE_VISIBLE
+		if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL
+		else _previous_mouse_mode
+	)
 	if _previous_focus != null:
 		var control: Control = _previous_focus.get_ref() as Control
 		if is_instance_valid(control) and control.is_visible_in_tree():
@@ -119,8 +142,8 @@ func _focus_changed(control: Control) -> void:
 	if not Console.v_box_container.is_ancestor_of(control):
 		_previous_focus = weakref(control)
 
-
 #endregion
+
 
 #region Прокрутка и справка
 func _output_input(event: InputEvent) -> void:
@@ -150,8 +173,18 @@ func _help(subject: String = "") -> void:
 		Console.print_line("Available commands:")
 		Console.commands_list()
 		Console.print_line("Project groups: %s" % ", ".join(GROUPS))
-		Console.print_line("help <command|group>; debug_help is an alias. Targets: self | target | pkg:<id> | visit:<id> | entity:<id>")
-		Console.print_line("Examples: help inventory; help pkg_spawn; help npc; help world. commands_list includes addon commands.")
+		Console.print_line(
+			(
+				"help <command|group>; debug_help is an alias. Targets: self "
+				+ "| target | pkg:<id> | visit:<id> | entity:<id>"
+			)
+		)
+		Console.print_line(
+			(
+				"Examples: help inventory; help pkg_spawn; help npc; help "
+				+ "world. commands_list includes addon commands."
+			)
+		)
 		return
 	if GROUPS.has(name_text):
 		for command_name: String in Console.console_commands:
@@ -161,9 +194,15 @@ func _help(subject: String = "") -> void:
 		_print_workflow(name_text)
 		return
 
-	var command: Console.ConsoleCommand = Console.console_commands.get(name_text) as Console.ConsoleCommand
+	var command: Console.ConsoleCommand = (
+		Console.console_commands.get(name_text) as Console.ConsoleCommand
+	)
 	if command == null or command.hidden:
-		DeveloperConsoleOutput.error("help", "Unknown subject: %s" % name_text, "Groups: %s; registered names: commands_list." % ", ".join(GROUPS))
+		DeveloperConsoleOutput.error(
+			"help",
+			"Unknown subject: %s" % name_text,
+			"Groups: %s; registered names: commands_list." % ", ".join(GROUPS),
+		)
 		return
 
 	_print_command(name_text, command)
@@ -179,28 +218,97 @@ func _print_command(command_name: String, command: Console.ConsoleCommand) -> vo
 	Console.print_line(command.description)
 	if EXAMPLES.has(command_name):
 		Console.print_line("Example: %s" % EXAMPLES[command_name])
-	Console.print_line("Domain eligibility is enforced. Mutation commands are explicit QA actions; info/help commands are read-only.")
+	Console.print_line(
+		(
+			"Domain eligibility is enforced. Mutation commands are "
+			+ "explicit QA actions; info/help commands are read-only."
+		)
+	)
 
 
 func _print_workflow(group_name: String) -> void:
 	match group_name:
-		"inventory", "health": Console.print_line("Food: hunger_set 50 -> inventory_give food 2 -> inventory_info -> inventory_use 0 -> hunger_info. Meat: kill target -> meat_spawn -> normal pickup/eat.")
-		"trader": Console.print_line("Commerce: trader_info -> money_add 500 qa -> trader_buy large_shelf 1 / trader_delivery large_shelf 1. Orders: order_place med 2 -> order_info -> normal day_next until next Morning -> order_info.")
-		"customers", "challenges": Console.print_line("Live client: pkg_spawn books 1 receiving 1 -> visit_create pkg:<id> ordinary 1 (if no visit) -> day_next -> customer_next -> visit_info pkg:<id> -> challenge_info visit:<id>. Departure completes visit-scoped challenges.")
-		"npc": Console.print_line("Combat: npc_info target -> npc_attack target melee 0 self -> health_info self. Kill NPC, inspect remains/physical meat, pick up and consume normally.")
-		"world": Console.print_line("Valve: progress_info target -> progress_set target 0.5. Save: Morning/no live sessions -> save_write qa_console -> change state -> save_load qa_console. Debug only: kill game -> purge runtime/Autoload state -> ObjectDB Snapshot in editor. The process and Autoload nodes stay alive.")
+		"inventory", "health":
+			Console.print_line(
+				(
+					"Food: hunger_set 50 -> inventory_give food 2 -> inventory_"
+					+ "info -> inventory_use 0 -> hunger_info. Meat: kill target -> "
+					+ "meat_spawn -> normal pickup/eat."
+				)
+			)
+		"trader":
+			Console.print_line(
+				(
+					"Commerce: trader_info -> money_add 500 qa -> trader_buy "
+					+ "large_shelf 1 / trader_delivery large_shelf 1. Orders: order_"
+					+ "place med 2 -> order_info -> normal day_next until next "
+					+ "Morning -> order_info."
+				)
+			)
+		"customers", "challenges":
+			Console.print_line(
+				(
+					"Live client: pkg_spawn books 1 receiving 1 -> visit_create "
+					+ "pkg:<id> ordinary 1 (if no visit) -> day_next -> customer_"
+					+ "next -> visit_info pkg:<id> -> challenge_info visit:<id>. "
+					+ "Departure completes visit-scoped challenges."
+				)
+			)
+		"npc":
+			Console.print_line(
+				(
+					"Combat: npc_info target -> npc_attack target melee 0 self -> "
+					+ "health_info self. Kill NPC, inspect remains/physical meat, "
+					+ "pick up and consume normally."
+				)
+			)
+		"world":
+			Console.print_line(
+				(
+					"Valve: progress_info target -> progress_set target 0.5. "
+					+ "Save: Morning/no live sessions -> save_write qa_console -> "
+					+ "change state -> save_load qa_console. Debug only: kill game "
+					+ "-> purge runtime/Autoload state -> ObjectDB Snapshot in "
+					+ "editor. The process and Autoload nodes stay alive."
+				)
+			)
 
 
 func _group(command_name: String) -> String:
-	if command_name.begins_with("pkg_"): return "packages"
-	if command_name.begins_with("visit_") or command_name.begins_with("complaint_") or command_name == "customer_next": return "customers"
-	if command_name.begins_with("money_") or command_name.begins_with("penalty_") or command_name == "wallet_info": return "economy"
-	if command_name.begins_with("hunger_") or command_name.begins_with("stamina_") or command_name in ["health_info", "apply_damage", "heal", "kill", "reset", "corpse_info", "meat_spawn"]: return "health"
-	if command_name.begins_with("inventory_"): return "inventory"
-	if command_name.begins_with("trader_") or command_name.begins_with("order_") or command_name == "quest_info": return "trader"
-	if command_name.begins_with("npc_") or command_name == "nav_info": return "npc"
-	if command_name.begins_with("challenge_") or command_name == "hazard_info": return "challenges"
-	if command_name.begins_with("day_") or command_name.begins_with("debug_") or command_name.begins_with("save_") or command_name.begins_with("progress_"): return "world"
+	if command_name.begins_with("pkg_"):
+		return "packages"
+	if (
+		command_name.begins_with("visit_") or command_name.begins_with("complaint_")
+		or command_name == "customer_next"
+	):
+		return "customers"
+	if (
+		command_name.begins_with("money_") or command_name.begins_with("penalty_")
+		or command_name == "wallet_info"
+	):
+		return "economy"
+	if (
+		command_name.begins_with("hunger_") or command_name.begins_with("stamina_")
+		or command_name
+		in ["health_info", "apply_damage", "heal", "kill", "reset", "corpse_info", "meat_spawn"]
+	):
+		return "health"
+	if command_name.begins_with("inventory_"):
+		return "inventory"
+	if (
+		command_name.begins_with("trader_")
+		or command_name.begins_with("order_") or command_name == "quest_info"
+	):
+		return "trader"
+	if command_name.begins_with("npc_") or command_name == "nav_info":
+		return "npc"
+	if command_name.begins_with("challenge_") or command_name == "hazard_info":
+		return "challenges"
+	if (
+		command_name.begins_with("day_") or command_name.begins_with("debug_")
+		or command_name.begins_with("save_") or command_name.begins_with("progress_")
+	):
+		return "world"
 	return ""
 
 #endregion

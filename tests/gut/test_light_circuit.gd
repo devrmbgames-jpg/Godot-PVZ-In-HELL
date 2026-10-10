@@ -19,7 +19,9 @@ func before_each() -> void:
 	_actor = Entity.new()
 	_world.add_entity(_actor)
 
-	var scene: PackedScene = load("res://content/domains/interaction/entities/light_switch.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/interaction/entities/light_switch.tscn") as PackedScene
+	)
 	_switch = scene.instantiate() as Entity
 	_world.add_entity(_switch)
 	_state = _switch.get_component(C_LightCircuit) as C_LightCircuit
@@ -41,8 +43,8 @@ func _light(group_id: StringName) -> OmniLight3D:
 	light.add_to_group(group_id)
 	return light
 
-
 #endregion
+
 
 #region Авторская цепь
 ## A replaced loaded circuit invalidates a queued projection while preserving its current state.
@@ -114,8 +116,8 @@ func test_disabled_or_removed_switch_cannot_be_activated() -> void:
 	assert_false(action.is_available(_actor, null, null))
 	assert_false(LightCircuitService.toggle(null))
 
-
 #endregion
+
 
 #region Временное мерцание
 ## Лампа, готовая раньше глобального World, получает первый запрос после завершения ready сцены.
@@ -129,8 +131,11 @@ func test_view_ready_before_world_receives_first_flicker() -> void:
 	ECS.world = _world
 	await get_tree().process_frame
 	assert_true(LightCircuitService.flicker(&"warehouse", 2.0, 0.1))
-	view._process(0.15)
-	assert_false(light.visible, "First request must arrive even before the view's first process tick")
+	view.call("_process", 0.15)
+	assert_false(
+		light.visible,
+		"First request must arrive even before the view's first process tick",
+	)
 	assert_true(_state.enabled)
 
 
@@ -142,19 +147,19 @@ func test_flicker_subscriber_changes_visual_only_and_switch_off_wins() -> void:
 	light.add_child(view)
 	view.set_process(false)
 	assert_true(LightCircuitService.flicker(&"warehouse", 2.0, 0.1))
-	view._process(0.15)
+	view.call("_process", 0.15)
 	assert_false(light.visible)
 	assert_true(_state.enabled, "A dark flicker pulse is not a switched-off room")
 	_world.process(0.1)
 	assert_false(light.visible, "Circuit synchronization must not overwrite the flicker")
-	view._process(0.1)
+	view.call("_process", 0.1)
 	assert_true(light.visible)
 	assert_true(LightCircuitService.set_enabled(_switch, false))
 	assert_false(light.visible)
-	view._process(0.1)
+	view.call("_process", 0.1)
 	assert_false(light.visible)
 	assert_true(LightCircuitService.set_enabled(_switch, true))
-	view._process(0.1)
+	view.call("_process", 0.1)
 	assert_true(light.visible, "Switching on must not resume the stale request")
 
 
@@ -173,11 +178,11 @@ func test_flicker_expires_and_does_not_affect_other_circuits() -> void:
 	assert_false(LightCircuitService.flicker(&"missing", 2.0, 0.1))
 	assert_false(LightCircuitService.flicker(&"warehouse", -1.0, 0.1))
 	assert_true(LightCircuitService.flicker(&"warehouse", 0.3, 0.1))
-	view._process(0.15)
-	other._process(0.15)
+	view.call("_process", 0.15)
+	other.call("_process", 0.15)
 	assert_false(light.visible)
 	assert_true(unrelated.visible)
-	view._process(0.2)
+	view.call("_process", 0.2)
 	assert_true(light.visible)
 	assert_true(_state.enabled)
 

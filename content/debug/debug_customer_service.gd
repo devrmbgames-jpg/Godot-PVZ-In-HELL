@@ -6,7 +6,8 @@ const DEFAULT_CUSTOMER_KEY: String = "default"
 
 
 #region Создание и исход визита
-## Для коробки создаёт один QA-визит либо возвращает существующий; arrive выбирает очередь вместо закрытого учётного случая.
+## Для коробки создаёт один QA-визит либо возвращает существующий; arrive выбирает очередь вместо
+## закрытого учётного случая.
 static func create_visit(
 	target: DebugTarget,
 	customer_key: String,
@@ -51,7 +52,9 @@ static func create_visit(
 	)
 
 	var random: RandomNumberGenerator = GameTimeQueries.decision(
-		String(visit.visit_id), cycle.day_index, "customer/initial",
+		String(visit.visit_id),
+		cycle.day_index,
+		"customer/initial",
 	)
 	visit.complaint_roll = random.randf()
 	visit.aggression_roll = random.randf()
@@ -68,10 +71,7 @@ static func create_visit(
 
 
 ## Явно меняет QA-факт до расчёта/жалобы; запрещает сброс при уже принятом заявлении.
-static func set_actual(
-	target: DebugTarget,
-	actual: CustomerVisit.Actual,
-) -> DebugServiceResult:
+static func set_actual(target: DebugTarget, actual: CustomerVisit.Actual) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var visit: CustomerVisit = target.visit
 	if visit == null:
@@ -136,13 +136,12 @@ static func declare(
 	result.success = true
 	result.message = "declaration committed"
 	result.details.append(
-		"declaration=%s"
-		% _enum_name(CustomerVisit.Declaration, target.visit.declaration)
+		"declaration=%s" % _enum_name(CustomerVisit.Declaration, target.visit.declaration)
 	)
 	return result
 
-
 #endregion
+
 
 #region Жалоба и одобрение
 ## Создаёт QA-жалобу через сервис исхода; resolve_now сразу запускает её проверку/расчёт.
@@ -205,12 +204,7 @@ static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 		result.message = "day cycle is unavailable"
 		return result
 
-	CustomerOutcomeService.resolve_complaint(
-		visit,
-		WalletService.current(),
-		cycle.day_index,
-		true,
-	)
+	CustomerOutcomeService.resolve_complaint(visit, WalletService.current(), cycle.day_index, true)
 	result.success = visit.complaint.outcome != CustomerComplaint.Outcome.PENDING
 	result.message = "complaint resolved" if result.success else "complaint remains pending"
 	result.details.append(
@@ -220,10 +214,7 @@ static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 
 
 ## Запрашивает одобрение с удовлетворённостью 0–100 через CustomerOutcomeService.
-static func approve(
-	target: DebugTarget,
-	satisfaction: int,
-) -> DebugServiceResult:
+static func approve(target: DebugTarget, satisfaction: int) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if target.visit == null:
 		result.message = "target has no CustomerVisit"
@@ -240,8 +231,8 @@ static func approve(
 	result.details.append("satisfaction=%d" % target.visit.satisfaction)
 	return result
 
-
 #endregion
+
 
 #region Авторские профили и формат
 static func _package_definition(target: DebugTarget) -> DEF_Package:

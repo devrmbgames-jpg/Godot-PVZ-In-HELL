@@ -12,9 +12,10 @@ var _inspector: EditorInspectorPlugin
 
 #region Editor lifetime
 func _enter_tree() -> void:
-	_inspector = preload(
+	var inspector_script: Script = preload(
 		"res://content/editor/entity_authoring/entity_traits_inspector.gd"
-	).new() as EditorInspectorPlugin
+	)
+	_inspector = inspector_script.new() as EditorInspectorPlugin
 	add_inspector_plugin(_inspector)
 	_refresh_inspector()
 	_dock = EditorDock.new()

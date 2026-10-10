@@ -34,7 +34,10 @@ func before_each() -> void:
 	_head.add_child(_camera)
 	body.add_child(_head)
 	_actor.camera_root = _head
-	_feedback = (load("res://content/ui/character_feedback.tscn") as PackedScene).instantiate() as CharacterFeedback
+	_feedback = (
+		(load("res://content/ui/character_feedback.tscn") as PackedScene).instantiate()
+		as CharacterFeedback
+	)
 	_feedback.camera_path = NodePath("Head/Camera")
 	body.add_child(_feedback)
 	_root.add_child(body)
@@ -58,6 +61,7 @@ func _voices(footsteps: Footstepper) -> int:
 	return count
 
 #endregion
+
 
 #region Аудио, камера и поза пояса
 ## Удаление освобождает playback шагов; повторное добавление сохраняет работоспособность аудиопула.
@@ -88,7 +92,8 @@ func test_removed_footsteps_release_audio_and_can_play_after_reattachment() -> v
 		footsteps.free()
 
 
-## Наземное движение запускает шаг и качание только камеры; reduced_motion возвращает нейтральную позу.
+## Наземное движение запускает шаг и качание только камеры; reduced_motion возвращает нейтральную
+## позу.
 func test_grounded_motion_plays_manual_audio_and_bobs_only_camera_then_returns_neutral() -> void:
 	var footsteps: Footstepper = _feedback.get_node("Footstepper") as Footstepper
 	assert_not_null(footsteps.current_sound_profile.sound_footstep)
@@ -97,7 +102,7 @@ func test_grounded_motion_plays_manual_audio_and_bobs_only_camera_then_returns_n
 	var body: RigidBody3D = _actor as Node as RigidBody3D
 	body.position = Vector3(0, 0, -1.4)
 	var physical_pose: Transform3D = body.transform
-	_feedback._physics_process(1.0 / 60.0)
+	_feedback.call("_physics_process", 1.0 / 60.0)
 	assert_eq(_voices(footsteps), 1)
 	assert_true(body.transform.is_equal_approx(physical_pose))
 	assert_true(_head.transform.is_equal_approx(head_pose))
@@ -107,7 +112,7 @@ func test_grounded_motion_plays_manual_audio_and_bobs_only_camera_then_returns_n
 	assert_lte(absf(_camera.position.y), _feedback.bob_amplitude.y)
 	_feedback.reduced_motion = true
 	for tick: int in 20:
-		_feedback._physics_process(0.05)
+		_feedback.call("_physics_process", 0.05)
 	assert_lt(_camera.position.length(), 0.00001)
 	assert_true(_head.transform.is_equal_approx(head_pose))
 
@@ -119,30 +124,37 @@ func test_air_idle_modal_and_death_do_not_trigger_footsteps() -> void:
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
 	motion.is_on_floor = false
 	(_actor as Node as Node3D).position.z -= 0.8
-	_feedback._physics_process(1.0 / 60.0)
+	_feedback.call("_physics_process", 1.0 / 60.0)
 	assert_eq(_voices(footsteps), 0)
 	motion.is_on_floor = true
 	controller.direction_motion = Vector3.ZERO
 	(_actor as Node as Node3D).position.z -= 0.8
-	_feedback._physics_process(1.0 / 60.0)
+	_feedback.call("_physics_process", 1.0 / 60.0)
 	assert_eq(_voices(footsteps), 0)
 	controller.direction_motion = Vector3.FORWARD
 
-	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	var token: int = (
+		InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	)
 	(_actor as Node as Node3D).position.z -= 0.8
-	_feedback._physics_process(1.0 / 60.0)
+	_feedback.call("_physics_process", 1.0 / 60.0)
 	assert_eq(_voices(footsteps), 0)
 	InteractionControlFocus.release(_actor, token)
 	_actor.add_component(C_Death.new())
 	(_actor as Node as Node3D).position.z -= 0.8
-	_feedback._physics_process(1.0 / 60.0)
+	_feedback.call("_physics_process", 1.0 / 60.0)
 	assert_eq(_voices(footsteps), 0)
 	assert_true(_camera.position.is_zero_approx())
 
 
 ## Реальный prefab клиента содержит ручной пул пространственного аудио без качания камеры.
 func test_real_customer_prefab_uses_spatial_addon_players_under_rigid_body() -> void:
-	var npc: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	var npc: E_NpcCharacter = (
+		(
+			load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+		).instantiate()
+		as E_NpcCharacter
+	)
 	(npc as Node as RigidBody3D).freeze = true
 	_root.add_child(npc)
 	_world.add_entity(npc, null, false)
@@ -160,21 +172,36 @@ func test_normal_cadence_and_camera_share_phase_even_when_audio_is_muted() -> vo
 	var footsteps: Footstepper = _feedback.get_node("Footstepper") as Footstepper
 	_feedback.bob_response = 10000.0
 	(_actor as Node as Node3D).position.z -= 0.7
-	_feedback._physics_process(0.1)
+	_feedback.call("_physics_process", 0.1)
 	assert_eq(_voices(footsteps), 0, "Обычный шаг ещё не закончился")
 	(_actor as Node as Node3D).position.z -= 0.7
-	_feedback._physics_process(0.1)
+	_feedback.call("_physics_process", 0.1)
 	assert_eq(_voices(footsteps), 1)
-	assert_almost_eq(_camera.position.y, -_feedback.bob_amplitude.y, 0.00001, "Звук на нижней точке камеры")
+	assert_almost_eq(
+		_camera.position.y,
+		-_feedback.bob_amplitude.y,
+		0.00001,
+		"Звук на нижней точке камеры",
+	)
 	_feedback.footsteps_enabled = false
 	(_actor as Node as Node3D).position.z -= 1.4
-	_feedback._physics_process(0.2)
-	assert_almost_eq(_camera.position.y, _feedback.bob_amplitude.y, 0.00001, "Отключение звука не меняет фазу")
+	_feedback.call("_physics_process", 0.2)
+	assert_almost_eq(
+		_camera.position.y,
+		_feedback.bob_amplitude.y,
+		0.00001,
+		"Отключение звука не меняет фазу",
+	)
 
 
 ## Приседание опускает пояс независимо от pitch камеры и возвращает авторскую позу.
 func test_player_belt_lowers_without_camera_pitch_and_returns_to_authored_pose() -> void:
-	var actor: E_PhysicalCharacter = (load("res://content/domains/motion/entities/character_body_player.tscn") as PackedScene).instantiate() as E_PhysicalCharacter
+	var actor: E_PhysicalCharacter = (
+		(
+			load("res://content/domains/motion/entities/character_body_player.tscn") as PackedScene
+		).instantiate()
+		as E_PhysicalCharacter
+	)
 	_root.add_child(actor as Node)
 	_world.add_entity(actor, null, false)
 	assert_eq(actor.crouch_mounts.size(), 2)

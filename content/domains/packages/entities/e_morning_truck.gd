@@ -9,7 +9,9 @@ class_name E_MorningTruck
 ## Существующий проигрыватель двери без анимации прибытия автомобиля.
 @export var door_animation: AnimationPlayer = null
 ## Общая проверка полной формы, опоры и допустимой укладки на другие коробки.
-@export var placement: DEF_ItemPlacement = preload("res://content/domains/packages/definitions/def_truck_cargo_placement.tres")
+@export var placement: DEF_ItemPlacement = (
+	preload("res://content/domains/packages/definitions/def_truck_cargo_placement.tres")
+)
 
 ## Предельная длительность закрытия вне кузова; сбой/зацикливание анимации не удерживает машину.
 @export_range(0.1, 10.0, 0.1) var departure_timeout_seconds: float = 2.0
@@ -19,7 +21,7 @@ var _departing: bool = false
 var _waiting_for_player: bool = false
 var _closing_elapsed: float = 0.0
 var _departure_players: Array[WeakRef] = []
-@onready var _cargo_shape: CollisionShape3D = cargo_area.get_node_or_null("CollisionShape3D") as CollisionShape3D if cargo_area != null else null
+@onready var _cargo_shape: CollisionShape3D = _cargo_collision_shape()
 
 
 #region Дверь и готовность кузова
@@ -36,21 +38,33 @@ func open_door() -> void:
 
 ## Ждёт синхронизации коллайдеров нового автомобиля с физическим пространством.
 func is_ready_for_loading() -> bool:
-	return is_inside_tree() and not is_queued_for_deletion() and not _departing and Engine.get_physics_frames() > _created_frame
+	return (
+		is_inside_tree() and not is_queued_for_deletion() and not _departing
+		and Engine.get_physics_frames() > _created_frame
+	)
 #endregion
+
 
 #region Текущие границы грузовой области
 ## Проверяет авторскую область; неверная настройка запрещает отправление.
 func has_cargo_volume() -> bool:
-	return is_instance_valid(_cargo_shape) and not _cargo_shape.disabled and _cargo_shape.shape is BoxShape3D
+	return (
+		is_instance_valid(_cargo_shape) and not _cargo_shape.disabled
+		and _cargo_shape.shape is BoxShape3D
+	)
 
 
 ## Консервативно проверяет твёрдые формы в локальных осях кузова, без устаревающего списка Area.
 func overlaps_cargo(body: PhysicsBody3D) -> bool:
-	if not has_cargo_volume() or not is_instance_valid(body) or not body.is_inside_tree() or body.is_queued_for_deletion():
+	if (
+		not has_cargo_volume() or not is_instance_valid(body)
+		or not body.is_inside_tree() or body.is_queued_for_deletion()
+	):
 		return false
 	var volume: AABB = (_cargo_shape.shape as BoxShape3D).get_debug_mesh().get_aabb()
-	var relative_pose: Transform3D = _cargo_shape.global_transform.affine_inverse() * body.global_transform
+	var relative_pose: Transform3D = (
+		_cargo_shape.global_transform.affine_inverse() * body.global_transform
+	)
 	for owner_id: int in body.get_shape_owners():
 		if body.is_shape_owner_disabled(owner_id):
 			continue
@@ -101,7 +115,10 @@ func _physics_process(delta: float) -> void:
 			door_animation.play(&"door_close")
 	_closing_elapsed += maxf(0.0, delta)
 
-	if not is_instance_valid(door_animation) or not door_animation.is_playing() or _closing_elapsed >= departure_timeout_seconds:
+	if (
+		not is_instance_valid(door_animation) or not door_animation.is_playing()
+		or _closing_elapsed >= departure_timeout_seconds
+	):
 		queue_free()
 
 
@@ -111,3 +128,9 @@ func _hold_door_open() -> void:
 		door_animation.seek(door_animation.get_animation(&"door_open").length, true)
 		door_animation.stop(true)
 #endregion
+
+
+func _cargo_collision_shape() -> CollisionShape3D:
+	if cargo_area == null:
+		return null
+	return cargo_area.get_node_or_null("CollisionShape3D") as CollisionShape3D

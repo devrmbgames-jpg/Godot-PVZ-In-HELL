@@ -30,8 +30,13 @@ func _run() -> void:
 		var target: E_Openable = _level.get_node("Entityes/" + names[index]) as E_Openable
 		await _aim(target, offsets[index])
 		var state: C_Openable = target.get_component(C_Openable) as C_Openable
-		var action: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
-		assert(action != null and action.source == target, "Physical collider must route to its owner Entity")
+		var action: InteractionActionChoice = (
+			InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
+		)
+		assert(
+			action != null and action.source == target,
+			"Physical collider must route to its owner Entity",
+		)
 		assert(action.action.caption == "Открыть")
 		InteractionActionResolver.refresh_prompt(_actor)
 		assert((_actor.get_component(C_Interactor) as C_Interactor).prompt_text.contains("Открыть"))
@@ -40,14 +45,19 @@ func _run() -> void:
 		action = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
 		assert(action != null and action.action.caption == "Закрыть")
 		await _frames(SETTLE_FRAMES)
-		assert(state.actual_fraction >= 1.0 - ENDPOINT_TOLERANCE, "Main scene geometry must permit opening")
+		assert(
+			state.actual_fraction >= 1.0 - ENDPOINT_TOLERANCE,
+			"Main scene geometry must permit opening",
+		)
 		action.action.execute(_actor, action.source, action.target)
 		await _frames(SETTLE_FRAMES)
 		assert(state.actual_fraction <= ENDPOINT_TOLERANCE)
 
 	var light_switch: Entity = _level.get_node("Entityes/LightSwitch") as Entity
 	await _aim(light_switch, Vector3.ZERO, Vector3.RIGHT)
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
+	var choice: InteractionActionChoice = (
+		InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
+	)
 	assert(choice != null and choice.source == light_switch)
 	choice.action.execute(_actor, choice.source, choice.target)
 	assert(not LightCircuitService.is_enabled(&"warehouse"))
@@ -58,14 +68,16 @@ func _run() -> void:
 	assert((_level.get_node("WorldEnvironment/DirectionalLight3D") as Light3D).visible)
 	(light_switch.get_component(C_Interactable) as C_Interactable).enabled = false
 	InteractionActionResolver.refresh_prompt(_actor)
-	assert(not (_actor.get_component(C_Interactor) as C_Interactor).prompt_text.contains("Переключить"))
+	assert(
+		not (_actor.get_component(C_Interactor) as C_Interactor).prompt_text.contains("Переключить")
+	)
 	_level.free()
 	ECS.world = null
 	print("Environment main-scene targeting prompts physical endpoints and light groups smoke PASS")
 	get_tree().quit.call_deferred()
 
-
 #endregion
+
 
 #region Тестовое наведение
 func _aim(target: Entity, offset: Vector3, approach: Vector3 = Vector3.BACK) -> void:
@@ -76,7 +88,10 @@ func _aim(target: Entity, offset: Vector3, approach: Vector3 = Vector3.BACK) -> 
 	await _frames(2)
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
-	assert(interactor.target == target, "Targeting must hit the actual main-scene interaction surface")
+	assert(
+		interactor.target == target,
+		"Targeting must hit the actual main-scene interaction surface",
+	)
 
 
 func _frames(count: int) -> void:

@@ -2,7 +2,7 @@ extends GutTest
 ## Настройки/назначения через реальные InputMap, ConfigFile, Texture2D и modal lifecycle.
 
 const TEST_PATH: String = "user://r30_settings_test.cfg"
-var _events: Dictionary[StringName, Array] = {}
+var _events: Dictionary[StringName, Array] = { }
 var _mouse: Input.MouseMode
 
 
@@ -44,11 +44,12 @@ func _axis(axis: JoyAxis, direction: float) -> InputEventJoypadMotion:
 	event.axis_value = direction
 	return event
 
-
 #endregion
 
+
 #region Привязки, предпочтения и modal-меню
-## Конфликт привязок требует подтверждения, не затрагивает другое устройство и не переназначает безопасный выход.
+## Конфликт привязок требует подтверждения, не затрагивает другое устройство и не переназначает
+## безопасный выход.
 func test_conflict_requires_confirmation_and_preserves_other_device_and_safety_exit() -> void:
 	var original: Array[InputEvent] = InputMap.action_get_events(&"interact")
 	assert_false(GameSettingsService.rebind(&"interact", _key(KEY_SPACE)))
@@ -68,18 +69,27 @@ func test_conflict_requires_confirmation_and_preserves_other_device_and_safety_e
 ## Конфликт с дополнительным Ctrl совпадает с runtime; подтверждение устраняет двойное срабатывание.
 func test_modifier_overlap_matches_runtime_and_confirm_removes_unmodified_action() -> void:
 	var chord: InputEventKey = _key(KEY_E, true)
-	assert_true(InputMap.event_is_action(chord, &"interact"), "Runtime permits extra Ctrl on the unmodified E binding")
+	assert_true(
+		InputMap.event_is_action(chord, &"interact"),
+		"Runtime permits extra Ctrl on the unmodified E binding",
+	)
 	assert_true(&"interact" in GameSettingsService.conflicts(&"jump", chord))
 	assert_false(GameSettingsService.rebind(&"jump", chord))
 	assert_true(GameSettingsService.rebind(&"jump", chord, true))
 	assert_true(InputMap.event_is_action(chord, &"jump"))
-	assert_false(InputMap.event_is_action(chord, &"interact"), "Confirmed removal prevents both runtime actions firing")
+	assert_false(
+		InputMap.event_is_action(chord, &"interact"),
+		"Confirmed removal prevents both runtime actions firing",
+	)
 
 
-## Направления оси и сочетания модификаторов различаются; сочетание отображается отдельными иконками.
+## Направления оси и сочетания модификаторов различаются; сочетание отображается отдельными
+## иконками.
 func test_axis_direction_and_modifier_are_separate_bindings() -> void:
 	assert_true(GameSettingsService.rebind(&"look_left", _axis(JOY_AXIS_RIGHT_X, -1.0)))
-	assert_false(&"look_right" in GameSettingsService.conflicts(&"look_left", _axis(JOY_AXIS_RIGHT_X, -1.0)))
+	assert_false(
+		&"look_right" in GameSettingsService.conflicts(&"look_left", _axis(JOY_AXIS_RIGHT_X, -1.0))
+	)
 	assert_true(GameSettingsService.rebind(&"interact", _key(KEY_K, true)))
 	assert_false(InputMap.action_has_event(&"interact", _key(KEY_K)))
 	assert_true(InputMap.action_has_event(&"interact", _key(KEY_K, true)))
@@ -107,10 +117,11 @@ func test_settings_and_input_survive_config_roundtrip_and_reset() -> void:
 	assert_eq(GameSettingsService.value("reduced_motion"), true)
 
 
-## Повреждённые привязки сохраняют defaults, значения ограничиваются диапазоном, NaN и неверные типы отклоняются.
+## Повреждённые привязки сохраняют defaults, значения ограничиваются диапазоном, NaN и неверные типы
+## отклоняются.
 func test_invalid_bindings_keep_defaults_and_settings_are_bounded() -> void:
 	var config: ConfigFile = ConfigFile.new()
-	config.set_value("input", "interact", [{"type": "axis", "axis": -1}])
+	config.set_value("input", "interact", [{ "type": "axis", "axis": -1 }])
 	assert_eq(config.save(TEST_PATH), OK)
 	var defaults: Array[InputEvent] = InputMap.action_get_events(&"interact")
 	GameSettingsService.load_settings(TEST_PATH)
@@ -119,21 +130,31 @@ func test_invalid_bindings_keep_defaults_and_settings_are_bounded() -> void:
 	assert_eq(GameSettingsService.value("deadzone"), 0.75)
 	GameSettingsService.set_value("mouse_sensitivity", NAN)
 	assert_eq(GameSettingsService.value("mouse_sensitivity"), 1.0)
-	assert_null(InputBindingCodec.decode({"type": "button", "button": 999}))
-	assert_null(InputBindingCodec.decode({"type": "key", "physical": []}))
-	GameSettingsService.set_value("mouse_sensitivity", {})
+	assert_null(InputBindingCodec.decode({ "type": "button", "button": 999 }))
+	assert_null(InputBindingCodec.decode({ "type": "key", "physical": [] }))
+	GameSettingsService.set_value("mouse_sensitivity", { })
 	assert_eq(GameSettingsService.value("mouse_sensitivity"), 1.0)
 
 
-## Клавиши, кнопки и направления осей получают целые авторские спрайты; неизвестное значение использует fallback.
+## Клавиши, кнопки и направления осей получают целые авторские спрайты; неизвестное значение
+## использует fallback.
 func test_actual_keys_pad_and_axes_use_individual_outline_sprites() -> void:
 	var key: Texture2D = InputPromptService.texture_for(_key(KEY_E))
-	assert_eq(key.resource_path, "res://resources/kenney/kenney_input_prompts/keyboard_mouse/Default/keyboard_e_outline.png")
+	assert_eq(
+		key.resource_path,
+		"res://resources/kenney/kenney_input_prompts/keyboard_mouse/Default/keyboard_e_outline.png",
+	)
 	assert_false(key is AtlasTexture)
 	var button: InputEventJoypadButton = InputEventJoypadButton.new()
 	button.button_index = JOY_BUTTON_A
 	var pad: Texture2D = InputPromptService.texture_for(button, "playstation_series")
-	assert_eq(pad.resource_path, "res://resources/kenney/kenney_input_prompts/playstation_series/Default/playstation_button_cross_outline.png")
+	assert_eq(
+		pad.resource_path,
+		(
+			"res://resources/kenney/kenney_input_prompts/playstation_series/"
+			+ "Default/playstation_button_cross_outline.png"
+		),
+	)
 
 	var left: Texture2D = InputPromptService.texture_for(_axis(JOY_AXIS_RIGHT_X, -1), "xbox_series")
 	var right: Texture2D = InputPromptService.texture_for(_axis(JOY_AXIS_RIGHT_X, 1), "xbox_series")
@@ -141,27 +162,47 @@ func test_actual_keys_pad_and_axes_use_individual_outline_sprites() -> void:
 	assert_true(right.resource_path.ends_with("/xbox_stick_r_right.png"))
 	assert_ne(left.resource_path, right.resource_path, "Directions load distinct complete sprites")
 	button.button_index = JOY_BUTTON_MISC1
-	assert_true(InputPromptService.texture_for(button, "xbox_series").resource_path.ends_with("/controller_xboxseries.png"), "Unsupported button uses device icon")
+	assert_true(
+		InputPromptService
+		.texture_for(button, "xbox_series")
+		.resource_path
+		.ends_with("/controller_xboxseries.png"),
+		"Unsupported button uses device icon",
+	)
 	assert_null(InputPromptCatalog.texture("unknown", "keyboard_e"))
 	assert_null(InputPromptCatalog.texture("keyboard_mouse", "missing_button"))
 
 
 ## Каждое поддерживаемое семейство контроллеров получает свои кнопки и направленные спрайты стиков.
 func test_supported_device_families_use_face_and_direction_sprites() -> void:
-	var prefixes: Dictionary[String, String] = {"xbox_series": "xbox", "playstation_series": "playstation", "steam_deck": "steamdeck", "steam_controller": "steam"}
+	var prefixes: Dictionary[String, String] = ({
+		"xbox_series": "xbox",
+		"playstation_series": "playstation",
+		"steam_deck": "steamdeck",
+		"steam_controller": "steam",
+	})
 	var button: InputEventJoypadButton = InputEventJoypadButton.new()
 	for family: String in prefixes:
 		var prefix: String = prefixes[family]
 		button.button_index = JOY_BUTTON_A
 		var face: Texture2D = InputPromptService.texture_for(button, family)
 		var face_name: String = "button_cross" if family == "playstation_series" else "button_a"
-		assert_true(face.resource_path.ends_with("/" + prefix + "_" + face_name + "_outline.png"), family + " face button")
+		assert_true(
+			face.resource_path.ends_with("/" + prefix + "_" + face_name + "_outline.png"),
+			family + " face button",
+		)
 		button.button_index = JOY_BUTTON_DPAD_UP
 		var dpad: Texture2D = InputPromptService.texture_for(button, family)
-		assert_true(dpad.resource_path.ends_with("/" + prefix + "_dpad_up_outline.png"), family + " dpad up")
+		assert_true(
+			dpad.resource_path.ends_with("/" + prefix + "_dpad_up_outline.png"),
+			family + " dpad up",
+		)
 		var stick: Texture2D = InputPromptService.texture_for(_axis(JOY_AXIS_LEFT_Y, -1), family)
 		var stick_name: String = "stick_up" if family == "steam_controller" else "stick_l_up"
-		assert_true(stick.resource_path.ends_with("/" + prefix + "_" + stick_name + ".png"), family + " negative vertical axis")
+		assert_true(
+			stick.resource_path.ends_with("/" + prefix + "_" + stick_name + ".png"),
+			family + " negative vertical axis",
+		)
 
 
 ## Prompt-токен отображается иконкой и подписью без технической разметки в видимом тексте.
@@ -186,7 +227,9 @@ func test_menu_restores_pause_mouse_and_existing_carry_capture() -> void:
 	root.add_child(actor)
 	world.add_entity(actor, null, false)
 
-	var token: int = InteractionControlFocus.acquire(actor, root, InteractionControlFocus.Priority.CARRY)
+	var token: int = (
+		InteractionControlFocus.acquire(actor, root, InteractionControlFocus.Priority.CARRY)
+	)
 	var menu: SettingsMenu = SettingsMenu.new()
 	menu.setup(actor, TEST_PATH)
 	root.add_child(menu)
@@ -198,14 +241,19 @@ func test_menu_restores_pause_mouse_and_existing_carry_capture() -> void:
 	assert_eq(InteractionControlFocus.current(actor), InteractionControlFocus.Priority.MODAL)
 	menu.close_menu()
 	assert_false(get_tree().paused)
-	assert_eq(Input.mouse_mode, before_mode, "Restores the engine-reported mode (headless may reject capture)")
+	assert_eq(
+		Input.mouse_mode,
+		before_mode,
+		"Restores the engine-reported mode (headless may reject capture)",
+	)
 	assert_eq(InteractionControlFocus.current(actor), InteractionControlFocus.Priority.CARRY)
 	InteractionControlFocus.release(actor, token)
 	world.purge(false)
 	root.free()
 
 
-## Режим переключаемого спринта и Shift-привязка переживают запись без удвоенной иконки модификатора.
+## Режим переключаемого спринта и Shift-привязка переживают запись без удвоенной иконки
+## модификатора.
 func test_sprint_mode_and_modifier_key_binding_round_trip() -> void:
 	GameSettingsService.set_value("sprint_toggle", true)
 	var shift: InputEventKey = _key(KEY_SHIFT)

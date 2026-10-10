@@ -7,6 +7,7 @@ var _zone: E_ReceivingZone
 var _state: C_Receiving
 var _parking: Marker3D
 
+
 #region Изолированная реальная приёмка
 ## Создаёт настоящий кузов, складской журнал и авторскую поставку без симуляции NPC.
 func before_each() -> void:
@@ -18,7 +19,12 @@ func before_each() -> void:
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_PackageLedger.new()]
 	_world.add_entity(session)
-	_zone = (load("res://content/domains/packages/entities/receiving_zone.tscn") as PackedScene).instantiate() as E_ReceivingZone
+	_zone = (
+		(
+			load("res://content/domains/packages/entities/receiving_zone.tscn") as PackedScene
+		).instantiate()
+		as E_ReceivingZone
+	)
 	_zone.package_parent = _root
 	_parking = Marker3D.new()
 	_parking.position = Vector3(5, 0, 7)
@@ -112,7 +118,8 @@ func test_next_truck_uses_moved_parking() -> void:
 	assert_true(truck.global_transform.is_equal_approx(_parking.global_transform))
 
 
-## Занятый кузов сохраняет те же ID и сцены; освобождение публикует одно незарегистрированное поступление.
+## Занятый кузов сохраняет те же ID и сцены; освобождение публикует одно незарегистрированное
+## поступление.
 func test_blocked_cargo_preserves_batch_until_space_is_free() -> void:
 	var truck: E_MorningTruck = await _ready_truck()
 	_plan_big_boxes()
@@ -138,17 +145,24 @@ func test_blocked_cargo_preserves_batch_until_space_is_free() -> void:
 	var record: PackageRegistrationRecord = PackageHistoryService.record_for(ids[0])
 	assert_not_null(record)
 	assert_eq(record.number, 0)
-	assert_eq((_parcels()[0].get_component(C_PackageState) as C_PackageState).registration, C_PackageState.Registration.UNREGISTERED)
+	assert_eq(
+		(_parcels()[0].get_component(C_PackageState) as C_PackageState).registration,
+		C_PackageState.Registration.UNREGISTERED,
+	)
 
 
-## Маркер у стенки не позволяет создать пересекающий её широкий предмет; возврат маркера исправляет размещение.
+## Маркер у стенки не позволяет создать пересекающий её широкий предмет; возврат маркера исправляет
+## размещение.
 func test_full_shape_rejects_wall_and_respects_marker_edit() -> void:
 	var truck: E_MorningTruck = await _ready_truck()
 	_plan_big_boxes()
 	var marker: Marker3D = truck.cargo_slots[0]
 	truck.cargo_slots.assign([marker])
 	var cargo_shape: CollisionShape3D = _cargo_shape(truck)
-	var volume: AABB = truck.global_transform.affine_inverse() * cargo_shape.global_transform * cargo_shape.shape.get_debug_mesh().get_aabb()
+	var volume: AABB = (
+		truck.global_transform.affine_inverse() * cargo_shape.global_transform
+		* cargo_shape.shape.get_debug_mesh().get_aabb()
+	)
 	var package_bounds: AABB = _big_package_bounds()
 	marker.position.x = volume.end.x - package_bounds.size.x * 0.25
 	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
@@ -179,8 +193,11 @@ func test_authored_upper_slot_stacks_on_real_box() -> void:
 	var support_bounds: AABB = support_solver.bounds_at(bottom.global_transform)
 	var local_bounds: AABB = support_solver.bounds_at(Transform3D.IDENTITY)
 	var upper: Marker3D = truck.cargo_slots[1]
-	# The current authored upper deck is taller than one parcel; edit its fixture height to this real support.
-	upper.global_position.y = support_bounds.end.y + truck.placement.clearance - local_bounds.position.y
+	# The current authored upper deck is taller than one parcel; edit its fixture height to this
+	# real support.
+	upper.global_position.y = (
+		support_bounds.end.y + truck.placement.clearance - local_bounds.position.y
+	)
 	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
 	assert_eq(_parcels().size(), 2)
 	if _parcels().size() != 2:
@@ -228,7 +245,11 @@ func test_restored_batch_and_arrival_history_prevent_duplicate_spawn() -> void:
 ## Сохранённый физический вариант обязан принадлежать авторскому ассортименту конкретной посылки.
 func test_unlisted_saved_scene_is_rejected_without_creating_a_node() -> void:
 	var created: E_Package = ReceivingPackageFactory.create(
-		_zone, _zone.supply.packages[0], "invalid-scene", 1, 0,
+		_zone,
+		_zone.supply.packages[0],
+		"invalid-scene",
+		1,
+		0,
 		"res://content/domains/packages/entities/car.tscn",
 	)
 	assert_null(created)
@@ -297,8 +318,10 @@ func test_reset_context_only_clears_transient_placement_state() -> void:
 	assert_eq(_state.incoming_package_ids, ids)
 #endregion
 
+
 #region Captured receiving requests
-## A queued receiving attempt cannot mutate a replaced Component or create an orphaned historical batch.
+## A queued receiving attempt cannot mutate a replaced Component or create an orphaned historical
+## batch.
 func test_receiving_manual_flush_rejects_replaced_state() -> void:
 	await _ready_truck()
 	_plan_big_boxes()
@@ -343,8 +366,10 @@ func test_receiving_manual_flush_revalidates_calendar() -> void:
 	assert_eq(_parcels().size(), 1)
 #endregion
 
+
 #region Retained receiving aggregate reload
-## Decoding the same saved manifest invalidates a queued request even when Component/calendar identity stays unchanged.
+## Decoding the same saved manifest invalidates a queued request even when Component/calendar
+## identity stays unchanged.
 func test_receiving_manual_flush_rejects_redecoded_manifest() -> void:
 	await _ready_truck()
 	_plan_big_boxes()
@@ -357,7 +382,11 @@ func test_receiving_manual_flush_rejects_redecoded_manifest() -> void:
 	var saved: Dictionary = SaveDataCodec.component_data(_state).fields as Dictionary
 	assert_true(SaveDataCodec.apply_fields(_state, saved))
 	ReceivingDeliveryService.reset_context(_state)
-	assert_ne(_state.pending[0], previous_batch, "Typed record state is decoded into the retained Component/Array")
+	assert_ne(
+		_state.pending[0],
+		previous_batch,
+		"Typed record state is decoded into the retained Component/Array",
+	)
 	_world.flush_command_buffers()
 	assert_true(_parcels().is_empty())
 	assert_eq(_state.pending[0].next_package, 0)

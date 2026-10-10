@@ -25,23 +25,48 @@ func _run() -> void:
 	wallet.balance = 1000
 	var trader: Entity = ECS.world.query.with_all([C_Trader]).execute_one() as Entity
 	assert(trader != null)
-	var item: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_large_shelf.tres") as DEF_InventoryItem
-	assert(CommerceService.purchase(actor, trader, item, 1, &"smoke/pickup") == CommerceService.Status.COMMITTED, "Actual trader pickup zone must fit a supported large shelf")
+	var item: DEF_InventoryItem = (
+		load("res://content/domains/inventory/definitions/def_item_large_shelf.tres")
+		as DEF_InventoryItem
+	)
+	assert(
+		CommerceService.purchase(actor, trader, item, 1, &"smoke/pickup")
+		== CommerceService.Status.COMMITTED,
+		"Actual trader pickup zone must fit a supported large shelf",
+	)
 
 	var shelf: RigidBody3D = _goods("purchase/smoke/pickup") as Node as RigidBody3D
 	assert(shelf != null and shelf.mass == 75.0)
 	assert(shelf.global_position.y > 0.0 and shelf.global_position.y < 5.0)
 	assert((shelf as Node as Entity).has_component(C_Anchorable))
-	assert(CommerceService.home_delivery(actor, trader, item, 1, &"smoke/home") == CommerceService.Status.COMMITTED)
+	assert(
+		CommerceService.home_delivery(actor, trader, item, 1, &"smoke/home")
+		== CommerceService.Status.COMMITTED
+	)
 	assert(wallet.balance == 610)
 	cycle.day_index += 1
 	cycle.phase = C_DayCycle.Phase.MORNING
 
 	var zone: Entity = ECS.world.query.with_all([C_OrderReceiving]).execute_one() as Entity
 	assert(zone != null)
-	assert(OrderDeliveryService.fulfill_one(zone, zone.get_component(C_OrderReceiving) as C_OrderReceiving, CommerceService.current(), cycle.day_index), "Actual home receiving area must fit the ordered shelf")
+	assert(
+		OrderDeliveryService.fulfill_one(
+			zone,
+			zone.get_component(C_OrderReceiving) as C_OrderReceiving,
+			CommerceService.current(),
+			cycle.day_index,
+		),
+		"Actual home receiving area must fit the ordered shelf",
+	)
 	assert(_goods("order/smoke/home") != null)
-	assert(not OrderDeliveryService.fulfill_one(zone, zone.get_component(C_OrderReceiving) as C_OrderReceiving, CommerceService.current(), cycle.day_index))
+	assert(
+		not OrderDeliveryService.fulfill_one(
+			zone,
+			zone.get_component(C_OrderReceiving) as C_OrderReceiving,
+			CommerceService.current(),
+			cycle.day_index,
+		)
+	)
 	assert(wallet.operations.size() == 2)
 	ECS.world.purge(false)
 	_level.free()

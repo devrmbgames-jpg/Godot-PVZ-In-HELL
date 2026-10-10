@@ -2,6 +2,7 @@ extends Observer
 ## Global native UI composition для commerce opening и Night modal cleanup.
 class_name O_GameplayPanelRequest
 
+
 #region Native panel requests
 ## Принимает domain requests; панели остаются обычными Godot objects.
 func sub_observers() -> Array[Array]:

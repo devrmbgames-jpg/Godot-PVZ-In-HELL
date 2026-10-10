@@ -4,6 +4,7 @@ class_name TerminalPanelStateQuery
 
 var _open: bool = false
 
+
 #region Visibility response
 ## Записывает фактическую видимость в текущий запрос.
 func record_open(visible: bool) -> void:

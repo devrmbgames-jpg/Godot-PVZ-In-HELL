@@ -39,6 +39,13 @@ covers parameter rejection, overlap and hot-swap safety without an editor.
 
 ## Pinned GDScript editor settings
 
+`pvz_gdscript_batch_diagnostics` compiles at most25 fixed manifest paths for task61–65
+without creating gameplay instances. The executing handler is validated against its
+already compiled source only when that source exactly matches disk. A stale handler
+returns `ERR_BUSY` / `handler_reload_required`; reload the registry before retrying.
+This avoids compiling the handler while its bytecode is executing. Other paths use an
+explicit native reload result; non-tool scripts cannot be instantiated in the editor.
+
 `custom_manage(op="invoke", params={"tool_name":"pvz_gdscript_style_settings",
 "params":{"action":"inspect"}})` checks the native GDQuest addon configuration.
 Use `action="apply"` to persist only the fixed formatter0.26.2 path, tabs,100-column lint,

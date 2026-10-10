@@ -3,6 +3,7 @@ extends GutTest
 
 var _world: World
 
+
 #region Buffered World fixtures
 ## Keeps production command buffers pending until the test's explicit lifetime boundary.
 func before_each() -> void:
@@ -37,12 +38,19 @@ func _free_before_flush(owner_type: Script, components: Array[Component]) -> voi
 	var subject: Entity = _entity(components)
 	var queued_owner: System = _owner(owner_type)
 	_world.process(0.1, queued_owner.group)
-	assert_eq(queued_owner.cmd.size(), 1, "Production query/process must actually queue one operation")
+	assert_eq(
+		queued_owner.cmd.size(),
+		1,
+		"Production query/process must actually queue one operation",
+	)
 
 	_world.remove_entity(subject)
 	subject.free()
 	_world.flush_command_buffers()
-	assert_false(queued_owner.has_pending_commands(), "Freed queued_owner must be consumed without an engine argument error")
+	assert_false(
+		queued_owner.has_pending_commands(),
+		"Freed queued_owner must be consumed without an engine argument error",
+	)
 	_world.remove_system(queued_owner)
 	queued_owner.free()
 
@@ -54,6 +62,7 @@ func _observer(observer_type: Script) -> Observer:
 	return queued_owner
 #endregion
 
+
 #region Scheduled queued_owner lifetime
 ## Runs the production query and enqueue paths for combat, challenge and interaction owners.
 func test_scheduled_combat_challenge_and_input_owners_survive_free_before_flush() -> void:
@@ -62,7 +71,10 @@ func test_scheduled_combat_challenge_and_input_owners_survive_free_before_flush(
 	_free_before_flush(S_NpcCombat, [C_NpcCombat.new()])
 	_free_before_flush(S_PlayerMelee, [C_Combat.new()])
 	_free_before_flush(S_FloorHazard, [C_Hazard.new(), C_FloorHazard.new()])
-	_free_before_flush(S_InteractionInput, [C_Controller.new(), C_Interactor.new(), C_GrabControl.new()])
+	_free_before_flush(
+		S_InteractionInput,
+		[C_Controller.new(), C_Interactor.new(), C_GrabControl.new()],
+	)
 	var marker: C_Marker = C_Marker.new()
 	marker.capture_token = 1
 	_free_before_flush(S_Marker, [marker])
@@ -70,8 +82,16 @@ func test_scheduled_combat_challenge_and_input_owners_survive_free_before_flush(
 
 ## Every isolated phase queued_owner rejects an appearance removed after its query snapshot.
 func test_customer_phase_owners_survive_free_before_flush() -> void:
-	for owner_type: Script in [S_CustomerClock, S_CustomerGreeting, S_CustomerCleanup, S_CustomerCombat,
-			S_CustomerApproach, S_CustomerDeparture, S_CustomerInspection, S_CustomerWaiting]:
+	for owner_type: Script in [
+		S_CustomerClock,
+		S_CustomerGreeting,
+		S_CustomerCleanup,
+		S_CustomerCombat,
+		S_CustomerApproach,
+		S_CustomerDeparture,
+		S_CustomerInspection,
+		S_CustomerWaiting,
+	]:
 		var agent: C_CustomerAgent = C_CustomerAgent.new()
 		if owner_type == S_CustomerDeparture:
 			agent.phase = C_CustomerAgent.Phase.LEAVING
@@ -87,7 +107,13 @@ func test_customer_phase_owners_survive_free_before_flush() -> void:
 func test_customer_and_district_session_owners_survive_free_before_flush() -> void:
 	for owner_type: Script in [S_CustomerFlow, S_CustomerArrivals]:
 		_free_before_flush(owner_type, [C_CustomerFlow.new(), C_DayCycle.new()])
-	for owner_type: Script in [S_District, S_NpcCadence, S_NpcFootsteps, S_NpcNoise, S_NpcRoutePlanning]:
+	for owner_type: Script in ([
+		S_District,
+		S_NpcCadence,
+		S_NpcFootsteps,
+		S_NpcNoise,
+		S_NpcRoutePlanning,
+	]):
 		_free_before_flush(owner_type, [C_District.new(), C_DayCycle.new()])
 
 
@@ -96,7 +122,10 @@ func test_due_npc_stage_owners_survive_free_before_flush() -> void:
 	for owner_type: Script in [S_NpcPerception, S_NpcTraits, S_NpcDecision, S_NpcRoute]:
 		var decision: C_NpcDecision = C_NpcDecision.new()
 		decision.scheduled_delta = 0.1
-		_free_before_flush(owner_type, [C_NpcIdentity.new(), C_NpcAwareness.new(), C_NpcIntent.new(), decision])
+		_free_before_flush(
+			owner_type,
+			[C_NpcIdentity.new(), C_NpcAwareness.new(), C_NpcIntent.new(), decision],
+		)
 
 
 ## Explosion resolution and TTL retirement both tolerate removal before structural commit.
@@ -134,7 +163,8 @@ func test_customer_clock_rejects_role_removed_before_flush() -> void:
 	assert_false(queued_owner.has_pending_commands())
 
 
-## Damage queued for the old package aggregate cannot destroy a replacement aggregate on the same body.
+## Damage queued for the old package aggregate cannot destroy a replacement aggregate on the same
+## body.
 func test_damage_reaction_rejects_replaced_package_state() -> void:
 	var subject: Entity = _entity([C_PackageState.new()])
 	var observer: Observer = _observer(O_PackageDamage)
@@ -153,6 +183,7 @@ func test_damage_reaction_rejects_replaced_package_state() -> void:
 	assert_eq(replacement.damage, C_PackageState.Damage.UNDAMAGED)
 	assert_false(observer.has_pending_commands())
 #endregion
+
 
 #region Reactive queued_owner lifetime
 ## A runtime planning receipt rejects an expired session instead of planning detached state.
@@ -175,10 +206,25 @@ func test_planning_command_rejects_expired_runtime_owner() -> void:
 	assert_true(flow.visits.is_empty())
 
 
-## Health reactions use committed Resource payloads without binding their target as a typed argument.
+## Health reactions use committed Resource payloads without binding their target as a typed
+## argument.
 func test_damage_reactions_survive_free_before_flush() -> void:
-	for observer_type: Script in [O_HealthLifecycle, O_PackageDamage, O_NpcRemains, O_RemoveOnHealthDepleted]:
-		var subject: Entity = _entity([C_Living.new(), C_PackageState.new(), C_NpcRemains.new(), C_RemoveOnHealthDepleted.new()])
+	for observer_type: Script in ([
+		O_HealthLifecycle,
+		O_PackageDamage,
+		O_NpcRemains,
+		O_RemoveOnHealthDepleted,
+	]):
+		var subject: Entity = (
+			_entity(
+				[
+					C_Living.new(),
+					C_PackageState.new(),
+					C_NpcRemains.new(),
+					C_RemoveOnHealthDepleted.new(),
+				]
+			)
+		)
 		var observer: Observer = _observer(observer_type)
 		var result: DamageResult = DamageResult.new()
 		result.request = DamageRequest.new()
@@ -196,11 +242,18 @@ func test_damage_reactions_survive_free_before_flush() -> void:
 		observer.free()
 
 
-## Each invalid relationship queues a structural removal safe after the relationship queued_owner is freed.
+## Each invalid relationship queues a structural removal safe after the relationship queued_owner is
+## freed.
 func test_relationship_rejection_survives_free_before_flush() -> void:
 	var target: Entity = _entity([])
 	var relations: Array[Script] = [R_HeldBy, R_PushedBy, R_CartCargo, R_CartDrivenBy, R_StoredIn]
-	var observers: Array[Script] = [O_GrabLifecycle, O_PushLifecycle, O_CartLifecycle, O_CartLifecycle, O_PhysicalSlotLifecycle]
+	var observers: Array[Script] = ([
+		O_GrabLifecycle,
+		O_PushLifecycle,
+		O_CartLifecycle,
+		O_CartLifecycle,
+		O_PhysicalSlotLifecycle,
+	])
 	for index: int in relations.size():
 		var subject: Entity = _entity([])
 		var observer: Observer = _observer(observers[index])
@@ -216,7 +269,8 @@ func test_relationship_rejection_survives_free_before_flush() -> void:
 		observer.free()
 
 
-## A pending removal identifies the original Relationship instead of pattern-matching its replacement.
+## A pending removal identifies the original Relationship instead of pattern-matching its
+## replacement.
 func test_old_relationship_rejection_does_not_remove_replacement() -> void:
 	var target: Entity = _entity([])
 	var subject: Entity = _entity([])
@@ -241,18 +295,24 @@ func test_contents_release_retains_freed_initiator_identity() -> void:
 	_entity([queue, C_DayCycle.new()])
 	var actor: Entity = _entity([])
 	var actor_id: String = actor.id
-	var parcel: E_Package = (load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene).instantiate() as E_Package
+	var parcel: E_Package = (
+		(
+			load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene
+		).instantiate()
+		as E_Package
+	)
 	EntityCompositionFixture.register(_world, parcel)
 	(parcel.get_component(C_PackageState) as C_PackageState).opening = C_PackageState.Opening.OPENED
 	var observer: Observer = _observer(O_PackageContents)
-	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, actor)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.OPENED, actor)
 	assert_eq(observer.cmd.size(), 1)
 
 	_world.remove_entity(actor)
 	actor.free()
 	_world.flush_command_buffers()
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
-	# With no authored support surface, actual placement is pending, preserving the terminal context.
+	# With no authored support surface, actual placement is pending, preserving the terminal
+	# context.
 	assert_gt(queue.pending.size(), 0)
 	for record: PendingLootDrop in queue.pending:
 		assert_eq(record.actor_id, actor_id)

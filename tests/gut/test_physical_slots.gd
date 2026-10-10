@@ -34,7 +34,13 @@ func before_each() -> void:
 	_world.add_observer(O_GrabLifecycle.new())
 	_world.add_observer(O_PhysicalSlotLifecycle.new())
 	_actor = Actor.new()
-	_actor.component_resources = [C_Controller.new(), C_Interactor.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
+	_actor.component_resources = ([
+		C_Controller.new(),
+		C_Interactor.new(),
+		C_GrabControl.new(),
+		C_CarryLoad.new(),
+		C_Strength.new(),
+	])
 
 	var ray: RayCast3D = RayCast3D.new()
 	ray.position = Vector3(0, 1, 0)
@@ -101,11 +107,12 @@ func _hold(item: Entity, hand: C_Grabbable.HoldSlot) -> void:
 	grip.slot = hand
 	item.add_relationship(Relationship.new(grip, _actor))
 
-
 #endregion
 
+
 #region Хранение и извлечение
-## Хранение выключает физику через RemoteTransform; извлечение восстанавливает параметры и прежнего родителя.
+## Хранение выключает физику через RemoteTransform; извлечение восстанавливает параметры и прежнего
+## родителя.
 func test_store_freezes_attaches_and_restores_physics_on_take() -> void:
 	var original_parent: Node = _body.get_parent()
 	_body.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
@@ -165,8 +172,8 @@ func test_full_hand_requires_explicit_common_replacement() -> void:
 	assert_null(GrabQueries.held_relationship(other))
 	assert_true(GrabQueries.entity_available(other))
 
-
 #endregion
+
 
 #region Владение и очистка
 ## Удаление слота восстанавливает физику предмета и освобождает связь хранения.
@@ -207,7 +214,9 @@ func test_resolver_uses_swapped_secondary_hand_without_leaking_to_carry() -> voi
 	interactor.target = _slot
 	var control: C_GrabControl = _actor.get_component(C_GrabControl) as C_GrabControl
 	control.swap_hand_controls = true
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.USE)
+	var choice: InteractionActionChoice = (
+		InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.USE)
+	)
 	assert_not_null(choice)
 	if choice != null:
 		choice.action.execute(_actor, choice.source, choice.target)
@@ -226,7 +235,9 @@ func test_removing_slot_configuration_restores_stored_body() -> void:
 
 ## Авторские поясные слоты принадлежат корневому телу игрока.
 func test_player_belt_slots_are_mounted_to_body_root() -> void:
-	var player_scene: PackedScene = load("res://content/domains/motion/entities/e_rigid_body_character.tscn") as PackedScene
+	var player_scene: PackedScene = (
+		load("res://content/domains/motion/entities/e_rigid_body_character.tscn") as PackedScene
+	)
 	var player: E_RigidBodyCharacter = player_scene.instantiate() as E_RigidBodyCharacter
 	assert_not_null(player)
 	if player == null:
@@ -269,8 +280,11 @@ func test_nested_slot_mount_is_validated_before_native_registration() -> void:
 	var scene: PackedScene = _slot_scene()
 	var nested_slot: E_PhysicalSlot = scene.instantiate() as E_PhysicalSlot
 	bridge.add_child(nested_slot)
-	var context: EntitySpawnContext = EntityCompositionService.context_for(nested_slot, _world,
-		"fixture/nested_slot")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		nested_slot,
+		_world,
+		"fixture/nested_slot",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	assert_true(plan.valid())
 	assert_eq(plan.bindings.size(), 1)
@@ -281,7 +295,10 @@ func test_nested_slot_mount_is_validated_before_native_registration() -> void:
 	assert_eq(nested_slot.id, "")
 
 	var publications: Array[Entity] = []
-	_world.entity_added.connect(func(actor: Entity) -> void: publications.append(actor))
+	_world.entity_added.connect(
+		func(actor: Entity) -> void:
+			publications.append(actor),
+	)
 	assert_true(EntityCompositionService.register_plan(context, plan, false))
 	assert_eq(publications, [nested_slot])
 	assert_eq(nested_slot.relationships.size(), 1)
@@ -304,8 +321,11 @@ func test_slot_missing_anchor_rejects_initial_recipe() -> void:
 	var scene: PackedScene = _slot_scene()
 	var proposed: Entity = autofree(scene.instantiate()) as Entity
 	proposed.get_node("Anchor").free()
-	var context: EntitySpawnContext = EntityCompositionService.context_for(proposed, _world,
-		"fixture/missing_anchor")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		proposed,
+		_world,
+		"fixture/missing_anchor",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	assert_false(plan.valid())
 	var before: int = _world.entities.size()
@@ -322,8 +342,11 @@ func test_conflicting_local_and_ancestor_endpoint_names_reject_authoring() -> vo
 	var authoring: E_TraitedEntity = actor as E_TraitedEntity
 	authoring.bindings[&"mounted_on"] = NodePath("..")
 	authoring.ancestor_entity_bindings = PackedStringArray(["mounted_on"])
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, _world,
-		"fixture/ambiguous_mount")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		_world,
+		"fixture/ambiguous_mount",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	assert_false(plan.valid())
 	assert_eq(plan.issues[0].code, &"invalid_authoring")

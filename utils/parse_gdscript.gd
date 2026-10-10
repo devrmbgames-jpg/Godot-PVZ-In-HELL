@@ -1,6 +1,7 @@
 extends SceneTree
 ## Headless changed-file compilation; isolated project processes for GUT fixture scripts.
 
+
 #region Parser entry
 func _initialize() -> void:
 	call_deferred("_parse_selected_scripts")
@@ -43,28 +44,42 @@ func _parse_selected_scripts() -> void:
 			continue
 
 		var selected_script: GDScript = load(resource_path) as GDScript
-		if selected_script == null or (
-			not selected_script.can_instantiate() and not selected_script.is_abstract()
+		if (
+			selected_script == null
+			or (not selected_script.can_instantiate() and not selected_script.is_abstract())
 		):
 			failures += 1
 			continue
 		# This helper runs in a fresh process: loading compiles each dependency once.
 		# Recompiling an already-loaded base can retain old subclass/resource graphs.
 
-	print("Changed-script parser: %s (%d files, %d failures)" % [
-		"PASS" if failures == 0 else "FAIL", selected_paths.size(), failures
-	])
+	print(
+		"Changed-script parser: %s (%d files, %d failures)"
+		% ["PASS" if failures == 0 else "FAIL", selected_paths.size(), failures]
+	)
 	quit(0 if failures == 0 else 1)
+
 
 func _parse_isolated_script(resource_path: String) -> bool:
 	var compiler_output: Array[String] = []
 	var parser_script: GDScript = get_script() as GDScript
-	var check_arguments: PackedStringArray = PackedStringArray([
-		"--headless", "--path", ProjectSettings.globalize_path("res://"),
-		"--script", parser_script.resource_path, "--", "--isolated-script", resource_path,
-	])
+	var check_arguments: PackedStringArray = PackedStringArray(
+		[
+			"--headless",
+			"--path",
+			ProjectSettings.globalize_path("res://"),
+			"--script",
+			parser_script.resource_path,
+			"--",
+			"--isolated-script",
+			resource_path,
+		]
+	)
 	var check_exit_code: int = OS.execute(
-		OS.get_executable_path(), check_arguments, compiler_output, true,
+		OS.get_executable_path(),
+		check_arguments,
+		compiler_output,
+		true,
 	)
 	var diagnostic_failure: bool = false
 	for output: String in compiler_output:

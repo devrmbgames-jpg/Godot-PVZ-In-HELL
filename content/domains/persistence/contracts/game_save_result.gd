@@ -9,4 +9,4 @@ var message: String = ""
 ## Путь записанного или выбранного слота, если он установлен.
 var path: String = ""
 ## Проверенные данные выбранного слота для передачи новой сцене; Entity-ссылок нет.
-var snapshot: Dictionary = {}
+var snapshot: Dictionary = { }

@@ -79,10 +79,16 @@ func purge_runtime() -> void:
 	await _drain(tree)
 	print("DEBUG KILL GAME PURGE COMPLETE")
 	print("Autoload shells kept (required by Godot): ", ", ".join(autoload_names))
-	print("ObjectDB objects=", int(Performance.get_monitor(Performance.OBJECT_COUNT)),
-		" resources=", int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)),
-		" nodes=", int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
-		" orphan_nodes=", int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)))
+	print(
+		"ObjectDB objects=",
+		int(Performance.get_monitor(Performance.OBJECT_COUNT)),
+		" resources=",
+		int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)),
+		" nodes=",
+		int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
+		" orphan_nodes=",
+		int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)),
+	)
 	print("Take ObjectDB Snapshot in the editor debugger; the game process remains running.")
 	_show_exit_ui()
 	if not root.close_requested.is_connected(_request_quit):
@@ -126,7 +132,10 @@ func _show_exit_ui() -> void:
 	column.add_child(title)
 
 	var instructions: Label = Label.new()
-	instructions.text = "1. Take ObjectDB Snapshot in Godot Editor.\n2. Press the button below to quit Godot normally.\nThe runtime is no longer playable."
+	instructions.text = (
+		"1. Take ObjectDB Snapshot in Godot Editor.\n2. Press the button "
+		+ "below to quit Godot normally.\nThe runtime is no longer playable."
+	)
 	instructions.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(instructions)
 
@@ -168,7 +177,6 @@ func _drain(tree: SceneTree) -> void:
 ## Keep only active Autoload nodes in /root; normal scene children are removable.
 func _is_autoload(node: Node) -> bool:
 	return (
-		is_instance_valid(node)
-		and node.get_parent() == get_tree().root
+		is_instance_valid(node) and node.get_parent() == get_tree().root
 		and ProjectSettings.has_setting("autoload/%s" % String(node.name))
 	)

@@ -37,15 +37,15 @@ func before_each() -> void:
 	_visit.started = true
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits = [_visit]
 
-	var scene: PackedScene = load(
-		"res://content/domains/customers/entities/customer.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	)
 	_customer = scene.instantiate() as E_NpcCharacter
 	(_customer as Node as RigidBody3D).freeze = true
 	EntityCompositionFixture.register_visit(_world, _customer, _visit)
 
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-
 
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = _visit.package_id
@@ -110,8 +110,8 @@ func _press(text: String) -> bool:
 				return true
 	return false
 
-
 #endregion
+
 
 #region Обратимое восприятие и смысл ответа
 ## Голодная проекция обратима и сохраняет Entity, RID, заказ и исходную реплику.
@@ -129,7 +129,12 @@ func test_food_visual_is_reversible_and_keeps_entity_body_order_and_message() ->
 	assert_eq(_visit.customer_id, &"real-customer")
 	assert_eq(_visit.package_id, "real-order")
 	assert_eq(_context.package_number(), 3)
-	assert_true(HungerService.apply_food(_actor, load("res://content/domains/needs/definitions/def_food_bread.tres") as DEF_FoodEffect))
+	assert_true(
+		HungerService.apply_food(
+			_actor,
+			load("res://content/domains/needs/definitions/def_food_bread.tres") as DEF_FoodEffect,
+		)
+	)
 	await _food(false)
 	assert_true((_customer.get_node("Body") as Node3D).visible)
 	assert_true((_customer.get_node("Message") as Node3D).visible)
@@ -158,7 +163,10 @@ func test_open_dialogue_reverts_current_npc_line_after_food_without_advancing_br
 		if _line_text().contains("003"):
 			break
 
-	assert_true(_line_text().contains("003"), "Current real line must return without a dialogue transition")
+	assert_true(
+		_line_text().contains("003"),
+		"Current real line must return without a dialogue transition",
+	)
 	assert_true(await _press("Хорошо."), "Player choice retains its authored meaning")
 	for frame: int in UI_FRAMES:
 		await get_tree().process_frame
@@ -166,7 +174,10 @@ func test_open_dialogue_reverts_current_npc_line_after_food_without_advancing_br
 			break
 
 	assert_null(_panel())
-	assert_eq((_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
+	assert_eq(
+		(_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase,
+		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE,
+	)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(_visit.declaration, CustomerVisit.Declaration.NONE)
 
@@ -186,7 +197,10 @@ func test_starving_honest_denial_keeps_actual_response_tags_and_domain_transitio
 
 	assert_eq(_visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
 	assert_eq(_visit.last_dialogue_intent, CustomerDialogueIntent.Type.HONEST)
-	assert_eq((_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.LEAVING)
+	assert_eq(
+		(_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase,
+		C_CustomerAgent.Phase.LEAVING,
+	)
 	assert_eq(_visit.customer_id, &"real-customer")
 	assert_false(_visit.customer_dead)
 

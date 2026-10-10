@@ -4,6 +4,7 @@ class_name BoundaryTrace
 
 const MAX_ENTRIES: int = 128
 
+
 #region Correlation and recording
 ## Allocates transient correlation only; callers retain their durable transaction IDs.
 static func next_id(operation: StringName) -> StringName:
@@ -42,6 +43,7 @@ static func record(
 	if trace_state.entries.size() > MAX_ENTRIES:
 		trace_state.entries.pop_front()
 #endregion
+
 
 #region Read provider
 ## Reads detached snapshots for all operations or a single explicit target identity.

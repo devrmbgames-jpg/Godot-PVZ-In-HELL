@@ -1,5 +1,6 @@
 extends Node3D
-## Звуки шагов и локальное покачивание камеры по фактическому движению; физику и крепления головы не исполняет.
+## Звуки шагов и локальное покачивание камеры по фактическому движению; физику и крепления головы не
+## исполняет.
 class_name CharacterFeedback
 
 ## Разрешает звук по пересечениям фазы фактических шагов.
@@ -59,8 +60,8 @@ func _exit_tree() -> void:
 	if is_instance_valid(_camera):
 		_camera.position = _camera_rest
 
-
 #endregion
+
 
 #region Шаги и покачивание
 func _physics_process(delta: float) -> void:
@@ -73,16 +74,26 @@ func _physics_process(delta: float) -> void:
 	var distance: float = Vector2(difference.x, difference.z).length()
 	var motion: C_Motion = _actor.get_component(C_Motion) as C_Motion
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
-	var allowed: bool = motion != null and motion.is_on_floor and motion.control_enabled and not _actor.has_component(C_Death)
+	var allowed: bool = (
+		motion != null and motion.is_on_floor and motion.control_enabled
+		and not _actor.has_component(C_Death)
+	)
 	allowed = allowed and controller != null and not controller.direction_motion.is_zero_approx()
-	allowed = allowed and InteractionControlFocus.current(_actor) < InteractionControlFocus.Priority.MODAL
+	allowed = (
+		allowed and InteractionControlFocus.current(_actor) < InteractionControlFocus.Priority.MODAL
+	)
 	allowed = allowed and CartTransportService.current(_actor) == null
 
-	var walking: bool = allowed and distance < MAXIMUM_FRAME_TRAVEL and distance / delta >= MINIMUM_WALK_SPEED
+	var walking: bool = (
+		allowed and distance < MAXIMUM_FRAME_TRAVEL and distance / delta >= MINIMUM_WALK_SPEED
+	)
 	if walking:
 		# Одна фаза: PI на шаг; звук и нижняя точка камеры совпадают.
 		var next_phase: float = _bob_phase + PI * distance / maxf(step_distance, MINIMUM_DISTANCE)
-		var strikes: int = int(floor((next_phase + PHASE_EPSILON) / PI)) - int(floor((_bob_phase + PHASE_EPSILON) / PI))
+		var strikes: int = (
+			int(floor((next_phase + PHASE_EPSILON) / PI))
+			- int(floor((_bob_phase + PHASE_EPSILON) / PI))
+		)
 		_bob_phase = fposmod(next_phase, TAU)
 		if footsteps_enabled:
 			for strike: int in strikes:
@@ -91,8 +102,20 @@ func _physics_process(delta: float) -> void:
 		_bob_phase = PI / 2.0
 
 	var target: Vector3 = Vector3.ZERO
-	if walking and bob_enabled and not reduced_motion and not (_actor.has_component(C_PlayerInputController) and bool(GameSettingsService.value("reduced_motion"))):
-		target = Vector3(sin(_bob_phase) * bob_amplitude.x, -cos(_bob_phase * 2.0) * bob_amplitude.y, 0.0)
+	if (
+		walking and bob_enabled and not reduced_motion
+		and not (
+			_actor.has_component(C_PlayerInputController)
+			and bool(GameSettingsService.value("reduced_motion"))
+		)
+	):
+		target = (
+			Vector3(
+				sin(_bob_phase) * bob_amplitude.x,
+				-cos(_bob_phase * 2.0) * bob_amplitude.y,
+				0.0,
+			)
+		)
 	_camera_offset = _camera_offset.lerp(target, 1.0 - exp(-bob_response * delta))
 	if _camera != null:
 		_camera.position = _camera_rest + _camera_offset

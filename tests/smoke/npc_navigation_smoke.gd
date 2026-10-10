@@ -38,7 +38,9 @@ func _run() -> void:
 	var region: NavigationRegion3D = NavigationRegion3D.new()
 	region.navigation_mesh = mesh
 	_world.add_child(region)
-	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	)
 	var customer: E_NpcCharacter = scene.instantiate() as E_NpcCharacter
 	# This headless fixture isolates physics/navigation from streamed footstep playback.
 	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
@@ -60,15 +62,18 @@ func _run() -> void:
 			break
 
 	assert(arrived, "NPC must reach target using NavigationAgent waypoints")
-	assert(greatest_detour >= MIN_ROUTE_DETOUR, "Path must go around the wall instead of driving directly into it")
+	assert(
+		greatest_detour >= MIN_ROUTE_DETOUR,
+		"Path must go around the wall instead of driving directly into it",
+	)
 	assert(customer.navigation_agent.get_current_navigation_path().size() > 2)
 	_world.free()
 	ECS.world = null
 	print("NPC NavigationAgent wall-detour pathfinding smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Геометрия проверки
 func _box(position: Vector3, size: Vector3) -> void:

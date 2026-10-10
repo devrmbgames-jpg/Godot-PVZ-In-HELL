@@ -9,8 +9,9 @@ func test_missing_home_or_portal_rejects_arrival_and_visit_until_explicit_retry(
 	for index: int in [0, 8]:
 		var person: NpcRecord = _district.people[index]
 		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
-		var placement: NpcRecord.Placement = NpcRecord.Placement.HOME if index == 0 \
-				else NpcRecord.Placement.OUTSIDE
+		var placement: NpcRecord.Placement = (
+			NpcRecord.Placement.HOME if index == 0 else NpcRecord.Placement.OUTSIDE
+		)
 		DistrictPopulationService.set_placement(person, body, placement)
 		await get_tree().physics_frame
 		await get_tree().physics_frame
@@ -20,8 +21,9 @@ func test_missing_home_or_portal_rejects_arrival_and_visit_until_explicit_retry(
 		_district.definition.places.erase(target)
 		var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 		var generation: int = decision.participation_generation
-		var phase: C_DayCycle.Phase = C_DayCycle.Phase.MORNING if index == 0 \
-				else C_DayCycle.Phase.DAY
+		var phase: C_DayCycle.Phase = (
+			C_DayCycle.Phase.MORNING if index == 0 else C_DayCycle.Phase.DAY
+		)
 		assert_true(DistrictPopulationService.request_phase(body, 1, phase).succeeded)
 		assert_false(body.enabled)
 		assert_eq(body.global_position, old_position)

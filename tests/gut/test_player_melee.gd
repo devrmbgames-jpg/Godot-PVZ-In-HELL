@@ -1,16 +1,19 @@
 extends GutTest
-## Проверяет окно удара игрока, владение оружием и приоритет инструмента без подмены физики анимацией.
+## Проверяет окно удара игрока, владение оружием и приоритет инструмента без подмены физики
+## анимацией.
 
 var _world: World = null
 var _player: Entity = null
 var _target: Entity = null
 var _weapon: Entity = null
 
+
 ## Replaces a live strike synchronously from its committed damage fact.
 class StrikeReplacer extends Observer:
 	var _actor: Entity
 	var _weapon: Entity
 	var _replaced: bool = false
+
 
 	#region Damage reaction fixture
 	## Sets required fixture endpoints before registering the consumer.
@@ -57,7 +60,12 @@ func before_each() -> void:
 	(_player as Node).add_child(anchor)
 	(_player as E_RigidBodyCharacter).right_hand_slot = anchor
 	_target = _character(Vector3(0, 0, -1.3))
-	_weapon = (load("res://content/domains/combat/entities/utility_blade.tscn") as PackedScene).instantiate() as Entity
+	_weapon = (
+		(
+			load("res://content/domains/combat/entities/utility_blade.tscn") as PackedScene
+		).instantiate()
+		as Entity
+	)
 	EntityCompositionFixture.register(_world, _weapon)
 	(_weapon as Node as RigidBody3D).gravity_scale = 0.0
 	(_weapon as Node as Node3D).global_position = anchor.global_position
@@ -109,8 +117,8 @@ func _character(position: Vector3) -> Entity:
 	body.global_position = position
 	return entity
 
-
 #endregion
+
 
 #region Queued and synchronous replacement
 ## A queued old clock cannot advance a restarted strike using the same authored Definition.
@@ -152,6 +160,7 @@ func test_damage_fact_replacement_keeps_new_strike_uncommitted() -> void:
 	assert_true(state.hit_committed)
 	assert_lt((_target.get_component(C_Health) as C_Health).current, health_after_first)
 #endregion
+
 
 #region Окно, ввод и анимация удара
 ## Окно атаки наносит один удар и требует восстановления до новой атаки.
@@ -218,7 +227,11 @@ func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> 
 	assert_eq((_target.get_component(C_Health) as C_Health).current, 60.0)
 	assert_eq(body.global_transform, physical_pose, "Animation leaves native rigid transform alone")
 	CombatFixture.melee(_player, 0.1)
-	assert_eq((_target.get_component(C_Health) as C_Health).current, 60.0, "Pose updates do not duplicate damage")
+	assert_eq(
+		(_target.get_component(C_Health) as C_Health).current,
+		60.0,
+		"Pose updates do not duplicate damage",
+	)
 	GrabReleaseService.release(_player, _weapon)
 	CombatFixture.melee(_player, 0.1)
 	assert_false(animation.is_playing())
@@ -228,20 +241,33 @@ func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> 
 ## Молоток атакует NPC, сохраняя более высокий приоритет доступного крепления.
 func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action() -> void:
 	GrabReleaseService.release(_player, _weapon)
-	_weapon = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
+	_weapon = (
+		(load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate()
+		as Entity
+	)
 	EntityCompositionFixture.register(_world, _weapon)
 	(_weapon as Node as RigidBody3D).gravity_scale = 0.0
-	(_weapon as Node as Node3D).global_position = (_player as E_PhysicalCharacter).right_hand_slot.global_position
+	(_weapon as Node as Node3D).global_position = (_player as E_PhysicalCharacter) \
+			.right_hand_slot \
+			.global_position
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	_weapon.add_relationship(Relationship.new(grip, _player))
 	assert_true(_weapon.has_component(C_AnchorTool))
 
-	var actions: C_InteractionActionSet = _weapon.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	var actions: C_InteractionActionSet = (
+		_weapon.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	)
 	assert_true(actions.actions[0] is DEF_AnchorAction)
-	assert_gt(actions.actions[0].priority, actions.actions[1].priority, "Valid fastening takes precedence")
+	assert_gt(
+		actions.actions[0].priority,
+		actions.actions[1].priority,
+		"Valid fastening takes precedence",
+	)
 	(_player.get_component(C_Interactor) as C_Interactor).target = _target
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_player, DEF_InteractionAction.Slot.PRIMARY)
+	var choice: InteractionActionChoice = (
+		InteractionActionResolver.resolve(_player, DEF_InteractionAction.Slot.PRIMARY)
+	)
 	assert_not_null(choice)
 	if choice != null:
 		assert_true(choice.action is DEF_MeleeAction, "NPC target uses the strike action")
@@ -257,8 +283,8 @@ func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action()
 	CombatFixture.melee(_player, 1.0)
 	assert_eq(head.position, baseline)
 
-
 #endregion
+
 
 #region Геометрия и защита урона
 ## C_NoDamage владельца блокирует урон удерживаемого оружия.
@@ -289,7 +315,9 @@ func test_scenery_count_does_not_hide_melee_target() -> void:
 ## Общая защита контакта не наносит владельцу урон его собственным удерживаемым предметом.
 func test_existing_r08_impact_guard_prevents_own_held_object_damage() -> void:
 	var receiver: C_ImpactReceiver = C_ImpactReceiver.new()
-	receiver.profile = load("res://content/domains/combat/definitions/def_impact_living.tres") as DEF_ImpactProfile
+	receiver.profile = (
+		load("res://content/domains/combat/definitions/def_impact_living.tres") as DEF_ImpactProfile
+	)
 	_player.add_component(receiver)
 	_world.add_system(S_Impact.new())
 	var contact: PhysicsContact = PhysicsContact.new()

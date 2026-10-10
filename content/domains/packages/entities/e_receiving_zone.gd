@@ -7,6 +7,7 @@ const STATUS_REFRESH_SECONDS: float = 0.25
 var _status_remaining: float = 0.0
 @onready var _sign_label: Label3D = $Sign
 
+
 #region Информация приёмки
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -29,5 +30,12 @@ func _process(delta: float) -> void:
 	]
 	if cycle.phase == C_DayCycle.Phase.MORNING and truck_parking != null:
 		var current_status: ReceivingShiftService.Status = ReceivingShiftService.status(cycle, self)
-		_sign_label.text += "\n" + ("Разгрузка завершена" if current_status.reasons.is_empty() else "\n".join(current_status.reasons))
+		_sign_label.text += (
+			"\n"
+			+ (
+				"Разгрузка завершена"
+				if current_status.reasons.is_empty()
+				else "\n".join(current_status.reasons)
+			)
+		)
 #endregion

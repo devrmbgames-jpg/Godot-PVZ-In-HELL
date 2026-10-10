@@ -2,6 +2,7 @@
 extends EditorScenePostImport
 ## Синхронный post-import GLTF: внешние меши/анимации и три варианта сцен рядом с источником.
 
+
 # Главная функция, вызываемая Godot после импорта сцены
 #region Синхронный импорт
 func _post_import(scene: Node) -> Object:
@@ -20,19 +21,13 @@ func _post_import(scene: Node) -> Object:
 	_ensure_dir(scene_dir)
 
 	# 2. Собираем все MeshInstance3D и сохраняем меши как .res
-	var mesh_map: Dictionary = {}  # node_path -> resource_path
+	var mesh_map: Dictionary = { } # node_path -> resource_path
 	_extract_and_save_meshes(scene, scene, mesh_dir, base_name, mesh_map)
 
 	# 3. Сохраняем Animation из всех AnimationPlayer как внешние .res
-	var animation_map: Dictionary = {}  # node_path -> library -> animation -> resource_path
-	var used_animation_paths: Dictionary = {}
-	_extract_and_save_animations(
-		scene,
-		scene,
-		animation_dir,
-		animation_map,
-		used_animation_paths
-	)
+	var animation_map: Dictionary = { } # node_path -> library -> animation -> resource_path
+	var used_animation_paths: Dictionary = { }
+	_extract_and_save_animations(scene, scene, animation_dir, animation_map, used_animation_paths)
 
 	# Post-import выполняется синхронно: варианты сразу связываются с сохранёнными
 	# ресурсами через ResourceLoader/ResourceSaver, без отложенного создания сцен.
@@ -42,10 +37,10 @@ func _post_import(scene: Node) -> Object:
 
 	return scene
 
-
 # --- Вспомогательные методы ---
 
 #endregion
+
 
 #region Внешние ресурсы
 func _ensure_dir(path: String) -> void:
@@ -58,7 +53,7 @@ func _extract_and_save_meshes(
 	root: Node,
 	mesh_dir: String,
 	base_name: String,
-	mesh_map: Dictionary
+	mesh_map: Dictionary,
 ) -> void:
 	if node is MeshInstance3D:
 		var mi: MeshInstance3D = node
@@ -69,11 +64,7 @@ func _extract_and_save_meshes(
 
 			# Сохраняем меш как внешний ресурс
 			# FLAG_COMPRESS даёт меньший размер на диске и быстрее загрузку
-			var err: int = ResourceSaver.save(
-				mi.mesh,
-				mesh_path,
-				ResourceSaver.FLAG_COMPRESS
-			)
+			var err: int = ResourceSaver.save(mi.mesh, mesh_path, ResourceSaver.FLAG_COMPRESS)
 			if err != OK:
 				push_warning("[GLTF Auto Processor] Failed to save mesh: " + mesh_path)
 			else:
@@ -90,18 +81,18 @@ func _extract_and_save_animations(
 	root: Node,
 	animation_dir: String,
 	animation_map: Dictionary,
-	used_animation_paths: Dictionary
+	used_animation_paths: Dictionary,
 ) -> void:
 	if node is AnimationPlayer:
 		var player: AnimationPlayer = node
-		var player_map: Dictionary = {}
+		var player_map: Dictionary = { }
 
 		for library_name: StringName in player.get_animation_library_list():
 			var library: AnimationLibrary = player.get_animation_library(library_name)
 			if library == null:
 				continue
 
-			var library_map: Dictionary = {}
+			var library_map: Dictionary = { }
 			for animation_name: StringName in library.get_animation_list():
 				var animation: Animation = library.get_animation(animation_name)
 				if animation == null:
@@ -112,12 +103,12 @@ func _extract_and_save_animations(
 					player.name,
 					library_name,
 					animation_name,
-					used_animation_paths
+					used_animation_paths,
 				)
 				var save_err: int = ResourceSaver.save(
 					animation,
 					animation_path,
-					ResourceSaver.FLAG_COMPRESS
+					ResourceSaver.FLAG_COMPRESS,
 				)
 				if save_err != OK:
 					push_warning(
@@ -141,7 +132,7 @@ func _extract_and_save_animations(
 			root,
 			animation_dir,
 			animation_map,
-			used_animation_paths
+			used_animation_paths,
 		)
 
 
@@ -150,7 +141,7 @@ func _make_unique_animation_path(
 	player_name: StringName,
 	library_name: StringName,
 	animation_name: StringName,
-	used_animation_paths: Dictionary
+	used_animation_paths: Dictionary,
 ) -> String:
 	var safe_animation_name: String = _sanitize(String(animation_name))
 	if safe_animation_name.is_empty():
@@ -175,9 +166,7 @@ func _make_unique_animation_path(
 
 	var suffix: int = 2
 	while used_animation_paths.has(animation_path):
-		animation_path = animation_dir.path_join(
-			contextual_name + "_" + str(suffix) + ".res"
-		)
+		animation_path = animation_dir.path_join(contextual_name + "_" + str(suffix) + ".res")
 		suffix += 1
 
 	used_animation_paths[animation_path] = true
@@ -191,8 +180,8 @@ func _sanitize(s: String) -> String:
 		result = result.replace(ch, "_")
 	return result
 
-
 #endregion
+
 
 #region Варианты и внешние ссылки
 func _create_variant_scenes(
@@ -200,7 +189,7 @@ func _create_variant_scenes(
 	scene_dir: String,
 	base_name: String,
 	mesh_map: Dictionary,
-	animation_map: Dictionary
+	animation_map: Dictionary,
 ) -> void:
 	# Базовая сцена — просто копия с внешними ссылками на меши, без коллизий
 	_save_variant(
@@ -208,7 +197,7 @@ func _create_variant_scenes(
 		scene_dir.path_join(base_name + ".tscn"),
 		"none",
 		mesh_map,
-		animation_map
+		animation_map,
 	)
 
 	# Static — оборачиваем в StaticBody3D с триместными коллизиями
@@ -217,7 +206,7 @@ func _create_variant_scenes(
 		scene_dir.path_join(base_name + "_static.tscn"),
 		"static",
 		mesh_map,
-		animation_map
+		animation_map,
 	)
 
 	# Rigid — оборачиваем в RigidBody3D с выпуклыми коллизиями
@@ -226,7 +215,7 @@ func _create_variant_scenes(
 		scene_dir.path_join(base_name + "_rigid.tscn"),
 		"rigid",
 		mesh_map,
-		animation_map
+		animation_map,
 	)
 
 
@@ -235,7 +224,7 @@ func _save_variant(
 	out_path: String,
 	body_type: String,
 	mesh_map: Dictionary,
-	animation_map: Dictionary
+	animation_map: Dictionary,
 ) -> void:
 	# Дублируем дерево
 	var root: Node = original.duplicate()
@@ -314,8 +303,7 @@ func _relink_animations(node: Node, root: Node, animation_map: Dictionary) -> vo
 					)
 					if loaded_animation == null:
 						push_warning(
-							"[GLTF Auto Processor] Failed to load animation: "
-							+ animation_path
+							"[GLTF Auto Processor] Failed to load animation: " + animation_path
 						)
 						continue
 
@@ -323,18 +311,17 @@ func _relink_animations(node: Node, root: Node, animation_map: Dictionary) -> vo
 						replacement_library.remove_animation(animation_name)
 					var add_err: int = replacement_library.add_animation(
 						animation_name,
-						loaded_animation
+						loaded_animation,
 					)
 					if add_err != OK:
 						push_warning(
-							"[GLTF Auto Processor] Failed to relink animation: "
-							+ animation_path
+							"[GLTF Auto Processor] Failed to relink animation: " + animation_path
 						)
 
 				player.remove_animation_library(library_name)
 				var library_err: int = player.add_animation_library(
 					library_name,
-					replacement_library
+					replacement_library,
 				)
 				if library_err != OK:
 					push_warning(
@@ -345,8 +332,8 @@ func _relink_animations(node: Node, root: Node, animation_map: Dictionary) -> vo
 	for child in node.get_children():
 		_relink_animations(child, root, animation_map)
 
-
 #endregion
+
 
 #region Физические варианты и owner
 func _wrap_with_body(original_root: Node, body_class: String, new_name: String) -> Node:

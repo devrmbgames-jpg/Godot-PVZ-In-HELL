@@ -22,8 +22,12 @@ func before_each() -> void:
 	_world.add_system(_quest_owner)
 	var session: Entity = Entity.new()
 	session.component_resources = [
-		C_DayCycle.new(), C_Wallet.new(), C_QuestSession.new(), C_PackageLedger.new(),
-		C_CustomerFlow.new(), C_BoundaryTrace.new()
+		C_DayCycle.new(),
+		C_Wallet.new(),
+		C_QuestSession.new(),
+		C_PackageLedger.new(),
+		C_CustomerFlow.new(),
+		C_BoundaryTrace.new(),
 	]
 	_world.add_entity(session)
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
@@ -34,7 +38,10 @@ func before_each() -> void:
 	_wallet.balance = 500
 	_trader = Entity.new()
 	var shop: C_Trader = C_Trader.new()
-	shop.profile = load("res://content/domains/commerce/definitions/def_trader_default.tres") as DEF_TraderProfile
+	shop.profile = (
+		load("res://content/domains/commerce/definitions/def_trader_default.tres")
+		as DEF_TraderProfile
+	)
 	_trader.component_resources = [shop]
 	_world.add_entity(_trader)
 	_parcel = Entity.new()
@@ -63,8 +70,8 @@ func after_each() -> void:
 	_world.free()
 	ECS.world = null
 
-
 #endregion
+
 
 #region Authored variants and deferred progression
 ## Two asset variants share the same offer/choice/outcome/payment executor and real UI projection.
@@ -85,7 +92,10 @@ func test_authored_variants_select_reward_deadline_and_dialogue_without_script_c
 		assert_not_null(record)
 		assert_eq(record.definition, shop.profile.refusal_quest)
 		assert_eq(record.reward, shop.profile.refusal_quest.reward)
-		assert_eq(record.deadline_day, maxi(_visit.arrival_day, 1 + shop.profile.refusal_quest.minimum_deadline_days))
+		assert_eq(
+			record.deadline_day,
+			maxi(_visit.arrival_day, 1 + shop.profile.refusal_quest.minimum_deadline_days),
+		)
 		assert_true(RefusalQuestValidator.definition_issues(record.definition).is_empty())
 		assert_eq(RefusalQuestService.offer(_trader), record)
 
@@ -94,9 +104,20 @@ func test_authored_variants_select_reward_deadline_and_dialogue_without_script_c
 		panel.set_process(false)
 		panel.call("_show_quest", record, _cycle)
 		var quest_box: VBoxContainer = panel.get("_quest") as VBoxContainer
-		assert_eq((quest_box.get_child(0) as Label).text, record.definition.offer_text.format({
-			"number": "003", "deadline": record.deadline_day, "days": record.deadline_day - 1, "reward": record.reward,
-		}))
+		assert_eq(
+			(quest_box.get_child(0) as Label).text,
+			record
+			.definition
+			.offer_text
+			.format(
+				{
+					"number": "003",
+					"deadline": record.deadline_day,
+					"days": record.deadline_day - 1,
+					"reward": record.reward,
+				}
+			),
+		)
 		assert_eq((quest_box.get_child(1) as Button).text, record.definition.accept_text)
 		assert_eq((quest_box.get_child(2) as Button).text, record.definition.ignore_text)
 		panel.free()
@@ -137,7 +158,10 @@ func test_authoring_provider_rejects_invalid_definition_issuer_and_target_before
 		assert_false(String(issue.field).is_empty())
 		assert_false(String(issue.message).is_empty())
 	assert_null(RefusalQuestService.offer(_trader))
-	shop.profile.refusal_quest = load("res://content/domains/quests/definitions/def_refusal_default.tres") as DEF_RefusalQuest
+	shop.profile.refusal_quest = (
+		load("res://content/domains/quests/definitions/def_refusal_default.tres")
+		as DEF_RefusalQuest
+	)
 	shop.trader_key = &""
 	assert_false(RefusalQuestValidator.issuer_issues(shop).is_empty())
 	assert_null(RefusalQuestService.offer(_trader))
@@ -155,7 +179,8 @@ func test_authoring_provider_rejects_invalid_definition_issuer_and_target_before
 	assert_true(_world.query.with_all([C_QuestBinding]).execute().is_empty())
 
 
-## Optional issuer configuration disables quest offering without changing the trader profile's catalog.
+## Optional issuer configuration disables quest offering without changing the trader profile's
+## catalog.
 func test_optional_definition_disables_issuer() -> void:
 	var shop: C_Trader = _trader.get_component(C_Trader) as C_Trader
 	shop.profile = shop.profile.duplicate() as DEF_TraderProfile
@@ -178,7 +203,9 @@ func test_deferred_progression_revalidates_calendar_and_loaded_record_identity()
 	assert_eq(_wallet.balance, 500)
 
 	_world.process(0.0)
-	var loaded: RefusalQuestRecord = SaveDataCodec.decode(SaveDataCodec.encode(original)) as RefusalQuestRecord
+	var loaded: RefusalQuestRecord = (
+		SaveDataCodec.decode(SaveDataCodec.encode(original)) as RefusalQuestRecord
+	)
 	_state.records.assign([loaded])
 	_world.flush_command_buffers()
 	assert_eq(loaded.state, RefusalQuestRecord.State.ACTIVE)
@@ -223,6 +250,7 @@ func test_terminal_outcome_and_reward_commands_are_idempotent() -> void:
 	assert_eq(record.resolved_day, 1)
 	assert_eq(_wallet.balance, 500)
 #endregion
+
 
 #region Постоянная цель и фактический исход
 ## Diagnostic completion agrees with the single committed quest/reward ledger.
@@ -322,8 +350,8 @@ func test_ignored_offer_stays_terminal_and_is_not_issued_again_for_same_identity
 	assert_eq(_state.records.size(), 1)
 	assert_true(_world.query.with_all([C_QuestBinding]).execute().is_empty())
 
-
 #endregion
+
 
 #region Срок и сохранение истории
 ## Ночной срок завершает незакрытое задание; добровольный отказ клиента не заменяет отказ игрока.

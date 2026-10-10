@@ -8,6 +8,7 @@ var _wallet: C_Wallet
 var _visit: CustomerVisit
 var _outcomes: O_CustomerOutcomes
 
+
 #region Fixture
 ## Installs real calendar and transaction owners without navigation or rendered gameplay.
 func before_each() -> void:
@@ -62,7 +63,9 @@ func _deliver() -> void:
 
 
 func _challenged_customer() -> E_NpcCharacter:
-	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	)
 	var customer: E_NpcCharacter = scene.instantiate() as E_NpcCharacter
 	(customer as Node as RigidBody3D).freeze = true
 	EntityCompositionFixture.register_visit(_world, customer, _visit)
@@ -80,6 +83,7 @@ func _challenged_customer() -> E_NpcCharacter:
 	assert_true(ChallengeService.activate(customer))
 	return customer
 #endregion
+
 
 #region Record and calendar facts
 ## Declaration settles a committed delivery through its fact, without waiting for a frame.
@@ -133,6 +137,7 @@ func test_complaint_resolves_on_calendar_entry_and_not_repeated_frames() -> void
 	_world.process(100.0)
 	assert_eq(_wallet.operations.size(), 1)
 #endregion
+
 
 #region Challenge consequence boundary
 ## A terminal result remains financially pending until its deferred consequences commit.

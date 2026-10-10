@@ -35,9 +35,20 @@ func _run() -> void:
 
 	var interactor: C_Interactor = C_Interactor.new()
 	interactor.collision_mask = 31
-	_actor.component_resources = [C_Controller.new(), interactor, C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
+	_actor.component_resources = ([
+		C_Controller.new(),
+		interactor,
+		C_GrabControl.new(),
+		C_CarryLoad.new(),
+		C_Strength.new(),
+	])
 	_world.add_entity(_actor)
-	_area = (load("res://content/domains/interaction/entities/placement_area.tscn") as PackedScene).instantiate() as E_PlacementArea
+	_area = (
+		(
+			load("res://content/domains/interaction/entities/placement_area.tscn") as PackedScene
+		).instantiate()
+		as E_PlacementArea
+	)
 	(_area as Node as Node3D).position = Vector3(0, 1, -2)
 	_area.anchor.position = Vector3.ZERO
 	_world.add_entity(_area)
@@ -52,7 +63,10 @@ func _run() -> void:
 	assert(GrabQueries.held_object(_actor) == item, "Rejected placement must preserve Carry")
 	blocker.position = Vector3(0.5, 1, -1.5)
 	await _sync_physics()
-	assert(not CarryPlacementService.place(_actor, _area), "Clear endpoint behind a wall must reject")
+	assert(
+		not CarryPlacementService.place(_actor, _area),
+		"Clear endpoint behind a wall must reject",
+	)
 	assert(GrabQueries.held_object(_actor) == item)
 	blocker.position = Vector3(10, 1, 0)
 	await _sync_physics()
@@ -66,7 +80,9 @@ func _run() -> void:
 	await _sync_physics()
 	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == _area, "Held Carry body must not steal PlacementArea focus")
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
+	var choice: InteractionActionChoice = (
+		InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
+	)
 	assert(choice != null and choice.action is DEF_CarryPlacementAction)
 	assert(choice.action.complete(_actor, choice.source, choice.target))
 
@@ -77,10 +93,16 @@ func _run() -> void:
 	var second: Entity = _box(Vector3(1, 1, -1))
 	_hold(second)
 	await _sync_physics()
-	assert(not CarryPlacementService.can_place(_actor, _area), "Placed object occupies area physically")
+	assert(
+		not CarryPlacementService.can_place(_actor, _area),
+		"Placed object occupies area physically",
+	)
 	body.global_position = Vector3(5, 1, 0)
 	await _sync_physics()
-	assert(CarryPlacementService.can_place(_actor, _area), "Moving it out frees the area without a claim")
+	assert(
+		CarryPlacementService.can_place(_actor, _area),
+		"Moving it out frees the area without a claim",
+	)
 	# Препятствие в объёме поворота отклоняет размещение до отпускания предмета.
 	_area.anchor.rotation.y = PI / 2.0
 	blocker.position = Vector3(0.5, 1, -1.5)
@@ -93,8 +115,8 @@ func _run() -> void:
 	print("R11.1 physical slots placement smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Тестовые тела и синхронизация
 func _sync_physics() -> void:

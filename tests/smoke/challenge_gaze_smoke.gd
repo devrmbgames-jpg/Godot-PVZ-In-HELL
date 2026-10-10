@@ -33,7 +33,10 @@ func _run() -> void:
 			break
 
 	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:bottles")
-	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(parcel).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
@@ -67,11 +70,16 @@ func _run() -> void:
 		var label: Label3D = clue as Label3D
 		var front: Vector3 = label.global_basis.z.normalized()
 		var origin: Vector3 = label.global_position + front
-		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, label.global_position - front, 1)
+		var ray: PhysicsRayQueryParameters3D = (
+			PhysicsRayQueryParameters3D.create(origin, label.global_position - front, 1)
+		)
 		var hit: Dictionary = label.get_world_3d().direct_space_state.intersect_ray(ray)
 		assert(not hit.is_empty(), "Each authored clue must sit on a physical wall")
 		var point: Vector3 = hit.get("position", origin) as Vector3
-		assert(origin.distance_to(point) > 1.0, "The wall must not hide the label inside its geometry")
+		assert(
+			origin.distance_to(point) > 1.0,
+			"The wall must not hide the label inside its geometry",
+		)
 		if GazeOrderCluePresentation.text_for(clue) == wall_number:
 			visible_clues += 1
 	assert(visible_clues == 1)
@@ -124,5 +132,10 @@ func _run() -> void:
 	assert(not (hud.get_node("GazeWarning") as Label).visible)
 	_level.free()
 	ECS.world = null
-	print("Challenge gaze arrival wall number camera vignette no-dialogue physical service cleanup smoke PASS")
+	print(
+		(
+			"Challenge gaze arrival wall number camera vignette "
+			+ "no-dialogue physical service cleanup smoke PASS"
+		)
+	)
 	get_tree().quit.call_deferred()

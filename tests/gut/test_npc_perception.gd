@@ -1,6 +1,7 @@
 extends GutTest
 ## Регрессии зрения по реальной геометрии и анонимного слуха независимо от обслуживания посылок.
 
+const ENTITY_PATH: String = ("res://addons/gecs/ecs/entity.gd")
 var _root: Node3D = null
 var _world: World = null
 var _district: C_District = null
@@ -8,6 +9,7 @@ var _observer: E_DistrictNpc = null
 var _target: E_DistrictNpc = null
 var _profile: DEF_NpcProfile = null
 var _wall: StaticBody3D = null
+
 
 #region Тестовое окружение
 ## Создаёт замороженные физические тела и укрытие для лучей по реальной геометрии.
@@ -24,7 +26,7 @@ func before_each() -> void:
 	_world.add_observer(O_PlayerInteractionNoise.new())
 
 	var session_node: Node = Node.new()
-	session_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
+	session_node.set_script(load(ENTITY_PATH))
 	var session: Entity = session_node as Entity
 	var component: C_District = C_District.new()
 	component.definition = DEF_District.new()
@@ -47,6 +49,7 @@ func before_each() -> void:
 	_root.add_child(_wall)
 	_wall.position = Vector3(20, 1.5, -1.5)
 
+
 ## Освобождает реальные тестовые тела, World и производные кеши восприятия.
 func after_each() -> void:
 	for entity: Entity in _world.entities.duplicate():
@@ -56,11 +59,19 @@ func after_each() -> void:
 	_root.free()
 	_root = null
 
+
 func _actor(world_position: Vector3) -> E_DistrictNpc:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.set_script(load("res://content/domains/npc/entities/e_district_npc.gd"))
 	var actor: E_DistrictNpc = body as Node as E_DistrictNpc
-	actor.component_resources = [C_Health.new(), C_NpcAwareness.new(), C_NpcDecision.new(), C_NpcIntent.new(), C_NpcCombat.new(), C_NpcIdentity.new()]
+	actor.component_resources = ([
+		C_Health.new(),
+		C_NpcAwareness.new(),
+		C_NpcDecision.new(),
+		C_NpcIntent.new(),
+		C_NpcCombat.new(),
+		C_NpcIdentity.new(),
+	])
 	body.freeze = true
 	body.collision_layer = 2
 	body.collision_mask = 31
@@ -76,16 +87,18 @@ func _actor(world_position: Vector3) -> E_DistrictNpc:
 	body.global_position = world_position
 	return actor
 
+
 func _synchronize() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 #endregion
 
+
 #region Физическая видимость
 ## Настоящая удерживаемая коробка закрывает верх тела; видимые ноги сохраняют обнаружение владельца.
 func test_held_upper_body_cover_does_not_hide_visible_legs() -> void:
 	var box: RigidBody3D = RigidBody3D.new()
-	box.set_script(load("res://addons/gecs/ecs/entity.gd"))
+	box.set_script(load(ENTITY_PATH))
 	var item: Entity = box as Node as Entity
 	box.freeze = true
 	box.collision_layer = 4
@@ -104,6 +117,7 @@ func test_held_upper_body_cover_does_not_hide_visible_legs() -> void:
 	box.global_position.y = 0.85
 	await _synchronize()
 	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+
 
 ## Приседание использует фактическую высоту головы, не оставляя видимой точку стоящего тела.
 func test_crouched_head_uses_actual_character_height() -> void:
@@ -124,6 +138,7 @@ func test_crouched_head_uses_actual_character_height() -> void:
 	await _synchronize()
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 
+
 ## Стена скрывает все точки тела; небольшая коробка оставляет доступные лучам точки.
 func test_wall_occlusion_and_partial_cover() -> void:
 	await _synchronize()
@@ -136,6 +151,7 @@ func test_wall_occlusion_and_partial_cover() -> void:
 	await _synchronize()
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 
+
 ## Обычное зрение теряет далёкую цель в темноте; ночное сохраняет обнаружение через физический LOS.
 func test_darkness_and_night_vision() -> void:
 	_target.place_at(Vector3(0, 0, -8))
@@ -146,6 +162,7 @@ func test_darkness_and_night_vision() -> void:
 	night_rule.kind = DEF_NpcTrait.Kind.DARK_PREDATOR
 	_profile.rules.append(night_rule)
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+
 
 ## Поиск хранит последнюю видимую позицию и не копирует скрытое положение цели за стеной.
 func test_hidden_target_position_never_updates_search_memory() -> void:
@@ -164,6 +181,7 @@ func test_hidden_target_position_never_updates_search_memory() -> void:
 	assert_eq(awareness.last_seen_position, confirmed)
 	assert_almost_eq(awareness.search_elapsed, 0.2, 0.001)
 #endregion
+
 
 #region Свет и анонимный слух
 ## Выключатель синхронно меняет игровую цепь и визуальный свет, влияя на обнаружение.
@@ -187,7 +205,10 @@ func test_light_switch_changes_visibility() -> void:
 	_root.add_child(lamp)
 	lamp.position = Vector3(0, 3, -8)
 
-	var zone: NpcLightZone = (load("res://content/scenes/npc_light_zone.tscn") as PackedScene).instantiate() as NpcLightZone
+	var zone: NpcLightZone = (
+		(load("res://content/scenes/npc_light_zone.tscn") as PackedScene).instantiate()
+		as NpcLightZone
+	)
 	zone.circuit_id = &"test_sight"
 	zone.position = Vector3(0, 1, -8)
 	_root.add_child(zone)
@@ -200,6 +221,7 @@ func test_light_switch_changes_visibility() -> void:
 	assert_true(lamp.visible)
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 
+
 ## Шум открытия физической двери сообщает место без автоматической социальной атрибуции.
 func test_interaction_noise_is_anonymous() -> void:
 	_observer.add_component(C_PlayerInputController.new())
@@ -207,6 +229,7 @@ func test_interaction_noise_is_anonymous() -> void:
 	assert_eq(_district.noises.size(), 1)
 	assert_eq(_district.noises[0].position, _target.global_position)
 	assert_null(CombatQueries.target_for(_target))
+
 
 ## Шум за укрытием даёт место интереса без знания личности или создания противника.
 func test_hearing_does_not_reveal_source_identity() -> void:

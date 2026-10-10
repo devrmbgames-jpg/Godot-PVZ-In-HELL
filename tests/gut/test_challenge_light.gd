@@ -1,24 +1,29 @@
 extends GutTest
 ## Проверяет световые условия, подтверждение, таймауты и применение результата испытания к визиту.
 
+
 class TerminalRetirer extends Observer:
 	## Counts actual terminal facts after their state is committed.
 	var fact_count: int = 0
 	## Records whether phase, payload and result were visible before publication.
 	var saw_committed_state: bool = false
 
+
 	#region Committed terminal consumer
 	## Selects actual typed challenge results.
 	func query() -> QueryBuilder:
 		return q.with_all([C_Challenge]).on_event(ChallengeResolution.EVENT)
+
 
 	## Cancels and retires the subject synchronously to exercise the producer's lifetime boundary.
 	func each(_event: Variant, subject: Entity, payload: Variant = null) -> void:
 		var resolution: ChallengeResolution = payload as ChallengeResolution
 		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 		fact_count += 1
-		saw_committed_state = state.pending_result == resolution and state.result == resolution.result \
-				and state.phase == C_Challenge.Phase.FAILURE
+		saw_committed_state = (
+			state.pending_result == resolution and state.result == resolution.result
+			and state.phase == C_Challenge.Phase.FAILURE
+		)
 		ChallengeService.cancel(subject)
 		_world.remove_entity(subject)
 	#endregion
@@ -62,7 +67,12 @@ func before_each() -> void:
 	var customer_body: RigidBody3D = RigidBody3D.new()
 	customer_body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
 	_subject = customer_body as Node as E_NpcCharacter
-	_subject.component_resources = [C_Challenge.new(), C_CustomerAgent.new(), C_NpcIntent.new(), C_Controller.new()]
+	_subject.component_resources = ([
+		C_Challenge.new(),
+		C_CustomerAgent.new(),
+		C_NpcIntent.new(),
+		C_Controller.new(),
+	])
 	_world.add_entity(_subject)
 	(_subject.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id = VISIT_ID
 	_state = _subject.get_component(C_Challenge) as C_Challenge
@@ -107,9 +117,12 @@ func _start() -> void:
 	assert_true(ChallengeService.activate(_subject))
 
 
-func _on_resolved(_subject_value: Entity, _actor_value: Entity, _event_value: ChallengeResolution) -> void:
+func _on_resolved(
+	_subject_value: Entity,
+	_actor_value: Entity,
+	_event_value: ChallengeResolution,
+) -> void:
 	_resolved_calls += 1
-
 
 
 func _on_escalation(subject: Entity, actor: Entity, event: ChallengeResolution) -> void:
@@ -118,8 +131,8 @@ func _on_escalation(subject: Entity, actor: Entity, event: ChallengeResolution) 
 	assert_eq(event.result, ChallengeResult.Type.FAILURE)
 	_escalations += 1
 
-
 #endregion
+
 
 #region Начало и вход клиента
 ## Подготовленное требование ждёт закрытия подтверждённого диалога перед отсчётом.
@@ -147,7 +160,13 @@ func _advance_arrival() -> void:
 
 
 func _arrival_customer() -> E_NpcCharacter:
-	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_light_entrance.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (
+		(
+			load("res://content/domains/challenges/definitions/def_challenge_light_entrance.tres")
+			as DEF_Challenge
+		).duplicate(true)
+		as DEF_Challenge
+	)
 	_state.definition.timeout_seconds = TIMEOUT
 	_visit.definition.challenge = _state.definition
 	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
@@ -166,7 +185,9 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 
-	var scene: PackedScene = load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
+	)
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
 	assert_true(LightCircuitService.set_enabled(_circuit, false))
@@ -191,7 +212,10 @@ func test_dark_room_timeout_turns_lights_off_and_reuses_combat_escalation_once()
 	assert_eq(_escalations, 1)
 	CombatFixture.customer(customer)
 	assert_true(_visit.aggressive)
-	assert_eq((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.AGGRESSIVE)
+	assert_eq(
+		(customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase,
+		C_CustomerAgent.Phase.AGGRESSIVE,
+	)
 	assert_same(CombatQueries.target_for(customer), _actor)
 	_world.process(FRAME_DELTA)
 	CombatFixture.customer(customer)
@@ -210,7 +234,11 @@ func test_already_dark_arrival_does_not_gate_or_flicker_and_phase_cancel_departs
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
 	_cycle.phase = C_DayCycle.Phase.EVENING
 	_advance_arrival()
-	assert_eq(agent.phase, C_CustomerAgent.Phase.LEAVING, "Phase change must not strand the entrance")
+	assert_eq(
+		agent.phase,
+		C_CustomerAgent.Phase.LEAVING,
+		"Phase change must not strand the entrance",
+	)
 
 
 func _flickering_view() -> CircuitLightView:
@@ -224,22 +252,25 @@ func _flickering_view() -> CircuitLightView:
 	view.set_process(false)
 	return view
 
-
 #endregion
+
 
 #region Мерцание и команды
 ## Смена фазы снимает временное мерцание, сохраняя enabled световой цепи.
 func test_phase_change_cancels_arrival_flicker_without_switching_room_off() -> void:
 	var view: CircuitLightView = _flickering_view()
 	_arrival_customer()
-	view._process(0.16)
+	view.call("_process", 0.16)
 	assert_false((view.get_parent() as Light3D).visible)
 	_cycle.phase = C_DayCycle.Phase.EVENING
 	_world.process(FRAME_DELTA)
-	view._process(0.0)
+	view.call("_process", 0.0)
 	assert_eq(_state.result, ChallengeResult.Type.CANCELLED)
 	assert_true(LightCircuitService.is_enabled(&"warehouse"))
-	assert_true((view.get_parent() as Light3D).visible, "No request may survive its challenge into the next phase")
+	assert_true(
+		(view.get_parent() as Light3D).visible,
+		"No request may survive its challenge into the next phase",
+	)
 	assert_eq(_escalations, 0)
 
 
@@ -247,19 +278,19 @@ func test_phase_change_cancels_arrival_flicker_without_switching_room_off() -> v
 func test_subject_removal_cancels_owned_flicker_and_stale_stop_cannot_clear_new_request() -> void:
 	var view: CircuitLightView = _flickering_view()
 	_arrival_customer()
-	view._process(0.16)
+	view.call("_process", 0.16)
 	assert_false((view.get_parent() as Light3D).visible)
 	_world.remove_entity(_subject)
-	view._process(0.0)
+	view.call("_process", 0.0)
 	assert_true((view.get_parent() as Light3D).visible)
 	assert_true(LightCircuitService.flicker(&"warehouse", 2.0, 0.15, &"new-request"))
-	view._process(0.16)
+	view.call("_process", 0.16)
 	assert_false((view.get_parent() as Light3D).visible)
 	LightCircuitService.stop_flicker(&"warehouse", &"old-request")
-	view._process(0.0)
+	view.call("_process", 0.0)
 	assert_false((view.get_parent() as Light3D).visible)
 	LightCircuitService.stop_flicker(&"warehouse", &"new-request")
-	view._process(0.0)
+	view.call("_process", 0.0)
 	assert_true((view.get_parent() as Light3D).visible)
 
 
@@ -291,8 +322,8 @@ func test_light_on_uses_the_same_condition_code() -> void:
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
 
-
 #endregion
+
 
 #region Однократный исход и отмена
 ## Таймаут однократно меняет удовлетворённость и запрашивает эскалацию.
@@ -385,8 +416,8 @@ func test_persistent_result_prevents_duplicate_consequence_and_escalation() -> v
 	assert_eq(_visit.challenge_satisfaction_delta, -30)
 	assert_eq(_escalations, 1)
 
-
 #endregion
+
 
 #region Условие до ухода
 func _visit_challenge() -> void:
@@ -457,8 +488,8 @@ func test_debug_ui_reports_task_condition_timer_and_visit_window() -> void:
 	_state.definition.completion = DEF_Challenge.Completion.UNTIL_DEPARTURE
 	assert_string_contains(ChallengePresentation.debug_text_for(_actor), "До ухода")
 
-
 #endregion
+
 
 #region Выдача и окончательный расчёт
 func _deliver_and_declare() -> C_Wallet:
@@ -491,12 +522,20 @@ func test_departure_result_precedes_removal_and_payment() -> void:
 	var wallet: C_Wallet = _deliver_and_declare()
 	var agent: C_CustomerAgent = _subject.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.RECEIVING
-	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.receiving_seconds)
+	CustomerFlowFixture.advance(
+		CustomerFlowQueries.current(),
+		_cycle,
+		_visit.definition.receiving_seconds,
+	)
 	_world.process(TIMEOUT)
 	assert_eq(agent.phase, C_CustomerAgent.Phase.LEAVING)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 	assert_eq(wallet.balance, 0)
-	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.leaving_seconds)
+	CustomerFlowFixture.advance(
+		CustomerFlowQueries.current(),
+		_cycle,
+		_visit.definition.leaving_seconds,
+	)
 	assert_false(_visit.finished)
 	assert_true(EntityAvailability.contains(_subject, _world))
 	_world.process(FRAME_DELTA)
@@ -508,6 +547,7 @@ func test_departure_result_precedes_removal_and_payment() -> void:
 	assert_eq(wallet.operations.size(), 1)
 
 #endregion
+
 
 #region Deferred lifecycle and reentrant terminal facts
 ## A queued ARMED step cannot start consuming an ACTIVE session's clock.

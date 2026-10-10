@@ -3,7 +3,12 @@ extends RefCounted
 class_name TerminalPackageNotice
 
 ## Приоритет единственной иконки: штраф, жалоба/обязательство, новое предложение.
-enum Severity { NONE, INFO, WARNING, CRITICAL }
+enum Severity {
+	NONE,
+	INFO,
+	WARNING,
+	CRITICAL,
+}
 
 ## Наивысший приоритет среди непрочитанных событий.
 var severity: Severity = Severity.NONE

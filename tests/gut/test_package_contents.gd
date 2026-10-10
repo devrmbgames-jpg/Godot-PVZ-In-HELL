@@ -1,6 +1,9 @@
 extends GutTest
 ## Проверяет авторское содержимое коробок через реальное вскрытие, физику, инвентарь и snapshot.
 
+const DEF_DELIVERY_MORNING_SUPPLY_PATH: String = (
+	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
+)
 var _root: Node3D
 var _world: World
 var _actor: E_RigidBodyCharacter
@@ -45,11 +48,22 @@ func before_each() -> void:
 	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = (
+		load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
+	)
 	var health: C_Health = C_Health.new()
 	health.value = 100.0
 	health.current = 100.0
-	_actor.component_resources = [C_Inventory.new(), C_Interactor.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Controller.new(), C_Strength.new(), health, hunger]
+	_actor.component_resources = ([
+		C_Inventory.new(),
+		C_Interactor.new(),
+		C_GrabControl.new(),
+		C_CarryLoad.new(),
+		C_Controller.new(),
+		C_Strength.new(),
+		health,
+		hunger,
+	])
 	_ray = RayCast3D.new()
 	_ray.position = Vector3(0, 1.2, 0)
 	_ray.target_position = Vector3(0, 0, -3)
@@ -79,7 +93,9 @@ func after_each() -> void:
 
 
 func _package(name: String) -> E_Package:
-	var prefab: PackedScene = load("res://content/domains/packages/entities/test_%s.tscn" % name) as PackedScene
+	var prefab: PackedScene = (
+		load("res://content/domains/packages/entities/test_%s.tscn" % name) as PackedScene
+	)
 	var parcel: E_Package = prefab.instantiate() as E_Package
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(0, 0.5, -1.3)
@@ -95,11 +111,14 @@ func _open(parcel: E_Package) -> void:
 	(_actor.get_component(C_Interactor) as C_Interactor).target = parcel
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.COMMITTED)
+	assert_eq(
+		PackageOpening.request_open(_actor, parcel).status,
+		PackageOpenResult.Status.COMMITTED,
+	)
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 
-
 #endregion
+
 
 #region Вскрытие, использование и snapshot
 ## A queued request does not complete a prolonged action before the opening commit.
@@ -121,8 +140,10 @@ func test_open_receipt_does_not_report_pending_work_as_success() -> void:
 	assert_eq(receipt.status, PackageOpenResult.Status.COMMITTED)
 	assert_eq(receipt.reason, &"opened")
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
-	assert_eq((parcel.get_component(C_PackageState) as C_PackageState).opening,
-		C_PackageState.Opening.OPENED)
+	assert_eq(
+		(parcel.get_component(C_PackageState) as C_PackageState).opening,
+		C_PackageState.Opening.OPENED,
+	)
 
 
 ## Вскрытие обновляет массу переносимого груза, сохраняя живой хват коробки.
@@ -138,14 +159,18 @@ func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() ->
 	var load_state: C_CarryLoad = _actor.get_component(C_CarryLoad) as C_CarryLoad
 	assert_true(load_state.active)
 	assert_eq(load_state.mass_kg, 10.0)
-	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.COMMITTED)
+	assert_eq(
+		PackageOpening.request_open(_actor, parcel).status,
+		PackageOpenResult.Status.COMMITTED,
+	)
 	assert_true(load_state.active)
 	assert_eq(load_state.mass_kg, 1.0)
 	assert_eq(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), parcel)
 	GrabReleaseService.release(_actor, parcel)
 
 
-## Пять физических порций объединяются в инвентаре; расход и повторное событие не возрождают содержимое.
+## Пять физических порций объединяются в инвентаре; расход и повторное событие не возрождают
+## содержимое.
 func test_bread_box_produces_five_individual_usable_items_once() -> void:
 	var parcel: E_Package = _package("bread")
 	await _open(parcel)
@@ -158,7 +183,11 @@ func test_bread_box_produces_five_individual_usable_items_once() -> void:
 		assert_false(state.definition.resource_path.is_empty())
 		var rigid: RigidBody3D = item as Node as RigidBody3D
 		assert_not_null(rigid)
-		assert_gt(rigid.global_position.y, (parcel as Node as Node3D).global_position.y, "Contents spill above the parcel")
+		assert_gt(
+			rigid.global_position.y,
+			(parcel as Node as Node3D).global_position.y,
+			"Contents spill above the parcel",
+		)
 		assert_gt(rigid.linear_velocity.length(), 0.0, "Real contents have an ejection velocity")
 		assert_true(InventoryService.transfer(item, _actor))
 
@@ -169,8 +198,12 @@ func test_bread_box_produces_five_individual_usable_items_once() -> void:
 	assert_true(InventoryService.use(_actor, owned[0]))
 	assert_eq((_actor.get_component(C_Hunger) as C_Hunger).value, 45.0)
 	assert_eq((owned[0].get_component(C_InventoryItem) as C_InventoryItem).quantity, 4)
-	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, _actor)
-	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 1, "Even consumed/merged contents cannot respawn")
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.OPENED, _actor)
+	assert_eq(
+		_world.query.with_all([C_InventoryItem]).execute().size(),
+		1,
+		"Even consumed/merged contents cannot respawn",
+	)
 	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.REJECTED)
 
 
@@ -203,13 +236,13 @@ func test_released_contents_and_inventory_state_restore_without_duplication() ->
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 	assert_eq((parcel as Node as RigidBody3D).mass, parcel.package_definition.empty_mass_kg)
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
-	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, _actor)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.OPENED, _actor)
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
 	NightResetService.reset()
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 
-
 #endregion
+
 
 #region Авторский ассортимент и опасности
 func _catalog_package(definition: DEF_Package) -> E_Package:
@@ -224,9 +257,10 @@ func _catalog_package(definition: DEF_Package) -> E_Package:
 
 
 func _supply_definition(key: StringName) -> DEF_Package:
-	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = (load(DEF_DELIVERY_MORNING_SUPPLY_PATH) as DEF_Delivery)
 	for definition: DEF_Package in supply.packages:
-		if definition.key == key: return definition
+		if definition.key == key:
+			return definition
 	return null
 
 
@@ -234,7 +268,7 @@ func _supply_definition(key: StringName) -> DEF_Package:
 func test_every_supply_type_has_real_one_shot_contents_and_leaves_empty_light_shell() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ToxicAreaSetup.new())
-	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = (load(DEF_DELIVERY_MORNING_SUPPLY_PATH) as DEF_Delivery)
 	for definition: DEF_Package in supply.packages:
 		assert_not_null(definition.unpack_scene, String(definition.key))
 		var parcel: E_Package = _catalog_package(definition)
@@ -276,10 +310,12 @@ func test_toxic_effect_follows_extracted_bottle_and_empty_shell_has_no_hazards_o
 	(parcel as Node as Node3D).rotation.z = PI / 2.0
 	_world.process(30.0)
 	assert_false((parcel.get_component(C_PackageState) as C_PackageState).leaking)
-	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Damaged, _actor)
-	assert_eq(_world.query.with_all([C_ToxicArea]).execute().size(), 1, "Empty shell cannot emit damage toxin")
-	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Destroyed, _actor)
-	assert_eq(_world.query.with_all([C_ToxicArea]).execute().size(), 1, "Empty debris cannot emit toxin")
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.DAMAGED, _actor)
+	var toxin_count_0: int = _world.query.with_all([C_ToxicArea]).execute().size()
+	assert_eq(toxin_count_0, 1, "Empty shell cannot emit damage toxin")
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.DESTROYED, _actor)
+	var toxin_count_1: int = _world.query.with_all([C_ToxicArea]).execute().size()
+	assert_eq(toxin_count_1, 1, "Empty debris cannot emit toxin")
 	assert_eq(HazardFollowService.binding(effect).target, contents[0])
 
 
@@ -292,7 +328,7 @@ func test_extracted_power_cell_can_explode_but_its_empty_package_cannot() -> voi
 	_world.add_observer(O_PackageDestroyedHazard.new())
 	var parcel: E_Package = _catalog_package(_supply_definition(&"power_cells"))
 	var contents: Array[Entity] = PackageContentsService.release(parcel, _actor)
-	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Destroyed, _actor)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.DESTROYED, _actor)
 	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 0)
 
 	var request: DamageRequest = DamageRequest.new()
@@ -305,8 +341,8 @@ func test_extracted_power_cell_can_explode_but_its_empty_package_cannot() -> voi
 	assert_true((contents[0].get_component(C_HazardEmitter) as C_HazardEmitter).fired)
 	assert_false(HazardEmitter.activate(contents[0], _actor))
 
-
 #endregion
+
 
 #region Физическое хранение и оборудование
 ## Инвентарь выключает физику хранимого предмета; выброс создаёт активное физическое тело.
@@ -328,7 +364,8 @@ func test_inventory_freezes_real_pickup_and_drop_spawns_live_rigid_body() -> voi
 		if candidate not in before:
 			dropped = candidate as Node as RigidBody3D
 	assert_not_null(dropped)
-	if dropped == null: return
+	if dropped == null:
+		return
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert_false(dropped.freeze)
@@ -340,16 +377,20 @@ func test_authored_opening_hazard_uses_existing_emitter_and_deduplicates_hook() 
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ExplosionSetup.new())
 	_world.add_observer(O_PackageHazard.new())
-	var prefab: PackedScene = load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene
+	var prefab: PackedScene = (
+		load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene
+	)
 	var parcel: E_Package = prefab.instantiate() as E_Package
 	parcel.package_definition = parcel.package_definition.duplicate(true) as DEF_Package
-	parcel.package_definition.hazard_on_opened = load("res://content/domains/hazards/entities/explosion.tscn") as PackedScene
+	parcel.package_definition.hazard_on_opened = (
+		load("res://content/domains/hazards/entities/explosion.tscn") as PackedScene
+	)
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(0, 0.5, -1.3)
 	EntityCompositionFixture.register(_world, parcel)
 	await _open(parcel)
 	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 1)
-	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, _actor)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.OPENED, _actor)
 	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 1)
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
 
@@ -361,12 +402,29 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	assert_not_null(shelf)
 	var body: RigidBody3D = shelf as Node as RigidBody3D
 	assert_eq(body.mass, 18.0)
-	assert_eq(shelf.get_children().filter(func(child: Node) -> bool: return child is CollisionShape3D).size(), 6)
+	assert_eq(
+		shelf
+		.get_children()
+		.filter(
+			func(child: Node) -> bool:
+				return child is CollisionShape3D,
+		)
+		.size(),
+		6,
+	)
 	var bottom: CollisionShape3D = shelf.get_node("BottomCollision") as CollisionShape3D
 	assert_eq((bottom.shape as BoxShape3D).size, Vector3(1.5, 0.08, 1.5))
-	assert_almost_eq(body.global_position.y, 1.53, 0.01, "Shelf is placed with its real bottom on the floor")
+	assert_almost_eq(
+		body.global_position.y,
+		1.53,
+		0.01,
+		"Shelf is placed with its real bottom on the floor",
+	)
 
-	var hammer: Entity = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
+	var hammer: Entity = (
+		(load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate()
+		as Entity
+	)
 	EntityCompositionFixture.register(_world, hammer)
 	(hammer as Node as RigidBody3D).gravity_scale = 0.0
 	(hammer as Node as Node3D).global_position = Vector3(-2, 1, 0)
@@ -393,6 +451,7 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	assert_true(body.freeze)
 
 #endregion
+
 
 #region Rejected death-drop construction
 ## Failed physical construction keeps the owned stack and releases every detached Node.
@@ -423,6 +482,7 @@ func test_death_drop_rejects_wrong_root_and_missing_stack_without_losing_invento
 		assert_no_new_orphans(scene_path)
 #endregion
 
+
 #region Accepted death-drop publication
 ## Native observers see the complete replacement stack before the owned source is removed.
 func test_death_drop_publishes_complete_stack_once_before_removing_source() -> void:
@@ -432,14 +492,15 @@ func test_death_drop_publishes_complete_stack_once_before_removing_source() -> v
 	assert_true(InventoryService.grant(_actor, definition, 3))
 	var source: Entity = InventoryService.items(_actor)[0]
 	var publications: Array[Entity] = []
-	_world.entity_added.connect(func(pickup: Entity) -> void:
-		publications.append(pickup)
-		var stack: C_InventoryItem = pickup.get_component(C_InventoryItem) as C_InventoryItem
-		assert_not_null(stack)
-		assert_same(stack.definition, definition)
-		assert_eq(stack.quantity, 3)
-		assert_same(InventoryService.owner_for(source), _actor)
-		assert_null(InventoryService.owner_for(pickup))
+	_world.entity_added.connect(
+		func(pickup: Entity) -> void:
+			publications.append(pickup)
+			var stack: C_InventoryItem = pickup.get_component(C_InventoryItem) as C_InventoryItem
+			assert_not_null(stack)
+			assert_same(stack.definition, definition)
+			assert_eq(stack.quantity, 3)
+			assert_same(InventoryService.owner_for(source), _actor)
+			assert_null(InventoryService.owner_for(pickup)),
 	)
 
 	InventoryDropService.release_on_death(_actor)

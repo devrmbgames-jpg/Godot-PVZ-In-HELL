@@ -3,6 +3,7 @@ extends Footstepper
 ## Ручные звуки вызываются CharacterFeedback; сторонний аддон сохраняет свой контракт.
 class_name CharacterFootstepper
 
+
 #region Совместимость ручного режима
 func _check_parent() -> void:
 	if is_manual:
@@ -12,9 +13,11 @@ func _check_parent() -> void:
 	super._check_parent()
 #endregion
 
+
 #region Освобождение аудио
 func _exit_tree() -> void:
-	# Активный native playback останавливается до удаления движущегося персонажа или закрытия дерева.
+	# Активный native playback останавливается до удаления движущегося персонажа или закрытия
+	# дерева.
 	available_players.clear()
 	for audio_node: Node in get_children():
 		var spatial_player: AudioStreamPlayer3D = audio_node as AudioStreamPlayer3D

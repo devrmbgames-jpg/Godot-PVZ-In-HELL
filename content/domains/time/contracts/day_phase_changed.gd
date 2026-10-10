@@ -9,6 +9,7 @@ var day_index: int = 0
 ## Committed phase; a queued consumer must reject a superseded snapshot.
 var phase: C_DayCycle.Phase = C_DayCycle.Phase.MORNING
 
+
 #region Fact construction
 ## Copies committed state without retaining a mutable cycle reference.
 static func from_cycle(cycle: C_DayCycle) -> DayPhaseChanged:

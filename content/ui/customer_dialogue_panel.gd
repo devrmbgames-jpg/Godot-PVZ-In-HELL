@@ -1,5 +1,6 @@
 extends CanvasLayer
-## Показывает DialogueManager и владеет модальным вводом; игровые факты принадлежат контексту и сервисам.
+## Показывает DialogueManager и владеет модальным вводом; игровые факты принадлежат контексту и
+## сервисам.
 class_name CustomerDialoguePanel
 
 const PANEL_MIN_WIDTH: float = 720.0
@@ -43,10 +44,8 @@ func _process(_delta: float) -> void:
 	if _closed:
 		return
 	if (
-		not is_instance_valid(_actor)
-		or not GrabQueries.holder_available(_actor)
-		or _context == null
-		or not _context.can_continue()
+		not is_instance_valid(_actor) or not GrabQueries.holder_available(_actor)
+		or _context == null or not _context.can_continue()
 	):
 		close_dialogue()
 	elif _line != null:
@@ -61,8 +60,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"menu"):
 		close_dialogue()
 	elif (
-		_line != null
-		and _line.responses.is_empty()
+		_line != null and _line.responses.is_empty()
 		and (event.is_action_pressed(&"interact") or event.is_action_pressed(&"ui_accept"))
 	):
 		_advance(_line.next_id)
@@ -113,8 +111,8 @@ func _enable_input() -> void:
 	if not _closed:
 		_input_enabled = true
 
-
 #endregion
+
 
 #region Реплики и ответы
 func _advance(next_id: String) -> void:
@@ -125,7 +123,8 @@ func _advance(next_id: String) -> void:
 	var resource: DialogueResource = _resource
 	var session_context: NpcDialogueContext = _context
 	var next_line: DialogueLine = await resource.get_next_dialogue_line(
-		next_id, [{ "ctx": session_context }]
+		next_id,
+		[{ "ctx": session_context }],
 	)
 	_advancing = false
 	if _closed or _context != session_context or not session_context.can_continue():
@@ -210,8 +209,8 @@ func _clear_responses() -> void:
 		_responses.remove_child(child)
 		child.queue_free()
 
-
 #endregion
+
 
 #region Освобождение и построение интерфейса
 func _close_internal(return_to_service: bool) -> void:

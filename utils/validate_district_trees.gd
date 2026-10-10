@@ -15,9 +15,11 @@ const TREE_PATHS: PackedStringArray = [
 
 var _failed: bool = false
 
+
 #region Проверка ресурсов
 func _init() -> void:
 	_validate.call_deferred()
+
 
 func _validate() -> void:
 	var leaf_count: int = 0
@@ -27,13 +29,24 @@ func _validate() -> void:
 			_fail(tree_path + ": нет корня дерева")
 			continue
 		var root: BTTask = tree.get_root_task()
-		if tree_path == TREE_PATHS[0] and (not root is BTDynamicSelector or root.get_child_count() != 6):
+		if (
+			tree_path == TREE_PATHS[0]
+			and (not root is BTDynamicSelector or root.get_child_count() != 6)
+		):
 			_fail("Главный reactive selector должен иметь шесть приоритетов")
 		if tree_path != TREE_PATHS[0] and root.get_child_count() < 2:
 			_fail(tree_path + ": скрытая одиночная ветка вместо композиции")
 		leaf_count += _check_task(root)
-	print("District trees: ", TREE_PATHS.size(), " resources, ", leaf_count, " leaves, ", "FAIL" if _failed else "PASS")
+	print(
+		"District trees: ",
+		TREE_PATHS.size(),
+		" resources, ",
+		leaf_count,
+		" leaves, ",
+		"FAIL" if _failed else "PASS",
+	)
 	quit(1 if _failed else 0)
+
 
 func _check_task(task: BTTask) -> int:
 	var count: int = 0
@@ -47,6 +60,7 @@ func _check_task(task: BTTask) -> int:
 	for child_index: int in task.get_child_count():
 		count += _check_task(task.get_child(child_index))
 	return count
+
 
 func _fail(reason: String) -> void:
 	_failed = true

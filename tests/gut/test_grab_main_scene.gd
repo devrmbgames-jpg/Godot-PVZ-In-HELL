@@ -1,10 +1,12 @@
 extends GutTest
-## Checks authored delivery limits, physical mass profiles and the registered main-level grip pipeline.
+## Checks authored delivery limits, physical mass profiles and the registered main-level grip
+## pipeline.
 
 const MAIN_LEVEL: PackedScene = preload("res://content/scenes/main_level.tscn")
 
 
-## Exercises actual scheduled targeting/input and native pickup/rotation/release with current authored supply.
+## Exercises actual scheduled targeting/input and native pickup/rotation/release with current
+## authored supply.
 func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var level: Node3D = MAIN_LEVEL.instantiate() as Node3D
 	level.set("autosave_path", "")
@@ -22,7 +24,10 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var heavy_box: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	var supply: DEF_Delivery = flow.schedule.supply
-	assert_eq(world.query.with_all([C_Package]).execute().size(), mini(supply.maximum_batch_packages, supply.packages.size()))
+	assert_eq(
+		world.query.with_all([C_Package]).execute().size(),
+		mini(supply.maximum_batch_packages, supply.packages.size()),
+	)
 	assert_true(world.get_node("Systems/Interaction/S_CartCargo") is S_CartCargo)
 	assert_true(world.get_node("Systems/Interaction/S_Grab") is S_Grab)
 	assert_true(world.get_node("Systems/Interaction/S_AnchorStability") is S_AnchorStability)

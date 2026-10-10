@@ -8,7 +8,8 @@ var _controller: C_Controller = null
 
 
 #region Минимальное окружение
-## Создаёт минимальный World с производителем намерений и нефизической Entity для проверки границ управления.
+## Создаёт минимальный World с производителем намерений и нефизической Entity для проверки границ
+## управления.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -37,11 +38,12 @@ func _actor(components: Array[Component]) -> Entity:
 	_world.add_entity(actor)
 	return actor
 
-
 #endregion
 
+
 #region Намерения и живые цели
-## Высота мировой цели не добавляет вертикального движения; обновляется лишь Controller, позиция остаётся прежней.
+## Высота мировой цели не добавляет вертикального движения; обновляется лишь Controller, позиция
+## остаётся прежней.
 func test_world_target_sets_planar_intent_without_moving_body() -> void:
 	NpcIntentService.move_to(_npc, Vector3(4, 10, 0), 0.25)
 	_world.process(1.0 / 60.0)
@@ -79,7 +81,8 @@ func test_move_and_look_targets_are_independent_live_relationships() -> void:
 	assert_eq(_controller.direction_motion, Vector3.RIGHT)
 
 
-## Удаление цели освобождает Relationships и переводит взгляд в режим движения без устаревшего намерения.
+## Удаление цели освобождает Relationships и переводит взгляд в режим движения без устаревшего
+## намерения.
 func test_removed_targets_clear_intent_and_bindings_safely() -> void:
 	var target: Entity = _actor([])
 	NpcIntentService.follow(_npc, target, 0.25)
@@ -102,7 +105,8 @@ func test_player_marker_excludes_actor_from_npc_producer() -> void:
 	assert_eq(_controller.direction_motion, Vector3.LEFT)
 
 
-## Остановка и смерть гасят движение; терминальное состояние дополнительно освобождает взгляд/живые цели.
+## Остановка и смерть гасят движение; терминальное состояние дополнительно освобождает взгляд/живые
+## цели.
 func test_stop_and_death_release_targets_and_prevent_motion() -> void:
 	var target: Entity = _actor([])
 	(target as Node as Node3D).position = Vector3.RIGHT * 4

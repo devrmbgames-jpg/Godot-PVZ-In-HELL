@@ -64,8 +64,8 @@ func _run() -> void:
 	print("R04 damage/heal/defeat/package smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Типизированные запросы и результаты
 func _send(

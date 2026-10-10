@@ -24,6 +24,7 @@ func _enter_tree() -> void:
 		package_id = Crypto.new().generate_random_bytes(16).hex_encode()
 #endregion
 
+
 #region Intrinsic package metadata
 ## Returns fresh identity/configuration data without changing identity or authoring inputs.
 func define_components() -> Array[Component]:
@@ -32,6 +33,6 @@ func define_components() -> Array[Component]:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = package_id
 	identity.definition = package_definition
-	
+
 	return [identity]
 #endregion

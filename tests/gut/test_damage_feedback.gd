@@ -24,7 +24,10 @@ func before_each() -> void:
 	_observer.received.connect(_on_received)
 	_world.add_observer(O_RemoveOnHealthDepleted.new())
 	_player = _entity([C_Health.new(), C_PlayerInputController.new()])
-	_view = (load("res://content/ui/damage_feedback_view.tscn") as PackedScene).instantiate() as DamageFeedbackView
+	_view = (
+		(load("res://content/ui/damage_feedback_view.tscn") as PackedScene).instantiate()
+		as DamageFeedbackView
+	)
 	_view.player = _player
 	_view.observer = _observer
 	_root.add_child(_view)
@@ -47,7 +50,13 @@ func _on_received(feedback: DamageFeedback) -> void:
 	_received.append(feedback)
 
 
-func _submit(kind: DamageRequest.Type, amount: float = 5.0, target: Entity = null, source: Entity = null, operation: DamageRequest.Operation = DamageRequest.Operation.DAMAGE) -> void:
+func _submit(
+	kind: DamageRequest.Type,
+	amount: float = 5.0,
+	target: Entity = null,
+	source: Entity = null,
+	operation: DamageRequest.Operation = DamageRequest.Operation.DAMAGE,
+) -> void:
 	var request: DamageRequest = DamageRequest.new()
 	request.target = target if target != null else _player
 	request.source = source
@@ -57,8 +66,8 @@ func _submit(kind: DamageRequest.Type, amount: float = 5.0, target: Entity = nul
 	request.damage_type = kind
 	DamageRequestService.submit(request)
 
-
 #endregion
+
 
 #region Снимки урона и освобождение UI
 ## Применённый урон передаёт снимок; токсичность и взрыв имеют разные предупреждения и звук.
@@ -69,7 +78,7 @@ func test_applied_hit_snapshot_and_toxic_explosion_warnings_use_distinct_feedbac
 	assert_eq(_received[0].target_id, _player.id)
 	assert_eq(_received[0].amount, 5.0)
 	assert_eq((_player.get_component(C_Health) as C_Health).current, 95.0)
-	_view._process(0.0)
+	_view.call("_process", 0.0)
 
 	var warning: Label = _view.get_node("Warning") as Label
 	var sound: AudioStreamPlayer = _view.get_node("Sound") as AudioStreamPlayer
@@ -79,7 +88,7 @@ func test_applied_hit_snapshot_and_toxic_explosion_warnings_use_distinct_feedbac
 	var toxic_sound: AudioStream = sound.stream
 	assert_false((_view.get_node("Tint") as ColorRect).visible, "Reduced motion is default")
 	_submit(DamageRequest.Type.EXPLOSION)
-	_view._process(0.0)
+	_view.call("_process", 0.0)
 	assert_true(warning.text.contains("Взрыв"))
 	assert_eq(warning.modulate, _view.explosion_color)
 	assert_ne(sound.stream, toxic_sound)
@@ -99,7 +108,8 @@ func test_blocked_rejected_or_heal_result_does_not_publish_damage_feedback() -> 
 	assert_false((_view.get_node("Warning") as Label).visible)
 
 
-## Подпись разрушенной коробки живёт по снимку ID и исчезает по таймеру без ссылки на удалённую Entity.
+## Подпись разрушенной коробки живёт по снимку ID и исчезает по таймеру без ссылки на удалённую
+## Entity.
 func test_package_label_survives_destructive_cleanup_without_entity_reference() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "feedback/parcel"
@@ -117,7 +127,7 @@ func test_package_label_survives_destructive_cleanup_without_entity_reference() 
 	var labels: Array[Node] = _view.find_children("WorldDamageLabel*", "Label3D", false, false)
 	assert_eq(labels.size(), 1)
 	assert_true((labels[0] as Label3D).text.contains("Посылка −100"))
-	_view._process(2.0)
+	_view.call("_process", 2.0)
 	await get_tree().process_frame
 	assert_true(_view.find_children("WorldDamageLabel*", "Label3D", false, false).is_empty())
 
@@ -125,7 +135,7 @@ func test_package_label_survives_destructive_cleanup_without_entity_reference() 
 ## Отключённое представление не влияет на реальный урон и не накапливает подписи.
 func test_disabled_presentation_does_not_change_damage_or_accumulate_labels() -> void:
 	_view.enabled = false
-	_view._process(0.0)
+	_view.call("_process", 0.0)
 	_submit(DamageRequest.Type.MELEE, 12.0)
 	var package: Entity = _entity([C_Health.new(), C_Package.new()])
 	_submit(DamageRequest.Type.IMPACT, 20.0, package)

@@ -1,5 +1,6 @@
 extends GutTest
-## Проверяет геометрию взгляда, реальные укрытия, предупреждение и однократный исход авторского испытания.
+## Проверяет геометрию взгляда, реальные укрытия, предупреждение и однократный исход авторского
+## испытания.
 
 const FRAME_DELTA: float = 0.1
 
@@ -34,7 +35,13 @@ func before_each() -> void:
 	_subject = _character(true) as E_NpcCharacter
 	(_subject as Node as Node3D).position = Vector3(0.0, 0.0, -3.0)
 	_state = C_Challenge.new()
-	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (
+		(
+			load("res://content/domains/challenges/definitions/def_challenge_dont_look.tres")
+			as DEF_Challenge
+		).duplicate(true)
+		as DEF_Challenge
+	)
 	# Тест механики использует короткие интервалы; авторские сроки проверяются отдельно.
 	_state.definition.violation_grace_seconds = 3.0
 	_observation = C_GazeChallenge.new()
@@ -73,7 +80,12 @@ func _character(customer: bool) -> E_RigidBodyCharacter:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.collision_layer = 2 if customer else 4
-	body.set_script(load("res://content/domains/customers/entities/e_customer.gd" if customer else "res://content/domains/motion/entities/e_rigid_body_character.gd"))
+	var body_script_path: String
+	if customer:
+		body_script_path = "res://content/domains/customers/entities/e_customer.gd"
+	else:
+		body_script_path = "res://content/domains/motion/entities/e_rigid_body_character.gd"
+	body.set_script(load(body_script_path))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
 	if customer:
 		entity.component_resources = [C_CustomerAgent.new()]
@@ -102,30 +114,65 @@ func _start() -> void:
 func _on_escalation(_customer: Entity, _player: Entity, _event: ChallengeResolution) -> void:
 	_escalations += 1
 
-
 #endregion
+
 
 #region Геометрия и реальное восприятие
 ## Проверяет включительные границы угла/расстояния и недопустимое нулевое направление.
 func test_geometry_angle_distance_boundaries_and_invalid_direction() -> void:
-	var direction: Vector3 = Vector3.FORWARD.rotated(Vector3.UP, deg_to_rad(_rule.half_angle_degrees))
-	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, direction * 3.0, _rule, _observation)
+	var direction: Vector3 = (
+		Vector3.FORWARD.rotated(Vector3.UP, deg_to_rad(_rule.half_angle_degrees))
+	)
+	GazeTrackingGeometry.measure_geometry(
+		Vector3.ZERO,
+		Vector3.FORWARD,
+		direction * 3.0,
+		_rule,
+		_observation,
+	)
 	assert_true(_observation.within_angle)
 	assert_true(_observation.within_range)
-	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * _rule.maximum_distance, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(
+		Vector3.ZERO,
+		Vector3.FORWARD,
+		Vector3.FORWARD * _rule.maximum_distance,
+		_rule,
+		_observation,
+	)
 	assert_true(_observation.within_range)
-	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * (_rule.maximum_distance + 0.1), _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(
+		Vector3.ZERO,
+		Vector3.FORWARD,
+		Vector3.FORWARD * (_rule.maximum_distance + 0.1),
+		_rule,
+		_observation,
+	)
 	assert_false(_observation.within_range)
-	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.BACK, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(
+		Vector3.ZERO,
+		Vector3.FORWARD,
+		Vector3.BACK,
+		_rule,
+		_observation,
+	)
 	assert_false(_observation.within_angle)
-	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.ZERO, Vector3.FORWARD, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(
+		Vector3.ZERO,
+		Vector3.ZERO,
+		Vector3.FORWARD,
+		_rule,
+		_observation,
+	)
 	assert_false(_observation.sample_valid)
 
 
 ## Поза головы и реальная стена определяют внимание, исключая собственный collider.
 func test_actual_head_pose_and_physics_wall_determine_attention() -> void:
 	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
-	assert_true(_observation.attention, "Actor collider must be excluded and target collider must count as visible")
+	assert_true(
+		_observation.attention,
+		"Actor collider must be excluded and target collider must count as visible",
+	)
 	var wall: StaticBody3D = StaticBody3D.new()
 	var shape_node: CollisionShape3D = CollisionShape3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()
@@ -168,8 +215,8 @@ func test_actor_camera_pose_overrides_head_and_unrelated_camera_does_not() -> vo
 	assert_true(_observation.attention, "Another actor's camera must not supply this actor's gaze")
 	unrelated.free()
 
-
 #endregion
+
 
 #region Авторские предупреждения и исход
 ## Непрерывный взгляд даёт предупреждение и одну неудачу; отведение взгляда сбрасывает накопление.
@@ -197,7 +244,13 @@ func test_dont_look_warns_resets_and_fails_at_continuous_threshold_once() -> voi
 
 ## Обратное правило требует сохранять взгляд до окончания, без досрочного успеха.
 func test_keep_looking_is_inverse_configuration_and_compliance_is_not_early_success() -> void:
-	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_keep_looking.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (
+		(
+			load("res://content/domains/challenges/definitions/def_challenge_keep_looking.tres")
+			as DEF_Challenge
+		).duplicate(true)
+		as DEF_Challenge
+	)
 	_state.definition.violation_grace_seconds = 3.0
 	_rule = _state.definition.condition as DEF_GazeChallengeCondition
 	_start()
@@ -238,16 +291,22 @@ func test_arrival_definition_and_vignette_start_before_warning_threshold() -> vo
 	_world.process(FRAME_DELTA)
 	var first: float = GazeChallengePresentation.strength(_state)
 	assert_gt(first, 0.0, "Even the first sustained gaze frame must darken the screen")
-	assert_lt(_state.violation_elapsed, _state.definition.violation_grace_seconds * _rule.warning_fraction)
+	assert_lt(
+		_state.violation_elapsed,
+		_state.definition.violation_grace_seconds * _rule.warning_fraction,
+	)
 	_world.process(FRAME_DELTA)
 	assert_gt(GazeChallengePresentation.strength(_state), first)
-	assert_false(ChallengeService.begin_on_arrival(_subject, _actor), "Arrival cannot restart the timer")
+	assert_false(
+		ChallengeService.begin_on_arrival(_subject, _actor),
+		"Arrival cannot restart the timer",
+	)
 	_actor.head_axis_x.rotation.y = PI
 	_world.process(FRAME_DELTA)
 	assert_eq(GazeChallengePresentation.strength(_state), 0.0)
 
-
 #endregion
+
 
 #region Связь обслуживания и lifecycle
 ## Только одна настенная подсказка показывает регистрационный номер и очищается вместе с сессией.
@@ -277,7 +336,11 @@ func test_wall_clue_uses_one_registered_number_and_clears_with_session() -> void
 		var message: String = GazeOrderCluePresentation.text_for(clue)
 		if not message.is_empty():
 			shown += 1
-			assert_eq(message, "ЗАКАЗ\n№037", "Physical package identity is not the player's order number")
+			assert_eq(
+				message,
+				"ЗАКАЗ\n№037",
+				"Physical package identity is not the player's order number",
+			)
 	assert_eq(shown, 1)
 	ChallengeService.request_departure(_subject)
 	_world.process(FRAME_DELTA)
@@ -297,15 +360,21 @@ func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogu
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	flow.visits.clear()
 	flow.schedule = DEF_CustomerSchedule.new()
-	flow.schedule.customer_scene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	flow.schedule.customer_scene = (
+		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	)
 
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = &"arrival-gaze"
 	visit.requires_registered_package = false
 	visit.arrival_day = cycle.day_index
-	visit.definition = load("res://content/domains/customers/definitions/def_customer_gaze.tres") as DEF_Customer
+	visit.definition = (
+		load("res://content/domains/customers/definitions/def_customer_gaze.tres") as DEF_Customer
+	)
 	flow.visits.append(visit)
-	var scene: PackedScene = load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
+	)
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
 	assert_true(CustomerFlowFixture.spawn(flow, cycle))
@@ -346,7 +415,9 @@ func test_authored_accumulating_reset_policy_preserves_prior_violations() -> voi
 func test_target_binding_removal_cancels_and_clears_warning() -> void:
 	_start()
 	_world.process(2.0)
-	var binding: Relationship = _subject.get_relationships(Relationship.new(R_ChallengeActor.new()))[0]
+	var binding: Relationship = (
+		_subject.get_relationships(Relationship.new(R_ChallengeActor.new()))[0]
+	)
 	_subject.remove_relationship(binding)
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.result, ChallengeResult.Type.CANCELLED)

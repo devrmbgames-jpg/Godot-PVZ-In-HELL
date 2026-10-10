@@ -28,13 +28,16 @@ func _run() -> void:
 	_world.add_system(S_NpcIntent.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(20, 1, 20))
 	var blocker: StaticBody3D = _obstacle(Vector3(1.3, 1, 0), Vector3(1, 2, 3))
-	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	var scene: PackedScene = (
+		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	)
 	_customer = scene.instantiate() as E_NpcCharacter
 	_body = _customer as Node as RigidBody3D
 	# This headless fixture isolates physics/navigation from streamed footstep playback.
 	(_customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	EntityCompositionFixture.register(_world, _customer)
-	# Окружение изолирует столкновения/импульс; маршруты проверяет отдельный smoke с настоящей картой.
+	# Окружение изолирует столкновения/импульс; маршруты проверяет отдельный smoke с настоящей
+	# картой.
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).navigation_enabled = false
 
 	var motion: C_Motion = _customer.get_component(C_Motion) as C_Motion
@@ -57,7 +60,10 @@ func _run() -> void:
 	var before_impulse: Vector3 = _body.position
 	_body.apply_central_impulse(IMPULSE)
 	await _frames(2)
-	assert(_body.linear_velocity.x > MIN_IMPULSE_SPEED, "Shared solver must preserve external impulse")
+	assert(
+		_body.linear_velocity.x > MIN_IMPULSE_SPEED,
+		"Shared solver must preserve external impulse",
+	)
 	assert(_body.position.x > before_impulse.x, "External impulse must physically displace NPC")
 	NpcIntentService.move_to(_customer, TARGET, ARRIVAL_DISTANCE)
 	await _arrive()
@@ -78,8 +84,8 @@ func _run() -> void:
 	print("NPC obstacle/impulse/recovery/head-look physics smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Ограниченные шаги и препятствия
 func _frames(count: int) -> void:

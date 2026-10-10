@@ -83,7 +83,10 @@ func _debug_packages() -> Array[Entity]:
 	var result: Array[Entity] = []
 	for entity: Entity in ECS.world.query.with_all([C_Package]).execute():
 		var identity: C_Package = entity.get_component(C_Package) as C_Package
-		if identity != null and identity.package_id.begins_with(DebugPackageService.DEBUG_ID_PREFIX):
+		if (
+			identity != null
+			and identity.package_id.begins_with(DebugPackageService.DEBUG_ID_PREFIX)
+		):
 			result.append(entity)
 	return result
 
@@ -92,11 +95,12 @@ func _process_gameplay(ticks: int = 1) -> void:
 	for tick: int in ticks:
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 
-
 #endregion
 
+
 #region Результаты и lifecycle команд
-## Цели разрешаются по постоянным ID/номеру; удалённый экземпляр остаётся исторической записью без живого handle.
+## Цели разрешаются по постоянным ID/номеру; удалённый экземпляр остаётся исторической записью без
+## живого handle.
 func test_target_resolver_uses_stable_identity_and_rejects_freed_handles() -> void:
 	_create_core_world()
 	var player: Entity = _add_player()
@@ -172,12 +176,9 @@ func test_customer_debug_service_keeps_actual_declaration_complaint_and_feedback
 	assert_eq(delivered.actual, CustomerVisit.Actual.DELIVERED)
 	assert_eq(delivered.declaration, CustomerVisit.Declaration.TAKEN)
 	assert_true(delivered.settlement_committed)
-	assert_false(
-		DebugCustomerService.set_actual(
-			delivered_target,
-			CustomerVisit.Actual.NOT_RESOLVED,
-		).success
-	)
+	assert_false((DebugCustomerService.set_actual(delivered_target, CustomerVisit
+			.Actual
+			.NOT_RESOLVED).success))
 
 	var disputed: CustomerVisit = _add_visit("debug:customer:disputed")
 	var disputed_target: DebugTarget = DebugTargetResolver.resolve(disputed.package_id)
@@ -190,20 +191,15 @@ func test_customer_debug_service_keeps_actual_declaration_complaint_and_feedback
 	assert_not_null(disputed.complaint)
 	assert_eq(disputed.complaint.reason, CustomerComplaint.Reason.NOT_DELIVERED)
 	assert_eq(disputed.complaint.outcome, CustomerComplaint.Outcome.PENDING)
-	assert_true(
-		DebugCustomerService.complaint(
-			disputed_target,
-			CustomerComplaint.Reason.NOT_DELIVERED,
-			false,
-		).success
+	assert_true(DebugCustomerService.complaint(disputed_target, CustomerComplaint
+		.Reason
+		.NOT_DELIVERED, false).success)
+	var complaint_receipt: DebugServiceResult = DebugCustomerService.complaint(
+		disputed_target,
+		CustomerComplaint.Reason.DAMAGED,
+		false,
 	)
-	assert_false(
-		DebugCustomerService.complaint(
-			disputed_target,
-			CustomerComplaint.Reason.DAMAGED,
-			false,
-		).success
-	)
+	assert_false(complaint_receipt.success)
 	assert_true(DebugCustomerService.resolve_complaint(disputed_target).success)
 	assert_ne(disputed.complaint.outcome, CustomerComplaint.Outcome.PENDING)
 
@@ -217,7 +213,8 @@ func test_customer_debug_service_keeps_actual_declaration_complaint_and_feedback
 	assert_false(DebugCustomerService.approve(approved_target, 101).success)
 
 
-## Денежные команды пишут уникальный журнал; повтор не меняет баланс, отмена штрафа ограничена его остатком.
+## Денежные команды пишут уникальный журнал; повтор не меняет баланс, отмена штрафа ограничена его
+## остатком.
 func test_debug_economy_is_journaled_idempotent_and_reversible() -> void:
 	_create_core_world()
 	assert_true(DebugEconomyService.credit(100, "stage9_credit").success)
@@ -230,7 +227,7 @@ func test_debug_economy_is_journaled_idempotent_and_reversible() -> void:
 	assert_eq(DebugEconomyService.manual_penalty_outstanding(_wallet), 20)
 	assert_eq(_wallet.operations.size(), 4)
 
-	var ids: Dictionary[StringName, bool] = {}
+	var ids: Dictionary[StringName, bool] = { }
 	for operation: MoneyOperation in _wallet.operations:
 		assert_false(ids.has(operation.operation_id))
 		ids[operation.operation_id] = true
@@ -246,7 +243,8 @@ func test_debug_economy_is_journaled_idempotent_and_reversible() -> void:
 	assert_eq(_wallet.penalties, 20)
 
 
-## Создание/регистрация/удаление коробки и урон/лечение проходят реальные сервисы; QA-сброс явно восстанавливает здоровье.
+## Создание/регистрация/удаление коробки и урон/лечение проходят реальные сервисы; QA-сброс явно
+## восстанавливает здоровье.
 func test_package_debug_service_and_health_lifecycle_use_real_domain_boundaries() -> void:
 	_level = MAIN_LEVEL.instantiate() as Node3D
 	add_child(_level)
@@ -299,13 +297,12 @@ func test_package_debug_service_and_health_lifecycle_use_real_domain_boundaries(
 	var original_health: float = health.current
 	assert_gt(original_health, 5.0)
 
-	assert_true(
-		DebugHealthService.apply_damage(
-			player_target,
-			5.0,
-			DamageRequest.Type.GENERIC,
-		).success
+	var damage_receipt: DebugServiceResult = DebugHealthService.apply_damage(
+		player_target,
+		5.0,
+		DamageRequest.Type.GENERIC,
 	)
+	assert_true(damage_receipt.success)
 	_process_gameplay(2)
 	assert_almost_eq(health.current, original_health - 5.0, 0.001)
 

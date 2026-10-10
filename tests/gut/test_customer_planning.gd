@@ -8,6 +8,7 @@ var _cycle: C_DayCycle
 var _wallet: C_Wallet
 var _planning: O_CustomerPlanning
 
+
 #region Fixture
 ## Installs the real discrete handler and scheduling owner.
 func before_each() -> void:
@@ -16,7 +17,10 @@ func before_each() -> void:
 	ECS.world = _world
 	_session = Entity.new()
 	_session.component_resources = [
-		C_CustomerFlow.new(), C_DayCycle.new(), C_Wallet.new(), C_PackageLedger.new()
+		C_CustomerFlow.new(),
+		C_DayCycle.new(),
+		C_Wallet.new(),
+		C_PackageLedger.new(),
 	]
 	_world.add_entity(_session)
 	_flow = _session.get_component(C_CustomerFlow) as C_CustomerFlow
@@ -56,6 +60,7 @@ func _unregistered(id: String) -> CustomerVisit:
 	_flow.visits.append(visit)
 	return visit
 #endregion
+
 
 #region Discrete planning gates
 ## Repeated morning frames cannot rescan new historical records as another morning entry.
@@ -110,8 +115,10 @@ func test_registration_fact_reactivates_due_followup_in_same_phase() -> void:
 	assert_true(visit.finished)
 
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
-	assert_eq(PackageRegistrationService.register_package(parcel).outcome,
-		PackageScanResult.Outcome.REGISTERED)
+	assert_eq(
+		PackageRegistrationService.register_package(parcel).outcome,
+		PackageScanResult.Outcome.REGISTERED,
+	)
 	assert_false(visit.finished)
 	assert_eq(visit.next_followup_day, 0)
 	assert_false(visit.started)

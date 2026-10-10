@@ -28,7 +28,10 @@ func _run() -> void:
 
 	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:oil")
 	assert(parcel != null)
-	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(parcel).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
@@ -45,7 +48,11 @@ func _run() -> void:
 			break
 
 	assert(npc != null)
-	var visit: CustomerVisit = CustomerFlowQueries.find_visit((npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var visit: CustomerVisit = (
+		CustomerFlowQueries.find_visit(
+			(npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id
+		)
+	)
 	assert(CombatService.hit(actor, actor, npc, 200.0))
 	assert(npc.has_component(C_Death))
 	assert((npc.get_component(C_NpcRemains) as C_NpcRemains).released)
@@ -61,7 +68,10 @@ func _run() -> void:
 			meat.append(drop)
 	assert(meat.size() == 3)
 	for drop: Entity in meat:
-		assert((drop as Node as Node3D).global_position.y > -0.5, "Actual authored floor supports the remains")
+		assert(
+			(drop as Node as Node3D).global_position.y > -0.5,
+			"Actual authored floor supports the remains",
+		)
 		assert(InventoryService.transfer(drop, actor))
 
 	var food: Entity = null

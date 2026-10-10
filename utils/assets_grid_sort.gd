@@ -15,27 +15,26 @@ class_name ToolNodeGridSort
 
 
 #region Редакторские действия
-func _sort() -> void :
-	
-	for i in get_child_count() :
+func _sort() -> void:
+	for i in get_child_count():
 		var x_idx := 0
-		if i > 0 and collumn > 0 :
+		if i > 0 and collumn > 0:
 			x_idx = i / collumn
-		
+
 		var z_idx := 0
-		if i > 0 and collumn > 0 :
+		if i > 0 and collumn > 0:
 			z_idx = i % collumn
-		
+
 		var node := get_child(i)
-		if node is Node3D :
+		if node is Node3D:
 			node.position.x = x_idx * interval
 			node.position.z = z_idx * interval
 
 
-func _gen_mesh() -> void :
-	for i in get_child_count() :
+func _gen_mesh() -> void:
+	for i in get_child_count():
 		var node := get_child(i)
-		if node is MeshInstance3D :
+		if node is MeshInstance3D:
 			var mi := node as MeshInstance3D
 			mi.create_trimesh_collision()
 

@@ -1,5 +1,6 @@
 extends GutTest
-## Команды консоли проходят обычные игровые переходы; запись ограничена изолированными тестовыми слотами.
+## Команды консоли проходят обычные игровые переходы; запись ограничена изолированными тестовыми
+## слотами.
 
 var _world: World
 var _commands: DeveloperConsoleCommands
@@ -17,7 +18,10 @@ func before_each() -> void:
 	ECS.world = _world
 	_cycle = C_DayCycle.new()
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
-	flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	flow.schedule = (
+		load("res://content/domains/customers/definitions/def_customer_schedule_default.tres")
+		as DEF_CustomerSchedule
+	)
 	_session = Entity.new()
 	_session.component_resources = [_cycle, C_Commerce.new(), C_Wallet.new(), flow]
 	_world.add_entity(_session)
@@ -26,7 +30,13 @@ func before_each() -> void:
 	var hunger: C_Hunger = C_Hunger.new()
 	hunger.policy = DEF_HungerPolicy.new()
 	_actor = Entity.new()
-	_actor.component_resources = [C_PlayerInputController.new(), C_Inventory.new(), hunger, C_GrabControl.new(), C_Health.new()]
+	_actor.component_resources = ([
+		C_PlayerInputController.new(),
+		C_Inventory.new(),
+		hunger,
+		C_GrabControl.new(),
+		C_Health.new(),
+	])
 	_world.add_entity(_actor)
 	_commands = DeveloperConsoleCommands.new()
 	add_child(_commands)
@@ -36,13 +46,15 @@ func before_each() -> void:
 
 ## Закрывает консоль, очищает World и удаляет только созданный тестовый слот.
 func after_each() -> void:
-	if bool(Console.is_visible()): Console.toggle_console()
+	if bool(Console.is_visible()):
+		Console.toggle_console()
 	_commands.free()
 	_world.purge(false)
 	_world.free()
 	ECS.world = null
 	var path: String = DebugGameplayService.slot_path(_slot)
-	if FileAccess.file_exists(path): DirAccess.remove_absolute(path)
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(path)
 	Console.clear()
 	await get_tree().process_frame
 
@@ -50,12 +62,13 @@ func after_each() -> void:
 func _run(command: String, args: Array = []) -> String:
 	Console.clear()
 	var parts: PackedStringArray = [command]
-	for argument: String in args: parts.append(argument)
-	Console._on_text_entered(" ".join(parts))
+	for argument: String in args:
+		parts.append(argument)
+	Console.call("_on_text_entered", " ".join(parts))
 	return Console.rich_label.get_parsed_text()
 
-
 #endregion
+
 
 #region Игровые границы команд консоли
 ## The destructive command is never executed inside GUT: it would remove GUT itself.
@@ -109,13 +122,21 @@ func test_food_commands_obey_bounds_capacity_and_normal_consumption() -> void:
 	assert_eq(_world.entities.size(), count, "Failed grant leaves no orphan")
 	assert_true(_run("inventory_give", ["large_shelf", "1"]).contains("ERROR inventory_give"))
 	assert_true(_run("inventory_use", ["-1"]).contains("ERROR inventory_use"))
-	assert_true(_run("help", ["inventory_give"]).contains("inventory_give <definition_key> [count=1]"))
+	assert_true(
+		_run("help", ["inventory_give"]).contains("inventory_give <definition_key> [count=1]")
+	)
 	assert_true(Console.command_parameters["help"].has("inventory_give"))
 
 
 ## Предпросмотр прогресса меняет колесо и сигнал без выполнения эффекта действия.
 func test_progress_command_updates_real_rotation_and_signal_without_activation() -> void:
-	var valve: E_InteractionTestValve = (load("res://content/domains/interaction/entities/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
+	var valve: E_InteractionTestValve = (
+		(
+			load("res://content/domains/interaction/entities/interaction_test_valve.tscn")
+			as PackedScene
+		).instantiate()
+		as E_InteractionTestValve
+	)
 	valve.mode = E_InteractionTestValve.Mode.HOLD_NEVER
 	_world.add_entity(valve)
 	var basis: Basis = (valve.get_node("Wheel") as Node3D).basis
@@ -137,7 +158,11 @@ func test_debug_challenge_uses_lifecycle_and_cannot_repeat_consumed_session() ->
 	var subject: Entity = Entity.new()
 	_world.add_entity(subject)
 	var target: String = "entity:" + subject.id
-	assert_true(_run("challenge_start", [target, "warehouse-light-during-visit"]).contains("OK challenge_start"))
+	assert_true(
+		_run("challenge_start", [target, "warehouse-light-during-visit"]).contains(
+			"OK challenge_start"
+		)
+	)
 	assert_same(ChallengeService.actor_for(subject), _actor)
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	assert_eq(state.phase, C_Challenge.Phase.ACTIVE)
@@ -145,7 +170,11 @@ func test_debug_challenge_uses_lifecycle_and_cannot_repeat_consumed_session() ->
 	assert_true(_run("challenge_stop", [target]).contains("OK challenge_stop"))
 	assert_eq(state.phase, C_Challenge.Phase.CLEANUP)
 	assert_null(ChallengeService.actor_for(subject))
-	assert_true(_run("challenge_start", [target, "warehouse-light-during-visit"]).contains("ERROR challenge_start"))
+	assert_true(
+		_run("challenge_start", [target, "warehouse-light-during-visit"]).contains(
+			"ERROR challenge_start"
+		)
+	)
 
 
 ## Именованный debug-слот сохраняет состояние; неверные фаза и путь отклоняются.
@@ -174,14 +203,18 @@ func test_live_visit_option_preserves_accounting_default_and_authored_introducti
 	identity.definition.key = &"books"
 	parcel.component_resources = [identity, C_PackageState.new()]
 	EntityCompositionFixture.register(_world, parcel)
-	assert_true(_run("visit_create", ["pkg:console_live", "ordinary", "1"]).contains("OK visit_create"))
+	assert_true(
+		_run("visit_create", ["pkg:console_live", "ordinary", "1"]).contains("OK visit_create")
+	)
 
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(&"visit/console_live")
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.definition.introduction, DEF_Customer.Introduction.ANNOUNCE_ORDER)
 	assert_true(_run("visit_info", ["visit:visit/console_live"]).contains("ANNOUNCE_ORDER"))
-	assert_true(_run("visit_create", ["pkg:console_live", "ordinary", "2"]).contains("ERROR visit_create"))
+	assert_true(
+		_run("visit_create", ["pkg:console_live", "ordinary", "2"]).contains("ERROR visit_create")
+	)
 
 
 ## Живые связи толкания/тележки блокируют запись и загрузку без изменения мира или файла.
@@ -196,7 +229,8 @@ func test_persistence_rejects_push_and_cart_without_changing_session_slot_or_wor
 	for relation_script: Script in [R_PushedBy, R_CartDrivenBy]:
 		var binding: Relationship = Relationship.new(relation_script.new() as Component, _actor)
 		prop.add_relationship(binding)
-		## Живая связь запрещает запись и без актуального capture-токена: Relationship остаётся источником истины.
+		## Живая связь запрещает запись и без актуального capture-токена: Relationship остаётся
+		## источником истины.
 		assert_true(_run("save_load", [_slot]).contains("ERROR save_load"))
 		assert_eq(wallet.balance, 77)
 		assert_true(_run("save_write", [_slot]).contains("ERROR save_write"))
@@ -204,7 +238,9 @@ func test_persistence_rejects_push_and_cart_without_changing_session_slot_or_wor
 		assert_true(prop.relationships.has(binding))
 		prop.remove_relationship(binding)
 
-	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.PUSH)
+	var token: int = (
+		InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.PUSH)
+	)
 	assert_true(_run("save_load", [_slot]).contains("ERROR save_load"))
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.PUSH)
 	assert_eq(wallet.balance, 77)
@@ -224,7 +260,11 @@ func test_invalid_npc_request_does_not_reset_cooldown_or_opponent() -> void:
 
 	var opponent: Entity = Entity.new()
 	_world.add_entity(opponent)
-	assert_true(_run("npc_attack", ["entity:" + npc.id, "melee", "0", "entity:" + opponent.id]).contains("ERROR npc_attack"))
+	assert_true(
+		_run("npc_attack", ["entity:" + npc.id, "melee", "0", "entity:" + opponent.id]).contains(
+			"ERROR npc_attack"
+		)
+	)
 	assert_same(CombatQueries.target_for(npc), _actor)
 	assert_eq(state.cooldown_remaining, 5.0)
 	assert_true(_run("npc_info", ["entity:" + npc.id]).contains("cooldown=5.00s"))

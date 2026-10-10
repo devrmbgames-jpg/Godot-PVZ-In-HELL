@@ -1,10 +1,12 @@
 extends GutTest
 ## Проверяет запас спринта, расход по массе, условия бега и восстановление на реальных компонентах.
 
+
 ## В headless-тесте подменяет только проверку захвата курсора операционной системой.
 class CapturedInput extends S_PlayerInput:
 	func _accepts_input() -> bool:
 		return true
+
 
 var _world: World
 var _body: RigidBody3D
@@ -38,7 +40,16 @@ func before_each() -> void:
 	_strength.value = 1.0
 	_stamina = C_Stamina.new()
 	_carry = C_CarryLoad.new()
-	_actor.component_resources = [_motion, _control, _strength, _stamina, _carry, C_GrabControl.new(), C_Crouch.new(), C_PlayerInputController.new()]
+	_actor.component_resources = ([
+		_motion,
+		_control,
+		_strength,
+		_stamina,
+		_carry,
+		C_GrabControl.new(),
+		C_Crouch.new(),
+		C_PlayerInputController.new(),
+	])
 	add_child(_body)
 	_world.add_entity(_actor, null, false)
 	_motion = _actor.get_component(C_Motion) as C_Motion
@@ -67,8 +78,8 @@ func after_each() -> void:
 func _tick(delta: float) -> void:
 	_system.process([_actor], [[_stamina], [_control], [_motion], [_strength]], delta)
 
-
 #endregion
+
 
 #region Запас и условия бега
 ## Базовый запас покрывает минуту бега; сила увеличивает ёмкость.
@@ -130,7 +141,9 @@ func test_idle_wall_air_crouch_modal_and_death_gate_running() -> void:
 	assert_false(_stamina.running)
 	_control.action_crouch = false
 
-	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	var token: int = (
+		InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	)
 	_tick(1.0)
 	assert_false(_stamina.running)
 	InteractionControlFocus.release(_actor, token)
@@ -140,7 +153,8 @@ func test_idle_wall_air_crouch_modal_and_death_gate_running() -> void:
 	assert_eq(_motion.sprint_multiplier, 1.0)
 
 
-## Восстановление начинается после задержки; порог возвращения из истощения предотвращает дрожание состояния.
+## Восстановление начинается после задержки; порог возвращения из истощения предотвращает дрожание
+## состояния.
 func test_recovery_delay_and_exhaustion_hysteresis() -> void:
 	_tick(60.0)
 	assert_true(_stamina.exhausted)
@@ -157,11 +171,12 @@ func test_recovery_delay_and_exhaustion_hysteresis() -> void:
 	_tick(0.1)
 	assert_true(_stamina.running)
 
-
 #endregion
 
+
 #region Ввод, настройки и сохранение
-## Режим переключения переживает отпускание и сбрасывается вторым нажатием, паузой или сменой режима.
+## Режим переключения переживает отпускание и сбрасывается вторым нажатием, паузой или сменой
+## режима.
 func test_toggle_release_second_press_crouch_pause_and_mode_switch() -> void:
 	GameSettingsService.set_value("sprint_toggle", true)
 	_control.sprint_held = false
@@ -175,7 +190,7 @@ func test_toggle_release_second_press_crouch_pause_and_mode_switch() -> void:
 	assert_false(_stamina.running, "Второе нажатие выключает")
 	_tick(0.1)
 	_control.sprint_pressed = false
-	_system._notification(Node.NOTIFICATION_PAUSED)
+	_system.call("_notification", Node.NOTIFICATION_PAUSED)
 	_tick(0.1)
 	assert_false(_stamina.running, "Пауза сбрасывает toggle")
 	_control.sprint_pressed = true
@@ -200,7 +215,7 @@ func test_input_producer_buffers_single_press_and_discards_pause() -> void:
 	var event: InputEventKey = InputEventKey.new()
 	event.physical_keycode = KEY_SHIFT
 	event.pressed = true
-	input._unhandled_input(event)
+	input.call("_unhandled_input", event)
 	Input.action_press(&"sprint")
 	input.process([_actor], [[_control]], 0.1)
 	assert_true(_control.sprint_pressed)
@@ -208,8 +223,8 @@ func test_input_producer_buffers_single_press_and_discards_pause() -> void:
 	input.process([_actor], [[_control]], 0.1)
 	assert_false(_control.sprint_pressed)
 	assert_true(_control.sprint_held)
-	input._unhandled_input(event)
-	input._notification(Node.NOTIFICATION_PAUSED)
+	input.call("_unhandled_input", event)
+	input.call("_notification", Node.NOTIFICATION_PAUSED)
 	Input.action_release(&"sprint")
 	input.process([_actor], [[_control]], 0.1)
 	assert_false(_control.sprint_pressed)

@@ -50,22 +50,16 @@ class MaterialGeneratorController:
 
 	func _on_collection_selected(collection_path: String) -> void:
 		_folder_dialog.queue_free()
-		var stats: Dictionary = {
-			"created": 0,
-			"skipped": 0,
-			"failed": 0,
-		}
-		var generated_paths: Dictionary = {}
+		var stats: Dictionary = { "created": 0, "skipped": 0, "failed": 0 }
+		var generated_paths: Dictionary = { }
 
 		_scan_directory(collection_path, collection_path, generated_paths, stats)
 		EditorInterface.get_resource_filesystem().scan()
 
 		var message: String = (
-			"Готово.\n\n"
-			+ "Создано или обновлено материалов: " + str(stats["created"]) + "\n"
-			+ "Пропущено каталогов: " + str(stats["skipped"]) + "\n"
-			+ "Ошибок: " + str(stats["failed"]) + "\n\n"
-			+ "Материалы сохранены в:\n" + collection_path
+			"Готово.\n\n" + "Создано или обновлено материалов: " + str(stats["created"])
+			+ "\n" + "Пропущено каталогов: " + str(stats["skipped"]) + "\n" + "Ошибок: "
+			+ str(stats["failed"]) + "\n\n" + "Материалы сохранены в:\n" + collection_path
 		)
 		print("[Material Generator] ", message.replace("\n", " "))
 		_show_result(message)
@@ -79,7 +73,7 @@ class MaterialGeneratorController:
 		directory_path: String,
 		collection_path: String,
 		generated_paths: Dictionary,
-		stats: Dictionary
+		stats: Dictionary,
 	) -> void:
 		if directory_path != collection_path:
 			var texture_set: Dictionary = _find_texture_set(directory_path)
@@ -89,7 +83,7 @@ class MaterialGeneratorController:
 					collection_path,
 					texture_set,
 					generated_paths,
-					stats
+					stats,
 				)
 
 		var subdirectories: PackedStringArray = DirAccess.get_directories_at(directory_path)
@@ -101,16 +95,16 @@ class MaterialGeneratorController:
 				directory_path.path_join(directory_name),
 				collection_path,
 				generated_paths,
-				stats
+				stats,
 			)
-
 
 	#endregion
 
 	#region Выбор набора и создание материала
-	## Выбирает наиболее полный общий префикс карт; сортировка делает выбор равных наборов воспроизводимым.
+	## Выбирает наиболее полный общий префикс карт; сортировка делает выбор равных наборов
+	## воспроизводимым.
 	func _find_texture_set(directory_path: String) -> Dictionary:
-		var groups: Dictionary = {}
+		var groups: Dictionary = { }
 		var file_names: PackedStringArray = DirAccess.get_files_at(directory_path)
 		file_names.sort()
 
@@ -122,19 +116,19 @@ class MaterialGeneratorController:
 			var prefix: String = match_data["prefix"]
 			var map_type: String = match_data["map_type"]
 			if not groups.has(prefix):
-				groups[prefix] = {}
+				groups[prefix] = { }
 
 			var group: Dictionary = groups[prefix]
 			if group.has(map_type):
 				push_warning(
-					"[Material Generator] Duplicate map '" + map_type
-					+ "' in " + directory_path + ". Using: " + group[map_type]
+					"[Material Generator] Duplicate map '" + map_type + "' in "
+					+ directory_path + ". Using: " + group[map_type]
 				)
 				continue
 			group[map_type] = directory_path.path_join(file_name)
 
 		if groups.is_empty():
-			return {}
+			return { }
 
 		var prefixes: Array = groups.keys()
 		prefixes.sort()
@@ -165,14 +159,11 @@ class MaterialGeneratorController:
 
 			var prefix_length: int = lower_name.length() - suffix.length()
 			if prefix_length <= 0:
-				return {}
+				return { }
 
-			return {
-				"prefix": lower_name.left(prefix_length),
-				"map_type": MAP_SUFFIXES[suffix],
-			}
+			return { "prefix": lower_name.left(prefix_length), "map_type": MAP_SUFFIXES[suffix] }
 
-		return {}
+		return { }
 
 
 	func _create_material_for_directory(
@@ -180,7 +171,7 @@ class MaterialGeneratorController:
 		collection_path: String,
 		texture_set: Dictionary,
 		generated_paths: Dictionary,
-		stats: Dictionary
+		stats: Dictionary,
 	) -> void:
 		var number_name: String = directory_path.get_file()
 		if not number_name.is_valid_int():
@@ -202,9 +193,8 @@ class MaterialGeneratorController:
 		if generated_paths.has(output_path):
 			stats["skipped"] += 1
 			push_warning(
-				"[Material Generator] Output name collision: " + output_path
-				+ ". First source: " + generated_paths[output_path]
-				+ ", skipped source: " + directory_path
+				"[Material Generator] Output name collision: " + output_path + ". First source: "
+				+ generated_paths[output_path] + ", skipped source: " + directory_path
 			)
 			return
 		generated_paths[output_path] = directory_path
@@ -220,22 +210,18 @@ class MaterialGeneratorController:
 		if save_error != OK:
 			stats["failed"] += 1
 			push_error(
-				"[Material Generator] Failed to save material: " + output_path
-				+ " (error " + str(save_error) + ")"
+				"[Material Generator] Failed to save material: "
+				+ output_path + " (error " + str(save_error) + ")"
 			)
 			return
 
 		stats["created"] += 1
 		print("[Material Generator] Saved: ", output_path)
 
-
 	#endregion
 
 	#region Текстуры и преобразование smoothness
-	func _apply_texture_set(
-		material: StandardMaterial3D,
-		texture_set: Dictionary
-	) -> void:
+	func _apply_texture_set(material: StandardMaterial3D, texture_set: Dictionary) -> void:
 		if texture_set.has("albedo"):
 			material.albedo_texture = _load_texture(texture_set["albedo"])
 
@@ -268,7 +254,7 @@ class MaterialGeneratorController:
 			var smoothness_texture: Texture2D = _load_texture(smoothness_path)
 			var roughness_texture: Texture2D = _create_roughness_texture(
 				smoothness_texture,
-				smoothness_path
+				smoothness_path,
 			)
 			if roughness_texture != null:
 				material.roughness = 1.0
@@ -292,19 +278,15 @@ class MaterialGeneratorController:
 		return texture
 
 
-	## Инвертирует красный канал smoothness и сохраняет сжатый roughness .res рядом с исходной текстурой.
-	func _create_roughness_texture(
-		smoothness_texture: Texture2D,
-		source_path: String
-	) -> Texture2D:
+	## Инвертирует красный канал smoothness и сохраняет сжатый roughness .res рядом с исходной
+	## текстурой.
+	func _create_roughness_texture(smoothness_texture: Texture2D, source_path: String) -> Texture2D:
 		if smoothness_texture == null:
 			return null
 
 		var source_image: Image = smoothness_texture.get_image()
 		if source_image == null or source_image.is_empty():
-			push_warning(
-				"[Material Generator] Cannot read smoothness image: " + source_path
-			)
+			push_warning("[Material Generator] Cannot read smoothness image: " + source_path)
 			return null
 
 		var roughness_image: Image = source_image.duplicate() as Image
@@ -330,7 +312,7 @@ class MaterialGeneratorController:
 			roughness_image.get_height(),
 			roughness_image.has_mipmaps(),
 			Image.FORMAT_RGBA8,
-			image_data
+			image_data,
 		)
 		var roughness_texture: ImageTexture = ImageTexture.create_from_image(inverted_image)
 		roughness_texture.resource_name = source_path.get_file().get_basename() + "_roughness"
@@ -347,7 +329,7 @@ class MaterialGeneratorController:
 		var save_error: Error = ResourceSaver.save(
 			roughness_texture,
 			roughness_path,
-			ResourceSaver.FLAG_CHANGE_PATH | ResourceSaver.FLAG_COMPRESS
+			ResourceSaver.FLAG_CHANGE_PATH | ResourceSaver.FLAG_COMPRESS,
 		)
 		if save_error != OK:
 			push_warning(
@@ -357,7 +339,6 @@ class MaterialGeneratorController:
 			return null
 
 		return roughness_texture
-
 
 	#endregion
 
@@ -385,6 +366,7 @@ class MaterialGeneratorController:
 		result_dialog.popup_centered()
 
 	#endregion
+
 
 ## Запуск из редактора передаёт жизненный цикл диалогов отдельному Node-контроллеру.
 func _run() -> void:

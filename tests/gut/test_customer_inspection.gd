@@ -1,6 +1,8 @@
 extends GutTest
-## Проверяет физическую передачу для осмотра, однократное вскрытие и освобождение занятого имущества.
+## Проверяет физическую передачу для осмотра, однократное вскрытие и освобождение занятого
+## имущества.
 
+const CUSTOMER_PATH: String = ("res://content/domains/customers/entities/customer.tscn")
 var _root: Node3D
 var _world: World
 var _cycle: C_DayCycle
@@ -56,23 +58,40 @@ func before_each() -> void:
 	floor.add_child(collision)
 	_root.add_child(floor)
 
-	var counter: E_DeliveryCounter = (load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
+	var counter: E_DeliveryCounter = (
+		(
+			load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
+		).instantiate()
+		as E_DeliveryCounter
+	)
 	_world.add_entity(counter)
-	var booth: Entity = (load("res://content/domains/customers/entities/inspection_booth.tscn") as PackedScene).instantiate() as Entity
+	var booth: Entity = (
+		(
+			load("res://content/domains/customers/entities/inspection_booth.tscn") as PackedScene
+		).instantiate()
+		as Entity
+	)
 	(booth as Node as Node3D).position = Vector3(4, 0, 0)
 	_world.add_entity(booth)
-	_customer = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	_customer = ((load(CUSTOMER_PATH) as PackedScene).instantiate() as E_NpcCharacter)
 	(_customer as Node as RigidBody3D).freeze = true
 	EntityCompositionFixture.register(_world, _customer)
 	_agent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_agent.visit_id = _visit.visit_id
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	_parcel = (load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene).instantiate() as E_Package
+	_parcel = (
+		(
+			load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene
+		).instantiate()
+		as E_Package
+	)
 	_parcel.package_definition = _parcel.package_definition.duplicate(true) as DEF_Package
 	(_parcel as Node as RigidBody3D).gravity_scale = 0.0
 	EntityCompositionFixture.register(_world, _parcel)
 	(_parcel.get_component(C_Package) as C_Package).package_id = _visit.package_id
-	(_parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.REGISTERED
+	(_parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState \
+			.Registration \
+			.REGISTERED
 	CustomerParcelAssignment.bind_parcel(_customer, _visit)
 
 
@@ -84,7 +103,10 @@ func after_each() -> void:
 
 
 func _borrow() -> void:
-	assert_eq(CustomerFlowService._resolve_delivery(_customer, _visit, _parcel, null), PackageDeliveryCheck.Result.READY)
+	assert_eq(
+		(CustomerFlowService as Script).call("_resolve_delivery", _customer, _visit, _parcel, null),
+		PackageDeliveryCheck.Result.READY,
+	)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.GOING_TO_BOOTH)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(CustomerInspectionQueries.owner_for(_parcel), _customer)
@@ -99,15 +121,19 @@ func _arrive_and_inspect() -> void:
 
 
 func _return() -> void:
-	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.inspection_seconds)
+	CustomerFlowFixture.advance(
+		CustomerFlowQueries.current(),
+		_cycle,
+		_visit.definition.inspection_seconds,
+	)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
 	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RECEIVING)
 
-
 #endregion
+
 
 #region Осмотр и фактический исход
 ## A committed native content fact reserves only the still-current inspection cargo binding.
@@ -153,14 +179,25 @@ func test_content_placement_fact_rejects_removed_item() -> void:
 func test_physical_borrow_finishes_only_after_return_and_kept_parcel_leaves_once() -> void:
 	_borrow()
 	assert_eq(_customer.get_relationships(Relationship.new(R_InspectingAt.new(), null)).size(), 1)
-	assert_eq((PhysicalSlotService.relationship(_parcel).target as E_PhysicalSlot).get_relationships(Relationship.new(R_SlotMountedOn.new(), _customer)).size(), 1)
+	assert_eq(
+		(PhysicalSlotService.relationship(_parcel).target as E_PhysicalSlot)
+		.get_relationships(Relationship.new(R_SlotMountedOn.new(), _customer))
+		.size(),
+		1,
+	)
 	_arrive_and_inspect()
-	assert_eq((_parcel.get_component(C_PackageState) as C_PackageState).opening, C_PackageState.Opening.CLOSED)
+	assert_eq(
+		(_parcel.get_component(C_PackageState) as C_PackageState).opening,
+		C_PackageState.Opening.CLOSED,
+	)
 	_return()
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_false(EntityAvailability.contains(_parcel, _world))
 	assert_true(CustomerInspectionQueries.cargo(_customer).is_empty())
-	assert_true(_customer.get_relationships(Relationship.new(R_InspectingAt.new(), null)).is_empty())
+	var bindings: Array[Relationship] = _customer.get_relationships(
+		Relationship.new(R_InspectingAt.new(), null),
+	)
+	assert_true(bindings.is_empty())
 	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 
@@ -173,24 +210,36 @@ func test_refusal_releases_borrowed_parcel_and_booth_without_losing_registration
 	_return()
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 	assert_true(EntityAvailability.contains(_parcel, _world))
-	assert_eq((_parcel.get_component(C_PackageState) as C_PackageState).registration, C_PackageState.Registration.REGISTERED)
+	assert_eq(
+		(_parcel.get_component(C_PackageState) as C_PackageState).registration,
+		C_PackageState.Registration.REGISTERED,
+	)
 	assert_false((_parcel as Node as RigidBody3D).freeze)
 	assert_null(PhysicalSlotService.relationship(_parcel))
 	assert_null(CustomerInspectionQueries.owner_for(_parcel))
-	assert_true(_customer.get_relationships(Relationship.new(R_InspectingAt.new(), null)).is_empty())
+	var bindings: Array[Relationship] = _customer.get_relationships(
+		Relationship.new(R_InspectingAt.new(), null),
+	)
+	assert_true(bindings.is_empty())
 
 
-## Реальное вскрытие создаёт содержимое и опасность один раз; при выдаче содержимое уходит с клиентом.
+## Реальное вскрытие создаёт содержимое и опасность один раз; при выдаче содержимое уходит с
+## клиентом.
 func test_unpack_uses_real_opening_contents_and_hazard_then_keeps_results_once() -> void:
 	_visit.definition.inspection_unpack_probability = 1.0
-	(_parcel.get_component(C_Package) as C_Package).definition.hazard_on_opened = load("res://content/domains/hazards/entities/explosion.tscn") as PackedScene
+	(_parcel.get_component(C_Package) as C_Package).definition.hazard_on_opened = load(
+		"res://content/domains/hazards/entities/explosion.tscn"
+	) as PackedScene
 	_borrow()
 	_arrive_and_inspect()
-	assert_eq((_parcel.get_component(C_PackageState) as C_PackageState).opening, C_PackageState.Opening.OPENED)
+	assert_eq(
+		(_parcel.get_component(C_PackageState) as C_PackageState).opening,
+		C_PackageState.Opening.OPENED,
+	)
 	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 1)
 	assert_eq(CustomerInspectionQueries.cargo(_customer).size(), 6)
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
-	PackageLifecycle.publish(_parcel, PackageLifecycleEvent.Kind.Opened, _customer)
+	PackageLifecycle.publish(_parcel, PackageLifecycleEvent.Kind.OPENED, _customer)
 	assert_eq(CustomerInspectionQueries.cargo(_customer).size(), 6)
 	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 1)
 	_return()
@@ -198,11 +247,12 @@ func test_unpack_uses_real_opening_contents_and_hazard_then_keeps_results_once()
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_true(_world.query.with_all([C_InventoryItem]).execute().is_empty())
 
-
 #endregion
 
+
 #region Освобождение имущества и таймаут
-## Принятое во время осмотра содержимое включает ожидающий остаток и не появляется после ухода клиента.
+## Принятое во время осмотра содержимое включает ожидающий остаток и не появляется после ухода
+## клиента.
 func test_kept_inspection_consumes_pending_contents_before_retry() -> void:
 	var queue: C_LootDrops = LootDropService.current()
 	queue.placement = queue.placement.duplicate(true) as DEF_ItemPlacement
@@ -222,7 +272,9 @@ func test_kept_inspection_consumes_pending_contents_before_retry() -> void:
 	_retry_pending_contents(queue)
 	assert_true(_world.query.with_all([C_InventoryItem]).execute().is_empty())
 
-## Позднее размещённое содержимое получает живой резерв осмотра; отказ освобождает все реальные предметы.
+
+## Позднее размещённое содержимое получает живой резерв осмотра; отказ освобождает все реальные
+## предметы.
 func test_late_contents_join_inspection_and_refusal_preserves_them() -> void:
 	var queue: C_LootDrops = LootDropService.current()
 	queue.placement = queue.placement.duplicate(true) as DEF_ItemPlacement
@@ -248,6 +300,7 @@ func test_late_contents_join_inspection_and_refusal_preserves_them() -> void:
 	for item: Entity in _world.query.with_all([C_InventoryItem]).execute():
 		assert_null(CustomerInspectionQueries.owner_for(item))
 
+
 ## Ночной сброс снимает резервирование; оставшееся содержимое можно забрать в инвентарь.
 func test_cleanup_night_releases_unpacked_items_for_player() -> void:
 	_visit.definition.inspection_unpack_probability = 1.0
@@ -260,7 +313,10 @@ func test_cleanup_night_releases_unpacked_items_for_player() -> void:
 
 	var contents: Array[Entity] = _world.query.with_all([C_InventoryItem]).execute().duplicate()
 	assert_eq(contents.size(), 5)
-	assert_false(InventoryService.transfer(contents[0], actor), "Reserved contents cannot be stolen into inventory")
+	assert_false(
+		InventoryService.transfer(contents[0], actor),
+		"Reserved contents cannot be stolen into inventory",
+	)
 	NightResetService.reset()
 	assert_false(EntityAvailability.contains(_customer, _world))
 	assert_null(CustomerInspectionQueries.owner_for(_parcel))
@@ -301,13 +357,18 @@ func test_cleanup_customer_death_or_external_removal_releases_physical_borrow() 
 	assert_false((_parcel as Node as RigidBody3D).freeze)
 	assert_null(CustomerInspectionQueries.owner_for(_parcel))
 	# Независимый второй участник проверяет освобождение при штатном удалении из World.
-	var second: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	var second: E_NpcCharacter = (
+		(load(CUSTOMER_PATH) as PackedScene).instantiate() as E_NpcCharacter
+	)
 	(second as Node as RigidBody3D).freeze = true
 	EntityCompositionFixture.register(_world, second)
 
 	var next_visit: CustomerVisit = CustomerVisit.new()
 	next_visit.definition = _visit.definition
-	assert_false(CustomerInspectionService.begin(second, _visit, _parcel), "Closed/dead visit cannot start a new inspection")
+	assert_false(
+		CustomerInspectionService.begin(second, _visit, _parcel),
+		"Closed/dead visit cannot start a new inspection",
+	)
 	assert_true(CustomerInspectionService.begin(second, next_visit, _parcel))
 	_world.remove_entity(second)
 	assert_null(PhysicalSlotService.relationship(_parcel))
@@ -323,14 +384,23 @@ func test_missing_booth_keeps_legacy_handoff_and_walk_timeout_refuses_safely() -
 	assert_false((_parcel as Node as RigidBody3D).freeze)
 	(booth.get_component(C_InspectionBooth) as C_InspectionBooth).enabled = true
 	_borrow()
-	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.approach_timeout)
+	CustomerFlowFixture.advance(
+		CustomerFlowQueries.current(),
+		_cycle,
+		_visit.definition.approach_timeout,
+	)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH)
 	assert_true(_agent.inspection_force_refusal)
-	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.approach_timeout)
+	CustomerFlowFixture.advance(
+		CustomerFlowQueries.current(),
+		_cycle,
+		_visit.definition.approach_timeout,
+	)
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 	assert_null(PhysicalSlotService.relationship(_parcel))
 
 #endregion
+
 
 #region Реальный scheduling очереди содержимого
 func _retry_pending_contents(queue: C_LootDrops) -> void:

@@ -4,6 +4,7 @@ class_name FixturePlacedIdentity
 
 static var _next_instance: int = 1
 
+
 #region Explicit fixture authoring
 ## Allocates a unique local fixture instance token at its authored construction point.
 ## Registers immutable identity directly if this fixture authored an already-registered Entity.

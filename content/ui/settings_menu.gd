@@ -2,7 +2,8 @@ extends CanvasLayer
 ## Модальное меню пользователя; приостановка мира принадлежит только открытому меню.
 class_name SettingsMenu
 
-## Меню освободило фокус и восстановило предыдущую паузу/режим мыши; вызывающий UI может вернуть фокус.
+## Меню освободило фокус и восстановило предыдущую паузу/режим мыши; вызывающий UI может вернуть
+## фокус.
 signal closed
 
 const CAPTURE_THRESHOLD: float = 0.65
@@ -12,7 +13,7 @@ var _standalone: bool = false
 var _standalone_open: bool = false
 var _session_dialog: ConfirmationDialog
 var _session_action: String = ""
-var _session_buttons: Dictionary[String, Button] = {}
+var _session_buttons: Dictionary[String, Button] = { }
 var _slot_status: Label
 var _manual_path: String = ""
 var _auto_path: String = ""
@@ -29,13 +30,14 @@ var _previous_pause: bool = false
 var _await_action: StringName = &""
 var _await_pad: bool = false
 var _pending: InputEvent
-var _binding_buttons: Dictionary[Button, Array] = {}
+var _binding_buttons: Dictionary[Button, Array] = { }
 var _revision: int = -1
 var _settings_path: String = GameSettingsService.FILE_PATH
 
 
 #region Контекст меню
-## До добавления в дерево связывает игровое меню с актором и отдельным профилем пользовательских настроек.
+## До добавления в дерево связывает игровое меню с актором и отдельным профилем пользовательских
+## настроек.
 func setup(actor: Entity, settings_path: String = GameSettingsService.FILE_PATH) -> void:
 	_actor = actor
 	_standalone = false
@@ -49,7 +51,8 @@ func setup_main_menu(settings_path: String = GameSettingsService.FILE_PATH) -> v
 	_settings_path = settings_path
 
 
-## Авторский профиль либо изолированный слот теста; пустые пути используют стандартный профиль уровня.
+## Авторский профиль либо изолированный слот теста; пустые пути используют стандартный профиль
+## уровня.
 func setup_save_paths(manual: String, autosave: String) -> void:
 	_manual_path = manual
 	_auto_path = autosave
@@ -59,8 +62,8 @@ func setup_save_paths(manual: String, autosave: String) -> void:
 func is_open() -> bool:
 	return _capture != 0 or _standalone_open
 
-
 #endregion
+
 
 #region Построение и события
 func _ready() -> void:
@@ -132,14 +135,20 @@ func _exit_tree() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not _standalone and not is_open() and event.is_pressed() and not event.is_echo() and (event.is_action_pressed(&"menu") or GameSettingsService.is_safety_back(event)):
+	if (
+		not _standalone and not is_open() and event.is_pressed() and not event.is_echo()
+		and (event.is_action_pressed(&"menu") or GameSettingsService.is_safety_back(event))
+	):
 		if open_menu():
 			get_viewport().set_input_as_handled()
 
 
 func _input(event: InputEvent) -> void:
 	InputPromptService.observe(event)
-	if not is_open() or bool(Console.is_visible()) or (not event.is_pressed() and not event is InputEventJoypadMotion) or event.is_echo():
+	if (
+		not is_open() or bool(Console.is_visible())
+		or (not event.is_pressed() and not event is InputEventJoypadMotion) or event.is_echo()
+	):
 		return
 	if _session_dialog != null and _session_dialog.visible:
 		if GameSettingsService.is_safety_back(event) or event.is_action_pressed(&"menu"):
@@ -162,7 +171,11 @@ func _input(event: InputEvent) -> void:
 		return
 	if _pending != null:
 		return
-	if event is InputEventMouseButton and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT and _close.get_global_rect().has_point((event as InputEventMouseButton).position):
+	if (
+		event is InputEventMouseButton
+		and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT
+		and _close.get_global_rect().has_point((event as InputEventMouseButton).position)
+	):
 		_cancel_binding()
 		get_viewport().set_input_as_handled()
 		return
@@ -170,9 +183,15 @@ func _input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 	if InputBindingCodec.is_gamepad(event) != _await_pad:
 		return
-	if event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) < CAPTURE_THRESHOLD:
+	if (
+		event is InputEventJoypadMotion
+		and absf((event as InputEventJoypadMotion).axis_value) < CAPTURE_THRESHOLD
+	):
 		return
-	if event is InputEventKey and _await_action != &"sprint" and (event as InputEventKey).physical_keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]:
+	if (
+		event is InputEventKey and _await_action != &"sprint"
+		and (event as InputEventKey).physical_keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]
+	):
 		return
 
 	_pending = InputBindingCodec.normalized(event)
@@ -199,7 +218,9 @@ func _process(_delta: float) -> void:
 	_revision = InputPromptService.revision()
 	for button: Button in _binding_buttons:
 		var binding: Array = _binding_buttons[button]
-		var icons: Array[Texture2D] = InputPromptService.textures(StringName(binding[0]), int(binding[1]))
+		var icons: Array[Texture2D] = (
+			InputPromptService.textures(StringName(binding[0]), int(binding[1]))
+		)
 		var hint: InputPromptLabel = button.get_node("BindingHint") as InputPromptLabel
 		hint.visible = not icons.is_empty()
 		button.text = "" if not icons.is_empty() else "Не назначено"
@@ -208,21 +229,27 @@ func _process(_delta: float) -> void:
 	var close_icons: Array[Texture2D] = InputPromptService.textures(&"menu")
 	_close.icon = close_icons[0] if not close_icons.is_empty() else null
 
-
 #endregion
 
+
 #region Модальный фокус и освобождение
-## Захватывает модальный фокус и паузу; возвращает false при конфликте с консолью/занятым управлением.
+## Захватывает модальный фокус и паузу; возвращает false при конфликте с консолью/занятым
+## управлением.
 func open_menu() -> bool:
 	if is_open() or bool(Console.is_visible()):
 		return false
 	if _standalone:
 		_standalone_open = true
 	else:
-		if not EntityAvailability.contains(_actor, ECS.world) or InteractionControlFocus.current(_actor) >= InteractionControlFocus.Priority.DRAWING:
+		if (
+			not EntityAvailability.contains(_actor, ECS.world)
+			or InteractionControlFocus.current(_actor) >= InteractionControlFocus.Priority.DRAWING
+		):
 			return false
 
-		_capture = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+		_capture = (
+			InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+		)
 		if _capture == 0:
 			return false
 
@@ -257,6 +284,7 @@ func _save_preferences() -> void:
 	if error != OK:
 		push_warning("Не удалось сохранить настройки: %s" % error_string(error))
 
+
 func _release() -> void:
 	if not is_open():
 		return
@@ -268,8 +296,8 @@ func _release() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if bool(Console.is_visible()) else _previous_mouse
 	closed.emit()
 
-
 #endregion
+
 
 #region Действия игровой сессии
 func _build_session_menu(tabs: TabContainer) -> void:
@@ -279,7 +307,13 @@ func _build_session_menu(tabs: TabContainer) -> void:
 	_slot_status = Label.new()
 	_slot_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(_slot_status)
-	var labels: Dictionary[String, String] = {"save": "Сохранить", "load": "Загрузить", "new": "Новая игра", "main": "Главное меню", "exit": "Выйти из игры"}
+	var labels: Dictionary[String, String] = ({
+		"save": "Сохранить",
+		"load": "Загрузить",
+		"new": "Новая игра",
+		"main": "Главное меню",
+		"exit": "Выйти из игры",
+	})
 	for action: String in labels:
 		var button: Button = Button.new()
 		button.name = "Session_" + action
@@ -294,7 +328,10 @@ func _build_session_menu(tabs: TabContainer) -> void:
 	_session_dialog.ok_button_text = "Продолжить"
 	_session_dialog.cancel_button_text = "Отмена"
 	_session_dialog.confirmed.connect(_confirm_session_action)
-	_session_dialog.canceled.connect(func() -> void: _session_action = "")
+	_session_dialog.canceled.connect(
+		func() -> void:
+			_session_action = "",
+	)
 	add_child(_session_dialog)
 
 
@@ -319,7 +356,13 @@ func _refresh_session_menu() -> void:
 	_session_buttons["save"].tooltip_text = reason
 	var saved: GameSaveResult = _saved_game(root.scene_file_path if root != null else "")
 	_session_buttons["load"].disabled = not saved.success
-	_slot_status.text = "%s\n%s" % [saved.message, "Можно сохранить утреннюю контрольную точку." if reason.is_empty() else reason]
+	_slot_status.text = (
+		"%s\n%s"
+		% [
+			saved.message,
+			"Можно сохранить утреннюю контрольную точку." if reason.is_empty() else reason,
+		]
+	)
 
 
 func _request_session_action(action: String) -> void:
@@ -346,7 +389,8 @@ func _confirm_session_action() -> void:
 
 	var error: Error = OK
 	match action:
-		"new": error = GameSessionService.start_game(get_tree(), root.scene_file_path)
+		"new":
+			error = GameSessionService.start_game(get_tree(), root.scene_file_path)
 		"load":
 			var saved: GameSaveResult = _saved_game(root.scene_file_path)
 			if not saved.success:
@@ -354,20 +398,24 @@ func _confirm_session_action() -> void:
 				return
 
 			error = GameSessionService.start_game(get_tree(), root.scene_file_path, saved)
-		"main": error = GameSessionService.return_to_menu(get_tree())
-		"exit": get_tree().quit()
+		"main":
+			error = GameSessionService.return_to_menu(get_tree())
+		"exit":
+			get_tree().quit()
 	if error != OK:
 		_status.text = "Не удалось выполнить действие: %s." % error_string(error)
 	elif action in ["new", "load", "main", "exit"]:
 		_save_preferences()
 
-
 #endregion
+
 
 #region Назначения и пользовательские настройки
 func _build_controls() -> void:
 	var heading: Label = Label.new()
-	heading.text = "Действие                                  Клавиатура / мышь               Геймпад"
+	heading.text = (
+		"Действие                                  Клавиатура / мышь       " + "        Геймпад"
+	)
 	_rows.add_child(heading)
 	for action: StringName in GameSettingsService.ACTIONS:
 		if not InputMap.has_action(action):
@@ -399,7 +447,10 @@ func _capture_binding(action: StringName, pad: bool) -> void:
 	_await_action = action
 	_await_pad = pad
 	_pending = null
-	_status.text = "Нажмите новую кнопку%s для «%s». Кнопка возврата — отмена." % [" или отклоните стик" if pad else "", GameSettingsService.ACTIONS[action]]
+	_status.text = (
+		"Нажмите новую кнопку%s для «%s». Кнопка возврата — отмена."
+		% [" или отклоните стик" if pad else "", GameSettingsService.ACTIONS[action]]
+	)
 	_close.text = "Отменить назначение"
 
 
@@ -421,7 +472,14 @@ func _cancel_binding() -> void:
 		_status.text = "Изменения управления отменены."
 
 
-func _slider(parent: Control, title: String, key: String, minimum: float, maximum: float, step_size: float) -> void:
+func _slider(
+	parent: Control,
+	title: String,
+	key: String,
+	minimum: float,
+	maximum: float,
+	step_size: float,
+) -> void:
 	var row: HBoxContainer = HBoxContainer.new()
 	parent.add_child(row)
 	var label: Label = Label.new()
@@ -435,10 +493,11 @@ func _slider(parent: Control, title: String, key: String, minimum: float, maximu
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(slider)
 	label.text = "%s: %.2f" % [title, slider.value]
-	slider.value_changed.connect(func(number: float) -> void:
-		GameSettingsService.set_value(key, number)
-		GameSettingsService.apply()
-		label.text = "%s: %.2f" % [title, number]
+	slider.value_changed.connect(
+		func(number: float) -> void:
+			GameSettingsService.set_value(key, number)
+			GameSettingsService.apply()
+			label.text = "%s: %.2f" % [title, number],
 	)
 	slider.set_meta("setting_key", key)
 
@@ -448,9 +507,10 @@ func _toggle(parent: Control, title: String, key: String) -> void:
 	check.text = title
 	check.button_pressed = bool(GameSettingsService.value(key))
 	parent.add_child(check)
-	check.toggled.connect(func(enabled: bool) -> void:
-		GameSettingsService.set_value(key, enabled)
-		GameSettingsService.apply()
+	check.toggled.connect(
+		func(enabled: bool) -> void:
+			GameSettingsService.set_value(key, enabled)
+			GameSettingsService.apply(),
 	)
 	check.set_meta("setting_key", key)
 

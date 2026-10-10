@@ -33,7 +33,15 @@ func _run() -> void:
 
 	var actor: Entity = DebugTargetResolver.player()
 	menu.setup(actor, TEST_PATH)
-	print("settings fixture: live=%s focus=%s console=%s input=%s" % [EntityAvailability.contains(actor, ECS.world), InteractionControlFocus.current(actor), Console.is_visible(), menu.is_processing_unhandled_input()])
+	print(
+		"settings fixture: live=%s focus=%s console=%s input=%s"
+		% [
+			EntityAvailability.contains(actor, ECS.world),
+			InteractionControlFocus.current(actor),
+			Console.is_visible(),
+			menu.is_processing_unhandled_input(),
+		]
+	)
 	await _send(_key(KEY_ESCAPE))
 	assert(get_tree().paused, "Raw safety key opens actual main settings")
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.MODAL)
@@ -71,8 +79,8 @@ func _run() -> void:
 	print("settings input smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Поиск UI и отправка ввода
 ## Ищет кнопку нужного устройства в авторской строке привязки по подписи действия.

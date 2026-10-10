@@ -31,10 +31,19 @@ func before_each() -> void:
 	_fixture_world.add_observer(O_CustomerPlanning.new())
 
 	_district = C_District.new()
-	_district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	_district.definition = (
+		load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	)
 	var session: Entity = Entity.new()
 	session.name = "Session"
-	session.component_resources = [_district, C_DayCycle.new(), C_Wallet.new(), C_PackageLedger.new(), C_Receiving.new(), C_Commerce.new()]
+	session.component_resources = ([
+		_district,
+		C_DayCycle.new(),
+		C_Wallet.new(),
+		C_PackageLedger.new(),
+		C_Receiving.new(),
+		C_Commerce.new(),
+	])
 	_fixture_root.add_child(session)
 	session.owner = _fixture_root
 	_fixture_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
@@ -56,17 +65,32 @@ func before_each() -> void:
 	_dormant_id = _district.people[1].npc_id
 	var active_body: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
 	var dormant_body: E_DistrictNpc = NpcPopulationQueries.body_for(_dormant_id)
-	DistrictPopulationService.set_placement(_district.people[0], active_body, NpcRecord.Placement.STREET)
-	DistrictPopulationService.set_placement(_district.people[1], dormant_body, NpcRecord.Placement.STREET)
+	DistrictPopulationService.set_placement(
+		_district.people[0],
+		active_body,
+		NpcRecord.Placement.STREET,
+	)
+	DistrictPopulationService.set_placement(
+		_district.people[1],
+		dormant_body,
+		NpcRecord.Placement.STREET,
+	)
 	(dormant_body.get_component(C_Health) as C_Health).current = 41.0
-	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_npc_meat.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = (
+		load("res://content/domains/inventory/definitions/def_item_npc_meat.tres")
+		as DEF_InventoryItem
+	)
 	var granted: bool = InventoryService.grant(dormant_body, food, 3)
 	assert_true(granted, "Grant owned stack while the body is active")
 	var owned_item: Entity = InventoryService.items(dormant_body)[0]
 	var order_identity: C_PersistentIdentity = C_PersistentIdentity.new()
 	order_identity.key = "order/fixture/order/1"
 	owned_item.add_component(order_identity)
-	DistrictPopulationService.set_placement(_district.people[1], dormant_body, NpcRecord.Placement.OUTSIDE)
+	DistrictPopulationService.set_placement(
+		_district.people[1],
+		dormant_body,
+		NpcRecord.Placement.OUTSIDE,
+	)
 	var memory: NpcMemory = NpcMemory.new()
 	memory.actor_id = &"fixture/player"
 	memory.incident_id = &"fixture/incident/1"
@@ -78,7 +102,10 @@ func before_each() -> void:
 	operation.amount = 17
 	var wallet: C_Wallet = session.get_component(C_Wallet) as C_Wallet
 	assert_eq(WalletService.apply(wallet, operation, 1), WalletService.Status.COMMITTED)
-	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = (
+		load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres")
+		as DEF_Delivery
+	)
 	var batch: ReceivingBatch = ReceivingBatch.new()
 	batch.day_index = MORNING_DAY
 	batch.package_keys = [String(supply.packages[0].key)]
@@ -107,8 +134,12 @@ func before_each() -> void:
 	delivery.fulfilled = true
 	commerce.pending_deliveries.append(delivery)
 
-	var slot: Entity = _placed("res://content/domains/interaction/entities/physical_slot.tscn", "Slot")
-	var stored_box: Entity = _placed("res://content/domains/interaction/entities/anchorable_test_box.tscn", "StoredBox")
+	var slot: Entity = (
+		_placed("res://content/domains/interaction/entities/physical_slot.tscn", "Slot")
+	)
+	var stored_box: Entity = (
+		_placed("res://content/domains/interaction/entities/anchorable_test_box.tscn", "StoredBox")
+	)
 	var stored_link: Relationship = Relationship.new(R_StoredIn.new(), slot)
 	stored_box.add_relationship(stored_link)
 	var attached: bool = PhysicalSlotService.attach(stored_box, stored_link)
@@ -118,7 +149,9 @@ func before_each() -> void:
 	var cart_identity: C_PersistentIdentity = C_PersistentIdentity.new()
 	cart_identity.key = "fixture/cart"
 	cart.add_component(cart_identity)
-	var cargo_box: Entity = _placed("res://content/domains/interaction/entities/anchorable_test_box.tscn", "CargoBox")
+	var cargo_box: Entity = (
+		_placed("res://content/domains/interaction/entities/anchorable_test_box.tscn", "CargoBox")
+	)
 	var cargo_data: R_CartCargo = R_CartCargo.new()
 	cargo_data.local_pose = Transform3D.IDENTITY
 	var cargo_link: Relationship = Relationship.new(cargo_data, cart)
@@ -163,13 +196,17 @@ func after_each() -> void:
 
 
 #region Current-format roundtrip and rejection
-## Reads the committed native-Variant fixture, writes an isolated slot and restores real links/bodies.
+## Reads the committed native-Variant fixture, writes an isolated slot and restores real
+## links/bodies.
 func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
-	var expected_roll: int = GameTimeQueries.decision(
-		String(_active_id), MORNING_DAY, "npc/activity", 19,
-	).randi()
+	var expected_roll: int = GameTimeQueries \
+			.decision(String(_active_id), MORNING_DAY, "npc/activity", 19) \
+			.randi()
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
-	assert_true(WorldSnapshotService.valid(snapshot, _fixture_root), "Captured data validates before golden write")
+	assert_true(
+		WorldSnapshotService.valid(snapshot, _fixture_root),
+		"Captured data validates before golden write",
+	)
 	var supported: bool = WorldSnapshotService.can_restore(snapshot, _fixture_root)
 	assert_true(supported, "Captured prefab/role contracts validate")
 	if not supported:
@@ -201,9 +238,13 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_eq(restored_person.activity_sequence, 19)
 	assert_eq(restored_person.cadence_elapsed_ticks, 12_345)
 	assert_eq(restored_person.cadence_sample_tick, restored_calendar.clock.elapsed_ticks)
-	assert_eq(GameTimeQueries.decision(
-		String(_active_id), MORNING_DAY, "npc/activity", restored_person.activity_sequence,
-	).randi(), expected_roll)
+	var restored_random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(_active_id),
+		MORNING_DAY,
+		"npc/activity",
+		restored_person.activity_sequence,
+	)
+	assert_eq(restored_random.randi(), expected_roll)
 
 	var active_body: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
 	var dormant_body: E_DistrictNpc = NpcPopulationQueries.body_for(_dormant_id)
@@ -212,14 +253,23 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_false(dormant_body.enabled)
 	assert_true((dormant_body as Node) is RigidBody3D)
 	assert_eq((dormant_body.get_component(C_Health) as C_Health).current, 41.0)
-	DistrictPopulationService.set_placement(NpcPopulationQueries.person_for(_dormant_id), dormant_body, NpcRecord.Placement.STREET)
+	DistrictPopulationService.set_placement(
+		NpcPopulationQueries.person_for(_dormant_id),
+		dormant_body,
+		NpcRecord.Placement.STREET,
+	)
 	assert_eq(InventoryService.items(dormant_body).size(), 1)
-	assert_eq(PhysicalSlotService.occupant(_fixture_root.get_node("Slot") as Entity), _fixture_root.get_node("StoredBox"))
+	assert_eq(
+		PhysicalSlotService.occupant(_fixture_root.get_node("Slot") as Entity),
+		_fixture_root.get_node("StoredBox"),
+	)
 	var cargo_box: Entity = _fixture_root.get_node("CargoBox") as Entity
 	var cargo_link: Relationship = CartCargoQueries.relationship(cargo_box)
 	assert_not_null(cargo_link)
 	assert_true((cargo_link.relation as R_CartCargo).lifecycle_applied)
-	var cart_state: C_CartTransport = (_fixture_root.get_node("Cart") as Entity).get_component(C_CartTransport) as C_CartTransport
+	var cart_state: C_CartTransport = (
+		(_fixture_root.get_node("Cart") as Entity).get_component(C_CartTransport) as C_CartTransport
+	)
 	assert_true(cart_state.cargo.has(cargo_box))
 	var matches: int = 0
 	for entity: Entity in _fixture_world.entities:
@@ -265,7 +315,8 @@ func test_incompatible_and_unresolved_data_reject_before_live_mutation() -> void
 
 
 #region Closed codec path inventory
-## Exercises every declared Component/record script through the actual codec, including native field values.
+## Exercises every declared Component/record script through the actual codec, including native field
+## values.
 func test_manifest_covers_runtime_codec_script_paths() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST_PATH))
 	assert_true(parsed is Dictionary)
@@ -293,6 +344,7 @@ func test_manifest_covers_runtime_codec_script_paths() -> void:
 		assert_eq(SaveDataCodec.encode(restored), encoded)
 #endregion
 
+
 #region Time snapshot rejection
 ## Malformed elapsed time or future NPC samples reject before changing the live clock/body state.
 func test_invalid_time_snapshot_rejects_before_live_mutation() -> void:
@@ -309,7 +361,9 @@ func test_invalid_time_snapshot_rejects_before_live_mutation() -> void:
 					elif scenario == 1:
 						clock_fields.erase("world_seed")
 				if scenario == 2 and String(component.type) == (C_District as Script).resource_path:
-					var first_person: Dictionary = (component.fields.people as Array)[0] as Dictionary
+					var first_person: Dictionary = (
+						(component.fields.people as Array)[0] as Dictionary
+					)
 					(first_person.fields as Dictionary).cadence_sample_tick = 123_456_790
 		assert_false(WorldSnapshotService.restore(malformed, _fixture_root))
 		assert_eq(calendar.clock.elapsed_ticks, 123_456_789)

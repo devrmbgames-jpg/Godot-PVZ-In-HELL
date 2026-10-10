@@ -1,4 +1,5 @@
-## Строка посылки в терминале: показывает запись и отправляет запросы заявления владельцу интерфейса.
+## Строка посылки в терминале: показывает запись и отправляет запросы заявления владельцу
+## интерфейса.
 extends PanelContainer
 class_name UI_TerminalButtonPackage
 
@@ -36,7 +37,7 @@ signal delivery_declined(job_id: StringName)
 @onready var _label_description_short: Label = %LabelDescriptionShort
 
 ## Непрочитанное предложение или обновление доставки.
-@onready var _alert_info:     Control = %TextureAlertIconInfo
+@onready var _alert_info: Control = %TextureAlertIconInfo
 ## Непрочитанная жалоба или обязательство.
 @onready var _alert_warrning: Control = %TextureAlertIconWar
 ## Непрочитанная подтверждённая санкция.
@@ -49,7 +50,6 @@ signal delivery_declined(job_id: StringName)
 ## Запрос отказа от допуслуги.
 @onready var _button_delivery_cancel: Button = %ButtonDeloveryCancel
 @onready var _label_delivery_bonus: Label = get_node("%DeliveryControl/Label2") as Label
-
 
 var _package_id: String = ""
 var _delivery_job_id: StringName = &""
@@ -68,7 +68,8 @@ func _ready() -> void:
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
-## Показывает запись; actions_enabled управляет заявлениями, debug_status раскрывает фактическое состояние.
+## Показывает запись; actions_enabled управляет заявлениями, debug_status раскрывает фактическое
+## состояние.
 func present(
 	record: PackageRegistrationRecord,
 	state: C_PackageState,
@@ -99,9 +100,7 @@ func present(
 		_set_status_icons(definition)
 
 	var can_declare: bool = (
-		actions_enabled
-		and visit != null
-		and visit.started
+		actions_enabled and visit != null and visit.started
 		and visit.declaration == CustomerVisit.Declaration.NONE
 	)
 	_button_ok.disabled = not can_declare
@@ -130,24 +129,35 @@ func _present_delivery(delivery: TerminalDeliveryInfo, actions_enabled: bool) ->
 	if not _control_delivery.visible:
 		return
 	_label_delivery_bonus.text = "+%d" % delivery.bonus
-	_control_delivery.tooltip_text = "%s\n%s · +%d$ · до утра дня %d" % [delivery.status_text, delivery.address, delivery.bonus, delivery.deadline_day]
+	_control_delivery.tooltip_text = (
+		"%s\n%s · +%d$ · до утра дня %d"
+		% [delivery.status_text, delivery.address, delivery.bonus, delivery.deadline_day]
+	)
 	_button_body.tooltip_text = _control_delivery.tooltip_text
 	var offered: bool = delivery.status == NpcHomeDelivery.Status.OFFERED
 	_button_delivery_ok.visible = offered
 	_button_delivery_cancel.visible = offered
 	_button_delivery_ok.disabled = not actions_enabled or not delivery.can_respond
 	_button_delivery_cancel.disabled = _button_delivery_ok.disabled
-	_button_delivery_ok.tooltip_text = "Принять доставку за +%d$ до утра дня %d" % [delivery.bonus, delivery.deadline_day]
-	_button_delivery_cancel.tooltip_text = "Отказаться от доставки. Покупатель получит посылку обычным способом."
+	_button_delivery_ok.tooltip_text = (
+		"Принять доставку за +%d$ до утра дня %d" % [delivery.bonus, delivery.deadline_day]
+	)
+	_button_delivery_cancel.tooltip_text = (
+		"Отказаться от доставки. Покупатель получит посылку обычным " + "способом."
+	)
 
 
 func _present_notice(notice: TerminalPackageNotice) -> void:
-	var severity: TerminalPackageNotice.Severity = notice.severity if notice != null else TerminalPackageNotice.Severity.NONE
+	var severity: TerminalPackageNotice.Severity = (
+		notice.severity if notice != null else TerminalPackageNotice.Severity.NONE
+	)
 	_alert_info.visible = severity == TerminalPackageNotice.Severity.INFO
 	_alert_warrning.visible = severity == TerminalPackageNotice.Severity.WARNING
 	_alert_critical.visible = severity == TerminalPackageNotice.Severity.CRITICAL
 	if notice != null and not notice.text.is_empty():
-		_button_body.tooltip_text += ("\n" if not _button_body.tooltip_text.is_empty() else "") + notice.text
+		_button_body.tooltip_text += (
+			("\n" if not _button_body.tooltip_text.is_empty() else "") + notice.text
+		)
 
 
 ## Форматирует заявление игрока; фактическую выдачу и состояние раскрывает только debug_status.
@@ -208,8 +218,8 @@ static func status_text(
 static func number_text(record: PackageRegistrationRecord) -> String:
 	return "№%03d" % record.number if record.number > 0 else "Без номера"
 
-
 #endregion
+
 
 #region Иконки и запросы действий
 func _set_status_icons(definition: DEF_Package) -> void:
@@ -220,7 +230,9 @@ func _set_status_icons(definition: DEF_Package) -> void:
 		else DEF_Package.HazardClass.NORMAL
 	)
 	var tags: int = definition.tags if has_definition else 0
-	_icon_status_explotion.visible = has_definition and hazard_class == DEF_Package.HazardClass.EXPLOSIVE
+	_icon_status_explotion.visible = (
+		has_definition and hazard_class == DEF_Package.HazardClass.EXPLOSIVE
+	)
 	_icon_status_toxic.visible = has_definition and hazard_class == DEF_Package.HazardClass.TOXIC
 	_icon_status_psico.visible = false
 	_icon_status_fire.visible = false
@@ -230,8 +242,7 @@ func _set_status_icons(definition: DEF_Package) -> void:
 		has_definition
 		and (
 			hazard_class == DEF_Package.HazardClass.OTHER
-			or definition.hazard_on_damaged != null
-			or definition.hazard_on_destroyed != null
+			or definition.hazard_on_damaged != null or definition.hazard_on_destroyed != null
 		)
 	)
 
@@ -239,26 +250,19 @@ func _set_status_icons(definition: DEF_Package) -> void:
 	_icon_status_fragile.visible = (
 		has_definition
 		and (
-			bool(tags & DEF_Package.Tag.FRAGILE)
-			or hazard_class == DEF_Package.HazardClass.FRAGILE
+			bool(tags & DEF_Package.Tag.FRAGILE) or hazard_class == DEF_Package.HazardClass.FRAGILE
 		)
 	)
 
 	_icon_status_fluid.visible = (
 		has_definition
-		and (
-			bool(tags & DEF_Package.Tag.LIQUID)
-			or hazard_class == DEF_Package.HazardClass.LIQUID
-		)
+		and (bool(tags & DEF_Package.Tag.LIQUID) or hazard_class == DEF_Package.HazardClass.LIQUID)
 	)
 
 	_icons_statuses_container.visible = (
-		_icon_status_explotion.visible
-		or _icon_status_toxic.visible
-		or _icon_status_weight.visible
-		or _icon_status_anomaly.visible
-		or _icon_status_fragile.visible
-		or _icon_status_fluid.visible
+		_icon_status_explotion.visible or _icon_status_toxic.visible
+		or _icon_status_weight.visible or _icon_status_anomaly.visible
+		or _icon_status_fragile.visible or _icon_status_fluid.visible
 	)
 
 
@@ -283,12 +287,18 @@ func _on_lost_pressed() -> void:
 
 
 func _on_delivery_accepted() -> void:
-	if _control_delivery.visible and not _button_delivery_ok.disabled and not _delivery_job_id.is_empty():
+	if (
+		_control_delivery.visible and not _button_delivery_ok.disabled
+		and not _delivery_job_id.is_empty()
+	):
 		delivery_accepted.emit(_delivery_job_id)
 
 
 func _on_delivery_declined() -> void:
-	if _control_delivery.visible and not _button_delivery_cancel.disabled and not _delivery_job_id.is_empty():
+	if (
+		_control_delivery.visible and not _button_delivery_cancel.disabled
+		and not _delivery_job_id.is_empty()
+	):
 		delivery_declined.emit(_delivery_job_id)
 
 #endregion

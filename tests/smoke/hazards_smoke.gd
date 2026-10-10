@@ -69,8 +69,8 @@ func _setup_world() -> void:
 	damage_probe.received = _on_damage
 	_world.add_observer(damage_probe)
 
-
 #endregion
+
 
 #region Опасности, владение и фабрика
 ## Проверяет однократную фабрику, интервалы зон и атрибуцию после удаления источника.
@@ -126,10 +126,7 @@ func _toxic_contract() -> void:
 
 ## Проверяет живое следование, политику потери владельца и сохранение постоянных опасностей.
 func _follow_and_reset_contract() -> void:
-	var scene: PackedScene = _toxic_scene(
-		10.0,
-		DEF_Hazard.Ownership.FOLLOW_ORIGIN,
-	)
+	var scene: PackedScene = _toxic_scene(10.0, DEF_Hazard.Ownership.FOLLOW_ORIGIN)
 	var emitter: C_HazardEmitter = C_HazardEmitter.new()
 	emitter.hazard_scene = scene
 	var customer: Entity = _body(Vector3(20, 0, 0), false, false, false, [emitter])
@@ -145,29 +142,20 @@ func _follow_and_reset_contract() -> void:
 	assert(effect_node.global_position.is_equal_approx(customer_node.global_position))
 	_world.remove_entity(customer)
 	await _tick(0.01)
-	assert(EntityAvailability.contains(effect, _world) and HazardFollowService.binding(effect) == null)
-
-	scene = _toxic_scene(
-		10.0,
-		DEF_Hazard.Ownership.FOLLOW_ORIGIN,
-		DEF_Hazard.OwnerLoss.DESPAWN,
-	)
-	var owner: Entity = _body(Vector3(24, 0, 0), false)
 	assert(
-		HazardSpawnService.submit(_request(scene, Vector3(24, 0, 0), "follow-despawn", owner))
+		EntityAvailability.contains(effect, _world) and HazardFollowService.binding(effect) == null
 	)
+
+	scene = _toxic_scene(10.0, DEF_Hazard.Ownership.FOLLOW_ORIGIN, DEF_Hazard.OwnerLoss.DESPAWN)
+	var owner: Entity = _body(Vector3(24, 0, 0), false)
+	assert(HazardSpawnService.submit(_request(scene, Vector3(24, 0, 0), "follow-despawn", owner)))
 
 	var attached: Entity = _spawned.back()
 	_world.remove_entity(owner)
 	await _tick(0.01)
 	assert(not EntityAvailability.contains(attached, _world))
 
-	scene = _toxic_scene(
-		10.0,
-		DEF_Hazard.Ownership.INDEPENDENT,
-		DEF_Hazard.OwnerLoss.DETACH,
-		true,
-	)
+	scene = _toxic_scene(10.0, DEF_Hazard.Ownership.INDEPENDENT, DEF_Hazard.OwnerLoss.DETACH, true)
 	assert(HazardSpawnService.submit(_request(scene, Vector3(26, 0, 0), "persistent")))
 	_reset(false)
 	assert(_effects().size() == 1, "Night reset retains only persistent hazards")
@@ -203,9 +191,9 @@ func _package_adapter_contract() -> void:
 
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DAMAGED
-	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Damaged)
+	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.DAMAGED)
 	assert(_effects().size() == 1, "Damaged package creates one short toxic zone")
-	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Damaged)
+	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.DAMAGED)
 	assert(_effects().size() == 1, "Damaged toxic zone must not stack")
 
 	var request: DamageRequest = DamageRequest.new()
@@ -215,7 +203,7 @@ func _package_adapter_contract() -> void:
 	result.outcome = DamageResult.Outcome.HEALTH_DEPLETED
 	result.world_pose = (package as Node as Node3D).global_transform
 	condition.damage = C_PackageState.Damage.DESTROYED
-	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Destroyed, null, result)
+	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.DESTROYED, null, result)
 	await _tick(0.01)
 
 	assert(
@@ -227,7 +215,10 @@ func _package_adapter_contract() -> void:
 	var debris: Entity = debris_entities[0]
 	var metadata: C_PackageDebris = debris.get_component(C_PackageDebris) as C_PackageDebris
 	assert(metadata.package_id == identity.package_id)
-	assert(metadata.definition == identity.definition, "Debris retains original DEF_Package metadata")
+	assert(
+		metadata.definition == identity.definition,
+		"Debris retains original DEF_Package metadata",
+	)
 
 	assert(_effects().size() == 2, "Destroyed Package creates a separate debris-owned residue")
 	var residue: Entity = _spawned.back()
@@ -244,8 +235,8 @@ func _package_adapter_contract() -> void:
 	)
 	_reset(true)
 
-
 #endregion
+
 
 #region Взрывы и атрибуция
 ## Проверяет спад урона по расстоянию, стену, физический импульс и однократную цепную активацию.
@@ -261,13 +252,7 @@ func _explosion_contract() -> void:
 	var blocked: Entity = _body(Vector3(40, 0, -2))
 	var outside: Entity = _body(Vector3(46, 0, 0))
 	var loose: Entity = _body(Vector3(42, 0, 1), false, false, true)
-	var controlled: Entity = _body(
-		Vector3(39, 0, 1),
-		true,
-		true,
-		true,
-		[C_Motion.new()],
-	)
+	var controlled: Entity = _body(Vector3(39, 0, 1), true, true, true, [C_Motion.new()])
 	# Тестовая бочка с малым HP использует общие здоровье и emitter разрушаемого объекта.
 	(barrel_b.get_component(C_Health) as C_Health).current = 10.0
 	_wall(Vector3(40, 0, -1))
@@ -308,7 +293,9 @@ func _blocked_explosion_contract() -> void:
 	var receiver: Entity = _body(Vector3(81, 0, 0))
 	await _settle()
 	assert(
-		HazardSpawnService.submit(_request(_blast_scene(), Vector3(80, 0, 0), "blast-blocked", origin))
+		HazardSpawnService.submit(
+			_request(_blast_scene(), Vector3(80, 0, 0), "blast-blocked", origin)
+		)
 	)
 	_world.remove_entity(origin)
 	await _tick(0.01)
@@ -338,8 +325,8 @@ func _short_chain_contract() -> void:
 	await _tick(0.01)
 	assert(chained.resolved and _effects().is_empty())
 
-
 #endregion
+
 
 #region Тестовые тела, профили и запросы
 func _body(
@@ -385,7 +372,6 @@ func _wall(location: Vector3) -> void:
 	shape.shape = box
 	wall.add_child(shape)
 	_world.add_child(wall)
-
 
 
 func _toxic_scene(

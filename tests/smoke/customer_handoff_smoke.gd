@@ -32,8 +32,14 @@ func _run() -> void:
 	var books: Entity = PackageQueries.find_live_package("base_supply:1:books")
 	var glass: Entity = PackageQueries.find_live_package("base_supply:1:glass")
 	assert(books != null and glass != null)
-	assert(PackageRegistrationService.register_package(books).outcome == PackageScanResult.Outcome.REGISTERED)
-	assert(PackageRegistrationService.register_package(glass).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(books).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
+	assert(
+		PackageRegistrationService.register_package(glass).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = flow.schedule.duplicate(true) as DEF_CustomerSchedule
 	for event: DEF_CustomerEvent in flow.schedule.events:
@@ -50,12 +56,19 @@ func _run() -> void:
 	var customer: E_NpcCharacter = await _waiting_customer()
 	assert(CustomerFlowService.direct_handoff_package(_actor, customer) == null)
 	await _pickup(glass)
-	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.WRONG_PACKAGE)
+	assert(
+		CustomerFlowService.confirm_direct_delivery(_actor, customer)
+		== PackageDeliveryCheck.Result.WRONG_PACKAGE
+	)
 	assert(GrabQueries.held_object(_actor) == glass, "Wrong package must stay held")
 	GrabReleaseService.release(_actor, glass)
 	await _pickup(books)
 
-	var first: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var first: CustomerVisit = (
+		CustomerFlowQueries.find_visit(
+			(customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id
+		)
+	)
 	var action: DEF_CustomerHandoffAction = DEF_CustomerHandoffAction.new()
 	assert(action.is_available(_actor, customer, customer))
 	action.execute(_actor, customer, customer)
@@ -64,29 +77,50 @@ func _run() -> void:
 	assert(GrabQueries.held_object(_actor) == null, "Delivered package must release the grip")
 	customer = await _waiting_customer()
 
-	var second: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var second: CustomerVisit = (
+		CustomerFlowQueries.find_visit(
+			(customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id
+		)
+	)
 	assert(second.package_id == "base_supply:1:glass")
 	second.definition.voluntary_refusal = true
-	assert(not CustomerFlowService.voluntary_refuse(customer), "Customer cannot refuse before physical handoff")
+	assert(
+		not CustomerFlowService.voluntary_refuse(customer),
+		"Customer cannot refuse before physical handoff",
+	)
 	assert(second.actual == CustomerVisit.Actual.NOT_RESOLVED)
 	(glass.get_component(C_PackageState) as C_PackageState).damage = C_PackageState.Damage.DAMAGED
 	await _pickup(glass)
-	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.READY)
+	assert(
+		CustomerFlowService.confirm_direct_delivery(_actor, customer)
+		== PackageDeliveryCheck.Result.READY
+	)
 	assert(second.actual == CustomerVisit.Actual.CUSTOMER_REFUSED)
-	assert(GrabQueries.held_object(_actor) == null, "Refused parcel has actually left the player's hands")
+	assert(
+		GrabQueries.held_object(_actor) == null,
+		"Refused parcel has actually left the player's hands",
+	)
 	assert(GrabQueries.held_relationship(glass) == null)
 	assert(ECS.world.entities.has(glass), "Refused parcel remains physical in the warehouse")
 
-	var drop: Vector3 = (customer as Node as Node3D).global_transform * second.definition.refused_parcel_offset
-	assert((glass as Node as Node3D).global_position.is_equal_approx(drop), "Customer leaves it next to self")
-	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.MISSING)
+	var drop: Vector3 = (
+		(customer as Node as Node3D).global_transform * second.definition.refused_parcel_offset
+	)
+	assert(
+		(glass as Node as Node3D).global_position.is_equal_approx(drop),
+		"Customer leaves it next to self",
+	)
+	assert(
+		CustomerFlowService.confirm_direct_delivery(_actor, customer)
+		== PackageDeliveryCheck.Result.MISSING
+	)
 	_level.free()
 	ECS.world = null
 	print("Customer direct handoff wrong/delivered/refused grip smoke PASS")
 	get_tree().quit.call_deferred()
 
-
 #endregion
+
 
 #region Ожидание и тестовое размещение
 func _waiting_customer() -> E_NpcCharacter:

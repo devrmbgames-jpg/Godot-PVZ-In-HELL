@@ -2,7 +2,12 @@ extends RefCounted
 ## Immutable-by-contract diagnostic snapshot; never authorizes or replays gameplay effects.
 class_name BoundaryTraceEntry
 
-enum Stage { ACCEPTED, COMPLETED, REJECTED, DUPLICATE }
+enum Stage {
+	ACCEPTED,
+	COMPLETED,
+	REJECTED,
+	DUPLICATE,
+}
 
 ## Ordered diagnostic sequence within this World session.
 var sequence: int = 0
@@ -18,6 +23,7 @@ var reason: StringName = &""
 var origin_id: String = ""
 ## Explicit identity of the target, visit, quest or transaction.
 var target_id: String = ""
+
 
 #region Detached diagnostics
 ## Returns detached scalar data without live Entity references or mutable gameplay state.

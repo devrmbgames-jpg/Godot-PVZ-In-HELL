@@ -1,5 +1,6 @@
 extends Node
-## Регистрирует проектные команды консоли; строки проверяются здесь, игровые действия принадлежат сервисам.
+## Регистрирует проектные команды консоли; строки проверяются здесь, игровые действия принадлежат
+## сервисам.
 class_name DeveloperConsoleCommands
 
 const ENABLE_SETTING: StringName = &"debug/developer_console_commands_enabled"
@@ -123,43 +124,174 @@ func _ready() -> void:
 		"Register a live Package without Scanner gesture.",
 	)
 
-	_register_command(VISIT_CREATE_COMMAND, _visit_create, ["package", "customer_key=default", "arrive=0|1"], 1, "Create an accounting visit (default) or queue a live visit (arrive=1) with authored customer behavior.")
-	_register_command(PACKAGE_ACTUAL_COMMAND, _pkg_actual, ["package", "actual"], 2, "Force factual CustomerVisit outcome only.")
-	_register_command(PACKAGE_DECLARE_COMMAND, _pkg_declare, ["package", "taken|refused|lost"], 2, "Submit Terminal declaration through CustomerFlowService.")
-	_register_command(PACKAGE_COMPLAINT_COMMAND, _pkg_complaint, ["package", "reason", "pending|resolve"], 2, "Create or resolve a typed Customer complaint.")
-	_register_command(COMPLAINT_RESOLVE_COMMAND, _complaint_resolve, ["package"], 1, "Resolve an existing complaint immediately.")
-	_register_command(PACKAGE_APPROVE_COMMAND, _pkg_approve, ["package", "satisfaction"], 1, "Record positive Customer feedback.")
+	_register_command(
+		VISIT_CREATE_COMMAND,
+		_visit_create,
+		["package", "customer_key=default", "arrive=0|1"],
+		1,
+		(
+			"Create an accounting visit (default) or queue a live visit "
+			+ "(arrive=1) with authored customer behavior."
+		),
+	)
+	_register_command(
+		PACKAGE_ACTUAL_COMMAND,
+		_pkg_actual,
+		["package", "actual"],
+		2,
+		"Force factual CustomerVisit outcome only.",
+	)
+	_register_command(
+		PACKAGE_DECLARE_COMMAND,
+		_pkg_declare,
+		["package", "taken|refused|lost"],
+		2,
+		"Submit Terminal declaration through CustomerFlowService.",
+	)
+	_register_command(
+		PACKAGE_COMPLAINT_COMMAND,
+		_pkg_complaint,
+		["package", "reason", "pending|resolve"],
+		2,
+		"Create or resolve a typed Customer complaint.",
+	)
+	_register_command(
+		COMPLAINT_RESOLVE_COMMAND,
+		_complaint_resolve,
+		["package"],
+		1,
+		"Resolve an existing complaint immediately.",
+	)
+	_register_command(
+		PACKAGE_APPROVE_COMMAND,
+		_pkg_approve,
+		["package", "satisfaction"],
+		1,
+		"Record positive Customer feedback.",
+	)
 
 	_register_command("pkg_taken", _pkg_taken, ["package"], 1, "Alias for pkg_declare taken.")
 	_register_command("pkg_lost", _pkg_lost, ["package"], 1, "Alias for pkg_declare lost.")
 	_register_command("pkg_refused", _pkg_refused, ["package"], 1, "Alias for pkg_declare refused.")
-	_register_command("pkg_delivered", _pkg_delivered, ["package"], 1, "Alias for factual delivered.")
-	_register_command("pkg_customer_refused", _pkg_customer_refused, ["package"], 1, "Alias for factual customer refusal.")
-	_register_command("pkg_player_denied", _pkg_player_denied, ["package"], 1, "Alias for factual player denial.")
+	_register_command(
+		"pkg_delivered",
+		_pkg_delivered,
+		["package"],
+		1,
+		"Alias for factual delivered.",
+	)
+	_register_command(
+		"pkg_customer_refused",
+		_pkg_customer_refused,
+		["package"],
+		1,
+		"Alias for factual customer refusal.",
+	)
+	_register_command(
+		"pkg_player_denied",
+		_pkg_player_denied,
+		["package"],
+		1,
+		"Alias for factual player denial.",
+	)
 
-	_register_command(MONEY_ADD_COMMAND, _money_add, ["amount", "note"], 1, "Journaled debug credit.")
-	_register_command(MONEY_REMOVE_COMMAND, _money_remove, ["amount", "note"], 1, "Journaled forced debug debit.")
-	_register_command(PENALTY_ADD_COMMAND, _penalty_add, ["amount", "note"], 1, "Journaled manual debug penalty.")
-	_register_command(PENALTY_REMOVE_COMMAND, _penalty_remove, ["amount", "note"], 1, "Compensating reversal of manual debug penalty.")
+	_register_command(
+		MONEY_ADD_COMMAND,
+		_money_add,
+		["amount", "note"],
+		1,
+		"Journaled debug credit.",
+	)
+	_register_command(
+		MONEY_REMOVE_COMMAND,
+		_money_remove,
+		["amount", "note"],
+		1,
+		"Journaled forced debug debit.",
+	)
+	_register_command(
+		PENALTY_ADD_COMMAND,
+		_penalty_add,
+		["amount", "note"],
+		1,
+		"Journaled manual debug penalty.",
+	)
+	_register_command(
+		PENALTY_REMOVE_COMMAND,
+		_penalty_remove,
+		["amount", "note"],
+		1,
+		"Compensating reversal of manual debug penalty.",
+	)
 
-	_register_command(APPLY_DAMAGE_COMMAND, _apply_damage, ["target", "amount", "damage_type"], 2, "Submit typed damage to a Health target.")
-	_register_command(HEAL_COMMAND, _heal, ["target", "amount"], 2, "Submit typed healing to a non-depleted Health target.")
+	_register_command(
+		APPLY_DAMAGE_COMMAND,
+		_apply_damage,
+		["target", "amount", "damage_type"],
+		2,
+		"Submit typed damage to a Health target.",
+	)
+	_register_command(
+		HEAL_COMMAND,
+		_heal,
+		["target", "amount"],
+		2,
+		"Submit typed healing to a non-depleted Health target.",
+	)
 	var kill_arguments: Array = ["target"]
-	var kill_description: String = "Deplete a Health target through DamageRequest. Defaults to self."
+	var kill_description: String = (
+		"Deplete a Health target through DamageRequest. Defaults to self."
+	)
 	if OS.is_debug_build():
 		kill_arguments = ["target|game"]
 		kill_description += " kill game purges the runtime for ObjectDB profiling (debug only)."
 	_register_command(KILL_COMMAND, _kill, kill_arguments, 0, kill_description)
-	_register_command(RESET_COMMAND, _reset, ["target"], 0, "Reset a live C_Living entity. Defaults to self.")
-	_register_command(PACKAGE_RESET_COMMAND, _pkg_reset, ["package"], 1, "Reset a live damaged Package.")
+	_register_command(
+		RESET_COMMAND,
+		_reset,
+		["target"],
+		0,
+		"Reset a live C_Living entity. Defaults to self.",
+	)
+	_register_command(
+		PACKAGE_RESET_COMMAND,
+		_pkg_reset,
+		["package"],
+		1,
+		"Reset a live damaged Package.",
+	)
 
 	_register_command(DAY_INFO_COMMAND, _day_info, [], 0, "Show current day-cycle state.")
 	_register_command(DAY_NEXT_COMMAND, _day_next, [], 0, "Queue the next normal day transition.")
-	_register_command(CUSTOMER_NEXT_COMMAND, _customer_next, [], 0, "Start the next due CustomerVisit when valid.")
+	_register_command(
+		CUSTOMER_NEXT_COMMAND,
+		_customer_next,
+		[],
+		0,
+		"Start the next due CustomerVisit when valid.",
+	)
 
-	_register_command(DEBUG_TARGETS_COMMAND, _debug_targets, [], 0, "List concise live debug target handles.")
-	_register_command(DEBUG_HELP_COMMAND, _debug_help, ["command|group"], 0, "Show project developer-console workflows and target syntax.")
-	_register_command(DEBUG_HUD_COMMAND, _debug_hud, ["on|off|toggle"], 0, "Toggle all debug HUD and customer status labels; ordinary gameplay UI stays active.")
+	_register_command(
+		DEBUG_TARGETS_COMMAND,
+		_debug_targets,
+		[],
+		0,
+		"List concise live debug target handles.",
+	)
+	_register_command(
+		DEBUG_HELP_COMMAND,
+		_debug_help,
+		["command|group"],
+		0,
+		"Show project developer-console workflows and target syntax.",
+	)
+	_register_command(
+		DEBUG_HUD_COMMAND,
+		_debug_hud,
+		["on|off|toggle"],
+		0,
+		"Toggle all debug HUD and customer status labels; ordinary gameplay UI stays active.",
+	)
 
 	_register_autocomplete()
 
@@ -179,10 +311,7 @@ func _exit_tree() -> void:
 
 ## Команды доступны в debug-сборке либо по явной ProjectSettings-настройке.
 func _commands_enabled() -> bool:
-	return (
-		OS.is_debug_build()
-		or bool(ProjectSettings.get_setting(ENABLE_SETTING, false))
-	)
+	return (OS.is_debug_build() or bool(ProjectSettings.get_setting(ENABLE_SETTING, false)))
 
 
 func _register_command(
@@ -240,14 +369,17 @@ func _register_autocomplete() -> void:
 		PACKAGE_LIST_COMMAND,
 		PackedStringArray(["active", "all"]),
 	)
-	Console.add_command_autocomplete_list(DEBUG_HUD_COMMAND, PackedStringArray(["on", "off", "toggle"]))
+	Console.add_command_autocomplete_list(
+		DEBUG_HUD_COMMAND,
+		PackedStringArray(["on", "off", "toggle"]),
+	)
 	Console.add_command_autocomplete_list(
 		PACKAGE_SPAWN_COMMAND,
 		DebugPackageService.definition_keys(),
 	)
 
-
 #endregion
+
 
 #region Диагностические команды
 func _debug_resolve(raw_target: String) -> void:
@@ -271,16 +403,12 @@ func _debug_resolve(raw_target: String) -> void:
 	DeveloperConsoleOutput.ok(RESOLVE_COMMAND, details)
 
 
-
 func _pkg_list(scope: String = "") -> void:
 	var normalized: String = scope.strip_edges().to_lower()
 	if normalized.is_empty():
 		normalized = "active"
 	if normalized != "active" and normalized != "all":
-		DeveloperConsoleOutput.error(
-			PACKAGE_LIST_COMMAND,
-			"scope must be active or all",
-		)
+		DeveloperConsoleOutput.error(PACKAGE_LIST_COMMAND, "scope must be active or all")
 		return
 
 	DeveloperConsoleOutput.ok(
@@ -321,10 +449,7 @@ func _visit_info(raw_target: String) -> void:
 
 
 func _wallet_info() -> void:
-	DeveloperConsoleOutput.ok(
-		WALLET_INFO_COMMAND,
-		DeveloperConsoleDiagnostics.wallet_info(),
-	)
+	DeveloperConsoleOutput.ok(WALLET_INFO_COMMAND, DeveloperConsoleDiagnostics.wallet_info())
 
 
 func _health_info(raw_target: String = "") -> void:
@@ -336,20 +461,13 @@ func _health_info(raw_target: String = "") -> void:
 		DeveloperConsoleOutput.error(HEALTH_INFO_COMMAND, target.error)
 		return
 	if not EntityAvailability.contains(target.entity, ECS.world):
-		DeveloperConsoleOutput.error(
-			HEALTH_INFO_COMMAND,
-			"target has no live Entity",
-		)
+		DeveloperConsoleOutput.error(HEALTH_INFO_COMMAND, "target has no live Entity")
 		return
 
-	DeveloperConsoleOutput.ok(
-		HEALTH_INFO_COMMAND,
-		DeveloperConsoleDiagnostics.health_info(target),
-	)
-
-
+	DeveloperConsoleOutput.ok(HEALTH_INFO_COMMAND, DeveloperConsoleDiagnostics.health_info(target))
 
 #endregion
+
 
 #region Физические коробки
 func _pkg_spawn(
@@ -371,10 +489,7 @@ func _pkg_spawn(
 	var register_packages: bool = false
 	if not registered_text.strip_edges().is_empty():
 		if registered_text != "0" and registered_text != "1":
-			DeveloperConsoleOutput.error(
-				PACKAGE_SPAWN_COMMAND,
-				"registered must be 0 or 1",
-			)
+			DeveloperConsoleOutput.error(PACKAGE_SPAWN_COMMAND, "registered must be 0 or 1")
 			return
 
 		register_packages = registered_text == "1"
@@ -418,20 +533,28 @@ func _print_service_result(command: String, result: DebugServiceResult) -> void:
 
 	DeveloperConsoleOutput.error(command, result.message)
 
-
-
 #endregion
 
+
 #region Учётные факты и заявления
-func _visit_create(raw_target: String, customer_key: String = "", arrive_text: String = "0") -> void:
-	if arrive_text.is_empty(): arrive_text = "0"
+func _visit_create(
+	raw_target: String,
+	customer_key: String = "",
+	arrive_text: String = "0",
+) -> void:
+	if arrive_text.is_empty():
+		arrive_text = "0"
 	if arrive_text not in ["0", "1"]:
 		DeveloperConsoleOutput.error(VISIT_CREATE_COMMAND, "arrive must be 0 or 1")
 		return
 
 	_print_service_result(
 		VISIT_CREATE_COMMAND,
-		DebugCustomerService.create_visit(DebugTargetResolver.resolve(raw_target), customer_key, arrive_text == "1"),
+		DebugCustomerService.create_visit(
+			DebugTargetResolver.resolve(raw_target),
+			customer_key,
+			arrive_text == "1",
+		),
 	)
 
 
@@ -439,13 +562,25 @@ func _pkg_actual(raw_target: String, actual_text: String) -> void:
 	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
 	match actual_text.strip_edges().to_lower():
 		"not_resolved":
-			_print_service_result(PACKAGE_ACTUAL_COMMAND, DebugCustomerService.set_actual(target, CustomerVisit.Actual.NOT_RESOLVED))
+			_print_service_result(
+				PACKAGE_ACTUAL_COMMAND,
+				DebugCustomerService.set_actual(target, CustomerVisit.Actual.NOT_RESOLVED),
+			)
 		"delivered":
-			_print_service_result(PACKAGE_ACTUAL_COMMAND, DebugCustomerService.set_actual(target, CustomerVisit.Actual.DELIVERED))
+			_print_service_result(
+				PACKAGE_ACTUAL_COMMAND,
+				DebugCustomerService.set_actual(target, CustomerVisit.Actual.DELIVERED),
+			)
 		"customer_refused":
-			_print_service_result(PACKAGE_ACTUAL_COMMAND, DebugCustomerService.set_actual(target, CustomerVisit.Actual.CUSTOMER_REFUSED))
+			_print_service_result(
+				PACKAGE_ACTUAL_COMMAND,
+				DebugCustomerService.set_actual(target, CustomerVisit.Actual.CUSTOMER_REFUSED),
+			)
 		"player_denied":
-			_print_service_result(PACKAGE_ACTUAL_COMMAND, DebugCustomerService.set_actual(target, CustomerVisit.Actual.PLAYER_DENIED))
+			_print_service_result(
+				PACKAGE_ACTUAL_COMMAND,
+				DebugCustomerService.set_actual(target, CustomerVisit.Actual.PLAYER_DENIED),
+			)
 		_:
 			DeveloperConsoleOutput.error(
 				PACKAGE_ACTUAL_COMMAND,
@@ -457,20 +592,28 @@ func _pkg_declare(raw_target: String, declaration_text: String) -> void:
 	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
 	match declaration_text.strip_edges().to_lower():
 		"taken":
-			_print_service_result(PACKAGE_DECLARE_COMMAND, DebugCustomerService.declare(target, CustomerVisit.Declaration.TAKEN))
+			_print_service_result(
+				PACKAGE_DECLARE_COMMAND,
+				DebugCustomerService.declare(target, CustomerVisit.Declaration.TAKEN),
+			)
 		"refused":
-			_print_service_result(PACKAGE_DECLARE_COMMAND, DebugCustomerService.declare(target, CustomerVisit.Declaration.REFUSED))
+			_print_service_result(
+				PACKAGE_DECLARE_COMMAND,
+				DebugCustomerService.declare(target, CustomerVisit.Declaration.REFUSED),
+			)
 		"lost":
-			_print_service_result(PACKAGE_DECLARE_COMMAND, DebugCustomerService.declare(target, CustomerVisit.Declaration.LOST))
+			_print_service_result(
+				PACKAGE_DECLARE_COMMAND,
+				DebugCustomerService.declare(target, CustomerVisit.Declaration.LOST),
+			)
 		_:
-			DeveloperConsoleOutput.error(PACKAGE_DECLARE_COMMAND, "declaration must be taken, refused or lost")
+			DeveloperConsoleOutput.error(
+				PACKAGE_DECLARE_COMMAND,
+				"declaration must be taken, refused or lost",
+			)
 
 
-func _pkg_complaint(
-	raw_target: String,
-	reason_text: String,
-	mode_text: String = "",
-) -> void:
+func _pkg_complaint(raw_target: String, reason_text: String, mode_text: String = "") -> void:
 	var mode: String = mode_text.strip_edges().to_lower()
 	if mode.is_empty():
 		mode = "pending"
@@ -483,15 +626,26 @@ func _pkg_complaint(
 		"not_delivered":
 			_print_service_result(
 				PACKAGE_COMPLAINT_COMMAND,
-				DebugCustomerService.complaint(target, CustomerComplaint.Reason.NOT_DELIVERED, mode == "resolve"),
+				DebugCustomerService.complaint(
+					target,
+					CustomerComplaint.Reason.NOT_DELIVERED,
+					mode == "resolve",
+				),
 			)
 		"damaged":
 			_print_service_result(
 				PACKAGE_COMPLAINT_COMMAND,
-				DebugCustomerService.complaint(target, CustomerComplaint.Reason.DAMAGED, mode == "resolve"),
+				DebugCustomerService.complaint(
+					target,
+					CustomerComplaint.Reason.DAMAGED,
+					mode == "resolve",
+				),
 			)
 		_:
-			DeveloperConsoleOutput.error(PACKAGE_COMPLAINT_COMMAND, "reason must be not_delivered or damaged")
+			DeveloperConsoleOutput.error(
+				PACKAGE_COMPLAINT_COMMAND,
+				"reason must be not_delivered or damaged",
+			)
 
 
 func _complaint_resolve(raw_target: String) -> void:
@@ -505,7 +659,10 @@ func _pkg_approve(raw_target: String, satisfaction_text: String = "") -> void:
 	var satisfaction: int = CustomerOutcomeService.SATISFACTION_SCALE
 	if not satisfaction_text.strip_edges().is_empty():
 		if not satisfaction_text.is_valid_int():
-			DeveloperConsoleOutput.error(PACKAGE_APPROVE_COMMAND, "satisfaction must be an integer from 0 to 100")
+			DeveloperConsoleOutput.error(
+				PACKAGE_APPROVE_COMMAND,
+				"satisfaction must be an integer from 0 to 100",
+			)
 			return
 
 		satisfaction = satisfaction_text.to_int()
@@ -538,9 +695,8 @@ func _pkg_customer_refused(raw_target: String) -> void:
 func _pkg_player_denied(raw_target: String) -> void:
 	_pkg_actual(raw_target, "player_denied")
 
-
-
 #endregion
+
 
 #region Ручные операции денег
 func _money_add(amount_text: String, note: String = "") -> void:
@@ -587,16 +743,11 @@ func _run_money_command(
 			result = DebugEconomyService.reverse_penalty(amount, note)
 	_print_service_result(command, result)
 
-
-
 #endregion
 
+
 #region Урон и QA-сброс
-func _apply_damage(
-	raw_target: String,
-	amount_text: String,
-	damage_type_text: String = "",
-) -> void:
+func _apply_damage(raw_target: String, amount_text: String, damage_type_text: String = "") -> void:
 	var amount: float = _positive_float(APPLY_DAMAGE_COMMAND, amount_text)
 	if amount <= 0.0:
 		return
@@ -607,17 +758,35 @@ func _apply_damage(
 		normalized = "generic"
 	match normalized:
 		"generic":
-			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.GENERIC))
+			_print_service_result(
+				APPLY_DAMAGE_COMMAND,
+				DebugHealthService.apply_damage(target, amount, DamageRequest.Type.GENERIC),
+			)
 		"melee":
-			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.MELEE))
+			_print_service_result(
+				APPLY_DAMAGE_COMMAND,
+				DebugHealthService.apply_damage(target, amount, DamageRequest.Type.MELEE),
+			)
 		"impact":
-			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.IMPACT))
+			_print_service_result(
+				APPLY_DAMAGE_COMMAND,
+				DebugHealthService.apply_damage(target, amount, DamageRequest.Type.IMPACT),
+			)
 		"explosion":
-			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.EXPLOSION))
+			_print_service_result(
+				APPLY_DAMAGE_COMMAND,
+				DebugHealthService.apply_damage(target, amount, DamageRequest.Type.EXPLOSION),
+			)
 		"toxic":
-			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.TOXIC))
+			_print_service_result(
+				APPLY_DAMAGE_COMMAND,
+				DebugHealthService.apply_damage(target, amount, DamageRequest.Type.TOXIC),
+			)
 		"liquid":
-			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.LIQUID))
+			_print_service_result(
+				APPLY_DAMAGE_COMMAND,
+				DebugHealthService.apply_damage(target, amount, DamageRequest.Type.LIQUID),
+			)
 		_:
 			DeveloperConsoleOutput.error(
 				APPLY_DAMAGE_COMMAND,
@@ -672,10 +841,15 @@ func _kill_game() -> void:
 
 	worker.name = "DebugRuntimePurge"
 	root.add_child(worker)
-	DeveloperConsoleOutput.ok("kill game", PackedStringArray([
-		"Runtime purge scheduled; preserve SceneTree for ObjectDB Snapshot.",
-		"Autoload nodes stay registered (Godot forbids freeing them at runtime).",
-	]))
+	DeveloperConsoleOutput.ok(
+		"kill game",
+		PackedStringArray(
+			[
+				"Runtime purge scheduled; preserve SceneTree for ObjectDB Snapshot.",
+				"Autoload nodes stay registered (Godot forbids freeing them at runtime).",
+			]
+		),
+	)
 	worker.call_deferred(&"purge_runtime")
 
 
@@ -700,9 +874,8 @@ func _positive_float(command: String, value: String) -> float:
 		return -1.0
 	return parsed
 
-
-
 #endregion
+
 
 #region Фазы и отладочное представление
 func _pkg_reset(raw_target: String) -> void:
@@ -713,10 +886,7 @@ func _pkg_reset(raw_target: String) -> void:
 
 
 func _day_info() -> void:
-	DeveloperConsoleOutput.ok(
-		DAY_INFO_COMMAND,
-		DeveloperConsoleDiagnostics.day_info(),
-	)
+	DeveloperConsoleOutput.ok(DAY_INFO_COMMAND, DeveloperConsoleDiagnostics.day_info())
 
 
 func _day_next() -> void:
@@ -728,11 +898,7 @@ func _customer_next() -> void:
 
 
 func _debug_targets() -> void:
-	DeveloperConsoleOutput.ok(
-		DEBUG_TARGETS_COMMAND,
-		DeveloperConsoleDiagnostics.debug_targets(),
-	)
-
+	DeveloperConsoleOutput.ok(DEBUG_TARGETS_COMMAND, DeveloperConsoleDiagnostics.debug_targets())
 
 
 func _debug_help(subject: String = "") -> void:
@@ -741,13 +907,19 @@ func _debug_help(subject: String = "") -> void:
 
 func _debug_hud(mode: String = "toggle") -> void:
 	match mode.strip_edges().to_lower():
-		"on": DebugHudService.set_enabled(true)
-		"off": DebugHudService.set_enabled(false)
-		"toggle", "": DebugHudService.set_enabled(not DebugHudService.is_enabled())
+		"on":
+			DebugHudService.set_enabled(true)
+		"off":
+			DebugHudService.set_enabled(false)
+		"toggle", "":
+			DebugHudService.set_enabled(not DebugHudService.is_enabled())
 		_:
 			DeveloperConsoleOutput.error(DEBUG_HUD_COMMAND, "mode must be on, off or toggle")
 			return
 
-	DeveloperConsoleOutput.ok(DEBUG_HUD_COMMAND, PackedStringArray(["enabled=%s" % DebugHudService.is_enabled()]))
+	DeveloperConsoleOutput.ok(
+		DEBUG_HUD_COMMAND,
+		PackedStringArray(["enabled=%s" % DebugHudService.is_enabled()]),
+	)
 
 #endregion

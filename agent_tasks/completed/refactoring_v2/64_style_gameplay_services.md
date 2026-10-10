@@ -1,6 +1,6 @@
 # Refactoring v2.64 — Code Style: gameplay services, economy, inventory, persistence
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 Зависимости: 63_style_interaction_combat_motion.md.
 
@@ -46,7 +46,7 @@ safe_loot_placement and furniture_arrival (20261010-190333 through190354 logs
 under `tests/artifacts/`). Strict architecture/domain/dependency/structure PASS;
 prior task61–63 full style PASS. No rendered QA claimed.
 
-Review: REVIEW_PENDING immutable checkpoint; collect before DONE. Tasks65–66 required.
+Review: BASE6914fa6e97d4e35a10eea62f04f182fa1cd11726 -> TARGET3f0499aab47bf2ad0a93e69b29ec2b40ac26db0a; no material findings. ARCHITECTURE PASS; STYLE PASS; reviewer VALIDATION NOT_RUN. Tasks65–66 required.
 
 ## Validation
 

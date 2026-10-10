@@ -79,6 +79,22 @@ func _owned_path(path: String) -> bool:
 
 
 func _compile_path(path: String) -> Dictionary:
+	var handler_script: GDScript = get_script() as GDScript
+	if path == handler_script.resource_path:
+		# Godot reuses a loaded script even with CACHE_MODE_IGNORE. Compiling the
+		# executing handler invalidates its own bytecode. Its existing compiled
+		# instance proves only the exact source currently loaded by the registry.
+		var current_source: String = FileAccess.get_file_as_string(path).replace("\r\n", "\n")
+		var source_matches: bool = (
+			handler_script.source_code.replace("\r\n", "\n") == current_source
+		)
+		return {
+			"path": path,
+			"error_code": OK if source_matches and handler_script.can_instantiate() else ERR_BUSY,
+			"diagnostics_status": "checked" if source_matches else "unavailable",
+			"diagnostics": [],
+			"validation_mode": "compiled_handler" if source_matches else "handler_reload_required",
+		}
 	var buffer: McpEditorLogBuffer = McpEditorLogBuffer.new()
 	var logger: Logger = _LOGGER.new(buffer) as Logger
 	var captured: Dictionary = _CAPTURE.capture_this_file(
@@ -87,6 +103,8 @@ func _compile_path(path: String) -> Dictionary:
 		func() -> Dictionary:
 			OS.add_logger(logger)
 			var script: GDScript = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+			# Explicit reload reports compilation independently of editor instantiation
+			# restrictions on non-tool gameplay scripts.
 			var result: Error = script.reload(true) if script != null else ERR_CANT_OPEN
 			OS.remove_logger(logger)
 			return { "error_code": result },

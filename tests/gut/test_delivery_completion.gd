@@ -5,6 +5,7 @@ const SAVE_PATH: String = "user://gut_delivery_completion.pvzh"
 const MISSING_SLOT: String = "user://gut_delivery_completion_missing/slot.pvzh"
 const SERVICE_TREE: String = "res://content/domains/customers/ai/trees/bt_npc_service.tres"
 
+
 #region Реальные участники и ночной снимок
 ## Удаляет только собственный тестовый слот после освобождения fixture.
 func after_each() -> void:
@@ -13,11 +14,13 @@ func after_each() -> void:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
+
 func _job(visit: CustomerVisit) -> NpcHomeDelivery:
 	for job: NpcHomeDelivery in _district.home_deliveries:
 		if job.visit_id == visit.visit_id:
 			return job
 	return null
+
 
 func _meeting(visit: CustomerVisit) -> E_DistrictNpc:
 	var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
@@ -28,14 +31,22 @@ func _meeting(visit: CustomerVisit) -> E_DistrictNpc:
 	(_player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD
 	(body.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
 	assert_true(_run_tree(body, SERVICE_TREE, 0.2))
-	assert_eq((body.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
+	assert_eq(
+		(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase,
+		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE,
+	)
 	return body
+
 
 func _handoff(body: E_DistrictNpc, visit: CustomerVisit) -> Entity:
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _player))
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.READY)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_player, body),
+		PackageDeliveryCheck.Result.READY,
+	)
 	return parcel
+
 
 func _night_session() -> Entity:
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
@@ -50,7 +61,9 @@ func _night_session() -> Entity:
 	(_player as Node).name = "Player"
 	(_player as Node).owner = _root
 	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
-	(_player as Node).set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName((_player as Node).name))
+	(
+		_player as Node
+	).set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName((_player as Node).name))
 	var placed_identity_player: C_AuthoredIdentity = C_AuthoredIdentity.new()
 	placed_identity_player.world_id = &"fixture"
 	placed_identity_player.local_id = StringName((_player as Node).name)
@@ -59,10 +72,22 @@ func _night_session() -> Entity:
 		session.add_component(C_Autosave.new())
 	(session.get_component(C_Autosave) as C_Autosave).path = SAVE_PATH
 	# Полный снимок хранит авторские определения, а не настройки одиночного теста.
-	_district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	_district.definition = (
+		load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	)
 	for visit: CustomerVisit in CustomerFlowQueries.current().visits:
-		visit.definition = (load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events[0].customer
+		visit.definition = (
+			(
+				load(
+					"res://content/domains/customers/definitions/def_customer_schedule_default.tres"
+				)
+				as DEF_CustomerSchedule
+			)
+			.events[0]
+			.customer
+		)
 	return session
+
 
 func _sleep_request() -> void:
 	_world.add_system(S_DayPhase.new())
@@ -75,8 +100,10 @@ func _sleep_request() -> void:
 	assert_eq(DayPhaseQueries.current().phase, C_DayCycle.Phase.NIGHT)
 #endregion
 
+
 #region Физическое вручение и расчёт
-## Настоящая коробка принимается через обычную проверку; дерево закрывает встречу и платит дважды разными ключами.
+## Настоящая коробка принимается через обычную проверку; дерево закрывает встречу и платит дважды
+## разными ключами.
 func test_real_handoff_pays_agreed_bonus_once_through_tree() -> void:
 	_district.definition.delivery_bargain_probability = 1.0
 	var visit: CustomerVisit = _delivery_case(_district.people[0], "completion_success")
@@ -99,7 +126,9 @@ func test_real_handoff_pays_agreed_bonus_once_through_tree() -> void:
 	assert_eq(WalletService.current().balance, 25)
 	assert_eq(WalletService.current().operations.size(), 2)
 
-## Отказ по состоянию проверяет предложенную коробку; предмет возвращён миру без выплаты или нового хватания.
+
+## Отказ по состоянию проверяет предложенную коробку; предмет возвращён миру без выплаты или нового
+## хватания.
 func test_damage_refusal_keeps_physical_box_and_is_idempotent() -> void:
 	var visit: CustomerVisit = _delivery_case(_district.people[0], "completion_refusal")
 	visit.definition.accepts_damaged = false
@@ -119,34 +148,50 @@ func test_damage_refusal_keeps_physical_box_and_is_idempotent() -> void:
 	assert_eq(WalletService.current().balance, 0)
 	assert_true(WalletService.current().operations.is_empty())
 
-## Номер/регистрация/назначение и уничтожение проверяются до освобождения хвата и изменения факта выдачи.
+
+## Номер/регистрация/назначение и уничтожение проверяются до освобождения хвата и изменения факта
+## выдачи.
 func test_invalid_parcel_never_changes_home_outcome_or_money() -> void:
 	var visit: CustomerVisit = _delivery_case(_district.people[0], "completion_checks")
 	var other: CustomerVisit = _delivery_case(_district.people[3], "completion_wrong")
 	var body: E_DistrictNpc = _meeting(visit)
 	var wrong: Entity = PackageQueries.find_live_package(other.package_id)
 	wrong.add_relationship(Relationship.new(R_HeldBy.new(), _player))
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.WRONG_PACKAGE)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_player, body),
+		PackageDeliveryCheck.Result.WRONG_PACKAGE,
+	)
 	GrabReleaseService.release(_player, wrong)
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _player))
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	state.registration = C_PackageState.Registration.UNREGISTERED
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.UNREGISTERED)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_player, body),
+		PackageDeliveryCheck.Result.UNREGISTERED,
+	)
 	state.registration = C_PackageState.Registration.REGISTERED
 	for binding: Relationship in parcel.relationships.duplicate():
 		if binding.relation is R_AssignedTo:
 			parcel.remove_relationship(binding)
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.UNASSIGNED)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_player, body),
+		PackageDeliveryCheck.Result.UNASSIGNED,
+	)
 	CustomerParcelAssignment.bind_parcel(body, visit)
 	state.damage = C_PackageState.Damage.DESTROYED
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.DESTROYED)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_player, body),
+		PackageDeliveryCheck.Result.DESTROYED,
+	)
 	assert_not_null(GrabQueries.held_relationship(parcel))
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(_job(visit).status, NpcHomeDelivery.Status.ACCEPTED)
 	assert_true(WalletService.current().operations.is_empty())
 
-## Осмотр у своей двери сохраняет реальные резервы; принятие после осмотра платит через обычное завершение.
+
+## Осмотр у своей двери сохраняет реальные резервы; принятие после осмотра платит через обычное
+## завершение.
 func test_home_inspection_acceptance_releases_all_cargo_before_bonus() -> void:
 	var visit: CustomerVisit = _delivery_case(_district.people[0], "completion_inspection")
 	visit.definition.private_inspection = true
@@ -167,6 +212,7 @@ func test_home_inspection_acceptance_releases_all_cargo_before_bonus() -> void:
 	assert_null(CustomerInspectionQueries.parcel_for(body))
 	assert_null(HomeMeetingQueries.meeting_for(body))
 	assert_eq(WalletService.current().operations.size(), 2)
+
 
 ## Сбой обычной оплаты не платит более дешёвую терминальную доплату и не готовит новое утро.
 func test_failed_base_payment_waits_before_bonus_and_night_preparation() -> void:
@@ -202,6 +248,7 @@ func test_failed_base_payment_waits_before_bonus_and_night_preparation() -> void
 	assert_eq(wallet.operations.size(), 2)
 	assert_true(cycle.night_ready)
 
+
 ## Недоступный игрок не вызывает получателя и не создаёт резервирования встречи.
 func test_unavailable_player_cannot_create_home_meeting() -> void:
 	var visit: CustomerVisit = _delivery_case(_district.people[0], "unavailable_knock")
@@ -212,6 +259,7 @@ func test_unavailable_player_cannot_create_home_meeting() -> void:
 	assert_false(body.has_component(C_CustomerAgent))
 	assert_null(HomeMeetingQueries.meeting_for(body))
 #endregion
+
 
 #region Невыполнение, ручная потеря и повтор ночи
 ## Прерванный осмотр можно продолжить до сна; отказ от продолжения не переносит коробку на склад.
@@ -229,7 +277,12 @@ func test_interrupted_meeting_can_retry_then_sleep_keeps_box_and_notes() -> void
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	CustomerRoleInterruptionService.suspend(body)
 	var pose: Transform3D = (parcel as Node as Node3D).global_transform
-	assert_true(PackageHistoryService.update_note(visit.package_history_id, "Не забыть: обещал принести домой"))
+	assert_true(
+		PackageHistoryService.update_note(
+			visit.package_history_id,
+			"Не забыть: обещал принести домой",
+		)
+	)
 	var session: Entity = _night_session()
 	_sleep_request()
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -247,7 +300,11 @@ func test_interrupted_meeting_can_retry_then_sleep_keeps_box_and_notes() -> void
 	assert_true(CustomerFlowQueries.visit_due(visit, 2))
 	assert_true(CustomerFlowQueries.arrival_allowed(visit))
 	assert_null(HomeDeliveryQueries.personal_for(visit.customer_id))
-	assert_eq(PackageHistoryService.record_for(visit.package_id).note, "Не забыть: обещал принести домой")
+	assert_eq(
+		PackageHistoryService.record_for(visit.package_id).note,
+		"Не забыть: обещал принести домой",
+	)
+
 
 ## Ручной LOST закрывает случай; ночное невыполнение обещания не открывает этот заказ повторно.
 func test_manual_loss_is_not_reopened_by_failed_delivery() -> void:
@@ -262,6 +319,7 @@ func test_manual_loss_is_not_reopened_by_failed_delivery() -> void:
 	assert_false(CustomerFlowQueries.visit_due(visit, 2))
 	assert_eq(visit.declaration, CustomerVisit.Declaration.LOST)
 	assert_eq(WalletService.current().operations.size(), money_count)
+
 
 ## Ошибка файла повторяет запись того же утра; память, коробка и заметки переживают восстановление.
 func test_night_write_retry_restores_one_failed_promise_without_duplicate_box() -> void:
@@ -296,11 +354,15 @@ func test_night_write_retry_restores_one_failed_promise_without_duplicate_box() 
 	var restored: CustomerVisit = CustomerFlowQueries.find_visit(visit.visit_id)
 	assert_eq(_job(restored).status, NpcHomeDelivery.Status.FAILED)
 	assert_eq(NpcPopulationQueries.person_for(person.npc_id).memories.size(), 1)
-	assert_eq((PackageQueries.find_live_package(visit.package_id) as Node as Node3D).global_transform, pose)
+	assert_eq(
+		(PackageQueries.find_live_package(visit.package_id) as Node as Node3D).global_transform,
+		pose,
+	)
 	assert_eq(DayPhaseQueries.current().day_index, 2)
 	assert_eq(_box_count(visit.package_id), 1)
 	assert_true(NpcHomeDeliveryService.finish_evening(1))
 	assert_eq(NpcPopulationQueries.person_for(person.npc_id).memories.size(), 1)
+
 
 ## Считает реальные физические экземпляры одной посылки после восстановления.
 func _box_count(package_id: String) -> int:
@@ -310,6 +372,7 @@ func _box_count(package_id: String) -> int:
 			count += 1
 	return count
 #endregion
+
 
 #region Scheduled persistence fixture
 func _night_step(delta: float) -> void:

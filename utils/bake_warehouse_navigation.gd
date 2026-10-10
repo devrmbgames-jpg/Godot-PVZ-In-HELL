@@ -1,9 +1,11 @@
 extends SceneTree
-## Пересобирает авторский NavigationMesh, сохраняя параметры генерации и UID; флаги CLI могут отключать запись.
+## Пересобирает авторский NavigationMesh, сохраняя параметры генерации и UID; флаги CLI могут
+## отключать запись.
 
 const LEVEL_PATH: String = "res://content/scenes/main_level.tscn"
 const TEST_LEVEL_PATH: String = "res://content/scenes/primitive_test_level.tscn"
 const COVERAGE_CHECKS_PATH: String = "res://utils/warehouse_navigation_checks.gd"
+
 
 #region Пересборка и проверка
 func _init() -> void:
@@ -38,7 +40,13 @@ func _bake() -> void:
 		var source: NavigationMeshSourceGeometryData3D = NavigationMeshSourceGeometryData3D.new()
 		# Единственный parse собирает авторскую группу в системе координат NavigationRegion.
 		# Старый primitive-fixture сохраняет явный корень PVZ для режима ROOT_NODE_CHILDREN.
-		var parse_root: Node = level.get_node("PVZ") if primitive and mesh.geometry_source_geometry_mode == NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN else region
+		var parse_root: Node = (
+			level.get_node("PVZ")
+			if primitive
+			and mesh.geometry_source_geometry_mode
+			== NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN
+			else region
+		)
 		NavigationServer3D.parse_source_geometry_data(mesh, source, parse_root)
 		if not source.has_data():
 			_finish(level, ["Authored navigation source contains no geometry"])
@@ -64,21 +72,31 @@ func _bake() -> void:
 		if previous_uid != ResourceUID.INVALID_ID:
 			var uid_error: Error = ResourceSaver.set_uid(output_path, previous_uid)
 			if uid_error != OK:
-				_finish(level, ["Cannot preserve navigation resource UID: " + error_string(uid_error)])
+				_finish(
+					level,
+					["Cannot preserve navigation resource UID: " + error_string(uid_error)],
+				)
 				return
 
 	var operation: String = "validation" if validate_only else "dry bake" if check_bake else "bake"
-	print("Navigation %s PASS: %s polygons=%d settings preserved" % [operation, level_path, mesh.get_polygon_count()])
+	print(
+		"Navigation %s PASS: %s polygons=%d settings preserved"
+		% [operation, level_path, mesh.get_polygon_count()]
+	)
 	_finish(level, [])
 #endregion
 
+
 #region Параметры и освобождение
 func _settings(mesh: NavigationMesh) -> Dictionary[StringName, Variant]:
-	var settings: Dictionary[StringName, Variant] = {}
+	var settings: Dictionary[StringName, Variant] = { }
 	for property: Dictionary in mesh.get_property_list():
 		var property_name: StringName = StringName(property["name"])
 		var usage: int = int(property["usage"])
-		if usage & PROPERTY_USAGE_STORAGE and property_name != &"vertices" and property_name != &"polygons":
+		if (
+			usage & PROPERTY_USAGE_STORAGE and property_name != &"vertices"
+			and property_name != &"polygons"
+		):
 			settings[property_name] = mesh.get(property_name)
 	return settings
 

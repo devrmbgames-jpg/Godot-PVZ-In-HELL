@@ -36,7 +36,8 @@ func _settings(root: Node) -> SettingsMenu:
 	return null
 
 
-## Проверяет new/save/load/return через настоящие кнопки; повреждённая загрузка оставляет текущую сцену.
+## Проверяет new/save/load/return через настоящие кнопки; повреждённая загрузка оставляет текущую
+## сцену.
 func _run() -> void:
 	# Runner остаётся под root при смене current_scene.
 	get_tree().current_scene = null
@@ -66,7 +67,9 @@ func _run() -> void:
 	assert(save_button != null and not save_button.disabled)
 	await _click(save_button)
 	assert(FileAccess.file_exists(SAVE_PATH))
-	var saved: GameSaveResult = GameSessionService.saved_game(GameSessionService.MAIN_LEVEL, [SAVE_PATH, AUTO_PATH])
+	var saved: GameSaveResult = (
+		GameSessionService.saved_game(GameSessionService.MAIN_LEVEL, [SAVE_PATH, AUTO_PATH])
+	)
 	assert(saved.success, saved.message)
 
 	var wallet: C_Wallet = WalletService.current()
@@ -82,7 +85,10 @@ func _run() -> void:
 	var confirmation: ConfirmationDialog = menu.find_child("*", true, false) as ConfirmationDialog
 	## Ищем подтверждение сессии по заголовку: окно конфликта привязок существует отдельно.
 	for child: Node in menu.get_children():
-		if child is ConfirmationDialog and (child as ConfirmationDialog).title == "Несохранённый прогресс":
+		if (
+			child is ConfirmationDialog
+			and (child as ConfirmationDialog).title == "Несохранённый прогресс"
+		):
 			confirmation = child as ConfirmationDialog
 	assert(confirmation != null and confirmation.visible)
 	confirmation.confirmed.emit()
@@ -94,13 +100,21 @@ func _run() -> void:
 
 	var preferences: ConfigFile = ConfigFile.new()
 	assert(preferences.load(SETTINGS_PATH) == OK)
-	assert(is_equal_approx(float(preferences.get_value("settings", "mouse_sensitivity")), 1.7), "Load persists preferences without closing menu first")
+	assert(
+		is_equal_approx(float(preferences.get_value("settings", "mouse_sensitivity")), 1.7),
+		"Load persists preferences without closing menu first",
+	)
 	var file: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	file.store_string("broken")
 	file.close()
-	var unavailable: GameSaveResult = GameSessionService.saved_game(GameSessionService.MAIN_LEVEL, [SAVE_PATH, AUTO_PATH])
+	var unavailable: GameSaveResult = (
+		GameSessionService.saved_game(GameSessionService.MAIN_LEVEL, [SAVE_PATH, AUTO_PATH])
+	)
 	assert(not unavailable.success)
-	assert(GameSessionService.start_game(get_tree(), GameSessionService.MAIN_LEVEL, unavailable) == ERR_INVALID_DATA)
+	assert(
+		GameSessionService.start_game(get_tree(), GameSessionService.MAIN_LEVEL, unavailable)
+		== ERR_INVALID_DATA
+	)
 	assert(get_tree().current_scene == level, "Bad load leaves current level intact")
 	assert(GameSessionService.return_to_menu(get_tree()) == OK)
 	main = await _wait_scene(GameSessionService.MAIN_MENU)

@@ -48,9 +48,14 @@ func _run() -> void:
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var scanner: Entity = level.get_node("Entityes/Scanner") as Entity
 	# Carry routing uses a real package independent of the current district supply assortment.
-	var parcel: E_Package = (load("res://content/domains/packages/entities/package.tscn") as PackedScene).instantiate() as E_Package
+	var parcel: E_Package = (
+		(load("res://content/domains/packages/entities/package.tscn") as PackedScene).instantiate()
+		as E_Package
+	)
 	parcel.package_id = "smoke/interaction/parcel"
-	parcel.package_definition = load("res://content/domains/packages/definitions/def_test_bread.tres") as DEF_Package
+	parcel.package_definition = (
+		load("res://content/domains/packages/definitions/def_test_bread.tres") as DEF_Package
+	)
 	level.add_child(parcel as Node)
 	EntityCompositionFixture.register(ECS.world, parcel, false)
 	(parcel as Node as RigidBody3D).gravity_scale = 0.0
@@ -129,8 +134,8 @@ func _run() -> void:
 	print("R06.1 interaction hands smoke PASS")
 	get_tree().quit()
 
-
 #endregion
+
 
 #region Тестовый ввод и размещение
 func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:

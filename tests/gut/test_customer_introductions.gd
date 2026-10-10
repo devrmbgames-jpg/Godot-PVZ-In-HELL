@@ -23,7 +23,9 @@ func before_each() -> void:
 	var owner: Entity = Entity.new()
 	_flow = C_CustomerFlow.new()
 	_flow.schedule = DEF_CustomerSchedule.new()
-	_flow.schedule.customer_scene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	_flow.schedule.customer_scene = (
+		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	)
 	_flow.planned_through_day = 1
 	_cycle = C_DayCycle.new()
 	_cycle.phase = C_DayCycle.Phase.DAY
@@ -43,10 +45,21 @@ func before_each() -> void:
 	body.add_child(anchor)
 	_actor.hold_anchor = anchor
 	_actor.head_axis_x = anchor
-	_actor.component_resources = [C_PlayerInputController.new(), C_Controller.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
+	_actor.component_resources = ([
+		C_PlayerInputController.new(),
+		C_Controller.new(),
+		C_GrabControl.new(),
+		C_CarryLoad.new(),
+		C_Strength.new(),
+	])
 	_world.add_entity(_actor)
 
-	var counter: E_DeliveryCounter = (load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
+	var counter: E_DeliveryCounter = (
+		(
+			load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
+		).instantiate()
+		as E_DeliveryCounter
+	)
 	(counter as Node as Node3D).position.x = 10.0
 	_world.add_entity(counter)
 	_visit = CustomerVisit.new()
@@ -95,13 +108,13 @@ func _await_line() -> void:
 	for frame: int in UI_FRAMES:
 		await get_tree().process_frame
 		var panel: CustomerDialoguePanel = _panel()
-		if panel != null and panel._line != null:
+		if panel != null and panel.get("_line") != null:
 			return
 
 	assert_true(false, "Dialogue line must finish within the bounded fixture")
 
-
 #endregion
+
 
 #region Объявление заказа
 ## Быстрое обслуживание однократно объявляет реальный номер и принимает коробку без диалога.
@@ -134,14 +147,18 @@ func test_quick_spawn_announces_true_number_preserves_it_and_accepts_without_dia
 	EntityCompositionFixture.register(_world, parcel)
 	CustomerParcelAssignment.bind_parcel(_customer, _visit)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
-	assert_eq(CustomerFlowService.confirm_direct_delivery(_actor, _customer), PackageDeliveryCheck.Result.READY)
+	assert_eq(
+		CustomerFlowService.confirm_direct_delivery(_actor, _customer),
+		PackageDeliveryCheck.Result.READY,
+	)
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_eq(_agent().phase, C_CustomerAgent.Phase.RECEIVING)
 	assert_false(_agent().dialogue_started)
 
 
-## Поздняя регистрация объявляет номер один раз; загадка и настенный номер сохраняют отдельные режимы.
-func test_quick_pending_registration_announces_once_and_riddle_wall_profiles_keep_contract() -> void:
+## Поздняя регистрация объявляет номер один раз; загадка и настенный номер сохраняют отдельные
+## режимы.
+func test_quick_registration_and_riddle_wall_contract() -> void:
 	_visit.requires_registered_package = false
 	_visit.definition.introduction = DEF_Customer.Introduction.ANNOUNCE_ORDER
 	_spawn()
@@ -156,13 +173,19 @@ func test_quick_pending_registration_announces_once_and_riddle_wall_profiles_kee
 	assert_eq(message.text, "Другой результат", "Repeated ticks do not republish the bubble")
 	_visit.definition.dialogue_mode = DEF_Customer.DialogueMode.RIDDLE
 	assert_false(CustomerPresentation.uses_quick_order(_visit.definition))
-	var gaze: DEF_Customer = (load("res://content/domains/customers/definitions/def_customer_gaze.tres") as DEF_Customer).duplicate() as DEF_Customer
+	var gaze: DEF_Customer = (
+		(
+			load("res://content/domains/customers/definitions/def_customer_gaze.tres")
+			as DEF_Customer
+		).duplicate()
+		as DEF_Customer
+	)
 	gaze.introduction = DEF_Customer.Introduction.ANNOUNCE_ORDER
 	assert_true(CustomerPresentation.uses_wall_order(gaze))
 	assert_false(CustomerPresentation.uses_quick_order(gaze))
 
-
 #endregion
+
 
 #region Первый разговор и приоритет ввода
 ## Первый диалог требует близости, видимости и свободного ввода; закрытие не запускает его повторно.
@@ -196,7 +219,9 @@ func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_onc
 	assert_null(_panel(), "The developer console keeps input focus")
 	Console.toggle_console()
 
-	var capture: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	var capture: int = (
+		InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+	)
 	CustomerFlowFixture.greet(_customer)
 	assert_false(_agent().dialogue_started)
 	assert_null(_panel())
@@ -215,7 +240,8 @@ func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_onc
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.HANDS)
 
 
-## Ручной разговор расходует защиту первого контакта; уходящий и погибший клиент не начинают разговор.
+## Ручной разговор расходует защиту первого контакта; уходящий и погибший клиент не начинают
+## разговор.
 func test_manual_start_consumes_auto_guard_and_leaving_or_dead_customer_never_starts() -> void:
 	_register_order()
 	_spawn()
@@ -235,7 +261,7 @@ func test_manual_start_consumes_auto_guard_and_leaving_or_dead_customer_never_st
 	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel())
 
-#endregion
+	#endregion
 	_agent().phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	_customer.add_component(C_Death.new())
 	CustomerFlowFixture.greet(_customer)

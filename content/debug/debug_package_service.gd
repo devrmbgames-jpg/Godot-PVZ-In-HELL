@@ -14,7 +14,8 @@ const DEBUG_ID_PREFIX: String = "debug:"
 
 
 #region Команды коробок
-## Создаёт 1–50 отладочных коробок в приёмке либо у игрока; register_packages включает обычную регистрацию.
+## Создаёт 1–50 отладочных коробок в приёмке либо у игрока; register_packages включает обычную
+## регистрацию.
 static func spawn(
 	definition_key: StringName,
 	count: int,
@@ -49,11 +50,7 @@ static func spawn(
 
 	var spawned: Array[Entity] = []
 	for package_index: int in count:
-		var package_id: String = _next_package_id(
-			zone.supply.key,
-			cycle.day_index,
-			definition.key,
-		)
+		var package_id: String = _next_package_id(zone.supply.key, cycle.day_index, definition.key)
 		var parcel: E_Package = ReceivingPackageFactory.create(
 			zone,
 			definition,
@@ -94,7 +91,9 @@ static func spawn(
 
 		var number_text: String = "unregistered"
 		if register_packages:
-			var registration: PackageScanResult = PackageRegistrationService.register_package(parcel)
+			var registration: PackageScanResult = (
+				PackageRegistrationService.register_package(parcel)
+			)
 			if (
 				registration.outcome != PackageScanResult.Outcome.REGISTERED
 				and registration.outcome != PackageScanResult.Outcome.ALREADY_REGISTERED
@@ -220,12 +219,9 @@ static func reset(target: DebugTarget) -> DebugServiceResult:
 
 	result.success = true
 	result.message = "package reset"
+	result.details.append("hp=%.1f -> %.1f" % [previous_health, health.current])
 	result.details.append(
-		"hp=%.1f -> %.1f" % [previous_health, health.current]
-	)
-	result.details.append(
-		"damage=%s -> UNDAMAGED"
-		% String(C_PackageState.Damage.keys()[previous_damage])
+		"damage=%s -> UNDAMAGED" % String(C_PackageState.Damage.keys()[previous_damage])
 	)
 	result.details.append("leaking=false")
 	return result
@@ -242,8 +238,8 @@ static func definition_keys() -> PackedStringArray:
 		keys.append(String(definition.key))
 	return keys
 
-
 #endregion
+
 
 #region Размещение и постоянный ID
 static func _receiving_zone() -> E_ReceivingZone:
@@ -259,11 +255,7 @@ static func _definition(zone: E_ReceivingZone, key: StringName) -> DEF_Package:
 	return null
 
 
-static func _place_near_player(
-	zone: E_ReceivingZone,
-	parcel: E_Package,
-	index: int,
-) -> bool:
+static func _place_near_player(zone: E_ReceivingZone, parcel: E_Package, index: int) -> bool:
 	var actor: Entity = DebugTargetResolver.player()
 	var actor_node: Node3D = actor as Node as Node3D
 	var body: RigidBody3D = parcel as Node as RigidBody3D
@@ -273,19 +265,19 @@ static func _place_near_player(
 	var column: int = index % SELF_COLUMNS
 	@warning_ignore("integer_division")
 	var row: int = index / SELF_COLUMNS
-	var side_offset: float = (
-		float(column) - float(SELF_COLUMNS - 1) * 0.5
-	) * SELF_SIDE_SPACING
+	var side_offset: float = (float(column) - float(SELF_COLUMNS - 1) * 0.5) * SELF_SIDE_SPACING
 	var position: Vector3 = (
 		actor_node.global_position
 		- actor_node.global_basis.z * (SELF_FORWARD_DISTANCE + float(row) * SELF_ROW_SPACING)
-		+ actor_node.global_basis.x * side_offset
-		+ Vector3.UP * SELF_VERTICAL_OFFSET
+		+ actor_node.global_basis.x * side_offset + Vector3.UP * SELF_VERTICAL_OFFSET
 	)
 	zone.package_parent.add_child(parcel)
 	body.global_transform = Transform3D(Basis.IDENTITY, position)
-	var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, ECS.world,
-		parcel.id if not parcel.id.is_empty() else GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		parcel,
+		ECS.world,
+		parcel.id if not parcel.id.is_empty() else GECSIO.uuid(),
+	)
 	if not EntityCompositionService.try_register(context, false):
 		zone.package_parent.remove_child(parcel)
 		return false
@@ -330,8 +322,8 @@ static func _identity_exists(package_id: String) -> bool:
 				return true
 	return false
 
-
 #endregion
+
 
 #region Откат и удаление
 static func _rollback(spawned: Array[Entity]) -> void:

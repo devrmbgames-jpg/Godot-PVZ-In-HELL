@@ -6,13 +6,15 @@ const EditorOwnershipTool = preload("res://addons/pvz_ai_tools/editor_ownership_
 
 #region Dirty scene protection
 func test_reports_unsaved_current_and_other_scenes() -> void:
-	var open_paths: PackedStringArray = PackedStringArray([
-		"res://content/scenes/main_level.tscn",
-		"res://content/domains/npc/entities/district_npc.tscn",
-	])
-	var unsaved_paths: PackedStringArray = PackedStringArray([
-		"res://content/scenes/main_level.tscn",
-	])
+	var open_paths: PackedStringArray = PackedStringArray(
+		[
+			"res://content/scenes/main_level.tscn",
+			"res://content/domains/npc/entities/district_npc.tscn",
+		]
+	)
+	var unsaved_paths: PackedStringArray = PackedStringArray(
+		["res://content/scenes/main_level.tscn"]
+	)
 	var report: Dictionary = EditorOwnershipTool.describe(
 		open_paths,
 		unsaved_paths,
@@ -28,10 +30,12 @@ func test_reports_unsaved_current_and_other_scenes() -> void:
 
 func test_other_dirty_scene_is_not_silently_treated_as_safe_to_close() -> void:
 	var report: Dictionary = EditorOwnershipTool.describe(
-		PackedStringArray([
-			"res://content/scenes/main_level.tscn",
-			"res://content/domains/npc/entities/district_npc.tscn",
-		]),
+		PackedStringArray(
+			[
+				"res://content/scenes/main_level.tscn",
+				"res://content/domains/npc/entities/district_npc.tscn",
+			]
+		),
 		PackedStringArray(["res://content/domains/npc/entities/district_npc.tscn"]),
 		"res://content/scenes/main_level.tscn",
 	)

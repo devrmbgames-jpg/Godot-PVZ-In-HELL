@@ -8,6 +8,7 @@ const INSPECTION_SECONDS: float = 1.0
 
 var _level: Node
 
+
 #region Smoke lifecycle
 func _ready() -> void:
 	_run.call_deferred()
@@ -34,6 +35,7 @@ func _run() -> void:
 	get_tree().quit.call_deferred()
 #endregion
 
+
 #region Native inspection scenario
 func _exercise_inspection() -> void:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -53,8 +55,14 @@ func _exercise_inspection() -> void:
 	flow.visits = [visit]
 
 	var counter: E_DeliveryCounter = CustomerFlowQueries.counter()
-	var customer: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
-	# Навигационный прогон с фиксированным FPS опережает аудиомикшер; звук проверяет владелец отдельно.
+	var customer: E_NpcCharacter = (
+		(
+			load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+		).instantiate()
+		as E_NpcCharacter
+	)
+	# Навигационный прогон с фиксированным FPS опережает аудиомикшер; звук проверяет владелец
+	# отдельно.
 	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	var body: RigidBody3D = customer as Node as RigidBody3D
 	body.position = counter.waiting_position()
@@ -64,16 +72,23 @@ func _exercise_inspection() -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	var parcel: E_Package = (load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene).instantiate() as E_Package
+	var parcel: E_Package = (
+		(
+			load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene
+		).instantiate()
+		as E_Package
+	)
 	parcel.package_id = visit.package_id
 	(parcel as Node as RigidBody3D).position = body.position + Vector3(0, 1, 0)
 	_level.add_child(parcel)
 	EntityCompositionFixture.register(ECS.world, parcel, false)
-	(parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.REGISTERED
+	(parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState \
+			.Registration \
+			.REGISTERED
 	CustomerParcelAssignment.bind_parcel(customer, visit)
-	var delivery_result: PackageDeliveryCheck.Result = CustomerFlowService._resolve_delivery(
-		customer, visit, parcel, null,
-	)
+	var delivery_result: PackageDeliveryCheck.Result = (
+		CustomerFlowService as Script
+	).call("_resolve_delivery", customer, visit, parcel, null)
 	assert(delivery_result == PackageDeliveryCheck.Result.READY)
 	assert(agent.phase == C_CustomerAgent.Phase.GOING_TO_BOOTH)
 
@@ -86,14 +101,32 @@ func _exercise_inspection() -> void:
 			visited = true
 			var stored: Relationship = PhysicalSlotService.relationship(parcel)
 			assert(stored != null and (stored.relation as R_StoredIn).applied)
-			assert((parcel as Node as Node3D).global_position.distance_to(body.global_position) < 2.0)
+			assert(
+				(parcel as Node as Node3D).global_position.distance_to(body.global_position) < 2.0
+			)
 		if visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
 			break
 	if not visited or visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
 		var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
-		print("Inspection route diagnostic: phase=", agent.phase, " position=", body.global_position, " target=", intent.move_position, " blocked=", intent.navigation_blocked, " distance=", intent.distance_to_target, " path=", customer.navigation_agent.get_current_navigation_path())
+		print(
+			"Inspection route diagnostic: phase=",
+			agent.phase,
+			" position=",
+			body.global_position,
+			" target=",
+			intent.move_position,
+			" blocked=",
+			intent.navigation_blocked,
+			" distance=",
+			intent.distance_to_target,
+			" path=",
+			customer.navigation_agent.get_current_navigation_path(),
+		)
 	assert(visited, "Actual NavigationAgent must reach the authored private booth")
-	assert(visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED, "Customer must return and make the authored choice")
+	assert(
+		visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED,
+		"Customer must return and make the authored choice",
+	)
 	assert(body.global_position.distance_to(counter.waiting_position()) < 0.5)
 	assert(PhysicalSlotService.relationship(parcel) == null)
 	assert(not (parcel as Node as RigidBody3D).freeze)

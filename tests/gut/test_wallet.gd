@@ -3,7 +3,12 @@ extends GutTest
 
 
 #region Операции, ставки и однократный расчёт
-func _operation(id: StringName, reason: MoneyOperation.Reason, amount: int, day: int = 1) -> MoneyOperation:
+func _operation(
+	id: StringName,
+	reason: MoneyOperation.Reason,
+	amount: int,
+	day: int = 1,
+) -> MoneyOperation:
 	var operation: MoneyOperation = MoneyOperation.new()
 	operation.operation_id = id
 	operation.reason = reason
@@ -50,7 +55,9 @@ func test_package_rates_debt_and_penalty_classification() -> void:
 	var expected: Array[int] = [100, 120, 150, 200, 300]
 	for index: int in reasons.size():
 		var wallet: C_Wallet = C_Wallet.new()
-		var operation: MoneyOperation = WalletService.package_settlement(wallet, &"shipment/outcome", reasons[index], 100, 1)
+		var operation: MoneyOperation = (
+			WalletService.package_settlement(wallet, &"shipment/outcome", reasons[index], 100, 1)
+		)
 		assert_eq(operation.amount, expected[index])
 		assert_eq(WalletService.apply(wallet, operation, 1), WalletService.Status.COMMITTED)
 		assert_eq(wallet.balance, -expected[index])
@@ -60,7 +67,9 @@ func test_package_rates_debt_and_penalty_classification() -> void:
 ## Утренний возврат не повторяет прежний расчёт коробки даже с новым operation_id.
 func test_return_next_morning_cannot_repeat_settlement() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
-	var operation: MoneyOperation = WalletService.package_settlement(wallet, &"outcome/1", MoneyOperation.Reason.LOST, 100, 1)
+	var operation: MoneyOperation = (
+		WalletService.package_settlement(wallet, &"outcome/1", MoneyOperation.Reason.LOST, 100, 1)
+	)
 	WalletService.apply(wallet, operation, 1)
 	operation.operation_id = &"return/retry"
 	assert_eq(WalletService.apply(wallet, operation, 2), WalletService.Status.DUPLICATE)
@@ -91,14 +100,23 @@ func test_daily_totals_and_completed_days_do_not_reset_wallet() -> void:
 	var saved: C_Wallet = WalletService.snapshot(wallet)
 	saved.operations[0].amount = 999
 	assert_eq(wallet.operations[0].amount, 100)
-	assert_eq(WalletService.apply(saved, _operation(&"day2", MoneyOperation.Reason.PURCHASE, 20, 2), 2), WalletService.Status.DUPLICATE)
+	assert_eq(
+		WalletService.apply(saved, _operation(&"day2", MoneyOperation.Reason.PURCHASE, 20, 2), 2),
+		WalletService.Status.DUPLICATE,
+	)
 
 
 ## Недопустимая сумма и устаревший день не меняют баланс или журнал.
 func test_invalid_and_stale_operations_do_not_mutate_state() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
-	assert_eq(WalletService.apply(wallet, _operation(&"bad", MoneyOperation.Reason.PAYMENT, -1), 1), WalletService.Status.INVALID)
-	assert_eq(WalletService.apply(wallet, _operation(&"stale", MoneyOperation.Reason.PAYMENT, 10), 2), WalletService.Status.INVALID)
+	assert_eq(
+		WalletService.apply(wallet, _operation(&"bad", MoneyOperation.Reason.PAYMENT, -1), 1),
+		WalletService.Status.INVALID,
+	)
+	assert_eq(
+		WalletService.apply(wallet, _operation(&"stale", MoneyOperation.Reason.PAYMENT, 10), 2),
+		WalletService.Status.INVALID,
+	)
 	assert_eq(wallet.balance, 0)
 	assert_true(wallet.operations.is_empty())
 
@@ -108,7 +126,9 @@ func test_authored_rate_and_rounding() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
 	wallet.policy = DEF_Economy.new()
 	wallet.policy.lost_percent = 125
-	var operation: MoneyOperation = WalletService.package_settlement(wallet, &"rounding", MoneyOperation.Reason.LOST, 3, 1)
+	var operation: MoneyOperation = (
+		WalletService.package_settlement(wallet, &"rounding", MoneyOperation.Reason.LOST, 3, 1)
+	)
 	assert_eq(operation.amount, 4)
 
 #endregion

@@ -25,7 +25,10 @@ func _run() -> void:
 			break
 
 	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:equipment")
-	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
+	assert(
+		PackageRegistrationService.register_package(parcel).outcome
+		== PackageScanResult.Outcome.REGISTERED
+	)
 	var budget: MoneyOperation = MoneyOperation.new()
 	budget.operation_id = &"evening_meta_smoke/budget"
 	budget.reason = MoneyOperation.Reason.DEBUG_CREDIT
@@ -41,7 +44,9 @@ func _run() -> void:
 	assert(trader.has_component(C_NpcIntent) and trader.has_component(C_Trader))
 	assert(trader.global_position.y > -0.2, "Trader stands on the authored exterior floor")
 	await _aim(trader, Vector3.UP)
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.USE)
+	var choice: InteractionActionChoice = (
+		InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.USE)
+	)
 	assert(choice != null and choice.action is DEF_TraderAction)
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
 	controller.input_tick += 1
@@ -63,7 +68,10 @@ func _run() -> void:
 	assert(quest.state == RefusalQuestRecord.State.ACTIVE)
 	assert(quest.package_id == "base_supply:1:equipment" and quest.deadline_day == 11)
 	assert(quest.reward == 60)
-	assert(MetaPresentation.debug_text().contains("Не выдавай") and MetaPresentation.debug_text().contains("Night дня 11"))
+	assert(
+		MetaPresentation.debug_text().contains("Не выдавай")
+		and MetaPresentation.debug_text().contains("Night дня 11")
+	)
 	shop.close_panel()
 	for frame: int in 3:
 		await get_tree().process_frame
@@ -71,12 +79,23 @@ func _run() -> void:
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	terminal.open_for(_actor)
 	var terminal_panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
-	var orders: Button = terminal_panel.get_node("Root/Panel/NewUI/HBoxContainer/VBoxContainer/Tools/MarginContainer/HBoxContainer/ButtonOrders") as Button
+	var orders: Button = (
+		terminal_panel.get_node(
+			(
+				"Root/Panel/NewUI/HBoxContainer/VBoxContainer/Tools/"
+				+ "MarginContainer/HBoxContainer/ButtonOrders"
+			)
+		)
+		as Button
+	)
 	assert(not orders.disabled)
 	orders.pressed.emit()
 	assert(not terminal_panel.visible)
 	var order_panel: CommercePanel = _panel()
-	assert(order_panel != null and InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.MODAL)
+	assert(
+		order_panel != null
+		and InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.MODAL
+	)
 	await _click(order_panel, "Заказать ×1", "Хлеб")
 	assert(WalletService.current().balance == 390)
 	assert(CommerceService.current().pending_deliveries.size() == 1)
@@ -89,7 +108,9 @@ func _run() -> void:
 		await get_tree().process_frame
 	assert(InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.HANDS)
 
-	var debug: Label = level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/MetaDebug") as Label
+	var debug: Label = (
+		level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/MetaDebug") as Label
+	)
 	for frame: int in 32:
 		await get_tree().process_frame
 		if debug.text.contains("Заказ Хлеб"):
@@ -103,11 +124,16 @@ func _run() -> void:
 	assert(quest_copy.records[0].package_id == quest.package_id)
 	level.free()
 	ECS.world = null
-	print("Evening Trader physical NPC ray interaction purchases Terminal orders durable quest and debug UI smoke PASS")
+	print(
+		(
+			"Evening Trader physical NPC ray interaction purchases "
+			+ "Terminal orders durable quest and debug UI smoke PASS"
+		)
+	)
 	get_tree().quit.call_deferred()
 
-
 #endregion
+
 
 #region Тестовые переходы и интерфейс
 func _transition(kind: DayTransitionRequest.Kind) -> void:
@@ -125,7 +151,8 @@ func _aim(target: Entity, offset: Vector3) -> void:
 	var position: Vector3 = (target as Node as Node3D).global_position + offset
 	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	# Тест сам ставит участника перед целью; обычное взаимодействие не перемещает физические тела.
-	(_actor as Node as RigidBody3D).global_position = (target as Node as Node3D).global_position + Vector3.BACK * 1.5
+	var target_position: Vector3 = (target as Node as Node3D).global_position
+	(_actor as Node as RigidBody3D).global_position = target_position + Vector3.BACK * 1.5
 	ray.global_position = position + Vector3.BACK * 1.5
 	ray.look_at(position)
 	for frame: int in 2:
