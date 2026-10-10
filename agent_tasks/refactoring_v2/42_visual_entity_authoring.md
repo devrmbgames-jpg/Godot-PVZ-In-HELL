@@ -58,6 +58,11 @@ bindings and its own resource Inspector. Base Inspector fields/controls are unch
 the old EditorInspectorPlugin execution path is removed. IDs use native Undo/Redo.
 Dock subscriptions track both selected actor and root property-list changes, fixing root
 Level ID display across Repair/Undo/Redo without rebuilding the selected actor's Inspector.
+Owner selection contract: Level ID repair is visible only when the non-Entity level root
+is explicitly selected. Child objects, Entity prefab roots and an empty selection cannot
+repair the parent level, including a direct handler invocation. Child views retain a
+read-only Level ID. Empty editor selection no longer falls back to the level root.
+Selection fix: `42b0127414f7f7ebb4ecb8176aa1e8f3cae6c46a`; native harness/manual checklist updated.
 Current external authored Resource values are copied into a disposable scene snapshot,
 retaining original provenance and external Script/scene refs. The task-41 compiler runs
 only on detached actors after autoload registration; no ECS registration or ready callback.
@@ -86,6 +91,10 @@ regression releases all strong references and verifies expiry before reconciliat
 
 ## Automated evidence
 
+- Latest selection fix: GUT **PASS18/164**,7.637s; fresh parser **PASS4/0**;
+  incremental formatter/lint **PASS4**, staged validation and diff check PASS.
+  Logs: tests/artifacts/refactoring_v2_42_level_selection_{gut,parser}.log.
+  Native editor/visual recheck remains **OWNER_QA_PENDING**; no new visual PASS claimed.
 - Revised UI: fresh parser PASS, seven scripts/zero failures, review delta three/zero and
   final lifetime delta two/zero;
   formatter across the full baseline, strict architecture, structure and staged checks PASS.
