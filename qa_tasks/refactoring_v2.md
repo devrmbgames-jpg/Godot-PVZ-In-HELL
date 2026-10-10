@@ -4,7 +4,7 @@ Status: **OWNER_QA** — remaining subjective gameplay acceptance.
 
 Owner accepted the current Inspector / Direct Traits and Gameplay Debugger interfaces
 on 2026-10-10. That acceptance is preserved. Agent performed no rendered playtest or
-visual QA. Automated evidence belongs to the final acceptance task.
+visual QA. Automated evidence belongs to [final acceptance](../agent_tasks/completed/refactoring_v2/66_final_acceptance.md).
 
 Windows QA launcher: [.export/LATEST.cmd](../.export/LATEST.cmd). The build manifest
 records the exact implementation checkpoint, existing dirty owner worktree and separate

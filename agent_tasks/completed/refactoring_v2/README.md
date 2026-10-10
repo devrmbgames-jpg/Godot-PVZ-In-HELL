@@ -1,12 +1,12 @@
 # Refactoring v2 — полный Core Architecture + Code Style рефакторинг
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 Task state lives in the linked owning files; this index does not assign a next task.
 
 Рабочая ветка Phase 0: `dev`. Историческая подготовка: `chore/gdscript-human-first-style`; это не требование checkout.
 
-Целевая архитектура: [Project Core Architecture](../../docs/project_core_architecture_proposal.md).
+Целевая архитектура: [Project Core Architecture](../../../docs/project_core_architecture_proposal.md).
 
 ## Goal
 
@@ -34,11 +34,11 @@ Temporary adapters допустимы только внутри незаверш
 
 До любого implementation/refactor провести отдельный xhigh planning pass. Текущая target architecture считается сильным кандидатом, но её разрешено упрощать, дополнять или менять, если это делает ядро заметно удобнее для Godot, programmers, designers/content authors, debugging и AI-agent workflow.
 
-1. [Architecture coherence audit](../completed/refactoring_v2/00_01_architecture_coherence_audit.md)
-2. [Usability и content-authoring audit](../completed/refactoring_v2/00_02_usability_authoring_audit.md)
-3. [Simplification / overengineering / reference audit](../completed/refactoring_v2/00_03_simplification_reference_audit.md)
-4. [Migration / persistence / validation audit](../completed/refactoring_v2/00_04_migration_persistence_validation_audit.md)
-5. [Preflight readiness gate](../completed/refactoring_v2/00_05_preflight_readiness_gate.md)
+1. [Architecture coherence audit](00_01_architecture_coherence_audit.md)
+2. [Usability и content-authoring audit](00_02_usability_authoring_audit.md)
+3. [Simplification / overengineering / reference audit](00_03_simplification_reference_audit.md)
+4. [Migration / persistence / validation audit](00_04_migration_persistence_validation_audit.md)
+5. [Preflight readiness gate](00_05_preflight_readiness_gate.md)
 
 Phase 1 запрещено начинать до результата `READY_FOR_IMPLEMENTATION` в `00_05_preflight_readiness_gate.md`.
 
@@ -75,68 +75,68 @@ Phase 1 запрещено начинать до результата `READY_FOR
 
 ### Phase 1 — Architecture contract
 
-6. [Архитектурные роли и ownership](../completed/refactoring_v2/01_architecture_contract.md)
-7. [Scheduled execution и Service boundaries](../completed/refactoring_v2/02_execution_ownership_rules.md)
-8. [Architecture validation и service smells](../completed/refactoring_v2/03_architecture_validation.md)
-9. [Identity, persistence и migration baseline](../completed/refactoring_v2/04_identity_persistence_contract.md)
+6. [Архитектурные роли и ownership](01_architecture_contract.md)
+7. [Scheduled execution и Service boundaries](02_execution_ownership_rules.md)
+8. [Architecture validation и service smells](03_architecture_validation.md)
+9. [Identity, persistence и migration baseline](04_identity_persistence_contract.md)
 
 Phase 2 начинается только после закрытия всех Phase 1 tasks.
 
 ### Phase 2A — Execution model cleanup
 
-10. [Полный inventory сервисов](../completed/refactoring_v2/10_service_inventory.md)
-11. [Typed Commands / Events](../completed/refactoring_v2/40_typed_commands_events.md)
-12. [CustomerFlow: planning, arrival и day transitions](../completed/refactoring_v2/11_customer_flow_planning.md)
-13. [CustomerFlow: активный lifecycle визита](../completed/refactoring_v2/12_customer_flow_runtime.md)
-14. [Customer outcomes и settlement](../completed/refactoring_v2/13_customer_outcomes.md)
-15. [District lifecycle и schedule](../completed/refactoring_v2/14_district_lifecycle.md)
-16. [NPC brain, perception и traits](../completed/refactoring_v2/15_npc_brain.md)
-17. [NPC route и service role](../completed/refactoring_v2/16_npc_route_service_role.md)
-18. [Combat, attacks и projectiles](../completed/refactoring_v2/17_combat.md)
-19. [Challenge lifecycle](../completed/refactoring_v2/18_challenges.md)
-20. [Hunger и Quests](../completed/refactoring_v2/19_hunger_quests.md)
-21. [Interaction input и action routing](../completed/refactoring_v2/20_interaction_input.md)
-22. [Grab, Push, Carry и physical slots](../completed/refactoring_v2/21_grab_push_slots.md)
-23. [Motion и physics boundaries](../completed/refactoring_v2/22_motion_physics.md)
-24. [Hazards, receiving, loot и delivery runtime](../completed/refactoring_v2/23_hazards_receiving_loot.md)
-25. [Economy, Inventory и Commerce](../completed/refactoring_v2/24_economy_inventory_commerce.md)
-26. [Persistence и remaining services](../completed/refactoring_v2/25_persistence_remaining.md)
-27. [Очистка execution graph](../completed/refactoring_v2/26_execution_graph_cleanup.md)
-28. [Execution-model acceptance checkpoint](../completed/refactoring_v2/27_architecture_acceptance.md)
+10. [Полный inventory сервисов](10_service_inventory.md)
+11. [Typed Commands / Events](40_typed_commands_events.md)
+12. [CustomerFlow: planning, arrival и day transitions](11_customer_flow_planning.md)
+13. [CustomerFlow: активный lifecycle визита](12_customer_flow_runtime.md)
+14. [Customer outcomes и settlement](13_customer_outcomes.md)
+15. [District lifecycle и schedule](14_district_lifecycle.md)
+16. [NPC brain, perception и traits](15_npc_brain.md)
+17. [NPC route и service role](16_npc_route_service_role.md)
+18. [Combat, attacks и projectiles](17_combat.md)
+19. [Challenge lifecycle](18_challenges.md)
+20. [Hunger и Quests](19_hunger_quests.md)
+21. [Interaction input и action routing](20_interaction_input.md)
+22. [Grab, Push, Carry и physical slots](21_grab_push_slots.md)
+23. [Motion и physics boundaries](22_motion_physics.md)
+24. [Hazards, receiving, loot и delivery runtime](23_hazards_receiving_loot.md)
+25. [Economy, Inventory и Commerce](24_economy_inventory_commerce.md)
+26. [Persistence и remaining services](25_persistence_remaining.md)
+27. [Очистка execution graph](26_execution_graph_cleanup.md)
+28. [Execution-model acceptance checkpoint](27_architecture_acceptance.md)
 
 ### Phase 2B — Contracts и vertical domains
 
 Typed contracts уже закреплены задачей 40 перед execution migration. Здесь переносится завершённый execution model; dependency guardrail появляется до первого domain move.
 
-29. [Domain layout contract + validator](../completed/refactoring_v2/28_domain_layout_contract.md)
-30. [Domain dependency validation — transition gate](../completed/refactoring_v2/33_domain_dependency_validation.md)
-31. [Domains: NPC и Customers](../completed/refactoring_v2/29_domain_npc_customers.md)
-32. [Domains: Interaction, Combat и Motion](../completed/refactoring_v2/30_domain_interaction_combat_motion.md)
-33. [Domains: world gameplay](../completed/refactoring_v2/31_domain_world_economy_packages.md)
-34. [Shared core + удаление horizontal roots](../completed/refactoring_v2/32_domain_shared_core.md)
+29. [Domain layout contract + validator](28_domain_layout_contract.md)
+30. [Domain dependency validation — transition gate](33_domain_dependency_validation.md)
+31. [Domains: NPC и Customers](29_domain_npc_customers.md)
+32. [Domains: Interaction, Combat и Motion](30_domain_interaction_combat_motion.md)
+33. [Domains: world gameplay](31_domain_world_economy_packages.md)
+34. [Shared core + удаление horizontal roots](32_domain_shared_core.md)
 
 После 32 обязателен strict rerun dependency validator задачи 33 без migration baseline.
 
 ### Phase 2C — Core framework
 
-35. [Unified Game Time + deterministic randomness — foundation](../completed/refactoring_v2/47_game_time_randomness.md)
-36. [Entity Templates / Traits](../completed/refactoring_v2/41_entity_templates_traits.md)
-37. [Visual Entity authoring](../completed/refactoring_v2/42_visual_entity_authoring.md)
-38. [Smart Objects / Affordances / Reservations](../completed/refactoring_v2/43_smart_objects.md)
-39. [Schedule / goal selection / LimboAI; GOAP deferred](../completed/refactoring_v2/44_ai_schedule_utility_goap.md)
-40. [Simulation LOD](../completed/refactoring_v2/45_simulation_lod.md)
-41. [Content Doctor](../completed/refactoring_v2/46_content_doctor.md)
-42. [Gameplay Debugger](../completed/refactoring_v2/48_gameplay_debugger.md)
-43. [Core architecture acceptance](../completed/refactoring_v2/49_core_architecture_acceptance.md)
+35. [Unified Game Time + deterministic randomness — foundation](47_game_time_randomness.md)
+36. [Entity Templates / Traits](41_entity_templates_traits.md)
+37. [Visual Entity authoring](42_visual_entity_authoring.md)
+38. [Smart Objects / Affordances / Reservations](43_smart_objects.md)
+39. [Schedule / goal selection / LimboAI; GOAP deferred](44_ai_schedule_utility_goap.md)
+40. [Simulation LOD](45_simulation_lod.md)
+41. [Content Doctor](46_content_doctor.md)
+42. [Gameplay Debugger](48_gameplay_debugger.md)
+43. [Core architecture acceptance](49_core_architecture_acceptance.md)
 
 ### Phase 3 — Code Style refactor
 
-44. [Formatter/linter как единый style gate](../completed/refactoring_v2/60_style_tooling.md)
-45. [Systems, Observers, Components, Relationships](../completed/refactoring_v2/61_style_ecs_core.md)
-46. [NPC и Customers](../completed/refactoring_v2/62_style_npc_customers.md)
-47. [Interaction, Combat и Motion](../completed/refactoring_v2/63_style_interaction_combat_motion.md)
-48. [Gameplay services, Economy, Inventory, Persistence](../completed/refactoring_v2/64_style_gameplay_services.md)
-49. [Entities, UI, AI, scene scripts, tests и utils](../completed/refactoring_v2/65_style_remaining_code.md)
+44. [Formatter/linter как единый style gate](60_style_tooling.md)
+45. [Systems, Observers, Components, Relationships](61_style_ecs_core.md)
+46. [NPC и Customers](62_style_npc_customers.md)
+47. [Interaction, Combat и Motion](63_style_interaction_combat_motion.md)
+48. [Gameplay services, Economy, Inventory, Persistence](64_style_gameplay_services.md)
+49. [Entities, UI, AI, scene scripts, tests и utils](65_style_remaining_code.md)
 50. [Финальная приёмка Refactoring v2](66_final_acceptance.md)
 
 ## Current
@@ -150,21 +150,25 @@ strict architecture/domain/dependency, native parser, persistence and package sm
 Native Inspector signal regression: live MCP9/9, source controls survive their signals,
 Inspector restored, authored content unchanged. Independent current repair review PASS.
 
-Phase3 tasks60–66 are now permitted by the archived gate49. See the individual owning
-files for their actual implementation status; no remaining Phase2 owner approval blocks them.
-Tasks60–65 and the native diagnostics self-compilation defect are archived DONE after
-independent immutable review. Manifest native checks cover309+163+106+72+330=980 scripts;
-task65's six mandatory enum callers were checked again with MCP at final acceptance.
-Full formatter/linter covers all980; strict structure/domain/dependency gates pass.
-Task66 owns final all-suite GUT, connected/save-restore smokes, Windows export and review.
-Task62's independently evidenced schedule-completion cycle is repaired.
-General CLI runner reports shutdown-retention FAIL for a lifecycle fixture; actual isolated
-compiler PASS,exit0. This remains owner-deferred engine retention, with logs preserved.
-Phase3 manifest owns980 authored scripts exactly once and excludes generated artifacts.
-Old-save conversion is excluded; current schema10 roundtrip remains mandatory.
-GOAP/body detach/four LOD tiers remain deferred. Shutdown-only4.7.1 retention remains
+Phase3 tasks60–66 and the native diagnostics / GUT fixture isolation defects are DONE
+after independent immutable review. Manifest native checks cover309+163+106+72+330=980
+scripts; mandatory enum callers and final fixtures were rechecked through MCP.
+Full formatter/linter980, strict architecture/domain/dependency/structure/persistence,
+tooling143, Content Doctor92 scenes/3 dialogues and full112 GUT suites PASS.
+Final GUT:1641/1641 tests,13722 assertions,stderr empty. Connected headless flow,
+night write/fresh restore and Windows QA export/menu/main startup PASS.
+Empty migration baselines and allowance APIs are removed. Task62's schedule-completion
+cycle and authored Definition contamination in negative GUT fixtures are repaired.
+Final source checkpoints4eca294128c4acd78f4d53cf0ec1b4616c970bcc and
+76d5eec1039874c92326145f74ef002dc28f5b47 received independent reviews with no material
+findings. Detailed raw statuses, logs and known tool/engine exceptions belong to
+[final acceptance](66_final_acceptance.md).
+Old-save conversion is excluded; current schema10 roundtrip passed. GOAP/body detach/
+four LOD tiers remain deferred. Specified shutdown-only4.7.1 retention remains
 KNOWN_ENGINE_LIMITATION / DEFERRED; runtime ownership defects are not waived.
-Existing owner worktree changes are preserved. No agent rendered gameplay/visual run is claimed.
+Remaining subjective acceptance belongs to [owner QA](../../../qa_tasks/refactoring_v2.md).
+Existing owner worktree changes are preserved. No agent rendered gameplay/visual run
+is claimed. This completed root plan is archived together with its owning task records.
 
 Validation: `python utils/validate_project_structure.py`,
 `python -B utils/validate_architecture.py --strict`,

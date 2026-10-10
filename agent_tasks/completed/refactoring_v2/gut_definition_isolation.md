@@ -1,6 +1,6 @@
 # GUT immutable Definition isolation
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 Owner: GUT fixtures mutating authored Definitions; dependency of final task66.
 Production Definition sharing remains intentional and must not change.
@@ -10,7 +10,7 @@ loaded1641 tests; four failed. Startup reports package return affordance executo
 slot_id=missing after test_smart_objects negative schema case. That fixture duplicates
 the Trait but retains its immutable Definition reference, then changes it. Running the
 startup/persistence suites in a fresh process passes8/8 (334 assertions); raw full-suite
-failure and logs are preserved. A separate golden persistence failure still needs diagnosis.
+failure and logs are preserved. The golden persistence failure was independently localized and repaired below.
 
 Acceptance: detach only mutated fixture Definition/affordance references, retain useful
 negative provider assertions, prove authored source unchanged and ordering regressions;
@@ -35,4 +35,12 @@ proved resource-lifetime-sensitive contamination. Raw initial full and second-pr
 logs remain preserved. Golden assertion now includes valid-data diagnostics.
 All temporary production traces removed; git diff of both persistence validators empty,
 native MCP validates both paths cleanly. Production/save/authoring contracts unchanged.
-Style3 fixtures PASS; full112-suite repaired run and immutable repair review pending.
+Style3 fixtures PASS; final full-project formatter/linter980 PASS. Native MCP rechecks
+all three changed paths with error_code0. Full112-suite repaired GUT PASS1641/1641,
+13722 assertions,exit0,stderr empty. Original four-failure full log retained;
+[repaired full run](../../../.artifacts/godot_agent/final66_repaired_gut.stdout.log).
+
+Independent immutable review BASE4eca294128c4acd78f4d53cf0ec1b4616c970bcc to
+TARGET76d5eec1039874c92326145f74ef002dc28f5b47: ARCHITECTURE/STYLE PASS,
+no material findings. Reviewer VALIDATION NOT_RUN; Main ran the checks above.
+No new owner QA required. Final acceptance belongs to [task66](66_final_acceptance.md).
