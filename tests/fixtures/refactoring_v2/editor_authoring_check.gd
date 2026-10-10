@@ -42,7 +42,15 @@ func _check() -> void:
 		and (plugin.get("_dock") as EditorDock).title == "Entity Authoring"
 	)
 	var previous_level_id: StringName = level.get_meta(&"persistent_world_id")
-	(panel.get_node("%RepairLevel") as Button).pressed.emit()
+	var repair_level: Button = panel.get_node("%RepairLevel") as Button
+	level_valid = level_valid and not repair_level.visible
+	repair_level.pressed.emit()
+	level_valid = level_valid and level.get_meta(&"persistent_world_id") == previous_level_id
+	selection.clear()
+	selection.add_node(level)
+	plugin.call("refresh_authoring")
+	level_valid = level_valid and repair_level.visible and not repair_level.disabled
+	repair_level.pressed.emit()
 	var assigned_level_id: StringName = level.get_meta(&"persistent_world_id")
 	var undo_manager: EditorUndoRedoManager = plugin.get_undo_redo()
 	var level_history: UndoRedo = undo_manager.get_history_undo_redo(
@@ -59,10 +67,14 @@ func _check() -> void:
 	selection.clear()
 	selection.add_node(level.get_node("Trader"))
 	plugin.call("refresh_authoring")
+	level_valid = level_valid and not repair_level.visible
 	level_valid = level_valid and level_label.text == "Level ID: " + String(assigned_level_id)
 	level_history.undo()
 	level_valid = level_valid and level_label.text == "Level ID: " + String(previous_level_id)
 	level_history.clear_history()
+	selection.clear()
+	plugin.call("refresh_authoring")
+	level_valid = level_valid and not repair_level.visible
 	print(
 		"Entity authoring dock Level ID display/repair/undo/redo/selection: %s"
 		% ("PASS" if level_valid else "FAIL")

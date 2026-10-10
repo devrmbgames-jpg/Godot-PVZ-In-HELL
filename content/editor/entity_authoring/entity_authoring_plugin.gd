@@ -37,7 +37,7 @@ func _exit_tree() -> void:
 func refresh_authoring() -> void:
 	var edited_root: Node = EditorInterface.get_edited_scene_root()
 	var selection: Array[Node] = EditorInterface.get_selection().get_selected_nodes()
-	var actor: Node = selection.back() if not selection.is_empty() else edited_root
+	var actor: Node = selection.back() if not selection.is_empty() else null
 	if actor != edited_root and not actor is Entity:
 		actor = null
 	_panel.call("bind_actor", actor, edited_root)

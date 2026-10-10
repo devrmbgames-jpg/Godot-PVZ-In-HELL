@@ -117,7 +117,8 @@ func _refresh_identity() -> void:
 		else "scene intrinsic"
 	)
 	_repair_instance.disabled = host_plugin == null or not actor is Entity
-	_repair_level.disabled = (host_plugin == null or edited_root == null or edited_root is Entity)
+	_repair_level.visible = _selected_level() != null
+	_repair_level.disabled = host_plugin == null or not _repair_level.visible
 	_configure.disabled = host_plugin == null or not actor is Entity
 	_validate.disabled = host_plugin == null or actor == null or edited_root == null
 	_recipes.visible = _advanced
@@ -136,7 +137,15 @@ func _repair_selected_instance() -> void:
 
 
 func _repair_selected_level() -> void:
-	_repair_identity(_root_ref, _WORLD_ID_META)
+	if _selected_level() == null:
+		return
+	_repair_identity(_actor_ref, _WORLD_ID_META)
+
+
+func _selected_level() -> Node:
+	var actor: Node = _actor_ref.get_ref() as Node if _actor_ref != null else null
+	var edited_root: Node = _root_ref.get_ref() as Node if _root_ref != null else null
+	return actor if actor != null and actor == edited_root and not actor is Entity else null
 
 
 func _configure_selected() -> void:

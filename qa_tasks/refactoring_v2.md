@@ -13,8 +13,10 @@ acceptance that cannot be proved by detached/headless checks. No rendered QA is 
   separate instance/Template IDs, recipe/provider diagnostics and named binding editing.
 - Place/duplicate the real scenes: mesh, collision and markers remain visible/editable.
   Assign/repair the new instance and nested slot IDs; Undo/Redo restores the previous values.
-- Repair Level ID while an Entity is selected: the dock's Level ID updates immediately.
-  Undo/Redo and switching between Entities keep that displayed value current.
+- Select the level scene root and repair Level ID: the dock's Level ID updates immediately.
+  Selecting an Entity or clearing selection hides the Level ID repair button; child objects
+  cannot change their parent level's ID. Undo/Redo and switching between Entities keep the
+  read-only displayed value current.
 - Change an unsaved Template/Profile value, validate, and confirm the report reflects it
   without overwriting the authored asset. A duplicate ID/missing binding/conflicting provider
   must show an actionable failure before play.

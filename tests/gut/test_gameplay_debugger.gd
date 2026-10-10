@@ -148,6 +148,40 @@ func test_retired_selection_is_unavailable_even_if_object_still_exists() -> void
 
 
 #region Native view lifecycle
+func test_level_repair_is_visible_only_for_explicit_level_selection() -> void:
+	var level: Node = Node.new()
+	level.set_meta(&"persistent_world_id", &"level_before")
+	add_child(level)
+	var child: Node = Node.new()
+	level.add_child(child)
+	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
+	var dock: VBoxContainer = AUTHORING_VIEW.instantiate() as VBoxContainer
+	add_child(dock)
+	var repair_level: Button = dock.get_node("%RepairLevel") as Button
+	dock.call("bind_actor", actor, level)
+	assert_false(repair_level.visible, "Entity selection cannot offer parent identity repair")
+	dock.call("_repair_selected_level")
+	assert_eq(level.get_meta(&"persistent_world_id"), &"level_before")
+	dock.call("bind_actor", level, level)
+	assert_true(repair_level.visible, "Explicit level selection offers level identity repair")
+	dock.call("bind_actor", child, level)
+	assert_false(repair_level.visible, "Ordinary descendants cannot repair the level either")
+	dock.call("_repair_selected_level")
+	assert_eq(level.get_meta(&"persistent_world_id"), &"level_before")
+	dock.call("bind_actor", null, level)
+	assert_false(repair_level.visible, "No selection does not implicitly select the level")
+	dock.call("_repair_selected_level")
+	assert_eq(level.get_meta(&"persistent_world_id"), &"level_before")
+	dock.call("bind_actor", actor, actor)
+	assert_false(repair_level.visible, "An Entity prefab root is not a level identity owner")
+	dock.call("_repair_selected_level")
+	assert_false(actor.has_meta(&"persistent_world_id"))
+	dock.call("bind_actor", level, level)
+	assert_true(repair_level.visible, "Returning to the level restores its action")
+	dock.free()
+	level.free()
+
+
 func test_authoring_labels_follow_root_notifications_and_selection_without_editor_host() -> void:
 	var level: Node = Node.new()
 	level.set_meta(&"persistent_world_id", &"before_repair")

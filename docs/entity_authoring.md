@@ -41,7 +41,9 @@ does not itself add a new gameplay behavior. Parent-owned slots use the existing
 
 ## Identity and validation
 
-Use **Create / Repair Level ID** for a new level scope, and **Create / Repair Instance ID**
+Select the level scene root to use **Create / Repair Level ID** for a new level scope.
+This button is hidden for child objects, Entity prefab roots and an empty selection;
+its handler only changes the selected level itself. Use **Create / Repair Instance ID**
 for a newly placed/duplicated Entity. Both are explicit native Undo/Redo operations.
 The dock listens to both the selected instance and level root: Repair, Undo/Redo and
 selection changes update the displayed identity without rebuilding the base Inspector.
