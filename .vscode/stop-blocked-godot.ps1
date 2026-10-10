@@ -18,7 +18,7 @@ $ErrorActionPreference = "Stop"
 if ($env:OS -ne "Windows_NT") {
     throw "This guarded process-recovery command requires Windows/CIM."
 }
-$root = (Resolve-Path -LiteralPath $ProjectRoot).Path.TrimEnd('\', '/')
+$root = (Resolve-Path -LiteralPath $ProjectRoot).Path.TrimEnd([char[]]@('\', '/'))
 if (-not (Test-Path -LiteralPath (Join-Path $root "project.godot") -PathType Leaf)) {
     throw "Refusing: selected directory is not a Godot project: $root"
 }
@@ -38,8 +38,9 @@ if ($binary -notmatch '(?i)^Godot[^\\/]*\.exe$') {
 if ($command -notmatch '(?i)(?:^|\s)--editor(?:\s|$)') {
     throw "Refusing: PID $EditorPid does not have the --editor argument."
 }
-if ($command.IndexOf($root, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
-    throw "Refusing: PID $EditorPid does not identify this project in its command line."
+$projectArgument = '(?i)(?:^|\s)--path\s+"?' + [Regex]::Escape($root) + '"?(?:\s|$)'
+if ($command -notmatch $projectArgument) {
+    throw "Refusing: PID $EditorPid has no --path argument identifying this exact project."
 }
 
 $logDir = Join-Path $root ".artifacts\godot_agent"
@@ -80,7 +81,7 @@ try {
 
 $pidFile = Join-Path $root ".bin\.godot-editor.pid"
 if (Test-Path -LiteralPath $pidFile) {
-    $pidText = (Get-Content -LiteralPath $pidFile -Raw -ErrorAction SilentlyContinue).Trim()
+    $pidText = ([string](Get-Content -LiteralPath $pidFile -Raw -ErrorAction SilentlyContinue)).Trim()
     if ($pidText -eq [string]$EditorPid) {
         Remove-Item -LiteralPath $pidFile -Force
     }
@@ -91,7 +92,4 @@ Write-Warning "The editor was force-stopped; any unsaved work in it may have bee
 
 if ($Restart) {
     & (Join-Path $PSScriptRoot "start-godot.ps1") -ProjectRoot $root
-    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) {
-        throw "Godot Editor restart failed with exit code $LASTEXITCODE."
-    }
 }
