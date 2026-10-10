@@ -12855,7 +12855,8 @@
       ],
       "public_methods": [],
       "sources": [
-        "content/services/packages/package_opening.gd"
+        "content/services/packages/package_opening.gd",
+        "content/domains/packages/services/truck_cargo_service.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -18055,6 +18056,171 @@
         "content/editor/entity_authoring/entity_traits_property.gd"
       ],
       "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "commerce",
+      "symbol": "MoneyOperation",
+      "path": "content/domains/commerce/contracts/money_operation.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit cargo transaction reads eligibility and requests owning wallet operations; it never writes the live wallet directly."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "npc",
+      "symbol": "C_NpcIdentity",
+      "path": "content/domains/npc/components/c_npc_identity.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit cargo transaction reads eligibility and requests owning wallet operations; it never writes the live wallet directly."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "combat",
+      "symbol": "C_Death",
+      "path": "content/domains/combat/components/c_death.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit cargo transaction reads eligibility and requests owning wallet operations; it never writes the live wallet directly."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "commerce",
+      "symbol": "C_Wallet",
+      "path": "content/domains/commerce/components/c_wallet.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit cargo transaction reads eligibility and requests owning wallet operations; it never writes the live wallet directly."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "inventory",
+      "symbol": "R_OwnedBy",
+      "path": "content/domains/inventory/relationships/r_owned_by.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit cargo transaction reads eligibility and requests owning wallet operations; it never writes the live wallet directly."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "R_CartCargo",
+      "path": "content/domains/interaction/relationships/r_cart_cargo.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit cargo transaction reads eligibility and requests owning wallet operations; it never writes the live wallet directly."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "commerce",
+      "symbol": "WalletService",
+      "path": "content/domains/commerce/services/wallet_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "request"
+      ],
+      "public_methods": [
+        "snapshot",
+        "current",
+        "apply",
+        "submit"
+      ],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {
+        "snapshot": "read",
+        "current": "query",
+        "apply": "request",
+        "submit": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Explicit cargo transaction reads eligibility and requests owning wallet operations; it never writes the live wallet directly."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "packages",
+      "symbol": "TruckCargoReceipt",
+      "path": "content/domains/packages/contracts/truck_cargo_receipt.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/persistence/receiving_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Closed codec and passive preflight for durable cargo receipts."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "C_PlayerAnchored",
+      "path": "content/domains/interaction/components/c_player_anchored.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Fixed and slotted objects are excluded from free truck cargo."
     }
   ],
   "legacy_decomposition": []

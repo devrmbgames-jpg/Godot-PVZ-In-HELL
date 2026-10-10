@@ -1,5 +1,5 @@
 {
-  "schema": 10,
+  "schema": 11,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -198,6 +198,8 @@
         "last_started_day",
         "batch_id",
         "dispatched_batch_id",
+        "cargo_batch_id",
+        "cargo_receipts",
         "incoming_package_ids",
         "pending",
         "delivered_counts"
@@ -338,6 +340,10 @@
       "path": "res://content/domains/packages/contracts/receiving_batch.gd"
     },
     {
+      "symbol": "TruckCargoReceipt",
+      "path": "res://content/domains/packages/contracts/truck_cargo_receipt.gd"
+    },
+    {
       "symbol": "PendingLootDrop",
       "path": "res://content/domains/packages/contracts/pending_loot_drop.gd"
     }
@@ -387,6 +393,7 @@
     "res://content/domains/packages/components/c_receiving.gd",
     "res://content/domains/packages/contracts/package_registration_record.gd",
     "res://content/domains/packages/contracts/receiving_batch.gd",
+    "res://content/domains/packages/contracts/truck_cargo_receipt.gd",
     "res://content/domains/packages/definitions/def_delivery_morning_supply.tres::Books",
     "res://content/domains/packages/entities/package_b.tscn",
     "res://content/domains/time/components/c_day_cycle.gd",

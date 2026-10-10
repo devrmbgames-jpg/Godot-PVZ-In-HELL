@@ -6,6 +6,26 @@ class_name ReceivingSnapshotRules
 #region Pending recipe preflight
 ## Verifies every retained key/scene pair and the authored zone's selected delivery definition.
 static func valid(receiving: C_Receiving, actor: Entity) -> bool:
+	var receipt_ids: Dictionary[String, bool] = { }
+	for receipt: TruckCargoReceipt in receiving.cargo_receipts:
+		if (
+			receipt == null or receipt.batch_id.is_empty() or receipt.entity_id.is_empty()
+			or receipt.day_index < 1 or receipt.day_index > receiving.last_started_day
+			or receipt.kind < TruckCargoReceipt.Kind.RETURN
+			or receipt.kind > TruckCargoReceipt.Kind.DISPOSAL
+			or receipt.amount < 0 or receipt.amount > WalletService.MAX_AMOUNT
+			or (receipt.amount > 0 and receipt.kind != TruckCargoReceipt.Kind.SALE)
+			or (receipt.settled and not receipt.removed)
+		):
+			return false
+		var receipt_id: String = receipt.batch_id + "/" + receipt.entity_id
+		if receipt_ids.has(receipt_id):
+			return false
+		receipt_ids[receipt_id] = true
+		if (
+			receiving.dispatched_batch_id == receipt.batch_id and not receipt.settled
+		):
+			return false
 	var zone: E_ReceivingZone = actor as E_ReceivingZone
 	for batch: ReceivingBatch in receiving.pending:
 		if batch.day_index < 1 or batch.next_package < 0:

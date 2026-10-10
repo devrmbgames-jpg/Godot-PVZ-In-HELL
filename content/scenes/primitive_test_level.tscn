@@ -1,11 +1,17 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bpliadtgfwbe7"]
 
-[ext_resource type="PackedScene" path="res://content/domains/customers/entities/inspection_booth.tscn" id="InspectionBooth"]
 [ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
 [ext_resource type="PackedScene" path="res://content/domains/motion/entities/character_body_player.tscn" id="13_da1x8"]
-[ext_resource type="Script" path="res://content/domains/motion/components/c_character_body.gd" id="23_d7jx2"]
+[ext_resource type="Script" uid="uid://cg5pggkojxvba" path="res://content/domains/packages/components/c_package_state.gd" id="16_3nqfa"]
+[ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/domains/packages/components/c_package_marks.gd" id="19_oxwml"]
+[ext_resource type="PackedScene" uid="uid://ddgl127toocsh" path="res://content/domains/packages/entities/package_debris_stub.tscn" id="20_yfsfw"]
+[ext_resource type="Script" uid="uid://dqvfkag4yobu7" path="res://content/domains/packages/components/c_package_destruction.gd" id="21_b28xq"]
+[ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="22_g5gll"]
+[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/domains/motion/components/c_character_body.gd" id="23_d7jx2"]
 [ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/domains/interaction/components/c_player_input_controller.gd" id="24_x60uf"]
+[ext_resource type="Script" uid="uid://2hnkpig3umk" path="res://content/domains/combat/components/c_impact_protection.gd" id="24_yuvpa"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="25_t1fd8"]
+[ext_resource type="Script" uid="uid://ejcfj2vkgak" path="res://content/domains/packages/definitions/def_open_package_action.gd" id="26_5stww"]
 [ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/domains/motion/components/c_look.gd" id="26_t86in"]
 [ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/domains/motion/components/c_jump.gd" id="27_bkyhs"]
 [ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/domains/motion/components/c_crouch.gd" id="28_23iv7"]
@@ -24,12 +30,26 @@
 [ext_resource type="Script" uid="uid://swt054yqxt3s" path="res://content/domains/interaction/components/c_cart_transport.gd" id="63_3w6s4"]
 [ext_resource type="PackedScene" uid="uid://bfyevmoy76bm3" path="res://content/domains/interaction/entities/door_template.tscn" id="63_uqafv"]
 [ext_resource type="Script" uid="uid://da6i6tt1dgukj" path="res://content/domains/interaction/definitions/def_cart_transport_action.gd" id="64_mnsyy"]
+[ext_resource type="Script" uid="uid://bjw3cnt57gt0j" path="res://content/domains/packages/contracts/package_registration_record.gd" id="73_mgtne"]
+[ext_resource type="Script" uid="uid://beak7vlgbw1xn" path="res://content/domains/commerce/contracts/daily_money_result.gd" id="75_w7yrj"]
+[ext_resource type="Script" uid="uid://cel5d7cs0026u" path="res://content/domains/commerce/contracts/money_operation.gd" id="76_ejhqq"]
+[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_economy_default.tres" id="77_i73ra"]
 [ext_resource type="PackedScene" uid="uid://cubcn0opxbk6v" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn" id="77_iit40"]
 [ext_resource type="PackedScene" uid="uid://cbskdoyjbjixx" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_B/Barrel_B_rigid.tscn" id="78_at2gx"]
 [ext_resource type="PackedScene" uid="uid://bf2ntstxhdr1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_C/Barrel_C_rigid.tscn" id="79_ypydk"]
+[ext_resource type="Script" uid="uid://6wrc7la1nb8v" path="res://content/domains/customers/contracts/customer_visit.gd" id="81_ohc32"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="82_651re"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_food.tres" id="83_kv05b"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_med.tres" id="84_g2ryl"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_bubble_wrap.tres" id="85_jin1s"]
+[ext_resource type="Script" uid="uid://b4mppsv72drxx" path="res://content/domains/commerce/contracts/pending_delivery.gd" id="86_tla0k"]
+[ext_resource type="Script" uid="uid://vocpbv1orkxs" path="res://content/domains/commerce/contracts/purchase_receipt.gd" id="87_toeq2"]
+[ext_resource type="Script" uid="uid://d12bthrxw322h" path="res://content/domains/quests/contracts/refusal_quest_record.gd" id="89_f5udp"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/physical_slot.tscn" id="155_5h1gn"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/anchorable_test_box.tscn" id="AnchorTest_scene"]
 [ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/domains/persistence/components/c_autosave.gd" id="Autosave_state"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/breakable_door.tscn" id="Breakable_door"]
+[ext_resource type="Script" uid="uid://7ah3t80yjit4" path="res://content/domains/interaction/presentation/circuit_light_view.gd" id="Circuit_light_view"]
 [ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/domains/commerce/components/c_commerce.gd" id="Commerce_state"]
 [ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/domains/customers/components/c_customer_flow.gd" id="Customer_flow"]
 [ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/domains/customers/definitions/def_customer_schedule_default.tres" id="Customer_schedule"]
@@ -38,13 +58,19 @@
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/domains/time/components/c_day_cycle.gd" id="Day_state"]
 [ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/domains/time/entities/day_phase_station.tscn" id="Day_station"]
 [ext_resource type="PackedScene" path="res://content/domains/customers/entities/delivery_counter.tscn" id="Delivery_counter"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+[ext_resource type="Resource" uid="uid://b1io7l5w1odxr" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="DirectTrait_1"]
+[ext_resource type="Resource" uid="uid://b6ivyyl82mbpq" path="res://content/shared/authoring/et_boundary_trace.tres" id="DirectTrait_2"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/drawer.tscn" id="Drawer_scene"]
 [ext_resource type="PackedScene" path="res://content/domains/inventory/entities/food_pickup.tscn" id="Food_pickup"]
+[ext_resource type="PackedScene" uid="uid://d3vj5iyw4p75d" path="res://content/scenes/game_world.tscn" id="Game_world"]
+[ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
 [ext_resource type="PackedScene" path="res://content/domains/combat/entities/hammer.tscn" id="Hammer_scene"]
 [ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/domains/needs/definitions/def_hunger_default.tres" id="Hunger_policy"]
 [ext_resource type="Script" uid="uid://ok26p4khdh4e" path="res://content/domains/needs/components/c_hunger.gd" id="Hunger_state"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/inspection_booth.tscn" id="InspectionBooth"]
 [ext_resource type="PackedScene" uid="uid://dx3ysmmpho68c" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
 [ext_resource type="PackedScene" path="res://content/ui/inventory_panel.tscn" id="Inventory_panel"]
 [ext_resource type="Script" uid="uid://t8kbpaposqpt" path="res://content/domains/inventory/components/c_inventory.gd" id="Inventory_state"]
@@ -54,9 +80,10 @@
 [ext_resource type="PackedScene" uid="uid://2kqhx881j4yk" path="res://content/domains/interaction/entities/marker.tscn" id="Marker_scene"]
 [ext_resource type="PackedScene" path="res://content/domains/inventory/entities/med_pickup.tscn" id="Med_pickup"]
 [ext_resource type="PackedScene" path="res://content/domains/commerce/entities/order_receiving.tscn" id="Order_receiving_scene"]
-[ext_resource type="PackedScene" path="res://content/domains/packages/entities/package_return_point.tscn" id="Package_return_point"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/padlocked_door.tscn" id="Padlocked_door"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/placement_area.tscn" id="PlacementArea"]
 [ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/domains/combat/components/c_combat.gd" id="Player_combat"]
+[ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/domains/motion/components/c_stamina.gd" id="Player_stamina"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/domains/interaction/entities/push_cart.tscn" id="Push_cart"]
 [ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/domains/interaction/components/c_push_control.gd" id="Push_control"]
 [ext_resource type="Script" uid="uid://dmxtpoip5hrcv" path="res://content/domains/quests/components/c_quest_session.gd" id="Quest_state"]
@@ -70,35 +97,150 @@
 [ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/domains/motion/components/c_strength.gd" id="Strength"]
 [ext_resource type="Resource" path="res://content/domains/motion/definitions/def_attr_strength.tres" id="StrengthDef"]
 [ext_resource type="PackedScene" uid="uid://cxcaew8qdooi6" path="res://content/domains/packages/entities/terminal.tscn" id="Terminal_scene"]
+[ext_resource type="NavigationMesh" uid="uid://cyo2cb52cr63c" path="res://content/domains/npc/authoring/navigation/navmesh_primitive_test.tres" id="Test_navigation"]
 [ext_resource type="PackedScene" path="res://content/domains/commerce/entities/trader.tscn" id="Trader_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_bread.tscn" id="Unpack_bread"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_medkits.tscn" id="Unpack_medkits"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_small_shelf.tscn" id="Unpack_small_shelf"]
 [ext_resource type="PackedScene" path="res://content/domains/combat/entities/utility_blade.tscn" id="Utility_blade"]
 [ext_resource type="PackedScene" uid="uid://d36ymw1qbl12t" path="res://content/domains/interaction/entities/interaction_test_valve.tscn" id="Valve_test"]
 [ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/domains/commerce/components/c_wallet.gd" id="Wallet_state"]
 [ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/domains/interaction/entities/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/domains/inventory/entities/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
-[ext_resource type="PackedScene" path="res://content/scenes/game_world.tscn" id="Game_world"]
-[ext_resource type="NavigationMesh" path="res://content/domains/npc/authoring/navigation/navmesh_primitive_test.tres" id="Test_navigation"]
 
-[ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
+[sub_resource type="Environment" id="TestEnvironment"]
+background_mode = 1
+background_color = Color(0.18, 0.22, 0.28, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.6, 0.65, 0.75, 1)
+ambient_light_energy = 0.65
 
-[ext_resource type="Script" path="res://content/domains/interaction/presentation/circuit_light_view.gd" id="Circuit_light_view"]
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.25, 0.29, 0.33, 1)
 
-[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/breakable_door.tscn" id="Breakable_door"]
-[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/padlocked_door.tscn" id="Padlocked_door"]
+[sub_resource type="BoxMesh" id="FloorMesh"]
+material = SubResource("FloorMaterial")
+size = Vector3(80, 0.5, 64)
 
-[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_small_shelf.tscn" id="Unpack_small_shelf"]
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(80, 0.5, 64)
 
-[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_medkits.tscn" id="Unpack_medkits"]
+[sub_resource type="BoxMesh" id="BarrierMesh"]
+size = Vector3(80, 1.5, 0.5)
 
-[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_bread.tscn" id="Unpack_bread"]
+[sub_resource type="BoxShape3D" id="BarrierShape"]
+size = Vector3(80, 1.5, 0.5)
 
-[ext_resource type="Script" path="res://content/domains/motion/components/c_stamina.gd" id="Player_stamina"]
+[sub_resource type="BoxMesh" id="SideBarrierMesh"]
+size = Vector3(0.5, 1.5, 64)
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+[sub_resource type="BoxShape3D" id="SideBarrierShape"]
+size = Vector3(0.5, 1.5, 64)
 
-[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="DirectTrait_1"]
+[sub_resource type="BoxMesh" id="PedestalMesh"]
+size = Vector3(1.2, 1, 1.2)
 
-[ext_resource type="Resource" path="res://content/shared/authoring/et_boundary_trace.tres" id="DirectTrait_2"]
+[sub_resource type="BoxShape3D" id="PedestalShape"]
+size = Vector3(1.2, 1, 1.2)
+
+[sub_resource type="BoxMesh" id="ClueWallMesh"]
+size = Vector3(2.5, 2.8, 0.3)
+
+[sub_resource type="BoxShape3D" id="ClueWallShape"]
+size = Vector3(2.5, 2.8, 0.3)
+
+[sub_resource type="Resource" id="Package_interactable"]
+script = ExtResource("Sleep_interactable")
+
+[sub_resource type="Resource" id="Package_grabbable"]
+script = ExtResource("48_uqafv")
+
+[sub_resource type="Resource" id="Resource_0baqr"]
+resource_local_to_scene = true
+script = ExtResource("16_3nqfa")
+
+[sub_resource type="Resource" id="Resource_e5ghr"]
+resource_local_to_scene = true
+script = ExtResource("31_8uaqh")
+definition = ExtResource("30_4agnb")
+
+[sub_resource type="Resource" id="Resource_q5fi0"]
+resource_local_to_scene = true
+script = ExtResource("19_oxwml")
+
+[sub_resource type="Resource" id="Resource_3vbfu"]
+resource_local_to_scene = true
+script = ExtResource("21_b28xq")
+debris_scene = ExtResource("20_yfsfw")
+
+[sub_resource type="Resource" id="Resource_o4agj"]
+resource_local_to_scene = true
+script = ExtResource("ImpactReceiver")
+
+[sub_resource type="Resource" id="Resource_hhpj4"]
+resource_local_to_scene = true
+script = ExtResource("24_yuvpa")
+
+[sub_resource type="Resource" id="OpenAction"]
+script = ExtResource("26_5stww")
+action_id = &"open_package"
+caption = "Вскрыть посылку"
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("Sleep_actions")
+actions = Array[ExtResource("48_eajlk")]([SubResource("OpenAction")])
+
+[sub_resource type="Resource" id="Resource_qm0ej"]
+resource_local_to_scene = true
+script = ExtResource("16_3nqfa")
+
+[sub_resource type="Resource" id="Resource_dm0pt"]
+resource_local_to_scene = true
+script = ExtResource("31_8uaqh")
+definition = ExtResource("30_4agnb")
+
+[sub_resource type="Resource" id="Resource_6s21i"]
+resource_local_to_scene = true
+script = ExtResource("19_oxwml")
+
+[sub_resource type="Resource" id="Resource_7qbm0"]
+resource_local_to_scene = true
+script = ExtResource("21_b28xq")
+debris_scene = ExtResource("20_yfsfw")
+
+[sub_resource type="Resource" id="Resource_movbe"]
+resource_local_to_scene = true
+script = ExtResource("ImpactReceiver")
+
+[sub_resource type="Resource" id="Resource_8id5m"]
+resource_local_to_scene = true
+script = ExtResource("24_yuvpa")
+
+[sub_resource type="Resource" id="Resource_7pdaa"]
+resource_local_to_scene = true
+script = ExtResource("16_3nqfa")
+
+[sub_resource type="Resource" id="Resource_u62m5"]
+resource_local_to_scene = true
+script = ExtResource("31_8uaqh")
+definition = ExtResource("30_4agnb")
+
+[sub_resource type="Resource" id="Resource_vx2q0"]
+resource_local_to_scene = true
+script = ExtResource("19_oxwml")
+
+[sub_resource type="Resource" id="Resource_tres0"]
+resource_local_to_scene = true
+script = ExtResource("21_b28xq")
+debris_scene = ExtResource("20_yfsfw")
+
+[sub_resource type="Resource" id="Resource_56nb2"]
+resource_local_to_scene = true
+script = ExtResource("ImpactReceiver")
+
+[sub_resource type="Resource" id="Resource_6p1hp"]
+resource_local_to_scene = true
+script = ExtResource("24_yuvpa")
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
@@ -109,12 +251,12 @@ metadata/_custom_type_script = "uid://iq4pnvam7fq5"
 
 [sub_resource type="Resource" id="Resource_mn5t4"]
 script = ExtResource("25_t1fd8")
-floor_snap_distance = 0.12
 max_speed = 5.0
 ground_acceleration = 70.0
 ground_deceleration = 80.0
 ground_lateral_friction = 90.0
 air_acceleration = 5.0
+floor_snap_distance = 0.12
 metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
 
 [sub_resource type="Resource" id="Resource_lf6x7"]
@@ -148,7 +290,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("32_mc3p1")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_3xfrw"]
+[sub_resource type="Resource" id="Resource_w6vcc"]
 resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
@@ -177,12 +319,16 @@ script = ExtResource("Inventory_state")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="Resource" id="Resource_jjqtf"]
+[sub_resource type="Resource" id="Resource_3hljd"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[sub_resource type="Resource" id="Resource_2peb6"]
+[sub_resource type="Resource" id="Resource_5ss1o"]
+resource_local_to_scene = true
+script = ExtResource("Player_stamina")
+
+[sub_resource type="Resource" id="Resource_p5i8f"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 
@@ -201,24 +347,27 @@ action_id = &"mark_package"
 slot = 2
 caption = "Рисовать маркером"
 
-[sub_resource type="Resource" id="Actions"]
+[sub_resource type="Resource" id="Resource_a1uic"]
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_5und5"]
+[sub_resource type="Resource" id="Resource_xjbpj"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(1, 0.13787842, 0.0234375, 1)
 
-[sub_resource type="Resource" id="Resource_jpldi"]
+[sub_resource type="Resource" id="Resource_mtfgp"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(0.96875, 0, 1, 1)
 
-[sub_resource type="Resource" id="Resource_vmj2w"]
+[sub_resource type="Resource" id="Resource_w1axo"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
+
+[sub_resource type="PlaneMesh" id="ReceivingMark"]
+size = Vector2(12, 8)
 
 [sub_resource type="Resource" id="Day_state"]
 resource_local_to_scene = true
@@ -259,7 +408,7 @@ caption = "Лечь спать"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Sleep_transition")])
 
-[sub_resource type="Resource" id="Resource_w4uhm"]
+[sub_resource type="Resource" id="Resource_1ugu1"]
 resource_local_to_scene = true
 script = ExtResource("63_3w6s4")
 
@@ -275,679 +424,681 @@ caption = "Взяться за ручку"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("PushAction")])
 
-[sub_resource type="Environment" id="TestEnvironment"]
-background_mode = 1
-background_color = Color(0.18, 0.22, 0.28, 1)
-ambient_light_source = 3
-ambient_light_color = Color(0.6, 0.65, 0.75, 1)
-ambient_light_energy = 0.65
-
-[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
-albedo_color = Color(0.25, 0.29, 0.33, 1)
-
-[sub_resource type="BoxMesh" id="FloorMesh"]
-material = SubResource("FloorMaterial")
-size = Vector3(80, 0.5, 64)
-
-[sub_resource type="BoxShape3D" id="FloorShape"]
-size = Vector3(80, 0.5, 64)
-
-[sub_resource type="BoxMesh" id="PedestalMesh"]
-size = Vector3(1.2, 1, 1.2)
-
-[sub_resource type="BoxShape3D" id="PedestalShape"]
-size = Vector3(1.2, 1, 1.2)
-
-[sub_resource type="BoxMesh" id="BarrierMesh"]
-size = Vector3(80, 1.5, 0.5)
-
-[sub_resource type="BoxShape3D" id="BarrierShape"]
-size = Vector3(80, 1.5, 0.5)
-
-[sub_resource type="BoxMesh" id="SideBarrierMesh"]
-size = Vector3(0.5, 1.5, 64)
-
-[sub_resource type="BoxShape3D" id="SideBarrierShape"]
-size = Vector3(0.5, 1.5, 64)
-
-[sub_resource type="PlaneMesh" id="ReceivingMark"]
-size = Vector2(12, 8)
-
-[sub_resource type="BoxMesh" id="ClueWallMesh"]
-size = Vector3(2.5, 2.8, 0.3)
-
-[sub_resource type="BoxShape3D" id="ClueWallShape"]
-size = Vector3(2.5, 2.8, 0.3)
-
-[sub_resource type="Resource" id="Player_stamina"]
-resource_local_to_scene = true
-script = ExtResource("Player_stamina")
-
-[node name="PrimitiveTestLevel" type="Node3D" node_paths=PackedStringArray("world")]
-metadata/persistent_world_id = &"primitive_test_level"
+[node name="PrimitiveTestLevel" type="Node3D" unique_id=908237235 node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
 world = NodePath("World")
 autosave_path = "user://primitive_test_level.pvzh"
+metadata/persistent_world_id = &"primitive_test_level"
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=119974121]
 environment = SubResource("TestEnvironment")
 
-[node name="Sun" type="DirectionalLight3D" parent="." groups=["warehouse_lights"]]
-rotation_degrees = Vector3(-65, -25, 0)
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1723424282 groups=["warehouse_lights"]]
+transform = Transform3D(0.90630776, 0.38302225, -0.17860618, 0, 0.42261824, 0.9063078, 0.42261827, -0.8213938, 0.3830222, 0, 0, 0)
 light_energy = 0.8
 
-[node name="WarehouseNavigation" type="NavigationRegion3D" parent="."]
-navigation_mesh = ExtResource("Test_navigation")
-
-[node name="World" parent="." instance=ExtResource("Game_world")]
-
-[node name="PVZ" type="Node3D" parent="."]
-
-[node name="Floor" type="StaticBody3D" parent="PVZ"]
-position = Vector3(0, -0.25, 0)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Floor"]
-mesh = SubResource("FloorMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Floor"]
-shape = SubResource("FloorShape")
-
-[node name="Boundary31N" type="StaticBody3D" parent="PVZ"]
-position = Vector3(0, 0.75, -31.5)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Boundary31N"]
-mesh = SubResource("BarrierMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Boundary31N"]
-shape = SubResource("BarrierShape")
-
-[node name="Boundary31S" type="StaticBody3D" parent="PVZ"]
-position = Vector3(0, 0.75, 31.5)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Boundary31S"]
-mesh = SubResource("BarrierMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Boundary31S"]
-shape = SubResource("BarrierShape")
-
-[node name="BoundaryW" type="StaticBody3D" parent="PVZ"]
-position = Vector3(-39.5, 0.75, 0)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/BoundaryW"]
-mesh = SubResource("SideBarrierMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/BoundaryW"]
-shape = SubResource("SideBarrierShape")
-
-[node name="BoundaryE" type="StaticBody3D" parent="PVZ"]
-position = Vector3(39.5, 0.75, 0)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/BoundaryE"]
-mesh = SubResource("SideBarrierMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/BoundaryE"]
-shape = SubResource("SideBarrierShape")
-
-[node name="Pedestal1" type="StaticBody3D" parent="PVZ"]
-position = Vector3(-12, 0.5, 2)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal1"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal1"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal2" type="StaticBody3D" parent="PVZ"]
-position = Vector3(-10, 0.5, 2)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal2"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal2"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal3" type="StaticBody3D" parent="PVZ"]
-position = Vector3(-8, 0.5, 2)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal3"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal3"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal4" type="StaticBody3D" parent="PVZ"]
-position = Vector3(-12, 0.5, 6)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal4"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal4"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal5" type="StaticBody3D" parent="PVZ"]
-position = Vector3(-10, 0.5, 6)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal5"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal5"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal6" type="StaticBody3D" parent="PVZ"]
-position = Vector3(-8, 0.5, 6)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal6"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal6"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal7" type="StaticBody3D" parent="PVZ"]
-position = Vector3(8, 0.5, -8)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal7"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal7"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal8" type="StaticBody3D" parent="PVZ"]
-position = Vector3(10, 0.5, -8)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal8"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal8"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal9" type="StaticBody3D" parent="PVZ"]
-position = Vector3(12, 0.5, -8)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal9"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal9"]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal10" type="StaticBody3D" parent="PVZ"]
-position = Vector3(4, 0.5, -8)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal10"]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal10"]
-shape = SubResource("PedestalShape")
-
-[node name="ClueWall0" type="StaticBody3D" parent="PVZ"]
-position = Vector3(-10, 1.4, -14)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall0"]
-mesh = SubResource("ClueWallMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall0"]
-shape = SubResource("ClueWallShape")
-
-[node name="OrderClue" parent="PVZ/ClueWall0" instance=ExtResource("Gaze_order_clue")]
-position = Vector3(0, 0.4, 0.21)
-
-[node name="ClueWall1" type="StaticBody3D" parent="PVZ"]
-position = Vector3(0, 1.4, -14)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall1"]
-mesh = SubResource("ClueWallMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall1"]
-shape = SubResource("ClueWallShape")
-
-[node name="OrderClue" parent="PVZ/ClueWall1" instance=ExtResource("Gaze_order_clue")]
-position = Vector3(0, 0.4, 0.21)
-
-[node name="ClueWall2" type="StaticBody3D" parent="PVZ"]
-position = Vector3(10, 1.4, -14)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall2"]
-mesh = SubResource("ClueWallMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall2"]
-shape = SubResource("ClueWallShape")
-
-[node name="OrderClue" parent="PVZ/ClueWall2" instance=ExtResource("Gaze_order_clue")]
-position = Vector3(0, 0.4, 0.21)
-
-[node name="CircuitLightView" type="Node" parent="Sun"]
+[node name="CircuitLightView" type="Node" parent="Sun" unique_id=1562880299]
 script = ExtResource("Circuit_light_view")
 
-[node name="Entityes" type="Node3D" parent="."]
+[node name="WarehouseNavigation" type="NavigationRegion3D" parent="." unique_id=326151108]
+navigation_mesh = ExtResource("Test_navigation")
 
-[node name="Props" type="Node3D" parent="Entityes"]
+[node name="World" parent="." unique_id=1234745941 instance=ExtResource("Game_world")]
 
-[node name="Doors" type="Node3D" parent="Entityes"]
+[node name="PVZ" type="Node3D" parent="." unique_id=497721173]
 
-[node name="Windows" type="Node3D" parent="Entityes"]
+[node name="Floor" type="StaticBody3D" parent="PVZ" unique_id=856997558]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
-[node name="CarryPlacement" parent="Entityes" instance=ExtResource("PlacementArea")]
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Floor" unique_id=1966945764]
+mesh = SubResource("FloorMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Floor" unique_id=2017612694]
+shape = SubResource("FloorShape")
+
+[node name="Boundary31N" type="StaticBody3D" parent="PVZ" unique_id=625522836]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, -31.5)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Boundary31N" unique_id=710308537]
+mesh = SubResource("BarrierMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Boundary31N" unique_id=1358563501]
+shape = SubResource("BarrierShape")
+
+[node name="Boundary31S" type="StaticBody3D" parent="PVZ" unique_id=81441531]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 31.5)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Boundary31S" unique_id=1867696047]
+mesh = SubResource("BarrierMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Boundary31S" unique_id=959567584]
+shape = SubResource("BarrierShape")
+
+[node name="BoundaryW" type="StaticBody3D" parent="PVZ" unique_id=1264604647]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.5, 0.75, 0)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/BoundaryW" unique_id=215633834]
+mesh = SubResource("SideBarrierMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/BoundaryW" unique_id=1528913886]
+shape = SubResource("SideBarrierShape")
+
+[node name="BoundaryE" type="StaticBody3D" parent="PVZ" unique_id=22167552]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.5, 0.75, 0)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/BoundaryE" unique_id=715383756]
+mesh = SubResource("SideBarrierMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/BoundaryE" unique_id=402367061]
+shape = SubResource("SideBarrierShape")
+
+[node name="Pedestal1" type="StaticBody3D" parent="PVZ" unique_id=283324125]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 2)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal1" unique_id=1560531169]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal1" unique_id=2146513552]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal2" type="StaticBody3D" parent="PVZ" unique_id=133407206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 2)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal2" unique_id=1679685654]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal2" unique_id=1731067087]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal3" type="StaticBody3D" parent="PVZ" unique_id=1661263929]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 2)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal3" unique_id=1446470127]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal3" unique_id=1166992170]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal4" type="StaticBody3D" parent="PVZ" unique_id=394676862]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 6)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal4" unique_id=70671298]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal4" unique_id=394713326]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal5" type="StaticBody3D" parent="PVZ" unique_id=321767965]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 6)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal5" unique_id=362923363]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal5" unique_id=1840820277]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal6" type="StaticBody3D" parent="PVZ" unique_id=998216302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 6)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal6" unique_id=43028872]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal6" unique_id=1208352246]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal7" type="StaticBody3D" parent="PVZ" unique_id=204726553]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, -8)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal7" unique_id=1734956583]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal7" unique_id=868459753]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal8" type="StaticBody3D" parent="PVZ" unique_id=1604387271]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, -8)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal8" unique_id=698805385]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal8" unique_id=553383757]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal9" type="StaticBody3D" parent="PVZ" unique_id=189341852]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.5, -8)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal9" unique_id=1325952569]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal9" unique_id=626353387]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal10" type="StaticBody3D" parent="PVZ" unique_id=1255361135]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, -8)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal10" unique_id=1002436749]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal10" unique_id=1473698001]
+shape = SubResource("PedestalShape")
+
+[node name="ClueWall0" type="StaticBody3D" parent="PVZ" unique_id=779632046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall0" unique_id=1878300465]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall0" unique_id=1066012807]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall0" unique_id=1946967524 instance=ExtResource("Gaze_order_clue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.21)
+
+[node name="ClueWall1" type="StaticBody3D" parent="PVZ" unique_id=1044907425]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall1" unique_id=1029923252]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall1" unique_id=1031832273]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall1" unique_id=2023736177 instance=ExtResource("Gaze_order_clue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.21)
+
+[node name="ClueWall2" type="StaticBody3D" parent="PVZ" unique_id=499319563]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall2" unique_id=1708144423]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall2" unique_id=1867419219]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall2" unique_id=1361620083 instance=ExtResource("Gaze_order_clue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.21)
+
+[node name="Entityes" type="Node3D" parent="." unique_id=40433183]
+
+[node name="Props" type="Node3D" parent="Entityes" unique_id=1067536598]
+
+[node name="PhysicalSlot" parent="Entityes/Props" unique_id=1241753911 instance=ExtResource("155_5h1gn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.02, 8)
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot"
+
+[node name="PhysicalSlot2" parent="Entityes/Props" unique_id=341934256 instance=ExtResource("155_5h1gn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0.02, 8)
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot2"
+
+[node name="FloorSafeBox1" parent="Entityes/Props" unique_id=972631410 instance=ExtResource("Safe_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.45, 8)
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox1"
+
+[node name="FloorSafeBox2" parent="Entityes/Props" unique_id=141891407 instance=ExtResource("Safe_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0.45, 8)
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox2"
+
+[node name="FloorSafeBox3" parent="Entityes/Props" unique_id=824795847 instance=ExtResource("Safe_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.45, 8)
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox3"
+
+[node name="Barrel_C_rigid" parent="Entityes/Props" unique_id=1905139633 instance=ExtResource("79_ypydk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 16)
+mass = 60.0
+
+[node name="Barrel_B_rigid" parent="Entityes/Props" unique_id=1602026524 instance=ExtResource("78_at2gx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 16)
+mass = 118.0
+
+[node name="Barrel_A_rigid" parent="Entityes/Props" unique_id=924523985 instance=ExtResource("77_iit40")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 16)
+mass = 130.0
+
+[node name="NumberedShelves" parent="Entityes/Props" unique_id=409454441 instance=ExtResource("Shelves_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -4)
+
+[node name="NumberedShelves2" parent="Entityes/Props" unique_id=1047931027 instance=ExtResource("Shelves_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -4)
+
+[node name="UnpackSmallShelf" parent="Entityes/Props" unique_id=692066870 instance=ExtResource("Unpack_small_shelf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, -18)
+package_id = "test-unpack-small_shelf"
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_0baqr"), SubResource("Resource_e5ghr"), SubResource("Resource_q5fi0"), SubResource("Resource_3vbfu"), SubResource("Resource_o4agj"), SubResource("Resource_hhpj4"), SubResource("Actions")])
+metadata/persistent_local_id = &"placed_entityes_props_unpacksmallshelf"
+
+[node name="UnpackMedkits" parent="Entityes/Props" unique_id=1714952279 instance=ExtResource("Unpack_medkits")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.5, -18)
+package_id = "test-unpack-medkits"
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_qm0ej"), SubResource("Resource_dm0pt"), SubResource("Resource_6s21i"), SubResource("Resource_7qbm0"), SubResource("Resource_movbe"), SubResource("Resource_8id5m"), SubResource("Actions")])
+metadata/persistent_local_id = &"placed_entityes_props_unpackmedkits"
+
+[node name="UnpackBread" parent="Entityes/Props" unique_id=31810332 instance=ExtResource("Unpack_bread")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -18)
+package_id = "test-unpack-bread"
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_7pdaa"), SubResource("Resource_u62m5"), SubResource("Resource_vx2q0"), SubResource("Resource_tres0"), SubResource("Resource_56nb2"), SubResource("Resource_6p1hp"), SubResource("Actions")])
+metadata/persistent_local_id = &"placed_entityes_props_unpackbread"
+
+[node name="Doors" type="Node3D" parent="Entityes" unique_id=1963552121]
+
+[node name="DoorTemplate" parent="Entityes/Doors" unique_id=1462993824 instance=ExtResource("63_uqafv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 12)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_doors_doortemplate"
+
+[node name="DoorTemplate2" parent="Entityes/Doors" unique_id=1633512121 instance=ExtResource("63_uqafv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_doors_doortemplate2"
+
+[node name="PadlockedDoor" parent="Entityes/Doors" unique_id=1557627198 instance=ExtResource("Padlocked_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 12)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_doors_padlockeddoor"
+
+[node name="BreakableDoor" parent="Entityes/Doors" unique_id=1725861955 instance=ExtResource("Breakable_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_doors_breakabledoor"
+
+[node name="Windows" type="Node3D" parent="Entityes" unique_id=163522611]
+
+[node name="Window" parent="Entityes/Windows" unique_id=1294845884 instance=ExtResource("Window_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 1, 12)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_windows_window"
+
+[node name="Window2" parent="Entityes/Windows" unique_id=11648405 instance=ExtResource("Window_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 1, 12)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_windows_window2"
+
+[node name="CarryPlacement" parent="Entityes" unique_id=261536903 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.02, 4)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_carryplacement"
-position = Vector3(-22, 0.02, 4)
 
-[node name="CarryPlacement2" parent="Entityes" instance=ExtResource("PlacementArea")]
+[node name="CarryPlacement2" parent="Entityes" unique_id=1086663037 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0.02, 4)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_carryplacement2"
-position = Vector3(-20, 0.02, 4)
 
-[node name="Player" parent="Entityes" instance=ExtResource("13_da1x8")]
+[node name="Player" parent="Entityes" unique_id=1984383607 instance=ExtResource("13_da1x8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 2)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_w6vcc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_3hljd"), SubResource("Resource_5ss1o")])
 metadata/persistent_local_id = &"placed_entityes_player"
-position = Vector3(0, 0.02, 2)
-collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_3xfrw"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_jjqtf"), SubResource("Player_stamina")])
 
 [node name="HeadX" parent="Entityes/Player/HeadY" index="0"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
 
-[node name="Camera3D" type="Camera3D" parent="Entityes/Player/HeadY/HeadX/HeadRoot" index="7"]
+[node name="Camera3D" type="Camera3D" parent="Entityes/Player/HeadY/HeadX/HeadRoot" parent_id_path=PackedInt32Array(1984383607, 406904122) index="7" unique_id=1966760816]
 current = true
 
-[node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" index="0"]
+[node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1984383607, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3
 
 [node name="BeltSlotLeft" parent="Entityes/Player" index="5"]
-metadata/persistent_local_id = &"placed_entityes_player_beltslotleft"
 transform = Transform3D(0.41083163, -0.9117112, 0, 0, -4.371139e-08, 1, -0.91171116, -0.4108317, 0, -0.25, 0.7946805, -0.1371026)
+metadata/persistent_local_id = &"placed_entityes_player_beltslotleft"
 
 [node name="BeltSlotRight" parent="Entityes/Player" index="6"]
-metadata/persistent_local_id = &"placed_entityes_player_beltslotright"
 transform = Transform3D(0.21199018, 0.9772718, 2.9802322e-08, 1.3716061e-08, -5.0772293e-08, 1, 0.9772718, -0.21199018, 0, 0.25, 0.7946805, -0.1371026)
+metadata/persistent_local_id = &"placed_entityes_player_beltslotright"
 
-[node name="DeliveryCounter" parent="Entityes" instance=ExtResource("Delivery_counter")]
+[node name="Ground" parent="Entityes/Player" index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+
+[node name="DeliveryCounter" parent="Entityes" unique_id=1882730702 instance=ExtResource("Delivery_counter")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_deliverycounter"
-position = Vector3(0, 0, -8)
 
-[node name="Terminal" parent="Entityes" instance=ExtResource("Terminal_scene")]
+[node name="Desk" parent="Entityes/DeliveryCounter" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+
+[node name="Collision" parent="Entityes/DeliveryCounter" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+
+[node name="DeliveryArea" parent="Entityes/DeliveryCounter" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
+
+[node name="Sign" parent="Entityes/DeliveryCounter" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+
+[node name="Entry" parent="Entityes/DeliveryCounter" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+
+[node name="Waiting" parent="Entityes/DeliveryCounter" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2)
+
+[node name="Terminal" parent="Entityes" unique_id=1432962550 instance=ExtResource("Terminal_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -8)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_terminal"
-position = Vector3(-6, 0, -8)
 
-[node name="Scanner" parent="Entityes" instance=ExtResource("Scanner_scene")]
+[node name="Scanner" parent="Entityes" unique_id=1987353002 instance=ExtResource("Scanner_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.45, -8)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_scanner"
-position = Vector3(-6, 1.45, -8)
 
-[node name="Marker" parent="Entityes" instance=ExtResource("Marker_scene")]
+[node name="Marker" parent="Entityes" unique_id=209695656 instance=ExtResource("Marker_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.25, 2)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_p5i8f"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
 metadata/persistent_local_id = &"placed_entityes_marker"
-position = Vector3(-12, 1.25, 2)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_2peb6"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
-[node name="Marker2" parent="Entityes" instance=ExtResource("Marker_scene")]
+[node name="Marker2" parent="Entityes" unique_id=198176841 instance=ExtResource("Marker_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.25, 2)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_xjbpj"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
 metadata/persistent_local_id = &"placed_entityes_marker2"
-position = Vector3(-10, 1.25, 2)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_5und5"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
-[node name="Marker3" parent="Entityes" instance=ExtResource("Marker_scene")]
+[node name="Marker3" parent="Entityes" unique_id=1269267650 instance=ExtResource("Marker_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.25, 2)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_mtfgp"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
 metadata/persistent_local_id = &"placed_entityes_marker3"
-position = Vector3(-8, 1.25, 2)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_jpldi"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
-[node name="Hammer" parent="Entityes" instance=ExtResource("Hammer_scene")]
+[node name="Hammer" parent="Entityes" unique_id=2136699545 instance=ExtResource("Hammer_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.25, 6)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_hammer"
-position = Vector3(-12, 1.25, 6)
 
-[node name="AnchorableTestBox" parent="Entityes" instance=ExtResource("AnchorTest_scene")]
+[node name="AnchorableTestBox" parent="Entityes" unique_id=1621446372 instance=ExtResource("AnchorTest_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.25, 6)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_anchorabletestbox"
-position = Vector3(-8, 1.25, 6)
 
-[node name="Valve_E_Press" parent="Entityes" instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_e_press"
-position = Vector3(-4, 0.36, 20)
+[node name="Valve_E_Press" parent="Entityes" unique_id=1734759260 instance=ExtResource("Valve_test")]
 editor_description = "Immediate E action. No prolonged progress/reset policy. Signal: activated(bool) -> child IndicatorLamp.set_active()."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.36, 20)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_e_press"
 
-[node name="Valve_F_Decay" parent="Entityes" instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_f_decay"
-position = Vector3(-2, 0.36, 20)
+[node name="Valve_F_Decay" parent="Entityes" unique_id=1544862417 instance=ExtResource("Valve_test")]
 editor_description = "Hold F. Interrupted progress decays gradually according to decay_per_second."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.36, 20)
 mode = 1
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_f_decay"
 
-[node name="Valve_F_Instant" parent="Entityes" instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_f_instant"
-position = Vector3(0, 0.36, 20)
+[node name="Valve_F_Instant" parent="Entityes" unique_id=2085656211 instance=ExtResource("Valve_test")]
 editor_description = "Hold F. Interrupted progress resets immediately to zero."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36, 20)
 mode = 2
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_f_instant"
 
-[node name="Valve_F_OnComplete" parent="Entityes" instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_f_oncomplete"
-position = Vector3(2, 0.36, 20)
+[node name="Valve_F_OnComplete" parent="Entityes" unique_id=2066904190 instance=ExtResource("Valve_test")]
 editor_description = "Hold F. Partial progress is retained; successful completion resets progress for another use."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.36, 20)
 mode = 3
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_f_oncomplete"
 
-[node name="Valve_F_Never" parent="Entityes" instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_f_never"
-position = Vector3(4, 0.36, 20)
+[node name="Valve_F_Never" parent="Entityes" unique_id=1401767763 instance=ExtResource("Valve_test")]
 editor_description = "Hold F. Successful completion is permanent/one-shot; action becomes unavailable."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.36, 20)
 mode = 4
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_f_never"
 
-[node name="ReceivingZone" parent="Entityes" node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
-metadata/persistent_local_id = &"placed_entityes_receivingzone"
-position = Vector3(-20, 0, -14)
+[node name="ReceivingZone" parent="Entityes" unique_id=440386287 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -14)
 package_parent = NodePath("..")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vmj2w")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w1axo")])
+metadata/persistent_local_id = &"placed_entityes_receivingzone"
 
-[node name="PackageReturnPoint" parent="Entityes" instance=ExtResource("Package_return_point")]
-metadata/persistent_local_id = &"placed_entityes_packagereturnpoint"
-position = Vector3(-10, 0, -8)
+[node name="FloorMark" parent="Entityes/ReceivingZone" index="0" unique_id=682019643]
+mesh = SubResource("ReceivingMark")
 
-[node name="OrderReceiving" parent="Entityes" instance=ExtResource("Order_receiving_scene")]
+[node name="Slot1" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="0" unique_id=153205906]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, -3)
+
+[node name="Slot2" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="1" unique_id=1601492699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.05, -3)
+
+[node name="Slot3" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="2" unique_id=1759284491]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.05, -3)
+
+[node name="Slot4" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="3" unique_id=1718410226]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.05, -3)
+
+[node name="Slot5" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="4" unique_id=153389248]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.05, -3)
+
+[node name="Slot6" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="5" unique_id=702580]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.05, -3)
+
+[node name="Slot7" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="6" unique_id=154580604]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, -1)
+
+[node name="Slot8" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="7" unique_id=1818810028]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.05, -1)
+
+[node name="Slot9" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="8" unique_id=1606620070]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.05, -1)
+
+[node name="Slot10" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="9" unique_id=1176995406]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.05, -1)
+
+[node name="Slot11" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="10" unique_id=826225327]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.05, -1)
+
+[node name="Slot12" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="11" unique_id=1928542681]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.05, -1)
+
+[node name="Slot13" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="12" unique_id=2086103321]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, 1)
+
+[node name="Slot14" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="13" unique_id=1779538169]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.05, 1)
+
+[node name="Slot15" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="14" unique_id=1608515330]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.05, 1)
+
+[node name="Slot16" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="15" unique_id=1822749899]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.05, 1)
+
+[node name="Slot17" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="16" unique_id=738583060]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.05, 1)
+
+[node name="Slot18" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="17" unique_id=1183501698]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.05, 1)
+
+[node name="Slot19" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="18" unique_id=411835542]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, 3)
+
+[node name="Slot20" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="19" unique_id=1560613620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.05, 3)
+
+[node name="Slot21" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="20" unique_id=1773828003]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.05, 3)
+
+[node name="Slot22" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="21" unique_id=1622926717]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.05, 3)
+
+[node name="Slot23" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="22" unique_id=958306623]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.05, 3)
+
+[node name="Slot24" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="23" unique_id=222368150]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.05, 3)
+
+[node name="OrderReceiving" parent="Entityes" unique_id=621739416 instance=ExtResource("Order_receiving_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.22, -8)
 metadata/persistent_local_id = &"placed_entityes_orderreceiving"
-position = Vector3(16, 0.22, -8)
 
-[node name="DaySession" type="Node" parent="Entityes"]
+[node name="DaySession" type="Node" parent="Entityes" unique_id=1910329940]
 script = ExtResource("Day_entity")
 traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2")])
-metadata/persistent_local_id = &"placed_entityes_daysession"
+ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state")])
+metadata/persistent_local_id = &"placed_entityes_daysession"
 
-[node name="ShiftConsole" parent="Entityes" instance=ExtResource("Day_station")]
+[node name="ShiftConsole" parent="Entityes" unique_id=1653098296 instance=ExtResource("Day_station")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_shiftconsole"
-position = Vector3(6, 0, 0)
 
-[node name="SleepPoint" parent="Entityes" instance=ExtResource("Day_station")]
-metadata/persistent_local_id = &"placed_entityes_sleeppoint"
-position = Vector3(10, 0, 0)
+[node name="SleepPoint" parent="Entityes" unique_id=421133776 instance=ExtResource("Day_station")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
 sleep_station = true
+ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Sleep_interactable"), SubResource("Sleep_station_actions")])
+metadata/persistent_local_id = &"placed_entityes_sleeppoint"
 
-[node name="Bucket" parent="Entityes" instance=ExtResource("45_8uaqh")]
+[node name="Bucket" parent="Entityes" unique_id=1238935685 instance=ExtResource("45_8uaqh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 12)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_bucket"
-position = Vector3(-12, 0.5, 12)
 
-[node name="Drawer" parent="Entityes" instance=ExtResource("Drawer_scene")]
+[node name="Drawer" parent="Entityes" unique_id=1432174976 instance=ExtResource("Drawer_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.775, 12)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_drawer"
-position = Vector3(-8, 0.775, 12)
 
-[node name="LightSwitch" parent="Entityes" instance=ExtResource("Light_switch_scene")]
+[node name="LightSwitch" parent="Entityes" unique_id=572012194 instance=ExtResource("Light_switch_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1.3, -8)
 metadata/persistent_local_id = &"placed_entityes_lightswitch"
-position = Vector3(4, 1.3, -8)
 
-[node name="FoodPickup" parent="Entityes" instance=ExtResource("Food_pickup")]
+[node name="FoodPickup" parent="Entityes" unique_id=2014673205 instance=ExtResource("Food_pickup")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1.25, -8)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_foodpickup"
-position = Vector3(8, 1.25, -8)
 
-[node name="MedPickup" parent="Entityes" instance=ExtResource("Med_pickup")]
+[node name="MedPickup" parent="Entityes" unique_id=388645423 instance=ExtResource("Med_pickup")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.25, -8)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_medpickup"
-position = Vector3(10, 1.25, -8)
 
-[node name="WrapPickup" parent="Entityes" instance=ExtResource("Wrap_pickup")]
+[node name="WrapPickup" parent="Entityes" unique_id=1721766966 instance=ExtResource("Wrap_pickup")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 1.25, -8)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_wrappickup"
-position = Vector3(12, 1.25, -8)
 
-[node name="Trader" parent="Entityes" instance=ExtResource("Trader_scene")]
-metadata/persistent_local_id = &"placed_entityes_trader"
-position = Vector3(12, 0, -12)
+[node name="Trader" parent="Entityes" unique_id=1673325542 instance=ExtResource("Trader_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -12)
 idle_animation = &"Idle"
 walk_animation = &"Walk"
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_trader"
 
-[node name="UtilityBlade" parent="Entityes" instance=ExtResource("Utility_blade")]
+[node name="UtilityBlade" parent="Entityes" unique_id=699570729 instance=ExtResource("Utility_blade")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.25, 6)
+ancestor_entity_bindings = PackedStringArray()
 metadata/persistent_local_id = &"placed_entityes_utilityblade"
-position = Vector3(-10, 1.25, 6)
 
-[node name="PushCart" parent="Entityes" instance=ExtResource("Push_cart")]
+[node name="PushCart" parent="Entityes" unique_id=1786068694 instance=ExtResource("Push_cart")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.833, 4)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_1ugu1"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 metadata/persistent_local_id = &"placed_entityes_pushcart"
-position = Vector3(-18, 0.833, 4)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w4uhm"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
-[node name="PhysicalSlot" parent="Entityes/Props" instance=ExtResource("155_5h1gn")]
-metadata/persistent_local_id = &"placed_entityes_props_physicalslot"
-position = Vector3(-22, 0.02, 8)
+[node name="InspectionBooth1" parent="Entityes" unique_id=1694178656 instance=ExtResource("InspectionBooth")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -16)
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth1"
 
-[node name="PhysicalSlot2" parent="Entityes/Props" instance=ExtResource("155_5h1gn")]
-metadata/persistent_local_id = &"placed_entityes_props_physicalslot2"
-position = Vector3(-20, 0.02, 8)
+[node name="InspectionBooth2" parent="Entityes" unique_id=2051600392 instance=ExtResource("InspectionBooth")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -16)
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth2"
 
-[node name="FloorSafeBox1" parent="Entityes/Props" instance=ExtResource("Safe_box")]
-metadata/persistent_local_id = &"placed_entityes_props_floorsafebox1"
-position = Vector3(-18, 0.45, 8)
-
-[node name="FloorSafeBox2" parent="Entityes/Props" instance=ExtResource("Safe_box")]
-metadata/persistent_local_id = &"placed_entityes_props_floorsafebox2"
-position = Vector3(-16, 0.45, 8)
-
-[node name="FloorSafeBox3" parent="Entityes/Props" instance=ExtResource("Safe_box")]
-metadata/persistent_local_id = &"placed_entityes_props_floorsafebox3"
-position = Vector3(-14, 0.45, 8)
-
-[node name="Barrel_C_rigid" parent="Entityes/Props" instance=ExtResource("79_ypydk")]
-position = Vector3(-8, 0.5, 16)
-mass = 60.0
-
-[node name="Barrel_B_rigid" parent="Entityes/Props" instance=ExtResource("78_at2gx")]
-position = Vector3(-10, 0.5, 16)
-mass = 118.0
-
-[node name="Barrel_A_rigid" parent="Entityes/Props" instance=ExtResource("77_iit40")]
-position = Vector3(-12, 0.5, 16)
-mass = 130.0
-
-[node name="NumberedShelves" parent="Entityes/Props" instance=ExtResource("Shelves_scene")]
-position = Vector3(-20, 0, -4)
-
-[node name="NumberedShelves2" parent="Entityes/Props" instance=ExtResource("Shelves_scene")]
-position = Vector3(-14, 0, -4)
-
-[node name="DoorTemplate" parent="Entityes/Doors" instance=ExtResource("63_uqafv")]
-metadata/persistent_local_id = &"placed_entityes_doors_doortemplate"
-position = Vector3(8, 0, 12)
-
-[node name="DoorTemplate2" parent="Entityes/Doors" instance=ExtResource("63_uqafv")]
-metadata/persistent_local_id = &"placed_entityes_doors_doortemplate2"
-position = Vector3(12, 0, 12)
-
-[node name="Window" parent="Entityes/Windows" instance=ExtResource("Window_scene")]
-metadata/persistent_local_id = &"placed_entityes_windows_window"
-position = Vector3(18, 1, 12)
-
-[node name="Window2" parent="Entityes/Windows" instance=ExtResource("Window_scene")]
-metadata/persistent_local_id = &"placed_entityes_windows_window2"
-position = Vector3(22, 1, 12)
-
-[node name="InteractionHud" parent="." node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]
+[node name="InteractionHud" parent="." unique_id=1298875023 node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
 damage_feedback = NodePath("../World/Systems/GamePlay/O_DamageFeedback")
 
-[node name="InventoryPanel" parent="." node_paths=PackedStringArray("player") instance=ExtResource("Inventory_panel")]
+[node name="InventoryPanel" parent="." unique_id=701062857 node_paths=PackedStringArray("player") instance=ExtResource("Inventory_panel")]
 player = NodePath("../Entityes/Player")
 
-[node name="Entry" parent="Entityes/DeliveryCounter" index="4"]
-position = Vector3(0, 0, 6)
+[node name="Signs" type="Node3D" parent="." unique_id=1537364694]
 
-[node name="FloorMark" parent="Entityes/ReceivingZone" index="0"]
-mesh = SubResource("ReceivingMark")
-
-[node name="Slot1" parent="Entityes/ReceivingZone/SpawnPoints" index="0"]
-position = Vector3(-5, 0.05, -3)
-
-[node name="Slot2" parent="Entityes/ReceivingZone/SpawnPoints" index="1"]
-position = Vector3(-3, 0.05, -3)
-
-[node name="Slot3" parent="Entityes/ReceivingZone/SpawnPoints" index="2"]
-position = Vector3(-1, 0.05, -3)
-
-[node name="Slot4" parent="Entityes/ReceivingZone/SpawnPoints" index="3"]
-position = Vector3(1, 0.05, -3)
-
-[node name="Slot5" parent="Entityes/ReceivingZone/SpawnPoints" index="4"]
-position = Vector3(3, 0.05, -3)
-
-[node name="Slot6" parent="Entityes/ReceivingZone/SpawnPoints" index="5"]
-position = Vector3(5, 0.05, -3)
-
-[node name="Slot7" parent="Entityes/ReceivingZone/SpawnPoints" index="6"]
-position = Vector3(-5, 0.05, -1)
-
-[node name="Slot8" parent="Entityes/ReceivingZone/SpawnPoints" index="7"]
-position = Vector3(-3, 0.05, -1)
-
-[node name="Slot9" parent="Entityes/ReceivingZone/SpawnPoints" index="8"]
-position = Vector3(-1, 0.05, -1)
-
-[node name="Slot10" parent="Entityes/ReceivingZone/SpawnPoints" index="9"]
-position = Vector3(1, 0.05, -1)
-
-[node name="Slot11" parent="Entityes/ReceivingZone/SpawnPoints" index="10"]
-position = Vector3(3, 0.05, -1)
-
-[node name="Slot12" parent="Entityes/ReceivingZone/SpawnPoints" index="11"]
-position = Vector3(5, 0.05, -1)
-
-[node name="Slot13" parent="Entityes/ReceivingZone/SpawnPoints" index="12"]
-position = Vector3(-5, 0.05, 1)
-
-[node name="Slot14" parent="Entityes/ReceivingZone/SpawnPoints" index="13"]
-position = Vector3(-3, 0.05, 1)
-
-[node name="Slot15" parent="Entityes/ReceivingZone/SpawnPoints" index="14"]
-position = Vector3(-1, 0.05, 1)
-
-[node name="Slot16" parent="Entityes/ReceivingZone/SpawnPoints" index="15"]
-position = Vector3(1, 0.05, 1)
-
-[node name="Slot17" parent="Entityes/ReceivingZone/SpawnPoints" index="16"]
-position = Vector3(3, 0.05, 1)
-
-[node name="Slot18" parent="Entityes/ReceivingZone/SpawnPoints" index="17"]
-position = Vector3(5, 0.05, 1)
-
-[node name="Slot19" parent="Entityes/ReceivingZone/SpawnPoints" index="18"]
-position = Vector3(-5, 0.05, 3)
-
-[node name="Slot20" parent="Entityes/ReceivingZone/SpawnPoints" index="19"]
-position = Vector3(-3, 0.05, 3)
-
-[node name="Slot21" parent="Entityes/ReceivingZone/SpawnPoints" index="20"]
-position = Vector3(-1, 0.05, 3)
-
-[node name="Slot22" parent="Entityes/ReceivingZone/SpawnPoints" index="21"]
-position = Vector3(1, 0.05, 3)
-
-[node name="Slot23" parent="Entityes/ReceivingZone/SpawnPoints" index="22"]
-position = Vector3(3, 0.05, 3)
-
-[node name="Slot24" parent="Entityes/ReceivingZone/SpawnPoints" index="23"]
-position = Vector3(5, 0.05, 3)
-
-[node name="Signs" type="Node3D" parent="."]
-
-[node name="Receiving" type="Label3D" parent="Signs"]
-position = Vector3(-20, 3, -14)
-billboard = 1
-font_size = 36
+[node name="Receiving" type="Label3D" parent="Signs" unique_id=856872587]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 3, -14)
 pixel_size = 0.004
+billboard = 1
 text = "01 ПРИЁМКА: утренние посылки / регистрация"
-
-[node name="Storage" type="Label3D" parent="Signs"]
-position = Vector3(-17, 3, -4)
-billboard = 1
 font_size = 36
+
+[node name="Storage" type="Label3D" parent="Signs" unique_id=19926215]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 3, -4)
 pixel_size = 0.004
+billboard = 1
 text = "02 ХРАНЕНИЕ: номер / полка / выдача"
-
-[node name="Counter" type="Label3D" parent="Signs"]
-position = Vector3(0, 3, -8)
-billboard = 1
 font_size = 36
+
+[node name="Counter" type="Label3D" parent="Signs" unique_id=1655654325]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -8)
 pixel_size = 0.004
+billboard = 1
 text = "03 КЛИЕНТЫ: диалоги / челленджи / NPC"
-
-[node name="Tools" type="Label3D" parent="Signs"]
-position = Vector3(-10, 3, 2)
-billboard = 1
 font_size = 36
+
+[node name="Tools" type="Label3D" parent="Signs" unique_id=1741499557]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 3, 2)
 pixel_size = 0.004
+billboard = 1
 text = "04 ИНСТРУМЕНТЫ: маркировка / захват / крепление"
-
-[node name="Physics" type="Label3D" parent="Signs"]
-position = Vector3(-18, 3, 8)
-billboard = 1
 font_size = 36
+
+[node name="Physics" type="Label3D" parent="Signs" unique_id=1118317349]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 3, 8)
 pixel_size = 0.004
+billboard = 1
 text = "05 ФИЗИКА: перенос / тележка / фиксация / урон"
-
-[node name="Commerce" type="Label3D" parent="Signs"]
-position = Vector3(12, 3, -12)
-billboard = 1
 font_size = 36
+
+[node name="Commerce" type="Label3D" parent="Signs" unique_id=284510825]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 3, -12)
 pixel_size = 0.004
+billboard = 1
 text = "06 ТОРГОВЛЯ: покупки вечером / доставка утром"
-
-[node name="Consumables" type="Label3D" parent="Signs"]
-position = Vector3(10, 3, -8)
-billboard = 1
 font_size = 36
+
+[node name="Consumables" type="Label3D" parent="Signs" unique_id=872214835]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 3, -8)
 pixel_size = 0.004
+billboard = 1
 text = "07 ИНВЕНТАРЬ: еда / лекарства / упаковка"
-
-[node name="Day" type="Label3D" parent="Signs"]
-position = Vector3(8, 3, 0)
-billboard = 1
 font_size = 36
+
+[node name="Day" type="Label3D" parent="Signs" unique_id=931596258]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 3, 0)
 pixel_size = 0.004
+billboard = 1
 text = "08 ДЕНЬ: смена фазы / сон / сохранение"
-
-[node name="Doors" type="Label3D" parent="Signs"]
-position = Vector3(14, 3, 12)
-billboard = 1
 font_size = 36
+
+[node name="Doors" type="Label3D" parent="Signs" unique_id=286220821]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 3, 12)
 pixel_size = 0.004
+billboard = 1
 text = "09 ОКРУЖЕНИЕ: двери / окна / ящик / свет"
-
-[node name="Valves" type="Label3D" parent="Signs"]
-position = Vector3(0, 3, 20)
-billboard = 1
 font_size = 36
+
+[node name="Valves" type="Label3D" parent="Signs" unique_id=214583]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 20)
 pixel_size = 0.004
+billboard = 1
 text = "10 ВЕНТИЛИ: E / удержание F / сброс прогресса"
+font_size = 36
+
+[node name="DoorBreakage" type="Label3D" parent="Signs" unique_id=1406117657]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 12)
+pixel_size = 0.004
+billboard = 1
+text = "ЗАМОК: разбейте ножом/молотком → откройте
+ДВЕРЬ: удары освобождают проход"
+font_size = 28
+
+[node name="UnpackPackages" type="Label3D" parent="Signs" unique_id=887241705]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3, -18)
+pixel_size = 0.004
+billboard = 1
+text = "РАСПАКОВКА: полка / 5 аптечек / 5 хлеба
+F → вскрыть посылку. Полка закрепляется молотком."
+font_size = 28
 
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]
 [editable path="Entityes/DeliveryCounter"]
 [editable path="Entityes/ReceivingZone"]
-
-[node name="PadlockedDoor" parent="Entityes/Doors" instance=ExtResource("Padlocked_door")]
-metadata/persistent_local_id = &"placed_entityes_doors_padlockeddoor"
-position = Vector3(4, 0, 12)
-
-[node name="BreakableDoor" parent="Entityes/Doors" instance=ExtResource("Breakable_door")]
-metadata/persistent_local_id = &"placed_entityes_doors_breakabledoor"
-position = Vector3(0, 0, 12)
-
-[node name="DoorBreakage" type="Label3D" parent="Signs"]
-position = Vector3(2, 3, 12)
-billboard = 1
-font_size = 28
-pixel_size = 0.004
-text = "ЗАМОК: разбейте ножом/молотком → откройте
-ДВЕРЬ: удары освобождают проход"
-
-[node name="UnpackSmallShelf" parent="Entityes/Props" instance=ExtResource("Unpack_small_shelf")]
-metadata/persistent_local_id = &"placed_entityes_props_unpacksmallshelf"
-position = Vector3(-12, 0.5, -18)
-package_id = "test-unpack-small_shelf"
-
-[node name="UnpackMedkits" parent="Entityes/Props" instance=ExtResource("Unpack_medkits")]
-metadata/persistent_local_id = &"placed_entityes_props_unpackmedkits"
-position = Vector3(-6, 0.5, -18)
-package_id = "test-unpack-medkits"
-
-[node name="UnpackBread" parent="Entityes/Props" instance=ExtResource("Unpack_bread")]
-metadata/persistent_local_id = &"placed_entityes_props_unpackbread"
-position = Vector3(0, 0.5, -18)
-package_id = "test-unpack-bread"
-
-[node name="UnpackPackages" type="Label3D" parent="Signs"]
-position = Vector3(-6, 3, -18)
-billboard = 1
-font_size = 28
-pixel_size = 0.004
-text = "РАСПАКОВКА: полка / 5 аптечек / 5 хлеба
-F → вскрыть посылку. Полка закрепляется молотком."
-
-[node name="InspectionBooth1" parent="Entityes" instance=ExtResource("InspectionBooth")]
-metadata/persistent_local_id = &"placed_entityes_inspectionbooth1"
-position = Vector3(8, 0, -16)
-
-[node name="InspectionBooth2" parent="Entityes" instance=ExtResource("InspectionBooth")]
-metadata/persistent_local_id = &"placed_entityes_inspectionbooth2"
-position = Vector3(12, 0, -16)

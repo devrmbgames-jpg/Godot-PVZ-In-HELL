@@ -14,17 +14,40 @@ Status: **IN_PROGRESS**
 
 ### Current
 
-Грузовая область и gate уже существуют; `ReceivingShiftService.commit_departure` испускает
-`cargo_commit_requested` до смены MORNING и хранит `dispatched_batch_id`. Финансовый
-обработчик ещё не подключён. Автоматическая приёмка и review зависимости закрыты;
-её ручные пункты остаются OWNER_QA. Сейчас реализуется явная идемпотентная транзакция
-до фиксации отправленной партии; отказ не должен скрываться `dispatched_batch_id`.
+Подключена явная `TruckCargoService.commit` до отправления и смены MORNING. Общий
+`PackageReturnService.return_package` сохраняет расчёт отказа; `return_held` остаётся
+адаптером. `C_Receiving` хранит состав/историю `TruckCargoReceipt`; деньги проверяются
+на копии кошелька до удаления и рассчитываются после него. Повтор/restore завершает
+неоплаченную удалённую запись без повторного удаления. Цена стека использует авторский
+`DEF_Delivery.truck_resale_percent`, доход имеет собственный Reason и подпись терминала.
+Схема повышена 10 → 11, codec/manifest/golden fixture обновлены без миграции старых файлов.
+
+Размещённый `PackageReturnPoint` удалён через редактор из main_level и primitive_test_level;
+API и compatibility prefabs сохраняются для existing callers/tests. Native save нормализовал
+сериализацию и добавил ранее отсутствующие engine unique IDs; существующие authored IDs сохранены.
+
+**Следующее:** read-only review checkpoint; затем поддержка переносимых raw/scriptless
+RigidBody3D с сохранением удаления. Сейчас Cargo обрабатывает зарегистрированные физические
+Entity; временный `C_PhysicsBodyRef` proxy не является durable actor и не должен стать второй
+авторитетной моделью тела. Общий критерий свободного имущества до этой работы не закрыт.
 
 ### Validation
 
-Эта выделенная задача ещё не прошла приёмку. Ранее выполненные проверки в Current или родительском файле — контрольные точки; новые проверки записывать только после фактического запуска.
-
-Parser и финансовые/предметные регрессии возврата, количества, округления, неподходящего груза, повторного начала смены и round-trip операций.
+- PASS: cargo GUT 12/12, 76 asserts (`gut-20261010-121059690`); package_return 5/5,
+  42 asserts (`gut-20261010-121058797`); truck_shift_gate 26/26, 177 asserts (`gut-20261010-120659710`).
+- PASS: headless truck_shift_gate smoke (`tests/artifacts/truck_shift_gate-20261010-221248643.log`)
+  с настоящим food_pickup и scheduled START_SHIFT: удаление, +7, повтор без выплаты.
+- Persistence GUT: 4/4, 320 asserts, exit 0 (`gut-20261010-121106260`), но runner FAIL
+  из-за shutdown-only Resource/RID retention. `KNOWN_ENGINE_LIMITATION / DEFERRED` по политике;
+  полный лог сохранён, не выдавать wrapper FAIL за PASS.
+- Parser для production/cargo/smoke проверяется отдельно; baseline test реально загружен GUT.
+  Isolated parser batch `parsefiles-20261010-121255942` также отклонён из-за shutdown-only retention.
+- PASS: formatter/lint, incremental architecture, strict architecture, project structure,
+  strict domain dependencies. Перед фиксацией повторить затронутые static gates.
+- Live MCP diagnostics: unnamed test/smoke scripts clean; для существующих global class scripts
+  scratch reload сообщает fallback error 43 без file diagnostics. Headless parser/GUT —
+  самостоятельное доказательство; live reload не помечать PASS. Не менять third-party handler.
+- REVIEW_PENDING: immutable checkpoint ещё не reviewed; QA владельца не выполнялась.
 
 ### Owner QA / blockers
 
@@ -45,11 +68,11 @@ Components владеют журналом операции/данными па�
 
 ## Работы
 
-- [ ] Удалить старый PackageReturnPoint и его привязки после подключения возвратов через машину.
-- [ ] До начала смены вход/выход из кузова не продаёт и не возвращает предмет; зафиксировать фактически свободный груз при начале смены, пока действуют MORNING-правила.
-- [ ] Допустимые возвраты проводить общей операцией без обязательного удержания коробки; сохранить прежние жалобы и финансовые результаты.
+- [x] Удалить старый PackageReturnPoint и его привязки после подключения возвратов через машину.
+- [x] До начала смены вход/выход из кузова не продаёт и не возвращает предмет; зафиксировать фактически свободный груз при начале смены, пока действуют MORNING-правила.
+- [x] Допустимые возвраты проводить общей операцией без обязательного удержания коробки; сохранить прежние жалобы и финансовые результаты.
 - [ ] Переносимое имущество продавать за floor(рыночная стоимость × количество × 10%); коэффициент редактируемый. Непрайсованный мусор — 0$. Трупы допускаются, живые персонажи, предметы в руках и геометрия — нет.
-- [ ] Чужие посылки не дают продажного дохода; недопустимый возврат не создаёт LOST за игрока. Стабильные ID партии/операции исключают повторную оплату и удаление.
+- [x] Чужие посылки не дают продажного дохода; недопустимый возврат не создаёт LOST за игрока. Стабильные ID партии/операции исключают повторную оплату и удаление.
 
 ## Критерии завершения
 

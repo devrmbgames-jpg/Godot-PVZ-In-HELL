@@ -66,6 +66,14 @@ static func return_held(actor: Entity) -> bool:
 	if parcel == null:
 		return false
 
+	return return_package(parcel)
+
+
+## Возвращает конкретную коробку; адаптер удержания и машина используют один расчёт.
+static func return_package(parcel: Entity) -> bool:
+	if not can_return(parcel):
+		return false
+
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	state.registration = C_PackageState.Registration.RETURNED
@@ -81,7 +89,10 @@ static func return_held(actor: Entity) -> bool:
 			visit.disposition = CustomerVisit.Disposition.RETURNED
 			visit.next_followup_day = 0
 	# Фактический исход, заявление, спор и записи расчёта сохраняются при возврате.
-	GrabReleaseService.release(actor, parcel)
+	var grip: Relationship = GrabQueries.held_relationship(parcel)
+	if grip != null:
+		GrabReleaseService.release(grip.target as Entity, parcel)
+	GrabReleaseService.entity_unavailable(parcel)
 	ECS.world.remove_entity(parcel)
 	return true
 

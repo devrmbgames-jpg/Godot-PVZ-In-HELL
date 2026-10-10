@@ -495,6 +495,8 @@ static func _reason_text(reason: MoneyOperation.Reason) -> String:
 
 		MoneyOperation.Reason.MISSED_REGISTRATION:
 			return "Не зарегистрирована вовремя"
+		MoneyOperation.Reason.TRUCK_RESALE:
+			return "Продажа обратного груза"
 
 		MoneyOperation.Reason.DEBUG_CREDIT:
 			return "Debug начисление"
@@ -514,6 +516,7 @@ static func _is_credit(reason: MoneyOperation.Reason) -> bool:
 	return (
 		reason == MoneyOperation.Reason.PAYMENT or reason == MoneyOperation.Reason.DEBUG_CREDIT
 		or reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL
+		or reason == MoneyOperation.Reason.TRUCK_RESALE
 	)
 
 

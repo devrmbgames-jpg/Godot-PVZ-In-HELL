@@ -111,6 +111,18 @@ func before_each() -> void:
 	batch.package_keys = [String(supply.packages[0].key)]
 	batch.package_scenes = [String(supply.packages[0].scene_variants[0])]
 	(session.get_component(C_Receiving) as C_Receiving).pending.append(batch)
+	var receiving: C_Receiving = session.get_component(C_Receiving) as C_Receiving
+	receiving.last_started_day = MORNING_DAY
+	receiving.batch_id = "fixture/cargo/2"
+	receiving.cargo_batch_id = receiving.batch_id
+	var cargo_receipt: TruckCargoReceipt = TruckCargoReceipt.new()
+	cargo_receipt.batch_id = receiving.batch_id
+	cargo_receipt.entity_id = "fixture/removed/cargo"
+	cargo_receipt.day_index = MORNING_DAY
+	cargo_receipt.kind = TruckCargoReceipt.Kind.SALE
+	cargo_receipt.amount = 7
+	cargo_receipt.removed = true
+	receiving.cargo_receipts.append(cargo_receipt)
 	var package_scene: PackedScene = load(batch.package_scenes[0]) as PackedScene
 	var package: E_Package = package_scene.instantiate() as E_Package
 	package.package_id = "fixture/shipment/1"
@@ -237,6 +249,14 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_eq(restored_calendar.clock.tick_remainder, 0.625)
 	assert_eq(restored_calendar.clock.world_seed, -42)
 	assert_eq(restored_calendar.day_index, MORNING_DAY)
+	var restored_receiving: C_Receiving = (
+		_fixture_world.query.with_all([C_Receiving]).execute_one().get_component(C_Receiving)
+		as C_Receiving
+	)
+	assert_eq(restored_receiving.cargo_receipts.size(), 1)
+	assert_true(restored_receiving.cargo_receipts[0].removed)
+	assert_false(restored_receiving.cargo_receipts[0].settled)
+	assert_eq(restored_receiving.cargo_receipts[0].amount, 7)
 	var restored_person: NpcRecord = NpcPopulationQueries.person_for(_active_id)
 	assert_eq(restored_person.activity_sequence, 19)
 	assert_eq(restored_person.cadence_elapsed_ticks, 12_345)

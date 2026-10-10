@@ -378,11 +378,24 @@
 "type": "res://content/domains/packages/components/c_package_ledger.gd"
 }, {
 "fields": {
-"batch_id": "",
+"batch_id": "fixture/cargo/2",
+"cargo_batch_id": "fixture/cargo/2",
+"cargo_receipts": [{
+"fields": {
+"amount": 7,
+"batch_id": "fixture/cargo/2",
+"day_index": 2,
+"entity_id": "fixture/removed/cargo",
+"kind": 1,
+"removed": true,
+"settled": false
+},
+"type": "res://content/domains/packages/contracts/truck_cargo_receipt.gd"
+}],
 "delivered_counts": {},
 "dispatched_batch_id": "",
 "incoming_package_ids": PackedStringArray(),
-"last_started_day": 0,
+"last_started_day": 2,
 "pending": [{
 "fields": {
 "day_index": 2,
@@ -1286,5 +1299,5 @@
 "scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 10
+"version": 11
 }

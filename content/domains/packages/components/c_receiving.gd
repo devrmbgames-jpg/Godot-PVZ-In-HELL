@@ -7,6 +7,8 @@ const SAVE_FIELDS: Array[String] = [
 	"last_started_day",
 	"batch_id",
 	"dispatched_batch_id",
+	"cargo_batch_id",
+	"cargo_receipts",
 	"incoming_package_ids",
 	"pending",
 	"delivered_counts",
@@ -19,6 +21,12 @@ var batch_id: String = ""
 ## Последняя зафиксированная отправка партии; защищает границу обратного груза от повторного
 ## исполнения.
 var dispatched_batch_id: String = ""
+## Партия зафиксированного обратного груза; пустой состав тоже фиксируется один раз.
+var cargo_batch_id: String = ""
+## История удаления и расчёта предметов, сохраняемая вместе с партией.
+var cargo_receipts: Array[TruckCargoReceipt] = []
+## Синхронная защита от повторного входа во время структурных уведомлений World.
+var cargo_commit_in_progress: bool = false
 ## Состав партии для разгрузки: ID всех ожидаемых коробок, не ссылки на физические тела.
 var incoming_package_ids: PackedStringArray = []
 ## Резервы полного объёма в кадре создания, до обновления physics space; не сохраняются.

@@ -108,7 +108,7 @@ Use placeholders if final assets do not exist.
 
 ## Schema and new-game construction
 
-Current `AutosaveStore.SCHEMA_VERSION` is 10. When serialized fields/paths/meaning change,
+Current `AutosaveStore.SCHEMA_VERSION` is 11. When serialized fields/paths/meaning change,
 advance the actual supported version, guards, golden fixture and save-visible inventory.
 Unsupported old/newer/invalid saves reject before live mutation, preserve original bytes
 and remain protected from later autosave. No conversion, previous-format aliases or load defaults.

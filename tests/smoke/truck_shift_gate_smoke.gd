@@ -16,8 +16,9 @@ func _run() -> void:
 
 	var cycle: C_DayCycle = C_DayCycle.new()
 	var session: Entity = Entity.new()
-	session.component_resources = [cycle, C_PackageLedger.new()]
+	session.component_resources = [cycle, C_PackageLedger.new(), C_Wallet.new()]
 	world.add_entity(session)
+	cycle = session.get_component(C_DayCycle) as C_DayCycle
 
 	var zone_scene: PackedScene = (
 		load("res://content/domains/packages/entities/receiving_zone.tscn") as PackedScene
@@ -55,6 +56,36 @@ func _run() -> void:
 	assert(DayPhaseService.permits(cycle, DayTransitionRequest.Kind.START_SHIFT))
 	package_body.global_transform = truck.cargo_slots[0].global_transform
 	assert(not DayPhaseService.permits(cycle, DayTransitionRequest.Kind.START_SHIFT))
+
+	# A real free stack commits once through the scheduled Morning -> Day boundary.
+	package_body.global_position += Vector3(8.0, 0.0, 0.0)
+	var pickup: Entity = (
+		load("res://content/domains/inventory/entities/food_pickup.tscn") as PackedScene
+	).instantiate() as Entity
+	physical_root.add_child(pickup)
+	EntityCompositionFixture.register(world, pickup, false)
+	(pickup as Node as RigidBody3D).freeze = true
+	(pickup as Node as Node3D).global_transform = truck.cargo_slots[0].global_transform
+	var wallet: C_Wallet = session.get_component(C_Wallet) as C_Wallet
+	assert(wallet.balance == 0)
+	var transition: DayTransitionRequest = DayTransitionRequest.new()
+	transition.kind = DayTransitionRequest.Kind.START_SHIFT
+	transition.expected_day = cycle.day_index
+	transition.expected_phase = cycle.phase
+	var phase_system: S_DayPhase = S_DayPhase.new()
+	world.add_system(phase_system)
+	assert(DayPhaseService.submit(transition))
+	phase_system.process([session], [[cycle]], 0.0)
+	phase_system.cmd.execute()
+	assert(cycle.phase == C_DayCycle.Phase.DAY)
+	assert(not world.entities.has(pickup))
+	assert(
+		wallet.balance == 7 and wallet.operations.size() == 1,
+		"Cargo payout: balance=%d, operations=%d" % [wallet.balance, wallet.operations.size()],
+	)
+	assert(receiving.cargo_receipts.size() == 1 and receiving.cargo_receipts[0].settled)
+	assert(TruckCargoService.commit(zone, cycle))
+	assert(wallet.balance == 7)
 
 	world.purge(false)
 	physical_root.queue_free()

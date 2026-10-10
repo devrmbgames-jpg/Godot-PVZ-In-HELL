@@ -51,6 +51,7 @@ static var _record_types: Array[Script] = [
 	PendingDelivery,
 	RefusalQuestRecord,
 	ReceivingBatch,
+	TruckCargoReceipt,
 	PendingLootDrop,
 ]
 ## Максимальная глубина вложенных сериализуемых данных.

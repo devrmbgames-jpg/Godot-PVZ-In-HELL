@@ -48,7 +48,7 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 		return Status.INVALID
 	if (
 		operation.reason < MoneyOperation.Reason.PAYMENT
-		or operation.reason > MoneyOperation.Reason.MISSED_REGISTRATION
+		or operation.reason > MoneyOperation.Reason.TRUCK_RESALE
 	):
 		return Status.INVALID
 	if _requires_settlement(operation.reason) and operation.settlement_id == &"":
@@ -182,6 +182,7 @@ static func _is_credit(reason: MoneyOperation.Reason) -> bool:
 	return (
 		reason == MoneyOperation.Reason.PAYMENT or reason == MoneyOperation.Reason.DEBUG_CREDIT
 		or reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL
+		or reason == MoneyOperation.Reason.TRUCK_RESALE
 	)
 
 

@@ -129,8 +129,16 @@ static func commit_departure(cycle: C_DayCycle) -> bool:
 		var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
 		var truck: E_MorningTruck = zone.get_truck()
 		if receiving.dispatched_batch_id != receiving.batch_id:
-			zone.cargo_commit_requested.emit(truck, receiving.batch_id)
+			if not TruckCargoService.commit(zone, cycle):
+				return false
 			receiving.dispatched_batch_id = receiving.batch_id
+			zone.cargo_commit_requested.emit(truck, receiving.batch_id)
+	# Ни одна машина не закрывается, пока учёт всех зон не завершён.
+	for candidate: Entity in ECS.world.query.with_all([C_Receiving]).execute():
+		var zone: E_ReceivingZoneBody = candidate as E_ReceivingZoneBody
+		if not is_instance_valid(zone) or zone.truck_parking == null:
+			continue
+		var truck: E_MorningTruck = zone.get_truck()
 		if is_instance_valid(truck) and not truck.is_queued_for_deletion():
 			truck.request_departure(players)
 	return true

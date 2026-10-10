@@ -3,7 +3,7 @@ extends E_TraitedEntity
 ## Native authoring и lifetime машины приёмки; состояние партии принадлежит C_Receiving.
 class_name E_ReceivingZoneBody
 
-## Запрашивает обработку живого обратного груза до окончания утра; последующий этап подключает учёт.
+## Уведомляет о завершённом учёте обратного груза до окончания утра.
 signal cargo_commit_requested(truck: E_MorningTruck, batch_id: String)
 
 ## Авторский ассортимент, лимиты партии и повторов размещения.

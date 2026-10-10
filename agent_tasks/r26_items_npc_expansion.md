@@ -22,7 +22,7 @@ This root task owns overall status/current/next. Each supporting task owns its o
 ### Current
 
 PLANNED; no R26 implementation or acceptance is claimed. The task audit on 2026-10-10
-uses current vertical domains, direct Entity Traits and save schema 10 as its baseline.
+uses current vertical domains, direct Entity Traits and save schema 11 as its baseline.
 Existing NPCs already use decomposed native BTs; R26 extends this execution model.
 
 ### Next
@@ -65,7 +65,7 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
   scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
 - Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
   native physics delta retains its existing authority.
-- Current save schema is `AutosaveStore.SCHEMA_VERSION = 10`; version incompatible
+- Current save schema is `AutosaveStore.SCHEMA_VERSION = 11`; version incompatible
   serialized changes from the actual implementation baseline. No old-save conversion,
   defaults that accept an unsupported format, or automatic rejected-slot overwrite.
 

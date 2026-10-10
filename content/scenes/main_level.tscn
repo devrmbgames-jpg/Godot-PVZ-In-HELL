@@ -40,7 +40,7 @@
 [ext_resource type="Script" uid="uid://cgf0j12tlcr1q" path="res://content/domains/npc/components/c_npc_intent.gd" id="88_4djqo"]
 [ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="89_21qce"]
 [ext_resource type="Script" uid="uid://cvgkpkfqjch0p" path="res://content/domains/combat/components/c_npc_combat.gd" id="90_dtq54"]
-[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_trader_default.tres" id="91_say4p"]
+[ext_resource type="Resource" uid="uid://bs5lvkvk8rlco" path="res://content/domains/commerce/definitions/def_trader_default.tres" id="91_say4p"]
 [ext_resource type="Script" uid="uid://bw4ora21yecmg" path="res://content/domains/commerce/components/c_trader.gd" id="92_1brdc"]
 [ext_resource type="Script" uid="uid://b4miil035qw62" path="res://content/domains/commerce/definitions/def_trader_action.gd" id="93_p0mrl"]
 [ext_resource type="Script" uid="uid://beak7vlgbw1xn" path="res://content/domains/commerce/contracts/daily_money_result.gd" id="94_dtq54"]
@@ -66,6 +66,14 @@
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/domains/time/components/c_day_cycle.gd" id="Day_state"]
 [ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/domains/time/entities/day_phase_station.tscn" id="Day_station"]
 [ext_resource type="PackedScene" path="res://content/domains/customers/entities/delivery_counter.tscn" id="Delivery_counter"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_session_district_roster.tres" id="DirectTrait_1"]
+[ext_resource type="Resource" uid="uid://b1io7l5w1odxr" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="DirectTrait_2"]
+[ext_resource type="Resource" uid="uid://b6ivyyl82mbpq" path="res://content/shared/authoring/et_boundary_trace.tres" id="DirectTrait_3"]
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_identity.tres" id="DirectTrait_4"]
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_brain_state.tres" id="DirectTrait_5"]
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_roles.tres" id="DirectTrait_6"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_7"]
 [ext_resource type="PackedScene" uid="uid://c5yk7jxrcgyby" path="res://content/scenes/district_blockout.tscn" id="District_blockout"]
 [ext_resource type="Resource" uid="uid://0japh62q4h57" path="res://content/domains/npc/definitions/def_district_default.tres" id="District_definition"]
 [ext_resource type="Script" uid="uid://cwknel8uiy5sw" path="res://content/domains/npc/entities/e_district_npc.gd" id="District_npc"]
@@ -91,7 +99,6 @@
 [ext_resource type="Script" uid="uid://bpgnbax0t8575" path="res://content/domains/npc/authoring/npc_light_zone.gd" id="Npc_light_zone"]
 [ext_resource type="PackedScene" path="res://content/scenes/npc_service_routes.tscn" id="Npc_service_routes"]
 [ext_resource type="PackedScene" path="res://content/domains/commerce/entities/order_receiving.tscn" id="Order_receiving_scene"]
-[ext_resource type="PackedScene" path="res://content/domains/packages/entities/package_return_point.tscn" id="Package_return_point"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/placement_area.tscn" id="PlacementArea"]
 [ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/domains/combat/components/c_combat.gd" id="Player_combat"]
 [ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/domains/motion/components/c_stamina.gd" id="Player_stamina"]
@@ -115,22 +122,6 @@
 [ext_resource type="NavigationMesh" uid="uid://bd0sp42a7x3qr" path="res://content/domains/npc/authoring/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
 [ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/domains/interaction/entities/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/domains/inventory/entities/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
-
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
-
-[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_session_district_roster.tres" id="DirectTrait_1"]
-
-[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="DirectTrait_2"]
-
-[ext_resource type="Resource" path="res://content/shared/authoring/et_boundary_trace.tres" id="DirectTrait_3"]
-
-[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_identity.tres" id="DirectTrait_4"]
-
-[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_brain_state.tres" id="DirectTrait_5"]
-
-[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_roles.tres" id="DirectTrait_6"]
-
-[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_7"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
@@ -199,7 +190,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("32_mc3p1")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_jxwan"]
+[sub_resource type="Resource" id="Resource_6e2xu"]
 resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
@@ -228,16 +219,16 @@ script = ExtResource("Inventory_state")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="Resource" id="Resource_3auy4"]
+[sub_resource type="Resource" id="Resource_m42vc"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[sub_resource type="Resource" id="Resource_sseuf"]
+[sub_resource type="Resource" id="Resource_rd3on"]
 resource_local_to_scene = true
 script = ExtResource("Player_stamina")
 
-[sub_resource type="Resource" id="Resource_v2668"]
+[sub_resource type="Resource" id="Resource_krjb2"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 
@@ -261,17 +252,17 @@ script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_8wt2x"]
+[sub_resource type="Resource" id="Resource_y33gj"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(1, 0.13787842, 0.0234375, 1)
 
-[sub_resource type="Resource" id="Resource_vfheu"]
+[sub_resource type="Resource" id="Resource_w8qhe"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(0.96875, 0, 1, 1)
 
-[sub_resource type="Resource" id="Resource_t4pbu"]
+[sub_resource type="Resource" id="Resource_ib472"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
 
@@ -350,7 +341,6 @@ script = ExtResource("90_dtq54")
 
 [sub_resource type="Resource" id="Trader"]
 script = ExtResource("92_1brdc")
-catalog = Array[ExtResource("135_jjqtf")]([ExtResource("136_2peb6"), ExtResource("137_5und5"), ExtResource("138_jpldi")])
 profile = ExtResource("91_say4p")
 
 [sub_resource type="Resource" id="Resource_w2mh7"]
@@ -365,7 +355,7 @@ caption = "Торговля и задание"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Resource_hw10a")])
 
-[sub_resource type="Resource" id="Resource_6e2xu"]
+[sub_resource type="Resource" id="Resource_av61h"]
 resource_local_to_scene = true
 script = ExtResource("63_3w6s4")
 
@@ -460,10 +450,10 @@ size = Vector3(1.6518555, 3.7236938, 1)
 size = Vector3(4.223633, 3.7236938, 7.4051514)
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world", "furniture_delivery_anchor") groups=["navigation_mesh_source_group"]]
-metadata/persistent_world_id = &"main_level"
 script = ExtResource("1_ixiin")
 world = NodePath("World")
 furniture_delivery_anchor = NodePath("Entityes/OrderReceiving/FurnitureDelivery")
+metadata/persistent_world_id = &"main_level"
 
 [node name="District" parent="." unique_id=161100477 groups=["navigation_geometry"] instance=ExtResource("District_blockout")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.688103, 0, -2.6446795)
@@ -1666,41 +1656,50 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 6, 1
 [node name="Entityes" type="Node3D" parent="." unique_id=118950221]
 
 [node name="CarryPlacement" parent="Entityes" unique_id=311356828 instance=ExtResource("PlacementArea")]
-metadata/persistent_local_id = &"placed_entityes_carryplacement"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -1.3605773)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_carryplacement"
 
 [node name="CarryPlacement2" parent="Entityes" unique_id=1589903994 instance=ExtResource("PlacementArea")]
-metadata/persistent_local_id = &"placed_entityes_carryplacement2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -2.7532282)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_carryplacement2"
 
 [node name="CarryPlacement3" parent="Entityes" unique_id=1189909820 instance=ExtResource("PlacementArea")]
-metadata/persistent_local_id = &"placed_entityes_carryplacement3"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -3.997128)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_carryplacement3"
 
 [node name="CarryPlacement4" parent="Entityes" unique_id=2131764686 instance=ExtResource("PlacementArea")]
-metadata/persistent_local_id = &"placed_entityes_carryplacement4"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -5.272379)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_carryplacement4"
 
 [node name="CarryPlacement5" parent="Entityes" unique_id=2042384809 instance=ExtResource("PlacementArea")]
-metadata/persistent_local_id = &"placed_entityes_carryplacement5"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -5.272379)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_carryplacement5"
 
 [node name="CarryPlacement6" parent="Entityes" unique_id=54381134 instance=ExtResource("PlacementArea")]
-metadata/persistent_local_id = &"placed_entityes_carryplacement6"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -4.178487)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_carryplacement6"
 
 [node name="CarryPlacement7" parent="Entityes" unique_id=1100157914 instance=ExtResource("PlacementArea")]
-metadata/persistent_local_id = &"placed_entityes_carryplacement7"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -3.1088612)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_carryplacement7"
 
 [node name="CarryPlacement8" parent="Entityes" unique_id=1309072910 instance=ExtResource("PlacementArea")]
-metadata/persistent_local_id = &"placed_entityes_carryplacement8"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -1.7013781)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_carryplacement8"
 
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
-metadata/persistent_local_id = &"placed_entityes_player"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_jxwan"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_3auy4"), SubResource("Resource_sseuf")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_6e2xu"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_m42vc"), SubResource("Resource_rd3on")])
+metadata/persistent_local_id = &"placed_entityes_player"
 
 [node name="HeadX" parent="Entityes/Player/HeadY" index="0"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
@@ -1712,19 +1711,20 @@ current = true
 cast_shadow = 3
 
 [node name="BeltSlotLeft" parent="Entityes/Player" index="5"]
-metadata/persistent_local_id = &"placed_entityes_player_beltslotleft"
 transform = Transform3D(0.41083163, -0.9117112, 0, 0, -4.371139e-08, 1, -0.91171116, -0.4108317, 0, -0.25, 0.7946805, -0.1371026)
+metadata/persistent_local_id = &"placed_entityes_player_beltslotleft"
 
 [node name="BeltSlotRight" parent="Entityes/Player" index="6"]
-metadata/persistent_local_id = &"placed_entityes_player_beltslotright"
 transform = Transform3D(0.21199018, 0.9772718, 2.9802322e-08, 1.3716061e-08, -5.0772293e-08, 1, 0.9772718, -0.21199018, 0, 0.25, 0.7946805, -0.1371026)
+metadata/persistent_local_id = &"placed_entityes_player_beltslotright"
 
 [node name="Ground" parent="Entityes/Player" index="7"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
 
 [node name="DeliveryCounter" parent="Entityes" unique_id=1492129627 instance=ExtResource("Delivery_counter")]
-metadata/persistent_local_id = &"placed_entityes_deliverycounter"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4.0657115, 0, -4.821111)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_deliverycounter"
 
 [node name="Desk" parent="Entityes/DeliveryCounter" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
@@ -1759,137 +1759,153 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 1)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2)
 
 [node name="Terminal" parent="Entityes" unique_id=911264778 instance=ExtResource("Terminal_scene")]
-metadata/persistent_local_id = &"placed_entityes_terminal"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 0, -2)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_terminal"
 
 [node name="Scanner" parent="Entityes" unique_id=1882453380 instance=ExtResource("Scanner_scene")]
-metadata/persistent_local_id = &"placed_entityes_scanner"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.45, -2)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_scanner"
 
 [node name="Scanner2" parent="Entityes" unique_id=935711068 instance=ExtResource("Scanner_scene")]
-metadata/persistent_local_id = &"placed_entityes_scanner2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_scanner2"
 
 [node name="Marker" parent="Entityes" unique_id=1749342287 instance=ExtResource("Marker_scene")]
-metadata/persistent_local_id = &"placed_entityes_marker"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.2880824)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_v2668"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_krjb2"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+metadata/persistent_local_id = &"placed_entityes_marker"
 
 [node name="Marker2" parent="Entityes" unique_id=1086911559 instance=ExtResource("Marker_scene")]
-metadata/persistent_local_id = &"placed_entityes_marker2"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.1790984)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_8wt2x"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_y33gj"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+metadata/persistent_local_id = &"placed_entityes_marker2"
 
 [node name="Marker3" parent="Entityes" unique_id=529574383 instance=ExtResource("Marker_scene")]
-metadata/persistent_local_id = &"placed_entityes_marker3"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.0586202)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vfheu"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w8qhe"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+metadata/persistent_local_id = &"placed_entityes_marker3"
 
 [node name="Hammer" parent="Entityes" unique_id=1856779010 instance=ExtResource("Hammer_scene")]
-metadata/persistent_local_id = &"placed_entityes_hammer"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7814434, 1.5211676, -2.8830624)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_hammer"
 
 [node name="AnchorableTestBox" parent="Entityes" unique_id=1059473200 instance=ExtResource("AnchorTest_scene")]
-metadata/persistent_local_id = &"placed_entityes_anchorabletestbox"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.101066, 1.421769, -3.45)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_anchorabletestbox"
 
 [node name="Valve_E_Press" parent="Entityes" unique_id=294277559 instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_e_press"
 editor_description = "Immediate E action. No prolonged progress/reset policy. Signal: activated(bool) -> child IndicatorLamp.set_active()."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 0.36, 7.75)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_e_press"
 
 [node name="Valve_F_Decay" parent="Entityes" unique_id=1149222845 instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_f_decay"
 editor_description = "Hold F. Interrupted progress decays gradually according to decay_per_second."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.95, 0.36, 7.75)
 mode = 1
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_f_decay"
 
 [node name="Valve_F_Instant" parent="Entityes" unique_id=1286648369 instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_f_instant"
 editor_description = "Hold F. Interrupted progress resets immediately to zero."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.15, 0.36, 7.75)
 mode = 2
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_f_instant"
 
 [node name="Valve_F_OnComplete" parent="Entityes" unique_id=1314564000 instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_f_oncomplete"
 editor_description = "Hold F. Partial progress is retained; successful completion resets progress for another use."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.35, 0.36, 7.75)
 mode = 3
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_f_oncomplete"
 
 [node name="Valve_F_Never" parent="Entityes" unique_id=933290534 instance=ExtResource("Valve_test")]
-metadata/persistent_local_id = &"placed_entityes_valve_f_never"
 editor_description = "Hold F. Successful completion is permanent/one-shot; action becomes unavailable."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.55, 0.36, 7.75)
 mode = 4
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_valve_f_never"
 
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent", "truck_parking") instance=ExtResource("Receiving_zone")]
-metadata/persistent_local_id = &"placed_entityes_receivingzone"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -18.18865, 0.51578665, -6.508998)
 package_parent = NodePath("..")
 truck_parking = NodePath("../../TruckParking")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_t4pbu")])
-
-[node name="PackageReturnPoint" parent="Entityes" unique_id=622721691 instance=ExtResource("Package_return_point")]
-metadata/persistent_local_id = &"placed_entityes_packagereturnpoint"
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.839949, 0.4, -7.3298917)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_ib472")])
+metadata/persistent_local_id = &"placed_entityes_receivingzone"
 
 [node name="OrderReceiving" parent="Entityes" unique_id=1034245790 instance=ExtResource("Order_receiving_scene")]
-metadata/persistent_local_id = &"placed_entityes_orderreceiving"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.22, 0.5)
+metadata/persistent_local_id = &"placed_entityes_orderreceiving"
 
-[node name="FurnitureDelivery" type="Marker3D" parent="Entityes/OrderReceiving"]
+[node name="FurnitureDelivery" type="Marker3D" parent="Entityes/OrderReceiving" unique_id=2088795681]
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
-metadata/persistent_local_id = &"placed_entityes_daysession"
 traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2"), ExtResource("DirectTrait_3")])
+ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state"), SubResource("District_state")])
+metadata/persistent_local_id = &"placed_entityes_daysession"
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
-metadata/persistent_local_id = &"placed_entityes_shiftconsole"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.175833, 0, -0.95899534)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_shiftconsole"
 
 [node name="SleepPoint" parent="Entityes" unique_id=1969214162 instance=ExtResource("Day_station")]
-metadata/persistent_local_id = &"placed_entityes_sleeppoint"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.510403, 2.3841858e-07, -0.6614268)
 sleep_station = true
+ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Sleep_interactable"), SubResource("Sleep_station_actions")])
+metadata/persistent_local_id = &"placed_entityes_sleeppoint"
 
 [node name="Bucket" parent="Entityes" unique_id=263915687 instance=ExtResource("45_8uaqh")]
-metadata/persistent_local_id = &"placed_entityes_bucket"
 transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 15.433494, 1.8730338, 8.573659)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_bucket"
 
 [node name="Drawer" parent="Entityes" unique_id=1881781064 instance=ExtResource("Drawer_scene")]
-metadata/persistent_local_id = &"placed_entityes_drawer"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 11.044259, 0.775, -3.3000002)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_drawer"
 
 [node name="LightSwitch" parent="Entityes" unique_id=610409684 instance=ExtResource("Light_switch_scene")]
-metadata/persistent_local_id = &"placed_entityes_lightswitch"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.9202886, 1.5, -7.70335)
+metadata/persistent_local_id = &"placed_entityes_lightswitch"
 
 [node name="FoodPickup" parent="Entityes" unique_id=249401670 instance=ExtResource("Food_pickup")]
-metadata/persistent_local_id = &"placed_entityes_foodpickup"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2.5887012, 1.22, -1.3590674)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_foodpickup"
 
 [node name="MedPickup" parent="Entityes" unique_id=1873845329 instance=ExtResource("Med_pickup")]
-metadata/persistent_local_id = &"placed_entityes_medpickup"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.193355, 1.23, -1.357756)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_medpickup"
 
 [node name="WrapPickup" parent="Entityes" unique_id=1375654069 instance=ExtResource("Wrap_pickup")]
-metadata/persistent_local_id = &"placed_entityes_wrappickup"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.25, 1.22, -1.2911086)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_wrappickup"
 
 [node name="Trader" parent="Entityes" unique_id=50836948 instance=ExtResource("Trader_scene")]
-script = ExtResource("District_npc")
-metadata/persistent_local_id = &"placed_entityes_trader"
-traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_4"), ExtResource("DirectTrait_5"), ExtResource("DirectTrait_6"), ExtResource("DirectTrait_7")])
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.031166, 0.30710316, -0.9131813)
-inspection_animation = &""
-receiving_animation = &""
-dialogue_animation = &""
+script = ExtResource("District_npc")
 idle_animation = &"Idle"
 walk_animation = &"Walk"
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_4"), ExtResource("DirectTrait_5"), ExtResource("DirectTrait_6"), ExtResource("DirectTrait_7")])
+ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("Grab_component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Resource_7qcpm"), SubResource("Impact"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Trader"), SubResource("Resource_w2mh7"), SubResource("Resource_qc58h")])
+metadata/persistent_local_id = &"placed_entityes_trader"
 
 [node name="HeadY" parent="Entityes/Trader" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
@@ -1913,51 +1929,53 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.11661625, 10.667902)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="UtilityBlade" parent="Entityes" unique_id=1068136048 instance=ExtResource("Utility_blade")]
-metadata/persistent_local_id = &"placed_entityes_utilityblade"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.328057, -0.8)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_utilityblade"
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
-metadata/persistent_local_id = &"placed_entityes_pushcart"
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -13.95594, 0.8329964, 2.4201646)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_6e2xu"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_av61h"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+metadata/persistent_local_id = &"placed_entityes_pushcart"
 
 [node name="Props" type="Node3D" parent="Entityes" unique_id=1751720738]
 
 [node name="PhysicalSlot" parent="Entityes/Props" unique_id=1249143366 instance=ExtResource("155_5h1gn")]
-metadata/persistent_local_id = &"placed_entityes_props_physicalslot"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1632135, 1.602072, -0.58928645)
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot"
 
 [node name="PhysicalSlot2" parent="Entityes/Props" unique_id=786696989 instance=ExtResource("155_5h1gn")]
-metadata/persistent_local_id = &"placed_entityes_props_physicalslot2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7266517, 1.602072, -0.58928645)
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot2"
 
 [node name="PhysicalSlot3" parent="Entityes/Props" unique_id=174843533 instance=ExtResource("155_5h1gn")]
-metadata/persistent_local_id = &"placed_entityes_props_physicalslot3"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.345997, 1.602072, -0.58928645)
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot3"
 
 [node name="PhysicalSlot4" parent="Entityes/Props" unique_id=1008855800 instance=ExtResource("155_5h1gn")]
-metadata/persistent_local_id = &"placed_entityes_props_physicalslot4"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.345997, 0.90635705, -0.58928645)
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot4"
 
 [node name="PhysicalSlot5" parent="Entityes/Props" unique_id=354012702 instance=ExtResource("155_5h1gn")]
-metadata/persistent_local_id = &"placed_entityes_props_physicalslot5"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6207736, 0.90635705, -0.58928645)
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot5"
 
 [node name="PhysicalSlot6" parent="Entityes/Props" unique_id=614431075 instance=ExtResource("155_5h1gn")]
-metadata/persistent_local_id = &"placed_entityes_props_physicalslot6"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.070337, 0.90635705, -0.58928645)
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot6"
 
 [node name="FloorSafeBox1" parent="Entityes/Props" unique_id=2047682183 instance=ExtResource("Safe_box")]
-metadata/persistent_local_id = &"placed_entityes_props_floorsafebox1"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.251211, 0.25295496, -6.9118934)
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox1"
 
 [node name="FloorSafeBox2" parent="Entityes/Props" unique_id=1620710891 instance=ExtResource("Safe_box")]
-metadata/persistent_local_id = &"placed_entityes_props_floorsafebox2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4508557, 0.23964107, -7.071574)
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox2"
 
 [node name="FloorSafeBox3" parent="Entityes/Props" unique_id=1503957729 instance=ExtResource("Safe_box")]
-metadata/persistent_local_id = &"placed_entityes_props_floorsafebox3"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.699815, 0.24764371, -7.077774)
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox3"
 
 [node name="Barrel_C_rigid" parent="Entityes/Props" unique_id=1866096492 instance=ExtResource("79_ypydk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.046048, 0.50476074, 9.94565)
@@ -2000,38 +2018,44 @@ shape = SubResource("BoxShape3D_patme")
 [node name="Doors" type="Node3D" parent="Entityes" unique_id=1409983500]
 
 [node name="DoorTemplate" parent="Entityes/Doors" unique_id=964464054 instance=ExtResource("63_uqafv")]
-metadata/persistent_local_id = &"placed_entityes_doors_doortemplate"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.583366, 0.09600389, -9.215219)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_doors_doortemplate"
 
 [node name="Windows" type="Node3D" parent="Entityes" unique_id=1063944992]
 
 [node name="Window" parent="Entityes/Windows" unique_id=1384280089 instance=ExtResource("Window_scene")]
-metadata/persistent_local_id = &"placed_entityes_windows_window"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 1.05, 0.55)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_windows_window"
 
 [node name="Window2" parent="Entityes/Windows" unique_id=506919701 instance=ExtResource("Window_scene")]
-metadata/persistent_local_id = &"placed_entityes_windows_window2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.95, 1.05, 0.55)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_windows_window2"
 
 [node name="Window3" parent="Entityes/Windows" unique_id=406812796 instance=ExtResource("Window_scene")]
-metadata/persistent_local_id = &"placed_entityes_windows_window3"
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12.588538, 1.05, -14.9925995)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_windows_window3"
 
 [node name="Window4" parent="Entityes/Windows" unique_id=1546946061 instance=ExtResource("Window_scene")]
-metadata/persistent_local_id = &"placed_entityes_windows_window4"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.608209, 1.05, -4.9855013)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_windows_window4"
 
 [node name="Window5" parent="Entityes/Windows" unique_id=84975236 instance=ExtResource("Window_scene")]
-metadata/persistent_local_id = &"placed_entityes_windows_window5"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.608209, 1.05, -8.969203)
+ancestor_entity_bindings = PackedStringArray()
+metadata/persistent_local_id = &"placed_entityes_windows_window5"
 
 [node name="InspectionBooth1" parent="Entityes" unique_id=1872546858 instance=ExtResource("InspectionBooth")]
-metadata/persistent_local_id = &"placed_entityes_inspectionbooth1"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.9651318, 0, -1.4054787)
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth1"
 
 [node name="InspectionBooth2" parent="Entityes" unique_id=565667034 instance=ExtResource("InspectionBooth")]
-metadata/persistent_local_id = &"placed_entityes_inspectionbooth2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.093425, 0, -10.093695)
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth2"
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
@@ -2042,9 +2066,6 @@ player = NodePath("../Entityes/Player")
 
 [node name="DebugMarkers" type="Node3D" parent="." unique_id=313082165]
 visible = false
-
-[node name="TruckParking" type="Marker3D" parent="."]
-transform = Transform3D(-0.9658736, 0, 0.25901395, 0, 1, 0, -0.25901395, 0, -0.9658736, -19.884726, 0.35, 1.0257263)
 
 [node name="ReceivingZone" type="MeshInstance3D" parent="DebugMarkers" unique_id=185141184]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.30757, 2.1978455, -10.747112)
@@ -2094,6 +2115,9 @@ surface_material_override/0 = SubResource("StandardMaterial3D_jpldi")
 [node name="MarkerNPCSpawnPoint" type="Marker3D" parent="DebugMarkers" unique_id=345863772]
 editor_description = "Маркер где примерно появляются новые клиенты"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.530093, 0, 3.423316)
+
+[node name="TruckParking" type="Marker3D" parent="." unique_id=989609832]
+transform = Transform3D(-0.9658736, 0, 0.25901395, 0, 1, 0, -0.25901395, 0, -0.9658736, -19.884726, 0.35, 1.0257263)
 
 [node name="LightZones" type="Node3D" parent="." unique_id=34964280]
 
