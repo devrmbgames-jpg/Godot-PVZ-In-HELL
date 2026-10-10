@@ -9,6 +9,26 @@ Choose the cheapest check capable of falsifying the changed behavior, then run a
 
 Docs/prompt/config-only edits need relevant text/link/schema checks, not gameplay/GUT runs. Non-visual headless Godot and local disposable tests are allowed when relevant; gameplay/rendered/visual QA needs explicit owner approval.
 
+## Required engine fallback (MCP-independent)
+
+After a coherent .gd/.tscn/.tres implementation batch, verify the relevant
+changed surface with actual Godot, regardless of MCP availability. On Windows
+use `utils/godot_agent.ps1` or the matching VS Code task:
+
+- `-Action ParseChanged` (or `-Action ParseFiles -Paths ...`) — actual GDScript load/parser.
+- `-Action GUT -TestPath res://tests/gut/<focused_test>.gd` — focused native tests.
+- `-Action Import` / `-Action EditorScript -ScriptPath res://...` — offline
+  editor-owned operations, **only after closing the live project editor**.
+- `utils/run_smoke.ps1 -Name <focused_smoke>` — bounded headless gameplay smoke.
+
+If the runner or Godot executable is missing, mark required engine checks
+`NOT_RUN`, do not claim a static check as equivalent. Never skip parser or
+native regressions solely because MCP failed. A VS Code Problems list or a
+formatter pass is useful feedback but not a substitute for Godot parser/GUT.
+
+The runner must never open rendered gameplay, overwrite an open scene or
+force-restart a live editor merely to satisfy validation.
+
 ## GDScript
 
 - Before a coherent commit of project-owned `.gd`, run `python utils/check_gdscript_format.py --changed`. The wrapper checks changed lines and new files without mass-rewriting legacy source. Missing GDQuest `gdscript-formatter` returns exit 2 = **NOT_RUN**, not PASS.
