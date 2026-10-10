@@ -13,6 +13,12 @@ var _state: C_Receiving
 const RAW_SLOT: String = "user://gut_truck_cargo_raw_roundtrip.pvzh"
 
 
+## Minimal owner with an actual Carry anchor; physics and grip lifecycle remain real.
+class RawCarryHolder extends Entity:
+	## Authored-equivalent anchor required by the live grip contract.
+	var hold_anchor: Node3D
+
+
 #region Окружение обратного груза
 func before_each() -> void:
 	var fixture: PackedScene = load("res://tests/fixtures/truck_cargo_raw.tscn") as PackedScene
@@ -248,6 +254,36 @@ func test_foreign_parcel_has_no_sale_and_does_not_invent_lost_or_warehouse_retur
 
 
 #region Scriptless native cargo and persistence
+func test_raw_held_snapshot_releases_carry_and_restores_original_sleep_policy() -> void:
+	var body: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D
+	var holder: RawCarryHolder = RawCarryHolder.new()
+	holder.component_resources = [C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
+	holder.hold_anchor = Node3D.new()
+	holder.add_child(holder.hold_anchor)
+	_world.add_entity(holder)
+	var proxy: Entity = PhysicsGrabTarget.handle_for(body, true)
+	var grip: Relationship = Relationship.new(R_HeldBy.new(), holder)
+	proxy.add_relationship(grip)
+	assert_true(GrabService.grip_added(proxy, grip), "Real applied Carry lifecycle")
+	assert_false(body.can_sleep)
+	var snapshot: Dictionary = RawPhysicsSnapshot.capture(_root)
+	assert_true(RawPhysicsSnapshot.valid(snapshot.actors, _root))
+	RawPhysicsSnapshot.restore(snapshot.actors as Array, _root)
+	assert_null(GrabQueries.held_relationship(proxy))
+	assert_null(GrabQueries.held_in_slot(holder, C_Grabbable.HoldSlot.CARRY))
+	assert_true(body.can_sleep, "Released raw body preserves its original sleep policy")
+
+
+func test_raw_snapshot_preserves_an_explicit_sleep_veto_without_carry() -> void:
+	var body: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D
+	body.can_sleep = false
+	var snapshot: Dictionary = RawPhysicsSnapshot.capture(_root)
+	body.can_sleep = true
+	assert_true(RawPhysicsSnapshot.valid(snapshot.actors, _root))
+	RawPhysicsSnapshot.restore(snapshot.actors as Array, _root)
+	assert_false(body.can_sleep, "A genuine body policy remains false")
+
+
 func test_raw_cargo_disposes_body_and_transient_proxy_without_income_or_reentry() -> void:
 	var truck: E_MorningTruck = await _ready_truck()
 	var body: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D

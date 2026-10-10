@@ -18,6 +18,13 @@ static func capture(root: Node) -> Dictionary:
 			record.freeze = body.freeze
 			record.freeze_mode = int(body.freeze_mode)
 			record.can_sleep = body.can_sleep
+			var proxy: Entity = PhysicsGrabTarget.handle_for(body, false)
+			var grip: Relationship = GrabQueries.held_relationship(proxy) if proxy != null else null
+			if grip != null:
+				var held: R_HeldBy = grip.relation as R_HeldBy
+				if held.lifecycle_applied:
+					# Restore releases Carry; its temporary sleep veto is not durable body state.
+					record.can_sleep = held.previous_can_sleep
 		records.append(record)
 	return { "actors": records }
 
