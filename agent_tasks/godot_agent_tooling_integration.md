@@ -1,64 +1,55 @@
-# Godot Agent Tooling — editor-owned scenes and MCP-first authoring
+# Godot Agent Tooling — acceptance checkpoint
 Status: **OWNER_QA**
 
 ## Goal
-
-Avoid blocking the active Godot 4.7.1 editor through external `.tscn` /
-`project.godot` writes, while keeping native headless validation independent
-of MCP. Authorize bounded recovery of a confirmed project settings modal,
-and project-owned Godot AI MCP extensions.
+Use native Godot AI MCP to edit scenes that are open in Godot, keep headless
+Godot verification independent of MCP, and allow project-scoped recovery from
+confirmed `project.godot` modal blockage. Do not rewrite open scenes externally.
 
 ## Implemented
+The feature and its permanent policies are implemented in `dev`. There is
+no additional Godot tooling feature planned by this task.
 
-- `AGENTS.md` routes live scene changes through MCP; no unsafe external-file
-  fallback over open editor-owned content.
-- `.agents/skills/godot-scene-authoring/SKILL.md` and
-  `.agents/skills/godot-ai-mcp/SKILL.md`: native live scene/save, unsaved-state
-  guard, safe offline migration, recovery, custom-tool extension policy.
-- `.agents/skills/validation-workflow/SKILL.md` requires actual engine checks
-  even when MCP is not available.
-- `utils/godot_agent.ps1`: pinned 4.7.1 runner for parser, focused GUT,
-  import and CLI `SceneTree`/MainLoop scripts; import/mutation refuses an
-  active project editor. VS Code tasks delegate to the same runner.
-- `.vscode/start-godot.ps1` no longer overwrites Codex's `CODEX_HOME`.
-- `.vscode/stop-blocked-godot.ps1`: manually/agent-invoked only after
-  confirmed `project.godot` modal, exact PID + `--editor --path` verification,
-  evidence logging, optional restart, no blanket process kills.
-- Companion `addons/pvz_ai_tools/` registers
-  `custom_pvz_editor_ownership` with open/unsaved scene report; scoped,
-  read-only, synchronous; does not mutate GECS or gameplay.
-- `docs/godot_agent_tooling.md` contains commands and acceptance scenarios.
-  Vendored Godot AI / GECS and `project.godot` are untouched.
+- `AGENTS.md`, `.agents/skills/godot-scene-authoring/SKILL.md`,
+  `.agents/skills/godot-ai-mcp/SKILL.md` and
+  `.agents/skills/validation-workflow/SKILL.md` define the routing and safety rules.
+- `utils/godot_agent.ps1` and `.vscode/tasks.json` expose headless parser,
+  GUT, import and guarded offline operations. `.vscode/start-godot.ps1`
+  avoids modifying only Godot's `CODEX_HOME`.
+- `.vscode/stop-blocked-godot.ps1` targets a verified PID and project path,
+  logs evidence and warns about losing unsaved editor changes.
+- `addons/pvz_ai_tools/editor_ownership_tool.gd` registers the read-only
+  `custom_pvz_editor_ownership` MCP tool, with focused GUT tests.
+- Commands, caveats and acceptance procedures live in
+  [Godot agent tooling](../docs/godot_agent_tooling.md).
+
+The corrupted duplicate block in `utils/godot_agent.ps1` (introduced in the
+addon-filter edit) was repaired at `ff8c7d7fde8023ea9452a20dec6c75e5298cdd8f`.
+The restored source has one each of `ParseChanged`, `GUT` and `OfflineScript`
+actions. This static inspection does **not** establish PowerShell/Godot PASS.
 
 ## Validation
-
-- PASS: GitHub-side cross-file structural checks, VS Code task JSON parsing,
-  action names, safety guards, custom-tool registration and ignored logs.
-- NOT_RUN: PowerShell parser on Windows (no PowerShell host here).
-- NOT_RUN: Godot 4.7.1 parser, native GUT and active editor/MCP QA (no local
-  project Godot process accessible in this GitHub-connected session).
-- NOT_RUN: independent Codex reviewer. Do not mark DONE without completing
-  required project validation/review gates.
+- **PASS (static only):** GitHub-side JSON, paths and registration checks;
+  reconstructed CLI script sanity check after the repair.
+- **NOT_RUN:** Windows PowerShell syntax/execution, Godot 4.7.1 parser and
+  `test_pvz_editor_ownership_tool.gd` GUT.
+- **NOT_RUN:** live editor/MCP ownership + unsaved scenes, safe modal
+  recovery `-WhatIf` / foreign PID refusal, independent Codex review.
+- Do not classify unrun tests or editor QA as PASS.
 
 ## Current / Next
+No new implementation milestone. On the owner's local Windows project:
 
-Implementation is present in `dev`. On the owner's Windows project:
-
-1. Run `Godot: Validate changed GDScript` or the explicit
-   `utils/godot_agent.ps1 -Action ParseFiles` command, and the focused
-   `test_pvz_editor_ownership_tool.gd` GUT test.
-2. Open the editor, confirm `custom_pvz_editor_ownership` is available and
-   returns changing `unsaved_scenes` values. Verify a disposable open
-   scene can be edited/saved through MCP with no external-change modal.
-3. Confirm offline import refuses the running editor. With a verified
-   project editor PID, test guarded recovery using `-WhatIf` and a foreign
-   PID refusal; do not force-kill merely to test.
-4. Review the final commit range independently with project workflow;
-   triage findings and record actual checks. Owner handles subjective
-   editor/visual and gameplay validation.
+1. Run the pinned Godot CLI runner and focused GUT; repair any real defects.
+2. Confirm live MCP registration and save of a disposable open scene; verify
+   `custom_pvz_editor_ownership` changes with unsaved scene state.
+3. Verify offline import refusal with an open editor; use `-WhatIf` for
+   blocked-editor recovery (never force-kill solely as a test).
+4. Review immutable changes, triage findings and archive this task only when
+   required native validation and review pass. Record manual visual QA
+   separately under `qa_tasks/` if it remains outstanding.
 
 ## Owner QA / blockers
-
-Local Windows/editor acceptance is pending. Unrelated Godot 4.7.1
-shutdown-only retained-resource diagnostics remain under the existing
-known-engine-limitation policy; do not launch a leak investigation here.
+Windows editor/MCP and PowerShell/Godot runtime are not available in this
+GitHub-only session. Do not treat ordinary Godot 4.7.1 shutdown-only retention
+warnings as a new runtime leak investigation.
