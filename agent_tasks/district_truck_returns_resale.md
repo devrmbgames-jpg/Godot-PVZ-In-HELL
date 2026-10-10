@@ -26,28 +26,47 @@ Status: **IN_PROGRESS**
 API и compatibility prefabs сохраняются для existing callers/tests. Native save нормализовал
 сериализацию и добавил ранее отсутствующие engine unique IDs; существующие authored IDs сохранены.
 
-**Следующее:** read-only review checkpoint; затем поддержка переносимых raw/scriptless
+**Следующее:** поддержка переносимых raw/scriptless
 RigidBody3D с сохранением удаления. Сейчас Cargo обрабатывает зарегистрированные физические
 Entity; временный `C_PhysicsBodyRef` proxy не является durable actor и не должен стать второй
 авторитетной моделью тела. Общий критерий свободного имущества до этой работы не закрыт.
 
 ### Validation
 
-- PASS: cargo GUT 12/12, 76 asserts (`gut-20261010-121059690`); package_return 5/5,
+- PASS: cargo GUT 13/13, 86 asserts (`gut-20261010-122251492`); package_return 5/5,
   42 asserts (`gut-20261010-121058797`); truck_shift_gate 26/26, 177 asserts (`gut-20261010-120659710`).
 - PASS: headless truck_shift_gate smoke (`tests/artifacts/truck_shift_gate-20261010-221248643.log`)
   с настоящим food_pickup и scheduled START_SHIFT: удаление, +7, повтор без выплаты.
-- Persistence GUT: 4/4, 320 asserts, exit 0 (`gut-20261010-121106260`), но runner FAIL
+- Persistence GUT: 5/5, 336 asserts, exit 0 (`gut-20261010-122157801`), но runner FAIL
   из-за shutdown-only Resource/RID retention. `KNOWN_ENGINE_LIMITATION / DEFERRED` по политике;
   полный лог сохранён, не выдавать wrapper FAIL за PASS.
-- Parser для production/cargo/smoke проверяется отдельно; baseline test реально загружен GUT.
+- PASS: parser production/cargo/smoke 15/15 (`parsefiles-20261010-121459843`),
+  scoped repair 2/2 (`parsefiles-20261010-122303892`); baseline test реально загружен GUT.
   Isolated parser batch `parsefiles-20261010-121255942` также отклонён из-за shutdown-only retention.
 - PASS: formatter/lint, incremental architecture, strict architecture, project structure,
-  strict domain dependencies. Перед фиксацией повторить затронутые static gates.
+  strict domain dependencies; gates scoped repair также прошли.
 - Live MCP diagnostics: unnamed test/smoke scripts clean; для существующих global class scripts
   scratch reload сообщает fallback error 43 без file diagnostics. Headless parser/GUT —
   самостоятельное доказательство; live reload не помечать PASS. Не менять third-party handler.
-- REVIEW_PENDING: immutable checkpoint ещё не reviewed; QA владельца не выполнялась.
+- PASS: immutable source review/triage и targeted re-review RV-001/002 ниже.
+  Reviewer не запускал проверки; worktree results не доказывают immutable test equivalence.
+- NOT_RUN: обязательная gameplay/visual QA владельца; rendered playtest не запускался.
+
+### Review / triage
+
+Checkpoint: `c391076a2b2fd7f468954d0b1c56c75e76586ec5`, base
+`757bcf60e08fffe3e0b74f12f1fb1667a1ed2112`. Reviewer выявил два P1:
+
+- RV-001 (R1) — primitive level потерял точку возврата без truck_parking replacement.
+  FIXED: `fdd1b17a646e605f6f49b436b402e28924e2c99a`; native Marker3D/binding,
+  GUT реальной сцены исполняет START_SHIFT и проверяет выручку.
+- RV-002 (R2) — snapshot из синхронного удаления мог сохранить актор вместе с removed receipt.
+  FIXED: `fdd1b17a646e605f6f49b436b402e28924e2c99a`; capture/can_restore отклоняют
+  активную транзакцию. Callback capture и иначе валидный restore проверены GUT.
+
+Targeted re-review: base `c391076a2b2fd7f468954d0b1c56c75e76586ec5`, target
+`fdd1b17a646e605f6f49b436b402e28924e2c99a` — ARCHITECTURE/STYLE PASS,
+новых material findings нет; VALIDATION NOT_RUN у reviewer. Один repair cycle.
 
 ### Owner QA / blockers
 
