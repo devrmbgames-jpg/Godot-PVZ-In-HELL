@@ -26,8 +26,11 @@ Inspect the nearest existing scene/controller, not the entire project.
 An opened `.tscn` and the `.tres` resources being edited in a live Godot Editor belong to
 the editor's in-memory scene/resource model, not an external shell writer.
 
-1. Check live `editor_state` / `scene_manage` and current selection before touching a
-   scene. Respect dirty/unsaved user work; never use force-reload to erase it.
+1. Check live `editor_state`, `scene_manage` and, when installed,
+   `custom_pvz_editor_ownership` before changing or reloading a scene.
+   The custom tool reports `unsaved_scenes` and `current_scene_unsaved`;
+   ordinary `editor_state` alone does not. Respect unsaved user work:
+   never force-reload a scene with unknown or dirty state.
 2. If the editor is open, **prefer live MCP authoring**: `scene_open`, `node_create`,
    `node_set_property`, `node_manage`, `resource_manage`, `scene_save`.
    For coherent repetitive edits use bounded `batch_execute` (only UndoRedo-backed
