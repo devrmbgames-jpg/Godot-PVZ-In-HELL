@@ -32,12 +32,14 @@ Required owner acceptance remains open; explicitly deferred polish gets a QA che
 Prefer separate dialogue resources per variant, grouped by archetype, e.g.:
 
 ```text
-content/dialogue/npc/archetypes/<archetype>/
+content/domains/npc/dialogue/archetypes/<archetype>/
   variant_a.dialogue
   variant_b.dialogue
 ```
 
-The archetype definition exposes available dialogue variants. `NpcRecord` stores the selected variant for persistent identity.
+Extend the existing NPC dialogue owner at `content/domains/npc/dialogue/` and its domain
+service/context adapters. The archetype definition exposes available dialogue variants.
+`NpcRecord` stores the selected variant for persistent identity.
 
 Use [dialogue-systems](../.agents/skills/dialogue-systems/SKILL.md) and
 [Dialogue Manager v4.1](../.agents/skills/dialogue-manager-v4.1/SKILL.md) for resource APIs,
