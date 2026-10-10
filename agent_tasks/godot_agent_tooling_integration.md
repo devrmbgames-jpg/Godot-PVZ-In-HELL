@@ -1,4 +1,4 @@
-# Godot Agent Tooling — editor-owned scenes and MCP-first authoring
+# Godot Agent Tooling — editor ownership and independent CLI validation
 Status: **IN_PROGRESS**
 
 ## Task state
@@ -30,7 +30,9 @@ and project-owned Godot AI MCP extensions.
   `custom_pvz_editor_ownership` with open/unsaved scene report; scoped,
   read-only, synchronous; does not mutate GECS or gameplay.
 - `docs/godot_agent_tooling.md` contains commands and acceptance scenarios.
-  Vendored Godot AI / GECS and `project.godot` are untouched.
+  Этот tooling checkpoint не изменял vendored Godot AI / GECS или `project.godot`.
+  Позднейший bounded translation-source companion и native settings cleanup принадлежат
+  [задаче инструментов района](completed/district_bin_cleanup.md), включая закрытый RV-001.
 
 ### Validation
 

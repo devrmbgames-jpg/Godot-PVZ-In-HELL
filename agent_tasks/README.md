@@ -63,7 +63,7 @@ Status: **PLANNED | IN_PROGRESS | DEFERRED | BLOCKED | OWNER_QA**
 
 ## Completion and archive
 
-When the required implementation, validation and review are complete, set the task to DONE and move its existing file to `agent_tasks/completed/<original relative path>` in the same completion batch. For example, `agent_tasks/refactoring_v2/<task>.md` becomes `agent_tasks/completed/refactoring_v2/<task>.md`.
+When the required implementation, validation, review/triage and owner acceptance are complete, set the task to DONE and move its existing file to `agent_tasks/completed/<original relative path>` in the same completion batch. For example, `agent_tasks/refactoring_v2/<task>.md` becomes `agent_tasks/completed/refactoring_v2/<task>.md`. Explicitly deferred manual scope must record the owner decision; a separate QA checklist alone does not authorize completion.
 
 Preserve the task's completion status and evidence, keep its original subdirectory structure, and update both incoming links and relative links inside the archived file. Keep one authoritative file; do not leave an active copy or forwarding stub. The completed directory stores the original task records, without a separate completion log or queue.
 

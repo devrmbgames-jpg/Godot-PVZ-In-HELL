@@ -1,10 +1,10 @@
 # Район — итоговая интеграция и Windows QA
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
-Зависимости: [Инструменты — освободить .bin от собственных скриптов](district_bin_cleanup.md).
+Зависимости: [Инструменты — освободить .bin от собственных скриптов](completed/district_bin_cleanup.md).
 
 ## Task state
 
@@ -18,7 +18,12 @@ Status: **PLANNED**
 функциональных задач, snapshot-аудита текущего формата (сейчас schema 12) и задачи
 инструментов. Их отдельная OWNER_QA не препятствует headless интеграции и подготовке
 сборки; обязательная ручная приёмка остаётся открытой в owning tasks.
-Итоговая сборка и многодневная приёмка ещё не выполнены.
+Функциональный snapshot checkpoint reviewed; задача инструментов завершена после
+проверки scanner repair RV-001 и targeted re-review. Найдены текущие runners
+`utils/run_smoke.ps1` и `utils/export_windows.ps1`,
+существующие district/Night/truck/furniture smokes и профильные GUT. Следующее: собрать
+один связный многодневный headless сценарий с полным перечисленным acceptance, затем
+выполнить итоговый batch и Windows export. Сборка и финальная приёмка ещё NOT_RUN.
 
 ### Validation
 

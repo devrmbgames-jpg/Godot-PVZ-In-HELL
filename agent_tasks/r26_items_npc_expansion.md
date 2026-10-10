@@ -123,3 +123,5 @@ Shared traits must be reusable across archetypes so future NPCs can combine unex
 - Save/load reproduces the same person, name, traits and dialogue variant.
 - Focused automated tests and headless acceptance pass.
 - Subjective gameplay, visuals, tuning, music/shadow presentation and dialogue quality remain owner QA.
+- Required owner acceptance keeps the owning task OWNER_QA; DONE/archive only after
+  all required gates close or the owner explicitly defers the remaining manual scope.

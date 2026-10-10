@@ -46,7 +46,9 @@ Engine/probe/test/settings hashes and results are saved in
 The commands below preserve the historical Godot 4.7.1 reproduction; they are not a next action.
 After adoption of stable Godot 4.8+, check relevant upstream fixes and compare the existing
 reproduction using the new stable engine with matched project/dependency/settings.
-Use separate isolated Git snapshots under an excluded location such as `.bin/`.
+Use separate isolated Git snapshots under an excluded location such as
+`.artifacts/godot_agent/.tmp/isolated_snapshots/`. Use `.gdignore` for editor imports;
+the pinned Dialogue Manager scanner separately excludes `.tmp` and ignores `.gdignore`.
 Build each snapshot's native global-class/import cache; historical removed classes must come
 from that snapshot. Import preparation does not prove parser/runtime acceptance; classify
 any diagnostics under the current engine policy.
@@ -68,8 +70,14 @@ Parser/runtime errors fail. Shutdown-only retention is a measured symptom, not a
 Captured results: `tests/artifacts/refactoring_v2_41_compare_same_probes.json`,
 `...compare_{baseline,current}_cold_snapshot_retention_{control,probe}.log` and
 `...compare_{baseline,current}_save_data_gut.log`.
-Snapshots for this comparison reside in `.bin/retention_{baseline,current}_snapshot`;
-ignored raw artifacts are supplementary; tracked evidence/fixtures permit reconstruction.
+Snapshots for this comparison now reside in
+`.artifacts/godot_agent/.tmp/isolated_snapshots/retention_{baseline,current}_snapshot`.
+[Task 17](completed/district_bin_cleanup.md) relocated them intact on 2026-10-11;
+scanner repair acceptance/re-review are complete. Settings hashes are unchanged. Historical
+JSON reproduction commands retain their original `.bin/` locations: substitute the
+current snapshot paths when the revisit condition is met. Ignored raw artifacts are
+supplementary; tracked evidence/fixtures permit reconstruction. Relocation is not a
+new retention investigation and does not authorize another reproduction on Godot 4.7.1.
 
 Revisit condition: the project uses stable Godot 4.8+ and relevant upstream fixes have been
 checked. Record whether the historical symptom persists, without inferring a runtime leak

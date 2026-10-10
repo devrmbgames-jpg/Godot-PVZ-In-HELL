@@ -45,7 +45,8 @@ Parser Paths: `res://content/domains/packages/services/receiving_shift_service.g
 Проверены недопоставка, полный физический вынос/возврат с поворотом кузова, missing/destroyed
 до ручного LOST, UI-причины/терминальная доступность, игрок до и во время закрытия,
 revalidation CommandBuffer, однократный cargo hook до DAY, сохранение ID и bounded departure.
-Rendered/owner QA NOT_RUN. Эти проверки не принимают будущую финансовую обработку.
+Rendered/owner QA NOT_RUN. Эти проверки принимают gate; финансовая обработка и её
+review/triage принадлежат [задаче обратного груза](district_truck_returns_resale.md).
 
 ### Owner QA / blockers
 

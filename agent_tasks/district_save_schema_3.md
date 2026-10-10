@@ -1,6 +1,6 @@
 # Сохранение — согласованный снимок, версия и повтор ночной записи
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
@@ -26,7 +26,8 @@ preflight исторической доставки: после заселени
 фиктивной сцены с подставленным путём. Расширенный Night smoke проверяет семь полных
 доменных агрегатов, два ночных перехода, реальную ошибку I/O, три повтора каждой записи,
 fresh-process restore и одно заселение без повторных последствий.
-Следующее: immutable-SHA review/triage; обязательная ручная приёмка остаётся открытой.
+Immutable-SHA review собран и triaged без material findings. Следующее: обязательная
+ручная приёмка; автоматическая работа района продолжается в итоговой интеграции.
 
 ### Validation
 
@@ -53,13 +54,13 @@ fresh-process restore и одно заселение без повторных �
   уже проверены в [задаче груза](district_truck_returns_resale.md); здесь smoke дополнительно
   восстанавливает native raw tombstone вместе с двумя cargo receipts.
 - PASS: incremental formatter/lint (6 files), staged agent-change gate,
-  strict architecture (0 findings), project structure и persistence baseline inventory.
-  Review фиксируется после фактического выполнения; общий многодневный smoke — финальная задача.
+  strict architecture (0 findings), strict domain dependencies, project structure и
+  persistence baseline inventory. Общий многодневный smoke — финальная задача.
 
 ### Owner QA / blockers
 
 [Ручная приёмка сохранений](../qa_tasks/district_save_snapshot.md) — PENDING_OWNER_QA.
-Rendered gameplay NOT_RUN. Source review пока REVIEW_PENDING; до triage не DONE.
+Rendered gameplay NOT_RUN. До решения владельца не DONE и не архивировать.
 
 ## Границы и владельцы
 
@@ -96,7 +97,16 @@ Rendered gameplay NOT_RUN. Source review пока REVIEW_PENDING; до triage н
 - [x] Проверить восстановление в новой сессии, а не только encode/decode одного объекта.
   Проверки используют отдельные тестовые слоты и native authored fixtures;
   не перезаписывают сохранения владельца и не ослабляют preflight ради фиктивной сцены.
-- [ ] Собрать и triage immutable-SHA review, затем закрыть обязательную owner acceptance.
+- [x] Собрать и triage immutable-SHA review.
+- [ ] Закрыть обязательную owner acceptance.
+
+## Review findings
+
+BASE_SHA: `6afc35eb19378584eb23d2f83f823d58574f25e1`.
+TARGET_SHA: `fac3929b6041770ecddf6ea7eadeec7f10fba02a`.
+Review state: COLLECTED / TRIAGED; material findings отсутствуют.
+Один independent read-only reviewer: ARCHITECTURE/STYLE PASS, VALIDATION NOT_RUN.
+Main проверил выводы по source/current contracts; worktree engine results записаны выше.
 
 ## Критерии завершения
 

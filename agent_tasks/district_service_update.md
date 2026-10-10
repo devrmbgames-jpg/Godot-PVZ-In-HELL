@@ -20,7 +20,12 @@ Status: **IN_PROGRESS**
 
 Gate разгрузки и [обратный груз](district_truck_returns_resale.md) прошли автоматическую
 приёмку и independent review/triage; их обязательная ручная приёмка остаётся OWNER_QA.
-Следующее действие — [согласованный снимок и повторная ночная запись](district_save_schema_3.md).
+Согласованный снимок и повторная ночная запись прошли автоматические проверки и
+independent review/triage в [своей задаче](district_save_schema_3.md), статус OWNER_QA.
+Собственные вспомогательные snapshots вынесены из `.bin` без удаления evidence.
+Scanner repair RV-001, проверки и targeted re-review закрыты в
+[задаче инструментов](completed/district_bin_cleanup.md).
+Следующее действие — [итоговая интеграция и Windows QA](district_release_validation.md).
 
 ### Validation
 
@@ -47,7 +52,15 @@ parser 6/6 и headless smoke PASS; independent source review без material fin
 
 ### Owner QA / blockers
 
-Визуальная приёмка ещё не выполнена. Для этапа NPC готов [чеклист владельца](../qa_tasks/district_npc_stage_acceptance.md). По завершении следующих этапов оформить терминал, покупку мебели, стоянку и разгрузку машины. Автоматически rendered gameplay не запускать.
+Визуальная приёмка ещё не выполнена. Уже готовы чеклисты
+[NPC](../qa_tasks/district_npc_stage_acceptance.md),
+[терминала/доставок](../qa_tasks/district_terminal_delivery_actions.md),
+[покупки мебели](../qa_tasks/district_trader_purchase.md),
+[стоянки/разгрузки](../qa_tasks/district_truck_shift_gate.md),
+[обратного груза](../qa_tasks/district_truck_returns_resale.md) и
+[сохранений](../qa_tasks/district_save_snapshot.md). Дополнять существующие owning
+checklists в итоговой интеграции; обязательную owner acceptance не считать выполненной.
+Автоматически rendered gameplay не запускать.
 
 ## Этапы и зависимости
 
@@ -82,7 +95,7 @@ parser 6/6 и headless smoke PASS; independent source review без material fin
 | 14 | [Разгрузка и смена](district_truck_shift_gate.md) | Общие причины запрета, ручной LOST и безопасный диспавн |
 | 15 | [Обратный груз](district_truck_returns_resale.md) | Возвраты, продажа 10%, утилизация и однократные операции |
 | 16 | [Согласованный снимок и версия](district_save_schema_3.md) | Общий снимок и повтор ночной записи без дубликатов |
-| 17 | [Очистка собственных инструментов](district_bin_cleanup.md) | Правильные каталоги; движок и чужие файлы сохранены |
+| 17 | [Очистка собственных инструментов](completed/district_bin_cleanup.md) | Правильные каталоги; движок и чужие файлы сохранены |
 | 18 | [Итоговая интеграция](district_release_validation.md) | Многодневный smoke, Windows QA и ручной чеклист |
 
 ## Правило продолжения
@@ -107,7 +120,7 @@ parser 6/6 и headless smoke PASS; independent source review без material fin
 - Правила регистрации, выдачи, осмотра, отказов и жалоб сохраняются, кроме явно согласованных изменений ниже.
 - В `.bin` сохранять движок, шаблоны экспорта и используемые сторонние инструменты,
   включая pinned `gdscript-formatter`. Перенос собственных инструментов выполнить по
-  [задаче очистки](district_bin_cleanup.md); неизвестные файлы и deferred evidence сохранять.
+  [задаче очистки](completed/district_bin_cleanup.md); неизвестные файлы и deferred evidence сохранять.
 
 ## Зафиксированные решения
 
