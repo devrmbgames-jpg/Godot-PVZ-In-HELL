@@ -36,7 +36,8 @@ class ProjectStructureValidatorTest(unittest.TestCase):
         return errors
 
     def test_staged_companion_tools_are_allowed_but_vendored_addons_are_not(self) -> None:
-        paths = ["addons/pvz_ai_tools/plugin.gd", "addons/gecs/ecs/entity.gd",
+        paths = ["addons/pvz_ai_tools/plugin.gd", "addons/project_entity_traits/plugin.gd",
+                 "addons/gecs/ecs/entity.gd",
                  "addons/godot_ai/plugin.gd", "addons/pvz_ai_tools_other/plugin.gd"]
         errors: list[str] = []
         with patch.object(validator, "_git_output", return_value=paths):

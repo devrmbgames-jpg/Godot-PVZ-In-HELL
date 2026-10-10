@@ -10,7 +10,7 @@ indent_style = tab
 indent_size = 4
 max_line_length = 100
 trim_trailing_whitespace = true
-# Avoid mass rewrites of legacy code before the dedicated Phase 3 pass.
+# Save-time formatting stays opt-in while Phase 3 migrates files in reviewed batches.
 gdscript_formatter_format_on_save = false
 
 [*.{tscn,tres}]

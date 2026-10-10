@@ -20,12 +20,9 @@ var value: int = 0
 var target: Entity = null
 ```
 
-This applies to project-owned code under:
-- `content/entities/`;
-- `content/ui/`;
-- `content/services/`;
-- `content/systems/`;
-- `content/observers/`.
+This applies to behavior/glue roles under `content/domains/`, `content/shared/`,
+`content/ui/`, editor and debug scripts. Components/Relationships and authored Definitions
+retain intentional public data contracts.
 
 Do not remove the underscore merely because another class wants the value. Create a deliberate public method/property instead.
 
@@ -84,6 +81,8 @@ Normal local commands:
 
 ```powershell
 python utils/check_gdscript_format.py --changed
+python utils/check_gdscript_format.py --changed --strict
+python utils/check_gdscript_format.py --all
 python utils/validate_agent_changes.py
 python -B utils/validate_architecture.py --strict
 python utils/validate_project_structure.py
@@ -92,6 +91,23 @@ python utils/validate_project_structure.py
 If the relevant batch has already been committed, add `--base <base-commit>` to both incremental commands; `--strict` on the style checker verifies **whole files**, intended for Refactoring v2 Phase 3. Missing `gdscript-formatter` gives `NOT_RUN` (exit 2), not PASS. The CLI is resolved from the `GDSCRIPT_FORMATTER_BIN` environment variable (absolute executable path), project `.bin/gdscript-formatter[.exe]`, or system `PATH`; no automatic downloads/installations occur. The CLI is read-only: it does **not** rewrite scripts. Do not run a full-project format pass during an unrelated feature.
 
 For matching editor diagnostics, open **Editor Settings → GDQuest GDScript Formatter → Lint Ignored Rules** and set `class-name` (no other global exclusions). The Editor setting is per-developer; the repository CLI enforces the policy independently. The project `.editorconfig` fixes tab indentation and 100-column wrapping but cannot make the editor-wide role exception itself.
+
+Phase3 pins **GDQuest gdscript-formatter0.26.2**; another version returns NOT_RUN/exit2.
+The installed Windows binary SHA256 is
+`b529aa660226dfce00f80aa079b0be0a45ff07455bcdfaa00d56ebf38dfafff0f`.
+Use `--changed --strict` for full-file ordinary checks and `--all` for final acceptance.
+The temporary incremental mode remains available while61–65 migrate legacy files.
+Explicit missing paths and an empty full-project scope fail closed. Checks never write files.
+Source roots are content/tests/utils and the project-owned pvz_ai_tools/project_entity_traits
+plugins; generated `.godot`, exports/artifacts and all vendored addons are excluded.
+
+Pre-commit uses the same strict CLI. VSCode and .editorconfig disable automatic save-time
+formatting during the migration; enable formatting explicitly for a reviewed batch.
+Keep tabs,100 columns, original quoting and no declaration reordering in all clients.
+The native GDQuest addon must use Normal mode: its legacy Verify Structure mode emits an
+unsupported `--safe` flag. The CLI uses supported `--check --verify-structure` together.
+Apply native settings through `pvz_gdscript_style_settings` in the companion MCP tool,
+then inspect its mismatch list; this saves EditorSettings only and formats no scripts.
 
 Use explicit types whenever inference is ambiguous or an API returns Variant/untyped data.
 

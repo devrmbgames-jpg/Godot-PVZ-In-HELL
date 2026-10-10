@@ -1,6 +1,6 @@
 # Refactoring v2.60 — formatter/linter как единый style gate
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Зависимости: [49_core_architecture_acceptance.md](../completed/refactoring_v2/49_core_architecture_acceptance.md) PASS.
 
@@ -49,3 +49,18 @@ Tooling не форматирует addons/.
 ## Validation
 
 Запустить style gate на небольшом наборе good/bad fixtures или известных файлов и доказать ожидаемые PASS/FAIL.
+
+## Current
+
+Gate49 is archived PASS; owner accepted42/48. Baseline `14e9f27d1084096e2b370bc5e3ac63bc4583b03a`.
+Pinned0.26.2, --all strict source discovery, explicit changed/full-file modes, owned-plugin
+allowance and fail-closed missing paths/version are implemented. No mass format pass in60.
+VSCode/.editorconfig save-time formatting aligned off; pre-commit uses strict check.
+Native EditorSettings inspected/applied via bounded MCP: pinned binary, lint, tabs/100,
+class-name-only exception, Normal mode (vendored Verify Structure uses obsolete --safe).
+Validation PASS: complete tooling140/140, including native good/bad fixtures with unchanged
+file bytes, version mismatch, missing path/tool, owned-addon discovery and alias-safe vendor
+exclusion. Native companion GUT4/7, actual Godot changed parser and incremental formatter,
+strict architecture/structure/change gates PASS. Final native settings inspect has no mismatches;
+fresh editor diagnostics after repair have no entries. No mass formatting was performed.
+REVIEW_PENDING: immutable toolchain checkpoint. Next: collect/triage review, archive60, start61.

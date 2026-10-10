@@ -26,8 +26,11 @@ func _parse_selected_scripts() -> void:
 		var resource_path: String = selected_path.replace("\\", "/")
 		if not resource_path.begins_with("res://"):
 			resource_path = "res://" + resource_path
-		var vendored_addon: bool = resource_path.begins_with("res://addons/") \
-				and not resource_path.begins_with("res://addons/pvz_ai_tools/")
+		var owned_addon: bool = (
+			resource_path.begins_with("res://addons/pvz_ai_tools/")
+			or resource_path.begins_with("res://addons/project_entity_traits/")
+		)
+		var vendored_addon: bool = resource_path.begins_with("res://addons/") and not owned_addon
 		if not resource_path.ends_with(".gd") or vendored_addon:
 			push_error("Parser selection must be a project-owned .gd: " + resource_path)
 			failures += 1

@@ -16,6 +16,68 @@ SPEC.loader.exec_module(style)
 
 
 class StyleGuardTests(unittest.TestCase):
+    def test_full_scope_includes_owned_plugins_and_excludes_generated_vendor_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = ("content/a.gd", "tests/gut/test_a.gd", "utils/a.gd",
+                     "addons/pvz_ai_tools/a.gd", "addons/project_entity_traits/a.gd",
+                     "addons/gecs/a.gd", ".godot/a.gd", ".artifacts/a.gd")
+            for name in paths:
+                script = root / name
+                script.parent.mkdir(parents=True, exist_ok=True)
+                script.write_text("extends Node\n", encoding="utf-8")
+            self.assertEqual(sorted(paths[:5]), style.project_files(root))
+
+    def test_formatter_version_mismatch_is_not_accepted(self) -> None:
+        response = SimpleNamespace(returncode=0, stdout="gdscript-formatter 0.25.0", stderr="")
+        with patch.object(style.subprocess, "run", return_value=response):
+            with self.assertRaises(RuntimeError):
+                style.verify_formatter_version("formatter")
+
+    def test_explicit_missing_path_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            self.assertEqual(2, style.main(["--root", temp, "--strict", "missing.gd"]))
+
+    def test_absolute_vendor_paths_cannot_bypass_ownership_filter(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            vendor = Path(temp) / "addons/gecs/vendor.gd"
+            vendor.parent.mkdir(parents=True)
+            vendor.write_text("extends Node\n", encoding="utf-8")
+            with patch.object(style, "inspect_file") as inspect:
+                self.assertEqual(0, style.main(["--root", temp, "--strict", str(vendor)]))
+            inspect.assert_not_called()
+
+    def test_full_cli_cannot_pass_without_formatter(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "content/sample.gd"
+            source.parent.mkdir()
+            source.write_text("extends Node\n", encoding="utf-8")
+            with patch.object(style, "formatter_binary", return_value=None):
+                self.assertEqual(2, style.main(["--root", temp, "--all"]))
+
+    def test_native_formatter_accepts_roles_rejects_bad_code_without_writes(self) -> None:
+        binary = style.formatter_binary(MODULE.parents[1])
+        if binary is None:
+            self.skipTest("Pinned formatter not available")
+        style.verify_formatter_version(binary)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            script = root / "fixture.gd"
+            good = "class_name C_Test\nextends Node\n"
+            script.write_text(good, encoding="utf-8", newline="\n")
+            issues, missing = style.inspect_file(root, "fixture.gd", None, binary, True)
+            self.assertEqual([], issues)
+            self.assertFalse(missing)
+            self.assertEqual(good, script.read_text(encoding="utf-8"))
+            bad = "class_name C_bad\nextends Node\nfunc bad_function():\n  pass \n"
+            script.write_text(bad, encoding="utf-8", newline="\n")
+            issues, missing = style.inspect_file(root, "fixture.gd", None, binary, True)
+            self.assertFalse(missing)
+            self.assertTrue(any("invalid class_name" in issue for issue in issues))
+            self.assertTrue(any("trailing whitespace" in issue for issue in issues))
+            self.assertTrue(any("formatter check failed" in issue for issue in issues))
+            self.assertEqual(bad, script.read_text(encoding="utf-8"))
+
     def test_roles_are_allowed_as_human_readable_contracts(self) -> None:
         for name in ("C_Health", "S_NpcIntent", "O_CustomerArrived", "R_OwnedBy",
                      "E_NpcCharacter", "DEF_NpcProfile", "ET_Customer", "UI_TerminalPanel",

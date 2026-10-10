@@ -101,7 +101,8 @@ function Normalize-ResourcePath {
         $normalized = $normalized.Substring(6)
     }
     $isVendoredAddon = $normalized.StartsWith("addons/") -and
-        -not $normalized.StartsWith("addons/pvz_ai_tools/")
+        -not ($normalized.StartsWith("addons/pvz_ai_tools/") -or
+              $normalized.StartsWith("addons/project_entity_traits/"))
     if (-not $normalized.EndsWith(".gd") -or $isVendoredAddon -or
         $normalized.Contains("..") -or $normalized.StartsWith("/")) {
         throw "Expected one project-owned res://*.gd script: $Path"
@@ -140,7 +141,7 @@ switch ($Action) {
         $selected = @($changed + $untracked |
             Where-Object {
                 $_ -match '\.gd$' -and
-                ($_ -notmatch '^addons/' -or $_ -match '^addons/pvz_ai_tools/')
+                ($_ -notmatch '^addons/' -or $_ -match '^addons/(pvz_ai_tools|project_entity_traits)/')
             } |
             Sort-Object -Unique)
         if ($selected.Count -eq 0) {

@@ -37,6 +37,17 @@ After adding the tool, reload Godot AI through `editor_reload_plugin`; the compa
 re-registers it. The live MCP check is editor acceptance; `test_pvz_editor_traits_signal_tool.gd`
 covers parameter rejection, overlap and hot-swap safety without an editor.
 
+## Pinned GDScript editor settings
+
+`custom_manage(op="invoke", params={"tool_name":"pvz_gdscript_style_settings",
+"params":{"action":"inspect"}})` checks the native GDQuest addon configuration.
+Use `action="apply"` to persist only the fixed formatter0.26.2 path, tabs,100-column lint,
+class-name-only exclusion, no reordering and no format-on-save. This affects EditorSettings
+through Godot, never project.godot or authored scripts. The installed addon still emits the
+removed `--safe` option in Verify Structure mode; keep its Normal mode. The repository CLI
+uses the supported `--check --verify-structure` combination. No arbitrary setting paths,
+executable paths or commands are accepted.
+
 By default (`source="auto"`) the tools prefer the **running game's** `ECS.world`
 through a dedicated Godot debugger-channel bridge. If no game is connected they fall
 back to editor-side GECS state / Entity nodes in the currently edited scene.

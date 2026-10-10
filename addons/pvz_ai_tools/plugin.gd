@@ -151,6 +151,7 @@ func _register_tools() -> void:
 		),
 		_editor_ownership_spec(),
 		_editor_traits_signal_spec(),
+		_gdscript_style_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -219,6 +220,25 @@ func _editor_traits_signal_spec() -> McpCustomToolSpec:
 	spec.undoable = false
 	spec.deferred = true
 	spec.timeout_ms = 7000
+	return spec
+
+
+## Native, fixed EditorSettings configuration for the pinned project formatter.
+func _gdscript_style_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_gdscript_style_settings"
+	spec.description = "Inspect or apply the project's pinned native GDQuest formatter settings."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {"action": {"type": "string", "enum": ["inspect", "apply"]}},
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/gdscript_style_tool.gd"
+	spec.method = &"configure"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
 	return spec
 
 

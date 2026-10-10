@@ -1,6 +1,7 @@
 # Direct Entity Traits — owner Inspector and gameplay QA
 
-Status: **OWNER_QA_PENDING**. Automated checks are recorded in
+Status: **ACCEPTED** for the current Inspector/Direct Traits interface by explicit owner
+result on 2026-10-10. The checklist remains regression guidance. Automated checks are recorded in
 [the owning task](../agent_tasks/completed/refactoring_v2/codex_direct_traits_inspector_tz.md).
 No rendered gameplay or visual QA has been run by the agent.
 

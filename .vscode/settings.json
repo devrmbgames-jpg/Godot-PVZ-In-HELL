@@ -1,7 +1,7 @@
 {
   "[gdscript]": {
     "editor.defaultFormatter": "DoHe.godot-format",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
   },
   "godotFormatter.enableLinter": true,
   "godotFormatter.verifyStructure": true,

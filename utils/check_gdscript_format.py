@@ -22,6 +22,31 @@ ROLE = re.compile(r"^(?:C|S|O|R|E|DEF|ET|UI)_[A-Z][a-zA-Z0-9]*$")
 CLASS = re.compile(r"^\s*class_name\s+([A-Za-z_][A-Za-z0-9_]*)\b")
 LINT = re.compile(r"^.+?:(\d+):([a-z][a-z0-9-]*):(warning|error):\s*(.*)$", re.I)
 LINE_LIMIT = 100
+FORMATTER_VERSION = "0.26.2"
+OWNED_ADDONS = ("addons/pvz_ai_tools/", "addons/project_entity_traits/")
+SOURCE_ROOTS = ("content", "tests", "utils", *(path.rstrip("/") for path in OWNED_ADDONS))
+
+
+def project_owned(path: str) -> bool:
+    normalized = path.replace("\\", "/")
+    return normalized.endswith(".gd") and (
+        not normalized.startswith("addons/") or normalized.startswith(OWNED_ADDONS)
+    )
+
+
+def project_files(root: Path) -> list[str]:
+    """Scan only authored source roots; generated data and vendored addons stay excluded."""
+    return sorted({path.relative_to(root).as_posix() for source in SOURCE_ROOTS
+                   for path in (root / source).rglob("*.gd")
+                   if path.is_file() and path.resolve().is_relative_to(root)})
+
+
+def verify_formatter_version(binary: str) -> None:
+    result = subprocess.run([binary, "--version"], capture_output=True, text=True,
+                            errors="replace", check=False)
+    if result.returncode or result.stdout.strip() != f"gdscript-formatter {FORMATTER_VERSION}":
+        raise RuntimeError(f"Expected gdscript-formatter {FORMATTER_VERSION}; got "
+                           f"{(result.stdout + result.stderr).strip()[:160]}")
 
 
 def run_git(root: Path, *args: str, allow_failure: bool = False) -> subprocess.CompletedProcess[bytes]:
@@ -158,32 +183,50 @@ def main(argv: list[str] | None = None) -> int:
     args_parser = argparse.ArgumentParser(description=__doc__)
     args_parser.add_argument("paths", nargs="*", help="GDScript paths (pre-commit supplies staged names)")
     args_parser.add_argument("--changed", action="store_true", help="check edited/untracked project files")
+    args_parser.add_argument("--all", action="store_true", help="strict full-project authored GDScript check")
     args_parser.add_argument("--base", default="HEAD", help="commit baseline for changed/new lines")
     args_parser.add_argument("--strict", action="store_true", help="full-file formatting and lint")
     args_parser.add_argument("--root", type=Path, default=ROOT, help="testable project root")
     args = args_parser.parse_args(argv)
     root = args.root.resolve()
-    if not args.paths and not args.changed:
-        args_parser.error("specify GDScript paths or --changed; never lint the entire repository by accident")
+    if not args.paths and not args.changed and not args.all:
+        args_parser.error("specify GDScript paths, --changed or --all")
+    if args.all and (args.paths or args.changed):
+        args_parser.error("--all cannot be combined with paths or --changed")
+    strict = args.strict or args.all
     try:
-        origins = changed_origins(root, args.base)
-        paths = set(args.paths)
+        origins = changed_origins(root, args.base) if args.changed or not strict else {}
+        paths = set(project_files(root) if args.all else args.paths)
         if args.changed:
             paths.update(origins)
-        paths = {p.replace("\\", "/") for p in paths if p.endswith(".gd")
-                 and (not p.replace("\\", "/").startswith("addons/")
-                      or p.replace("\\", "/").startswith("addons/pvz_ai_tools/"))}
-        paths = {p for p in paths if (root / p).is_file() and (root / p).resolve().is_relative_to(root)}
+        normalized: set[str] = set()
+        for path in paths:
+            if not path.endswith(".gd"):
+                continue
+            candidate = (root / path.replace("\\", "/")).resolve()
+            if not candidate.is_relative_to(root):
+                raise ValueError("Outside-workspace script: " + path)
+            relative = candidate.relative_to(root).as_posix()
+            if not project_owned(relative):
+                continue
+            if not candidate.is_file():
+                raise ValueError("Missing script: " + path)
+            normalized.add(relative)
+        paths = normalized
         if not paths:
+            if args.all:
+                raise ValueError("Full-project authored GDScript scope is empty")
             print("PASS: no changed project-owned GDScript")
             return 0
         binary = formatter_binary(root)
+        if binary is not None:
+            verify_formatter_version(binary)
         errors: list[str] = []
         missing = False
         for path in sorted(paths):
             old_path = origins.get(path, path)
-            old = previous_text(root, old_path, args.base) if old_path else None
-            results, skipped = inspect_file(root, path, old, binary, args.strict)
+            old = previous_text(root, old_path, args.base) if old_path and not strict else None
+            results, skipped = inspect_file(root, path, old, binary, strict)
             errors.extend(results)
             missing |= skipped
         for message in errors:
@@ -194,7 +237,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         if missing:
             return 2
-        print(f"PASS: GDQuest formatter/lint + GECS role naming ({len(paths)} file(s), {'strict' if args.strict else 'incremental'})")
+        print(f"PASS: GDQuest formatter/lint + GECS role naming ({len(paths)} file(s), {'strict' if strict else 'incremental'})")
         return 0
     except (OSError, UnicodeError, RuntimeError, ValueError) as error:
         print(f"NOT_RUN: GDScript style gate: {error}", file=sys.stderr)

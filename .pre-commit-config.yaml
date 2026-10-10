@@ -24,7 +24,7 @@ repos:
 
       - id: gdscript-format-check
         name: check changed GDScript formatting and role-aware lint
-        entry: python utils/check_gdscript_format.py
+        entry: python utils/check_gdscript_format.py --strict
         language: system
         files: \.gd$
-        exclude: ^addons/
+        exclude: ^addons/(?!pvz_ai_tools/|project_entity_traits/)

@@ -38,9 +38,10 @@ $assignment = $ast.Find({ param($node)
     $node.Right.Extent.Text.Contains('$changed')
 }, $true)
 $changed = @('content/a.gd', 'addons/gecs/vendor.gd', 'content/a.gd', 'content/a.tscn')
-$untracked = @('addons/pvz_ai_tools/new.gd', 'addons/godot_ai/vendor.gd', 'content/b.gd')
+$untracked = @('addons/pvz_ai_tools/new.gd', 'addons/project_entity_traits/new.gd',
+               'addons/godot_ai/vendor.gd', 'content/b.gd')
 Invoke-Expression $assignment.Extent.Text
-if (($selected -join ',') -ne 'addons/pvz_ai_tools/new.gd,content/a.gd,content/b.gd') {
+if (($selected -join ',') -ne 'addons/project_entity_traits/new.gd,addons/pvz_ai_tools/new.gd,content/a.gd,content/b.gd') {
     throw ('Incorrect changed-script selection: ' + ($selected -join ','))
 }
 """)
