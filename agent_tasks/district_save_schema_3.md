@@ -19,7 +19,9 @@ Status: **PLANNED**
 Текущий `AutosaveStore.SCHEMA_VERSION = 12`, а стабильные authored ID и closed decoder
 уже внедрены. Старое название файла сохранено для ссылок; требование схемы 3 устарело.
 Версию следующего несовместимого изменения выбирать от фактической базы реализации,
-не фиксировать заранее и не откатывать формат. Сначала закрыть обратный груз.
+не фиксировать заранее и не откатывать формат. Реализация и автоматическая приёмка
+обратного груза завершены; его OWNER_QA остаётся в собственной задаче и не препятствует
+этому аудиту. Общая приёмка снимка здесь ещё не выполнена.
 
 ### Validation
 
@@ -37,6 +39,10 @@ Parser, профильные GUT persistence и ограниченный round-t
   `night_save_service.gd`, `autosave_store.gd` и `snapshot_restore_boundary.gd`.
 - `content/domains/persistence/rules/district_snapshot_rules.gd`,
   `content/domains/persistence/systems/s_night_save.gd` и доменные `SAVE_FIELDS` новых записей.
+- `content/domains/persistence/services/raw_physics_snapshot.gd`,
+  `content/domains/interaction/services/raw_physics_actor_service.gd`,
+  `content/domains/packages/contracts/truck_cargo_receipt.gd` и
+  `content/scenes/game_session_service.gd` для raw-body/журнала и выбора игровых слотов.
 
 `S_NightSave` владеет scheduled workflow/retry; codec/store/snapshot — явными операциями.
 Домены владеют своими сохранёнными полями; не импортировать persistence adapter в gameplay.
@@ -47,6 +53,11 @@ Parser, профильные GUT persistence и ограниченный round-t
 ## Работы
 
 - [ ] Сверить snapshot поступлений, заметок, жалоб/уведомлений, предложений и цены торга, ожидающего дропа, мебели, партии машины и операций продажи.
+- [ ] Сверить raw/scriptless placements с журналом груза: стабильные
+  `raw_actor/placed/<UUID>`, presence/pose и native authored recipe. Более ранний снимок
+  возвращает утилизированный предмет, более поздний убирает его из новой сцены;
+  grab-proxy/NodePath/instance ID не сохраняются. Неполная утилизация ad-hoc runtime тела
+  без рецепта отклоняется до мутации; capture посреди cargo commit также отклоняется.
 - [ ] Сохранить отсутствующих/погибших постоянных NPC и согласованное размещение; Node, Blackboard и кеши восприятия не сериализовать.
 - [ ] Проверить повтор ночного перехода/ошибку записи: не повторяются выплаты, последствия обещаний, коробки, жители и заселение.
 - [ ] При изменении сохранённых полей/путей/смысла повысить фактическую supported schema;
@@ -55,6 +66,8 @@ Parser, профильные GUT persistence и ограниченный round-t
 - [ ] Сохранить несовместимый файл побайтно и защитить rejected slot от последующего
   Night/autosave; замена только через явный New Game или другой slot, без конвертера.
 - [ ] Проверить восстановление в новой сессии, а не только encode/decode одного объекта.
+  Проверки используют отдельные тестовые слоты и native authored fixtures;
+  не перезаписывают сохранения владельца и не ослабляют preflight ради фиктивной сцены.
 
 ## Критерии завершения
 

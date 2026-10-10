@@ -56,6 +56,11 @@ Extend domain `SAVE_FIELDS` and the closed `SaveDataCodec` whitelist/preflight, 
 existing passive restore/readiness boundary. Persist links by stable endpoint keys and
 rebuild Relationships before gameplay resumes; no default spawn/damage reactions during restore.
 
+Preserve raw/scriptless placements: stable `raw_actor/placed/<UUID>` groups and
+`RawPhysicsSnapshot` presence/pose restored from native authored recipes. Grab-proxies stay
+transient; no serialized NodePath/instance identity or second item model. Check agreement
+with `TruckCargoReceipt.raw_actor_id`; pending runtime disposal without a recipe rejects.
+
 ## Existing-system integration
 
 ### Parcel/customer flow
@@ -108,7 +113,7 @@ Use placeholders if final assets do not exist.
 
 ## Schema and new-game construction
 
-Current `AutosaveStore.SCHEMA_VERSION` is 11. When serialized fields/paths/meaning change,
+Current `AutosaveStore.SCHEMA_VERSION` is 12. When serialized fields/paths/meaning change,
 advance the actual supported version, guards, golden fixture and save-visible inventory.
 Unsupported old/newer/invalid saves reject before live mutation, preserve original bytes
 and remain protected from later autosave. No conversion, previous-format aliases or load defaults.
@@ -176,8 +181,6 @@ Do not add per-frame verbose logging.
 - no per-frame debug spam.
 
 ## Validation sequence
-
-Use coherent batches.
 
 1. Incremental formatter, agent-change, strict architecture/domain and structure validators.
 2. Actual Godot parser through `utils/godot_agent.ps1`, independent of MCP availability.
