@@ -1,33 +1,55 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://content/debug/gameplay_debugger_view.gd" id="1_view"]
+[ext_resource type="Theme" path="res://content/debug/theme_developer_console.tres" id="2_theme"]
 
 [node name="GameplayDebugger" type="VBoxContainer"]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 100)
 size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+theme = ExtResource("2_theme")
 script = ExtResource("1_view")
 
-[node name="Toolbar" type="HBoxContainer" parent="."]
+[node name="Background" type="PanelContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="Target" type="LineEdit" parent="Toolbar"]
+[node name="Content" type="VBoxContainer" parent="Background"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Toolbar" type="HBoxContainer" parent="Background/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Target" type="LineEdit" parent="Background/Content/Toolbar"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "self / target / entity:<id> (includes dormant actors)"
+placeholder_text = "self / target / entity:<id>"
 
-[node name="Select" type="Button" parent="Toolbar"]
+[node name="Actions" type="HBoxContainer" parent="Background/Content/Toolbar"]
+layout_mode = 2
+
+[node name="Select" type="Button" parent="Background/Content/Toolbar/Actions"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Select"
 
-[node name="Refresh" type="Button" parent="Toolbar"]
+[node name="Refresh" type="Button" parent="Background/Content/Toolbar/Actions"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Refresh"
 
-[node name="Close" type="Button" parent="Toolbar"]
+[node name="Close" type="Button" parent="Background/Content/Toolbar/Actions"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Close"
 
-[node name="State" type="Tree" parent="."]
+[node name="State" type="Tree" parent="Background/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_vertical = 3
 columns = 2
@@ -35,6 +57,8 @@ column_titles_visible = true
 hide_root = true
 allow_reselect = true
 
-[node name="Status" type="Label" parent="."]
+[node name="Status" type="Label" parent="Background/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Read-only snapshot"
+text_overrun_behavior = 3

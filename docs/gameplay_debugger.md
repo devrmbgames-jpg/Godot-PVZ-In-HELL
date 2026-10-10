@@ -27,6 +27,11 @@ Brain node and instance, rather than another tree inspector.
 
 Layout is editable in `content/debug/gameplay_debugger_view.tscn`. Dynamic Tree rows are
 presentation only. The console adapter owns command registration and panel teardown.
+Controls bind by Unique Name. The authored `theme_developer_console.tres` uses 14px text,
+compact control margins and an opaque dark background, independent of the game's larger
+default theme. The adapter applies this theme to the console and both text context menus,
+then restores previous presentation settings when removed. The snapshot Tree receives
+the expandable space; the console output and command entry remain separate container rows.
 
 Headless provider and lifecycle regressions: `tests/gut/test_gameplay_debugger.gd`.
 Owner editor QA must check readable scale and clipping, mouse/keyboard navigation,

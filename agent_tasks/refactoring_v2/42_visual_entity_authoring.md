@@ -23,12 +23,14 @@ Placed и runtime-spawned Entity после materialization используют
 - factory принимает existing Definition/level-selected PackedScene и читает Template из instance, без default_scene в Template;
 - preview resolved Traits/Components/bindings;
 - editor validation missing requirements;
-- Simple Inspector mode для дизайнера;
+- отдельная вкладка Entity Authoring для дизайнера, базовый Inspector не меняется;
 - Advanced diagnostics для программиста;
 - `@tool` preview допускается только для presentation/markers;
 - editor preview не запускает ECS simulation/GOAP/gameplay Systems.
 
-- Simple Inspector: Template/Profile, instance stable ID, named Home/Workplace bindings; Advanced: resolved recipes/provider provenance и conflict diagnostics.
+- Authoring dock: Template/Profile, instance stable ID, named Home/Workplace bindings; Advanced: resolved recipes/provider provenance и conflict diagnostics.
+- UI authored in a separate editable native scene; editor plugin owns installation/selection/undo.
+- Control bindings use Unique Name or typed exported references.
 - Scene-contained Template разрешён; отдельный Resource не обязателен для one-off object. Profile tuning не дублируется в каждом Trait.
 - Duplicated instance и imported district получают stable-ID uniqueness validation; repair — явная editor operation, не автоматическая gameplay mutation preview.
 - Inspector и headless validation используют provider задачи 41; не создавать два набора rules.
@@ -46,11 +48,16 @@ Editor/tool tests где возможно + owner visual QA.
 ## Current / Next
 
 Active Goal authorizes tasks 42–66 in dependency order. Task 41 is DONE.
-Implementation and review are complete; **OWNER_QA_PENDING** for required visual acceptance.
+Owner QA rejected Inspector placement and found stale Level ID display; instance repair
+and validation were reported working. Revised implementation is **REVIEW_PENDING** and
+requires owner recheck; previous visual acceptance is not PASS.
 Baseline: `dc7e9490e59510fefa820793874ae117fbb07d01`.
-Project-owned Inspector installs once per editor session using an idempotent EditorScript;
-addons and project plugin settings are unchanged. Simple mode opens the single authoring
-Resource; Advanced explains providers/fields/Relationships. IDs use native Undo/Redo.
+Project-owned EditorPlugin installs a separate EditorDock once per session via an idempotent
+EditorScript. Its native entity_authoring_dock.tscn owns the permanent UI, with Unique Name
+bindings and its own resource Inspector. Base Inspector fields/controls are unchanged;
+the old EditorInspectorPlugin execution path is removed. IDs use native Undo/Redo.
+Dock subscriptions track both selected actor and root property-list changes, fixing root
+Level ID display across Repair/Undo/Redo without rebuilding the selected actor's Inspector.
 Current external authored Resource values are copied into a disposable scene snapshot,
 retaining original provenance and external Script/scene refs. The task-41 compiler runs
 only on detached actors after autoload registration; no ECS registration or ready callback.
@@ -60,10 +67,19 @@ RV-001: FIXED (`4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`). Non-Entity edited ro
 Level ID panel and explicit repair; native root suppression/repair/undo/redo check PASS.
 RV-002: FIXED (`4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`). Per-field sources and embedded diagnostic
 sources map back to authored Traits; real native capture/save/reload regression PASS.
-Next: authorized visual/owner acceptance before archiving 42. Independent task43 runtime
-work may proceed using the verified compiler/Inspector extension boundary. No visual PASS.
+Next: immutable review of the revised dock, then owner recheck before archiving42.
+The native editor harness now asserts displayed Level/Instance IDs and unchanged base
+Inspector selection. No new editor/visual PASS is claimed.
 
 ## Automated evidence
+
+- Revised UI: fresh parser PASS, seven scripts/zero failures; formatter, strict architecture,
+  project structure and staged-agent checks PASS.
+- Native Editor harness NOT_RUN successfully: original-project launch conflicts with the
+  open editor's LimboAI hot-reload DLL; disposable project boot fails existing GECS
+  autoload/UID compilation before the harness. Both stopped; no test markers/PASS.
+  Logs: tests/artifacts/refactoring_v2_42_dock_editor{,_isolated}.log.
+  Dock operations require owner recheck; earlier headless results below refer to old source.
 
 - Formatter/lint: **PASS**, 8 changed/new scripts; parser **PASS**, 8 checked / 0 failed.
 - GUT: **PASS**, 10/10 tests, 66 assertions; includes native physical actor structure,

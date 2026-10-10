@@ -50,10 +50,20 @@ BoundaryTrace. Snapshot values contain no live Objects; recent selected incoming
 events are capped at24 and include Entity/NPC/package/current-visit identities. Native
 LimboAI Brain status/node/instance references route detailed inspection to its own debugger.
 
-Implementation and immutable review are complete. Remaining gate: OWNER_QA_PENDING.42 also
-remains OWNER_QA_PENDING; no rendered/editor QA approval has arrived.
+Owner QA rejected oversized buttons/text and unreadable console overlap. Revised UI is
+REVIEW_PENDING, then OWNER_QA_PENDING. Controls use Unique Name; authored opaque background
+and theme_developer_console.tres provide14px fonts, compact styles and local base scale1.
+Adapter themes both text context menus and restores console presentation on teardown.
+Native container sizing keeps debugger/output/input separate, including640x360 half-height.
+The owner conducts rendered/editor recheck;42 also remains pending.
 
 ## Validation / Evidence
+
+- Revised native layout/provider/lifecycle GUT PASS:15 tests/142 assertions,6.526s.
+  Includes640x360 half-height geometry, both context menus, opaque background and teardown.
+  Log: tests/artifacts/refactoring_v2_42_48_ui_fix_gut.log. Fresh seven-script parser,
+  formatter, strict architecture, structure and staged-agent checks PASS.
+- Visual recheck NOT_RUN; headless layout does not prove subjective readability/focus.
 
 - PASS: provider/native panel/existing console GUT,21 tests /323 assertions
   (`tests/artifacts/refactoring_v2_48_final_gut.log`). No errors before the PASS marker;
@@ -65,7 +75,8 @@ remains OWNER_QA_PENDING; no rendered/editor QA approval has arrived.
   zero review gates,12.32 seconds (`tests/artifacts/refactoring_v2_48_acceptance.log`).
 - PASS: incremental formatter, agent-change and strict architecture checks.
 - NOT_RUN: owner editor QA (readability, clipping, keyboard/mouse focus, native LimboAI
-  integration). Concrete steps: `qa_tasks/refactoring_v2.md` and `docs/gameplay_debugger.md`.
+  integration). Prior source evidence below is distinct from revised UI evidence above.
+  Concrete steps: `qa_tasks/refactoring_v2.md` and `docs/gameplay_debugger.md`.
 
 ## Review
 
@@ -77,7 +88,7 @@ ran; owner QA cannot be inferred from them.
 PASS: authored district NPC queue smoke with16000-frame budget
 (tests/artifacts/refactoring_v2_48_smoke.log); initial generic360-frame attempt ended before
 the scenario completion marker and was not PASS. Strict domain structure/dependency rerun
-PASS with empty baseline. Owner editor/visual approval requested; response pending.
+PASS with empty baseline. Owner feedback requires UI recheck after the revision.
 
 Windows QA export PASS: .export/windows/20261009-225258Z-180e403f-gameplay-debugger-review/
 PVZInHell.exe, launcher .export/LATEST.cmd. Exported menu/level120-frame headless startup

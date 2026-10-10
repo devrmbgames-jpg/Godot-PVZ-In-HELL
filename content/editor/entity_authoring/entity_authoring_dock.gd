@@ -1,6 +1,6 @@
 @tool
-extends EditorInspectorPlugin
-## Simple authoring inputs and explicit diagnostics, without executing gameplay inside the editor.
+extends VBoxContainer
+## Scene-authored editor dock; native resources and detached preview keep their existing owners.
 
 const _AUTHORING_META: StringName = &"entity_composition"
 const _LOCAL_ID_META: StringName = &"persistent_local_id"
@@ -8,98 +8,133 @@ const _WORLD_ID_META: StringName = &"persistent_world_id"
 const _PREVIEW_RUNNER: String = "res://utils/preview_entity_authoring.gd"
 const _PREVIEW_DIRECTORY: String = ".artifacts/authoring_preview"
 
-## Editor owner supplies the native undo manager; this reference is released with the plugin.
+## Plugin owns native undo; cleared when the dock leaves the editor.
 var host_plugin: EditorPlugin = null
+var _actor_ref: WeakRef
+var _root_ref: WeakRef
 var _advanced: bool = false
 
+@onready var _selection_label: Label = %Selection
+@onready var _instance_id: Label = %InstanceId
+@onready var _level_id: Label = %LevelId
+@onready var _template_id: Label = %TemplateId
+@onready var _repair_instance: Button = %RepairInstance
+@onready var _repair_level: Button = %RepairLevel
+@onready var _configure: Button = %Configure
+@onready var _validate: Button = %Validate
+@onready var _advanced_toggle: CheckButton = %Advanced
+@onready var _recipes: RichTextLabel = %Recipes
+@onready var _diagnostics: RichTextLabel = %Diagnostics
+@onready var _resource_inspector: EditorInspector = %ResourceInspector
 
-#region Inspector presentation
-func _can_handle(object: Object) -> bool:
-	return (
-		object is Entity or (object is Node and object == EditorInterface.get_edited_scene_root())
+
+#region Dock presentation and selection
+func _ready() -> void:
+	_repair_instance.pressed.connect(_repair_selected_instance)
+	_repair_level.pressed.connect(_repair_selected_level)
+	_configure.pressed.connect(_configure_selected)
+	_validate.pressed.connect(_validate_snapshot)
+	_advanced_toggle.toggled.connect(_set_advanced)
+	_resource_inspector.resource_selected.connect(_open_resource)
+	_resource_inspector.property_edited.connect(_resource_edited)
+	bind_actor(null, null)
+
+
+func _exit_tree() -> void:
+	_disconnect_identity_signals()
+	host_plugin = null
+
+
+## Selection is editor-owned; weak references never extend an edited scene's lifetime.
+func bind_actor(actor: Node, edited_root: Node) -> void:
+	_disconnect_identity_signals()
+	_actor_ref = weakref(actor) if actor != null else null
+	_root_ref = weakref(edited_root) if edited_root != null else null
+	if actor != null:
+		actor.property_list_changed.connect(_refresh_identity)
+	if edited_root != null and edited_root != actor:
+		edited_root.property_list_changed.connect(_refresh_identity)
+	_diagnostics.text = ""
+	_refresh_identity()
+	var authoring: EntityAuthoring = (
+		actor.get_meta(_AUTHORING_META) as EntityAuthoring
+		if actor is Entity and actor.has_meta(_AUTHORING_META)
+		else null
 	)
+	_resource_inspector.edit(authoring)
 
 
-func _parse_begin(object: Object) -> void:
-	var actor: Node = object as Node
-	var panel: VBoxContainer = VBoxContainer.new()
-	var title: Label = Label.new()
-	title.text = "Entity Authoring" if actor is Entity else "Level Authoring"
-	panel.add_child(title)
-	if actor is Entity:
-		var identity: Label = Label.new()
-		identity.text = "Instance ID: %s" % actor.get_meta(_LOCAL_ID_META, "unassigned")
-		panel.add_child(identity)
-	var edited_root: Node = EditorInterface.get_edited_scene_root()
-	var world_identity: Label = Label.new()
-	world_identity.text = "Level ID: %s" % (
+func _disconnect_identity_signals() -> void:
+	var actor: Node = _actor_ref.get_ref() as Node if _actor_ref != null else null
+	var edited_root: Node = _root_ref.get_ref() as Node if _root_ref != null else null
+	for identity_owner: Node in [actor, edited_root]:
+		if identity_owner != null and identity_owner.property_list_changed.is_connected(
+				_refresh_identity
+			):
+			identity_owner.property_list_changed.disconnect(_refresh_identity)
+
+
+func _refresh_identity() -> void:
+	var actor: Node = _actor_ref.get_ref() as Node if _actor_ref != null else null
+	var edited_root: Node = _root_ref.get_ref() as Node if _root_ref != null else null
+	_selection_label.text = (
+		"Selected: %s" % actor.name if actor != null else "Select an Entity or level"
+	)
+	_instance_id.visible = actor is Entity
+	_instance_id.text = "Instance ID: %s" % (
+		actor.get_meta(_LOCAL_ID_META, "unassigned") if actor != null else "unassigned"
+	)
+	_level_id.text = "Level ID: %s" % (
 		edited_root.get_meta(_WORLD_ID_META, "prefab / unassigned")
 		if edited_root != null
 		else "no edited scene"
 	)
-	panel.add_child(world_identity)
+	var authoring: EntityAuthoring = (
+		actor.get_meta(_AUTHORING_META) as EntityAuthoring
+		if actor is Entity and actor.has_meta(_AUTHORING_META)
+		else null
+	)
+	_template_id.visible = actor is Entity
+	_template_id.text = "Template ID: %s" % (
+		authoring.entity_template.key
+		if authoring != null and authoring.entity_template != null
+		else "scene intrinsic"
+	)
+	_repair_instance.disabled = not actor is Entity
+	_repair_level.disabled = edited_root == null or edited_root is Entity
+	_configure.disabled = not actor is Entity
+	_validate.disabled = actor == null or edited_root == null
+	_recipes.visible = _advanced
+	var recipes: PackedStringArray = PackedStringArray(["Scene Component recipes:"])
 	if actor is Entity:
-		var authoring: EntityAuthoring = (
-			actor.get_meta(_AUTHORING_META) as EntityAuthoring
-			if actor.has_meta(_AUTHORING_META)
-			else null
-		)
-		var resource_id: Label = Label.new()
-		resource_id.text = "Template ID: %s" % (
-			authoring.entity_template.key
-			if authoring != null and authoring.entity_template != null
-			else "scene intrinsic"
-		)
-		panel.add_child(resource_id)
-		var repair: Button = Button.new()
-		repair.text = "Create / Repair Instance ID"
-		repair.pressed.connect(_repair_identity.bind(weakref(actor), _LOCAL_ID_META))
-		panel.add_child(repair)
-	if edited_root != null and not edited_root is Entity:
-		var repair_level: Button = Button.new()
-		repair_level.text = "Create / Repair Level ID"
-		repair_level.pressed.connect(_repair_identity.bind(weakref(edited_root), _WORLD_ID_META))
-		panel.add_child(repair_level)
-	if actor is Entity:
-		var configure: Button = Button.new()
-		configure.text = "Template / Profiles / Named Bindings"
-		configure.pressed.connect(_edit_authoring.bind(weakref(actor)))
-		panel.add_child(configure)
-	var validate: Button = Button.new()
-	validate.text = "Validate Scene Composition"
-	var diagnostics: RichTextLabel = RichTextLabel.new()
-	diagnostics.fit_content = true
-	diagnostics.custom_minimum_size.x = 180.0
-	validate.pressed.connect(_validate_snapshot.bind(weakref(actor), weakref(diagnostics)))
-	panel.add_child(validate)
-	var advanced: CheckButton = CheckButton.new()
-	advanced.text = "Advanced: Recipes and Provider Diagnostics"
-	advanced.button_pressed = _advanced
-	advanced.toggled.connect(_set_advanced.bind(weakref(actor)))
-	panel.add_child(advanced)
-	panel.add_child(diagnostics)
-	add_custom_control(panel)
+		for component: Resource in (actor as Entity).component_resources:
+			recipes.append(str(component) + " / " + component.resource_path)
+	_recipes.text = "\n".join(recipes)
 
 
-func _parse_property(
-	_object: Object,
-	_type: Variant.Type,
-	property_name: String,
-	_hint: PropertyHint,
-	_hint_string: String,
-	_usage_flags: int,
-	_wide: bool,
-) -> bool:
-	if property_name in ["metadata/persistent_local_id", "metadata/persistent_world_id", "id"]:
-		return true
-	return not _advanced and property_name in ["component_resources", "serialize_config"]
+func _repair_selected_instance() -> void:
+	_repair_identity(_actor_ref, _LOCAL_ID_META)
 
 
-func _set_advanced(enabled: bool, actor_ref: WeakRef) -> void:
+func _repair_selected_level() -> void:
+	_repair_identity(_root_ref, _WORLD_ID_META)
+
+
+func _configure_selected() -> void:
+	_edit_authoring(_actor_ref)
+
+
+func _set_advanced(enabled: bool) -> void:
 	_advanced = enabled
-	var actor: Node = actor_ref.get_ref() as Node
-	if actor != null:
-		actor.notify_property_list_changed()
+	_refresh_identity()
+
+
+func _open_resource(resource: Resource, _property_path: String) -> void:
+	_resource_inspector.edit(resource)
+
+
+func _resource_edited(_property_name: String) -> void:
+	_refresh_identity()
 #endregion
 
 
@@ -142,13 +177,15 @@ func _edit_authoring(actor_ref: WeakRef) -> void:
 		undo.add_do_method(actor, "set_meta", _AUTHORING_META, authoring)
 		undo.add_undo_method(actor, "set_meta", _AUTHORING_META, previous)
 		undo.commit_action()
-	EditorInterface.edit_resource(authoring)
+	_resource_inspector.edit(authoring)
 #endregion
 
 
 #region Detached preview boundary
-func _validate_snapshot(actor_ref: WeakRef, diagnostics_ref: WeakRef) -> void:
-	var actor: Node = actor_ref.get_ref() as Node
+func _validate_snapshot() -> void:
+	var actor_ref: WeakRef = _actor_ref
+	var diagnostics_ref: WeakRef = weakref(_diagnostics)
+	var actor: Node = actor_ref.get_ref() as Node if actor_ref != null else null
 	var diagnostics: RichTextLabel = diagnostics_ref.get_ref() as RichTextLabel
 	var edited_root: Node = EditorInterface.get_edited_scene_root()
 	if actor == null or diagnostics == null or edited_root == null:

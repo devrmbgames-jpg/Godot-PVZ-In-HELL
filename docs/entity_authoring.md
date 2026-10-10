@@ -5,14 +5,21 @@ capabilities, Profiles/Definitions supply tuning, and the placed instance suppli
 and named endpoints. The runtime and the Inspector preview use `EntityCompositionService`
 and `EntityBuildRules`; preview never registers an Entity or starts a System.
 
-## Inspector installation
+## Authoring dock installation
 
 Open `content/editor/entity_authoring/install_entity_authoring.gd` in Godot's script editor
-and use **File → Run** once per editor session. Running it again is harmless. The Inspector
-is project-owned under `content/editor/`; third-party addons and project plugin settings
-are unchanged. Closing the editor removes the session installation.
+and use **File → Run** once per editor session. Running it again is harmless. Open the
+separate **Entity Authoring** dock beside the Inspector. The EditorPlugin is project-owned
+under `content/editor/`; it does not extend, hide fields in or otherwise alter the base
+Inspector. Third-party addons and project plugin settings are unchanged. Closing the editor
+removes the session installation. Restart the editor once when upgrading from the old
+Inspector extension, then run the installer.
 
-Select an Entity in the scene tree. Simple mode shows the instance and Template IDs separately,
+Edit the permanent layout in `content/editor/entity_authoring/entity_authoring_dock.tscn`.
+Its controller binds controls by Unique Name. The dock's own native resource Inspector
+edits Template/Profile/binding inputs; resource navigation stays inside this dock.
+
+Select an Entity in the scene tree. The dock shows the instance and Template IDs separately,
 provides explicit ID commands and opens the single scene-owned `EntityAuthoring` Resource.
 Its `entity_template`, `definitions` and `bindings` remain the actual editable inputs.
 Use a scene-contained Template for a one-off object or an external `.tres` for a reused variant.
@@ -33,6 +40,8 @@ does not itself add a new gameplay behavior. Parent-owned slots use the existing
 
 Use **Create / Repair Level ID** for a new level scope, and **Create / Repair Instance ID**
 for a newly placed/duplicated Entity. Both are explicit native Undo/Redo operations.
+The dock listens to both the selected instance and level root: Repair, Undo/Redo and
+selection changes update the displayed identity without rebuilding the base Inspector.
 Renaming/reparenting a node does not change its stable token. Repairing an existing token
 changes its save identity: reserve repair for a new instance or an intentional authoring change.
 The generated identifier is a random valid token; whole-scene validation checks uniqueness.
@@ -71,7 +80,7 @@ No runtime `.gd` generation or global registry entry is needed for these existin
 `tests/fixtures/refactoring_v2/authoring_level.tscn` provides a minimal editable reuse example:
 a physical NPC, Trader, box and nested inspection slot, four instance IDs in one level scope.
 It is a detached authoring fixture, not a replacement for the authored gameplay level/World.
-Subjective mesh/marker presentation and Inspector ergonomics require the owner's visual QA.
+Subjective mesh/marker presentation and dock ergonomics require the owner's visual QA.
 
 ## Reproducible automated checks
 

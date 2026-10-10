@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://content/editor/entity_authoring/entity_authoring_dock.gd" id="1_dock"]
+
+[node name="EntityAuthoring" type="VBoxContainer"]
+custom_minimum_size = Vector2(260, 0)
+size_flags_vertical = 3
+script = ExtResource("1_dock")
+
+[node name="Selection" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select an Entity or level"
+text_overrun_behavior = 3
+
+[node name="InstanceId" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Instance ID: unassigned"
+text_overrun_behavior = 3
+
+[node name="LevelId" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Level ID: unassigned"
+text_overrun_behavior = 3
+
+[node name="TemplateId" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Template ID: scene intrinsic"
+text_overrun_behavior = 3
+
+[node name="RepairInstance" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create / Repair Instance ID"
+
+[node name="RepairLevel" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create / Repair Level ID"
+
+[node name="Configure" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Template / Profiles / Named Bindings"
+text_overrun_behavior = 3
+
+[node name="Validate" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Validate Scene Composition"
+
+[node name="Advanced" type="CheckButton" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Advanced diagnostics"
+
+[node name="Details" type="VSplitContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ResourceInspector" type="EditorInspector" parent="Details"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="Reports" type="VBoxContainer" parent="Details"]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Recipes" type="RichTextLabel" parent="Details/Reports"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+size_flags_vertical = 3
+selection_enabled = true
+
+[node name="Diagnostics" type="RichTextLabel" parent="Details/Reports"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+size_flags_vertical = 3
+selection_enabled = true

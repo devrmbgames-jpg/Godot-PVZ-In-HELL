@@ -17632,7 +17632,7 @@
       "method_rights": {},
       "sources": [
         "content/editor/entity_authoring/entity_authoring_preview_rules.gd",
-        "content/editor/entity_authoring/entity_authoring_inspector.gd"
+        "content/editor/entity_authoring/entity_authoring_dock.gd"
       ],
       "purpose": "Task 42: detached authoring tooling reads immutable compiler inputs and transient diagnostic provenance; no live registration, gameplay writes or scheduler."
     },

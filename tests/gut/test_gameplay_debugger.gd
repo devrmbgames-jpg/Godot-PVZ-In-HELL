@@ -145,12 +145,40 @@ func test_retired_selection_is_unavailable_even_if_object_still_exists() -> void
 
 
 #region Native view lifecycle
+func test_native_layout_preserves_output_and_command_space_in_half_height_console() -> void:
+	var viewport: SubViewport = SubViewport.new()
+	viewport.size = Vector2i(640, 360)
+	add_child(viewport)
+	var layout: VBoxContainer = VBoxContainer.new()
+	layout.size = Vector2(640, 180)
+	viewport.add_child(layout)
+	var view: GameplayDebuggerView = VIEW.instantiate() as GameplayDebuggerView
+	layout.theme = view.theme
+	layout.add_child(view)
+	view.inspect("entity:missing")
+	var output: Panel = Panel.new()
+	output.custom_minimum_size.y = 20.0
+	output.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	layout.add_child(output)
+	var input: LineEdit = LineEdit.new()
+	input.add_theme_font_size_override("font_size", 14)
+	layout.add_child(input)
+	for frame: int in 3:
+		await get_tree().process_frame
+	assert_lte(layout.get_combined_minimum_size().y, 180.0)
+	assert_lte(view.position.y + view.size.y, output.position.y)
+	assert_lte(output.position.y + output.size.y, input.position.y)
+	assert_lte(input.position.y + input.size.y, 180.0)
+	assert_gte((view.get_node("%State") as Tree).size.y, 36.0)
+	viewport.free()
+
+
 func test_native_panel_refresh_revalidates_weak_selection_and_close_clears_rows() -> void:
 	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
 	var view: GameplayDebuggerView = VIEW.instantiate() as GameplayDebuggerView
 	Console.v_box_container.add_child(view)
 	view.inspect("entity:" + actor.id)
-	var status: Label = view.get_node("Status") as Label
+	var status: Label = view.get_node("%Status") as Label
 	assert_true(status.text.contains("REGISTERED"))
 	_world.remove_entity(actor)
 	actor.free()
@@ -158,11 +186,15 @@ func test_native_panel_refresh_revalidates_weak_selection_and_close_clears_rows(
 	assert_true(status.text.contains("UNAVAILABLE"))
 	view.close()
 	assert_false(view.visible)
-	assert_null((view.get_node("State") as Tree).get_root())
+	assert_null((view.get_node("%State") as Tree).get_root())
 	view.free()
 
 
 func test_console_adapter_owns_panel_and_unregisters_command_on_teardown() -> void:
+	var previous_theme: Theme = Console.v_box_container.theme
+	var previous_input_menu: Theme = Console.line_edit.get_menu().theme
+	var previous_output_menu: Theme = Console.rich_label.get_menu().theme
+	var previous_font_size: int = Console.font_size
 	var adapter: Node = load("res://content/debug/developer_console_debugger.gd").new()
 	add_child(adapter)
 	assert_true(Console.console_commands.has("debug_inspect"))
@@ -170,11 +202,21 @@ func test_console_adapter_owns_panel_and_unregisters_command_on_teardown() -> vo
 	var panel_node: Node = Console.v_box_container.get_node("GameplayDebugger")
 	var panel: GameplayDebuggerView = panel_node as GameplayDebuggerView
 	assert_true(panel.visible)
+	assert_eq((panel.get_node("%Select") as Button).get_theme_font_size("font_size"), 14)
+	assert_eq(Console.line_edit.get_menu().get_theme_font_size("font_size"), 14)
+	assert_eq(Console.rich_label.get_menu().get_theme_font_size("font_size"), 14)
+	assert_eq(Console.font_size, 14)
+	var background: PanelContainer = panel.get_node("%Background") as PanelContainer
+	assert_eq((background.get_theme_stylebox("panel") as StyleBoxFlat).bg_color.a, 1.0)
 	Console.console_closed.emit()
 	assert_false(panel.visible)
 	adapter.free()
 	assert_false(Console.console_commands.has("debug_inspect"))
 	assert_null(Console.v_box_container.get_node_or_null("GameplayDebugger"))
+	assert_same(Console.v_box_container.theme, previous_theme)
+	assert_same(Console.line_edit.get_menu().theme, previous_input_menu)
+	assert_same(Console.rich_label.get_menu().theme, previous_output_menu)
+	assert_eq(Console.font_size, previous_font_size)
 #endregion
 
 

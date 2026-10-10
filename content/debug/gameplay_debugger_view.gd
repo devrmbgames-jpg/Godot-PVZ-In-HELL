@@ -4,18 +4,21 @@ class_name GameplayDebuggerView
 
 var _selection: WeakRef
 
-@onready var _target: LineEdit = $Toolbar/Target
-@onready var _tree: Tree = $State
-@onready var _status: Label = $Status
+@onready var _target: LineEdit = %Target
+@onready var _tree: Tree = %State
+@onready var _status: Label = %Status
+@onready var _select_button: Button = %Select
+@onready var _refresh_button: Button = %Refresh
+@onready var _close_button: Button = %Close
 
 
 #region Panel lifecycle
 func _ready() -> void:
 	_tree.set_column_title(0, "State / owner")
 	_tree.set_column_title(1, "Snapshot value")
-	$Toolbar/Select.pressed.connect(_select_entered)
-	$Toolbar/Refresh.pressed.connect(refresh)
-	$Toolbar/Close.pressed.connect(close)
+	_select_button.pressed.connect(_select_entered)
+	_refresh_button.pressed.connect(refresh)
+	_close_button.pressed.connect(close)
 	_target.text_submitted.connect(_select_submitted)
 	Console.console_closed.connect(close)
 	hide()
