@@ -2,7 +2,7 @@
 
 **Репозиторий:** `https://github.com/devrmbgames-jpg/Godot-PVZ-In-HELL`
 **Ветка:** `dev`
-**Статус:** `IN_PROGRESS`
+**Статус:** `OWNER_QA`
 **Файл прогресса:** этот файл (один источник; отдельный task не создаётся).
 **Тип:** архитектурный UX-рефакторинг / миграция authoring-контракта.
 
@@ -17,7 +17,8 @@
 
 - Baseline SHA: `cb257c3469f4e05acba310199d93f0faee2db77a`, ветка `dev`.
 - Прочитаны AGENTS и skills: refactoring, task-lifecycle, gdscript-style, gecs-v8,
-  godot-scene-authoring, validation-workflow, gut-testing, review-orchestration, godot-ai-mcp.
+  godot-scene-authoring, validation-workflow, gut-testing, review-orchestration, godot-ai-mcp,
+  godot-performance.
 - User override: старые сейвы не сохраняются, conversion не нужна; schema-10 new roundtrip обязателен.
 - Аудит: 17 direct Entity classes в domains time/motion/hazards/combat/packages/interaction/customers;
   deeper NPC/player/package inheritance получает export автоматически. Compiler и factories общие.
@@ -32,15 +33,16 @@
 - EntityAuthoring runtime Resource/reader and session installer removed; dock is IDs/diagnostics only.
   Legacy Template resources remain editor-only presets, never production scene/runtime providers.
 - Implementation checkpoint: `b2b6a80e6d8d347b5977e0ff2418b986bc09ec2b`.
-- Current: independent review collected; RV-001 repaired, native regression passed.
-- Next: commit RV-001 fix, targeted re-review, final evidence checkpoint; №42 stays OWNER_QA_PENDING.
+- Current: implementation, automated acceptance and independent review/triage complete.
+- Next: owner Inspector/gameplay checklist, then record acceptance; №42 stays OWNER_QA_PENDING.
 
 ### Validation
 - GUT PASS: 225 tests / 1845 assertions, `.artifacts/direct_traits/gut_final.log`.
 - Native headless Inspector PASS: add/new/type rejection/assign/reorder/remove/Make Unique,
   Undo/Redo, nested instance save/reopen, enable/disable/fallback/restart; `editor.log`.
-- RV-001 repair: native reopened scene local copy and saved SceneState built-in path both open
-  without another unique copy, shared .tres protected; `editor_local_reopen.log`. Parser 2/0 PASS.
+- Final native harness PASS: 27 assertions, including reopened scene local copy and saved
+  SceneState built-in settings, shared .tres protection and unchanged array/history;
+  `editor_local_reopen.log`. Repair parser 2 files / 0 failures, formatter/static gates PASS.
 - Parser PASS: 45 changed scripts / 0 failures. Formatter, strict architecture, agent gate PASS.
 - Structure PASS after separately evidenced unused owner Theme rename (bytes/UID preserved,
   still untracked); [independent scope](../completed/developer_console_theme_naming.md).
@@ -52,15 +54,20 @@
   The runner now recognizes both existing `smoke PASS` and `smoke: PASS` completion delimiters.
 - Logs/baseline patches/timings retained under `.artifacts/direct_traits/`; shutdown-only 4.7.1
   retention is KNOWN_ENGINE_LIMITATION / DEFERRED, not runtime regression evidence.
+  Native functional assertions PASS; full editor shutdown is NOT_CLEAN (retention and existing
+  harness detached-node path diagnostic category documented in №42), no clean-process claim.
 
 ### Review
 - Base `cb257c3469f4e05acba310199d93f0faee2db77a` → target
   `b2b6a80e6d8d347b5977e0ff2418b986bc09ec2b`: independent source review collected.
 - RV-001 (reviewer R1, P2): `_inspect` rejected saved local built-in resource paths (`scene::id`).
-  ACCEPTED/repair verified: allow local-to-scene empty/built-in paths; keep shared .tres protected.
-  Native evidence distinguishes empty-path instance copies from built-in paths in saved SceneState;
-  both open settings. Targeted save/reload regression PASS; fix commit/re-review next, cycle 1/2.
-  No other substantial findings; reviewer tests NOT_RUN. Current review state REVIEW_PENDING.
+  FIXED `bde16943a1f20dae0f99d7f59d931953198f8855`: allow local-to-scene empty/built-in paths,
+  keep shared .tres protected. Native evidence distinguishes empty-path instance copies from
+  built-in saved SceneState resources; both open settings without copying. Harness 27/27 PASS.
+- Targeted re-review: base `b2b6a80e6d8d347b5977e0ff2418b986bc09ec2b` → target
+  `bde16943a1f20dae0f99d7f59d931953198f8855`, repair cycle 1/2; RV-001 resolved.
+  No other substantial findings. Independent source architecture/style review PASS after triage;
+  reviewer validation NOT_RUN, Main's actual checks above. Current review state PASS.
 - Review efficiency telemetry: NOT_MEASURED (single substantive checkpoint).
 
 ### Owner QA / blockers

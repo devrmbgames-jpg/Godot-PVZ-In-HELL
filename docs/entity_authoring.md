@@ -57,10 +57,11 @@ to configure a reused prefab's nested slots. Resource IDs and instance IDs are d
 **Validate Scene Composition** captures the current scene and authored Resource values into
 an ignored disposable snapshot. Script and physical-scene assets keep their external references;
 the capture does not save over the original `.tscn` or `.tres`, including unsaved Trait edits.
-A separate headless process validates that detached copy. No ready callback, ECS publication,
+The Inspector validates the detached copy synchronously through the shared compiler;
+the dock runs the same preview in a separate headless process. No ready callback, ECS publication,
 animation tick, AI execution, physics frame or gameplay effect runs on the preview actors.
-The worker log is retained at `.artifacts/authoring_preview/last.log`; script failures are
-reported as failures, not a clean authoring result. Native Scene→Template→Scene dependency
+The dock worker log is retained at `.artifacts/authoring_preview/last.log`; script failures are
+reported as failures, not a clean authoring result. Native resource/scene dependency
 cycles reject before loading the snapshot's graph.
 
 A standalone factory prefab can report missing roster/Profile inputs: supply its owning district
@@ -96,7 +97,11 @@ Subjective mesh/marker presentation and Inspector ergonomics require the owner's
 .bin/Godot_v4.7.1-stable_win64_console.exe --headless --editor --path . --script res://tests/fixtures/refactoring_v2/editor_authoring_check.gd
 ```
 
-The editor check isolates unrelated plugins in memory and verifies native installation/ID undo.
-`-- --baseline` runs the identical editor lifecycle without installation. Neither command saves
-project settings. Preserve and compare shutdown diagnostics; the marker alone is not proof
-that an entire editor process was diagnostic-free. Headless checks prove no visual/gameplay feel.
+The editor check isolates unrelated plugins in memory and verifies persistent configuration,
+Trait add/remove/assign/reorder, native Undo/Redo, local settings after scene save/reopen,
+shared-resource protection and plugin fallback. It saves only an ignored scratch scene under
+`.artifacts/direct_traits/`; project settings and authored source scenes are not saved.
+The instantiated local-to-scene copy may have an empty path; the saved SceneState resource
+has a built-in path. Both remain editable without another unique copy.
+Preserve shutdown diagnostics: functional assertions do not prove an entire editor process
+was diagnostic-free. Headless checks do not prove visual usability or gameplay feel.
