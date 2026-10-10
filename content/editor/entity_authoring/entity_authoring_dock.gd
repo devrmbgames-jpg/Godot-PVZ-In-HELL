@@ -106,7 +106,7 @@ func _refresh_identity() -> void:
 	var previous_authoring: Resource = (
 		_authoring_ref.get_ref() as Resource if _authoring_ref != null else null
 	)
-	if authoring != previous_authoring:
+	if authoring != previous_authoring or (authoring == null and _authoring_ref != null):
 		_authoring_ref = weakref(authoring) if authoring != null else null
 		if _resource_inspector != null:
 			_resource_inspector.edit(authoring)

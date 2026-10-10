@@ -191,7 +191,16 @@ func test_authoring_null_recipe_is_diagnostic_and_removed_composition_clears_bin
 	actor.notify_property_list_changed()
 	assert_same((dock.get("_authoring_ref") as WeakRef).get_ref(), authoring)
 	actor.component_resources.pop_back()
+	var previous_binding: WeakRef = dock.get("_authoring_ref") as WeakRef
+	var refresh_identity: Callable = Callable(dock, "_refresh_identity")
+	actor.property_list_changed.disconnect(refresh_identity)
+	actor.property_list_changed.connect(refresh_identity, CONNECT_DEFERRED)
+	authoring = null
 	actor.remove_meta(&"entity_composition")
+	assert_null(previous_binding.get_ref(), "Removed inline composition has no strong owner")
+	actor.notify_property_list_changed()
+	await get_tree().process_frame
+	assert_null(dock.get("_authoring_ref"), "Expired binding also clears detached input")
 	dock.free()
 
 
