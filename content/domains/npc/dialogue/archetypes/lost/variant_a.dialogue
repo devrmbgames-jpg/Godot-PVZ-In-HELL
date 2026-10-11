@@ -10,11 +10,15 @@ import "res://content/domains/customers/dialogue/customer_service.dialogue" as s
 - До встречи. => END
 
 ~ direct
-Клиент: Здравствуйте. Жду заказ №{{ctx.package_number_text()}}. Рад встретить знакомое лицо.
-- Сейчас посмотрю вашу посылку. => END
-- Что ещё хотелось бы заказать? => goods
-- Может, обсудим доставку домой? [if ctx.can_offer_delivery() /] => home_request
-- Сегодня не получится выдать заказ. => deny_start
+if ctx.has_registered_number()
+	Клиент: Здравствуйте. Жду заказ №{{ctx.package_number_text()}}. Рад встретить знакомое лицо.
+	- Сейчас посмотрю вашу посылку. => END
+	- Что ещё хотелось бы заказать? => goods
+	- Может, обсудим доставку домой? [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня не получится выдать заказ. => deny_start
+else
+	Клиент: Похоже, заказ ещё не зарегистрирован. Сначала просканируйте поступившие коробки.
+=> END
 
 ~ neighborhood
 Сосед: Учусь узнавать улицы и людей. А ты как справляешься?

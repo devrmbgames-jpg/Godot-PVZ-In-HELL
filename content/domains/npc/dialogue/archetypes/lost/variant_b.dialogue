@@ -10,11 +10,15 @@ import "res://content/domains/customers/dialogue/customer_service.dialogue" as s
 - Увидимся. => END
 
 ~ direct
-Клиент: Мой номер — {{ctx.package_number_text()}}. Записал, чтобы опять не забыть. Коробка ещё здесь?
-- Проверю по номеру. => END
-- Любопытно, что ты вообще заказываешь. => goods
-- Хочешь получить посылку дома? [if ctx.can_offer_delivery() /] => home_request
-- Выдача пока невозможна. => deny_start
+if ctx.has_registered_number()
+	Клиент: Мой номер — {{ctx.package_number_text()}}. Записал, чтобы опять не забыть. Коробка ещё здесь?
+	- Проверю по номеру. => END
+	- Любопытно, что ты вообще заказываешь. => goods
+	- Хочешь получить посылку дома? [if ctx.can_offer_delivery() /] => home_request
+	- Выдача пока невозможна. => deny_start
+else
+	Клиент: Номера в журнале пока нет. Сначала просканируйте поступившие коробки, тогда поищем мою.
+=> END
 
 ~ neighborhood
 Сосед: Я запоминаю ориентиры. Почта, лавка, кривой фонарь. Иногда помогают.

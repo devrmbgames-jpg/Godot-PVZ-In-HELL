@@ -18,8 +18,11 @@ keeps priority and legacy actors keep their role fallback. Two neutral/lost vari
 distinct greetings, neighborhood and broad shopping topics plus all existing role entry cues.
 Pinned Dialogue Manager imports preserve service outcomes, personal delivery and response tags;
 session cleanup releases cached imported line cycles as well as the root resource.
-The native lost archetype exposes both paths. Checkpoint review is REVIEW_PENDING against base
-`1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63`; only **2/20** variants are implemented.
+The native lost archetype exposes both paths; only **2/20** variants are implemented.
+Review of `490efacd2b5888383325bdbf37aa13b3753be4a4` against
+`1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63` found the missing direct registration guard.
+The guard is restored in both variants, with focused native regression PASS; targeted repair
+review remains REVIEW_PENDING.
 Remaining archetypes still need their required interactions, including authoritative soul/blood
 transactions; full task acceptance and live roster binding remain open.
 
@@ -32,16 +35,25 @@ and author the remaining 18 variants. No per-open reroll or new UI authority is 
 
 - PASS: native parser for six edited GDScripts; incremental GDQuest style, strict architecture,
   domain dependencies/structure, project structure, persistence baseline and diff checks.
-- PASS: `test_npc_dialogue_variants.gd` **30/30, 567 assertions**, including inherited district
+- PASS: `test_npc_dialogue_variants.gd` **31/31, 621 assertions**, including inherited district
   regressions, native imported cues, stable codec restoration, both real contexts and actual
   panel routing, delivery acceptance/idempotency, denial tags/idempotency and imported cleanup.
-  Logs: `.artifacts/godot_agent/gut-20261011-224831807.{stdout,stderr}.log`.
+  Logs: `.artifacts/godot_agent/gut-20261011-225318292.{stdout,stderr}.log`.
 - PASS: existing `test_customer_dialogue.gd`; logs
   `.artifacts/godot_agent/gut-20261011-224919731.{stdout,stderr}.log`.
 - MCP: native authored lost catalog save/cache refresh and settled import/inspection of both
   variants ran. Global-script hot reload returns fallback code 43 (NOT_PASS); fresh CLI checks
   independently pass. No rendered gameplay/visual QA ran.
 - NOT_RUN: full 20-variant acceptance, remaining archetype interactions and owner dialogue QA.
+
+### Review triage
+
+RV-001 — ACCEPTED P1, source `490efacd2b5888383325bdbf37aa13b3753be4a4`:
+both personalized `direct` cues omitted `ctx.has_registered_number()`, exposing denial before
+registration. Restored the existing guard and scanning/END fallback. Focused real-context
+regression checks repeated unregistered entry without choices, denial/reputation/aggression
+mutation and preserves registered denial/idempotency. Fix SHA/targeted review pending.
+Initial reviewer ARCHITECTURE FAIL / STYLE PASS / runtime VALIDATION NOT_RUN (78 s).
 
 ### Owner QA / blockers
 

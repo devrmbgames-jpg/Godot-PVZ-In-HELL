@@ -111,6 +111,31 @@ func test_legacy_actor_and_empty_committed_path_keep_role_fallback() -> void:
 
 
 #region Real context flows and panel routing
+func test_unregistered_customer_variants_require_scanning_without_outcome_mutation() -> void:
+	var person: NpcRecord = _lost_person()
+	var body: E_DistrictNpc = _stage(person)
+	for index: int in person.profile.dialogue_variants.size():
+		var visit: CustomerVisit = _case(person, "unregistered_variant_%d" % index)
+		visit.definition = DEF_Customer.new()
+		var context: CustomerDialogueContext = _service_context(body, visit)
+		assert_false(context.has_registered_number())
+		var resource: DialogueResource = _resource(person.profile.dialogue_variants[index])
+		for repeat: int in range(2):
+			var direct: DialogueLine = await _line(resource, context, "direct")
+			assert_not_null(direct)
+			assert_string_contains(direct.text, "просканируйте")
+			assert_false(direct.text.contains("---"))
+			assert_eq(direct.responses.size(), 0)
+			assert_null(await _line(resource, context, direct.next_id))
+			assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+			assert_eq(visit.player_denial_count, 0)
+			assert_eq(visit.reputation, CustomerVisit.Reputation.NONE)
+			assert_false(visit.aggressive)
+			assert_false(visit.finished)
+		context.end()
+		NpcServiceRole.release(body, visit.visit_id)
+
+
 func test_both_variants_keep_real_street_and_customer_delivery_acceptance() -> void:
 	var archetype: DEF_NpcArchetype = load(LOST_PATH) as DEF_NpcArchetype
 	_district.definition.personal_delivery_probability = 1.0
@@ -210,12 +235,14 @@ func test_imported_customer_denial_keeps_tags_and_commits_once() -> void:
 	var person: NpcRecord = _lost_person()
 	var body: E_DistrictNpc = _stage(person)
 	for index: int in person.profile.dialogue_variants.size():
-		var visit: CustomerVisit = _case(person, "variant_denial_%d" % index)
+		var visit: CustomerVisit = _delivery_case(person, "variant_denial_%d" % index)
 		visit.definition = DEF_Customer.new()
 		var context: CustomerDialogueContext = _service_context(body, visit)
+		assert_true(context.has_registered_number())
 		var resource: DialogueResource = _resource(person.profile.dialogue_variants[index])
 		var direct: DialogueLine = await _line(resource, context, "direct")
 		assert_string_contains(direct.text, context.package_number_text())
+		assert_eq(direct.responses.size(), 4)
 		var denial: DialogueLine = await _line(resource, context, "deny_start")
 		assert_eq(denial.responses.size(), 6)
 		var lie: DialogueResponse = denial.responses[1] as DialogueResponse
