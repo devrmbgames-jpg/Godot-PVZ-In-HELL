@@ -26,7 +26,7 @@ at most two safe native route previews determine a side point; physics owns move
 S_NpcTraits owns warning/exposure clocks, and a prolonged gaze commits one remembered attack
 through NpcSocialService even for timid personalities. Interruption releases movement/look
 without clearing a replacement owner's token. Shy catalog is authored; live roster is not rebound.
-Shy smoke PASS, checkpoint REVIEW_PENDING. Next: remaining mandatory archetype subtrees.
+Shy smoke/review PASS. Next: remaining mandatory archetype subtrees.
 
 ### Validation
 
@@ -47,9 +47,10 @@ Formatter/lint, strict architecture/dependencies/domain/project structure and pe
 MCP authors trait/catalog/subtree with UIDs preserved; leaf reload/diagnostics PASS, global
 reload43 NOT_PASS independently verified by CLI; clean scene reload/no new editor errors PASS.
 Shy smoke district-20261012-092523857.log PASS; eight mornings/all phases/save/restore.
-Review pending; baseline 5339a67e38824f88a80a5bc266a404927ef0bbbb.
+Review BASE 5339a67e38824f88a80a5bc266a404927ef0bbbb ->
+5ff85b58ea107ec795d3dea4319be9dcf10306b1 PASS, no findings (66 s).
 Reviewed checkpoints ARCHITECTURE/STYLE PASS; reviewer runtime VALIDATION NOT_RUN.
-NOT_RUN: full mandatory archetype behaviors, live roster integration and owner gameplay/visual QA.
+Full mandatory behaviors, live roster integration and owner gameplay/visual QA: NOT_RUN.
 
 ### Owner QA / blockers
 
@@ -59,7 +60,7 @@ Required owner acceptance remains open; explicitly deferred polish gets a QA che
 ## Mandatory BT pattern
 
 Composites own control flow, Conditions observe, Actions perform narrow work,
-Decorators own execution policy, and Subtrees expose reusable semantic branches.
+Decorators own execution policy, and Subtrees expose reusable branches.
 
 - Actions are narrow leaf behaviors.
 - Composites own ordering/fallback/priority/concurrency.

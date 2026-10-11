@@ -46,15 +46,15 @@ and navigation authority, passes focused regressions, district smoke and review.
 Full behaviors/binding remain open.
 Shy gaze aversion now uses native idle-only observation/repositioning, real perception/camera,
 safe routes and one remembered prolonged-gaze attack. Focused/native regressions pass;
-district smoke passed; checkpoint review is pending. Live archetype binding remains open.
-R26.4 now routes committed personal dialogue variants and has two neutral/lost variants with
-imported service/delivery flows and imported-resource cleanup. Focused native checks pass;
-checkpoint review and its registration-guard repair passed; the remaining 18 variants/interactions
-stay open.
+district smoke/review passed. Live archetype binding remains open.
+R26.4 routes committed personal variants, with two neutral/lost and two shy variants using
+imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
+role/idempotency regressions pass; its checkpoint review is pending. Lost checkpoint review
+and registration-guard repair passed; the remaining 16 variants/interactions stay open.
 
 ### Next
 
-Collect shy checkpoint review, continue remaining R26.3/R26.4,
+Collect shy dialogue review and continue remaining R26.3/R26.4,
 then bind all ten archetypes.
 
 ### Validation

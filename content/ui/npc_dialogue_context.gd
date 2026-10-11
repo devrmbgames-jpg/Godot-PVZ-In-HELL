@@ -46,6 +46,11 @@ func is_customer_service() -> bool:
 	return false
 
 
+## Adapts the current trait warning for both roles without advancing exposure or changing memory.
+func gaze_warning_given() -> bool:
+	return is_valid() and NpcDialogueService.gaze_warning_given(_delivery_npc())
+
+
 ## Применяет смысл ответа через конкретный игровой адаптер.
 func apply_response_tags(_tags: PackedStringArray) -> bool:
 	return false

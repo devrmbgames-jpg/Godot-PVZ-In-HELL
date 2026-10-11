@@ -18,18 +18,24 @@ keeps priority and legacy actors keep their role fallback. Two neutral/lost vari
 distinct greetings, neighborhood and broad shopping topics plus all existing role entry cues.
 Pinned Dialogue Manager imports preserve service outcomes, personal delivery and response tags;
 session cleanup releases cached imported line cycles as well as the root resource.
-The native lost archetype exposes both paths; only **2/20** variants are implemented.
+The native lost and shy archetypes expose both paths; **4/20** variants are implemented.
+Shy variants distinguish withdrawn fear from resentful avoidance and read the committed
+gaze warning through a query adapter shared by street/customer contexts. Reading dialogue
+does not advance exposure or alter memory. Both keep the registration guard and role imports.
 Review of `490efacd2b5888383325bdbf37aa13b3753be4a4` against
 `1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63` found the missing direct registration guard.
 The guard is restored in both variants, with focused native regression PASS. Targeted repair
 review of `c64c5f782ee1874c0e987b34064b132cb6a7c5e5` passed without remaining findings.
+Shy dialogue checkpoint review is REVIEW_PENDING against
+`5ff85b58ea107ec795d3dea4319be9dcf10306b1`.
 Remaining archetypes still need their required interactions, including authoritative soul/blood
 transactions; full task acceptance and live roster binding remain open.
 
 ### Next
 
 Continue required archetype behavior/interaction capabilities
-and author the remaining 18 variants. No per-open reroll or new UI authority is introduced.
+and author the remaining 16 variants after collecting the shy dialogue review.
+No per-open reroll or new UI authority is introduced.
 
 ### Validation
 
@@ -45,6 +51,13 @@ and author the remaining 18 variants. No per-open reroll or new UI authority is 
   variants ran. Global-script hot reload returns fallback code 43 (NOT_PASS); fresh CLI checks
   independently pass. No rendered gameplay/visual QA ran.
 - NOT_RUN: full 20-variant acceptance, remaining archetype interactions and owner dialogue QA.
+- Shy PASS: parser233406749/3 and `test_npc_shy_dialogue.gd` **35/35, 759 assertions**,
+  including inherited role/routing/delivery regressions, both native variants, warning reads,
+  repeated unregistered entry and registered denial/idempotency. Logs:
+  `.artifacts/godot_agent/gut-20261011-233416121.{stdout,stderr}.log`; no runtime errors.
+  Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
+  MCP native catalog save, settled imports, test reload/diagnostics and clean scene reload PASS;
+  no new editor errors after repair. Global-script reload43 NOT_PASS; CLI independently PASS.
 
 ### Review triage
 

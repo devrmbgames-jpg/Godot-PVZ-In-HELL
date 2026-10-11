@@ -1,0 +1,153 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+if ctx.gaze_warning_given()
+	{{ctx.speaker_name()}}: Я уже попросил отвести взгляд. Ещё немного — и я не сдержусь.
+else
+	{{ctx.speaker_name()}}: Здравствуй. Только не смотри на меня в упор, пожалуйста. Так проще разговаривать.
+- Хорошо, я отведу взгляд. [#hon] => reassurance
+- Почему тебе так неуютно? => gaze
+- Как живётся в районе? => neighborhood
+- Что ты заказываешь? => goods
+- Могу принести посылку домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Не буду тебя задерживать. => END
+
+~ direct
+if ctx.has_registered_number()
+	Клиент: Можно забрать заказ №{{ctx.package_number_text()}}? Я подожду чуть в стороне.
+	- Сейчас посмотрю вашу посылку. => END
+	- Не волнуйся, я не буду пристально смотреть. => reassurance
+	- Что ждёшь в коробке? => goods
+	- Хочешь получить её дома? [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Кажется, мою коробку ещё не зарегистрировали. Сначала просканируйте поступившие посылки.
+=> END
+
+~ gaze
+if ctx.gaze_warning_given()
+	Сосед: Я терплю, пока могу. Но если продолжишь следить за мной глазами, придётся защищаться.
+else
+	Сосед: Чужой пристальный взгляд давит. Я предпочитаю постоять сбоку, на расстоянии.
+- Я понял и дам тебе место. [#hon] => reassurance
+- Мы можем говорить спокойно. [#prs] => reassurance
+- Я вообще на тебя не смотрел. [#lie] => street_flow/provocation
+- А если не отведу взгляд? [#thr] => street_flow/threat
+
+~ reassurance
+Сосед: Спасибо. Так гораздо легче. Давай оставим друг другу немного пространства.
+=> END
+
+~ neighborhood
+Сосед: Тут шумно, зато люди привыкли к странностям соседей. Я выбираю тихие места.
+- Тихое место найдётся и для тебя. [#prs] => reassurance
+- Не буду рассказывать, где тебя искать. [#hon] => reassurance
+- Закажи плащ-невидимку. [#jok] => street_flow/joke
+- До встречи. => END
+
+~ goods
+Сосед: Чаще всего одежду. Длинные рукава, капюшон, мягкий воротник. В вещах хочется чувствовать себя спокойнее.
+- Дело в удобстве или в том, чтобы спрятаться? => clothing
+- Мы можем обсудить доставку домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Пусть заказ придёт вовремя. => END
+
+~ clothing
+Сосед: И в том и в другом. Только не заставляй примерять прямо у всех на виду.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> service/provocation
+else
+	=> street_flow/provocation
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke

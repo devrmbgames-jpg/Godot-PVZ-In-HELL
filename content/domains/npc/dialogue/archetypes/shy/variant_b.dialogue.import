@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://dm8xfnohikvj3"
+path="res://.godot/imported/variant_b.dialogue-cd82081f29e0ab530d1135b4236930f2.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/shy/variant_b.dialogue"
+dest_files=["res://.godot/imported/variant_b.dialogue-cd82081f29e0ab530d1135b4236930f2.tres"]
+
+[params]
+
+defaults=true

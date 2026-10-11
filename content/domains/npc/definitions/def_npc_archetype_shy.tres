@@ -21,7 +21,7 @@ key = &"schedule/shy"
 [resource]
 script = ExtResource("8_cgvgg")
 name_variants = PackedStringArray("Тихон", "Мирон")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/shy/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/shy/variant_b.dialogue")
 optional_traits = Array[ExtResource("3_yrnpr")]([SubResource("Resource_5h4kt")])
 maximum_optional_traits = 1
 item_category_weights = Dictionary[int, float]({

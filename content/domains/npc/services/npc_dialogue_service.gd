@@ -16,6 +16,14 @@ static func dialogue_path_for(body: Entity, fallback: String = DIALOGUE_PATH) ->
 	if person != null and not person.variation.dialogue_path.is_empty():
 		return person.variation.dialogue_path
 	return fallback
+
+
+## Reads the trait owner's committed warning; ordinary actors without awareness have none.
+static func gaze_warning_given(body: Entity) -> bool:
+	if body == null:
+		return false
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	return awareness != null and awareness.warned_rules.has(DEF_NpcTrait.Kind.GAZE_AVERSION)
 #endregion
 
 
