@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://f88wy2ge83ed"]
+
+[ext_resource type="Script" uid="uid://dvecmqbmefem" path="res://content/domains/hazards/entities/e_blood_area.gd" id="1_46d7h"]
+[ext_resource type="Resource" uid="uid://3hd2ilfuxnn" path="res://content/domains/hazards/definitions/def_blood_spill.tres" id="2_vpjvy"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_hr8tm"]
+[ext_resource type="Resource" uid="uid://cuitvvs07efl5" path="res://content/domains/hazards/authoring/blood_area_marker.tres" id="4_7hica"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_bmqb2"]
+radius = 3.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ew0hb"]
+albedo_color = Color(0.4745098, 0.07450981, 0.09411765, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_d1q4c"]
+material = SubResource("StandardMaterial3D_ew0hb")
+top_radius = 3.0
+bottom_radius = 3.0
+height = 0.02
+
+[node name="BloodSpill" type="Node3D" unique_id=1760672022]
+script = ExtResource("1_46d7h")
+definition = ExtResource("2_vpjvy")
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("3_hr8tm")]([ExtResource("4_7hica")])
+
+[node name="Area" type="Area3D" parent="." unique_id=1396461634]
+collision_layer = 0
+collision_mask = 31
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Area" unique_id=1583278791]
+shape = SubResource("SphereShape3D_bmqb2")
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=450389345]
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_d1q4c")

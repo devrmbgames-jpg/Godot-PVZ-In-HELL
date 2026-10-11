@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="C_BloodArea" format=3 uid="uid://cuitvvs07efl5"]
+
+[ext_resource type="Script" uid="uid://s4oeaa15ho4y" path="res://content/domains/hazards/components/c_blood_area.gd" id="1_ea424"]
+
+[resource]
+script = ExtResource("1_ea424")

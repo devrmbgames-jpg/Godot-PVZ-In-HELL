@@ -34,6 +34,7 @@ static var _component_fields: Dictionary = {
 	C_PersistentIdentity: C_PersistentIdentity.SAVE_FIELDS,
 	C_InteractionToggle: C_InteractionToggle.SAVE_FIELDS,
 	C_ToxicArea: C_ToxicArea.SAVE_FIELDS,
+	C_BloodArea: C_BloodArea.SAVE_FIELDS,
 	C_Explosion: C_Explosion.SAVE_FIELDS,
 	C_NoDamage: C_NoDamage.SAVE_FIELDS,
 }

@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/domains/motion/systems/s_crouch.gd" id="7_6b1dm"]
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/domains/interaction/systems/s_player_input.gd" id="8_qm6qd"]
 [ext_resource type="Script" uid="uid://dfrgb3jjg8xhc" path="res://content/domains/combat/systems/s_receiver_effect.gd" id="59_dm03w"]
+[ext_resource type="Script" uid="uid://catw24xcylq58" path="res://content/domains/hazards/observers/o_blood_area_setup.gd" id="60_5uysu"]
 [ext_resource type="Script" uid="uid://dkb2c2k1cmk1v" path="res://content/domains/interaction/systems/s_anchor_stability.gd" id="Anchor_stability"]
 [ext_resource type="Script" uid="uid://gh1el1ej0i27" path="res://content/domains/interaction/systems/s_cart_cargo.gd" id="Cart_cargo_system"]
 [ext_resource type="Script" uid="uid://cgqgtiq38w0ep" path="res://content/domains/challenges/observers/o_challenge_floor_activation.gd" id="Challenge_floor"]
@@ -292,7 +293,10 @@ group = &"GamePlay"
 
 [node name="S_ReceiverEffect" type="Node" parent="Systems/GamePlay" unique_id=620724078]
 script = ExtResource("59_dm03w")
-group = "GamePlay"
+group = &"GamePlay"
+
+[node name="O_BloodAreaSetup" type="Node" parent="Systems/GamePlay" unique_id=1663124643]
+script = ExtResource("60_5uysu")
 
 [node name="Storage" type="Node" parent="Systems" unique_id=2085462013]
 script = ExtResource("3_ahxau")

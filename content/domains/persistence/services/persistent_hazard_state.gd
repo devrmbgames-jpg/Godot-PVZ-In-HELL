@@ -76,6 +76,8 @@ static func restore(
 	# Geometry reconstruction is explicit and never replays spawn/damage reactions.
 	if entity is E_ToxicArea:
 		HazardGeometry.configure_toxic(entity as E_ToxicArea, hazard.definition as DEF_ToxicArea)
+	elif entity is E_BloodArea:
+		HazardGeometry.configure_blood(entity as E_BloodArea, hazard.definition as DEF_BloodArea)
 	elif entity is E_Explosion:
 		HazardGeometry.configure_explosion(
 			entity as E_Explosion,

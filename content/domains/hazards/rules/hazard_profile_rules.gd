@@ -7,6 +7,8 @@ class_name HazardProfileRules
 static func valid(definition: DEF_Hazard) -> bool:
 	if definition == null or not _positive(definition.lifetime_seconds):
 		return false
+	if definition is DEF_BloodArea:
+		return _positive((definition as DEF_BloodArea).radius)
 	if definition is DEF_ToxicArea:
 		var toxin: DEF_ToxicArea = definition as DEF_ToxicArea
 		return (

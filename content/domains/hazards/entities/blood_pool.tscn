@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://d2eb0mvcuwq3x"]
+
+[ext_resource type="Script" uid="uid://dvecmqbmefem" path="res://content/domains/hazards/entities/e_blood_area.gd" id="1_wwrb2"]
+[ext_resource type="Resource" uid="uid://c3w0dvyfuoe17" path="res://content/domains/hazards/definitions/def_blood_pool.tres" id="2_b3ssw"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_af18h"]
+[ext_resource type="Resource" uid="uid://cuitvvs07efl5" path="res://content/domains/hazards/authoring/blood_area_marker.tres" id="4_vvcnt"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_36o46"]
+radius = 5.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h0akc"]
+albedo_color = Color(0.4745098, 0.07450981, 0.09411765, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_5l71d"]
+material = SubResource("StandardMaterial3D_h0akc")
+top_radius = 5.0
+bottom_radius = 5.0
+height = 0.02
+
+[node name="BloodPool" type="Node3D" unique_id=68748370]
+script = ExtResource("1_wwrb2")
+definition = ExtResource("2_b3ssw")
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("3_af18h")]([ExtResource("4_vvcnt")])
+
+[node name="Area" type="Area3D" parent="." unique_id=1185008208]
+collision_layer = 0
+collision_mask = 31
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Area" unique_id=293670695]
+shape = SubResource("SphereShape3D_36o46")
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=1234087601]
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_5l71d")

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_BloodArea" format=3 uid="uid://3hd2ilfuxnn"]
+
+[ext_resource type="Script" uid="uid://crmx4sv4qmhxu" path="res://content/domains/hazards/definitions/def_blood_area.gd" id="1_5d5et"]
+
+[resource]
+script = ExtResource("1_5d5et")
+lifetime_seconds = 30.0
+key = &"blood_spill"

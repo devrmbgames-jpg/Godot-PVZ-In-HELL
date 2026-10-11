@@ -14187,14 +14187,16 @@
       ],
       "public_methods": [
         "configure_explosion",
-        "configure_toxic"
+        "configure_toxic",
+        "configure_blood"
       ],
       "sources": [
         "content/services/persistence/persistent_hazard_state.gd"
       ],
       "method_rights": {
         "configure_explosion": "request",
-        "configure_toxic": "request"
+        "configure_toxic": "request",
+        "configure_blood": "request"
       },
       "public_instance_methods": []
     },
@@ -18415,6 +18417,61 @@
         "content/services/persistence/world_snapshot_service.gd"
       ],
       "purpose": "Reset transient artifact cadence to a full interval after accepted reconstruction, including live reuse.",
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "hazards",
+      "symbol": "C_BloodArea",
+      "path": "content/domains/hazards/components/c_blood_area.gd",
+      "rights": [
+        "query",
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/persistence/save_data_codec.gd",
+        "content/services/persistence/snapshot_graph_rules.gd"
+      ],
+      "purpose": "Validate typed blood prefab/profile and reconstruct the passive durable marker before lifecycle resumes.",
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "hazards",
+      "symbol": "E_BloodArea",
+      "path": "content/domains/hazards/entities/e_blood_area.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/persistence/snapshot_graph_rules.gd",
+        "content/services/persistence/persistent_hazard_state.gd"
+      ],
+      "purpose": "Validate typed blood prefab/profile and reconstruct the passive durable marker before lifecycle resumes.",
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "hazards",
+      "symbol": "DEF_BloodArea",
+      "path": "content/domains/hazards/definitions/def_blood_area.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/persistence/snapshot_graph_rules.gd",
+        "content/services/persistence/persistent_hazard_state.gd"
+      ],
+      "purpose": "Validate typed blood prefab/profile and reconstruct the passive durable marker before lifecycle resumes.",
       "method_rights": {},
       "public_instance_methods": []
     }

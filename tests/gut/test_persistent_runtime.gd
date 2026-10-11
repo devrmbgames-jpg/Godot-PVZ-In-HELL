@@ -25,6 +25,7 @@ func before_each() -> void:
 	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(session, null, false)
 	_world.add_observer(O_ToxicAreaSetup.new())
+	_world.add_observer(O_BloodAreaSetup.new())
 	_world.add_observer(O_ExplosionSetup.new())
 	_world.add_observer(O_HazardFollowLifecycle.new())
 
@@ -316,6 +317,48 @@ func test_valve_progress_saved_never_restores_signal_and_wheel_without_executing
 
 
 #region Постоянные опасности и настройки тела
+## Native blood restore rebuilds geometry explicitly without replaying a spawn or health request.
+func test_blood_zone_roundtrip_rebuilds_geometry_and_requires_its_typed_marker() -> void:
+	var effect: E_BloodArea = _hazard(
+		"res://content/domains/hazards/entities/blood_spill.tscn",
+		true,
+	) as E_BloodArea
+	var hazard: C_Hazard = effect.get_component(C_Hazard) as C_Hazard
+	hazard.definition = effect.definition
+	var profile: DEF_BloodArea = hazard.definition as DEF_BloodArea
+	var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
+	lifetime.remaining_seconds = 17.0
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	var invalid: Dictionary = snapshot.duplicate(true)
+	for record: Dictionary in invalid.entities:
+		var components: Array = record.components as Array
+		for data: Dictionary in components.duplicate():
+			if String(data.type) == C_BloodArea.resource_path:
+				components.erase(data)
+	assert_false(WorldSnapshotService.restore(invalid, _root))
+	assert_eq(lifetime.remaining_seconds, 17.0)
+	var shape: SphereShape3D = SphereShape3D.new()
+	shape.radius = 0.1
+	effect.get_shape().shape = shape
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq((effect.get_shape().shape as SphereShape3D).radius, profile.radius)
+	assert_eq(lifetime.remaining_seconds, 17.0)
+	var effect_id: String = effect.id
+	_world.remove_entity(effect)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	effect = _world.get_entity_by_id(effect_id) as E_BloodArea
+	assert_not_null(effect)
+	if effect != null:
+		assert_true(effect.has_component(C_BloodArea))
+		assert_false(effect.has_component(C_ToxicArea))
+		assert_eq((effect.get_shape().shape as SphereShape3D).radius, profile.radius)
+		assert_eq(
+			(effect.get_component(C_HazardLifetime) as C_HazardLifetime).remaining_seconds,
+			17.0,
+		)
+
+
 func _hazard(path: String, persistent: bool) -> Entity:
 	var entity: Entity = (load(path) as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()

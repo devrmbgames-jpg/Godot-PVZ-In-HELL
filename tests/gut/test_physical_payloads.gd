@@ -63,6 +63,7 @@ func before_each() -> void:
 	_world.add_observer(O_Damage.new())
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ToxicAreaSetup.new())
+	_world.add_observer(O_BloodAreaSetup.new())
 	_world.add_observer(O_ExplosionSetup.new())
 	_world.add_observer(O_HazardEmitter.new())
 	_world.add_observer(O_RemoveOnHealthDepleted.new())
@@ -149,7 +150,15 @@ func _throw_flask(item: Entity) -> void:
 #region Authored catalog and break boundary
 ## Five payloads share explicit break policy and retain physical-only storage semantics.
 func test_payload_catalog_is_physical_destructible_and_uses_shared_capabilities() -> void:
-	for key: String in ["fire_flask", "toxin_flask", "reagent_flask", "acid_barrel", "fire_barrel"]:
+	for key: String in [
+		"fire_flask",
+		"toxin_flask",
+		"reagent_flask",
+		"acid_barrel",
+		"fire_barrel",
+		"blood_flask",
+		"blood_barrel",
+	]:
 		var item: Entity = _item(key)
 		var body: RigidBody3D = item as Node as RigidBody3D
 		var large: bool = key.ends_with("barrel")
@@ -218,6 +227,53 @@ func test_each_payload_breaks_once_and_preserves_actor_origin_and_effect_type() 
 		assert_eq(_world.query.with_all([C_Hazard]).execute().size(), index + 1)
 
 
+## Both blood payloads spawn one attributed native stimulus with no direct health behavior.
+func test_blood_payloads_spawn_non_damaging_zones_with_larger_barrel_tuning() -> void:
+	_world.add_system(S_ToxicArea.new())
+	_world.add_system(S_HazardLifetime.new())
+	var recorder: DamageRecorder = DamageRecorder.new()
+	_world.add_observer(recorder)
+	var flask_profile: DEF_BloodArea = load(
+		"res://content/domains/hazards/definitions/def_blood_spill.tres"
+	) as DEF_BloodArea
+	var barrel_profile: DEF_BloodArea = load(
+		"res://content/domains/hazards/definitions/def_blood_pool.tres"
+	) as DEF_BloodArea
+	assert_gt(barrel_profile.radius, flask_profile.radius)
+	assert_gt(barrel_profile.lifetime_seconds, flask_profile.lifetime_seconds)
+	for key: String in ["blood_flask", "blood_barrel"]:
+		var item: Entity = _item(key)
+		var source_id: String = item.id
+		_break(item)
+		var effects: Array[Entity] = _world.query.with_all([C_Hazard, C_BloodArea]).execute()
+		assert_eq(effects.size(), 1)
+		var effect: E_BloodArea = effects[0] as E_BloodArea
+		var hazard: C_Hazard = effect.get_component(C_Hazard) as C_Hazard
+		var profile: DEF_BloodArea = hazard.definition as DEF_BloodArea
+		assert_eq(hazard.origin_id, source_id)
+		assert_eq(hazard.instigator_id, _actor.id)
+		assert_eq(hazard.instigator, _actor)
+		assert_false(EntityAvailability.contains(item, _world))
+		assert_false(effect.has_component(C_ToxicArea))
+		assert_false(effect.has_component(C_Explosion))
+		assert_eq((effect.get_shape().shape as SphereShape3D).radius, profile.radius)
+		assert_eq((effect.get_visual().mesh as CylinderMesh).top_radius, profile.radius)
+		_actor.global_position = Vector3(0.5, 0.0, 0.0)
+		for frame: int in 3:
+			await get_tree().physics_frame
+			await get_tree().process_frame
+		assert_true(effect.get_area().overlaps_body(_actor as Node as PhysicsBody3D))
+		recorder.results.clear()
+		_world.process(1.0)
+		assert_eq((_actor.get_component(C_Health) as C_Health).current, 100.0)
+		assert_true(recorder.results.is_empty(), "Blood issues neither damage nor heal requests")
+		var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
+		assert_eq(lifetime.remaining_seconds, profile.lifetime_seconds - 1.0)
+		_world.process(lifetime.remaining_seconds)
+		assert_true(_world.query.with_all([C_BloodArea]).execute().is_empty())
+		assert_true(recorder.results.is_empty())
+
+
 ## A collar has real inert handheld value without accidental melee or break effects.
 func test_slave_collar_is_a_physical_valuable_without_extra_effects() -> void:
 	var scene: PackedScene = load("res://content/domains/inventory/entities/slave_collar.tscn")
@@ -238,6 +294,15 @@ func test_slave_collar_is_a_physical_valuable_without_extra_effects() -> void:
 #region Contact attribution and native hazard execution
 ## A real Jolt contact from a released throw breaks the flask and registers one attributed hazard.
 func test_native_thrown_flask_floor_contact_spawns_one_attributed_fire_hazard() -> void:
+	await _check_native_thrown_flask("fire_flask")
+
+
+## Blood uses the identical native throw/break boundary while retaining a non-damaging profile.
+func test_native_thrown_blood_flask_spawns_one_attributed_non_damaging_zone() -> void:
+	await _check_native_thrown_flask("blood_flask")
+
+
+func _check_native_thrown_flask(key: String) -> void:
 	_world.add_system(S_Impact.new())
 	var floor: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
@@ -247,7 +312,7 @@ func test_native_thrown_flask_floor_contact_spawns_one_attributed_fire_hazard() 
 	floor.add_child(collision)
 	_world.add_child(floor)
 	floor.global_position = Vector3(-5.5, -0.25, 0.0)
-	var item: Entity = _item("fire_flask", _actor.right_hand_slot.global_position)
+	var item: Entity = _item(key, _actor.right_hand_slot.global_position)
 	_actor.interaction_ray_cast.global_position = (
 		(item as Node as Node3D).global_position + Vector3.BACK
 	)
@@ -271,7 +336,12 @@ func test_native_thrown_flask_floor_contact_spawns_one_attributed_fire_hazard() 
 	var hazard: C_Hazard = effects[0].get_component(C_Hazard) as C_Hazard
 	assert_eq(hazard.origin_id, origin_id)
 	assert_eq(hazard.instigator_id, _actor.id)
-	assert_eq((hazard.definition as DEF_ToxicArea).damage_type, DamageRequest.Type.FIRE)
+	if key == "blood_flask":
+		assert_true(hazard.definition is DEF_BloodArea)
+		assert_true(effects[0].has_component(C_BloodArea))
+		assert_false(effects[0].has_component(C_ToxicArea))
+	else:
+		assert_eq((hazard.definition as DEF_ToxicArea).damage_type, DamageRequest.Type.FIRE)
 	for frame: int in 6:
 		await get_tree().physics_frame
 		_world.process(1.0 / 60.0)

@@ -102,10 +102,13 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 			if (
 				not HazardProfileRules.valid(profile)
 				or (entity is E_ToxicArea and not profile is DEF_ToxicArea)
+				or (entity is E_BloodArea and not profile is DEF_BloodArea)
 				or (entity is E_Explosion and not profile is DEF_Explosion)
 			):
 				return false
 		if entity is E_ToxicArea and not saved_types.has(C_ToxicArea):
+			return false
+		if entity is E_BloodArea and not saved_types.has(C_BloodArea):
 			return false
 		if entity is E_Explosion and not saved_types.has(C_Explosion):
 			return false

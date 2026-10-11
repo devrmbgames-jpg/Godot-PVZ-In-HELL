@@ -14,9 +14,9 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 ### Current
 
 Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
-Reviewed checkpoint: `e505d83e96a6eccbb5f4968c09a52125f1d50b0e`.
-Thirteen of 15 items have native MCP-authored RigidBody scenes and focused evidence:
-bones, axe, scythe, knife, three reagent flasks, acid/fire barrels, collar, chains and two artifacts.
+Reviewed checkpoint: `359dcd02c2c6f373df923d8e47db1716815fa554`.
+All 15 items have native MCP-authored RigidBody scenes and focused evidence, including
+bones, weapons, reagent/blood flasks, barrels, collar, chains and both artifacts.
 Categories remain separate from capabilities; PHYSICAL purchases/deliveries materialize
 native bodies and cannot become virtual stacks. Existing furniture courier policy stays.
 Shared sweep keeps default one target; scythe permits four with synchronous cancellation.
@@ -24,7 +24,7 @@ Breakable payloads reuse C_Health/impact/emitter/retirement and the existing haz
 A contact snapshot preserves thrower identity across both directions and synchronous free.
 Reagent explosion uses IMPACT HP damage with a separate native radial impulse.
 Authored contact damage reuses System episode ownership, bypasses impact protection,
-rejects resting contacts and never cuts its physical holder. Two blood items remain.
+rejects resting contacts and never cuts its physical holder.
 Player karma is now a combat-owned C_Karma with KarmaService as its explicit runtime writer.
 Persistence alone restores its validated SAVE_FIELDS; authored thresholds are strict and
 their boundary values neutral. Native player Trait survives main-level component overrides.
@@ -34,9 +34,11 @@ C_ReceiverTraits chooses creature damage/heal, with player karma taking preceden
 All HP changes pass through DamageRequest/O_Damage, with resistance, source veto,
 held/thrown actor attribution and queued lifetime checks. Artifact clocks restart with
 a full interval after reconstruction; no pending health request is restored.
-Blood stimulus, two blood items and final catalog smoke remain unfinished.
+Blood payloads spawn a typed non-damaging C_BloodArea/DEF_BloodArea through the existing
+factory; barrel tuning has a larger radius and TTL. Native geometry and marker/TTL restore
+through the existing passive boundary. NPC blood stimulus and final catalog smoke remain unfinished.
 
-Next: blood stimulus and remaining two physical items, then final catalog smoke.
+Next: perceived blood stimulus and final catalog smoke; NPC composition follows in R26.2.
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
@@ -90,12 +92,21 @@ Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7
   Initial pickup fixture aimed an oblique ray that gameplay correctly reset; fixed to
   the actual forward interaction ray. Review target
   `0665c83e12f451806b6e844fcc699774ee34d5a7`: RV-001 identified, 106 s.
-  RV-001/P1: reused artifact retained transient clock during restore. Accepted and fixed
+  RV-001/P1: reused artifact retained transient clock during restore. FIXED
+  (`359dcd02c2c6f373df923d8e47db1716815fa554`, GUT33/33,407)
   at the existing reconstruction boundary with explicit passive restore permission.
   GUT33/33 `gut-20261011-184758090.stdout.log` verifies existing/fresh artifact clocks
   reset to zero, next 0.1 s stays incomplete, rejected snapshot preserves 0.9 s.
   First run exposed unregistered new blood classes; native MCP class scan resolved it.
-  Fix checkpoint re-review pending commit; artifact milestone remains REVIEW_PENDING.
+  Targeted fix re-review: no findings, ARCHITECTURE/STYLE PASS, 16 s; VALIDATION NOT_RUN.
+  Fix parser2/2 `parsefiles-20261011-184906734.stdout.log` PASS.
+- PASS blood foundation: parser11/11 `parsefiles-20261011-185512611.stdout.log`;
+  payload10/10,233 `gut-20261011-185450268.stdout.log`;
+  persistent runtime23/23,226 `gut-20261011-185403337.stdout.log`; formatter11 and
+  strict architecture/domain structure/dependencies/project checks. Native Jolt blood
+  throw/floor break, one attributed zone, native overlaps without HP requests, TTL expiry,
+  larger barrel tuning, missing-marker rejection and fresh/reused geometry reconstruction.
+  Blood foundation checkpoint review pending commit; behavioral stimulus remains NOT_RUN.
 - MCP native scene/resource saves used throughout. Loaded script hot reload error43:
   NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
 - NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.
