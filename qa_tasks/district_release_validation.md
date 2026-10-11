@@ -7,8 +7,10 @@ Owning task: [итоговая интеграция и Windows QA](../agent_task
 Manifest: `.export/windows/20261011-165403Z-4cec6443-district-release/build_info.json`.
 Windows export, headless startup меню и основного уровня PASS. Источник: checkpoint
 `4cec64434b4937a2f032806d56c3952792687efd` + dirty worktree с сохранёнными пользовательскими
-изменениями; это не immutable snapshot. Connected acceptance и final targeted review
-ещё открыты; rendered owner QA NOT_RUN. Launcher: `.export/LATEST.cmd`.
+изменениями; это не immutable snapshot. Connected native write/restore и targeted review
+PASS на code checkpoint `0f2d65b980c53a22337736e6b5b9b2cbf07bcc42`.
+Write wrapper FAIL по известному shutdown-only retention; rendered owner QA NOT_RUN.
+Launcher: `.export/LATEST.cmd`.
 
 Проводит владелец в отдельном QA-профиле. Автоматические headless checks не подтверждают
 удобство, читаемость, анимации, маршруты в кадре или субъективное поведение NPC.
@@ -26,6 +28,8 @@ Windows export, headless startup меню и основного уровня PAS
   проходе следующие два NPC подготовлены, ожидание не превышает согласованные 10 секунд.
   Проверить световое предупреждение, ограниченное мерцание и конечное ожидание по
   [NPC-чеклисту](district_npc_stage_acceptance.md); прерывание не оставляет NPC занятым навсегда.
+  Проверить штатный авторский 60-секундный timeout без вмешательства опасности:
+  автоматический connected smoke использовал поддерживаемую 5-секундную test-only настройку.
 - [ ] В терминале записать заметку, прочитать жалобу и уведомление. Получить и принять
   предложение доставки, проверить личный торг/отказ и выполнить реальную передачу коробки.
   Использовать [терминал](district_terminal_delivery_actions.md),

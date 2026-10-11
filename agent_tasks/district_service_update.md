@@ -1,6 +1,6 @@
 # Обслуживание района — NPC, терминал, предметы и утренняя машина
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -13,10 +13,10 @@ Status: **IN_PROGRESS**
 ### Current
 
 Этапы 1–3 завершены по реализации и автоматической приёмке; evidence и ручные пункты
-принадлежат архивным задачам ниже. Этап 4 — IN_PROGRESS: машина и входящая партия
+принадлежат архивным задачам ниже. Этап 4 — OWNER_QA: машина и входящая партия
 подключены; общий gate разгрузки и конечный lifecycle уже существуют в текущем коде.
 Обратный груз для физических Entity и raw/scriptless тел подключён; source review/triage
-и targeted repairs завершены. Схема сохранения уже 12; итоговая интеграция открыта.
+и targeted repairs завершены. Схема сохранения уже 12; итоговая автоматическая интеграция принята.
 
 Gate разгрузки и [обратный груз](district_truck_returns_resale.md) прошли автоматическую
 приёмку и independent review/triage; их обязательная ручная приёмка остаётся OWNER_QA.
@@ -25,7 +25,10 @@ independent review/triage в [своей задаче](district_save_schema_3.md
 Собственные вспомогательные snapshots вынесены из `.bin` без удаления evidence.
 Scanner repair RV-001, проверки и targeted re-review закрыты в
 [задаче инструментов](completed/district_bin_cleanup.md).
-Следующее действие — [итоговая интеграция и Windows QA](district_release_validation.md).
+Итоговая [интеграция и Windows QA](district_release_validation.md) завершена по автоматическим
+gates/review: native write/restore PASS, runnable export/headless startup PASS;
+wrapper shutdown-only diagnostics DEFERRED. Следующее действие в этой задаче —
+обязательная owner QA по связному чеклисту и связанным gate/cargo/save сценариям.
 
 ### Validation
 
