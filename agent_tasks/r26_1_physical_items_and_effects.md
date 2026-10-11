@@ -1,5 +1,5 @@
 # R26.1 — Physical item framework and requested catalog
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -13,14 +13,28 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 
 ### Current
 
-PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
-in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
-The 2026-10-10 audit updates specification only.
+Implementation baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
+Initial batch appends ACID/HOLY/UNHOLY after existing damage values 0..7 and adds
+integration coverage for independent resistance, committed feedback and HEAL bypass.
+No receiver eligibility, karma, new catalog scene or hazard execution is claimed yet.
+
+Next: authored item category/capability definitions and receiver/karma ownership,
+then physical catalog and shared payload/contact execution. Preserve the contracts
+in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
 
-NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
-[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+- PASS: initial damage contract batch, native Godot 4.7.1 parser 3/3;
+  `.artifacts/godot_agent/parsefiles-20261011-171357080.stdout.log`.
+- PASS: focused damage feedback GUT 8/8;
+  `.artifacts/godot_agent/gut-20261011-171353779.stdout.log`.
+  Regression found and fixed the eight-entry warning-name table before acceptance.
+- PASS: incremental formatter/role naming (3 scripts), architecture strict.
+- MCP edits used native script patching. Tests reloaded without diagnostics;
+  loaded DamageRequest and HUD script hot reload returned error 43, so live reload
+  is NOT_PASS. Fresh-process native parser/GUT passed; editor log gained no new entries.
+- NOT_RUN: full item/hazard/inventory catalog acceptance and physical smoke.
+  Initial damage contract batch does not close R26.1.
 
 ### Owner QA / blockers
 

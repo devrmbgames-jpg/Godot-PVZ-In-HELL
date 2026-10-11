@@ -70,6 +70,70 @@ func _submit(
 
 
 #region Снимки урона и освобождение UI
+## Старые числовые значения остаются совместимыми с authored сопротивлением и снимками.
+func test_existing_damage_type_values_remain_compatible() -> void:
+	var legacy_types: Array[int] = [
+		DamageRequest.Type.GENERIC,
+		DamageRequest.Type.MELEE,
+		DamageRequest.Type.IMPACT,
+		DamageRequest.Type.EXPLOSION,
+		DamageRequest.Type.TOXIC,
+		DamageRequest.Type.LIQUID,
+		DamageRequest.Type.PROJECTILE,
+		DamageRequest.Type.FIRE,
+	]
+	assert_eq(legacy_types, [0, 1, 2, 3, 4, 5, 6, 7])
+
+
+## Новые семантические типы используют обычный расчёт сопротивления и подтверждённый feedback.
+func test_semantic_damage_types_apply_independent_resistance_and_publish_actual_damage() -> void:
+	var resistance: C_DamageResistance = C_DamageResistance.new()
+	resistance.multipliers = {
+		DamageRequest.Type.ACID: 0.0,
+		DamageRequest.Type.HOLY: 0.5,
+		DamageRequest.Type.UNHOLY: 2.0,
+	}
+	_player.add_component(resistance)
+	_submit(DamageRequest.Type.ACID, 10.0)
+	assert_eq((_player.get_component(C_Health) as C_Health).current, 100.0)
+	assert_true(_received.is_empty(), "Immunity publishes no applied damage feedback")
+
+	_submit(DamageRequest.Type.HOLY, 10.0)
+	assert_eq((_player.get_component(C_Health) as C_Health).current, 95.0)
+	assert_eq(_received.size(), 1)
+	assert_eq(_received[0].damage_type, DamageRequest.Type.HOLY)
+	assert_eq(_received[0].amount, 5.0)
+	assert_true((_view.get_node("Warning") as Label).text.contains("Святая сила"))
+
+	_submit(DamageRequest.Type.UNHOLY, 10.0)
+	assert_eq((_player.get_component(C_Health) as C_Health).current, 75.0)
+	assert_eq(_received.size(), 2)
+	assert_eq(_received[1].damage_type, DamageRequest.Type.UNHOLY)
+	assert_eq(_received[1].amount, 20.0)
+	assert_true((_view.get_node("Warning") as Label).text.contains("Нечистая сила"))
+
+	resistance.multipliers[DamageRequest.Type.ACID] = 1.0
+	_submit(DamageRequest.Type.ACID, 10.0)
+	assert_eq((_player.get_component(C_Health) as C_Health).current, 65.0)
+	assert_eq(_received.size(), 3)
+	assert_eq(_received[2].damage_type, DamageRequest.Type.ACID)
+	assert_eq(_received[2].amount, 10.0)
+	assert_true((_view.get_node("Warning") as Label).text.contains("Кислота"))
+
+
+## Лечение UNHOLY проходит через O_Damage, игнорирует сопротивление и ограничено максимумом HP.
+func test_unholy_healing_bypasses_damage_resistance_and_does_not_publish_damage_feedback() -> void:
+	_submit(DamageRequest.Type.IMPACT, 20.0)
+	_received.clear()
+	var resistance: C_DamageResistance = C_DamageResistance.new()
+	resistance.multipliers = {DamageRequest.Type.UNHOLY: 0.0}
+	_player.add_component(resistance)
+
+	_submit(DamageRequest.Type.UNHOLY, 50.0, _player, null, DamageRequest.Operation.HEAL)
+	assert_eq((_player.get_component(C_Health) as C_Health).current, 100.0)
+	assert_true(_received.is_empty())
+
+
 ## Применённый урон передаёт снимок; токсичность и взрыв имеют разные предупреждения и звук.
 func test_applied_hit_snapshot_and_toxic_explosion_warnings_use_distinct_feedback() -> void:
 	_submit(DamageRequest.Type.TOXIC)

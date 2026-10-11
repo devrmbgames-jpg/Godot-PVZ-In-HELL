@@ -17,6 +17,10 @@ enum Type {
 	LIQUID,
 	PROJECTILE,
 	FIRE,
+	# Append semantic types; preserve serialized GENERIC..FIRE values 0..7.
+	ACID,
+	HOLY,
+	UNHOLY,
 }
 
 ## Участник, вызвавший действие; не обязательно совпадает с повреждающим телом.

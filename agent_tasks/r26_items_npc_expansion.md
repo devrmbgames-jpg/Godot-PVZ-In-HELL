@@ -1,5 +1,5 @@
 # R26 — Physical items and modular NPC archetypes
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -21,18 +21,20 @@ This root task owns overall status/current/next. Each supporting task owns its o
 
 ### Current
 
-PLANNED; no R26 implementation or acceptance is claimed. The task audit on 2026-10-10
-uses current vertical domains, direct Entity Traits and save schema 12 as its baseline.
-Existing NPCs already use decomposed native BTs; R26 extends this execution model.
+R26.1 is in progress from baseline `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`.
+The first batch appends ACID/HOLY/UNHOLY to the existing damage request contract;
+the physical catalog, receiver/karma selection and NPC milestones remain unfinished.
+Current vertical domains, direct Entity Traits and save schema 12 remain authoritative.
 
 ### Next
 
-Start with R26.1. Stabilize shared item tags/effects and R26.2 data before archetype behavior.
-This documentation audit does not start gameplay implementation.
+Continue R26.1 shared item categories, receiver/karma rules and native physical catalog.
+Stabilize shared item tags/effects and R26.2 data before archetype behavior.
 
 ### Validation
 
-Specification only; no R26 engine/gameplay tests run. Future milestones use
+Initial R26.1 semantic damage batch has focused parser/GUT evidence in its owning task.
+Full item and NPC acceptance remains NOT_RUN. Milestones use
 [validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and immutable-SHA
 [review-orchestration](../.agents/skills/review-orchestration/SKILL.md) before DONE.
 
