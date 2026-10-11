@@ -140,6 +140,14 @@ func _resolve_direction(
 	if _held_pair(source, target) or _held_pair(target, source):
 		return
 
+	var contact_config: C_ContactDamage = (
+		source.get_component(C_ContactDamage) as C_ContactDamage if source != null else null
+	)
+	if contact_config != null:
+		if ContactDamageRules.qualifies(contact_config, contact):
+			_submit_contact_damage(source, target, contact_config, source_throw)
+		return
+
 	var receiver: C_ImpactReceiver = target.get_component(C_ImpactReceiver) as C_ImpactReceiver
 	if receiver == null:
 		return
@@ -196,6 +204,28 @@ func _resolve_direction(
 	request.damage_type = DamageRequest.Type.IMPACT
 	DamageRequestService.submit(request)
 	_world.emit_event(ImpactResult.EVENT, target, result)
+
+
+func _submit_contact_damage(
+	source: Entity,
+	target: Entity,
+	config: C_ContactDamage,
+	throw_origin: ImpactThrowAttribution,
+) -> void:
+	var request: DamageRequest = DamageRequest.new()
+	request.source = source
+	request.target = target
+	request.amount = config.damage
+	request.damage_type = config.damage_type
+	if throw_origin != null:
+		request.instigator = throw_origin.actor()
+		request.instigator_id = throw_origin.actor_id
+		ThrowContext.cancel(source)
+	else:
+		var held: Relationship = _held_relationship(source)
+		if held != null:
+			request.instigator = held.target as Entity
+	DamageRequestService.submit(request)
 #endregion
 
 

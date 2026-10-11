@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="C_ContactDamage" format=3 uid="uid://dkttryajvwiem"]
+
+[ext_resource type="Script" uid="uid://d0pcfkn24tj0d" path="res://content/domains/combat/components/c_contact_damage.gd" id="1_1phgc"]
+
+[resource]
+script = ExtResource("1_1phgc")

@@ -1,0 +1,155 @@
+[gd_scene format=3 uid="uid://bu03vohivg571"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_pwsmr"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_wc7fl"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_x1s33"]
+[ext_resource type="Resource" uid="uid://dg0ulmq7du0j2" path="res://content/domains/interaction/authoring/et_handheld_item.tres" id="4_4ug0g"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="5_1d1dt"]
+[ext_resource type="Resource" uid="uid://dkttryajvwiem" path="res://content/domains/combat/authoring/spiked_contact.tres" id="6_o8w4r"]
+[ext_resource type="Resource" uid="uid://3muueba4sykl" path="res://content/domains/combat/authoring/flask_throw_origin.tres" id="7_thrnv"]
+[ext_resource type="Resource" uid="uid://c1ajhohn4qoup" path="res://content/domains/inventory/authoring/spiked_chains_catalog.tres" id="8_qlva2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ejfnp"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="TorusMesh" id="TorusMesh_kjwqw"]
+material = SubResource("StandardMaterial3D_ejfnp")
+inner_radius = 0.06
+outer_radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_um5ip"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="TorusMesh" id="TorusMesh_71ydr"]
+material = SubResource("StandardMaterial3D_um5ip")
+inner_radius = 0.06
+outer_radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lwq6c"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="TorusMesh" id="TorusMesh_s8dof"]
+material = SubResource("StandardMaterial3D_lwq6c")
+inner_radius = 0.06
+outer_radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p3syb"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="TorusMesh" id="TorusMesh_8utj8"]
+material = SubResource("StandardMaterial3D_p3syb")
+inner_radius = 0.06
+outer_radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_n5n18"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="TorusMesh" id="TorusMesh_30tkf"]
+material = SubResource("StandardMaterial3D_n5n18")
+inner_radius = 0.06
+outer_radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wk2gp"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="TorusMesh" id="TorusMesh_wcqa5"]
+material = SubResource("StandardMaterial3D_wk2gp")
+inner_radius = 0.06
+outer_radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jax1o"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pmyl4"]
+material = SubResource("StandardMaterial3D_jax1o")
+top_radius = 0.0
+bottom_radius = 0.04
+height = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ea4mj"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vrybu"]
+material = SubResource("StandardMaterial3D_ea4mj")
+top_radius = 0.0
+bottom_radius = 0.04
+height = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nkb88"]
+albedo_color = Color(0.46666667, 0.49411765, 0.53333336, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_fvx58"]
+material = SubResource("StandardMaterial3D_nkb88")
+top_radius = 0.0
+bottom_radius = 0.04
+height = 0.1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0ldv1"]
+size = Vector3(0.98, 0.36, 0.18)
+
+[node name="SpikedChains" type="RigidBody3D" unique_id=1384680910]
+collision_layer = 10
+collision_mask = 31
+mass = 1.2
+continuous_cd = true
+script = ExtResource("1_pwsmr")
+traits = Array[ExtResource("2_wc7fl")]([ExtResource("3_x1s33"), ExtResource("4_4ug0g")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("5_1d1dt")]([ExtResource("6_o8w4r"), ExtResource("7_thrnv"), ExtResource("8_qlva2")])
+
+[node name="Link1" type="MeshInstance3D" parent="." unique_id=118777079]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0, 0)
+mesh = SubResource("TorusMesh_kjwqw")
+
+[node name="Link2" type="MeshInstance3D" parent="." unique_id=2107504277]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.24, 0, 0)
+mesh = SubResource("TorusMesh_71ydr")
+
+[node name="Link3" type="MeshInstance3D" parent="." unique_id=1414858882]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0, 0)
+mesh = SubResource("TorusMesh_s8dof")
+
+[node name="Link4" type="MeshInstance3D" parent="." unique_id=265367436]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.08, 0, 0)
+mesh = SubResource("TorusMesh_8utj8")
+
+[node name="Link5" type="MeshInstance3D" parent="." unique_id=1475209224]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24, 0, 0)
+mesh = SubResource("TorusMesh_30tkf")
+
+[node name="Link6" type="MeshInstance3D" parent="." unique_id=481766928]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.4, 0, 0)
+mesh = SubResource("TorusMesh_wcqa5")
+
+[node name="Spike1" type="MeshInstance3D" parent="." unique_id=2013774839]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.32, 0.12, 0)
+mesh = SubResource("CylinderMesh_pmyl4")
+
+[node name="Spike2" type="MeshInstance3D" parent="." unique_id=1091854906]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, 0, -0.12, 0)
+mesh = SubResource("CylinderMesh_vrybu")
+
+[node name="Spike3" type="MeshInstance3D" parent="." unique_id=1430094531]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.32, 0.12, 0)
+mesh = SubResource("CylinderMesh_fvx58")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=145611019]
+shape = SubResource("BoxShape3D_0ldv1")

@@ -14,16 +14,18 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 ### Current
 
 Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
-Weapon checkpoint: `e07ae9f016acb942079f57fe61348ddb46cdc6ac`, independently reviewed.
-Ten of 15 items now have native MCP-authored RigidBody scenes and focused evidence:
-bones, axe, scythe, knife, three reagent flasks, acid/fire barrels and slave collar.
+Reviewed payload checkpoint: `20497d37158d8d29943db36a2142c599a1022b91`.
+Eleven of 15 items have native MCP-authored RigidBody scenes and focused evidence:
+bones, axe, scythe, knife, three reagent flasks, acid/fire barrels, collar and spiked chains.
 Categories remain separate from capabilities; PHYSICAL purchases/deliveries materialize
 native bodies and cannot become virtual stacks. Existing furniture courier policy stays.
 Shared sweep keeps default one target; scythe permits four with synchronous cancellation.
 Breakable payloads reuse C_Health/impact/emitter/retirement and the existing hazard factory.
 A contact snapshot preserves thrower identity across both directions and synchronous free.
 Reagent explosion uses IMPACT HP damage with a separate native radial impulse.
-Receiver eligibility, karma, blood and chains remain unfinished; five items remain.
+Authored contact damage reuses System episode ownership, bypasses impact protection,
+rejects resting contacts and never cuts its physical holder. Four items remain.
+Receiver eligibility, karma and blood remain unfinished.
 
 Next: remaining artifact/blood/contact capabilities and catalog, then final catalog smoke.
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
@@ -56,7 +58,12 @@ Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7
   `gut-20261011-180645765.stdout.log`.
 - Reviews use consecutive immutable SHA ranges, ARCHITECTURE/STYLE PASS,
   reviewer VALIDATION NOT_RUN; serial/token comparison NOT_MEASURED.
-  Payload checkpoint review pending commit.
+  Payload review to `20497d37158d8d29943db36a2142c599a1022b91`: no findings, 135 s.
+- PASS chains: native parser4/4 `parsefiles-20261011-181801371.stdout.log`; GUT6/6
+  `gut-20261011-181727375.stdout.log`, including native collision/resting and episode
+  separation, held/source veto and attribution. Formatter4 and strict/static checks PASS.
+  Payload8/8 regression `gut-20261011-181810657.stdout.log` and melee15/15
+  `gut-20261011-181820090.stdout.log` PASS. Chain checkpoint review pending commit.
 - MCP native scene/resource saves used throughout. Loaded script hot reload error43:
   NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
 - NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.
