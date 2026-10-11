@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="C_Grabbable" format=3 uid="uid://cpqm5k0x82j0t"]
+
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/domains/interaction/components/c_grabbable.gd" id="1_rdtpn"]
+
+[resource]
+script = ExtResource("1_rdtpn")
+throw_velocity = 3.0

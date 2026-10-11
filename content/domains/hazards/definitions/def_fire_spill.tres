@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DEF_ToxicArea" format=3 uid="uid://c1np27in8oqiv"]
+
+[ext_resource type="Script" uid="uid://3pmdek12dmb" path="res://content/domains/hazards/definitions/def_toxic_area.gd" id="1_wkqjg"]
+
+[resource]
+script = ExtResource("1_wkqjg")
+radius = 2.5
+tick_seconds = 1.0
+damage_per_tick = 8.0
+damage_type = 7
+lifetime_seconds = 30.0
+key = &"fire_spill"

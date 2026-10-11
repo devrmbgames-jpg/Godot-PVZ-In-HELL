@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://csvbrnxj46qq7"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_op1fr"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_2svbo"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_lcfvx"]
+[ext_resource type="Resource" uid="uid://difb768lxcwuj" path="res://content/domains/hazards/authoring/et_breakable_item.tres" id="4_ategm"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="5_u66nr"]
+[ext_resource type="Resource" uid="uid://d18v6b21bv4o8" path="res://content/domains/inventory/authoring/fire_barrel_catalog.tres" id="6_w75e5"]
+[ext_resource type="Resource" uid="uid://dqk6vkx02kwsl" path="res://content/domains/combat/authoring/barrel_health.tres" id="7_qgv0i"]
+[ext_resource type="Resource" uid="uid://k3s7s4qscqrm" path="res://content/domains/combat/authoring/barrel_impact_receiver.tres" id="8_m2b0f"]
+[ext_resource type="Resource" uid="uid://pctq2dj1u1xr" path="res://content/domains/hazards/authoring/fire_barrel_emitter.tres" id="9_vu5gr"]
+[ext_resource type="Resource" uid="uid://cpqm5k0x82j0t" path="res://content/domains/interaction/authoring/large_item_grip.tres" id="10_ih1ap"]
+[ext_resource type="Resource" uid="uid://cx450alhvxt1r" path="res://content/domains/interaction/authoring/item_interactable.tres" id="11_qq5k1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_26ft2"]
+albedo_color = Color(0.7372549, 0.3882353, 0.23137255, 1)
+roughness = 0.65
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_xktnm"]
+top_radius = 0.4
+bottom_radius = 0.4
+height = 1.0
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_tbojh"]
+height = 1.0
+radius = 0.4
+
+[node name="FireBarrel" type="RigidBody3D" unique_id=173225210]
+collision_layer = 10
+collision_mask = 31
+mass = 18.0
+continuous_cd = true
+script = ExtResource("1_op1fr")
+traits = Array[ExtResource("2_2svbo")]([ExtResource("3_lcfvx"), ExtResource("4_ategm")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("5_u66nr")]([ExtResource("6_w75e5"), ExtResource("7_qgv0i"), ExtResource("8_m2b0f"), ExtResource("9_vu5gr"), ExtResource("10_ih1ap"), ExtResource("11_qq5k1")])
+
+[node name="BodyMesh" type="MeshInstance3D" parent="." unique_id=887376061]
+material_override = SubResource("StandardMaterial3D_26ft2")
+mesh = SubResource("CylinderMesh_xktnm")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1044927629]
+shape = SubResource("CylinderShape3D_tbojh")

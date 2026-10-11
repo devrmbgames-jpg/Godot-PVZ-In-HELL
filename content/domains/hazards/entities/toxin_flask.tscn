@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://pvddel44o7w3"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_k366q"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_ksh6n"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_is6u2"]
+[ext_resource type="Resource" uid="uid://dg0ulmq7du0j2" path="res://content/domains/interaction/authoring/et_handheld_item.tres" id="4_5u0mi"]
+[ext_resource type="Resource" uid="uid://difb768lxcwuj" path="res://content/domains/hazards/authoring/et_breakable_item.tres" id="5_ribkg"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="6_baqf4"]
+[ext_resource type="Resource" uid="uid://dyx7b8v76ful0" path="res://content/domains/inventory/authoring/toxin_flask_catalog.tres" id="7_p0d4j"]
+[ext_resource type="Resource" uid="uid://yqtg58kxte11" path="res://content/domains/combat/authoring/flask_health.tres" id="8_5i1er"]
+[ext_resource type="Resource" uid="uid://c3j0icusmolrk" path="res://content/domains/combat/authoring/fragile_item_receiver.tres" id="9_lr65n"]
+[ext_resource type="Resource" uid="uid://eb4h270ukp1w" path="res://content/domains/hazards/authoring/toxin_flask_emitter.tres" id="10_y00px"]
+[ext_resource type="Resource" uid="uid://3muueba4sykl" path="res://content/domains/combat/authoring/flask_throw_origin.tres" id="11_7100p"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d00ts"]
+albedo_color = Color(0.40784314, 0.7490196, 0.20784314, 0.8)
+roughness = 0.65
+
+[sub_resource type="SphereMesh" id="SphereMesh_hlyik"]
+radius = 0.15
+height = 0.3
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_so4n6"]
+radius = 0.15
+
+[node name="ToxinFlask" type="RigidBody3D" unique_id=1814135107]
+collision_layer = 10
+collision_mask = 31
+mass = 0.4
+continuous_cd = true
+script = ExtResource("1_k366q")
+traits = Array[ExtResource("2_ksh6n")]([ExtResource("3_is6u2"), ExtResource("4_5u0mi"), ExtResource("5_ribkg")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("6_baqf4")]([ExtResource("7_p0d4j"), ExtResource("8_5i1er"), ExtResource("9_lr65n"), ExtResource("10_y00px"), ExtResource("11_7100p")])
+
+[node name="BodyMesh" type="MeshInstance3D" parent="." unique_id=1157877998]
+material_override = SubResource("StandardMaterial3D_d00ts")
+mesh = SubResource("SphereMesh_hlyik")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1748336108]
+shape = SubResource("SphereShape3D_so4n6")

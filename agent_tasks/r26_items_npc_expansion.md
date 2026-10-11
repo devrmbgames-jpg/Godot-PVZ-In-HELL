@@ -25,8 +25,10 @@ R26.1 is in progress from baseline `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`.
 ACID/HOLY/UNHOLY append compatibly; six shopping categories and physical catalog
 storage share existing damage/inventory/commerce authorities. Bones, axe, scythe
 and throwing knife have native authored scenes and focused regression evidence.
+Three reagent flasks, acid/fire barrels and a slave collar extend the catalog to ten items.
+Break payloads share the existing emitter/factory and preserve captured throw attribution.
 Shared sweep supports authored multi-target limits with synchronous cancellation.
-The remaining 11 items, receiver/karma selection and NPC milestones remain unfinished.
+The remaining five items, receiver/karma selection and NPC milestones remain unfinished.
 Current vertical domains, direct Entity Traits and save schema 12 remain authoritative.
 
 ### Next

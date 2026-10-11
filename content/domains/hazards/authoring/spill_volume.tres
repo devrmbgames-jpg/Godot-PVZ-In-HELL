@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="C_ToxicArea" format=3 uid="uid://cbwymilryqaoh"]
+
+[ext_resource type="Script" uid="uid://3eslsvv6pwq" path="res://content/domains/hazards/components/c_toxic_area.gd" id="1_fuqat"]
+
+[resource]
+script = ExtResource("1_fuqat")

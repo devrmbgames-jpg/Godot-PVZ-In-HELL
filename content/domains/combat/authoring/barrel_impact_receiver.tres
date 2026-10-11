@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="C_ImpactReceiver" format=3 uid="uid://k3s7s4qscqrm"]
+
+[ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="1_cfnft"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="2_8du6m"]
+
+[resource]
+script = ExtResource("2_8du6m")

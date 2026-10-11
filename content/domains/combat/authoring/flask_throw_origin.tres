@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="C_ThrowDamage" format=3 uid="uid://3muueba4sykl"]
+
+[ext_resource type="Script" uid="uid://bwytsv62wsip8" path="res://content/domains/combat/components/c_throw_damage.gd" id="1_hwa2n"]
+
+[resource]
+script = ExtResource("1_hwa2n")
+throw_damage = 0.0

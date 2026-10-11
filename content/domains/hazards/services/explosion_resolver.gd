@@ -66,7 +66,7 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 				hazard,
 				hit.target,
 				profile.damage * weight,
-				DamageRequest.Type.EXPLOSION,
+				profile.damage_type,
 			)
 
 #endregion

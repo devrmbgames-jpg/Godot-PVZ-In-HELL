@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Данные одноразового/повторного производителя автономной опасности.
 class_name C_HazardEmitter

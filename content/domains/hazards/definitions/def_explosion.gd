@@ -1,6 +1,10 @@
+@tool
 extends DEF_Hazard
 ## Авторские параметры радиального взрыва с препятствиями и физическим импульсом отдельно от HP.
 class_name DEF_Explosion
+
+## Semantic health damage is independent of explosion impulse and presentation.
+@export var damage_type: DamageRequest.Type = DamageRequest.Type.EXPLOSION
 
 ## Радиус взрыва в метрах.
 @export_range(0.1, 100.0) var radius: float = 4.0

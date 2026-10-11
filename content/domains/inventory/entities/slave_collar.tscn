@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://fbd3spngokwx"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_2y053"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_lng7o"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_v20bn"]
+[ext_resource type="Resource" uid="uid://dg0ulmq7du0j2" path="res://content/domains/interaction/authoring/et_handheld_item.tres" id="4_54pww"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="5_k1rup"]
+[ext_resource type="Resource" uid="uid://cm2exds55erxm" path="res://content/domains/inventory/authoring/slave_collar_catalog.tres" id="6_ww1np"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ux16e"]
+albedo_color = Color(0.4862745, 0.50980395, 0.54509807, 1)
+roughness = 0.65
+
+[sub_resource type="TorusMesh" id="TorusMesh_bnfa0"]
+inner_radius = 0.14
+outer_radius = 0.18
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t7nst"]
+size = Vector3(0.36, 0.08, 0.36)
+
+[node name="SlaveCollar" type="RigidBody3D" unique_id=903270576]
+collision_layer = 10
+collision_mask = 31
+mass = 0.3
+continuous_cd = true
+script = ExtResource("1_2y053")
+traits = Array[ExtResource("2_lng7o")]([ExtResource("3_v20bn"), ExtResource("4_54pww")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("5_k1rup")]([ExtResource("6_ww1np")])
+
+[node name="BodyMesh" type="MeshInstance3D" parent="." unique_id=610628347]
+material_override = SubResource("StandardMaterial3D_ux16e")
+mesh = SubResource("TorusMesh_bnfa0")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1712423222]
+shape = SubResource("BoxShape3D_t7nst")

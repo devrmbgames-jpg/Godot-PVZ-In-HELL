@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="C_RemoveOnHealthDepleted" format=3 uid="uid://c345ovig10fji"]
+
+[ext_resource type="Script" uid="uid://cpj4mbfhyt66i" path="res://content/domains/combat/components/c_remove_on_health_depleted.gd" id="1_rg2ns"]
+
+[resource]
+script = ExtResource("1_rg2ns")

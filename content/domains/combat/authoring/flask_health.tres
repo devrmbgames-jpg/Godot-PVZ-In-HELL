@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="C_Health" format=3 uid="uid://yqtg58kxte11"]
+
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="1_brqqy"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="2_cxkxe"]
+
+[resource]
+script = ExtResource("2_cxkxe")
+current = 5.0
+definition = ExtResource("1_brqqy")
+base = 5.0
+value = 5.0

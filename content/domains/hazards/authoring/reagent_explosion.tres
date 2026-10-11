@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="C_Explosion" format=3 uid="uid://bhsnhde5trc5c"]
+
+[ext_resource type="Script" uid="uid://o0wmd4xwoq" path="res://content/domains/hazards/components/c_explosion.gd" id="1_3xsjk"]
+
+[resource]
+script = ExtResource("1_3xsjk")

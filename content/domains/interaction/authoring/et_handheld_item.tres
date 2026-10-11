@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EntityTrait" format=3 uid="uid://dg0ulmq7du0j2"]
+
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_1xo2q"]
+[ext_resource type="Resource" uid="uid://cx450alhvxt1r" path="res://content/domains/interaction/authoring/item_interactable.tres" id="2_ppmtg"]
+[ext_resource type="Resource" uid="uid://dtxu2ppv8vvcj" path="res://content/domains/interaction/authoring/handheld_grip.tres" id="3_hahsd"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="4_w2dtp"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="5_37k4l"]
+
+[resource]
+script = ExtResource("5_37k4l")
+trait_id = &"handheld_item"
+component_recipes = Array[ExtResource("1_1xo2q")]([ExtResource("2_ppmtg"), ExtResource("3_hahsd")])
+required_root_class = &"RigidBody3D"

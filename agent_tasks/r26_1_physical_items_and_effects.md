@@ -13,83 +13,53 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 
 ### Current
 
-Implementation baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
-Semantic damage checkpoint: `a8c5a83f8a69256e6c1bd3daa0ae8c4208216ed9`.
-ACID/HOLY/UNHOLY append after existing values 0..7; resistance, committed feedback,
-HEAL bypass and HUD labels use the existing damage authority.
-Bones/category checkpoint: `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0`.
-It adds six independent shopping-category flags and inert VALUABLE stacks.
-Authored bones Definition, stack recipe and RigidBody pickup are saved through live MCP.
-Data-only item Definition/Component support native editor instantiation with `@tool`.
-Shared physical storage batch appends `Kind.PHYSICAL`: purchases and terminal deliveries
-materialize native bodies through the existing placement transaction; grant/transfer
-reject virtual ownership even without C_Grabbable. Marked furniture-only trader courier
-eligibility remains in its existing rule. No central item-ID dispatch was introduced.
-Storage implementation checkpoint: `c34af1d1d8d2c8dc6cfa5ef54f3215187ad6fa7e`;
-its missing commerce read-method API declaration is fixed in `4eba367f5b06073ec21737cb332178a280a1b6f9`.
-Native MCP-authored axe, scythe and throwing knife reuse one handheld/melee Trait,
-typed grip/action/attack recipes and existing impact capture. Scythe tuning enables
-four targets in the shared strike scanner; old definitions retain one nearest target.
-Synchronous strike replacement stops the old sweep before another target is hit.
-Knife throw origin and source veto use the existing live relationship/damage authority.
-Four of 15 catalog items now have authored scenes and focused regression evidence.
-No receiver eligibility, karma or new hazard execution is claimed yet; 11 items remain.
+Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
+Weapon checkpoint: `e07ae9f016acb942079f57fe61348ddb46cdc6ac`, independently reviewed.
+Ten of 15 items now have native MCP-authored RigidBody scenes and focused evidence:
+bones, axe, scythe, knife, three reagent flasks, acid/fire barrels and slave collar.
+Categories remain separate from capabilities; PHYSICAL purchases/deliveries materialize
+native bodies and cannot become virtual stacks. Existing furniture courier policy stays.
+Shared sweep keeps default one target; scythe permits four with synchronous cancellation.
+Breakable payloads reuse C_Health/impact/emitter/retirement and the existing hazard factory.
+A contact snapshot preserves thrower identity across both directions and synchronous free.
+Reagent explosion uses IMPACT HP damage with a separate native radial impulse.
+Receiver eligibility, karma, blood and chains remain unfinished; five items remain.
 
-Next: shared break payload/contact execution, remaining physical catalog and
-receiver/karma ownership. Preserve the contracts
-in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve).
+Next: remaining artifact/blood/contact capabilities and catalog, then final catalog smoke.
+Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
 
-- PASS: initial damage contract batch, native Godot 4.7.1 parser 3/3;
-  `.artifacts/godot_agent/parsefiles-20261011-171357080.stdout.log`.
-- PASS: focused damage feedback GUT 8/8;
-  `.artifacts/godot_agent/gut-20261011-171353779.stdout.log`.
-  Regression found and fixed the eight-entry warning-name table before acceptance.
-- PASS: incremental formatter/role naming (3 scripts), architecture strict.
-- PASS: independent scoped damage review from implementation baseline to
-  `a8c5a83f8a69256e6c1bd3daa0ae8c4208216ed9`; no material findings,
-  ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN; 34 seconds,
-  serial/token comparison NOT_MEASURED.
-- PASS: bones stack/inert-use GUT 16/16, 129 assertions;
-  `.artifacts/godot_agent/gut-20261011-172024637.stdout.log`.
-- PASS: physical inventory GUT including bones drop/pickup, rejected drop and
-  per-instance recipe isolation, 8/8 and 99 assertions;
-  `.artifacts/godot_agent/gut-20261011-172219843.stdout.log`.
-  New UID warnings were resolved by native editor filesystem scan before acceptance.
-- PASS: bones batch native parser 5/5, formatter/role naming 5 scripts,
-  architecture/domain structure/domain dependencies strict;
-  `.artifacts/godot_agent/parsefiles-20261011-172224170.stdout.log`.
-- PASS: independent bones/category review from damage checkpoint to
-  `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0`; no material findings,
-  ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN; 41 seconds,
-  serial/token comparison NOT_MEASURED.
-- PASS: shared physical storage batch native parser 7/7,
-  `.artifacts/godot_agent/parsefiles-20261011-172756196.stdout.log`;
-  focused inventory GUT 17/17, 135 assertions,
-  `.artifacts/godot_agent/gut-20261011-172821959.stdout.log`.
-- PASS: physical purchase/courier/arrival regression including PHYSICAL purchase
-  and terminal fulfillment, 32/32 and 414 assertions;
-  `.artifacts/godot_agent/gut-20261011-172826250.stdout.log`.
-- PASS: physical storage formatter/role naming 7 scripts, strict architecture
-  and domain structure. Initial dependency/project-structure check FAIL identified
-  the missing commerce read-method declaration; explicit API manifest fix passed
-  strict domain dependency and project-structure checks.
-  Independent storage review BASE `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0` to
-  TARGET `4eba367f5b06073ec21737cb332178a280a1b6f9`: no findings,
-  ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN; 44 seconds.
-- PASS: physical weapons/shared sweep native parser 9/9 and focused melee GUT
-  15/15, 194 assertions; `.artifacts/godot_agent/parsefiles-20261011-174642064.stdout.log`
-  and `.artifacts/godot_agent/gut-20261011-174600769.stdout.log`.
-  Native ray-hit pickup/release and throw arming are exercised; impact episode assertions
-  inject captured-contact snapshots, not a claim of native Jolt collision capture.
-- PASS: weapon formatter/role naming 9 scripts, architecture/domain structure/dependencies
-  strict and project structure. Weapon immutable-SHA review is pending its checkpoint.
-- MCP edits used native script patching. Tests reloaded without diagnostics;
-  loaded DamageRequest and HUD script hot reload returned error 43, so live reload
-  is NOT_PASS. Fresh-process native parser/GUT passed; editor log gained no new entries.
-- NOT_RUN: full item/hazard/inventory catalog acceptance and physical smoke.
-  Initial damage contract batch does not close R26.1.
+Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7.1.
+- PASS damage: parser 3/3 `parsefiles-20261011-171357080.stdout.log`;
+  GUT 8/8 `gut-20261011-171353779.stdout.log`; formatter/architecture.
+  Fixed warning-name table before acceptance. Review target `a8c5a83f8a69256e6c1bd3daa0ae8c4208216ed9`, no findings, 34 s.
+- PASS bones: parser 5/5 `parsefiles-20261011-172224170.stdout.log`;
+  stack GUT 16/16,129 `gut-20261011-172024637.stdout.log`; physical drop/isolation GUT
+  8/8,99 `gut-20261011-172219843.stdout.log`; formatter/static. Native scan fixed UID warnings.
+  Review target `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0`, no findings, 41 s.
+- PASS storage: parser 7/7 `parsefiles-20261011-172756196.stdout.log`; inventory
+  17/17,135 `gut-20261011-172821959.stdout.log`; purchase/arrival 32/32,414
+  `gut-20261011-172826250.stdout.log`; formatter/static. Initial dependency FAIL fixed
+  by explicit read-method API declaration. Review target `4eba367f5b06073ec21737cb332178a280a1b6f9`, no findings, 44 s.
+- PASS weapons: parser 9/9 `parsefiles-20261011-174642064.stdout.log`; melee
+  15/15,194 `gut-20261011-174600769.stdout.log`; formatter/static. Native ray pickup,
+  release and throw; episode tests inject contact snapshots. Weapon review no findings, 78 s.
+- PASS payload batch: parser 13/13 `parsefiles-20261011-180741444.stdout.log`;
+  GUT 8/8,169 `gut-20261011-180508009.stdout.log`; formatter13 and architecture/domain
+  structure/dependencies strict/project structure. Actual bounded Jolt flask/floor contact,
+  area FIRE ticks, one break/spawn, native explosion impulse and stable ID after actor free.
+- PASS regression: melee15/15,194 `gut-20261011-180156002.stdout.log`; packages13/13,234
+  `gut-20261011-180547285.stdout.log`; character physics8/8,41
+  `gut-20261011-180600373.stdout.log`; persistent hazards22/22,213
+  `gut-20261011-180632450.stdout.log`; queued lifetime13/13,100
+  `gut-20261011-180645765.stdout.log`.
+- Reviews use consecutive immutable SHA ranges, ARCHITECTURE/STYLE PASS,
+  reviewer VALIDATION NOT_RUN; serial/token comparison NOT_MEASURED.
+  Payload checkpoint review pending commit.
+- MCP native scene/resource saves used throughout. Loaded script hot reload error43:
+  NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
+- NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.
 
 ### Owner QA / blockers
 

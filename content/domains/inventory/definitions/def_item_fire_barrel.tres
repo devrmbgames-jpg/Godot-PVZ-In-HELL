@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://bift6tvdjcwmp"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_3r6tg"]
+
+[resource]
+script = ExtResource("1_3r6tg")
+categories = 8
+market_price = 100
+display_name = "Бочка с алхимическим раствором"
+world_pickup_scene = "res://content/domains/hazards/entities/fire_barrel.tscn"
+kind = 5
+maximum_stack = 1
+key = &"fire_barrel"

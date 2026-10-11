@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://bbij2ca62dgik"]
+
+[ext_resource type="Script" uid="uid://x2c660cvln" path="res://content/domains/hazards/entities/e_toxic_area.gd" id="1_yqfiv"]
+[ext_resource type="Resource" uid="uid://c1np27in8oqiv" path="res://content/domains/hazards/definitions/def_fire_spill.tres" id="2_nr8v6"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_nb5qe"]
+[ext_resource type="Resource" uid="uid://cbwymilryqaoh" path="res://content/domains/hazards/authoring/spill_volume.tres" id="4_dsdxy"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7o6vv"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.92941177, 0.4117647, 0.14901961, 0.26666668)
+
+[sub_resource type="SphereMesh" id="SphereMesh_8h0qq"]
+radius = 0.3
+height = 0.6
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_bk3um"]
+radius = 0.3
+
+[node name="FireSpill" type="Node3D" unique_id=1048205434]
+script = ExtResource("1_yqfiv")
+definition = ExtResource("2_nr8v6")
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("3_nb5qe")]([ExtResource("4_dsdxy")])
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=2128795025]
+material_override = SubResource("StandardMaterial3D_7o6vv")
+cast_shadow = 0
+mesh = SubResource("SphereMesh_8h0qq")
+
+[node name="Area" type="Area3D" parent="." unique_id=1133890647]
+collision_layer = 0
+collision_mask = 31
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Area" unique_id=1003046429]
+shape = SubResource("SphereShape3D_bk3um")

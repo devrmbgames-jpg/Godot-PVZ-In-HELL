@@ -1,3 +1,4 @@
+@tool
 extends Resource
 ## Авторские пороги получателя и коэффициенты преобразования энергии столкновения.
 class_name DEF_ImpactProfile

@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Подключает физический урон к здоровью через переиспользуемые авторские настройки.
 class_name C_ImpactReceiver

@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Часы периодического воздействия объёма; настройки принадлежат DEF_ToxicArea.
 class_name C_ToxicArea

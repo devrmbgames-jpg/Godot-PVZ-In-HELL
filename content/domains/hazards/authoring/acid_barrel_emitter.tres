@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_HazardEmitter" format=3 uid="uid://co8fx6qg45g87"]
+
+[ext_resource type="PackedScene" uid="uid://f676gyp52ar8" path="res://content/domains/hazards/entities/acid_spill.tscn" id="1_tkcey"]
+[ext_resource type="Script" uid="uid://fadhgp50uth" path="res://content/domains/hazards/components/c_hazard_emitter.gd" id="2_4x1ep"]
+
+[resource]
+script = ExtResource("2_4x1ep")
+hazard_scene = ExtResource("1_tkcey")

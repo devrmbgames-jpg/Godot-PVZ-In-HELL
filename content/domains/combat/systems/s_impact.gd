@@ -106,15 +106,25 @@ func _resolve(contact: PhysicsContact) -> void:
 	pair.resolved = true
 	KinematicImpactCapture.queue_rebound(contact)
 
-	_resolve_direction(contact.body_a, contact.body_b, contact)
+	var first_throw: ImpactThrowAttribution = ThrowContext.capture_contact(
+		contact.body_a as Node as Entity,
+		contact.tick,
+	)
+	var second_throw: ImpactThrowAttribution = ThrowContext.capture_contact(
+		contact.body_b as Node as Entity,
+		contact.tick,
+	)
+	_resolve_direction(contact.body_a, contact.body_b, contact, first_throw, second_throw)
 	if _valid(contact):
-		_resolve_direction(contact.body_b, contact.body_a, contact)
+		_resolve_direction(contact.body_b, contact.body_a, contact, second_throw, first_throw)
 
 
 func _resolve_direction(
 	source_body: PhysicsBody3D,
 	target_body: PhysicsBody3D,
 	contact: PhysicsContact,
+	source_throw: ImpactThrowAttribution,
+	target_throw: ImpactThrowAttribution,
 ) -> void:
 	var target: Entity = target_body as Node as Entity
 	var source: Entity = source_body as Node as Entity
@@ -152,19 +162,19 @@ func _resolve_direction(
 	var request: DamageRequest = DamageRequest.new()
 	request.source = source
 	request.target = target
+	# A thrown receiver can break against an unthrown body after its outgoing hit consumed
+	# R_ThrownBy. The contact snapshot preserves the actor for that committed break fact.
+	var attribution: ImpactThrowAttribution = source_throw if source_throw != null else target_throw
+	if attribution != null:
+		request.instigator = attribution.actor()
+		request.instigator_id = attribution.actor_id
 	var throw_config: C_ThrowDamage = (
 		source.get_component(C_ThrowDamage) as C_ThrowDamage if source != null else null
 	)
-	var throw_relation: Relationship = ThrowContext.relationship(source)
-	var throw_data: R_ThrownBy = (
-		throw_relation.relation as R_ThrownBy if throw_relation != null else null
-	)
-	if throw_config != null and throw_data != null and throw_data.remaining_seconds > 0.0:
-		if contact.tick > throw_data.armed_tick and _held_relationship(source) == null:
-			request.instigator = throw_relation.target as Entity
-			if is_finite(throw_config.throw_damage):
-				result.amount += maxf(0.0, throw_config.throw_damage)
-			ThrowContext.cancel(source)
+	if throw_config != null and source_throw != null:
+		if is_finite(throw_config.throw_damage):
+			result.amount += maxf(0.0, throw_config.throw_damage)
+		ThrowContext.cancel(source)
 	result.severity = ImpactCalculation.classify(result.amount, receiver.profile)
 	if result.amount <= 0.0:
 		return

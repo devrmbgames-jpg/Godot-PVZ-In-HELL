@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Защита однократного взрыва независимо от жизненного цикла создавшего объекта.
 class_name C_Explosion

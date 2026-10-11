@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://ccn1cx5xe2k76"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_jdkui"]
+
+[resource]
+script = ExtResource("1_jdkui")
+categories = 8
+display_name = "Алхимический огонь"
+world_pickup_scene = "res://content/domains/hazards/entities/fire_flask.tscn"
+kind = 5
+maximum_stack = 1
+key = &"fire_flask"

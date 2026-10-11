@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_ImpactProfile" format=3 uid="uid://ck3ewjycdikl7"]
+
+[ext_resource type="Script" uid="uid://u0b5xnp170" path="res://content/domains/combat/definitions/def_impact_profile.gd" id="1_j3ilk"]
+
+[resource]
+script = ExtResource("1_j3ilk")
+damage_per_joule = 1.0
+absorption_joules = 0.0

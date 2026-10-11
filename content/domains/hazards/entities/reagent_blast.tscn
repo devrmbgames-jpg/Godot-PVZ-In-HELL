@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://c4mk4061tv66h"]
+
+[ext_resource type="Script" uid="uid://ealj1ax256s" path="res://content/domains/hazards/entities/e_explosion.gd" id="1_0g1d4"]
+[ext_resource type="Resource" uid="uid://ntc1nvq87kuw" path="res://content/domains/hazards/definitions/def_reagent_blast.tres" id="2_k3dck"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_oimiy"]
+[ext_resource type="Resource" uid="uid://bhsnhde5trc5c" path="res://content/domains/hazards/authoring/reagent_explosion.tres" id="4_6qnti"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sxtml"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.9372549, 0.6784314, 0.2901961, 0.53333336)
+
+[sub_resource type="SphereMesh" id="SphereMesh_r7hqa"]
+radius = 0.3
+height = 0.6
+
+[node name="ReagentBlast" type="Node3D" unique_id=965030550]
+script = ExtResource("1_0g1d4")
+definition = ExtResource("2_k3dck")
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("3_oimiy")]([ExtResource("4_6qnti")])
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=486504724]
+material_override = SubResource("StandardMaterial3D_sxtml")
+cast_shadow = 0
+mesh = SubResource("SphereMesh_r7hqa")

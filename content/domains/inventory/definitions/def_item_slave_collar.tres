@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://bq3twhbbggcst"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_27dja"]
+
+[resource]
+script = ExtResource("1_27dja")
+categories = 32
+market_price = 15
+display_name = "Ошейник для раба"
+world_pickup_scene = "res://content/domains/inventory/entities/slave_collar.tscn"
+kind = 5
+maximum_stack = 1
+key = &"slave_collar"

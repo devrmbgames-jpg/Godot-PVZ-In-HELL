@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_HazardEmitter" format=3 uid="uid://cvi5n454bjlj"]
+
+[ext_resource type="PackedScene" uid="uid://c4mk4061tv66h" path="res://content/domains/hazards/entities/reagent_blast.tscn" id="1_ia4u0"]
+[ext_resource type="Script" uid="uid://fadhgp50uth" path="res://content/domains/hazards/components/c_hazard_emitter.gd" id="2_3n1r3"]
+
+[resource]
+script = ExtResource("2_3n1r3")
+hazard_scene = ExtResource("1_ia4u0")
