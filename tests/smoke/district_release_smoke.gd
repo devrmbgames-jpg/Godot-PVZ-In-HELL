@@ -16,11 +16,14 @@ const MAX_TRANSITION_FRAMES: int = 1200
 const UNLOAD_DISTANCE: float = 12.0
 const READY_RADIUS: float = 6.0
 const INITIAL_BALANCE: int = 1000
+const LIGHT_TIMEOUT_REASON: String = "Свет не выключили"
 
 var _failed: bool = false
 var _scenario_completed: bool = false
 var _restore_graph_checks: int = 0
 var _result_checks: int = 0
+var _post_operation_checks: int = 0
+var _observed_light_waits: Dictionary[StringName, int] = { }
 var _level: Node3D
 var _player: Entity
 var _zone: E_ReceivingZone
@@ -123,6 +126,7 @@ func _connected_days() -> void:
 	if _failed:
 		return
 	_check_day_one_history()
+	_stage_light_recipients()
 	await _unload(2)
 	await _wait_furniture()
 	_load_refused_return()
@@ -132,6 +136,8 @@ func _connected_days() -> void:
 	await _transition(DayTransitionRequest.Kind.START_SHIFT, C_DayCycle.Phase.DAY, 2)
 	_verify_cargo(3)
 	await _serve_counter(2, true)
+	if _failed:
+		return
 	await _transition(DayTransitionRequest.Kind.FINISH_SHIFT, C_DayCycle.Phase.EVENING, 2)
 	await _sleep_until(3)
 	if _failed:
@@ -142,6 +148,7 @@ func _connected_days() -> void:
 		"second Night writes coherent Morning3",
 	)
 	_check_results()
+	_result_checks += 1
 	_scenario_completed = not _failed and _result_checks == 1
 	print("Connected district: actual shifts 1/2, Nights 1/2, Morning3 saved")
 
@@ -158,6 +165,8 @@ func _restore_acceptance() -> void:
 	)
 	_check_saved_domains(snapshot)
 	_check_results()
+	_restore_graph_checks += 1
+	_result_checks += 1
 	if _failed:
 		return
 	# Повторный reload проверяется в quiescent fixture; другого gameplay clock нет.
@@ -169,6 +178,8 @@ func _restore_acceptance() -> void:
 		_bind_level()
 		_check_saved_domains(snapshot)
 		_check_results()
+		_restore_graph_checks += 1
+		_result_checks += 1
 		_check(
 			WalletService.current().balance == balance
 			and WalletService.current().operations.size() == operations,
@@ -195,7 +206,14 @@ func _restore_acceptance() -> void:
 			and WalletService.current().operations.size() == operations,
 			"repeated fulfillment and delivery never repay",
 		)
-	_scenario_completed = not _failed and _restore_graph_checks == 3 and _result_checks == 3
+		# Сверка до следующего restore ловит также нефинансовые повторные последствия.
+		_check_saved_domains(snapshot)
+		_check_results()
+		_post_operation_checks += 1
+	_scenario_completed = (
+		not _failed and _restore_graph_checks == 3 and _result_checks == 3
+		and _post_operation_checks == 2
+	)
 #endregion
 
 
@@ -484,6 +502,7 @@ func _serve_counter(day_index: int, require_light_timeout: bool) -> void:
 	var light_deferred: bool = false
 	for _frame: int in MAX_SERVICE_FRAMES:
 		await get_tree().physics_frame
+		_observe_light_waits(day_index)
 		for candidate: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 			var body: E_DistrictNpc = candidate as E_DistrictNpc
 			var agent: C_CustomerAgent = candidate.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -511,28 +530,40 @@ func _serve_counter(day_index: int, require_light_timeout: bool) -> void:
 				(row.get_node("%ButtonOK") as Button).pressed.emit()
 			_panel.close_panel()
 		for visit: CustomerVisit in _flow.visits:
-			if (
-				visit.deferred_day == day_index
-				and NpcPopulationQueries
-				.person_for(visit.customer_id)
-				.profile
-				.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
-				!= null
-			):
+			if _is_observed_light_timeout(visit, day_index):
 				light_deferred = true
 				_check(
 					visit.actual == CustomerVisit.Actual.NOT_RESOLVED
-					and visit.declaration == CustomerVisit.Declaration.NONE,
+					and visit.declaration == CustomerVisit.Declaration.NONE
+					and not visit.settlement_committed and visit.money_delta == 0
+					and visit.disposition == CustomerVisit.Disposition.WAREHOUSE,
 					"light timeout retains real unresolved order without false LOST/payment",
 				)
-		if (
-			CustomerFlowQueries.actionable_remaining(_flow, day_index) == 0
-			and (light_deferred or not require_light_timeout)
-		):
+				var unavailable: CustomerVisit = visit.duplicate() as CustomerVisit
+				unavailable.defer_reason = "Получатель недоступен"
+				_check(
+					not _is_observed_light_timeout(unavailable, day_index),
+					"same warned recipient deferred for another reason is not a light timeout",
+				)
+				var another_day: CustomerVisit = visit.duplicate() as CustomerVisit
+				another_day.deferred_day = day_index + 1
+				_check(
+					not _is_observed_light_timeout(another_day, day_index + 1),
+					"previous day's warned wait cannot prove a later light timeout",
+				)
+		if CustomerFlowQueries.actionable_remaining(_flow, day_index) == 0:
 			break
 		if _failed:
 			return
 	_check(arrived >= 2 or not require_light_timeout, "available recipients reach native counter")
+	if require_light_timeout and not light_deferred:
+		for visit: CustomerVisit in _flow.visits:
+			if visit.deferred_day == day_index:
+				print(
+					"Observed deferral npc=", visit.customer_id, " reason=", visit.defer_reason,
+					" warned_light_wait=",
+					_observed_light_waits.get(visit.visit_id, 0) == day_index,
+				)
 	_check(light_deferred or not require_light_timeout, "second-day light wait ends explicitly")
 	_check(
 		DayPhaseService.finish_blockers(_cycle).is_empty(),
@@ -543,12 +574,55 @@ func _serve_counter(day_index: int, require_light_timeout: bool) -> void:
 
 
 #region Авторские очередь/свет и календарь
+func _stage_light_recipients() -> void:
+	var definition: DEF_District = NpcPopulationQueries.current().definition
+	var routes: NpcServiceRoutes = (
+		_level.get_node(definition.service_routes_path) as NpcServiceRoutes
+	)
+	var staged: int = 0
+	for person: NpcRecord in NpcPopulationQueries.current().people:
+		if person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) == null:
+			continue
+		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+		var start: Node3D = routes.point_for(staged, 0)
+		# Фиксируем только начальную физическую позицию на авторском маршруте.
+		# Очередь, подход, предупреждение и timeout выполняются обычными BT/Systems.
+		# Визиты новой партии ещё не созданы; fixture не создаёт их самостоятельно.
+		body.place_at(start.global_position)
+		staged += 1
+	_check(staged > 0, "second morning stages actual light-averse people on authored routes")
+
+
 func _wait_prepared_queue() -> void:
 	for _frame: int in MAX_SERVICE_FRAMES:
 		await get_tree().physics_frame
+		_observe_light_waits(_cycle.day_index)
 		if _nearby_recipients() >= 3:
 			break
 	_check(_nearby_recipients() >= 3, "second morning prepares current and two nearby recipients")
+
+
+func _observe_light_waits(day_index: int) -> void:
+	for candidate: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
+		var agent: C_CustomerAgent = candidate.get_component(C_CustomerAgent) as C_CustomerAgent
+		if (
+			agent.phase != C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
+			or not agent.light_warning_started
+		):
+			continue
+		var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
+		if visit.last_visit_day == day_index:
+			if _observed_light_waits.get(visit.visit_id, 0) != day_index:
+				print("Actual warned light wait day=", day_index, " npc=", visit.customer_id)
+			_observed_light_waits[visit.visit_id] = day_index
+
+
+func _is_observed_light_timeout(visit: CustomerVisit, day_index: int) -> bool:
+	return (
+		_observed_light_waits.get(visit.visit_id, 0) == day_index
+		and visit.deferred_day == day_index
+		and visit.defer_reason == LIGHT_TIMEOUT_REASON
+	)
 
 
 func _nearby_recipients() -> int:
@@ -702,7 +776,6 @@ func _check_results() -> void:
 			"one fulfilled physical furniture identity persists",
 		)
 	_check(NpcPopulationQueries.current().people.size() == 12, "no duplicate permanent people")
-	_result_checks += 1
 
 
 func _check_saved_domains(snapshot: Dictionary) -> void:
@@ -734,8 +807,6 @@ func _check_saved_domains(snapshot: Dictionary) -> void:
 			)
 			checked += 1
 	_check(checked == domains.size(), "all seven durable domain aggregates checked")
-	if checked == domains.size():
-		_restore_graph_checks += 1
 
 
 func _row(package_id: String) -> UI_TerminalButtonPackage:
