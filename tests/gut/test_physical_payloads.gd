@@ -185,6 +185,7 @@ func test_full_catalog_native_gravity_and_floor_contact_smoke() -> void:
 	_world.add_child(floor)
 	floor.position = Vector3(0.0, -0.25, -12.0)
 	var references: Array[WeakRef] = []
+	var catalog_ids: Array[String] = []
 	var contacted: Dictionary[String, bool] = { }
 	for index: int in CATALOG_SCENES.size():
 		var entity: Entity = _catalog_body(
@@ -198,6 +199,7 @@ func test_full_catalog_native_gravity_and_floor_contact_smoke() -> void:
 		assert_eq(body.gravity_scale, 1.0, "Smoke uses authored gravity")
 		assert_not_null(entity.get_component(C_ImpactInbox))
 		references.append(weakref(entity))
+		catalog_ids.append(entity.id)
 	for frame: int in 4:
 		await get_tree().physics_frame
 	for reference: WeakRef in references:
@@ -213,14 +215,20 @@ func test_full_catalog_native_gravity_and_floor_contact_smoke() -> void:
 			if not EntityAvailability.contains(entity, _world):
 				continue
 			var inbox: C_ImpactInbox = entity.get_component(C_ImpactInbox) as C_ImpactInbox
-			if not inbox.contacts.is_empty():
-				contacted[entity.id] = true
+			for contact: PhysicsContact in inbox.contacts:
+				if contact.body_a == floor or contact.body_b == floor:
+					contacted[entity.id] = true
 		_world.process(1.0 / 60.0)
 	assert_eq(
 		contacted.size(),
 		CATALOG_SCENES.size(),
-		"Every catalog body produced native contacts",
+		"Every catalog body produced native floor contacts",
 	)
+	for index: int in catalog_ids.size():
+		assert_true(
+			contacted.has(catalog_ids[index]),
+			"Native floor contact: %s" % CATALOG_SCENES[index],
+		)
 	var survivors: int = 0
 	for reference: WeakRef in references:
 		var entity: Entity = reference.get_ref() as Entity
