@@ -28,12 +28,13 @@ and throwing knife have native authored scenes and focused regression evidence.
 Three reagent flasks, acid/fire barrels, a collar and spiked chains extend the catalog to eleven.
 Break payloads share the existing emitter/factory and preserve captured throw attribution.
 Shared sweep supports authored multi-target limits with synchronous cancellation.
-The remaining four items, receiver/karma selection and NPC milestones remain unfinished.
-Current vertical domains, direct Entity Traits and save schema 12 remain authoritative.
+Combat-owned C_Karma now persists with authored strict thresholds and one runtime writer.
+The remaining four items, receiver selection and NPC milestones remain unfinished.
+Current vertical domains, direct Entity Traits and save schema 13 remain authoritative.
 
 ### Next
 
-Continue R26.1 shared break payload/contact execution, receiver/karma rules and catalog.
+Continue R26.1 artifact receiver rules, blood stimulus and the remaining catalog.
 Stabilize shared item tags/effects and R26.2 data before archetype behavior.
 
 ### Validation
@@ -75,7 +76,7 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
   scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
 - Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
   native physics delta retains its existing authority.
-- Current save schema is `AutosaveStore.SCHEMA_VERSION = 12`; version incompatible
+- Current save schema is `AutosaveStore.SCHEMA_VERSION = 13`; version incompatible
   serialized changes from the actual implementation baseline. No old-save conversion,
   defaults that accept an unsupported format, or automatic rejected-slot overwrite.
 

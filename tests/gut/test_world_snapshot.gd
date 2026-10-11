@@ -71,7 +71,7 @@ func before_each() -> void:
 		)
 	)
 	(_session.get_component(C_Autosave) as C_Autosave).path = SAVE_PATH
-	_actor = _authored("Actor", [C_Inventory.new(), C_Hunger.new(), C_Health.new()])
+	_actor = _authored("Actor", [C_Inventory.new(), C_Hunger.new(), C_Health.new(), C_Karma.new()])
 
 	var stack: C_InventoryItem = C_InventoryItem.new()
 	stack.definition = (
@@ -108,6 +108,61 @@ func after_each() -> void:
 	for path: String in [SAVE_PATH, SAVE_PATH + ".tmp"]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+#endregion
+
+
+#region Player alignment persistence
+## A real slot round-trip restores non-neutral alignment and its canonical authored policy.
+func test_karma_roundtrip_restores_value_and_authored_policy() -> void:
+	assert_true(KarmaService.set_value(_actor, -40.0))
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+	assert_true(KarmaService.set_value(_actor, 70.0))
+	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
+	var restored: C_Karma = _actor.get_component(C_Karma) as C_Karma
+	assert_eq(restored.value, -40.0)
+	assert_eq(
+		restored.policy,
+		load("res://content/domains/combat/definitions/def_karma_default.tres"),
+	)
+	assert_true(KarmaRules.is_low(restored))
+
+
+## Missing, incomplete or invalid alignment must fail before replacing any live state.
+func test_invalid_or_missing_karma_rejects_restore_before_mutation() -> void:
+	for invalid: String in [
+		"missing_component",
+		"missing_value",
+		"non_finite",
+		"out_of_bounds",
+		"null_policy",
+	]:
+		assert_true(KarmaService.set_value(_actor, -40.0))
+		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+		for record: Dictionary in snapshot.entities:
+			var components: Array = record.components as Array
+			for data: Dictionary in components.duplicate():
+				if String(data.type) != C_Karma.resource_path:
+					continue
+				var fields: Dictionary = data.fields as Dictionary
+				match invalid:
+					"missing_component":
+						components.erase(data)
+					"missing_value":
+						fields.erase("value")
+					"non_finite":
+						fields.value = NAN
+					"out_of_bounds":
+						fields.value = -101.0
+					"null_policy":
+						fields.policy = null
+		assert_true(KarmaService.set_value(_actor, 70.0))
+		assert_false(WorldSnapshotService.restore(snapshot, _root), invalid)
+		assert_eq((_actor.get_component(C_Karma) as C_Karma).value, 70.0, invalid)
+		assert_eq(InventoryService.owner_for(_item), _actor, invalid)
+		assert_eq(DayPhaseQueries.current().day_index, 1, invalid)
 
 #endregion
 

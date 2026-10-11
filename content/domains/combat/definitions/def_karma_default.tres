@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DEF_KarmaPolicy" format=3 uid="uid://de5yhcvn4wxgw"]
+
+[ext_resource type="Script" uid="uid://bliiaea3fe06f" path="res://content/domains/combat/definitions/def_karma_policy.gd" id="1_blo6t"]
+
+[resource]
+script = ExtResource("1_blo6t")
+key = &"player_karma"

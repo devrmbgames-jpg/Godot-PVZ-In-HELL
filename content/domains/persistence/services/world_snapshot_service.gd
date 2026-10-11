@@ -253,6 +253,8 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 				)
 			):
 				return false
+			if probe is C_Karma and not KarmaRules.valid(probe as C_Karma):
+				return false
 			if (
 				probe is C_Hunger
 				and (not is_finite((probe as C_Hunger).value) or (probe as C_Hunger).value < 0.0)

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EntityTrait" format=3 uid="uid://dnpjmpoy0nopk"]
+
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_o1ey6"]
+[ext_resource type="Resource" uid="uid://dmey1t7tiltbn" path="res://content/domains/combat/authoring/player_karma.tres" id="2_jjsuf"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="3_awvyi"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="4_kmy16"]
+
+[resource]
+script = ExtResource("4_kmy16")
+trait_id = &"player_karma"
+component_recipes = Array[ExtResource("1_o1ey6")]([ExtResource("2_jjsuf")])
+required_root_class = &"CharacterBody3D"

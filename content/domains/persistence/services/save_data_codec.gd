@@ -21,6 +21,7 @@ static var _component_fields: Dictionary = {
 	C_NpcRemains: C_NpcRemains.SAVE_FIELDS,
 	C_LootDrops: C_LootDrops.SAVE_FIELDS,
 	C_Health: C_Health.SAVE_FIELDS,
+	C_Karma: C_Karma.SAVE_FIELDS,
 	C_Hunger: C_Hunger.SAVE_FIELDS,
 	C_Stamina: C_Stamina.SAVE_FIELDS,
 	C_ImpactProtection: C_ImpactProtection.SAVE_FIELDS,

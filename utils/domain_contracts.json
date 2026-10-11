@@ -18339,6 +18339,46 @@
       ],
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "combat",
+      "symbol": "C_Karma",
+      "path": "content/domains/combat/components/c_karma.gd",
+      "rights": [
+        "query",
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/persistence/save_data_codec.gd",
+        "content/services/persistence/snapshot_graph_rules.gd",
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "purpose": "Prevalidated passive reconstruction only; KarmaService owns live alignment mutation.",
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "combat",
+      "symbol": "KarmaRules",
+      "path": "content/domains/combat/rules/karma_rules.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [
+        "valid"
+      ],
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "purpose": "Prevalidated passive reconstruction only; KarmaService owns live alignment mutation.",
+      "method_rights": {
+        "valid": "read"
+      },
+      "public_instance_methods": []
     }
   ],
   "legacy_decomposition": []

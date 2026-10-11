@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="C_Karma" format=3 uid="uid://dmey1t7tiltbn"]
+
+[ext_resource type="Resource" uid="uid://de5yhcvn4wxgw" path="res://content/domains/combat/definitions/def_karma_default.tres" id="1_non1x"]
+[ext_resource type="Script" uid="uid://dpqidc22ifh88" path="res://content/domains/combat/components/c_karma.gd" id="2_uye0x"]
+
+[resource]
+script = ExtResource("2_uye0x")

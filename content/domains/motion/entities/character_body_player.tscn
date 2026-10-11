@@ -1,10 +1,9 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://b0pc5w4y4qidn"]
 
-[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/physical_slot.tscn" id="PhysicalSlot"]
-
-[ext_resource type="Script" path="res://content/domains/motion/entities/e_character_body_player.gd" id="1_hqtr2"]
+[ext_resource type="Script" uid="uid://dvkv57cqxayt3" path="res://content/domains/motion/entities/e_character_body_player.gd" id="1_hqtr2"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_uo1oq"]
-[ext_resource type="Script" path="res://content/domains/motion/components/c_character_body.gd" id="3_lm6lx"]
+[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/domains/motion/components/c_character_body.gd" id="3_lm6lx"]
+[ext_resource type="Resource" uid="uid://dnpjmpoy0nopk" path="res://content/domains/combat/authoring/et_player_karma.tres" id="4_0swh6"]
 [ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/domains/interaction/components/c_player_input_controller.gd" id="4_hdpx1"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="5_d0m3p"]
 [ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/domains/motion/components/c_look.gd" id="6_r8al5"]
@@ -14,31 +13,20 @@
 [ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="10_5dcb1"]
 [ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="11_fy2jt"]
 [ext_resource type="PackedScene" uid="uid://c57tjcgwtk4qh" path="res://resources/Animation Library[Standard]/AnimationLibrary_Godot_Standard.glb" id="12_lm6lx"]
+[ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
 [ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/domains/interaction/components/c_carry_load.gd" id="Grab_carry_load"]
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/domains/interaction/components/c_grab_control.gd" id="Grab_grab_control"]
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/domains/interaction/components/c_interactor.gd" id="Grab_interactor"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/domains/combat/components/c_living.gd" id="Living"]
+[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/domains/combat/definitions/def_impact_living.tres" id="LivingImpact"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/physical_slot.tscn" id="PhysicalSlot"]
 [ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/domains/interaction/components/c_push_control.gd" id="Push_control"]
-[ext_resource type="Script" path="res://content/domains/motion/components/c_strength.gd" id="Strength"]
+[ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/domains/motion/components/c_stamina.gd" id="Stamina"]
+[ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/domains/motion/components/c_strength.gd" id="Strength"]
 [ext_resource type="Resource" path="res://content/domains/motion/definitions/def_attr_strength.tres" id="StrengthDef"]
-
-[ext_resource type="Script" path="res://content/domains/combat/components/c_impact_receiver.gd" id="ImpactReceiver"]
-[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_impact_living.tres" id="LivingImpact"]
-
-[ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
-
-[ext_resource type="Script" path="res://content/domains/motion/components/c_stamina.gd" id="Stamina"]
-
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
-
-[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
-
-[sub_resource type="Resource" id="Stamina"]
-resource_local_to_scene = true
-script = ExtResource("Stamina")
-
-[sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
-friction = 0.0
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("3_lm6lx")
@@ -74,7 +62,6 @@ metadata/_custom_type_script = "uid://c772oxgdtatqf"
 
 [sub_resource type="Resource" id="Resource_2vn7f"]
 script = ExtResource("11_fy2jt")
-current = null
 definition = ExtResource("10_5dcb1")
 metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 
@@ -91,9 +78,9 @@ script = ExtResource("Grab_carry_load")
 
 [sub_resource type="Resource" id="Strength"]
 script = ExtResource("Strength")
+definition = ExtResource("StrengthDef")
 base = 1.0
 value = 1.0
-definition = ExtResource("StrengthDef")
 
 [sub_resource type="Resource" id="Push_control"]
 script = ExtResource("Push_control")
@@ -101,24 +88,28 @@ script = ExtResource("Push_control")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="CapsuleShape3D" id="CylinderShape3D_bghjr"]
-height = 1.5362549
-radius = 0.18896484
-
-[sub_resource type="CapsuleShape3D" id="CylinderShape3D_lqn1g"]
-height = 0.7059326
-radius = 0.18798828
-
 [sub_resource type="Resource" id="ImpactReceiver"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[node name="CharacterBodyPlayer" type="CharacterBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "camera_root", "ray_standing", "crouch_mounts", "head_axis_y", "head_axis_x", "ground_ray")]
-script = ExtResource("1_hqtr2")
-traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
+[sub_resource type="Resource" id="Stamina"]
+resource_local_to_scene = true
+script = ExtResource("Stamina")
+
+[sub_resource type="CapsuleShape3D" id="CylinderShape3D_bghjr"]
+radius = 0.18896484
+height = 1.5362549
+
+[sub_resource type="CapsuleShape3D" id="CylinderShape3D_lqn1g"]
+radius = 0.18798828
+height = 0.7059326
+
+[node name="CharacterBodyPlayer" type="CharacterBody3D" unique_id=1703744943 node_paths=PackedStringArray("ground_ray", "interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "camera_root", "ray_standing", "crouch_mounts", "head_axis_y", "head_axis_x")]
 collision_layer = 16
 collision_mask = 31
+script = ExtResource("1_hqtr2")
+ground_ray = NodePath("Ground")
 interaction_ray_cast = NodePath("HeadY/HeadX/HeadRoot/InteractionRay")
 hold_anchor = NodePath("HeadY/HeadX/HeadRoot/Holder")
 right_hand_slot = NodePath("HeadY/HeadX/HeadRoot/ArmRSlot")
@@ -129,11 +120,41 @@ shape_standing = NodePath("ColNormal")
 shape_crouching = NodePath("ColCrouch")
 camera_root = NodePath("HeadY/HeadX/HeadRoot")
 ray_standing = NodePath("RayCanStand")
-crouch_mounts = Array[NodePath]([NodePath("BeltSlotLeft"), NodePath("BeltSlotRight")])
+crouch_mounts = [NodePath("BeltSlotLeft"), NodePath("BeltSlotRight")]
 head_axis_y = NodePath("HeadY")
 head_axis_x = NodePath("HeadY/HeadX")
-ground_ray = NodePath("Ground")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("4_0swh6")])
+ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("ImpactReceiver"), SubResource("Stamina")])
+
+[node name="HeadY" type="Marker3D" parent="." unique_id=1109415379]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
+
+[node name="HeadX" type="Marker3D" parent="HeadY" unique_id=1292554231]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
+
+[node name="HeadRoot" type="Marker3D" parent="HeadY/HeadX" unique_id=406904122]
+
+[node name="TargetLook" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1662571166]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22183037, -0.72694004)
+
+[node name="InteractionRay" type="RayCast3D" parent="HeadY/HeadX/HeadRoot" unique_id=997764356]
+target_position = Vector3(0, 0, -3)
+collision_mask = 15
+
+[node name="Holder" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=742222022]
+
+[node name="ArmRSlot" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1714413596]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34265137, -0.27026367, -0.41137695)
+
+[node name="ArmLSlot" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=278936046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.343, -0.26999998, -0.411)
+
+[node name="LoweredRightHand" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1191453563]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, -0.8, 0.24999999)
+
+[node name="LoweredLeftHand" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1977669164]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, -0.8, 0.24999999)
 
 [node name="RayCanStand" type="RayCast3D" parent="." unique_id=724995723]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7507784, 0.010172695)
@@ -213,46 +234,17 @@ bone = 6
 [node name="AnimationPlayer" parent="AnimationLibrary_Godot_Standard" index="1" unique_id=1771309942]
 autoplay = &"Idle"
 
-[node name="HeadY" type="Marker3D" parent="." index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
+[node name="BeltSlotLeft" parent="." unique_id=314038497 instance=ExtResource("PhysicalSlot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0.7946805, -0.305326)
 
-[node name="HeadX" type="Marker3D" parent="HeadY" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
+[node name="BeltSlotRight" parent="." unique_id=164328443 instance=ExtResource("PhysicalSlot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.7946805, -0.305326)
 
-[node name="BeltSlotLeft" parent="." instance=ExtResource("PhysicalSlot")]
-position = Vector3(-0.25, 0.7946805, -0.305326)
-
-[node name="BeltSlotRight" parent="." instance=ExtResource("PhysicalSlot")]
-position = Vector3(0.25, 0.7946805, -0.305326)
-
-[node name="HeadRoot" type="Marker3D" parent="HeadY/HeadX" unique_id=406904122]
-
-[node name="TargetLook" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1662571166]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22183037, -0.72694004)
-
-[node name="InteractionRay" type="RayCast3D" parent="HeadY/HeadX/HeadRoot" unique_id=997764356]
-target_position = Vector3(0, 0, -3)
-collision_mask = 15
-
-[node name="Holder" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=742222022]
-
-[node name="ArmRSlot" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1714413596]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34265137, -0.27026367, -0.41137695)
-
-[node name="ArmLSlot" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=278936046]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.343, -0.26999998, -0.411)
-
-[node name="LoweredRightHand" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1191453563]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, -0.8, 0.24999999)
-
-[node name="LoweredLeftHand" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1977669164]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, -0.8, 0.24999999)
-
-[editable path="AnimationLibrary_Godot_Standard"]
-
-[node name="Ground" type="RayCast3D" parent="."]
-position = Vector3(0, 0.15, 0)
+[node name="Ground" type="RayCast3D" parent="." unique_id=1108496891]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
 target_position = Vector3(0, -0.5, 0)
 collision_mask = 31
 
-[node name="CharacterFeedback" parent="." instance=ExtResource("CharacterFeedback")]
+[node name="CharacterFeedback" parent="." unique_id=1959945451 instance=ExtResource("CharacterFeedback")]
+
+[editable path="AnimationLibrary_Godot_Standard"]

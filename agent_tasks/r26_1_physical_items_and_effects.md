@@ -14,7 +14,7 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 ### Current
 
 Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
-Reviewed payload checkpoint: `20497d37158d8d29943db36a2142c599a1022b91`.
+Reviewed item checkpoint: `dfb5e101deb02ce99125b1b973b28a7b7d2c3397`.
 Eleven of 15 items have native MCP-authored RigidBody scenes and focused evidence:
 bones, axe, scythe, knife, three reagent flasks, acid/fire barrels, collar and spiked chains.
 Categories remain separate from capabilities; PHYSICAL purchases/deliveries materialize
@@ -25,7 +25,11 @@ A contact snapshot preserves thrower identity across both directions and synchro
 Reagent explosion uses IMPACT HP damage with a separate native radial impulse.
 Authored contact damage reuses System episode ownership, bypasses impact protection,
 rejects resting contacts and never cuts its physical holder. Four items remain.
-Receiver eligibility, karma and blood remain unfinished.
+Player karma is now a combat-owned C_Karma with KarmaService as its explicit runtime writer.
+Persistence alone restores its validated SAVE_FIELDS; authored thresholds are strict and
+their boundary values neutral. Native player Trait survives main-level component overrides.
+Schema 13 requires this state and rejects schema 12 before mutation; no old-save conversion.
+Receiver eligibility, artifacts and blood remain unfinished.
 
 Next: remaining artifact/blood/contact capabilities and catalog, then final catalog smoke.
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
@@ -63,7 +67,15 @@ Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7
   `gut-20261011-181727375.stdout.log`, including native collision/resting and episode
   separation, held/source veto and attribution. Formatter4 and strict/static checks PASS.
   Payload8/8 regression `gut-20261011-181810657.stdout.log` and melee15/15
-  `gut-20261011-181820090.stdout.log` PASS. Chain checkpoint review pending commit.
+  `gut-20261011-181820090.stdout.log` PASS. Review to
+  `dfb5e101deb02ce99125b1b973b28a7b7d2c3397`: no findings, 36 s.
+- PASS karma: parser10/10 `parsefiles-20261011-183129874.stdout.log`;
+  GUT4/4,40 `gut-20261011-182941944.stdout.log`; snapshot32/32,394
+  `gut-20261011-183001794.stdout.log`; character physics8/8,41
+  `gut-20261011-183056049.stdout.log`; formatter10 and strict architecture/domain
+  structure/dependencies/project checks. Native player and placed override each get
+  one isolated recipe; real slot restore and malformed/missing state rejection.
+  Karma checkpoint review pending commit.
 - MCP native scene/resource saves used throughout. Loaded script hot reload error43:
   NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
 - NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.
