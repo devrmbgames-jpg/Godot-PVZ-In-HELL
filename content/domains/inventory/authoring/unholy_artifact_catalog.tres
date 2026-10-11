@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_InventoryItem" format=3 uid="uid://buyfoasro707f"]
+
+[ext_resource type="Resource" uid="uid://cyphvbd2o5mf3" path="res://content/domains/inventory/definitions/def_item_unholy_artifact.tres" id="1_3f4xd"]
+[ext_resource type="Script" uid="uid://cfpg1tq1aldu0" path="res://content/domains/inventory/components/c_inventory_item.gd" id="2_vj51d"]
+
+[resource]
+script = ExtResource("2_vj51d")
+definition = ExtResource("1_3f4xd")

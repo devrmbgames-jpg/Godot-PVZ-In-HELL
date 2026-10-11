@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_ReceiverEffect" format=3 uid="uid://cofpr6ffhvfmw"]
+
+[ext_resource type="Resource" uid="uid://dnmh7lcjo8vo" path="res://content/domains/combat/definitions/def_unholy_effect.tres" id="1_ej5ee"]
+[ext_resource type="Script" uid="uid://gauw3ax2akdb" path="res://content/domains/combat/components/c_receiver_effect.gd" id="2_7ey5y"]
+
+[resource]
+script = ExtResource("2_7ey5y")
+definition = ExtResource("1_ej5ee")

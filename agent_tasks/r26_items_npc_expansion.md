@@ -25,11 +25,12 @@ R26.1 is in progress from baseline `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`.
 ACID/HOLY/UNHOLY append compatibly; six shopping categories and physical catalog
 storage share existing damage/inventory/commerce authorities. Bones, axe, scythe
 and throwing knife have native authored scenes and focused regression evidence.
-Three reagent flasks, acid/fire barrels, a collar and spiked chains extend the catalog to eleven.
+Three reagent flasks, acid/fire barrels, a collar, chains and two artifacts extend the catalog to thirteen.
 Break payloads share the existing emitter/factory and preserve captured throw attribution.
 Shared sweep supports authored multi-target limits with synchronous cancellation.
 Combat-owned C_Karma now persists with authored strict thresholds and one runtime writer.
-The remaining four items, receiver selection and NPC milestones remain unfinished.
+Artifact receiver rules now use typed creature tags and player karma through the damage authority.
+The remaining two blood items, blood stimulus and NPC milestones remain unfinished.
 Current vertical domains, direct Entity Traits and save schema 13 remain authoritative.
 
 ### Next

@@ -18379,6 +18379,26 @@
         "valid": "read"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "hazards",
+      "symbol": "HazardTargets",
+      "path": "content/domains/hazards/services/hazard_targets.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [
+        "entity_for"
+      ],
+      "sources": [
+        "content/domains/combat/systems/s_receiver_effect.gd"
+      ],
+      "purpose": "Read-only native body to Entity resolution shared by volume effects.",
+      "method_rights": {
+        "entity_for": "read"
+      },
+      "public_instance_methods": []
     }
   ],
   "legacy_decomposition": []

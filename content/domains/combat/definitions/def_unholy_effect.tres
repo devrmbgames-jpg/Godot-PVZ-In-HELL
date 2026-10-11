@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_ReceiverEffect" format=3 uid="uid://dnmh7lcjo8vo"]
+
+[ext_resource type="Script" uid="uid://canvmtl87whm5" path="res://content/domains/combat/definitions/def_receiver_effect.gd" id="1_kiljp"]
+
+[resource]
+script = ExtResource("1_kiljp")
+alignment = 1
+key = &"unholy_artifact_effect"

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DEF_ReceiverEffect" format=3 uid="uid://cd7vsi1ms7lp4"]
+
+[ext_resource type="Script" uid="uid://canvmtl87whm5" path="res://content/domains/combat/definitions/def_receiver_effect.gd" id="1_2og6l"]
+
+[resource]
+script = ExtResource("1_2og6l")
+key = &"holy_artifact_effect"

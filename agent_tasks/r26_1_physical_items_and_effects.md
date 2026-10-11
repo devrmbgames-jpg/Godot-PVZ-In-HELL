@@ -14,9 +14,9 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 ### Current
 
 Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
-Reviewed item checkpoint: `dfb5e101deb02ce99125b1b973b28a7b7d2c3397`.
-Eleven of 15 items have native MCP-authored RigidBody scenes and focused evidence:
-bones, axe, scythe, knife, three reagent flasks, acid/fire barrels, collar and spiked chains.
+Reviewed checkpoint: `e505d83e96a6eccbb5f4968c09a52125f1d50b0e`.
+Thirteen of 15 items have native MCP-authored RigidBody scenes and focused evidence:
+bones, axe, scythe, knife, three reagent flasks, acid/fire barrels, collar, chains and two artifacts.
 Categories remain separate from capabilities; PHYSICAL purchases/deliveries materialize
 native bodies and cannot become virtual stacks. Existing furniture courier policy stays.
 Shared sweep keeps default one target; scythe permits four with synchronous cancellation.
@@ -24,14 +24,19 @@ Breakable payloads reuse C_Health/impact/emitter/retirement and the existing haz
 A contact snapshot preserves thrower identity across both directions and synchronous free.
 Reagent explosion uses IMPACT HP damage with a separate native radial impulse.
 Authored contact damage reuses System episode ownership, bypasses impact protection,
-rejects resting contacts and never cuts its physical holder. Four items remain.
+rejects resting contacts and never cuts its physical holder. Two blood items remain.
 Player karma is now a combat-owned C_Karma with KarmaService as its explicit runtime writer.
 Persistence alone restores its validated SAVE_FIELDS; authored thresholds are strict and
 their boundary values neutral. Native player Trait survives main-level component overrides.
 Schema 13 requires this state and rejects schema 12 before mutation; no old-save conversion.
-Receiver eligibility, artifacts and blood remain unfinished.
+Artifacts use authored physical Area3D volumes and S_ReceiverEffect cadence; immutable
+C_ReceiverTraits chooses creature damage/heal, with player karma taking precedence.
+All HP changes pass through DamageRequest/O_Damage, with resistance, source veto,
+held/thrown actor attribution and queued lifetime checks. Artifact clocks restart with
+a full interval after reconstruction; no pending health request is restored.
+Blood stimulus, two blood items and final catalog smoke remain unfinished.
 
-Next: remaining artifact/blood/contact capabilities and catalog, then final catalog smoke.
+Next: blood stimulus and remaining two physical items, then final catalog smoke.
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
@@ -75,7 +80,15 @@ Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7
   `gut-20261011-183056049.stdout.log`; formatter10 and strict architecture/domain
   structure/dependencies/project checks. Native player and placed override each get
   one isolated recipe; real slot restore and malformed/missing state rejection.
-  Karma checkpoint review pending commit.
+  Review to `e505d83e96a6eccbb5f4968c09a52125f1d50b0e`: no findings, 136 s.
+- PASS artifacts: native parser6/6 `parsefiles-20261011-184241192.stdout.log`;
+  GUT7/7,104 `gut-20261011-184150165.stdout.log`; formatter6 and strict/static checks.
+  Actual native area overlaps, player/tag precedence, resistance and heal cap, cadence,
+  source veto, native pickup/throw attribution, disabled source and queued retirement.
+  Shared host startup2/2 `gut-20261011-184300129.stdout.log` and damage feedback8/8
+  `gut-20261011-184336631.stdout.log` regressions PASS.
+  Initial pickup fixture aimed an oblique ray that gameplay correctly reset; fixed to
+  the actual forward interaction ray. Artifact checkpoint review pending commit.
 - MCP native scene/resource saves used throughout. Loaded script hot reload error43:
   NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
 - NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_ReceiverEffect" format=3 uid="uid://8s1dipj114e6"]
+
+[ext_resource type="Resource" uid="uid://cd7vsi1ms7lp4" path="res://content/domains/combat/definitions/def_holy_effect.tres" id="1_lr8kd"]
+[ext_resource type="Script" uid="uid://gauw3ax2akdb" path="res://content/domains/combat/components/c_receiver_effect.gd" id="2_lmjik"]
+
+[resource]
+script = ExtResource("2_lmjik")
+definition = ExtResource("1_lr8kd")

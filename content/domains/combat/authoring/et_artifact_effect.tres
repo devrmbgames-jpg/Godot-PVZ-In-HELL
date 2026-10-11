@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EntityTrait" format=3 uid="uid://dcr628t5f12i7"]
+
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_c84pm"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="2_c2n3y"]
+[ext_resource type="Script" uid="uid://gauw3ax2akdb" path="res://content/domains/combat/components/c_receiver_effect.gd" id="3_7xs7s"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="4_a3puu"]
+
+[resource]
+script = ExtResource("4_a3puu")
+trait_id = &"artifact_effect"
+required_components = Array[Script]([ExtResource("3_7xs7s")])
+required_root_class = &"RigidBody3D"
+required_nodes = Array[NodePath]([NodePath("EffectArea")])
