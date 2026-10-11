@@ -57,6 +57,14 @@ submit that request through the schedule operation, without importing population
 
 After native BT, S_NpcRoute consumes the same captured interval for route clocks/progress/cleanup. S_NpcRoutePlanning owns the district FIFO and one budget per native physics frame before noise/combat/navigation consumers. NpcRouteSolver calculates bounded paths/risk, while S_NpcIntent consumes waypoints and Godot integrates the body. Queued planning rejects replaced aggregates and stale participation/intent.
 
+Typed gaze aversion composes an idle-only native subtree below conversation/service/schedule.
+BT guards read committed perception and the player-owned camera; a narrow action requests a
+safe side position through the intent owner. NpcGazeAversionSolver previews at most two native
+routes with solid LOS and existing hazard policy, without writing movement or clocks.
+S_NpcTraits alone advances exposure/warning state; NpcSocialService.escalate_gaze commits one
+remembered attack through the existing combat binding and wake boundary. Movement/look tokens
+release interrupted observation without cancelling the replacement branch's intent.
+
 ### Choosing execution ownership
 
 1. Required engine timing comes first: work that must use `PhysicsDirectBodyState3D` in `_integrate_forces` stays in that callback's Entity glue and independent non-System Solvers.

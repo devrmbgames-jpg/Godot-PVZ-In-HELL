@@ -42,8 +42,11 @@ receiving, contents and archive projection, using the immutable authored catalog
 R26.3 adds a reusable observation-freeze trait and visible native safety subtree. Camera/LOS
 sampling precedes cadence; native freeze/animation, avoidance and attack gates share that fact.
 Observation passed headless checks/smoke and review. Aggressive speed now shares motion
-and navigation authority, passes focused regressions and district smoke; review pending.
+and navigation authority, passes focused regressions, district smoke and review.
 Full behaviors/binding remain open.
+Shy gaze aversion now uses native idle-only observation/repositioning, real perception/camera,
+safe routes and one remembered prolonged-gaze attack. Focused/native regressions pass;
+district smoke passed; checkpoint review is pending. Live archetype binding remains open.
 R26.4 now routes committed personal dialogue variants and has two neutral/lost variants with
 imported service/delivery flows and imported-resource cleanup. Focused native checks pass;
 checkpoint review and its registration-guard repair passed; the remaining 18 variants/interactions
@@ -51,7 +54,7 @@ stay open.
 
 ### Next
 
-Collect aggressive-speed review, continue shy gaze avoidance and remaining R26.3/R26.4,
+Collect shy checkpoint review, continue remaining R26.3/R26.4,
 then bind all ten archetypes.
 
 ### Validation

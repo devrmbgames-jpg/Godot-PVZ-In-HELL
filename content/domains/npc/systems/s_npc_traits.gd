@@ -62,7 +62,14 @@ func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, de
 		var triggered: bool = false
 		match rule.kind:
 			DEF_NpcTrait.Kind.GAZE_AVERSION:
-				triggered = awareness.player_visible and NpcTraitRules.gazing(player, actor, rule)
+				triggered = (
+					awareness.player_visible
+					and (
+						NpcGazeAversionSolver.gazing(actor, player, rule as DEF_NpcGazeAversion)
+						if rule is DEF_NpcGazeAversion
+						else NpcTraitRules.gazing(player, actor, rule)
+					)
+				)
 			DEF_NpcTrait.Kind.LIGHT_AVERSION:
 				triggered = NpcLightingService.exposure_at(
 					actor.global_position + Vector3.UP,
@@ -105,7 +112,10 @@ func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, de
 			var incident: StringName = StringName(
 				"rule/%s/%d/%d/%d" % [person.npc_id, cycle.day_index, cycle.phase, rule.kind]
 			)
-			NpcSocialService.react(actor, player, NpcMemory.Kind.OFFENSE, incident)
+			if rule is DEF_NpcGazeAversion:
+				NpcSocialService.escalate_gaze(actor, player, incident)
+			else:
+				NpcSocialService.react(actor, player, NpcMemory.Kind.OFFENSE, incident)
 	# Cancel any same-step trait reaction before the native blood branch and combat owner.
 	if NpcBloodQueries.calmed(actor):
 		NpcBloodService.calm(actor)

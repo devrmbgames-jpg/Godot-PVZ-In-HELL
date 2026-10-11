@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_NpcGazeAversion" format=3 uid="uid://bcq4lf5chcgas"]
+
+[ext_resource type="Script" uid="uid://cqgpft0fddirp" path="res://content/domains/npc/definitions/def_npc_gaze_aversion.gd" id="1_hagvr"]
+
+[resource]
+script = ExtResource("1_hagvr")
+warning_text = "Не смотри на меня так долго."
+countermeasure = "Отвести взгляд"
+key = &"trait/gaze_aversion"

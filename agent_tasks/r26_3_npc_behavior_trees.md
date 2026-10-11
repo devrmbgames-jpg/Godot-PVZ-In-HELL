@@ -18,43 +18,38 @@ model. A single configurable leaf dispatching an entire decision tree remains pr
 
 ### Current
 
-Reusable observation-freeze capability is implemented: typed authored trait, compiler input,
-frame-rate camera/frustum/solid-LOS sampling before cadence, urgent invalidation, native body
-freeze and animation pause, stationary avoidance and attack-boundary gates. R_CombatTarget
-survives the interruption. Native MCP inserts the visible safety subtree after terminal state
-and before danger/blood/combat. The angel catalog uses the trait; the live roster is not rebound.
-Reset/reused restore rebuild transient state and selected capability without rerolling variation.
-Observation checkpoint review PASS. Aggressive speed now derives from a live, registered,
-living combat target in S_NpcIntent; the authored multiplier is transient and shared by native
-navigation and physics through MotionRules. Gaze freeze/death/lost target/reset remove it.
-The angel catalog authors 4x speed without changing base speed or durable variation.
-Speed checkpoint REVIEW_PENDING. Next: shy gaze avoidance and remaining mandatory subtrees.
-No complete archetype behavior acceptance is claimed; traits compose without an NPC-ID dispatcher.
+Observation freeze and aggressive speed share native body/animation, combat, cadence,
+intent and motion authorities. Angel catalog tuning is authored; both checkpoints passed review.
+Typed gaze aversion now adds safe idle observation with a visible guard/reposition/watch
+subtree below conversation/service/schedule. Actual perceived player/camera, solid LOS and
+at most two safe native route previews determine a side point; physics owns movement.
+S_NpcTraits owns warning/exposure clocks, and a prolonged gaze commits one remembered attack
+through NpcSocialService even for timid personalities. Interruption releases movement/look
+without clearing a replacement owner's token. Shy catalog is authored; live roster is not rebound.
+Shy smoke PASS, checkpoint REVIEW_PENDING. Next: remaining mandatory archetype subtrees.
 
 ### Validation
 
-Observation GUT222305503 PASS 11/11, 75 asserts, native camera/LOS/Jolt/animation/manual BT.
-Regression PASS: cache222111743 6/77; variation222116292 6/360; catalog222119532 4/944;
-attacks222155017 22/160; identity222203373 13/102; participation222209670 12/133;
-world snapshot222227075 35/443. No GUT orphan Nodes or runtime errors.
-Parser222334705 PASS (20 owned scripts); formatter/lint, strict architecture/domain structure,
-dependencies, project structure and persistence baseline PASS. District smoke PASS:
-tests/artifacts/district-20261012-082437905.log (eight mornings/all phases/save/restore).
-MCP leaf diagnostics checked[]/reloaded PASS; global class reload43 NOT_PASS, CLI verified.
-MCP saves both brain policies with complete initial fields; exact guarded cache refresh proves
-the selected rule field in the live cache without file/UID changes; clean scene reload PASS.
-Review BASE 7d1a4b2dfefb840e30fba336389da367f1d5f8b2 ->
-TARGET 71c592dc86e292b0a2cbc8f772e7025adcb965c5 PASS, no findings (99 s).
-ARCHITECTURE/STYLE PASS; reviewer runtime VALIDATION NOT_RUN.
-Speed: parser225807185 PASS (seven scripts); GUT gaze225851972 15/110,
-sprint225935638 9/55, hunger230013530 8/106, world230020810 35/443 PASS.
+Freeze baseline: parser222334705/20; GUT222305503 11/75, cache222111743 6/77,
+variation222116292 6/360, catalog222119532 4/944, attacks222155017 22/160,
+identity222203373 13/102, participation222209670 12/133, world222227075 35/443 PASS.
+Freeze smoke district-20261012-082437905.log PASS; MCP camera/LOS/Jolt/animation/native
+subtree, complete brain fields/cache and clean reload verified. Review BASE
+7d1a4b2dfefb840e30fba336389da367f1d5f8b2 -> 71c592dc86e292b0a2cbc8f772e7025adcb965c5 PASS (99 s).
+Speed: parser225807185/7; gaze225851972 15/110, sprint225935638 9/55,
+hunger230013530 8/106, world230020810 35/443 and district-20261012-090138493.log PASS.
+Review BASE 69506165b6ff97d0495864c0512de2b1f4343a54 ->
+5339a67e38824f88a80a5bc266a404927ef0bbbb PASS, no findings (17 s).
+Shy: parser232439318/9; gaze232244950 11/112, performance232334680 21/145,
+customer232400198 15/272, freeze232405471 15/110, catalog232520640 4/944 PASS.
+No runtime errors or GUT orphan Nodes; native cadence/perception/BT reaction and interruption run.
 Formatter/lint, strict architecture/dependencies/domain/project structure and persistence PASS.
-District speed smoke PASS: tests/artifacts/district-20261012-090138493.log,
-eight mornings/all phases/save/restore, 12 records/bodies, no runtime errors.
-Native MCP authors/refreshes the angel multiplier preserving UID and other properties;
-clean scene reload PASS. Speed review baseline 69506165b6ff97d0495864c0512de2b1f4343a54,
-target pending commit; REVIEW_PENDING.
-NOT_RUN: full mandatory archetype behaviors, roster integration and owner gameplay/visual QA.
+MCP authors trait/catalog/subtree with UIDs preserved; leaf reload/diagnostics PASS, global
+reload43 NOT_PASS independently verified by CLI; clean scene reload/no new editor errors PASS.
+Shy smoke district-20261012-092523857.log PASS; eight mornings/all phases/save/restore.
+Review pending; baseline 5339a67e38824f88a80a5bc266a404927ef0bbbb.
+Reviewed checkpoints ARCHITECTURE/STYLE PASS; reviewer runtime VALIDATION NOT_RUN.
+NOT_RUN: full mandatory archetype behaviors, live roster integration and owner gameplay/visual QA.
 
 ### Owner QA / blockers
 
@@ -63,17 +58,9 @@ Required owner acceptance remains open; explicitly deferred polish gets a QA che
 
 ## Mandatory BT pattern
 
-Use the Behavior Tree pattern:
+Composites own control flow, Conditions observe, Actions perform narrow work,
+Decorators own execution policy, and Subtrees expose reusable semantic branches.
 
-```text
-Composite
-├─ Condition
-├─ Action/Subtree
-├─ Decorator
-└─ ...
-```
-
-- Conditions observe and normally have no side effects.
 - Actions are narrow leaf behaviors.
 - Composites own ordering/fallback/priority/concurrency.
 - Decorators own timeout/repeat/cooldown/invert/limits where applicable.

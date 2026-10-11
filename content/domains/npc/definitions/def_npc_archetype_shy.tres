@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="3_yrnpr"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_6.tres" id="4_v1yc0"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="5_shyn2"]
-[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_0.tres" id="6_iv0yl"]
+[ext_resource type="Resource" uid="uid://bcq4lf5chcgas" path="res://content/domains/npc/definitions/def_npc_trait_gaze_aversion.tres" id="6_56ry2"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_cgqf4"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_cgvgg"]
 
@@ -31,7 +31,7 @@ presentation_cues = PackedStringArray()
 display_name = "Скромник"
 personality = 3
 schedule = SubResource("Resource_6xvgl")
-rules = Array[ExtResource("5_shyn2")]([ExtResource("6_iv0yl")])
+rules = Array[ExtResource("5_shyn2")]([ExtResource("6_56ry2")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.4, 0.5176471, 0.6784314, 1)

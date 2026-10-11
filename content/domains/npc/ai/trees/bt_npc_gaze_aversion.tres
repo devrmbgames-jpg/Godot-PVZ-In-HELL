@@ -1,0 +1,37 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://brmmh3rdl244c"]
+
+[ext_resource type="Script" uid="uid://co0aqalb3ocgq" path="res://content/domains/npc/ai/tasks/bt_npc_can_avoid_gaze.gd" id="1_3gwks"]
+[ext_resource type="Script" uid="uid://b3k8yhko7lj0u" path="res://content/domains/npc/ai/tasks/bt_npc_gaze_position_unsafe.gd" id="2_4smod"]
+[ext_resource type="Script" uid="uid://746y1jgmb00p" path="res://content/domains/npc/ai/tasks/bt_npc_leave_player_gaze.gd" id="3_5y4fe"]
+[ext_resource type="Script" uid="uid://cqosq55nipqxp" path="res://content/domains/npc/ai/tasks/bt_npc_observe.gd" id="4_r7nji"]
+
+[sub_resource type="BTCondition" id="BTCondition_vb2ax"]
+custom_name = "Свойство и воспринимаемый игрок"
+script = ExtResource("1_3gwks")
+
+[sub_resource type="BTCondition" id="BTCondition_n75el"]
+custom_name = "Угол или дистанция небезопасны"
+script = ExtResource("2_4smod")
+
+[sub_resource type="BTAction" id="BTAction_m1wmt"]
+custom_name = "Пройти в достижимую боковую точку"
+script = ExtResource("3_5y4fe")
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_2fviw"]
+custom_name = "Позиция в прямом взгляде или слишком близко/далеко"
+children = [SubResource("BTCondition_n75el"), SubResource("BTAction_m1wmt")]
+
+[sub_resource type="BTAction" id="BTAction_hk5vx"]
+custom_name = "Наблюдать видимого игрока"
+script = ExtResource("4_r7nji")
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_jxlfl"]
+custom_name = "Отойти или наблюдать"
+children = [SubResource("BTDynamicSequence_2fviw"), SubResource("BTAction_hk5vx")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_y1tvt"]
+custom_name = "Наблюдать из безопасного угла"
+children = [SubResource("BTCondition_vb2ax"), SubResource("BTDynamicSelector_jxlfl")]
+
+[resource]
+root_task = SubResource("BTDynamicSequence_y1tvt")

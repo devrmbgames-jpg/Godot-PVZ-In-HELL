@@ -54,6 +54,20 @@ static func react(
 	return reaction
 
 
+## Commits the typed prolonged-gaze response once, preserving social memory and combat ownership.
+static func escalate_gaze(body: E_DistrictNpc, actor: Entity, incident: StringName) -> void:
+	if not EntityAvailability.contains(actor, ECS.world) or actor.has_component(C_Death):
+		return
+	var person: NpcRecord = NpcPopulationQueries.person_for(identity_for(body))
+	for memory: NpcMemory in person.memories:
+		if memory.incident_id == incident:
+			return
+	remember(person, actor, body, NpcMemory.Kind.OFFENSE, incident, NpcMemory.Reaction.ATTACK)
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.fleeing = false
+	apply_reaction(body, actor, NpcMemory.Reaction.ATTACK)
+
+
 ## Применяет зафиксированную реакцию и публикует результат для владельцев необязательных ролей.
 static func apply_reaction(
 	body: E_DistrictNpc,
