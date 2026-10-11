@@ -14,7 +14,7 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 ### Current
 
 Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
-Reviewed checkpoint: `359dcd02c2c6f373df923d8e47db1716815fa554`.
+Reviewed checkpoint: `0a8f1a98a242e695f0478057bfeaaed0a0c801db`.
 All 15 items have native MCP-authored RigidBody scenes and focused evidence, including
 bones, weapons, reagent/blood flasks, barrels, collar, chains and both artifacts.
 Categories remain separate from capabilities; PHYSICAL purchases/deliveries materialize
@@ -111,7 +111,18 @@ Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7
   both native Visual nodes now use material_override, saved through MCP.
   Payload10/10 `gut-20261011-185832961.stdout.log` and persistent runtime23/23
   `gut-20261011-185850118.stdout.log` verify the material after spawn/reused/fresh restore.
-  Fix checkpoint re-review pending commit; behavioral stimulus remains NOT_RUN.
+  RV-002 FIXED at `0a8f1a98a242e695f0478057bfeaaed0a0c801db`; targeted review
+  ARCHITECTURE/STYLE PASS, no findings, 16 s; reviewer VALIDATION NOT_RUN.
+  Fix parser2/2 `parsefiles-20261011-185859504.stdout.log` PASS.
+  Behavioral stimulus remains NOT_RUN.
+- Native BT authoring gap: installed MCP can create Resources but cannot insert a
+  LimboAI child while preserving loaded root/child/Blackboard identities. Project-owned
+  `pvz_behavior_tree_authoring` adds bounded create/inspect/guarded insert through native
+  ResourceSaver, without vendored addon edits. GUT4/4,23
+  `gut-20261011-190730338.stdout.log`, parser3/3
+  `parsefiles-20261011-190752580.stdout.log`, live MCP inspect and plugin reload PASS.
+  Initial structure check caught literal intentionally-invalid test paths; fixtures now
+  compose them from the tool's directory constant. Review pending this tooling checkpoint.
 - MCP native scene/resource saves used throughout. Loaded script hot reload error43:
   NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
 - NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.

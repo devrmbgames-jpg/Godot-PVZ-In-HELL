@@ -86,6 +86,21 @@ dialogues back to translation sources. Do not modify the vendored scanner for th
 
 ## Dependencies
 
+`pvz_behavior_tree_authoring` fills the native LimboAI child-insertion gap. It operates
+only on direct `content/domains/npc/ai/trees/*.tres` resources. `inspect` is read-only;
+`create` refuses existing files and accepts a bounded native task graph; `insert`
+preserves the existing root, children and Blackboard plans and refuses stale child
+order, duplicate subtrees or cycles. Saves use editor-side ResourceSaver, are explicit
+and non-undoable. No retained Resources or pending requests survive plugin exit.
+Reload Godot AI after registration; the companion registry unregisters on exit.
+
+Example: `custom_manage(op="invoke", params={"tool_name":"pvz_behavior_tree_authoring",
+"params":{"op":"inspect","path":"res://content/domains/npc/ai/trees/bt_npc_native.tres"}})`.
+Insert adds `subtree`, zero-based `index`, `name` and the exact `expected_children`
+returned by inspect. Creation uses `root` with `type`, `name`, optional NPC leaf `script`,
+`intent_owner` and recursive `children` (64 tasks, depth 6). Focused refusal/identity
+tests: `res://tests/gut/test_pvz_behavior_tree_authoring_tool.gd`.
+
 - Godot 4.7
 - Godot AI 4.2.3 as currently vendored by this project
 - GECS v8 as pinned in `addons/gecs/`

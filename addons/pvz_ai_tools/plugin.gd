@@ -175,6 +175,7 @@ func _register_tools() -> void:
 		_gdscript_style_spec(),
 		_style_script_validation_spec(),
 		_translation_sources_spec(),
+		_behavior_tree_authoring_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -320,5 +321,34 @@ func _source_property() -> Dictionary:
 			"auto prefers the running game's GECS world, then falls back " + "to editor-side state."
 		),
 	}
+
+
+## Bounded native Resource saves; existing tree edits require the captured root child order.
+func _behavior_tree_authoring_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_behavior_tree_authoring"
+	spec.description = "Inspect/create an NPC LimboAI tree or insert a guarded native subtree."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {
+			"op": { "type": "string", "enum": ["inspect", "create", "insert"] },
+			"path": { "type": "string" },
+			"root": { "type": "object" },
+			"subtree": { "type": "string" },
+			"index": { "type": "integer", "minimum": 0, "maximum": 64 },
+			"name": { "type": "string" },
+			"expected_children": { "type": "array", "items": { "type": "string" }, "maxItems": 64 },
+		},
+		"required": ["op", "path"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/behavior_tree_authoring_tool.gd"
+	spec.method = &"author"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = false
+	return spec
 
 #endregion
