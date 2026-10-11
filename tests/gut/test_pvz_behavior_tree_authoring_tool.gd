@@ -68,3 +68,24 @@ func test_only_direct_npc_tree_files_are_authorable() -> void:
 	assert_false(AuthoringTool.valid_tree_path(AuthoringTool.TREE_DIRECTORY + "../other.tres"))
 	assert_false(AuthoringTool.valid_tree_path(AuthoringTool.TREE_DIRECTORY + "nested/tree.tres"))
 	assert_false(AuthoringTool.valid_tree_path("res://content/ui/main_menu.tscn"))
+
+
+func test_shared_acyclic_graph_obeys_one_whole_operation_budget() -> void:
+	var target: BehaviorTree = BehaviorTree.new()
+	target.set_root_task(BTDynamicSelector.new())
+	var candidate: BehaviorTree = BehaviorTree.new()
+	candidate.set_root_task(BTSequence.new())
+	for _level: int in 24:
+		var parent_tree: BehaviorTree = BehaviorTree.new()
+		var root_task: BTSequence = BTSequence.new()
+		for _branch: int in 2:
+			var subtree: BTSubtree = BTSubtree.new()
+			subtree.subtree = candidate
+			root_task.add_child(subtree)
+		parent_tree.set_root_task(root_task)
+		candidate = parent_tree
+	var budget: Array[int] = [128]
+	assert_true(AuthoringTool._references_tree(candidate, target, [], budget))
+	assert_eq(budget[0], -1, "All nested and repeated visits consume the same bounded work")
+	assert_null(AuthoringTool.insert_branch(target, candidate, 0, [], "Over budget"))
+	assert_eq(target.get_root_task().get_child_count(), 0)

@@ -181,6 +181,7 @@ static func _references_tree(
 	candidate: BehaviorTree,
 	target: BehaviorTree,
 	visited: Array[BehaviorTree],
+	budget: Array[int] = [128],
 ) -> bool:
 	if (
 		candidate == target or candidate.get_root_task() == null
@@ -189,16 +190,15 @@ static func _references_tree(
 		return true
 	visited.append(candidate)
 	var pending: Array[BTTask] = [candidate.get_root_task()]
-	var count: int = 0
 	while not pending.is_empty():
-		count += 1
-		if count > 128:
+		budget[0] -= 1
+		if budget[0] < 0:
 			return true
 		var task: BTTask = pending.pop_back()
 		var nested: BTSubtree = task as BTSubtree
 		if (
 			nested != null and nested.subtree != null
-			and _references_tree(nested.subtree, target, visited)
+			and _references_tree(nested.subtree, target, visited, budget)
 		):
 			return true
 		for child_index: int in task.get_child_count():

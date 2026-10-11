@@ -122,7 +122,12 @@ Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7
   `gut-20261011-190730338.stdout.log`, parser3/3
   `parsefiles-20261011-190752580.stdout.log`, live MCP inspect and plugin reload PASS.
   Initial structure check caught literal intentionally-invalid test paths; fixtures now
-  compose them from the tool's directory constant. Review pending this tooling checkpoint.
+  compose them from the tool's directory constant. Review at
+  `d81e256f95ebf4ee1e70419f23ea9d961f0c9473` identified RV-003/P1 (review R1), 69 s:
+  shared DAG traversal was bounded per tree, allowing exponential total visits.
+  One whole-operation budget now rejects excessive traversal before mutation;
+  24-level shared DAG regression GUT5/5,27 `gut-20261011-191241018.stdout.log` PASS.
+  Targeted fix re-review pending; reviewer VALIDATION NOT_RUN.
 - MCP native scene/resource saves used throughout. Loaded script hot reload error43:
   NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
 - NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.
