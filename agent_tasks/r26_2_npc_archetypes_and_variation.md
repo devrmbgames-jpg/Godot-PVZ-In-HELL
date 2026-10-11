@@ -49,8 +49,15 @@ Initial catalog parser201538629 failed on nested PackedStringArray constant; fix
 Catalog review BASE 473e1569425d9c6bcd809828c3c8422e6280b66f ->
 TARGET ca6bc069c5645028fd9b51e681d9364291e6f32c found RV-001 (70 s), STYLE PASS.
 RV-001 / R1 P2: angel receiver_traits=0 excluded it from holy artifacts before resistance.
-Accepted: native MCP repair sets HOLY_VULNERABLE; regression now exercises actual
-ReceiverEffectRules HOLY DAMAGE / UNHOLY EXCLUDED. Fix committed next; targeted review pending.
+FIXED a02e250b80a4b984e662854452f8cc110e356660: native MCP repair sets HOLY_VULNERABLE;
+regression exercises actual ReceiverEffectRules HOLY DAMAGE / UNHOLY EXCLUDED.
+Targeted review PASS (8 s), ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN.
+Companion pvz_npc_archetype_cache_refresh closes a verified native-tool gap: ResourceSaver
+saved new script types while ResourceLoader still returned cached old Profile objects.
+Bounded native cache refresh preflights exact Archetype scripts, refuses dirty scenes/inspected
+targets, changes no files/UIDs, retains no Resources and unregisters on plugin exit.
+Parser203116194 and final GUT203405503 2/2,23 PASS; live MCP refreshed12 profiles and allowed
+native typed district save. Tool immutable review pending; roster migration remains uncommitted.
 NOT_RUN: roster/receiver integration, full persistence migration,
 new mandatory behaviors (angel observation/signs, grudges, toy witnessing, 10 m floor fire/opening,
 soul trade, stalking, vampire feeding/escape), presentation hooks, gameplay and owner acceptance.

@@ -176,6 +176,7 @@ func _register_tools() -> void:
 		_style_script_validation_spec(),
 		_translation_sources_spec(),
 		_behavior_tree_authoring_spec(),
+		_npc_archetype_cache_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -344,6 +345,34 @@ func _behavior_tree_authoring_spec() -> McpCustomToolSpec:
 	}
 	spec.script_path = "res://addons/pvz_ai_tools/behavior_tree_authoring_tool.gd"
 	spec.method = &"author"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = false
+	return spec
+
+
+## Refreshes only native saved archetype caches after checking editor ownership.
+func _npc_archetype_cache_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_npc_archetype_cache_refresh"
+	spec.description = "Refresh stale NPC archetype caches after native saves; no file writes."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {
+			"paths": {
+				"type": "array",
+				"items": { "type": "string" },
+				"minItems": 1,
+				"maxItems": 16,
+			},
+		},
+		"required": ["paths"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/npc_archetype_cache_tool.gd"
+	spec.method = &"refresh"
 	spec.source_path = SOURCE_CFG
 	spec.source = "PVZ Godot AI Tools"
 	spec.requires_writable = true

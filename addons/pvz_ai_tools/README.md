@@ -154,3 +154,13 @@ installed Godot AI API lacks a required operation. Prefer the existing
 For a confirmed project.godot modal recovery, follow
 `docs/godot_agent_tooling.md` and the guarded project-scoped PowerShell
 helper. Custom MCP tools must never terminate arbitrary OS processes.
+
+`pvz_npc_archetype_cache_refresh` refreshes up to16 `.tres` definitions directly under
+`content/domains/npc/definitions/` after a native MCP save changed their scripted type.
+Example: `custom_manage(op="invoke", params={"tool_name":"pvz_npc_archetype_cache_refresh",
+"params":{"paths":["res://content/domains/npc/definitions/def_npc_profile_1.tres"]}})`.
+Every file must freshly load with `DEF_NpcArchetype`; the whole set is checked before
+native cache replacement. No files or UIDs are changed; cached definition values refresh from disk.
+Dirty scenes and
+an inspected target Resource refuse the operation; reload affected clean scenes afterwards.
+Registration is removed on plugin exit; the handler retains no resources or connections.
