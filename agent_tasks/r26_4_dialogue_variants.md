@@ -21,14 +21,14 @@ session cleanup releases cached imported line cycles as well as the root resourc
 The native lost archetype exposes both paths; only **2/20** variants are implemented.
 Review of `490efacd2b5888383325bdbf37aa13b3753be4a4` against
 `1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63` found the missing direct registration guard.
-The guard is restored in both variants, with focused native regression PASS; targeted repair
-review remains REVIEW_PENDING.
+The guard is restored in both variants, with focused native regression PASS. Targeted repair
+review of `c64c5f782ee1874c0e987b34064b132cb6a7c5e5` passed without remaining findings.
 Remaining archetypes still need their required interactions, including authoritative soul/blood
 transactions; full task acceptance and live roster binding remain open.
 
 ### Next
 
-Collect immutable-SHA review, then continue required archetype behavior/interaction capabilities
+Continue required archetype behavior/interaction capabilities
 and author the remaining 18 variants. No per-open reroll or new UI authority is introduced.
 
 ### Validation
@@ -48,12 +48,13 @@ and author the remaining 18 variants. No per-open reroll or new UI authority is 
 
 ### Review triage
 
-RV-001 — ACCEPTED P1, source `490efacd2b5888383325bdbf37aa13b3753be4a4`:
+RV-001 — FIXED P1, source `490efacd2b5888383325bdbf37aa13b3753be4a4`:
 both personalized `direct` cues omitted `ctx.has_registered_number()`, exposing denial before
 registration. Restored the existing guard and scanning/END fallback. Focused real-context
 regression checks repeated unregistered entry without choices, denial/reputation/aggression
-mutation and preserves registered denial/idempotency. Fix SHA/targeted review pending.
-Initial reviewer ARCHITECTURE FAIL / STYLE PASS / runtime VALIDATION NOT_RUN (78 s).
+mutation and preserves registered denial/idempotency. Fix
+`c64c5f782ee1874c0e987b34064b132cb6a7c5e5`, GUT31/621 PASS. Targeted reviewer
+ARCHITECTURE/STYLE PASS, no remaining findings (5 s); runtime VALIDATION NOT_RUN.
 
 ### Owner QA / blockers
 

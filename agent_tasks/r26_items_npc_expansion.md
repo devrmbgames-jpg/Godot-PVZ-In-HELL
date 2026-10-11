@@ -44,7 +44,8 @@ sampling precedes cadence; native freeze/animation, avoidance and attack gates s
 The checkpoint passed headless checks/smoke and review; full behaviors/binding remain open.
 R26.4 now routes committed personal dialogue variants and has two neutral/lost variants with
 imported service/delivery flows and imported-resource cleanup. Focused native checks pass;
-checkpoint review is pending, and the remaining 18 variants/interactions stay open.
+checkpoint review and its registration-guard repair passed; the remaining 18 variants/interactions
+stay open.
 
 ### Next
 
