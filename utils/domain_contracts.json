@@ -1678,8 +1678,12 @@
         "content/services/commerce/furniture_placement.gd",
         "content/services/commerce/order_delivery_service.gd"
       ],
-      "method_rights": {},
-      "public_instance_methods": []
+      "method_rights": {
+        "requires_world_body": "read"
+      },
+      "public_instance_methods": [
+        "requires_world_body"
+      ]
     },
     {
       "source_owner": "commerce",

@@ -25,6 +25,8 @@ Shared physical storage batch appends `Kind.PHYSICAL`: purchases and terminal de
 materialize native bodies through the existing placement transaction; grant/transfer
 reject virtual ownership even without C_Grabbable. Marked furniture-only trader courier
 eligibility remains in its existing rule. No central item-ID dispatch was introduced.
+Storage implementation checkpoint: `c34af1d1d8d2c8dc6cfa5ef54f3215187ad6fa7e`;
+its missing commerce read-method API declaration is fixed in the next checkpoint.
 No receiver eligibility, karma or new hazard execution is claimed yet; 14 catalog items remain.
 
 Next: authored item category/capability definitions and receiver/karma ownership,
@@ -61,10 +63,13 @@ in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve).
   focused inventory GUT 17/17, 135 assertions,
   `.artifacts/godot_agent/gut-20261011-172821959.stdout.log`.
 - PASS: physical purchase/courier/arrival regression including PHYSICAL purchase
-  and terminal fulfillment;
+  and terminal fulfillment, 32/32 and 414 assertions;
   `.artifacts/godot_agent/gut-20261011-172826250.stdout.log`.
-- PASS: physical storage formatter/role naming 7 scripts, strict architecture,
-  domain structure and dependencies. Independent storage review pending commit.
+- PASS: physical storage formatter/role naming 7 scripts, strict architecture
+  and domain structure. Initial dependency/project-structure check FAIL identified
+  the missing commerce read-method declaration; explicit API manifest fix passed
+  strict domain dependency and project-structure checks.
+  Independent storage review pending final source checkpoint.
 - MCP edits used native script patching. Tests reloaded without diagnostics;
   loaded DamageRequest and HUD script hot reload returned error 43, so live reload
   is NOT_PASS. Fresh-process native parser/GUT passed; editor log gained no new entries.
