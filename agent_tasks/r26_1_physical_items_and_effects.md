@@ -14,7 +14,7 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 ### Current
 
 Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, dev; reviewed checkpoint
-`ecc2b24e8c9d1c1ecfa054d48f08619eebb84a37`. All 15 items have native MCP-authored bodies.
+`f24a0f3e628f9eb975af33416b9981066d0fd902`. All 15 items have native MCP-authored bodies.
 PHYSICAL commerce materializes bodies; inventory categories stay separate from capabilities.
 Shared sweep, contact episodes and break factory preserve attribution, lifetime and source veto.
 Combat-owned C_Karma persists with strict authored thresholds; schema 13 rejects schema 12 before mutation.
@@ -24,10 +24,9 @@ NPC perception now binds R_NpcBloodZone through LOS/FOV/light; spawn facts immed
 Native trees expose approach/retention after danger and before combat; native Area overlap retains the body.
 Other tagged unclean actors react only toward visible recognized instigators; failed routes are not retried per tick.
 Brain reconstruction clears transient blood bindings/rejections; HP and durable memories keep their existing owners.
-Blood review found unrelated-route rejection and reentrant receiver retirement/reset; scoped fixes pass native regressions.
-Navigation results now identify the request/action/goal; pending planning cannot reject blood.
-Perception stops after a social fact retires or resets its captured receiver. Targeted review remains pending.
-Next: targeted review, catalog smoke, then modular NPC archetypes and receiver composition.
+Blood review fixes passed native regressions and targeted review; navigation failures identify request/action/goal.
+Perception stops after a social fact retires/resets its receiver. Final native 15-item physical smoke passed.
+Next: modular NPC archetypes/receiver composition; retain open integration and owner acceptance.
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
@@ -74,14 +73,19 @@ consecutive immutable SHA ranges; reviewer VALIDATION NOT_RUN, serial/token comp
   GUT193204369 shared host2/2 and193216831 MCP authoring5/5,28 PASS; strict architecture/domain/project checks PASS.
   MCP saved both tree insertions and the new World Observer; editor unsaved count is zero.
   Review `d68cfa821c7227bdc6c5f4f79c8cdb5ede84c713`,165s: ARCHITECTURE FAIL, STYLE PASS.
-  RV-004/P1 ACCEPTED: navigation failure did not identify the blood approach; request/action/goal provenance fixes it.
-  RV-005/P1 ACCEPTED: cadenced social fact could retire/reset receiver; captured owner/state/generation guard fixes it.
+  RV-004/P1 FIXED and RV-005/P1 FIXED `f24a0f3e628f9eb975af33416b9981066d0fd902`:
+  request/action/goal provenance prevents unrelated-route rejection; captured lifecycle guard stops reentrant perception.
   GUT194326551 10/10,120 covers stale/unrelated/same-goal action, pending planning, genuine failure and receiver retirement/reset.
-  Parser194416896 9/9; GUT194442598 intent and194451640 perception PASS; all strict/static checks PASS.
-  Initial new-test insertion parse failure corrected; log194306979 preserved. Targeted review pending.
+  Parser194416896 9/9; GUT194442598 intent6/6,22 and194451640 perception8/8,27; all strict/static checks PASS.
+  Initial new-test insertion parse failure corrected; log194306979 preserved. Targeted review PASS,no findings,42s.
+- Final catalog smoke: GUT194840626 12/12,512, parser194909074 and live MCP checked[] PASS.
+  All 15 bodies fall under authored gravity and report real native floor contacts within 124 frames;
+  actual impact/explosion owners run. Eleven hand grips/three Carry barrels release with inertia and throw physically.
+  Bones retain stack pickup semantics. Initial fixture assumed inert throw attribution and lacked Carry Strength:
+  corrected without gameplay changes; failed logs194712195/194757528 preserved. Smoke review pending.
 - MCP native authored saves throughout. Loaded global script reload error43 remains NOT_PASS;
   fresh parser/GUT are actual independent PASS. No rendered gameplay or clean editor visual QA claimed.
-- NOT_RUN: final 15-item physical smoke, archetype receiver composition and full owner acceptance.
+- NOT_RUN: archetype receiver composition and full owner acceptance.
 
 ### Owner QA / blockers
 

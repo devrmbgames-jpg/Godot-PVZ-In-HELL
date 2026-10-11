@@ -4,6 +4,24 @@ extends GutTest
 var _world: World = null
 var _actor: E_RigidBodyCharacter = null
 
+const CATALOG_SCENES: Array[String] = [
+	"res://content/domains/inventory/entities/bones_pickup.tscn",
+	"res://content/domains/combat/entities/axe.tscn",
+	"res://content/domains/combat/entities/scythe.tscn",
+	"res://content/domains/combat/entities/throwing_knife.tscn",
+	"res://content/domains/hazards/entities/fire_flask.tscn",
+	"res://content/domains/hazards/entities/toxin_flask.tscn",
+	"res://content/domains/hazards/entities/reagent_flask.tscn",
+	"res://content/domains/combat/entities/holy_artifact.tscn",
+	"res://content/domains/combat/entities/unholy_artifact.tscn",
+	"res://content/domains/hazards/entities/acid_barrel.tscn",
+	"res://content/domains/hazards/entities/fire_barrel.tscn",
+	"res://content/domains/combat/entities/spiked_chains.tscn",
+	"res://content/domains/inventory/entities/slave_collar.tscn",
+	"res://content/domains/hazards/entities/blood_flask.tscn",
+	"res://content/domains/hazards/entities/blood_barrel.tscn",
+]
+
 
 ## Observes committed damage without mutating health.
 class DamageRecorder extends Observer:
@@ -144,6 +162,125 @@ func _throw_flask(item: Entity) -> void:
 	GrabService.throw(_actor, item)
 	assert_eq(ThrowContext.relationship(item).target, _actor)
 	await get_tree().physics_frame
+#endregion
+
+
+#region Bounded full-catalog physical smoke
+func _catalog_body(path: String, position: Vector3) -> Entity:
+	var scene: PackedScene = load(path) as PackedScene
+	var entity: Entity = scene.instantiate() as Entity
+	EntityCompositionFixture.register(_world, entity)
+	(entity as Node as Node3D).global_position = position
+	return entity
+
+
+## Every authored body falls and actually contacts native collision geometry in a bounded run.
+func test_full_catalog_native_gravity_and_floor_contact_smoke() -> void:
+	var floor: StaticBody3D = StaticBody3D.new()
+	var collision: CollisionShape3D = CollisionShape3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3(58.0, 0.5, 12.0)
+	collision.shape = shape
+	floor.add_child(collision)
+	_world.add_child(floor)
+	floor.position = Vector3(0.0, -0.25, -12.0)
+	var references: Array[WeakRef] = []
+	var contacted: Dictionary[String, bool] = { }
+	for index: int in CATALOG_SCENES.size():
+		var entity: Entity = _catalog_body(
+			CATALOG_SCENES[index],
+			Vector3(-24.5 + index * 3.5, 4.0, -12.0),
+		)
+		var body: RigidBody3D = entity as Node as RigidBody3D
+		assert_not_null(body, CATALOG_SCENES[index])
+		assert_false(body.freeze)
+		assert_gt(body.mass, 0.0)
+		assert_eq(body.gravity_scale, 1.0, "Smoke uses authored gravity")
+		assert_not_null(entity.get_component(C_ImpactInbox))
+		references.append(weakref(entity))
+	for frame: int in 4:
+		await get_tree().physics_frame
+	for reference: WeakRef in references:
+		var body: RigidBody3D = reference.get_ref() as RigidBody3D
+		assert_lt(body.global_position.y, 4.0)
+		assert_lt(body.linear_velocity.y, 0.0)
+	_world.add_system(S_Impact.new())
+	_world.add_system(S_Explosion.new())
+	for frame: int in 120:
+		await get_tree().physics_frame
+		for reference: WeakRef in references:
+			var entity: Entity = reference.get_ref() as Entity
+			if not EntityAvailability.contains(entity, _world):
+				continue
+			var inbox: C_ImpactInbox = entity.get_component(C_ImpactInbox) as C_ImpactInbox
+			if not inbox.contacts.is_empty():
+				contacted[entity.id] = true
+		_world.process(1.0 / 60.0)
+	assert_eq(
+		contacted.size(),
+		CATALOG_SCENES.size(),
+		"Every catalog body produced native contacts",
+	)
+	var survivors: int = 0
+	for reference: WeakRef in references:
+		var entity: Entity = reference.get_ref() as Entity
+		if EntityAvailability.contains(entity, _world):
+			var body: RigidBody3D = entity as Node as RigidBody3D
+			assert_true(body.global_position.is_finite())
+			assert_true(body.linear_velocity.is_finite())
+			assert_gt(body.global_position.y, -0.25, "Body must remain above the solid floor")
+			survivors += 1
+	assert_gt(survivors, 0, "Inert items survive while destructible payloads may break")
+
+
+## All authored grip capabilities acquire/release through R_HeldBy and preserve real throw impulse.
+func test_full_catalog_native_pickup_release_and_throw_smoke() -> void:
+	_actor.hold_anchor = _actor.head_axis_x
+	_actor.add_component(C_Strength.new())
+	var hand_count: int = 0
+	var carry_count: int = 0
+	for path: String in CATALOG_SCENES:
+		var entity: Entity = _catalog_body(path, _actor.right_hand_slot.global_position)
+		var body: RigidBody3D = entity as Node as RigidBody3D
+		body.gravity_scale = 0.0
+		var grip: C_Grabbable = entity.get_component(C_Grabbable) as C_Grabbable
+		if grip == null:
+			assert_true(entity.has_component(C_InventoryItem), "Stack pickup has no hand grip")
+			_world.remove_entity(entity)
+			entity.free()
+			continue
+		var slot: C_Grabbable.HoldSlot = C_Grabbable.HoldSlot.RIGHT_HAND
+		if grip.allowed_hand_slots == 0:
+			slot = C_Grabbable.HoldSlot.CARRY
+			carry_count += 1
+		else:
+			hand_count += 1
+		_actor.interaction_ray_cast.global_position = body.global_position + Vector3.BACK
+		await get_tree().physics_frame
+		assert_true(GrabService.try_pickup(_actor, entity, slot), path)
+		assert_same(GrabQueries.held_relationship(entity).target, _actor)
+		body.linear_velocity = Vector3(0.0, 0.0, -2.0)
+		GrabReleaseService.release(_actor, entity)
+		assert_null(GrabQueries.held_relationship(entity))
+		assert_eq(body.linear_velocity, Vector3(0.0, 0.0, -2.0), "Release preserves inertia")
+		_actor.interaction_ray_cast.global_position = body.global_position + Vector3.BACK
+		await get_tree().physics_frame
+		assert_true(GrabService.try_pickup(_actor, entity, slot), path)
+		(_actor.get_component(C_Controller) as C_Controller).direction_look = Vector3.FORWARD
+		GrabService.throw(_actor, entity)
+		assert_null(GrabQueries.held_relationship(entity))
+		if entity.has_component(C_ThrowDamage):
+			assert_not_null(ThrowContext.relationship(entity), path)
+			assert_same(ThrowContext.relationship(entity).target, _actor)
+		else:
+			assert_null(ThrowContext.relationship(entity), "Inert throw has no damage attribution")
+		await get_tree().physics_frame
+		assert_lt(body.linear_velocity.z, -2.0, "Native impulse must propel the released body")
+		assert_false(body.freeze)
+		_world.remove_entity(entity)
+		entity.free()
+	assert_eq(hand_count, 11)
+	assert_eq(carry_count, 3)
 #endregion
 
 
