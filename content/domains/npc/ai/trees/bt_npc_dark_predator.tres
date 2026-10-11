@@ -1,0 +1,39 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://bn2xa8xolml5b"]
+
+[ext_resource type="Script" uid="uid://o0ubmjiufosb" path="res://content/domains/npc/ai/tasks/bt_npc_darkness_calm.gd" id="1_mey4t"]
+[ext_resource type="Script" uid="uid://cuvbp6ubcpqv5" path="res://content/domains/npc/ai/tasks/bt_npc_end_combat.gd" id="2_c2rdl"]
+[ext_resource type="Script" uid="uid://bf2colhxfy1tm" path="res://content/domains/npc/ai/tasks/bt_npc_dark_hunt_available.gd" id="3_21i5b"]
+[ext_resource type="Script" uid="uid://rdw3ka6qn7qy" path="res://content/domains/npc/ai/tasks/bt_npc_begin_dark_hunt.gd" id="4_ai34n"]
+
+[sub_resource type="BTCondition" id="BTCondition_o3uq0"]
+custom_name = "Свет достиг мирного порога"
+script = ExtResource("1_mey4t")
+
+[sub_resource type="BTAction" id="BTAction_ylnp1"]
+custom_name = "Отменить атаку и снять цель"
+script = ExtResource("2_c2rdl")
+intent_owner = 0
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_86r5x"]
+custom_name = "Освещённый охотник прекращает бой"
+children = [SubResource("BTCondition_o3uq0"), SubResource("BTAction_ylnp1")]
+
+[sub_resource type="BTCondition" id="BTCondition_x076b"]
+custom_name = "Живой игрок замечен в темноте"
+script = ExtResource("3_21i5b")
+
+[sub_resource type="BTAction" id="BTAction_nnopl"]
+custom_name = "Связать замеченную цель для обычного боя"
+script = ExtResource("4_ai34n")
+intent_owner = 1
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_6r6dq"]
+custom_name = "Начать охоту за замеченным игроком"
+children = [SubResource("BTCondition_x076b"), SubResource("BTAction_nnopl")]
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_awkwy"]
+custom_name = "Свет прекращает бой / темнота начинает охоту"
+children = [SubResource("BTDynamicSequence_86r5x"), SubResource("BTDynamicSequence_6r6dq")]
+
+[resource]
+root_task = SubResource("BTDynamicSelector_awkwy")

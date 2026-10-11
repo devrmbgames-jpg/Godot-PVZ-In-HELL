@@ -9,47 +9,49 @@ Parent: [R26](r26_items_npc_expansion.md).
 
 Implement the requested NPC behaviors as **real Behavior Trees** using LimboAI v1.8.1.
 
-Follow [limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md) and
-[game-ai](../.agents/skills/game-ai/SKILL.md).
+Follow [limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md) and [game-ai](../.agents/skills/game-ai/SKILL.md).
 
-The current `bt_npc_action.gd` is a narrow movement/lifecycle base; `NpcDecisionService`
-exposes explicit operations, and current trees already expose branch selection. Extend this
-model. A single configurable leaf dispatching an entire decision tree remains prohibited.
+`bt_npc_action.gd` is a narrow lifecycle base; `NpcDecisionService` exposes explicit operations.
+Extend visible tree selection; a leaf dispatching an entire decision tree remains prohibited.
 
 ### Current
 
-Observation freeze and aggressive speed share native body/animation, combat, cadence,
-intent and motion authorities. Angel catalog tuning is authored; both checkpoints passed review.
-Typed gaze aversion now adds safe idle observation with a visible guard/reposition/watch
-subtree below conversation/service/schedule. Actual perceived player/camera, solid LOS and
-at most two safe native route previews determine a side point; physics owns movement.
-S_NpcTraits owns warning/exposure clocks, and a prolonged gaze commits one remembered attack
-through NpcSocialService even for timid personalities. Interruption releases movement/look
-without clearing a replacement owner's token. Shy catalog is authored; live roster is not rebound.
-Shy smoke/review PASS. Next: remaining mandatory archetype subtrees.
+Reviewed freeze/speed share native body/animation, combat, cadence and motion authorities.
+Reviewed shy gaze aversion composes idle guard/reposition/watch below service/schedule,
+actual perception/camera, solid LOS and at most two safe route previews. S_NpcTraits owns
+exposure; prolonged gaze commits one remembered attack, including timid personalities.
+Interruption releases only its owned movement/look. Native catalogs retain authored identities.
+Typed night hunting now samples authored light zones only at due steps and at perceived player
+positions. Visible branches start combat in darkness and cancel it in brighter light with separate thresholds;
+no durable offense; native/customer roots retain immediate safety/blood priority.
+Combat gates share the light fact and preserve replacement emergency movement on cancellation.
+Focused regressions pass; final smoke is NOT_RUN and checkpoint review is REVIEW_PENDING.
+Night presentation/dialogues, remaining mandatory subtrees and live roster binding stay open.
 
 ### Validation
 
-Freeze baseline: parser222334705/20; GUT222305503 11/75, cache222111743 6/77,
-variation222116292 6/360, catalog222119532 4/944, attacks222155017 22/160,
-identity222203373 13/102, participation222209670 12/133, world222227075 35/443 PASS.
-Freeze smoke district-20261012-082437905.log PASS; MCP camera/LOS/Jolt/animation/native
-subtree, complete brain fields/cache and clean reload verified. Review BASE
-7d1a4b2dfefb840e30fba336389da367f1d5f8b2 -> 71c592dc86e292b0a2cbc8f772e7025adcb965c5 PASS (99 s).
-Speed: parser225807185/7; gaze225851972 15/110, sprint225935638 9/55,
-hunger230013530 8/106, world230020810 35/443 and district-20261012-090138493.log PASS.
-Review BASE 69506165b6ff97d0495864c0512de2b1f4343a54 ->
-5339a67e38824f88a80a5bc266a404927ef0bbbb PASS, no findings (17 s).
-Shy: parser232439318/9; gaze232244950 11/112, performance232334680 21/145,
-customer232400198 15/272, freeze232405471 15/110, catalog232520640 4/944 PASS.
-No runtime errors or GUT orphan Nodes; native cadence/perception/BT reaction and interruption run.
-Formatter/lint, strict architecture/dependencies/domain/project structure and persistence PASS.
-MCP authors trait/catalog/subtree with UIDs preserved; leaf reload/diagnostics PASS, global
-reload43 NOT_PASS independently verified by CLI; clean scene reload/no new editor errors PASS.
-Shy smoke district-20261012-092523857.log PASS; eight mornings/all phases/save/restore.
-Review BASE 5339a67e38824f88a80a5bc266a404927ef0bbbb ->
-5ff85b58ea107ec795d3dea4319be9dcf10306b1 PASS, no findings (66 s).
-Reviewed checkpoints ARCHITECTURE/STYLE PASS; reviewer runtime VALIDATION NOT_RUN.
+Freeze PASS: parser222334705/20; GUT222305503 11/75, cache222111743 6/77, variation222116292 6/360,
+catalog222119532 4/944, attacks222155017 22/160, identity222203373 13/102, participation222209670 12/133,
+world222227075 35/443; district-20261012-082437905.log smoke.
+MCP camera/LOS/Jolt/animation/subtree, complete brain fields/cache and clean reload verified.
+Review `7d1a4b2dfefb840e30fba336389da367f1d5f8b2` -> `71c592dc86e292b0a2cbc8f772e7025adcb965c5` PASS (99 s).
+Speed PASS: parser225807185/7; gaze225851972 15/110, sprint225935638 9/55,
+hunger230013530 8/106, world230020810 35/443; district-20261012-090138493.log smoke.
+Review `69506165b6ff97d0495864c0512de2b1f4343a54` -> `5339a67e38824f88a80a5bc266a404927ef0bbbb` PASS (17 s).
+Shy PASS: parser232439318/9; gaze232244950 11/112, performance232334680 21/145,
+customer232400198 15/272, freeze232405471 15/110, catalog232520640 4/944;
+district-20261012-092523857.log smoke (eight mornings/all phases/save/restore).
+Review `5339a67e38824f88a80a5bc266a404927ef0bbbb` -> `5ff85b58ea107ec795d3dea4319be9dcf10306b1` PASS (66 s).
+Night PASS: parser235825476/12; hunt235740214 11/100, blood234948208 10/120,
+gaze234959632 11/112, performance235010025 21/145, catalog235034482 4/944.
+Native cadence, solid occlusion, switches, cancellation, thresholds, reset and codec ran;
+freeze235843927 15/110 and attacks235911380 22/160 PASS after combat gate changes.
+Initial district-20261012-095117326.log smoke PASS; final gate-change smoke NOT_RUN. Review BASE
+`b1b9c38f8844723850a5223d6f4c4271f5ef7ef7`, TARGET pending commit: REVIEW_PENDING.
+No runtime errors or GUT orphan Nodes. Formatter/lint, strict architecture/dependencies,
+domain/project structure and persistence PASS. MCP authors native traits/catalog/trees with
+UIDs preserved; leaf diagnostics/reload and clean scene reload/no new editor errors PASS.
+Global reload43 NOT_PASS; CLI independently PASS. Reviewed ARCHITECTURE/STYLE PASS; runtime VALIDATION NOT_RUN.
 Full mandatory behaviors, live roster integration and owner gameplay/visual QA: NOT_RUN.
 
 ### Owner QA / blockers

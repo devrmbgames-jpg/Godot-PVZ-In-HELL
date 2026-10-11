@@ -53,8 +53,37 @@ func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, de
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.hazard_distress = NpcRouteSolver.danger_here(actor)
 	awareness.light_distress = false
+	awareness.darkness_combat_suppressed = false
+	var predator: DEF_NpcDarkPredator = (
+		person.rule_for(DEF_NpcTrait.Kind.DARK_PREDATOR) as DEF_NpcDarkPredator
+	)
+	if predator != null:
+		awareness.self_light_exposure = NpcLightingService.exposure_at(
+			actor.global_position + Vector3.UP * NpcPerceptionService.TORSO_HEIGHT,
+		)
+		awareness.player_light_exposure = 1.0
+		if (
+			awareness.player_visible and GrabQueries.holder_available(player)
+			and not player.has_component(C_Death)
+		):
+			awareness.player_light_exposure = NpcLightingService.exposure_at(
+				(player as Node as Node3D).global_position + Vector3.UP,
+			)
+		awareness.darkness_combat_suppressed = (
+			awareness.self_light_exposure >= predator.peaceful_light_threshold
+			or (
+				awareness.player_visible
+				and awareness.player_light_exposure >= predator.peaceful_light_threshold
+			)
+		)
 	_observe_retreat(actor, person, player, awareness, delta)
 	for rule: DEF_NpcTrait in person.rules_for():
+		if rule is DEF_NpcDarkPredator:
+			# The visible BT branches own reversible hunt/calm decisions, not an offense timer.
+			continue
+		if predator != null and rule.kind == DEF_NpcTrait.Kind.LIGHT_AVERSION:
+			awareness.light_distress = awareness.self_light_exposure > rule.light_threshold
+			continue
 		if rule.kind == DEF_NpcTrait.Kind.FIRE_AURA:
 			NpcTraitService.ensure_aura(actor, person, rule)
 			continue

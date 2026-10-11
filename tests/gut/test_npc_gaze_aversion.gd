@@ -149,9 +149,9 @@ func test_native_tree_exposes_guard_reposition_observe_and_keeps_schedule_priori
 	assert_is(selection.get_child(0).get_child(1), BTAction)
 	assert_is(selection.get_child(1), BTAction)
 	var tree: BehaviorTree = load(NpcBrainService.TREE_PATH) as BehaviorTree
-	assert_eq(tree.get_root_task().get_child(5).get_custom_name(), "Разговор")
-	assert_eq(tree.get_root_task().get_child(6).get_custom_name(), "Задача расписания")
-	assert_eq(tree.get_root_task().get_child(7).get_custom_name(), "Свободное занятие")
+	assert_eq(tree.get_root_task().get_child(6).get_custom_name(), "Разговор")
+	assert_eq(tree.get_root_task().get_child(7).get_custom_name(), "Задача расписания")
+	assert_eq(tree.get_root_task().get_child(8).get_custom_name(), "Свободное занятие")
 	var idle: BehaviorTree = (
 		load("res://content/domains/npc/ai/trees/bt_npc_idle.tres") as BehaviorTree
 	)

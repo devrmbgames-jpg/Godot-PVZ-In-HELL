@@ -26,15 +26,16 @@ Review of `490efacd2b5888383325bdbf37aa13b3753be4a4` against
 `1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63` found the missing direct registration guard.
 The guard is restored in both variants, with focused native regression PASS. Targeted repair
 review of `c64c5f782ee1874c0e987b34064b132cb6a7c5e5` passed without remaining findings.
-Shy dialogue checkpoint review is REVIEW_PENDING against
-`5ff85b58ea107ec795d3dea4319be9dcf10306b1`.
+Shy dialogue review BASE `5ff85b58ea107ec795d3dea4319be9dcf10306b1` ->
+TARGET `b1b9c38f8844723850a5223d6f4c4271f5ef7ef7` PASS, no findings (61 s).
+Reviewer ARCHITECTURE/STYLE PASS; runtime VALIDATION NOT_RUN.
 Remaining archetypes still need their required interactions, including authoritative soul/blood
 transactions; full task acceptance and live roster binding remain open.
 
 ### Next
 
 Continue required archetype behavior/interaction capabilities
-and author the remaining 16 variants after collecting the shy dialogue review.
+and author the remaining 16 variants.
 No per-open reroll or new UI authority is introduced.
 
 ### Validation

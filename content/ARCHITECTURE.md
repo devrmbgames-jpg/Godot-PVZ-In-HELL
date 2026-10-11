@@ -65,6 +65,15 @@ S_NpcTraits alone advances exposure/warning state; NpcSocialService.escalate_gaz
 remembered attack through the existing combat binding and wake boundary. Movement/look tokens
 release interrupted observation without cancelling the replacement branch's intent.
 
+Typed darkness hunting reads due-step authored light exposure sampled by S_NpcTraits in
+C_NpcAwareness. Hidden player positions are not sampled. Native guards distinguish starting
+a hunt from ending combat in brighter light, with authored separate thresholds. Explicit
+leaves use existing social/combat bindings and cancellation; darkness creates no durable
+offense. Combat start/progression/effect gates read the same sampled suppression fact;
+execution cancellation preserves an emergency branch's replacement movement and live target
+cleanup stays with the native calm branch. Legacy trait reactions retain their original policy. Native shade routing remains
+authored and performs no repeated illumination search.
+
 ### Choosing execution ownership
 
 1. Required engine timing comes first: work that must use `PhysicsDirectBodyState3D` in `_integrate_forces` stays in that callback's Entity glue and independent non-System Solvers.

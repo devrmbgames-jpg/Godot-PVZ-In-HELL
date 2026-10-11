@@ -5,6 +5,13 @@ class_name C_NpcAwareness
 ## Transient rejected navigation targets; cleared on reconstruction and when a zone expires.
 var rejected_blood_ids: Array[String] = []
 
+## Due-step authored exposure at the actor; S_NpcTraits samples it for typed darkness hunting.
+var self_light_exposure: float = 1.0
+## Exposure at the currently perceived player; hidden positions are never sampled.
+var player_light_exposure: float = 1.0
+## S_NpcTraits derives the typed predator's light constraint; combat reads it between BT updates.
+var darkness_combat_suppressed: bool = false
+
 ## Связанный противник виден в текущем обновлении зрения.
 var target_visible: bool = false
 ## Игрок виден в текущем обновлении зрения.
@@ -55,6 +62,9 @@ var called_out: bool = false
 ## Clears derived state in place; retains the constructed Component and durable NPC authority.
 func reset_transient_state() -> void:
 	rejected_blood_ids.clear()
+	self_light_exposure = 1.0
+	player_light_exposure = 1.0
+	darkness_combat_suppressed = false
 	target_visible = false
 	player_visible = false
 	last_seen_position = Vector3.ZERO

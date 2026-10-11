@@ -376,12 +376,13 @@ func test_native_and_customer_roots_preserve_other_branches_and_share_blood_prio
 	]:
 		var tree: BehaviorTree = load(tree_path) as BehaviorTree
 		var root_task: BTTask = tree.get_root_task()
-		assert_eq(root_task.get_child_count(), 7)
-		assert_eq(root_task.get_child(1).get_custom_name(), "Опасность")
-		assert_eq(root_task.get_child(2).get_custom_name(), "Воспринятая кровь")
-		assert_eq(root_task.get_child(3).get_custom_name(), "Бой / поиск")
+		var hunt_index: int = 3 if tree_path == NpcBrainService.TREE_PATH else 2
+		assert_eq(root_task.get_child_count(), 9 if hunt_index == 3 else 8)
+		assert_eq(root_task.get_child(hunt_index - 1).get_custom_name(), "Опасность")
+		assert_eq(root_task.get_child(hunt_index + 1).get_custom_name(), "Воспринятая кровь")
+		assert_eq(root_task.get_child(hunt_index + 2).get_custom_name(), "Бой / поиск")
 		assert_same(
-			(root_task.get_child(2) as BTSubtree).subtree,
+			(root_task.get_child(hunt_index + 1) as BTSubtree).subtree,
 			load("res://content/domains/npc/ai/trees/bt_npc_blood.tres"),
 		)
 

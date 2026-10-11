@@ -18769,6 +18769,21 @@
       "purpose": "Combat reads the sampled observation constraint at attack start, progression and effect boundaries; no sensing or NPC mutation."
     },
     {
+      "source_owner": "combat",
+      "target_owner": "npc",
+      "symbol": "NpcDarknessQueries",
+      "path": "content/domains/npc/services/npc_darkness_queries.gd",
+      "rights": ["query"],
+      "public_methods": ["combat_suppressed"],
+      "sources": [
+        "content/domains/combat/services/npc_attack_service.gd",
+        "content/domains/combat/systems/s_npc_combat.gd"
+      ],
+      "method_rights": {"combat_suppressed": "query"},
+      "public_instance_methods": [],
+      "purpose": "Combat start/progression/effect boundaries read the sampled light constraint without sensing or changing NPC state."
+    },
+    {
       "source_owner": "global",
       "target_owner": "npc",
       "symbol": "S_NpcGazeFreeze",

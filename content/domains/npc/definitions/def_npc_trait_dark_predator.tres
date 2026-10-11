@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DEF_NpcDarkPredator" format=3 uid="uid://ch3jukcoxgbcn"]
+
+[ext_resource type="Script" uid="uid://bj0qfsgsuit7" path="res://content/domains/npc/definitions/def_npc_dark_predator.gd" id="1_6vk0i"]
+
+[resource]
+script = ExtResource("1_6vk0i")
+kind = 3
+warning_text = "В темноте ты выглядишь съедобно."
+countermeasure = "Включить свет"
+light_threshold = 0.25
+key = &"trait/dark_predator"

@@ -56,7 +56,7 @@ func _step(actor: Entity, delta: float) -> void:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null:
 		return
-	if NpcGazeQueries.frozen(actor):
+	if NpcGazeQueries.frozen(actor) or NpcDarknessQueries.combat_suppressed(actor):
 		if state.phase != C_NpcCombat.Phase.READY:
 			NpcAttackExecutionService.cancel(actor)
 		return

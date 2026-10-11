@@ -47,14 +47,18 @@ Full behaviors/binding remain open.
 Shy gaze aversion now uses native idle-only observation/repositioning, real perception/camera,
 safe routes and one remembered prolonged-gaze attack. Focused/native regressions pass;
 district smoke/review passed. Live archetype binding remains open.
+Night hunting now uses due-step authored light sampling and visible native/customer branches
+for starting combat and calming on light; combat gates preserve emergency movement while
+cancelling the attack. Focused checks and initial smoke pass; final smoke/review are pending.
+Night music/shadow presentation and live archetype binding remain open.
 R26.4 routes committed personal variants, with two neutral/lost and two shy variants using
 imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
-role/idempotency regressions pass; its checkpoint review is pending. Lost checkpoint review
+role/idempotency regressions and checkpoint review pass. Lost checkpoint review
 and registration-guard repair passed; the remaining 16 variants/interactions stay open.
 
 ### Next
 
-Collect shy dialogue review and continue remaining R26.3/R26.4,
+Continue night-hunter light/dark behavior and remaining R26.3/R26.4,
 then bind all ten archetypes.
 
 ### Validation
