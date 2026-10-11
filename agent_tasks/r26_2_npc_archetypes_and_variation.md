@@ -23,7 +23,7 @@ Category ordering now commits real catalog payloads with the existing receiving 
 Weighted available categories feed deterministic per-person decisions; missing categories fall back.
 Contents and the terminal/archive arrival projection retain the choice through retry/restore.
 Native MCP adds all 15 physical catalog items while preserving all eight authored case paths.
-Next: review this checkpoint, implement R26.3/R26.4 and bind all ten requested archetypes.
+Category checkpoint review PASS. Next: implement R26.3/R26.4 and bind all ten requested archetypes.
 Presentation/combat/mandatory behavior acceptance remains open.
 
 ### Validation
@@ -77,7 +77,9 @@ Parser215443197: 34 files compiled without parser errors; aggregate runner FAIL 
 baseline-script shutdown retention above (KNOWN_ENGINE_LIMITATION/DEFERRED).
 Strict architecture/domain/project/style/persistence-baseline checks PASS. Week smoke PASS:
 tests/artifacts/district-20261012-075624916.log (all phases, eight mornings, save/restore).
-Category checkpoint review remains pending; no DONE or subjective gameplay acceptance is claimed.
+Category review BASE 6aa34fcd379e8cd23396b69dc3b80ae4e21a7ad8 ->
+TARGET 7723b5a2a5ffce79d67895a9724234dd42080d24 PASS, no findings (104 s).
+ARCHITECTURE/STYLE PASS; reviewer runtime VALIDATION NOT_RUN. No DONE/owner acceptance claimed.
 MCP refresh proves supply/policy caches update in place without file/UID changes; clean scene
 reload and six test diagnostics checked[]/reloaded PASS. Global reload43 remains NOT_PASS.
 NOT_RUN: ten-archetype roster binding, new mandatory behaviors,

@@ -1,5 +1,5 @@
 # R26.3 — LimboAI Behavior Trees for NPC archetypes
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -18,9 +18,11 @@ model. A single configurable leaf dispatching an entire decision tree remains pr
 
 ### Current
 
-PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
-in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
-The 2026-10-10 audit updates specification only.
+Started after reviewed variation/ordering foundations. Extend the existing manually driven
+native top-level tree and preserve cadence, perception, motion and combat authorities.
+First scope: reusable camera visibility/forced-freeze capability and the angel safety branch;
+then other required archetype subtrees. Traits must compose by authored definitions/keys,
+without an NPC-type dispatcher or parallel FSM. No new behavior acceptance is claimed yet.
 
 ### Validation
 

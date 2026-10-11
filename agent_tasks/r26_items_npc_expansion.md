@@ -42,7 +42,7 @@ receiving, contents and archive projection, using the immutable authored catalog
 
 ### Next
 
-Review the R26.2 category-order checkpoint, then continue R26.3/R26.4 and bind all ten archetypes.
+The category-order checkpoint passed review. Continue R26.3/R26.4 and bind all ten archetypes.
 
 ### Validation
 
