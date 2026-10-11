@@ -32,7 +32,8 @@ Combat-owned C_Karma now persists with authored strict thresholds and one runtim
 Artifact receiver rules now use typed creature tags and player karma through the damage authority.
 Blood spawns non-damaging native zones; perceived vampire calm/approach/retention and
 typed unclean provocation now use native perception and visible LimboAI branches.
-The blood behavior batch awaits review; final catalog smoke and NPC milestones remain open.
+Blood review fixes now pass native checks for route provenance and reentrant receiver lifetime;
+targeted re-review, final catalog smoke and NPC milestones remain open.
 Current vertical domains, direct Entity Traits and save schema 13 remain authoritative.
 
 ### Next

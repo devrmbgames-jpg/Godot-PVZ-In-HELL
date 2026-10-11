@@ -11,6 +11,7 @@ static func move_to(actor: Entity, position: Vector3, arrival_distance: float) -
 		return
 
 	_clear_target(actor, R_NpcMoveTarget)
+	intent.movement_generation += 1
 	intent.move_uses_entity = false
 	intent.move_position = position
 	intent.arrival_distance = maxf(0.0, arrival_distance)
@@ -25,6 +26,7 @@ static func follow(actor: Entity, target: Entity, arrival_distance: float) -> vo
 		return
 
 	_clear_target(actor, R_NpcMoveTarget)
+	intent.movement_generation += 1
 	intent.move_uses_entity = true
 	intent.arrival_distance = maxf(0.0, arrival_distance)
 	intent.arrived = false
@@ -40,6 +42,7 @@ static func stop(actor: Entity) -> void:
 		return
 
 	_clear_target(actor, R_NpcMoveTarget)
+	intent.movement_generation += 1
 	intent.movement_active = false
 	intent.move_uses_entity = false
 #endregion

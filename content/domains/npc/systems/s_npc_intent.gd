@@ -51,6 +51,9 @@ func _apply(
 	controller.limit_motion_velocity = false
 	intent.navigation_pending = false
 	intent.navigation_blocked = false
+	intent.navigation_generation = intent.movement_generation
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	intent.navigation_task_id = decision.active_task_id if decision != null else 0
 	var npc: E_NpcCharacter = actor as E_NpcCharacter
 	if npc != null:
 		npc.sync_navigation_lifecycle(not actor.has_component(C_Death))

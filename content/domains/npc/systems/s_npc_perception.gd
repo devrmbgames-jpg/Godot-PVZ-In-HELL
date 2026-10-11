@@ -50,8 +50,24 @@ func _advance(entity_reference: WeakRef, captured: C_NpcDecision, captured_gener
 
 
 func _sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
-	_sample_blood(actor, person)
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	var generation: int = decision.lifecycle_generation
+	var actor_reference: WeakRef = weakref(actor)
+	var player_reference: WeakRef = weakref(player) if player != null else null
+	_sample_blood(actor, person)
+	# UNCLEAN observation publishes a social fact: subscribers may retire/reset this receiver.
+	actor = actor_reference.get_ref() as E_DistrictNpc
+	if (
+		not EntityAvailability.contains(actor, _world)
+		or actor.has_component(C_Death) or actor.get_component(C_NpcDecision) != decision
+		or actor.get_component(C_NpcAwareness) != awareness
+		or decision.lifecycle_generation != generation
+	):
+		return
+	player = player_reference.get_ref() as Entity if player_reference != null else null
+	if not EntityAvailability.contains(player, _world):
+		player = null
 	awareness.player_visible = (
 		player != null and NpcPerceptionService.can_see(actor, player, person.profile)
 	)
@@ -86,12 +102,11 @@ func _sample_blood(actor: E_DistrictNpc, person: NpcRecord) -> void:
 		NpcBloodService.release(actor)
 		return
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
-	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	var previous: E_BloodArea = NpcBloodQueries.zone_for(actor)
 	if previous != null and NpcBloodQueries.inside(actor, previous):
 		NpcBloodService.observe(actor, person, previous)
 		return
-	if previous != null and intent.navigation_blocked and not intent.navigation_pending:
+	if previous != null and NpcBloodQueries.approach_failed(actor, previous):
 		if not awareness.rejected_blood_ids.has(previous.id):
 			awareness.rejected_blood_ids.append(previous.id)
 	var live_ids: Array[String] = []

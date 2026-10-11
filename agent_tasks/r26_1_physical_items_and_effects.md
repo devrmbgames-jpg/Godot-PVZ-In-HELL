@@ -24,8 +24,11 @@ NPC perception now binds R_NpcBloodZone through LOS/FOV/light; spawn facts immed
 Native trees expose approach/retention after danger and before combat; native Area overlap retains the body.
 Other tagged unclean actors react only toward visible recognized instigators; failed routes are not retried per tick.
 Brain reconstruction clears transient blood bindings/rejections; HP and durable memories keep their existing owners.
-NPC blood batch review is pending; final 15-item physical smoke and R26.2 receiver composition remain open.
-Next: catalog smoke, then modular NPC archetypes. Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
+Blood review found unrelated-route rejection and reentrant receiver retirement/reset; scoped fixes pass native regressions.
+Navigation results now identify the request/action/goal; pending planning cannot reject blood.
+Perception stops after a social fact retires or resets its captured receiver. Targeted review remains pending.
+Next: targeted review, catalog smoke, then modular NPC archetypes and receiver composition.
+Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
 
@@ -70,6 +73,12 @@ consecutive immutable SHA ranges; reviewer VALIDATION NOT_RUN, serial/token comp
   Initial fixture lacked mandatory district definition: corrected through NpcConstructionService; failed log192319169 preserved.
   GUT193204369 shared host2/2 and193216831 MCP authoring5/5,28 PASS; strict architecture/domain/project checks PASS.
   MCP saved both tree insertions and the new World Observer; editor unsaved count is zero.
+  Review `d68cfa821c7227bdc6c5f4f79c8cdb5ede84c713`,165s: ARCHITECTURE FAIL, STYLE PASS.
+  RV-004/P1 ACCEPTED: navigation failure did not identify the blood approach; request/action/goal provenance fixes it.
+  RV-005/P1 ACCEPTED: cadenced social fact could retire/reset receiver; captured owner/state/generation guard fixes it.
+  GUT194326551 10/10,120 covers stale/unrelated/same-goal action, pending planning, genuine failure and receiver retirement/reset.
+  Parser194416896 9/9; GUT194442598 intent and194451640 perception PASS; all strict/static checks PASS.
+  Initial new-test insertion parse failure corrected; log194306979 preserved. Targeted review pending.
 - MCP native authored saves throughout. Loaded global script reload error43 remains NOT_PASS;
   fresh parser/GUT are actual independent PASS. No rendered gameplay or clean editor visual QA claimed.
 - NOT_RUN: final 15-item physical smoke, archetype receiver composition and full owner acceptance.

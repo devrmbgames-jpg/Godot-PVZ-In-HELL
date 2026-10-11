@@ -8,4 +8,5 @@ func _tick(_delta: float) -> Status:
 	if zone == null or not _claim("Подойти к крови"):
 		return FAILURE
 	_move(zone.global_position, NpcDecisionService.ARRIVAL_DISTANCE)
+	NpcBloodService.mark_approach(_actor, zone, get_instance_id())
 	return RUNNING

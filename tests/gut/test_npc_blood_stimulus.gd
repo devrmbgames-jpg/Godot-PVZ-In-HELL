@@ -22,6 +22,27 @@ class BloodRetirer extends Observer:
 			zone.free()
 
 
+class ReceiverMutator extends Observer:
+	var retire: bool = false
+	var calls: int = 0
+
+
+	func query() -> QueryBuilder:
+		return q.with_all([C_NpcIdentity]).on_event(NpcSocialReactionCommitted.EVENT)
+
+
+	func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
+		calls += 1
+		if retire:
+			_world.remove_entity(entity)
+			entity.free()
+		else:
+			DistrictPopulationService.reset_brain(entity as E_DistrictNpc)
+			var awareness: C_NpcAwareness = entity.get_component(C_NpcAwareness) as C_NpcAwareness
+			awareness.heard_remaining = 9.0
+			awareness.player_visible = true
+
+
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -124,6 +145,14 @@ func _tick_tree() -> void:
 	assert_true(NpcBrainService.update_tree(_vampire, 0.1))
 
 
+func _sample_navigation() -> void:
+	var owner: S_NpcIntent = S_NpcIntent.new()
+	owner.group = "blood_navigation_fixture"
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	_world.remove_system(owner)
+
+
 func test_visible_spawn_cancels_attack_then_native_tree_approaches_and_retains() -> void:
 	await _sync_physics()
 	assert_true(CombatService.bind_target(_vampire, _instigator))
@@ -206,8 +235,12 @@ func test_invalid_or_unreachable_bindings_release_and_reconstruction_clears_them
 	var zone: E_BloodArea = _spawn(Vector3(0.0, 0.0, -4.0))
 	_tick_tree()
 	var intent: C_NpcIntent = _vampire.get_component(C_NpcIntent) as C_NpcIntent
-	intent.navigation_blocked = true
-	intent.navigation_pending = false
+	var route: C_NpcRoute = _vampire.get_component(C_NpcRoute) as C_NpcRoute
+	route.goal = intent.move_position
+	route.reachable = false
+	route.pending = false
+	_sample_navigation()
+	assert_true(intent.navigation_blocked)
 	NpcAiFixture.sense(_vampire, _person, null, 0.1)
 	assert_null(NpcBloodQueries.zone_for(_vampire))
 	assert_true(
@@ -233,6 +266,79 @@ func test_invalid_or_unreachable_bindings_release_and_reconstruction_clears_them
 	assert_true(
 		(_vampire.get_component(C_NpcAwareness) as C_NpcAwareness).rejected_blood_ids.is_empty()
 	)
+
+
+func test_unrelated_stale_and_pending_navigation_cannot_reject_blood() -> void:
+	await _sync_physics()
+	var intent: C_NpcIntent = _vampire.get_component(C_NpcIntent) as C_NpcIntent
+	var route: C_NpcRoute = _vampire.get_component(C_NpcRoute) as C_NpcRoute
+	var decision: C_NpcDecision = _vampire.get_component(C_NpcDecision) as C_NpcDecision
+	decision.active_task_id = 123
+	NpcIntentService.move_to(_vampire, Vector3(4.0, 0.0, -4.0), 0.3)
+	route.goal = intent.move_position
+	route.reachable = false
+	_sample_navigation()
+	assert_true(intent.navigation_blocked)
+	var zone: E_BloodArea = _spawn(Vector3(0.0, 0.0, -4.0))
+	NpcAiFixture.sense(_vampire, _person, null, 0.1)
+	assert_same(NpcBloodQueries.zone_for(_vampire), zone, "Old combat route is unrelated")
+	_tick_tree()
+	NpcAiFixture.sense(_vampire, _person, null, 0.1)
+	assert_same(NpcBloodQueries.zone_for(_vampire), zone, "New request invalidates old flags")
+	route.goal = intent.move_position
+	route.pending = true
+	_sample_navigation()
+	NpcAiFixture.sense(_vampire, _person, null, 0.1)
+	assert_same(NpcBloodQueries.zone_for(_vampire), zone, "Queued planning is not failure")
+	route.pending = false
+	decision.active_task_id = 123
+	NpcIntentService.move_to(_vampire, zone.global_position, 0.3)
+	_sample_navigation()
+	NpcAiFixture.sense(_vampire, _person, null, 0.1)
+	assert_same(NpcBloodQueries.zone_for(_vampire), zone, "Emergency may share a destination")
+	_tick_tree()
+	NpcAiFixture.sense(_vampire, _person, null, 0.1)
+	assert_same(NpcBloodQueries.zone_for(_vampire), zone, "Earlier action result is still stale")
+	_sample_navigation()
+	NpcAiFixture.sense(_vampire, _person, null, 0.1)
+	assert_null(NpcBloodQueries.zone_for(_vampire), "Completed blood approach failure is rejected")
+
+
+func _prepare_cadenced_provocation() -> void:
+	var receiver: C_ReceiverTraits = _vampire.get_component(C_ReceiverTraits) as C_ReceiverTraits
+	receiver.traits = 0
+	_spawn(Vector3(0.0, 0.0, -4.0))
+	receiver.traits = C_ReceiverTraits.Trait.UNCLEAN
+	assert_null(NpcBloodQueries.zone_for(_vampire))
+
+
+func test_cadenced_provocation_stops_after_receiver_retirement() -> void:
+	await _sync_physics()
+	_prepare_cadenced_provocation()
+	var observer: ReceiverMutator = ReceiverMutator.new()
+	observer.retire = true
+	_world.add_observer(observer)
+	var receiver_reference: WeakRef = weakref(_vampire)
+	NpcAiFixture.sense(_vampire, _person, null, 0.1)
+	assert_eq(observer.calls, 1)
+	assert_null(receiver_reference.get_ref())
+	assert_eq(_person.memories.size(), 1, "Committed memory survives physical retirement")
+
+
+func test_cadenced_provocation_stops_after_receiver_brain_reset() -> void:
+	await _sync_physics()
+	_prepare_cadenced_provocation()
+	var observer: ReceiverMutator = ReceiverMutator.new()
+	_world.add_observer(observer)
+	var decision: C_NpcDecision = _vampire.get_component(C_NpcDecision) as C_NpcDecision
+	var generation: int = decision.lifecycle_generation
+	NpcAiFixture.sense(_vampire, _person, null, 0.1)
+	assert_eq(observer.calls, 1)
+	assert_gt(decision.lifecycle_generation, generation)
+	var awareness: C_NpcAwareness = _vampire.get_component(C_NpcAwareness) as C_NpcAwareness
+	assert_eq(awareness.heard_remaining, 9.0, "Old step cannot advance the new brain's clocks")
+	assert_true(awareness.player_visible, "Old step cannot overwrite the new perception state")
+	assert_null(NpcBloodQueries.zone_for(_vampire))
 
 
 func test_other_unclean_provocation_is_authored_visible_and_committed_once() -> void:

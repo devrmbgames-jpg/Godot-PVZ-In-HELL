@@ -40,3 +40,26 @@ static func inside(actor: E_DistrictNpc, zone: E_BloodArea) -> bool:
 
 static func calmed(actor: Entity) -> bool:
 	return has_trait(actor, C_ReceiverTraits.Trait.VAMPIRE) and zone_for(actor) != null
+
+
+## A completed failure belongs to blood only when request, native action and goal still match.
+static func approach_failed(actor: Entity, zone: E_BloodArea) -> bool:
+	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	if (
+		not intent.movement_active or intent.move_uses_entity or not intent.navigation_blocked
+		or intent.navigation_pending or route.pending
+		or intent.navigation_generation != intent.movement_generation
+		or intent.move_position != zone.global_position or route.goal != intent.move_position
+	):
+		return false
+	for binding: Relationship in actor.relationships:
+		if binding.relation is R_NpcBloodZone and binding.target == zone:
+			var approach: R_NpcBloodZone = binding.relation as R_NpcBloodZone
+			return (
+				approach.approach_task_id != 0
+				and approach.approach_task_id == decision.active_task_id
+				and approach.approach_task_id == intent.navigation_task_id
+			)
+	return false

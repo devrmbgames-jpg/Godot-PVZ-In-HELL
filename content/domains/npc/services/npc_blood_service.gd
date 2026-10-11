@@ -64,6 +64,14 @@ static func release(actor: Entity) -> void:
 			actor.remove_relationship(binding)
 
 
+## Associate an accepted native approach request with its already perceived zone.
+static func mark_approach(actor: Entity, zone: E_BloodArea, task_id: int) -> void:
+	for binding: Relationship in actor.relationships:
+		if binding.relation is R_NpcBloodZone and binding.target == zone:
+			(binding.relation as R_NpcBloodZone).approach_task_id = task_id
+			return
+
+
 ## Provocation concerns only the actually visible, recognized live blood instigator.
 static func _provoke(actor: E_DistrictNpc, person: NpcRecord, zone: E_BloodArea) -> void:
 	var hazard: C_Hazard = zone.get_component(C_Hazard) as C_Hazard

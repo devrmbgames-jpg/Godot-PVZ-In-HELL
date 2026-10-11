@@ -41,6 +41,12 @@ var distance_to_target: float = 0.0
 var navigation_pending: bool = false
 ## Маршрут недоступен при готовой навигации.
 var navigation_blocked: bool = false
+## Monotonic request identity; explicit move/follow/stop operations invalidate earlier results.
+var movement_generation: int = 0
+## Request generation whose navigation flags were last sampled by S_NpcIntent.
+var navigation_generation: int = -1
+## Native action token that owned the last sampled navigation result; zero means no action.
+var navigation_task_id: int = 0
 ## Производная безопасная скорость асинхронного NavigationAgent, отдельно от физического исполнения.
 var avoidance_velocity: Vector3 = Vector3.ZERO
 ## Физический кадр последней безопасной скорости NavigationAgent.
