@@ -3,8 +3,12 @@
 Status: **PENDING_OWNER_QA**
 
 Owning task: [итоговая интеграция и Windows QA](../agent_tasks/district_release_validation.md).
-Сборка: **NOT_BUILT** для этой итоговой приёмки. После успешного export указать точный
-build_info/path и checkpoint; существующая ранняя сборка не заменяет итоговый результат.
+Сборка: `.export/windows/20261011-165403Z-4cec6443-district-release/PVZInHell.exe`.
+Manifest: `.export/windows/20261011-165403Z-4cec6443-district-release/build_info.json`.
+Windows export, headless startup меню и основного уровня PASS. Источник: checkpoint
+`4cec64434b4937a2f032806d56c3952792687efd` + dirty worktree с сохранёнными пользовательскими
+изменениями; это не immutable snapshot. Connected acceptance и final targeted review
+ещё открыты; rendered owner QA NOT_RUN. Launcher: `.export/LATEST.cmd`.
 
 Проводит владелец в отдельном QA-профиле. Автоматические headless checks не подтверждают
 удобство, читаемость, анимации, маршруты в кадре или субъективное поведение NPC.

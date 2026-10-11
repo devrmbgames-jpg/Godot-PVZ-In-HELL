@@ -41,11 +41,19 @@ Source checkpoint: `22ec1db34b4c0b5962b0a5f8f92e65169c8633cf`.
 сверяются все семь агрегатов и физическая мебель, отдельный счётчик требует обе проверки.
 Первый усиленный write FAIL (`tests/artifacts/district_release-write-20261012-023802121.log`):
 светобоязненный npc/7 перенёс визит из-за недоступного пути, предупреждения света не было.
-Это подтверждает прежний validation gap, а не light timeout. Fixture теперь размещает
-реальных светобоязненных жителей на авторских точках очереди перед созданием новой партии;
-их дальнейшим движением, предупреждением и timeout владеют обычные BT/Systems.
+Это подтверждает прежний validation gap, а не light timeout. Попытка размещения до новой
+партии также FAIL: lifecycle активации заменяет раннюю позицию (RV-003 ниже).
+Fixture теперь размещает получателя один раз после фактического создания native QUEUED
+визита; дальнейшим движением, предупреждением и timeout владеют обычные BT/Systems.
+В следующем прогоне warning наблюдался, но aura/опасная зона прервала ожидание
+(`district_release-write-20261012-025232640.log`); predicate правильно вернул FAIL.
+В test-only копии Definition задан поддерживаемый 5-секундный service wait timeout,
+чтобы проверить световую ветку до вмешательства опасных NPC; authored 60 секунд не меняются,
+перед Night2 восстанавливается исходная Definition. Проверка штатного 60-секундного
+ожидания в кадре остаётся обязательной owner QA.
 Следующее: получить успешный полный write/restore на этом fixture, targeted re-review,
-затем закрыть итоговый validation/export batch. Windows build NOT_RUN.
+затем закрыть итоговый validation batch и recorded export. Windows QA export/headless PASS,
+build `.export/windows/20261011-165403Z-4cec6443-district-release/`, dirty worktree recorded.
 
 Baseline district smoke выявил устаревший legacy junction graph gate. Исправление и
 review/triage закрыты в [задаче validator](completed/warehouse_navigation_validation_contract.md).
@@ -74,8 +82,11 @@ review/triage закрыты в [задаче validator](completed/warehouse_nav
   финальный `script_patch` smoke checked/reloaded, diagnostics empty.
   Editor log содержит четыре ошибки намеренных cyclic authoring fixtures, вне этого smoke;
   это не shutdown retention и не доказательство чистоты всего editor log.
+- Windows export/headless menu+main level startup: PASS через `utils/export_windows.ps1
+  -Label district-release`; manifest `.export/windows/20261011-165403Z-4cec6443-district-release/build_info.json`.
+  Источник checkpoint 4cec6443 + сохранённые dirty worktree изменения; это не immutable build.
 - Connected write/restore после финального fixture: RUNNING / результат ещё не принят.
-  RV-001/002 и Windows export остаются открыты до фактической verification/re-review.
+  RV-001/002 остаются открыты до фактической verification/re-review.
 
 Предыдущие проверки 2026-10-11 выполнялись на worktree с сохранёнными
 пользовательскими изменениями; они не являются тестированием immutable snapshot:
@@ -114,7 +125,7 @@ MCP недоступность не заменяет engine checks; shutdown-onl
 
 Rendered gameplay, визуальная съёмка и субъективная приёмка владельца не выполняются автоматически.
 Подготовлен [связный чеклист итоговой сборки](../qa_tasks/district_release_validation.md),
-PENDING_OWNER_QA; runnable build для этой приёмки ещё NOT_BUILT.
+PENDING_OWNER_QA; runnable build подготовлен, см. точный manifest выше.
 
 ## Границы и владельцы
 
@@ -139,10 +150,13 @@ PENDING_OWNER_QA; runnable build для этой приёмки ещё NOT_BUILT
 
 BASE_SHA: `6120e69b93de80cfa2c30b4dc2798cc41185659f`.
 TARGET_SHA: `22ec1db34b4c0b5962b0a5f8f92e65169c8633cf`.
-Review state: COLLECTED / TRIAGED; два ACCEPTED P2, fix owner — Main.
+Review state: COLLECTED / TRIAGED; fix owner — Main.
 Замечания относятся к исходному immutable target; это пробелы acceptance, не доказанные
 production-регрессии. Fix SHA / targeted re-review: pending текущего checkpoint;
 verification полного write/restore ещё не завершена.
+Fix checkpoint: `4cec64434b4937a2f032806d56c3952792687efd`; независимый read-only
+review собран, STYLE PASS, ARCHITECTURE FAIL по RV-003, VALIDATION NOT_RUN.
+RV-001/002 source fixes приняты reviewer; runtime verification остаётся открытой.
 
 - RV-001 (R1), `_serve_counter`: `deferred_day` + LIGHT_AVERSION не доказывают light
   timeout. `NpcServiceRole.defer_visit` переносит визиты и по другим причинам.
@@ -154,8 +168,15 @@ verification полного write/restore ещё не завершена.
   Сверять durable aggregates и физические goods также после повторных операций,
   до следующего restore. Изменение памяти обещаний, visits/history или commerce должно
   проваливать acceptance даже при неизменном wallet; не ослаблять completion counters.
+- RV-003 (новый reviewer R1), ACCEPTED P2, source fix checkpoint `4cec64434b4937a2f032806d56c3952792687efd`:
+  `_stage_light_recipients` до `_unload(2)` меняет только pose, но native `NpcServiceRole.begin`
+  может повторно размещать не-STREET личность. Подтверждение: write
+  `district_release-write-20261012-024848572.log` FAIL, npc/7 ROUTE_BLOCKED без warning.
+  Fix owner Main: staging один раз после создания native QUEUED роли; full verification
+  и targeted re-review pending. Source review interval 97 seconds; serial/token comparison
+  NOT_MEASURED, это не завершает parallel pilot.
 
-Оба пункта относятся к [connected smoke](../tests/smoke/district_release_smoke.gd).
+Пункты относятся к [connected smoke](../tests/smoke/district_release_smoke.gd).
 Открытые ACCEPTED P2 блокируют DONE; engine shutdown deferral их не отменяет.
 
 ## Критерии завершения

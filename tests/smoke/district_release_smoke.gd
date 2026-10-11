@@ -17,6 +17,8 @@ const UNLOAD_DISTANCE: float = 12.0
 const READY_RADIUS: float = 6.0
 const INITIAL_BALANCE: int = 1000
 const LIGHT_TIMEOUT_REASON: String = "Свет не выключили"
+# Проверяем авторский регулируемый timeout до вмешательства соседних опасных NPC.
+const SMOKE_LIGHT_WAIT_SECONDS: float = 5.0
 
 var _failed: bool = false
 var _scenario_completed: bool = false
@@ -24,6 +26,7 @@ var _restore_graph_checks: int = 0
 var _result_checks: int = 0
 var _post_operation_checks: int = 0
 var _observed_light_waits: Dictionary[StringName, int] = { }
+var _staged_light_visits: Dictionary[StringName, int] = { }
 var _level: Node3D
 var _player: Entity
 var _zone: E_ReceivingZone
@@ -126,7 +129,8 @@ func _connected_days() -> void:
 	if _failed:
 		return
 	_check_day_one_history()
-	_stage_light_recipients()
+	district.definition = district.definition.duplicate() as DEF_District
+	district.definition.service_wait_timeout = SMOKE_LIGHT_WAIT_SECONDS
 	await _unload(2)
 	await _wait_furniture()
 	_load_refused_return()
@@ -139,6 +143,7 @@ func _connected_days() -> void:
 	if _failed:
 		return
 	await _transition(DayTransitionRequest.Kind.FINISH_SHIFT, C_DayCycle.Phase.EVENING, 2)
+	district.definition = load(DISTRICT_PATH) as DEF_District
 	await _sleep_until(3)
 	if _failed:
 		return
@@ -502,6 +507,8 @@ func _serve_counter(day_index: int, require_light_timeout: bool) -> void:
 	var light_deferred: bool = false
 	for _frame: int in MAX_SERVICE_FRAMES:
 		await get_tree().physics_frame
+		if require_light_timeout:
+			_stage_light_recipients()
 		_observe_light_waits(day_index)
 		for candidate: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 			var body: E_DistrictNpc = candidate as E_DistrictNpc
@@ -579,18 +586,24 @@ func _stage_light_recipients() -> void:
 	var routes: NpcServiceRoutes = (
 		_level.get_node(definition.service_routes_path) as NpcServiceRoutes
 	)
-	var staged: int = 0
-	for person: NpcRecord in NpcPopulationQueries.current().people:
+	for candidate: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
+		var agent: C_CustomerAgent = candidate.get_component(C_CustomerAgent) as C_CustomerAgent
+		if (
+			agent.phase != C_CustomerAgent.Phase.QUEUED
+			or _staged_light_visits.get(agent.visit_id, 0) == _cycle.day_index
+		):
+			continue
+		var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
+		var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
 		if person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) == null:
 			continue
-		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
-		var start: Node3D = routes.point_for(staged, 0)
-		# Фиксируем только начальную физическую позицию на авторском маршруте.
+		var body: E_DistrictNpc = candidate as E_DistrictNpc
+		var start: Node3D = routes.point_for(1, 0)
+		# Один раз задаём начальную физическую позицию фактически созданного визита.
 		# Очередь, подход, предупреждение и timeout выполняются обычными BT/Systems.
-		# Визиты новой партии ещё не созданы; fixture не создаёт их самостоятельно.
 		body.place_at(start.global_position)
-		staged += 1
-	_check(staged > 0, "second morning stages actual light-averse people on authored routes")
+		_staged_light_visits[visit.visit_id] = _cycle.day_index
+		print("Staged actual light recipient day=", _cycle.day_index, " npc=", visit.customer_id)
 
 
 func _wait_prepared_queue() -> void:
