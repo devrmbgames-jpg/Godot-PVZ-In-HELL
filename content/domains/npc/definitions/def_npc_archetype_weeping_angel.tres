@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="5_wlbgi"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="6_3v5iu"]
 
-[sub_resource type="Resource" id="Resource_i5223"]
+[sub_resource type="Resource" id="Resource_qlvtk"]
 script = ExtResource("5_wlbgi")
 weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
 key = &"schedule/weeping_angel"
@@ -20,6 +20,7 @@ maximum_optional_traits = 0
 item_category_weights = Dictionary[int, float]({
 4: 10.0
 })
+receiver_traits = 1
 damage_multipliers = Dictionary[int, float]({
 0: 0.0,
 1: 0.0,
@@ -35,7 +36,7 @@ damage_multipliers = Dictionary[int, float]({
 })
 presentation_cues = PackedStringArray("npc/angel/sign_dialogue")
 display_name = "Плачущий ангел"
-schedule = SubResource("Resource_i5223")
+schedule = SubResource("Resource_qlvtk")
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.7882353, 0.78039217, 0.7411765, 1)

@@ -42,11 +42,16 @@ MCP scan and fresh test diagnostics checked[] PASS; loaded global script reload4
 fresh native parser/GUT PASS independently. No scene/resource external rewrites or rendered gameplay.
 Foundation review BASE b89a21f4bdf0daf0609595dc3adc502bd5424535 ->
 TARGET 473e1569425d9c6bcd809828c3c8422e6280b66f PASS; no material findings (69 s).
-Native catalog parser201559767 3/3 and GUT201615815 4/4 PASS: all ten assets load,
+Native catalog parser201559767 3/3 and final GUT201925750 4/4,944 PASS: all ten assets load,
 generate and roundtrip deterministic variations, preserve shared inputs, and carry required names,
 existing capability/category and intrinsic immunity/receiver contracts. MCP test diagnostics checked[].
 Initial catalog parser201538629 failed on nested PackedStringArray constant; fixed to literal arrays.
-Catalog immutable-SHA review pending. NOT_RUN: roster/receiver integration, full persistence migration,
+Catalog review BASE 473e1569425d9c6bcd809828c3c8422e6280b66f ->
+TARGET ca6bc069c5645028fd9b51e681d9364291e6f32c found RV-001 (70 s), STYLE PASS.
+RV-001 / R1 P2: angel receiver_traits=0 excluded it from holy artifacts before resistance.
+Accepted: native MCP repair sets HOLY_VULNERABLE; regression now exercises actual
+ReceiverEffectRules HOLY DAMAGE / UNHOLY EXCLUDED. Fix committed next; targeted review pending.
+NOT_RUN: roster/receiver integration, full persistence migration,
 new mandatory behaviors (angel observation/signs, grudges, toy witnessing, 10 m floor fire/opening,
 soul trade, stalking, vampire feeding/escape), presentation hooks, gameplay and owner acceptance.
 

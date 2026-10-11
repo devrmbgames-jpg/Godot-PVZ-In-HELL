@@ -79,6 +79,23 @@ func test_existing_behavior_capabilities_are_authored_on_the_intended_archetypes
 
 func test_intrinsic_receiver_and_damage_contracts_use_existing_semantic_types() -> void:
 	var angel: DEF_NpcArchetype = ARCHETYPES[1]
+	assert_true(
+		angel.receiver_traits & C_ReceiverTraits.Trait.HOLY_VULNERABLE != 0,
+		"Holy artifact eligibility precedes damage resistance",
+	)
+	var receiver: Entity = Entity.new()
+	var tags: C_ReceiverTraits = C_ReceiverTraits.new()
+	tags.traits = angel.receiver_traits
+	receiver.add_component(tags)
+	assert_eq(
+		ReceiverEffectRules.operation_for(receiver, DEF_ReceiverEffect.Alignment.HOLY),
+		DamageRequest.Operation.DAMAGE,
+	)
+	assert_eq(
+		ReceiverEffectRules.operation_for(receiver, DEF_ReceiverEffect.Alignment.UNHOLY),
+		ReceiverEffectRules.EXCLUDED,
+	)
+	receiver.free()
 	for damage_type: int in range(DamageRequest.Type.GENERIC, DamageRequest.Type.UNHOLY + 1):
 		assert_true(angel.damage_multipliers.has(damage_type))
 		assert_eq(
