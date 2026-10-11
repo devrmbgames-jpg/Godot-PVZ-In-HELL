@@ -8,6 +8,23 @@ var _target: Entity = null
 var _weapon: Entity = null
 
 
+## Collects committed health facts without owning health state.
+class DamageRecorder extends Observer:
+	var results: Array[DamageResult] = []
+
+
+	#region Committed damage fixture
+	## Subscribes only to terminal health results.
+	func query() -> QueryBuilder:
+		return q.with_all([C_Health]).on_event(DamageResult.EVENT)
+
+
+	## Retains the published result for attribution assertions.
+	func each(_event: Variant, _victim: Entity, payload: Variant = null) -> void:
+		results.append(payload as DamageResult)
+	#endregion
+
+
 ## Replaces a live strike synchronously from its committed damage fact.
 class StrikeReplacer extends Observer:
 	var _actor: Entity
@@ -117,6 +134,154 @@ func _character(position: Vector3) -> Entity:
 	body.global_position = position
 	return entity
 
+#endregion
+
+
+#region Authored physical weapon catalog
+## All three catalog weapons compose shared grip/melee capabilities and reject virtual stacks.
+func test_catalog_weapons_pick_up_release_and_retain_native_physics() -> void:
+	for key: String in ["axe", "scythe", "throwing_knife"]:
+		await _equip_catalog_weapon(key)
+		var body: RigidBody3D = _weapon as Node as RigidBody3D
+		var item: C_InventoryItem = _weapon.get_component(C_InventoryItem) as C_InventoryItem
+		var grip: Relationship = GrabQueries.held_relationship(_weapon)
+		assert_false(body.freeze, key)
+		assert_not_null(_weapon.get_component(C_ImpactInbox), key)
+		assert_not_null((_weapon.get_component(C_MeleeWeapon) as C_MeleeWeapon).attack, key)
+		assert_not_null((grip.relation as R_HeldBy).profile, key)
+		assert_eq(grip.target, _player, key)
+		assert_true(item.definition.requires_world_body(), key)
+		assert_eq(item.definition.categories, DEF_InventoryItem.Category.WEAPON, key)
+		assert_false(InventoryService.can_transfer(_weapon, _player), key)
+		GrabReleaseService.release(_player, _weapon)
+		assert_null(GrabQueries.held_relationship(_weapon), key)
+		assert_false(body.freeze, key)
+		assert_gt(body.collision_layer, 0, key)
+
+
+## Scythe reaches multiple separated targets in a wider cone; axe keeps one ordinary hit.
+func test_scythe_sweeps_wider_cone_once_while_axe_keeps_one_target() -> void:
+	var flank: Entity = _character(Vector3(-1.25, 0.0, -1.4))
+	await get_tree().physics_frame
+	await _equip_catalog_weapon("axe")
+	var axe: DEF_MeleeAttack = (_weapon.get_component(C_MeleeWeapon) as C_MeleeWeapon).attack
+	assert_true(CombatService.start_strike(_player, _weapon))
+	CombatFixture.melee(_player, 1.0)
+	assert_eq((_target.get_component(C_Health) as C_Health).current, 70.0)
+	assert_eq((flank.get_component(C_Health) as C_Health).current, 100.0)
+	await _equip_catalog_weapon("scythe")
+	var scythe: DEF_MeleeAttack = (_weapon.get_component(C_MeleeWeapon) as C_MeleeWeapon).attack
+	assert_gt(scythe.half_angle_degrees, axe.half_angle_degrees)
+	assert_gt(scythe.reach, axe.reach)
+	assert_gt(scythe.maximum_targets, axe.maximum_targets)
+	assert_true(CombatService.start_strike(_player, _weapon))
+	CombatFixture.melee(_player, scythe.windup_seconds)
+	assert_eq((_target.get_component(C_Health) as C_Health).current, 42.0)
+	assert_eq((flank.get_component(C_Health) as C_Health).current, 72.0)
+	CombatFixture.melee(_player, scythe.active_seconds / 2.0)
+	assert_eq((flank.get_component(C_Health) as C_Health).current, 72.0)
+
+
+## A synchronous replacement after the first sweep hit cannot damage remaining targets.
+func test_scythe_stops_old_sweep_after_committed_hit_restarts_strike() -> void:
+	var flank: Entity = _character(Vector3(-1.25, 0.0, -1.4))
+	await get_tree().physics_frame
+	await _equip_catalog_weapon("scythe")
+	var consumer: StrikeReplacer = StrikeReplacer.new()
+	consumer.configure(_player, _weapon)
+	_world.add_observer(consumer)
+	assert_true(CombatService.start_strike(_player, _weapon))
+	CombatFixture.melee(_player, 0.25)
+	assert_eq((_target.get_component(C_Health) as C_Health).current, 72.0)
+	assert_eq((flank.get_component(C_Health) as C_Health).current, 100.0)
+	assert_false((_player.get_component(C_Combat) as C_Combat).hit_committed)
+
+
+## Throw attribution is consumed by one captured contact episode, including resting reports.
+func test_catalog_knife_throw_commits_attributed_damage_once_per_contact_episode() -> void:
+	await _check_knife_contact(false)
+
+
+## Source protection vetoes a thrown knife and cannot be bypassed by contact replay.
+func test_catalog_knife_throw_preserves_source_no_damage_veto() -> void:
+	await _check_knife_contact(true)
+
+
+func _equip_catalog_weapon(key: String) -> void:
+	GrabReleaseService.release(_player, _weapon)
+	_world.remove_entity(_weapon)
+	var scene: PackedScene = load("res://content/domains/combat/entities/%s.tscn" % key)
+	_weapon = scene.instantiate() as Entity
+	EntityCompositionFixture.register(_world, _weapon)
+	assert_true(EntityAvailability.contains(_weapon, _world))
+	var body: RigidBody3D = _weapon as Node as RigidBody3D
+	body.gravity_scale = 0.0
+	body.global_position = (_player as E_PhysicalCharacter).right_hand_slot.global_position
+	var ray: RayCast3D = (_player as E_PhysicalCharacter).interaction_ray_cast
+	if ray == null:
+		ray = RayCast3D.new()
+		(_player as Node).add_child(ray)
+		(_player as E_PhysicalCharacter).interaction_ray_cast = ray
+	ray.global_position = body.global_position + Vector3.BACK
+	await get_tree().physics_frame
+	assert_eq(
+		InteractionTargetingGeometry.find_physics_target(
+			_player,
+			_player.get_component(C_Interactor) as C_Interactor,
+		),
+		body,
+		"Real interaction ray must hit the authored weapon",
+	)
+	assert_true(GrabService.try_pickup(_player, _weapon, C_Grabbable.HoldSlot.RIGHT_HAND))
+
+
+func _check_knife_contact(protected_actor: bool) -> void:
+	await _equip_catalog_weapon("throwing_knife")
+	var receiver: C_ImpactReceiver = C_ImpactReceiver.new()
+	receiver.profile = DEF_ImpactProfile.new()
+	receiver.profile.damage_per_joule = 0.0
+	_target.add_component(receiver)
+	var recorder: DamageRecorder = DamageRecorder.new()
+	_world.add_observer(recorder)
+	_world.add_system(S_Impact.new())
+	if protected_actor:
+		_weapon.add_component(C_NoDamage.new())
+	(_player.get_component(C_Controller) as C_Controller).direction_look = Vector3.FORWARD
+	GrabService.throw(_player, _weapon)
+	assert_null(GrabQueries.held_relationship(_weapon))
+	assert_eq(ThrowContext.relationship(_weapon).target, _player)
+	await get_tree().physics_frame
+	var contact: PhysicsContact = PhysicsContact.new()
+	contact.body_a = _weapon as Node as PhysicsBody3D
+	contact.body_b = _target as Node as PhysicsBody3D
+	contact.normal_speed = 20.0
+	contact.normal_impulse = 20.0
+	contact.tick = Engine.get_physics_frames()
+	var inbox: C_ImpactInbox = _weapon.get_component(C_ImpactInbox) as C_ImpactInbox
+	inbox.contacts.append(contact)
+	_world.process(1.0 / 60.0)
+	assert_eq(recorder.results.size(), 1)
+	var result: DamageResult = recorder.results[0]
+	assert_eq(result.request.instigator, _player)
+	assert_eq(result.request.source, _weapon)
+	assert_eq(result.request.damage_type, DamageRequest.Type.IMPACT)
+	assert_eq(result.applied_amount, 0.0 if protected_actor else 16.0)
+	assert_eq(
+		result.outcome,
+		DamageResult.Outcome.BLOCKED if protected_actor else DamageResult.Outcome.APPLIED,
+	)
+	assert_null(ThrowContext.relationship(_weapon))
+	contact.normal_speed = 0.0
+	inbox.contacts.append(contact)
+	_world.process(1.0 / 60.0)
+	contact.normal_speed = 20.0
+	inbox.contacts.append(contact)
+	_world.process(1.0 / 60.0)
+	assert_eq(recorder.results.size(), 1, "Resting/strong reports cannot replay this episode")
+	assert_eq(
+		(_target.get_component(C_Health) as C_Health).current,
+		100.0 if protected_actor else 84.0,
+	)
 #endregion
 
 

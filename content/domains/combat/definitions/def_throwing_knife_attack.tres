@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_MeleeAttack" format=3 uid="uid://bp8ybay0oh35h"]
+
+[ext_resource type="Script" uid="uid://bydof33hhkia" path="res://content/domains/combat/definitions/def_melee_attack.gd" id="1_4g05q"]
+
+[resource]
+script = ExtResource("1_4g05q")
+damage = 14.0
+reach = 1.5
+half_angle_degrees = 25.0
+key = &"throwing_knife_attack"

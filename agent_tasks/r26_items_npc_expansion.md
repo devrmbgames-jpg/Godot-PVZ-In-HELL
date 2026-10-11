@@ -22,13 +22,16 @@ This root task owns overall status/current/next. Each supporting task owns its o
 ### Current
 
 R26.1 is in progress from baseline `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`.
-The first batch appends ACID/HOLY/UNHOLY to the existing damage request contract;
-the physical catalog, receiver/karma selection and NPC milestones remain unfinished.
+ACID/HOLY/UNHOLY append compatibly; six shopping categories and physical catalog
+storage share existing damage/inventory/commerce authorities. Bones, axe, scythe
+and throwing knife have native authored scenes and focused regression evidence.
+Shared sweep supports authored multi-target limits with synchronous cancellation.
+The remaining 11 items, receiver/karma selection and NPC milestones remain unfinished.
 Current vertical domains, direct Entity Traits and save schema 12 remain authoritative.
 
 ### Next
 
-Continue R26.1 shared item categories, receiver/karma rules and native physical catalog.
+Continue R26.1 shared break payload/contact execution, receiver/karma rules and catalog.
 Stabilize shared item tags/effects and R26.2 data before archetype behavior.
 
 ### Validation

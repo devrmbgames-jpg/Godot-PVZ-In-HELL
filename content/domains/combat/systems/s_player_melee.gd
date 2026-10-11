@@ -77,8 +77,7 @@ func _scan_strike(actor: Entity, weapon: Entity, state: C_Combat) -> void:
 		return
 
 	var attack: DEF_MeleeAttack = state.strike
-	var closest: Entity = null
-	var distance: float = INF
+	var targets: Array[Entity] = []
 	# Близкие статические плитки могут заполнить ограниченный overlap-запрос;
 	# поэтому кандидаты удара берутся среди владельцев Health и проверяются лучом.
 	for target: Entity in ECS.world.query.with_all([C_Health]).execute():
@@ -93,19 +92,41 @@ func _scan_strike(actor: Entity, weapon: Entity, state: C_Combat) -> void:
 		):
 			continue
 
-		var candidate: float = CombatGeometry.origin(actor).distance_squared_to(
-			CombatGeometry.aim_point(target)
-		)
-		if candidate < distance:
-			closest = target
-			distance = candidate
-	if closest != null:
-		var generation: int = state.execution_generation
-		var accepted: bool = CombatService.hit(actor, weapon, closest, attack.damage)
-		# Damage publication can cancel or replace the strike before its receipt returns.
+		targets.append(target)
+
+	var origin: Vector3 = CombatGeometry.origin(actor)
+	targets.sort_custom(func(left: Entity, right: Entity) -> bool:
+		return origin.distance_squared_to(CombatGeometry.aim_point(left)) < origin \
+				.distance_squared_to(CombatGeometry.aim_point(right))
+	)
+	# A committed hit can synchronously retire another target or replace this strike.
+	var references: Array[WeakRef] = []
+	for target: Entity in targets:
+		references.append(weakref(target))
+	var generation: int = state.execution_generation
+	var accepted_count: int = 0
+	for reference: WeakRef in references:
 		if (
-			EntityAvailability.contains(actor, _world) and actor.get_component(C_Combat) == state
-			and state.execution_generation == generation
+			not EntityAvailability.contains(actor, _world)
+			or actor.get_component(C_Combat) != state
+			or state.execution_generation != generation
+			or not EntityAvailability.contains(weapon, _world)
+			or CombatService.weapon_for(actor) != weapon
 		):
-			state.hit_committed = accepted
+			return
+		var target: Entity = reference.get_ref() as Entity
+		if not EntityAvailability.contains(target, _world):
+			continue
+		var accepted: bool = CombatService.hit(actor, weapon, target, attack.damage)
+		if (
+			not EntityAvailability.contains(actor, _world)
+			or actor.get_component(C_Combat) != state
+			or state.execution_generation != generation
+		):
+			return
+		if accepted:
+			state.hit_committed = true
+			accepted_count += 1
+			if accepted_count >= clampi(attack.maximum_targets, 1, 32):
+				return
 #endregion

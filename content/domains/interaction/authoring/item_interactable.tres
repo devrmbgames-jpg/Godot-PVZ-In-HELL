@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="C_Interactable" format=3 uid="uid://cx450alhvxt1r"]
+
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="1_7ufil"]
+
+[resource]
+script = ExtResource("1_7ufil")

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://cc8oaxlimyxr2"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_02sjc"]
+
+[resource]
+script = ExtResource("1_02sjc")
+categories = 1
+market_price = 80
+display_name = "Коса"
+world_pickup_scene = "res://content/domains/combat/entities/scythe.tscn"
+kind = 5
+maximum_stack = 1
+key = &"scythe"

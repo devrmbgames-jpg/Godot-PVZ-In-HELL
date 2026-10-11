@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Признак доступности сущности для взаимодействий; действия и проверки выполняют сервисы.
 class_name C_Interactable

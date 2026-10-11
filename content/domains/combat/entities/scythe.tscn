@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://qnknmij5v75g"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_n0ism"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_ehwq0"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_4pu8v"]
+[ext_resource type="Resource" uid="uid://c0yxwidhowkt" path="res://content/domains/combat/authoring/et_handheld_melee.tres" id="4_dklv1"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="5_pgbsa"]
+[ext_resource type="Resource" uid="uid://cjqm4k0c3tfu2" path="res://content/domains/combat/authoring/scythe_weapon.tres" id="6_ecpah"]
+[ext_resource type="Resource" uid="uid://b52fpfgk4xle4" path="res://content/domains/inventory/authoring/scythe_catalog.tres" id="7_5grqu"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5fgui"]
+albedo_color = Color(0.34901962, 0.1882353, 0.105882354, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6yjtn"]
+material = SubResource("StandardMaterial3D_5fgui")
+size = Vector3(0.09, 1.6, 0.09)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uuc0c"]
+albedo_color = Color(0.68235296, 0.72156864, 0.76862746, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_0s4ue"]
+material = SubResource("StandardMaterial3D_uuc0c")
+size = Vector3(0.9, 0.12, 0.09)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_n0ism"]
+size = Vector3(0.94, 1.64, 0.13)
+
+[node name="Scythe" type="RigidBody3D" unique_id=109120207]
+collision_layer = 10
+collision_mask = 31
+mass = 3.0
+continuous_cd = true
+script = ExtResource("1_n0ism")
+traits = Array[ExtResource("2_ehwq0")]([ExtResource("3_4pu8v"), ExtResource("4_dklv1")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("5_pgbsa")]([ExtResource("6_ecpah"), ExtResource("7_5grqu")])
+
+[node name="Handle" type="MeshInstance3D" parent="." unique_id=521645394]
+mesh = SubResource("BoxMesh_6yjtn")
+
+[node name="Blade" type="MeshInstance3D" parent="." unique_id=864102926]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0.72, 0)
+mesh = SubResource("BoxMesh_0s4ue")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=894374390]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0, 0)
+shape = SubResource("BoxShape3D_n0ism")

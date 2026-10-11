@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_MeleeAttack" format=3 uid="uid://decnpe7ebjs24"]
+
+[ext_resource type="Script" uid="uid://bydof33hhkia" path="res://content/domains/combat/definitions/def_melee_attack.gd" id="1_prtnk"]
+
+[resource]
+script = ExtResource("1_prtnk")
+damage = 30.0
+half_angle_degrees = 35.0
+key = &"axe_attack"

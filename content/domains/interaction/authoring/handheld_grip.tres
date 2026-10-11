@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="C_Grabbable" format=3 uid="uid://dtxu2ppv8vvcj"]
+
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/domains/interaction/components/c_grabbable.gd" id="1_u82qk"]
+
+[resource]
+script = ExtResource("1_u82qk")
+allowed_hand_slots = 6
+manual_rotation_enabled = false
+reset_rotation_on_pickup = true

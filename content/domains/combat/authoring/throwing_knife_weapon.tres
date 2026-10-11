@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_MeleeWeapon" format=3 uid="uid://bo3d6wh02nud3"]
+
+[ext_resource type="Resource" uid="uid://bp8ybay0oh35h" path="res://content/domains/combat/definitions/def_throwing_knife_attack.tres" id="1_5is3j"]
+[ext_resource type="Script" uid="uid://cek8bysd2c31c" path="res://content/domains/combat/components/c_melee_weapon.gd" id="2_irqiw"]
+
+[resource]
+script = ExtResource("2_irqiw")
+attack = ExtResource("1_5is3j")

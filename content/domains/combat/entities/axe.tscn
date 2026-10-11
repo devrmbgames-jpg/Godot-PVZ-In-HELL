@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://0rsgscmkvmxv"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_t4snu"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_ou16t"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_i1qfx"]
+[ext_resource type="Resource" uid="uid://c0yxwidhowkt" path="res://content/domains/combat/authoring/et_handheld_melee.tres" id="4_7jhni"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="5_jomxf"]
+[ext_resource type="Resource" uid="uid://oigsw2l7b15a" path="res://content/domains/combat/authoring/axe_weapon.tres" id="6_v4t8v"]
+[ext_resource type="Resource" uid="uid://bw3xt5jpgycfd" path="res://content/domains/inventory/authoring/axe_catalog.tres" id="7_h40ge"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_01uge"]
+albedo_color = Color(0.34901962, 0.1882353, 0.105882354, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_v1mnq"]
+material = SubResource("StandardMaterial3D_01uge")
+size = Vector3(0.09, 0.95, 0.09)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nb8u8"]
+albedo_color = Color(0.68235296, 0.72156864, 0.76862746, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_mw3n2"]
+material = SubResource("StandardMaterial3D_nb8u8")
+size = Vector3(0.5, 0.27, 0.09)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t4snu"]
+size = Vector3(0.54, 1.03, 0.13)
+
+[node name="Axe" type="RigidBody3D" unique_id=601650986]
+collision_layer = 10
+collision_mask = 31
+mass = 2.0
+continuous_cd = true
+script = ExtResource("1_t4snu")
+traits = Array[ExtResource("2_ou16t")]([ExtResource("3_i1qfx"), ExtResource("4_7jhni")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("5_jomxf")]([ExtResource("6_v4t8v"), ExtResource("7_h40ge")])
+
+[node name="Handle" type="MeshInstance3D" parent="." unique_id=1037867500]
+mesh = SubResource("BoxMesh_v1mnq")
+
+[node name="Blade" type="MeshInstance3D" parent="." unique_id=1145017627]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.38, 0)
+mesh = SubResource("BoxMesh_mw3n2")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=77743447]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.02, 0)
+shape = SubResource("BoxShape3D_t4snu")

@@ -1,3 +1,4 @@
+@tool
 extends DEF_InteractionAction
 ## Запрашивает начало удара; попадание и урон выполняет боевой контур.
 class_name DEF_MeleeAction

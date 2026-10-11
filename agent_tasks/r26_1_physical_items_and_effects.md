@@ -26,11 +26,17 @@ materialize native bodies through the existing placement transaction; grant/tran
 reject virtual ownership even without C_Grabbable. Marked furniture-only trader courier
 eligibility remains in its existing rule. No central item-ID dispatch was introduced.
 Storage implementation checkpoint: `c34af1d1d8d2c8dc6cfa5ef54f3215187ad6fa7e`;
-its missing commerce read-method API declaration is fixed in the next checkpoint.
-No receiver eligibility, karma or new hazard execution is claimed yet; 14 catalog items remain.
+its missing commerce read-method API declaration is fixed in `4eba367f5b06073ec21737cb332178a280a1b6f9`.
+Native MCP-authored axe, scythe and throwing knife reuse one handheld/melee Trait,
+typed grip/action/attack recipes and existing impact capture. Scythe tuning enables
+four targets in the shared strike scanner; old definitions retain one nearest target.
+Synchronous strike replacement stops the old sweep before another target is hit.
+Knife throw origin and source veto use the existing live relationship/damage authority.
+Four of 15 catalog items now have authored scenes and focused regression evidence.
+No receiver eligibility, karma or new hazard execution is claimed yet; 11 items remain.
 
-Next: authored item category/capability definitions and receiver/karma ownership,
-then physical catalog and shared payload/contact execution. Preserve the contracts
+Next: shared break payload/contact execution, remaining physical catalog and
+receiver/karma ownership. Preserve the contracts
 in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
@@ -69,7 +75,16 @@ in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve).
   and domain structure. Initial dependency/project-structure check FAIL identified
   the missing commerce read-method declaration; explicit API manifest fix passed
   strict domain dependency and project-structure checks.
-  Independent storage review pending final source checkpoint.
+  Independent storage review BASE `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0` to
+  TARGET `4eba367f5b06073ec21737cb332178a280a1b6f9`: no findings,
+  ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN; 44 seconds.
+- PASS: physical weapons/shared sweep native parser 9/9 and focused melee GUT
+  15/15, 194 assertions; `.artifacts/godot_agent/parsefiles-20261011-174642064.stdout.log`
+  and `.artifacts/godot_agent/gut-20261011-174600769.stdout.log`.
+  Native ray-hit pickup/release and throw arming are exercised; impact episode assertions
+  inject captured-contact snapshots, not a claim of native Jolt collision capture.
+- PASS: weapon formatter/role naming 9 scripts, architecture/domain structure/dependencies
+  strict and project structure. Weapon immutable-SHA review is pending its checkpoint.
 - MCP edits used native script patching. Tests reloaded without diagnostics;
   loaded DamageRequest and HUD script hot reload returned error 43, so live reload
   is NOT_PASS. Fresh-process native parser/GUT passed; editor log gained no new entries.

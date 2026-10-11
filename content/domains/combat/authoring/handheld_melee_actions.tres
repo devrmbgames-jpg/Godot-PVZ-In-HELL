@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="C_InteractionActionSet" format=3 uid="uid://dgf0l7wo4ojq6"]
+
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="1_ob3gw"]
+[ext_resource type="Resource" uid="uid://cjo4b3apwobdn" path="res://content/domains/combat/definitions/def_handheld_melee_action.tres" id="2_bxrcd"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="3_e8rhn"]
+
+[resource]
+script = ExtResource("3_e8rhn")
+actions = Array[ExtResource("1_ob3gw")]([ExtResource("2_bxrcd")])
+reserved_slots = 4

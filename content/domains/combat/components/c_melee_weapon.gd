@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Авторское оружие: описание удара и визуальная анимация.
 class_name C_MeleeWeapon

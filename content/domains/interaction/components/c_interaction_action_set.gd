@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Авторские контекстные действия и резервы кнопок сущности.
 class_name C_InteractionActionSet

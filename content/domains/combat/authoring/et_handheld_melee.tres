@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EntityTrait" format=3 uid="uid://c0yxwidhowkt"]
+
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_ll6qx"]
+[ext_resource type="Resource" uid="uid://cx450alhvxt1r" path="res://content/domains/interaction/authoring/item_interactable.tres" id="2_xtx43"]
+[ext_resource type="Resource" uid="uid://dtxu2ppv8vvcj" path="res://content/domains/interaction/authoring/handheld_grip.tres" id="3_7knti"]
+[ext_resource type="Resource" uid="uid://dgf0l7wo4ojq6" path="res://content/domains/combat/authoring/handheld_melee_actions.tres" id="4_1qs8v"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="5_emuo4"]
+[ext_resource type="Script" uid="uid://cek8bysd2c31c" path="res://content/domains/combat/components/c_melee_weapon.gd" id="6_30ax7"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="7_fucwl"]
+
+[resource]
+script = ExtResource("7_fucwl")
+trait_id = &"handheld_melee"
+component_recipes = Array[ExtResource("1_ll6qx")]([ExtResource("2_xtx43"), ExtResource("3_7knti"), ExtResource("4_1qs8v")])
+required_components = Array[Script]([ExtResource("6_30ax7")])
+required_root_class = &"RigidBody3D"

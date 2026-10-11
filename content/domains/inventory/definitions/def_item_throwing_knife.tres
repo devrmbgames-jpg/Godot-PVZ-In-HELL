@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://cx1n4uytruadx"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_w8hve"]
+
+[resource]
+script = ExtResource("1_w8hve")
+categories = 1
+market_price = 35
+display_name = "Метательный нож"
+world_pickup_scene = "res://content/domains/combat/entities/throwing_knife.tscn"
+kind = 5
+maximum_stack = 1
+key = &"throwing_knife"

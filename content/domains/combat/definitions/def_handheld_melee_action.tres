@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_MeleeAction" format=3 uid="uid://cjo4b3apwobdn"]
+
+[ext_resource type="Script" uid="uid://daej3erln2vmp" path="res://content/domains/combat/definitions/def_melee_action.gd" id="1_bln8c"]
+
+[resource]
+script = ExtResource("1_bln8c")
+action_id = &"melee_strike"
+slot = 2
+caption = "Ударить"

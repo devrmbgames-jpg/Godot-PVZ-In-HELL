@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Авторская добавка к физическому урону при намеренном броске.
 class_name C_ThrowDamage

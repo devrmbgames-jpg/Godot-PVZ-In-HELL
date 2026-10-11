@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DEF_MeleeAttack" format=3 uid="uid://gs8f04dlv3g4"]
+
+[ext_resource type="Script" uid="uid://bydof33hhkia" path="res://content/domains/combat/definitions/def_melee_attack.gd" id="1_r27ql"]
+
+[resource]
+script = ExtResource("1_r27ql")
+damage = 28.0
+reach = 2.8
+half_angle_degrees = 70.0
+maximum_targets = 4
+key = &"scythe_attack"

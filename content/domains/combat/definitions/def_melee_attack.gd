@@ -1,3 +1,4 @@
+@tool
 extends GameDefinition
 ## Авторские время и геометрия удара оружием игрока; атаки NPC используют DEF_NpcAttack.
 class_name DEF_MeleeAttack
@@ -8,6 +9,8 @@ class_name DEF_MeleeAttack
 @export var reach: float = 2.0
 ## Половина угла сектора удара в градусах.
 @export var half_angle_degrees: float = 60.0
+## Максимум целей одного сектора; обычное оружие сохраняет один ближайший удар.
+@export_range(1, 32) var maximum_targets: int = 1
 ## Длительность замаха в секундах.
 @export var windup_seconds: float = 0.25
 ## Окно попытки попадания в секундах.

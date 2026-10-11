@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_MeleeWeapon" format=3 uid="uid://cjqm4k0c3tfu2"]
+
+[ext_resource type="Resource" uid="uid://gs8f04dlv3g4" path="res://content/domains/combat/definitions/def_scythe_attack.tres" id="1_vkhno"]
+[ext_resource type="Script" uid="uid://cek8bysd2c31c" path="res://content/domains/combat/components/c_melee_weapon.gd" id="2_80pti"]
+
+[resource]
+script = ExtResource("2_80pti")
+attack = ExtResource("1_vkhno")
