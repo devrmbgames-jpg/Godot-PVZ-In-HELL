@@ -10702,7 +10702,8 @@
         "content/services/npc/npc_social_service.gd",
         "content/systems/gameplay/s_npc_perception.gd",
         "content/systems/gameplay/s_npc_route.gd",
-        "content/systems/gameplay/s_npc_traits.gd"
+        "content/systems/gameplay/s_npc_traits.gd",
+        "content/domains/npc/systems/s_npc_intent.gd"
       ],
       "method_rights": {
         "target_for": "request"

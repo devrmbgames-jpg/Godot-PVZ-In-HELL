@@ -18,6 +18,7 @@ script = ExtResource("6_3v5iu")
 name_variants = PackedStringArray("Сераф", "Азариэль")
 dialogue_variants = PackedStringArray()
 maximum_optional_traits = 0
+aggressive_speed_multiplier = 4.0
 item_category_weights = Dictionary[int, float]({
 4: 10.0
 })

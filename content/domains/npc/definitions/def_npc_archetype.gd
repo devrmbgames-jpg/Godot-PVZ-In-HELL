@@ -21,6 +21,8 @@ enum CombatPreference {
 @export var move_speed_variation: Vector2 = Vector2(0.9, 1.1)
 ## Inclusive authored aggression multiplier interval; committed once, never a shared Profile write.
 @export var aggression_variation: Vector2 = Vector2(0.9, 1.1)
+## Control speed scale during live combat, applied after the committed personal base speed.
+@export_range(1.0, 4.0, 0.05) var aggressive_speed_multiplier: float = 1.0
 ## Commerce preference uses category bit values; empty means the ordinary available catalog.
 @export var item_category_weights: Dictionary[int, float] = { }
 ## Preferred existing combat execution capability; native trees consume this authored choice.

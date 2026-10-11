@@ -41,7 +41,9 @@ behavior/dialogue acceptance remain open. Category orders now commit actual payl
 receiving, contents and archive projection, using the immutable authored catalog. Schema is 15.
 R26.3 adds a reusable observation-freeze trait and visible native safety subtree. Camera/LOS
 sampling precedes cadence; native freeze/animation, avoidance and attack gates share that fact.
-The checkpoint passed headless checks/smoke and review; full behaviors/binding remain open.
+Observation passed headless checks/smoke and review. Aggressive speed now shares motion
+and navigation authority, passes focused regressions and district smoke; review pending.
+Full behaviors/binding remain open.
 R26.4 now routes committed personal dialogue variants and has two neutral/lost variants with
 imported service/delivery flows and imported-resource cleanup. Focused native checks pass;
 checkpoint review and its registration-guard repair passed; the remaining 18 variants/interactions
@@ -49,7 +51,8 @@ stay open.
 
 ### Next
 
-The category-order checkpoint passed review. Continue R26.3/R26.4 and bind all ten archetypes.
+Collect aggressive-speed review, continue shy gaze avoidance and remaining R26.3/R26.4,
+then bind all ten archetypes.
 
 ### Validation
 

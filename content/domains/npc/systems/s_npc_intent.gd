@@ -49,6 +49,7 @@ func _apply(
 
 	controller.direction_motion = Vector3.ZERO
 	controller.limit_motion_velocity = false
+	_synchronize_speed_policy(actor)
 	intent.navigation_pending = false
 	intent.navigation_blocked = false
 	intent.navigation_generation = intent.movement_generation
@@ -132,6 +133,26 @@ func _apply(
 	if not look_direction.is_zero_approx():
 		controller.direction_look = look_direction.normalized()
 
+#endregion
+
+
+#region Derived control speed
+func _synchronize_speed_policy(actor: Entity) -> void:
+	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
+	if motion == null:
+		return
+	motion.control_speed_multiplier = 1.0
+	if actor.has_component(C_Death) or NpcGazeQueries.frozen(actor):
+		return
+	var target: Entity = CombatQueries.target_for(actor)
+	if (not EntityAvailability.contains(target, ECS.world) or target.has_component(C_Death)):
+		return
+	var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = (
+		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	)
+	if person != null:
+		motion.control_speed_multiplier = person.profile.aggressive_speed_multiplier
 #endregion
 
 

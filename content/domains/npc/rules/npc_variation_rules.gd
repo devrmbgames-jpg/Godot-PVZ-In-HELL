@@ -21,7 +21,10 @@ static func valid_archetype(archetype: DEF_NpcArchetype) -> bool:
 		or archetype.maximum_optional_traits < 0
 		or archetype.rules.size() + archetype.maximum_optional_traits > MAXIMUM_TRAITS
 		or not _valid_interval(archetype.move_speed_variation)
-		or not _valid_interval(archetype.aggression_variation) or archetype.receiver_traits < 0
+		or not _valid_interval(archetype.aggression_variation)
+		or archetype.receiver_traits < 0 or not is_finite(archetype.aggressive_speed_multiplier)
+		or archetype.aggressive_speed_multiplier < 1.0
+		or archetype.aggressive_speed_multiplier > MAXIMUM_MULTIPLIER
 		or archetype.receiver_traits & ~RECEIVER_MASK != 0
 		or archetype.combat_preference < DEF_NpcArchetype.CombatPreference.MELEE
 		or archetype.combat_preference > DEF_NpcArchetype.CombatPreference.AVOID

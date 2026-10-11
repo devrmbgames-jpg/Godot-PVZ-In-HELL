@@ -54,6 +54,10 @@ class_name C_Motion
 ## S_Sprint владеет усилением; native solver читает его, не меняя max_speed.
 var sprint_multiplier: float = 1.0
 
+## S_NpcIntent owns this transient control scale; explicit district reset restores one.
+## Physical solvers and navigation read it without replacing the authored/personal max_speed.
+var control_speed_multiplier: float = 1.0
+
 ## Последний физический снимок наличия подходящей опоры.
 var is_on_floor: bool = false
 ## RID физической опоры, отдельно от владения и живых Entity-связей.

@@ -6,7 +6,7 @@ const DEFAULT_FRICTION: float = 1.0
 
 
 #region Shared locomotion calculations
-## Speed in metres per second from authored speed, sprint, carry Strength and hunger policies.
+## Speed in metres per second from authored speed, intent, sprint, carry and hunger policies.
 static func effective_speed(
 	motion: C_Motion,
 	carry_load: C_CarryLoad,
@@ -17,7 +17,7 @@ static func effective_speed(
 	if carry_load != null and carry_load.active:
 		carry_multiplier = CarryLoadPolicy.active_multiplier(carry_load, strength)
 	return (
-		motion.max_speed * motion.sprint_multiplier
+		motion.max_speed * motion.control_speed_multiplier * motion.sprint_multiplier
 		* carry_multiplier * HungerRules.speed_multiplier(hunger)
 	)
 

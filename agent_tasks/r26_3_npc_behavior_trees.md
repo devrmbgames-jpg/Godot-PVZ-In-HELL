@@ -24,7 +24,11 @@ freeze and animation pause, stationary avoidance and attack-boundary gates. R_Co
 survives the interruption. Native MCP inserts the visible safety subtree after terminal state
 and before danger/blood/combat. The angel catalog uses the trait; the live roster is not rebound.
 Reset/reused restore rebuild transient state and selected capability without rerolling variation.
-Observation checkpoint review PASS. Next: aggressive speed and remaining mandatory subtrees.
+Observation checkpoint review PASS. Aggressive speed now derives from a live, registered,
+living combat target in S_NpcIntent; the authored multiplier is transient and shared by native
+navigation and physics through MotionRules. Gaze freeze/death/lost target/reset remove it.
+The angel catalog authors 4x speed without changing base speed or durable variation.
+Speed checkpoint REVIEW_PENDING. Next: shy gaze avoidance and remaining mandatory subtrees.
 No complete archetype behavior acceptance is claimed; traits compose without an NPC-ID dispatcher.
 
 ### Validation
@@ -42,6 +46,14 @@ the selected rule field in the live cache without file/UID changes; clean scene 
 Review BASE 7d1a4b2dfefb840e30fba336389da367f1d5f8b2 ->
 TARGET 71c592dc86e292b0a2cbc8f772e7025adcb965c5 PASS, no findings (99 s).
 ARCHITECTURE/STYLE PASS; reviewer runtime VALIDATION NOT_RUN.
+Speed: parser225807185 PASS (seven scripts); GUT gaze225851972 15/110,
+sprint225935638 9/55, hunger230013530 8/106, world230020810 35/443 PASS.
+Formatter/lint, strict architecture/dependencies/domain/project structure and persistence PASS.
+District speed smoke PASS: tests/artifacts/district-20261012-090138493.log,
+eight mornings/all phases/save/restore, 12 records/bodies, no runtime errors.
+Native MCP authors/refreshes the angel multiplier preserving UID and other properties;
+clean scene reload PASS. Speed review baseline 69506165b6ff97d0495864c0512de2b1f4343a54,
+target pending commit; REVIEW_PENDING.
 NOT_RUN: full mandatory archetype behaviors, roster integration and owner gameplay/visual QA.
 
 ### Owner QA / blockers

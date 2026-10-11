@@ -38,6 +38,8 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	NpcDialogueService.end(body)
 	body.request_role_cleanup(NpcRoleCleanupRequest.Kind.RESET_PREPARE)
 	CombatService.end_combat(body)
+	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
+	motion.control_speed_multiplier = 1.0
 	NpcAttackExecutionService.cancel(body)
 	NpcIntentService.stop(body)
 	NpcBloodService.release(body)

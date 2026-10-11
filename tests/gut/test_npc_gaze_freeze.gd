@@ -293,6 +293,90 @@ func test_reset_restore_and_dormant_participation_reconcile_native_freeze() -> v
 
 
 #region Detached compiler and authored trait validation
+func test_combat_speed_uses_live_binding_without_base_speed_or_variation_drift() -> void:
+	_camera.rotation.y = PI
+	await _sync_physics()
+	var motion: C_Motion = _actor.get_component(C_Motion) as C_Motion
+	var base_speed: float = motion.max_speed
+	var variation: Dictionary = SaveDataCodec.encode(_person.variation) as Dictionary
+	_sample()
+	assert_eq(motion.control_speed_multiplier, 1.0)
+	assert_true(CombatService.bind_target(_actor, _player))
+	_sample()
+	assert_eq(motion.control_speed_multiplier, ANGEL.aggressive_speed_multiplier)
+	var expected: float = base_speed * ANGEL.aggressive_speed_multiplier
+	assert_almost_eq(MotionRules.effective_speed(motion, null, null), expected, 0.0001)
+	assert_almost_eq(_actor.navigation_agent.max_speed, expected, 0.0001)
+	assert_eq(motion.max_speed, base_speed)
+	_camera.rotation.y = 0.0
+	_sample()
+	assert_true(_constraint.observed)
+	assert_eq(motion.control_speed_multiplier, 1.0)
+	assert_same(CombatQueries.target_for(_actor), _player)
+	_camera.rotation.y = PI
+	_sample()
+	assert_eq(motion.control_speed_multiplier, ANGEL.aggressive_speed_multiplier)
+	CombatService.end_combat(_actor)
+	_sample()
+	assert_eq(motion.control_speed_multiplier, 1.0)
+	assert_eq(motion.max_speed, base_speed)
+	assert_eq(SaveDataCodec.encode(_person.variation), variation)
+
+
+func test_native_body_consumes_combat_speed_policy_and_reset_clears_it() -> void:
+	_camera.rotation.y = PI
+	await _sync_physics()
+	var motion: C_Motion = _actor.get_component(C_Motion) as C_Motion
+	var base_speed: float = motion.max_speed
+	motion.air_acceleration = 100.0
+	_actor.linear_damp = 0.0
+	assert_true(CombatService.bind_target(_actor, _player))
+	NpcIntentService.move_to(_actor, _actor.global_position + Vector3.RIGHT * 20.0, 0.3)
+	(_actor.get_component(C_NpcIntent) as C_NpcIntent).navigation_enabled = false
+	_automatic_steps = true
+	for frame: int in range(40):
+		await get_tree().physics_frame
+		if _actor.linear_velocity.length() > base_speed * 1.5:
+			break
+	_automatic_steps = false
+	assert_gt(_actor.linear_velocity.length(), base_speed * 1.5)
+	assert_eq(motion.max_speed, base_speed)
+	DistrictPopulationService.reset_brain(_actor)
+	assert_eq(motion.control_speed_multiplier, 1.0)
+	assert_null(CombatQueries.target_for(_actor))
+	DistrictPopulationService.restore_participation()
+	assert_eq(motion.control_speed_multiplier, 1.0)
+	assert_eq(motion.max_speed, base_speed)
+
+
+func test_dead_or_unregistered_target_does_not_apply_combat_speed() -> void:
+	_camera.rotation.y = PI
+	await _sync_physics()
+	assert_true(CombatService.bind_target(_actor, _player))
+	var motion: C_Motion = _actor.get_component(C_Motion) as C_Motion
+	_sample()
+	assert_gt(motion.control_speed_multiplier, 1.0)
+	_player.add_component(C_Death.new())
+	_sample()
+	assert_eq(motion.control_speed_multiplier, 1.0)
+	_player.remove_component(C_Death)
+	_world.remove_entity(_player)
+	_sample()
+	assert_eq(motion.control_speed_multiplier, 1.0)
+	_player.free()
+
+
+func test_combat_speed_authored_bounds_and_default_actors() -> void:
+	var profile: DEF_NpcArchetype = ANGEL.duplicate() as DEF_NpcArchetype
+	for invalid: float in [NAN, INF, 0.9, 4.1]:
+		profile.aggressive_speed_multiplier = invalid
+		assert_false(profile.valid_rules())
+	profile.aggressive_speed_multiplier = 1.0
+	assert_true(profile.valid_rules())
+	assert_eq(C_Motion.new().control_speed_multiplier, 1.0)
+	assert_eq(DEF_NpcArchetype.new().aggressive_speed_multiplier, 1.0)
+
+
 func test_selected_capability_is_installed_before_entity_added() -> void:
 	var fresh: E_DistrictNpc = BODY.instantiate() as E_DistrictNpc
 	var person: NpcRecord = NpcRecord.new()
