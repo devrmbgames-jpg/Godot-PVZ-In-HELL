@@ -10,6 +10,11 @@ const IDENTITY_PATHS: PackedStringArray = [
 	AUTHORING_ROOT + "et_district_npc_npc_identity.tres",
 	AUTHORING_ROOT + "et_district_trader_npc_identity.tres",
 ]
+const BRAIN_SCRIPT: String = AUTHORING_ROOT + "et_npc_brain_state.gd"
+const BRAIN_PATHS: PackedStringArray = [
+	AUTHORING_ROOT + "et_district_npc_npc_brain_state.tres",
+	AUTHORING_ROOT + "et_district_trader_npc_brain_state.tres",
+]
 const ORDER_SUPPLY: String = (
 	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
 )
@@ -85,6 +90,8 @@ static func _expected_script_path(path: String) -> String:
 		return "res://content/domains/packages/authoring/et_package_state.gd"
 	if IDENTITY_PATHS.has(path):
 		return IDENTITY_SCRIPT
+	if BRAIN_PATHS.has(path):
+		return BRAIN_SCRIPT
 	if path.get_base_dir() == ROOT.trim_suffix("/"):
 		return ARCHETYPE_SCRIPT
 	return ""

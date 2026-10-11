@@ -65,6 +65,7 @@ func _ready() -> void:
 		customer_owner.group = "GamePlay"
 		world.add_system(customer_owner)
 	for owner_type: Script in ([
+		S_NpcGazeFreeze,
 		S_NpcCadence,
 		S_NpcFootsteps,
 		S_NpcPerception,

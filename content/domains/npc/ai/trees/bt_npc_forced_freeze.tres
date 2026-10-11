@@ -1,0 +1,20 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://2ocpvakccklm"]
+
+[ext_resource type="Script" uid="uid://drbbebnj8phav" path="res://content/domains/npc/ai/tasks/bt_npc_observed.gd" id="1_umvxf"]
+[ext_resource type="Script" uid="uid://cqsqx1a7l0isq" path="res://content/domains/npc/ai/tasks/bt_npc_hold_still.gd" id="2_1237o"]
+
+[sub_resource type="BTCondition" id="BTCondition_274bm"]
+custom_name = "Игрок видит NPC: камера / препятствия"
+script = ExtResource("1_umvxf")
+
+[sub_resource type="BTAction" id="BTAction_ibeci"]
+custom_name = "Удерживать неподвижность / сохранить боевую цель"
+script = ExtResource("2_1237o")
+intent_owner = 0
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_ipbo8"]
+custom_name = "Заморозка при наблюдении"
+children = [SubResource("BTCondition_274bm"), SubResource("BTAction_ibeci")]
+
+[resource]
+root_task = SubResource("BTDynamicSequence_ipbo8")

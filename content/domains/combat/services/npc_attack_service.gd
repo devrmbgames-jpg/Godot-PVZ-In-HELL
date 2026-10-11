@@ -31,7 +31,7 @@ static func can_start_against(
 	index: int,
 ) -> bool:
 	if (
-		not GrabQueries.holder_available(actor)
+		not GrabQueries.holder_available(actor) or NpcGazeQueries.frozen(actor)
 		or kind not in [C_NpcCombat.Kind.MELEE, C_NpcCombat.Kind.RANGED]
 	):
 		return false
@@ -147,6 +147,9 @@ static func choose_and_start(actor: Entity) -> bool:
 
 ## Hook анимации или таймера: одна попытка эффекта на атаку, включая промах и невидимую цель.
 static func commit_effect(actor: Entity) -> bool:
+	if NpcGazeQueries.frozen(actor):
+		NpcAttackExecutionService.cancel(actor)
+		return false
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if (
 		state == null or state.attack == null

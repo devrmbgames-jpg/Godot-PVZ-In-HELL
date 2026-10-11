@@ -3,6 +3,7 @@
 [ext_resource type="BehaviorTree" uid="uid://ins84eoxxqqw" path="res://content/domains/npc/ai/trees/bt_npc_emergency.tres" id="1_7dna0"]
 [ext_resource type="BehaviorTree" uid="uid://dxtsv5gf1nt3g" path="res://content/domains/npc/ai/trees/bt_npc_combat.tres" id="2_vi3ip"]
 [ext_resource type="BehaviorTree" path="res://content/domains/npc/ai/trees/bt_npc_conversation.tres" id="3_2rk8g"]
+[ext_resource type="BehaviorTree" uid="uid://2ocpvakccklm" path="res://content/domains/npc/ai/trees/bt_npc_forced_freeze.tres" id="3_536q0"]
 [ext_resource type="BehaviorTree" uid="uid://bmned3gbmt26r" path="res://content/domains/npc/ai/trees/bt_npc_schedule.tres" id="4_a4eqj"]
 [ext_resource type="BehaviorTree" uid="uid://kc4c4akjxpa7" path="res://content/domains/npc/ai/trees/bt_npc_blood.tres" id="4_wlkqs"]
 [ext_resource type="BehaviorTree" uid="uid://bmc5t70coej8t" path="res://content/domains/npc/ai/trees/bt_npc_idle.tres" id="5_boyj1"]
@@ -21,6 +22,13 @@ intent_owner = 0
 [sub_resource type="BTDynamicSequence" id="Terminal"]
 custom_name = "Неучастие / терминальное состояние"
 children = [SubResource("Inactive"), SubResource("Stop")]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_ub5g8"]
+
+[sub_resource type="BTSubtree" id="BTSubtree_ynpne"]
+subtree = ExtResource("3_536q0")
+blackboard_plan = SubResource("BlackboardPlan_ub5g8")
+custom_name = "Принудительная остановка под взглядом"
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_2iafh"]
 
@@ -65,7 +73,7 @@ blackboard_plan = SubResource("BlackboardPlan_okqqo")
 custom_name = "Свободное занятие"
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_nseog"]
-children = [SubResource("Terminal"), SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_ub5g8"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_4i138")]
+children = [SubResource("Terminal"), SubResource("BTSubtree_ynpne"), SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_ub5g8"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_4i138")]
 
 [resource]
 description = "Native NPC: emergency, combat/search, conversation, phase schedule, free activity."

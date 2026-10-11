@@ -13,6 +13,7 @@ signal brain_recipe_requested(request: NpcBrainRecipeRequest)
 var _body_layer: int = 2
 var _body_mask: int = 31
 var _body_process_mode: Node.ProcessMode = Node.PROCESS_MODE_INHERIT
+var _gaze_animation_paused: bool = false
 
 
 #region Жизненный цикл движка
@@ -22,6 +23,22 @@ func _ready() -> void:
 	_body_layer = body.collision_layer
 	_body_mask = body.collision_mask
 	_body_process_mode = process_mode
+
+
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+	if NpcGazeQueries.frozen(self):
+		sync_death_presentation()
+		if animation_player != null and animation_player.is_playing():
+			_gaze_animation_paused = true
+			animation_player.pause()
+		return
+	if _gaze_animation_paused:
+		_gaze_animation_paused = false
+		if animation_player != null:
+			animation_player.play()
+	super._process(delta)
 #endregion
 
 
@@ -36,7 +53,7 @@ func set_participating(participating: bool) -> void:
 	var body: RigidBody3D = self as Node as RigidBody3D
 	# GECS stops root callbacks; the native mode also suspends inherited child animation work.
 	process_mode = _body_process_mode if participating else Node.PROCESS_MODE_DISABLED
-	body.freeze = not participating
+	body.freeze = not participating or NpcGazeQueries.frozen(self)
 	body.visible = participating
 	body.collision_layer = _body_layer if participating else 0
 	body.collision_mask = _body_mask if participating else 0
@@ -44,6 +61,26 @@ func set_participating(participating: bool) -> void:
 		body.linear_velocity = Vector3.ZERO
 		body.angular_velocity = Vector3.ZERO
 	sync_navigation_lifecycle(participating)
+
+
+## Applies the sampled constraint at this body's explicit native-state boundary.
+func sync_gaze_constraint() -> void:
+	var gaze: C_NpcGazeFreeze = get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
+	if gaze == null or gaze.rule == null:
+		return
+	var body: RigidBody3D = self as Node as RigidBody3D
+	var health: C_Health = get_component(C_Health) as C_Health
+	var dead: bool = has_component(C_Death) or (health != null and health.depleted)
+	body.freeze = process_mode == Node.PROCESS_MODE_DISABLED or dead or gaze.observed
+	if gaze.observed:
+		body.linear_velocity = Vector3.ZERO
+		body.angular_velocity = Vector3.ZERO
+
+
+## Death presentation and observation share the body's native freeze policy.
+func sync_death_presentation() -> void:
+	super.sync_death_presentation()
+	sync_gaze_constraint()
 
 
 ## Разовая синхронизация при появлении, сне или загрузке; обычным движением владеет физика.

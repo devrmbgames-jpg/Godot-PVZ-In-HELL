@@ -4,6 +4,7 @@
 [ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="2_vqbp8"]
 [ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="3_x2v3c"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="4_nmcd6"]
+[ext_resource type="Resource" uid="uid://bk8ehknm3fxnj" path="res://content/domains/npc/definitions/def_npc_trait_observation_freeze.tres" id="5_vqbp8"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="5_wlbgi"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="6_3v5iu"]
 
@@ -37,6 +38,7 @@ damage_multipliers = Dictionary[int, float]({
 presentation_cues = PackedStringArray("npc/angel/sign_dialogue")
 display_name = "Плачущий ангел"
 schedule = SubResource("Resource_qlvtk")
+rules = Array[ExtResource("4_nmcd6")]([ExtResource("5_vqbp8")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.7882353, 0.78039217, 0.7411765, 1)

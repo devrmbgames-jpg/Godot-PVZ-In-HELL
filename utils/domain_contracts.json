@@ -10853,7 +10853,8 @@
       "sources": [
         "content/ai/tasks/bt_npc_attack.gd",
         "content/entities/characters/e_npc_character.gd",
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/systems/s_npc_gaze_freeze.gd"
       ],
       "method_rights": {
         "cancel": "request",
@@ -10902,7 +10903,8 @@
         "content/systems/gameplay/s_npc_decision.gd",
         "content/systems/gameplay/s_npc_noise.gd",
         "content/systems/gameplay/s_npc_route.gd",
-        "content/systems/gameplay/s_npc_route_planning.gd"
+        "content/systems/gameplay/s_npc_route_planning.gd",
+        "content/domains/npc/systems/s_npc_gaze_freeze.gd"
       ],
       "purpose": "Explicit schedule dependency/composition only; no imperative System calls.",
       "method_rights": {},
@@ -18736,6 +18738,44 @@
         "comment": "query",
         "tags": "query"
       }
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "npc",
+      "symbol": "NpcGazeQueries",
+      "path": "content/domains/npc/services/npc_gaze_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "frozen"
+      ],
+      "sources": [
+        "content/domains/combat/services/npc_attack_service.gd",
+        "content/domains/combat/systems/s_npc_combat.gd"
+      ],
+      "method_rights": {
+        "frozen": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Combat reads the sampled observation constraint at attack start, progression and effect boundaries; no sensing or NPC mutation."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "S_NpcGazeFreeze",
+      "path": "content/domains/npc/systems/s_npc_gaze_freeze.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit System composition only; the owner runs in GamePlay before the existing NPC cadence."
     }
   ],
   "legacy_decomposition": []

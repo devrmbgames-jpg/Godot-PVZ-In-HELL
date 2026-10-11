@@ -11,6 +11,7 @@ func _init() -> void:
 	required_components = [C_NpcIdentity, C_NpcCombat]
 	initial_field_names[C_DamageResistance as Script] = PackedStringArray(["multipliers"])
 	initial_field_names[C_ReceiverTraits as Script] = PackedStringArray(["traits"])
+	initial_field_names[C_NpcGazeFreeze as Script] = PackedStringArray(["rule"])
 
 
 ## Requires the same immutable roster Profile used by identity and movement construction.
@@ -32,7 +33,14 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 		receiver.traits = profile.receiver_traits
 	if profile != null and profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
 		resistance.multipliers[DamageRequest.Type.FIRE] = 0.0
-	return [C_NpcAwareness.new(), C_NpcDecision.new(), C_NpcRoute.new(), resistance, receiver]
+	return [
+		C_NpcAwareness.new(),
+		C_NpcDecision.new(),
+		C_NpcRoute.new(),
+		C_NpcGazeFreeze.new(),
+		resistance,
+		receiver,
+	]
 
 
 ## Configures existing scene combat capability without installing an engine runner or ticking AI.

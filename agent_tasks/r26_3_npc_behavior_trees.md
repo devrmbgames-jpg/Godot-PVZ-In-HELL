@@ -18,16 +18,29 @@ model. A single configurable leaf dispatching an entire decision tree remains pr
 
 ### Current
 
-Started after reviewed variation/ordering foundations. Extend the existing manually driven
-native top-level tree and preserve cadence, perception, motion and combat authorities.
-First scope: reusable camera visibility/forced-freeze capability and the angel safety branch;
-then other required archetype subtrees. Traits must compose by authored definitions/keys,
-without an NPC-type dispatcher or parallel FSM. No new behavior acceptance is claimed yet.
+Reusable observation-freeze capability is implemented: typed authored trait, compiler input,
+frame-rate camera/frustum/solid-LOS sampling before cadence, urgent invalidation, native body
+freeze and animation pause, stationary avoidance and attack-boundary gates. R_CombatTarget
+survives the interruption. Native MCP inserts the visible safety subtree after terminal state
+and before danger/blood/combat. The angel catalog uses the trait; the live roster is not rebound.
+Reset/reused restore rebuild transient state and selected capability without rerolling variation.
+Next: review this checkpoint, then aggressive speed tuning and the remaining mandatory subtrees.
+No complete archetype behavior acceptance is claimed; traits compose without an NPC-ID dispatcher.
 
 ### Validation
 
-NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
-[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+Observation GUT222305503 PASS 11/11, 75 asserts, native camera/LOS/Jolt/animation/manual BT.
+Regression PASS: cache222111743 6/77; variation222116292 6/360; catalog222119532 4/944;
+attacks222155017 22/160; identity222203373 13/102; participation222209670 12/133;
+world snapshot222227075 35/443. No GUT orphan Nodes or runtime errors.
+Parser222334705 PASS (20 owned scripts); formatter/lint, strict architecture/domain structure,
+dependencies, project structure and persistence baseline PASS. District smoke PASS:
+tests/artifacts/district-20261012-082437905.log (eight mornings/all phases/save/restore).
+MCP leaf diagnostics checked[]/reloaded PASS; global class reload43 NOT_PASS, CLI verified.
+MCP saves both brain policies with complete initial fields; exact guarded cache refresh proves
+the selected rule field in the live cache without file/UID changes; clean scene reload PASS.
+Checkpoint REVIEW_PENDING.
+NOT_RUN: full mandatory archetype behaviors, roster integration and owner gameplay/visual QA.
 
 ### Owner QA / blockers
 

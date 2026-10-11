@@ -79,16 +79,20 @@ static func _valid_interval(interval: Vector2) -> bool:
 
 
 static func _valid_trait(rule: DEF_NpcTrait) -> bool:
-	return (
-		rule != null and not rule.key.is_empty() and rule.kind >= DEF_NpcTrait.Kind.GAZE_AVERSION
-		and rule.kind <= DEF_NpcTrait.Kind.RIDDLE
-	)
+	return (rule != null and not rule.key.is_empty() and rule.valid_configuration())
 
 
 static func _compatible_with(candidate: DEF_NpcTrait, selected: Array[DEF_NpcTrait]) -> bool:
 	for rule: DEF_NpcTrait in selected:
 		if (
-			candidate.key == rule.key or candidate.kind == rule.kind
+			candidate.key == rule.key
+			or (
+				candidate.kind == rule.kind
+				and (
+					candidate.kind != DEF_NpcTrait.Kind.CAPABILITY
+					or candidate.get_script() == rule.get_script()
+				)
+			)
 			or candidate.incompatible.has(rule.kind)
 			or rule.incompatible.has(candidate.kind) or candidate.incompatible_keys.has(rule.key)
 			or rule.incompatible_keys.has(candidate.key)

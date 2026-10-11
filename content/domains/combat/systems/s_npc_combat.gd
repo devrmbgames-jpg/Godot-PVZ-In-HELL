@@ -56,6 +56,10 @@ func _step(actor: Entity, delta: float) -> void:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null:
 		return
+	if NpcGazeQueries.frozen(actor):
+		if state.phase != C_NpcCombat.Phase.READY:
+			NpcAttackExecutionService.cancel(actor)
+		return
 
 	state.cooldown_remaining = maxf(0.0, state.cooldown_remaining - maxf(0.0, delta))
 	var target: Entity = CombatQueries.target_for(actor)

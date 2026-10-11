@@ -64,6 +64,10 @@ func _apply(
 			if relation.relation is R_NpcMoveTarget or relation.relation is R_NpcLookTarget:
 				cmd.add_custom(_remove_captured_relationship.bind(weakref(actor), relation))
 		return
+	if NpcGazeQueries.frozen(actor):
+		controller.direction_look = Vector3.ZERO
+		_apply_avoidance(actor, intent, controller, neighbours)
+		return
 	if intent.movement_active:
 		var position: Vector3 = intent.move_position
 		var target: Node3D = _target(actor, R_NpcMoveTarget)

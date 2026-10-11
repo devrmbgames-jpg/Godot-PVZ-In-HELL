@@ -53,8 +53,27 @@ func test_identity_policy_refresh_updates_cached_values_without_replacing_live_r
 		assert_eq(cached.initial_field_names[C_Motion as Script], expected)
 		assert_eq(FileAccess.get_md5(path), checksum)
 		assert_eq(ResourceLoader.get_resource_uid(path), uid)
-	var excluded: String = TOOL.AUTHORING_ROOT + "et_district_npc_npc_brain_state.tres"
+	var excluded: String = TOOL.AUTHORING_ROOT + "et_district_npc_npc_roles.tres"
 	assert_true(TOOL.refresh_resources(PackedStringArray([excluded])).has("error"))
+
+
+## Only the exact brain policies refresh; native in-place reload preserves files and references.
+func test_brain_policy_refresh_restores_selected_gaze_rule_input_without_file_changes() -> void:
+	for path: String in TOOL.BRAIN_PATHS:
+		var checksum: String = FileAccess.get_md5(path)
+		var uid: int = ResourceLoader.get_resource_uid(path)
+		var cached: EntityTrait = load(path) as EntityTrait
+		cached.initial_field_names.erase(C_NpcGazeFreeze as Script)
+		assert_true(TOOL.refresh_resources(PackedStringArray([path]), cached).has("error"))
+		assert_false(cached.initial_field_names.has(C_NpcGazeFreeze as Script))
+		assert_false(TOOL.refresh_resources(PackedStringArray([path])).has("error"))
+		assert_same(load(path), cached)
+		assert_eq(
+			cached.initial_field_names[C_NpcGazeFreeze as Script],
+			PackedStringArray(["rule"]),
+		)
+		assert_eq(FileAccess.get_md5(path), checksum)
+		assert_eq(ResourceLoader.get_resource_uid(path), uid)
 
 
 func test_refresh_replaces_stale_cache_without_changing_authored_files_or_uid() -> void:

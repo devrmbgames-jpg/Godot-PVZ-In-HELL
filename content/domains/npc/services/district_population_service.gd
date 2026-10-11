@@ -49,6 +49,9 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	var route: C_NpcRoute = body.get_component(C_NpcRoute) as C_NpcRoute
 	assert(route != null, "NPC brain reset requires its compiled route capability")
 	route.reset_transient_state()
+	var gaze: C_NpcGazeFreeze = body.get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
+	gaze.observed = false
+	body.sync_gaze_constraint()
 
 	var runner: BTPlayer = body.get_node_or_null("Brain") as BTPlayer
 	if runner != null:
@@ -80,6 +83,8 @@ static func restore_participation() -> void:
 		motion.max_speed = person.profile.move_speed * person.variation.move_speed_multiplier
 		var receiver: C_ReceiverTraits = body.get_component(C_ReceiverTraits) as C_ReceiverTraits
 		receiver.traits = person.profile.receiver_traits
+		var gaze: C_NpcGazeFreeze = body.get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
+		gaze.rule = NpcGazeQueries.selected_rule(person.rules_for())
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 		NpcBrainService.bind_engine(body)

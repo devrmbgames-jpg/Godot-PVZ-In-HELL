@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_NpcGazeFreeze" format=3 uid="uid://bk8ehknm3fxnj"]
+
+[ext_resource type="Script" uid="uid://d213iima6degr" path="res://content/domains/npc/definitions/def_npc_gaze_freeze.gd" id="1_20lja"]
+
+[resource]
+script = ExtResource("1_20lja")
+kind = 7
+warning_text = ""
+countermeasure = "Удерживай ангела в поле зрения; за препятствием он снова движется."
+key = &"trait/observation_freeze"

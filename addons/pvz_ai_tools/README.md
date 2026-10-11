@@ -161,6 +161,8 @@ Example: `custom_manage(op="invoke", params={"tool_name":"pvz_npc_archetype_cach
 "params":{"paths":["res://content/domains/npc/definitions/def_npc_profile_1.tres"]}})`.
 It also accepts exactly the two `et_district_{npc,trader}_npc_identity.tres` policies under
 `content/domains/npc/authoring/`, whose freshly loaded script must be `ET_NpcIdentity`.
+The two `et_district_{npc,trader}_npc_brain_state.tres` policies are exact dependencies too,
+requiring `ET_NpcBrainState`; this refreshes selected capability inputs after script edits.
 The order dependencies are also exact paths: `packages/definitions/def_delivery_morning_supply.tres`
 and `packages/authoring/et_package_package_state.tres` under `content/domains/`, requiring the
 `DEF_Delivery` and `ET_PackageState` scripts respectively. Arbitrary package resources are excluded.

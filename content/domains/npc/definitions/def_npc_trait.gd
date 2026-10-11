@@ -11,6 +11,7 @@ enum Kind {
 	STRENGTH_TEST,
 	PROVOCATEUR,
 	RIDDLE,
+	CAPABILITY,
 }
 
 ## Вид поведения, задаваемый этой особенностью.
@@ -35,3 +36,10 @@ enum Kind {
 @export var incompatible_keys: Array[StringName] = []
 ## Косинус угла длительного взгляда игрока.
 @export_range(0.5, 1.0) var gaze_alignment: float = 0.96
+
+
+#region Authored capability validation
+## Legacy traits retain their stable kinds; typed capabilities validate their own tuning.
+func valid_configuration() -> bool:
+	return kind >= Kind.GAZE_AVERSION and kind <= Kind.RIDDLE
+#endregion
