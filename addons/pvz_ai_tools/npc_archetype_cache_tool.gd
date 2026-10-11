@@ -16,13 +16,13 @@ func refresh(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 		return { "error": "Save unsaved scenes before refreshing authored definition caches." }
 	var paths: PackedStringArray = PackedStringArray(params.get("paths", []))
 	var inspected: Object = EditorInterface.get_inspector().get_edited_object()
-	if inspected is Resource and paths.has((inspected as Resource).resource_path):
-		return { "error": "Close the target Resource Inspector before refreshing its cache." }
-	return refresh_resources(paths)
+	return refresh_resources(paths, inspected as Resource)
 
 
 ## Preflights every file before native cache refresh; retains no Resources across calls.
-static func refresh_resources(paths: PackedStringArray) -> Dictionary:
+static func refresh_resources(paths: PackedStringArray, inspected: Resource = null) -> Dictionary:
+	if inspected != null and paths.has(inspected.resource_path.get_slice("::", 0)):
+		return { "error": "Close the target Resource Inspector before refreshing its cache." }
 	if paths.is_empty() or paths.size() > MAXIMUM_PATHS:
 		return { "error": "Expected one to sixteen authored NPC archetypes." }
 	var seen: Dictionary[String, bool] = { }

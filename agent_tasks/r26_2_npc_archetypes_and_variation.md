@@ -57,7 +57,13 @@ saved new script types while ResourceLoader still returned cached old Profile ob
 Bounded native cache refresh preflights exact Archetype scripts, refuses dirty scenes/inspected
 targets, changes no files/UIDs, retains no Resources and unregisters on plugin exit.
 Parser203116194 and final GUT203405503 2/2,23 PASS; live MCP refreshed12 profiles and allowed
-native typed district save. Tool immutable review pending; roster migration remains uncommitted.
+native typed district save. Tool review BASE a02e250b80a4b984e662854452f8cc110e356660 ->
+TARGET 589cadfdca1b61006510338a5f88d94ec5ec8e9e found RV-002/R1 P1 (38 s).
+RV-002 accepted: Inspector guard compared root paths exactly, missing owned ::subresources.
+Repair normalizes the inspected file owner and preflights it before any cache work;
+native root/schedule/optional-setting edit preservation GUT203819728 3/3,35,
+parser203852011, scoped style and live MCP checked[] PASS. Targeted review pending.
+Roster migration remains uncommitted.
 NOT_RUN: roster/receiver integration, full persistence migration,
 new mandatory behaviors (angel observation/signs, grudges, toy witnessing, 10 m floor fire/opening,
 soul trade, stalking, vampire feeding/escape), presentation hooks, gameplay and owner acceptance.

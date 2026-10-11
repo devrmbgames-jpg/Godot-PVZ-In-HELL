@@ -26,6 +26,28 @@ func test_refresh_replaces_stale_cache_without_changing_authored_files_or_uid() 
 	assert_eq(ResourceLoader.get_resource_uid(PROFILE), uid)
 
 
+func test_inspected_root_and_owned_subresources_block_refresh_without_losing_edits() -> void:
+	var root_resource: DEF_NpcArchetype = ResourceLoader.load(PROFILE) as DEF_NpcArchetype
+	var edited_resources: Array[Resource] = [
+		root_resource,
+		root_resource.schedule,
+		root_resource.optional_traits[0],
+	]
+	var fields: Array[String] = ["display_name", "morning", "weight"]
+	var changes: Array[Variant] = ["Inspected authoring edit", DEF_NpcSchedule.Location.HOME, 37.0]
+	var checksum: String = FileAccess.get_md5(PROFILE)
+	for index: int in edited_resources.size():
+		var edited: Resource = edited_resources[index]
+		assert_eq(edited.resource_path.get_slice("::", 0), PROFILE)
+		var original: Variant = edited.get(fields[index])
+		edited.set(fields[index], changes[index])
+		var refused: Dictionary = TOOL.refresh_resources(PackedStringArray([PROFILE]), edited)
+		assert_true(refused.has("error"))
+		assert_eq(edited.get(fields[index]), changes[index], "Inspector edits remain in memory")
+		assert_eq(FileAccess.get_md5(PROFILE), checksum)
+		edited.set(fields[index], original)
+
+
 func test_invalid_batch_rejects_before_replacing_any_cache_entry() -> void:
 	var stale: DEF_NpcProfile = DEF_NpcProfile.new()
 	stale.take_over_path(PROFILE)
