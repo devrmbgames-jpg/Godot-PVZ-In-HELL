@@ -276,15 +276,29 @@ func test_variation_restore_preserves_committed_choices_on_reused_body() -> void
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	var committed: Dictionary = SaveDataCodec.encode(person.variation) as Dictionary
+	var original: DEF_NpcArchetype = person.profile
+	var expected_speed: float = original.move_speed * person.variation.move_speed_multiplier
+	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
+	var receiver: C_ReceiverTraits = body.get_component(C_ReceiverTraits) as C_ReceiverTraits
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
-	person.variation.display_name = "Transient unsaved name"
-	person.variation.move_speed_multiplier = 3.0
+	person.profile = _district.definition.profiles[1]
+	person.variation = NpcVariationRules.create(
+		person.profile,
+		GameTimeQueries.current().world_seed,
+		person.npc_id,
+		1,
+	)
+	motion.max_speed = person.profile.move_speed * person.variation.move_speed_multiplier
+	receiver.traits = person.profile.receiver_traits
+	assert_ne(receiver.traits, original.receiver_traits)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	var restored: NpcRecord = NpcPopulationQueries.person_for(person.npc_id)
 	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 	assert_eq(SaveDataCodec.encode(restored.variation), committed)
 	assert_eq(restored.display_name, restored.variation.display_name)
-	assert_same(restored.profile, person.profile)
+	assert_same(restored.profile, original)
+	assert_eq(motion.max_speed, expected_speed)
+	assert_eq(receiver.traits, original.receiver_traits)
 
 
 ## Malformed committed choices reject before replacing roster, body state or calendar.
@@ -292,6 +306,10 @@ func test_invalid_variation_rejects_snapshot_before_live_mutation() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	var health: C_Health = body.get_component(C_Health) as C_Health
+	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
+	var receiver: C_ReceiverTraits = body.get_component(C_ReceiverTraits) as C_ReceiverTraits
+	var expected_speed: float = motion.max_speed
+	var expected_traits: int = receiver.traits
 	health.current = 61.0
 	for invalid: String in ["missing", "extra", "seed", "future", "unknown_trait", "name"]:
 		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
@@ -318,6 +336,8 @@ func test_invalid_variation_rejects_snapshot_before_live_mutation() -> void:
 		assert_same(NpcPopulationQueries.person_for(person.npc_id), person, invalid)
 		assert_same(NpcPopulationQueries.body_for(person.npc_id), body, invalid)
 		assert_eq(health.current, 61.0, invalid)
+		assert_eq(motion.max_speed, expected_speed, invalid)
+		assert_eq(receiver.traits, expected_traits, invalid)
 		assert_eq(DayPhaseQueries.current().day_index, 1, invalid)
 #endregion
 

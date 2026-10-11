@@ -75,6 +75,11 @@ static func restore_participation() -> void:
 			continue
 
 		reset_brain(body)
+		# Reused bodies need the same derived immutable tuning as freshly compiled bodies.
+		var motion: C_Motion = body.get_component(C_Motion) as C_Motion
+		motion.max_speed = person.profile.move_speed * person.variation.move_speed_multiplier
+		var receiver: C_ReceiverTraits = body.get_component(C_ReceiverTraits) as C_ReceiverTraits
+		receiver.traits = person.profile.receiver_traits
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 		NpcBrainService.bind_engine(body)

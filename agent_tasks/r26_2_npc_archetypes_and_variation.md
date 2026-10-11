@@ -44,7 +44,7 @@ shared host205140832 2/2,260; doctor205354140 20/20,119; preview205302600 10/10,
 compiler205515135 33/33,189; recipe isolation205524795 7/7,42; perception205530362 8/8,27;
 blood205538943 10/10,120; community205551797 15/15,99; randomness205614732 11/11,103;
 save-data205633042 6/6,40; district plan205648020 41/41,260 PASS.
-District snapshot210427837: 15/15,169 tests PASS, no runtime errors/orphan Nodes;
+District snapshot211423055: 15/15,184 tests PASS, no runtime errors/orphan Nodes;
 runner FAIL solely on shutdown Resource/RID/VariantPools retention: KNOWN_ENGINE_LIMITATION/DEFERRED.
 New checks cover selected optional fire, receiver composition, fresh/reused variation restore,
 missing/extra/invalid choices, replacement retry persistence and rejection before live mutation.
@@ -53,7 +53,12 @@ global reload43 remains NOT_PASS; native CLI verifies separately. Clean game_wor
 Parser210253264: all 37 individual compilations PASS; aggregate runner FAIL on the snapshot test's
 shutdown retention above. Cache policy extension parser210707631 2/2/GUT210631184 4/4,52 PASS;
 MCP refresh updates both exact identity policies in place and preserves references/files/UIDs.
-Week smoke PASS: tests/artifacts/district-20261012-065857869.log. Integration review pending.
+Week smoke PASS: tests/artifacts/district-20261012-065857869.log.
+Integration review BASE fd2627ee7e6312efbc6c5a9afb70b77fa997ce1f ->
+TARGET 3bfdde24cd8d7cdf6d2961637edd0aa07ebcc174 (136 s), STYLE PASS, runtime NOT_RUN.
+RV-003/R1 P1 ACCEPTED: reused bodies retained stale variation-derived speed/receiver tags.
+Repair reconciles both after accepted snapshot and role cleanup, before participation/readiness;
+reused-body and rejected-snapshot regressions above PASS. Fix commit/targeted review pending.
 NOT_RUN: ten-archetype roster binding, category ordering, new mandatory behaviors,
 presentation hooks, rendered gameplay and owner acceptance. No external scene/resource rewrites.
 

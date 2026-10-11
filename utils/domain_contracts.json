@@ -18613,16 +18613,18 @@
       "path": "content/domains/combat/components/c_receiver_traits.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "restore"
       ],
       "public_methods": [],
       "sources": [
         "content/domains/npc/observers/o_npc_blood_stimulus.gd",
         "content/domains/npc/services/npc_blood_queries.gd",
         "content/domains/npc/services/npc_blood_service.gd",
-        "content/domains/npc/systems/s_npc_perception.gd"
+        "content/domains/npc/systems/s_npc_perception.gd",
+        "content/services/npc/district_population_service.gd"
       ],
-      "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions.",
+      "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions. After accepted snapshot and role cleanup, DistrictPopulationService alone restores immutable archetype-derived tags before participation; perception/blood consumers only read.",
       "method_rights": {},
       "public_instance_methods": []
     },

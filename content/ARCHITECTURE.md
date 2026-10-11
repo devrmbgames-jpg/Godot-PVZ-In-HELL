@@ -257,6 +257,9 @@ resolved trait/name views query the committed variation. Initial and replacement
 derive choices from the explicit world seed and stable person ID before roster publication.
 Entity Traits compile movement, resistance and receiver data through the existing instance-field
 boundary. Schema 14 requires complete validated records; restore preserves choices without reroll.
+After accepted restore and role cleanup, DistrictPopulationService reconciles derived speed and
+receiver tags on reused bodies before participation/readiness resumes. Saved mutable resistance
+maps retain the accepted component snapshot; they are not replaced by construction defaults.
 
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances
 microsecond ticks/remainder; calendar transitions retain their existing player-driven authority.
