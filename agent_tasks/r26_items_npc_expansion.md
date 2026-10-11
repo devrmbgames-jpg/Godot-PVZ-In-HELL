@@ -41,7 +41,7 @@ behavior/dialogue acceptance remain open. Category orders now commit actual payl
 receiving, contents and archive projection, using the immutable authored catalog. Schema is 15.
 R26.3 adds a reusable observation-freeze trait and visible native safety subtree. Camera/LOS
 sampling precedes cadence; native freeze/animation, avoidance and attack gates share that fact.
-The checkpoint passed headless checks/smoke and awaits review; full behaviors/binding remain open.
+The checkpoint passed headless checks/smoke and review; full behaviors/binding remain open.
 
 ### Next
 

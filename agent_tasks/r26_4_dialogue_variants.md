@@ -1,5 +1,5 @@
 # R26.4 — Two dialogue variants per NPC archetype
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -13,9 +13,11 @@ The owner will later copy these resources and add more variants. Therefore paths
 
 ### Current
 
-PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
-in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
-The 2026-10-10 audit updates specification only.
+Started after reviewed ordering/observation foundations. First scope: route the committed
+per-person dialogue path through the existing street/customer UI and provide two reusable
+neutral/lost variants while preserving service cues, personal delivery and response tags.
+Remaining archetypes need their required interactions, including authoritative soul/blood
+transactions. No dialogue implementation acceptance is claimed yet.
 
 ### Validation
 

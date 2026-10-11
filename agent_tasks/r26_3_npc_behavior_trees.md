@@ -24,7 +24,7 @@ freeze and animation pause, stationary avoidance and attack-boundary gates. R_Co
 survives the interruption. Native MCP inserts the visible safety subtree after terminal state
 and before danger/blood/combat. The angel catalog uses the trait; the live roster is not rebound.
 Reset/reused restore rebuild transient state and selected capability without rerolling variation.
-Next: review this checkpoint, then aggressive speed tuning and the remaining mandatory subtrees.
+Observation checkpoint review PASS. Next: aggressive speed and remaining mandatory subtrees.
 No complete archetype behavior acceptance is claimed; traits compose without an NPC-ID dispatcher.
 
 ### Validation
@@ -39,7 +39,9 @@ tests/artifacts/district-20261012-082437905.log (eight mornings/all phases/save/
 MCP leaf diagnostics checked[]/reloaded PASS; global class reload43 NOT_PASS, CLI verified.
 MCP saves both brain policies with complete initial fields; exact guarded cache refresh proves
 the selected rule field in the live cache without file/UID changes; clean scene reload PASS.
-Checkpoint REVIEW_PENDING.
+Review BASE 7d1a4b2dfefb840e30fba336389da367f1d5f8b2 ->
+TARGET 71c592dc86e292b0a2cbc8f772e7025adcb965c5 PASS, no findings (99 s).
+ARCHITECTURE/STYLE PASS; reviewer runtime VALIDATION NOT_RUN.
 NOT_RUN: full mandatory archetype behaviors, roster integration and owner gameplay/visual QA.
 
 ### Owner QA / blockers
