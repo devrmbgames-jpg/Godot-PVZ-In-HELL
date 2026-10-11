@@ -2,6 +2,21 @@ extends Resource
 ## Постоянная запись поступления; номер выдачи появляется только после сканирования.
 class_name PackageRegistrationRecord
 
+## Complete arrival projection; missing fields cannot erase selected contents on restore.
+const SAVE_FIELDS: Array[String] = [
+	"package_id",
+	"history_id",
+	"note",
+	"read_event_ids",
+	"received_day",
+	"day_index",
+	"number",
+	"definition",
+	"ordered_item",
+	"active",
+	"departure",
+]
+
 ## Постоянный ID физической посылки.
 @export var package_id: String = ""
 ## Скрытый стабильный ID истории, скопированный при поступлении коробки.
@@ -18,6 +33,8 @@ class_name PackageRegistrationRecord
 @export var number: int = 0
 ## Авторское определение для просмотра истории после ухода физической коробки.
 @export var definition: DEF_Package = null
+## Arrival-time immutable order projection for archive display after the physical parcel leaves.
+@export var ordered_item: DEF_InventoryItem = null
 ## Подтверждённого ухода со склада нет; резервируется только положительный номер.
 @export var active: bool = true
 

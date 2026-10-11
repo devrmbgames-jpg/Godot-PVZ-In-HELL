@@ -256,10 +256,23 @@ optional trait keys and rolled modifiers. The referenced `DEF_NpcArchetype` rema
 resolved trait/name views query the committed variation. Initial and replacement construction
 derive choices from the explicit world seed and stable person ID before roster publication.
 Entity Traits compile movement, resistance and receiver data through the existing instance-field
-boundary. Schema 14 requires complete validated records; restore preserves choices without reroll.
+boundary. Schema 15 requires complete validated records; restore preserves choices without reroll.
 After accepted restore and role cleanup, DistrictPopulationService reconciles derived speed and
 receiver tags on reused bodies before participation/readiness resumes. Saved mutable resistance
 maps retain the accepted component snapshot; they are not replaced by construction defaults.
+
+The receiving supply owns its immutable item catalog. PackageOrderRules selects an available
+category by the recipient archetype's weights, then a canonical item using the explicit world
+seed, stable person ID, day and package ID. C_Receiving owns committed order_item_paths alongside
+physical scene paths in each ReceivingBatch. The existing compiler installs the selected immutable
+definition on C_PackageContents before publication; this Component owns the live parcel payload.
+PackageRegistrationRecord receives an arrival projection for terminal/search/archive display.
+The ledger projection owns no second mutable order state. Snapshot preflight checks completeness,
+physical item definitions and agreement with live parcel data before mutation; retry/restore never
+rerolls. Missing categories fall back to available categories, and absent catalog entries retain
+authored legacy contents. Catalog bodies own their native effects instead of inheriting the old
+payload's leak/opening/destruction hazards. Package IDs, recipients, events and physical tuning
+keep their existing owners; market price and parcel accounting value remain separate contracts.
 
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances
 microsecond ticks/remainder; calendar transitions retain their existing player-driven authority.

@@ -913,6 +913,7 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 	batch.day_index = 1
 	batch.package_keys = ["fixture_package"]
 	batch.package_scenes = ["res://content/domains/packages/entities/package.tscn"]
+	batch.order_item_paths = [""]
 	receiving.pending.append(batch)
 	_session.add_component(receiving)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
@@ -937,6 +938,102 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 
 
 #region Package composition preflight
+const ORDER_ITEM_PATH: String = "res://content/domains/inventory/definitions/def_item_axe.tres"
+const ORDER_SUPPLY_PATH: String = (
+	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
+)
+
+
+## Reused and recreated packages preserve committed catalog contents and the archive projection.
+func test_catalog_order_roundtrip_restores_live_contents_and_history_after_fresh_spawn() -> void:
+	var parcel: E_Package = _ordered_package()
+	var selected: DEF_InventoryItem = (
+		parcel.get_component(C_PackageContents) as C_PackageContents
+	).selected_item
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	_world.remove_entity(parcel)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: Entity = _world.query.with_all([C_Package]).execute_one()
+	assert_not_null(restored)
+	if restored == null:
+		return
+	var contents: C_PackageContents = restored.get_component(C_PackageContents) as C_PackageContents
+	assert_same(contents.selected_item, selected)
+	var arrival: PackageRegistrationRecord = PackageHistoryService.record_for(
+		"fixture/catalog_order"
+	)
+	assert_same(arrival.ordered_item, selected)
+	assert_eq(PackageOrderPresentation.title(arrival), selected.display_name)
+	contents.selected_item = null
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_same(contents.selected_item, selected, "Reused body also restores the committed choice")
+	_world.remove_entity(restored)
+	var archived: PackageRegistrationRecord = PackageHistoryService.record_for(
+		"fixture/catalog_order"
+	)
+	assert_eq(
+		PackageOrderPresentation.title(archived),
+		selected.display_name,
+		"Archive survives body removal",
+	)
+
+
+## Malformed choices reject before changing inventory, calendar, live payload or arrival history.
+func test_catalog_order_rejects_missing_and_invalid_payload_before_live_mutation() -> void:
+	var parcel: E_Package = _ordered_package()
+	var selected: DEF_InventoryItem = (
+		parcel.get_component(C_PackageContents) as C_PackageContents
+	).selected_item
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(
+		WorldSnapshotService.can_restore(snapshot, _root),
+		"Baseline order snapshot is valid",
+	)
+	for fault: String in [
+		"missing_component",
+		"missing_item",
+		"wrong_definition",
+		"archive_mismatch",
+	]:
+		var invalid: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in invalid.entities:
+			var components: Array = record.components as Array
+			for data: Dictionary in components.duplicate():
+				if data.type == C_PackageContents.resource_path:
+					if fault == "missing_component":
+						components.erase(data)
+					elif fault == "missing_item":
+						(data.fields as Dictionary).erase("selected_item")
+					elif fault == "wrong_definition":
+						data.fields.selected_item = SaveDataCodec.encode(load(ORDER_SUPPLY_PATH))
+					elif fault == "archive_mismatch":
+						data.fields.selected_item = null
+		assert_false(WorldSnapshotService.restore(invalid, _root), fault)
+		assert_same(
+			(parcel.get_component(C_PackageContents) as C_PackageContents).selected_item,
+			selected,
+		)
+		assert_same(
+			PackageHistoryService.record_for("fixture/catalog_order").ordered_item,
+			selected,
+		)
+		assert_eq(DayPhaseQueries.current().day_index, 1)
+		assert_same(InventoryService.owner_for(_item), _actor)
+
+
+func _ordered_package() -> E_Package:
+	var parcel: E_Package = (load(_PACKAGE_SCENE_PATH) as PackedScene).instantiate() as E_Package
+	var supply: DEF_Delivery = load(ORDER_SUPPLY_PATH) as DEF_Delivery
+	parcel.package_definition = supply.packages[0]
+	parcel.package_id = "fixture/catalog_order"
+	EntityCompositionFixture.register(_world, parcel)
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	contents.selected_item = load(ORDER_ITEM_PATH) as DEF_InventoryItem
+	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
+	return parcel
+
+
 ## Invalid authoring rejects a saved missing package before registry/calendar/ownership changes.
 func test_fresh_package_template_conflict_rejects_restore_before_live_mutation() -> void:
 	var package_scene: PackedScene = load(_PACKAGE_SCENE_PATH) as PackedScene

@@ -19,7 +19,10 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	for index: int in entities.size():
 		var condition: C_PackageState = conditions[index]
 		var tilt: C_LiquidTilt = tilts[index]
-		if PackageContentsService.is_empty(entities[index]):
+		if (
+			PackageContentsService.is_empty(entities[index])
+			or PackageContentsService.has_catalog_order(entities[index])
+		):
 			tilt.unsafe_seconds = 0.0
 			continue
 		if tilt.triggered or condition.leaking:
@@ -57,7 +60,7 @@ func _commit_leak(entity_reference: WeakRef, condition: C_PackageState, amount: 
 		or entity.get_component(C_PackageState) != condition or condition.leaking
 	):
 		return
-	if PackageContentsService.is_empty(entity):
+	if PackageContentsService.is_empty(entity) or PackageContentsService.has_catalog_order(entity):
 		return
 	if condition.damage == C_PackageState.Damage.DESTROYED:
 		return

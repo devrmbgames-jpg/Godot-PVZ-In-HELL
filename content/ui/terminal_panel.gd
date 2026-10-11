@@ -282,13 +282,12 @@ func _matches_search(
 	visit: CustomerVisit,
 	needle: String,
 ) -> bool:
-	var definition: DEF_Package = record.definition
 	var haystack: String = "%s %s %s %s %s %s" % [
 		UI_TerminalButtonPackage.number_text(record),
 		record.package_id,
 		record.history_id,
-		definition.description if definition != null else "",
-		definition.comment if definition != null else "",
+		PackageOrderPresentation.title(record),
+		PackageOrderPresentation.comment(record),
 		UI_TerminalButtonPackage.status_text(record, state, visit, debug_package_status_enabled),
 	]
 	return needle in haystack.to_lower()
@@ -408,12 +407,7 @@ func _package_history_entries(
 
 	var entries: PackedStringArray = []
 	for record: PackageRegistrationRecord in ordered:
-		var definition: DEF_Package = record.definition
-		var title: String = (
-			definition.description
-			if definition != null and not definition.description.is_empty()
-			else record.package_id
-		)
+		var title: String = PackageOrderPresentation.title(record)
 		var uid: String = record.history_id if not record.history_id.is_empty() else "—"
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit

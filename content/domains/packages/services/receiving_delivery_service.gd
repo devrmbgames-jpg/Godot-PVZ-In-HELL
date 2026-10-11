@@ -45,11 +45,34 @@ static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_inde
 				GameTimeQueries.current().world_seed,
 			)
 		)
+		var ordered_item: DEF_InventoryItem = _order_item(supply, definition, package_id, day_index)
+		batch.order_item_paths.append(ordered_item.resource_path if ordered_item != null else "")
 		receiving.incoming_package_ids.append("%s:%s" % [receiving.batch_id, definition.key])
 		if batch.package_keys.size() >= limit:
 			break
 	if not batch.package_keys.is_empty():
 		receiving.pending.append(batch)
+
+
+static func _order_item(
+	supply: DEF_Delivery,
+	definition: DEF_Package,
+	package_id: String,
+	day_index: int,
+) -> DEF_InventoryItem:
+	if definition.unpack_scene == null or supply.order_catalog.is_empty():
+		return null
+	var person: NpcRecord = NpcPopulationQueries.recipient_for(definition.recipient_id)
+	if person == null:
+		return null
+	return PackageOrderRules.choose(
+		supply.order_catalog,
+		person.profile.item_category_weights,
+		GameTimeQueries.current().world_seed,
+		String(person.npc_id),
+		day_index,
+		package_id,
+	)
 
 
 ## Считает физические коробки с будущим получением; терминальные случаи и мёртвые исключены.
@@ -174,6 +197,15 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 		&"delivery_day": batch.day_index,
 		&"supply_key": zone.supply.key,
 	}
+	var item_path: String = batch.order_item_paths[batch.next_package]
+	if not item_path.is_empty():
+		var ordered_item: DEF_InventoryItem = load(item_path) as DEF_InventoryItem
+		if definition.unpack_scene == null or not PackageOrderRules.is_orderable(ordered_item):
+			parcel.free()
+			receiving.blocked = true
+			receiving.retry_remaining = BLOCKED_RETRY_SECONDS
+			return
+		initial_fields[C_PackageContents as Script] = { &"selected_item": ordered_item }
 	if not ReceivingPackageFactory.try_place(zone, parcel, initial_fields):
 		parcel.free()
 		receiving.blocked = true

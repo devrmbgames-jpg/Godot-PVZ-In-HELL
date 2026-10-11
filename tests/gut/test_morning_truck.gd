@@ -1,6 +1,8 @@
 extends GutTest
 ## Физическая приёмка машины: маркеры, полная форма, укладка, устойчивые партии и история.
 
+const NPC_DEFINITIONS_ROOT: String = "res://content/domains/npc/definitions/"
+
 var _root: Node3D
 var _world: World
 var _zone: E_ReceivingZone
@@ -214,6 +216,80 @@ func test_authored_upper_slot_stacks_on_real_box() -> void:
 
 
 #region Постоянный состав и история
+## Blocked truck delivery retains selected contents through restore and catalog changes.
+func test_catalog_order_retries_restore_one_real_parcel_with_the_committed_contents() -> void:
+	var session: Entity = _world.query.with_all([C_DayCycle]).execute_one()
+	var district: C_District = C_District.new()
+	district.definition = load(NPC_DEFINITIONS_ROOT + "def_district_default.tres") as DEF_District
+	district.people = NpcPopulationRules.initial_records(
+		district.definition,
+		1,
+		DayPhaseQueries.current().clock.world_seed,
+	)
+	session.add_component(district)
+	var flow: C_CustomerFlow = C_CustomerFlow.new()
+	flow.schedule = load(
+		"res://content/domains/customers/definitions/def_customer_schedule_default.tres"
+	) as DEF_CustomerSchedule
+	session.add_component(flow)
+	var chosen: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_axe.tres"
+	) as DEF_InventoryItem
+	_zone.supply = _zone.supply.duplicate() as DEF_Delivery
+	_zone.supply.packages = [_zone.supply.packages[0]]
+	_zone.supply.order_catalog = [chosen]
+	var truck: E_MorningTruck = await _ready_truck()
+	var slots: Array[Marker3D] = truck.cargo_slots.duplicate()
+	truck.cargo_slots.clear()
+	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
+	assert_true(_state.blocked)
+	assert_true(_parcels().is_empty())
+	assert_eq(_state.pending[0].next_package, 0)
+	assert_eq(_state.pending[0].order_item_paths[0], chosen.resource_path)
+	var captured: Dictionary = SaveDataCodec.component_data(_state).fields as Dictionary
+	_zone.supply.order_catalog = [
+		load("res://content/domains/inventory/definitions/def_item_holy_artifact.tres")
+		as DEF_InventoryItem
+	]
+	assert_true(SaveDataCodec.apply_fields(_state, captured))
+	assert_true(
+		ReceivingSnapshotRules.valid(_state, _zone),
+		"Committed choice survives catalog changes",
+	)
+	for paths: PackedStringArray in [
+		PackedStringArray(),
+		PackedStringArray(["res://project.godot"]),
+		PackedStringArray([chosen.resource_path.get_base_dir().path_join("missing_order.tres")]),
+	]:
+		var invalid: C_Receiving = C_Receiving.new()
+		assert_true(SaveDataCodec.apply_fields(invalid, captured))
+		invalid.pending[0].order_item_paths = paths
+		assert_false(ReceivingSnapshotRules.valid(invalid, _zone))
+	truck.cargo_slots.assign(slots)
+	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
+	assert_eq(_parcels().size(), 1)
+	if _parcels().is_empty():
+		return
+	var parcel: Entity = _parcels()[0]
+	assert_same(
+		(parcel.get_component(C_PackageContents) as C_PackageContents).selected_item,
+		chosen,
+	)
+	var identity: C_Package = parcel.get_component(C_Package) as C_Package
+	assert_eq(identity.package_id, "base_supply:1:books")
+	assert_eq(identity.delivery_day, 1)
+	assert_same(identity.definition, _zone.supply.packages[0])
+	var record: PackageRegistrationRecord = PackageHistoryService.record_for(identity.package_id)
+	assert_same(record.ordered_item, chosen)
+	assert_eq(PackageOrderPresentation.title(record), chosen.display_name)
+	assert_eq(flow.visits.size(), 1)
+	assert_eq(flow.visits[0].package_id, identity.package_id)
+	assert_eq(flow.visits[0].customer_id, district.people[0].npc_id)
+	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
+	assert_eq(_parcels().size(), 1, "Retry keeps a single real parcel and arrival")
+	assert_eq(flow.visits.size(), 1)
+
+
 ## Codec сохраняет состав/физический вариант; уничтожение выданной коробки не создаёт её ещё раз.
 func test_restored_batch_and_arrival_history_prevent_duplicate_spawn() -> void:
 	await _ready_truck()

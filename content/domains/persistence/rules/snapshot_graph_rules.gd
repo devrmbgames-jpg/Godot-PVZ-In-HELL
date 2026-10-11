@@ -86,6 +86,11 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 				return false
 			if not saved_types.has(C_Health) or _component(entity, C_ImpactReceiver) == null:
 				return false
+			if (
+				_component(entity, C_PackageContents) != null
+				and not saved_types.has(C_PackageContents)
+			):
+				return false
 		if (
 			entity is E_Hazard
 			and (not saved_types.has(C_Hazard) or not saved_types.has(C_HazardLifetime))

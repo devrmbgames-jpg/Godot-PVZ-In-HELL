@@ -6,6 +6,36 @@ const PROFILE: String = "res://content/domains/npc/definitions/def_npc_archetype
 const OTHER: String = "res://content/domains/npc/definitions/def_npc_archetype_fire_elemental.tres"
 
 
+## Only the exact supply and package policy refresh; child Inspector edits protect the owning file.
+func test_order_dependencies_refresh_in_place_with_the_same_file_and_inspector_guards() -> void:
+	var supply: DEF_Delivery = load(TOOL.ORDER_SUPPLY) as DEF_Delivery
+	var original_catalog: Array[DEF_InventoryItem] = supply.order_catalog.duplicate()
+	var policy: EntityTrait = load(TOOL.ORDER_POLICY) as EntityTrait
+	var checksum: String = FileAccess.get_md5(TOOL.ORDER_SUPPLY)
+	var policy_checksum: String = FileAccess.get_md5(TOOL.ORDER_POLICY)
+	var child: Resource = supply.packages[0]
+	supply.order_catalog.clear()
+	policy.initial_field_names.erase(C_PackageContents as Script)
+	var paths: PackedStringArray = [TOOL.ORDER_SUPPLY, TOOL.ORDER_POLICY]
+	assert_true(TOOL.refresh_resources(paths, child).has("error"))
+	assert_true(supply.order_catalog.is_empty())
+	assert_false(policy.initial_field_names.has(C_PackageContents as Script))
+	assert_false(TOOL.refresh_resources(paths).has("error"))
+	assert_same(load(TOOL.ORDER_SUPPLY), supply)
+	assert_same(load(TOOL.ORDER_POLICY), policy)
+	assert_eq(supply.order_catalog, original_catalog)
+	assert_eq(
+		policy.initial_field_names[C_PackageContents as Script],
+		PackedStringArray(["selected_item"]),
+	)
+	assert_eq(FileAccess.get_md5(TOOL.ORDER_SUPPLY), checksum)
+	assert_eq(FileAccess.get_md5(TOOL.ORDER_POLICY), policy_checksum)
+	var excluded: String = TOOL.ORDER_SUPPLY.get_base_dir().path_join(
+		"def_smart_package_return.tres"
+	)
+	assert_true(TOOL.refresh_resources(PackedStringArray([excluded])).has("error"))
+
+
 ## Saved policy refresh updates existing scene references, with the same Inspector/file guards.
 func test_identity_policy_refresh_updates_cached_values_without_replacing_live_references() -> void:
 	for path: String in TOOL.IDENTITY_PATHS:

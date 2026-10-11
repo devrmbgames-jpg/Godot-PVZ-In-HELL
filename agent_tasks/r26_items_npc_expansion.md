@@ -36,12 +36,13 @@ Blood review fixes passed native checks and targeted review; final 15-item physi
 NPC archetypes/receiver composition and overall owner acceptance remain open.
 R26.2 now creates and restores persistent per-person variation in the existing live roster;
 Entity Traits compose movement, resistances and receiver tags from immutable archetypes.
-All ten requested archetypes have native authored data; live roster binding, category ordering
-and new behavior/dialogue acceptance remain open. Current save schema is 14.
+All ten requested archetypes have native authored data; live roster binding and new
+behavior/dialogue acceptance remain open. Category orders now commit actual payloads in
+receiving, contents and archive projection, using the immutable authored catalog. Schema is 15.
 
 ### Next
 
-Review the R26.2 roster migration, then continue ten-archetype binding and R26.3/R26.4 behavior.
+Review the R26.2 category-order checkpoint, then continue R26.3/R26.4 and bind all ten archetypes.
 
 ### Validation
 
@@ -82,7 +83,7 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
   scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
 - Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
   native physics delta retains its existing authority.
-- Current save schema is `AutosaveStore.SCHEMA_VERSION = 14`; version incompatible
+- Current save schema is `AutosaveStore.SCHEMA_VERSION = 15`; version incompatible
   serialized changes from the actual implementation baseline. No old-save conversion,
   defaults that accept an unsupported format, or automatic rejected-slot overwrite.
 

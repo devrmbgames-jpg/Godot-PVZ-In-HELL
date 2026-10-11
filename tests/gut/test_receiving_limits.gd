@@ -53,6 +53,34 @@ func test_daily_batch_is_limited_rotates_and_does_not_accumulate() -> void:
 		SaveDataCodec.decode(SaveDataCodec.encode(receiving.pending[0])) as ReceivingBatch
 	)
 	assert_eq(decoded.package_keys, receiving.pending[0].package_keys)
+	assert_eq(decoded.order_item_paths, receiving.pending[0].order_item_paths)
+	assert_eq(decoded.order_item_paths.size(), decoded.package_keys.size())
+	for path: String in decoded.order_item_paths:
+		assert_false(
+			path.is_empty(),
+			"Live morning supply commits one actual catalog order per parcel",
+		)
+
+
+## Neither changing preferences nor changing the available catalog rerolls a prepared batch.
+func test_prepared_orders_survive_changed_catalog_and_recipient_preferences() -> void:
+	var supply: DEF_Delivery = _supply.duplicate() as DEF_Delivery
+	var person: NpcRecord = _district.people[0]
+	person.profile = person.profile.duplicate() as DEF_NpcArchetype
+	person.profile.item_category_weights = { DEF_InventoryItem.Category.WEAPON: 1.0 }
+	var receiving: C_Receiving = C_Receiving.new()
+	ReceivingDeliveryService.prepare_batch(supply, receiving, 1)
+	var first_path: String = receiving.pending[0].order_item_paths[0]
+	var chosen: DEF_InventoryItem = load(first_path) as DEF_InventoryItem
+	assert_true(bool(chosen.categories & DEF_InventoryItem.Category.WEAPON))
+	var committed: PackedStringArray = receiving.pending[0].order_item_paths.duplicate()
+	person.profile.item_category_weights = { DEF_InventoryItem.Category.REAGENT: 1.0 }
+	supply.order_catalog = []
+	ReceivingDeliveryService.prepare_batch(supply, receiving, 1)
+	assert_eq(receiving.pending[0].order_item_paths, committed)
+	var copied: C_Receiving = C_Receiving.new()
+	assert_true(SaveDataCodec.apply_fields(copied, SaveDataCodec.component_data(receiving).fields))
+	assert_eq(copied.pending[0].order_item_paths, committed)
 
 
 ## Остаток лимита сокращает партию; пятьдесят ожидающих полностью останавливают поставку.

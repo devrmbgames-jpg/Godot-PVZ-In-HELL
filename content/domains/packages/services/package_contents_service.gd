@@ -18,6 +18,12 @@ static func is_empty(package: Entity) -> bool:
 	return contents != null and contents.released
 
 
+## Catalog payload effects belong to its native body, replacing legacy contents hazards.
+static func has_catalog_order(package: Entity) -> bool:
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	return contents != null and contents.selected_item != null
+
+
 ## Фиксирует состав открытой целой коробки один раз; возвращает только безопасно размещённые тела.
 ## captured_actor_id preserves committed attribution when the optional live initiator is
 ## unavailable.
@@ -45,8 +51,13 @@ static func release(
 		return []
 
 	var definition: DEF_Package = identity.definition
+	var content_scene: PackedScene = definition.unpack_scene
+	if state.selected_item != null:
+		if not PackageOrderRules.is_orderable(state.selected_item):
+			return []
+		content_scene = load(state.selected_item.world_pickup_scene) as PackedScene
 	if (
-		definition.unpack_scene == null or definition.content_quantity < 1
+		content_scene == null or definition.content_quantity < 1
 		or definition.content_quantity > DEF_Package.MAX_CONTENT_QUANTITY
 	):
 		return []
@@ -55,7 +66,7 @@ static func release(
 		return []
 	var scenes: Array[PackedScene] = []
 	for index: int in definition.content_quantity:
-		scenes.append(definition.unpack_scene)
+		scenes.append(content_scene)
 	var items: Array[Entity] = LootDropService.prepare(scenes)
 	if items.is_empty():
 		return []
@@ -70,9 +81,11 @@ static func release(
 	)
 	template.package_id = identity.package_id
 	template.airborne = definition.spill_contents
-	template.activate_hazard = definition.activate_contents_hazard
+	template.activate_hazard = state.selected_item == null and definition.activate_contents_hazard
 	template.opening_hazard_path = (
-		definition.hazard_on_opened.resource_path if definition.hazard_on_opened != null else ""
+		definition.hazard_on_opened.resource_path
+		if state.selected_item == null and definition.hazard_on_opened != null
+		else ""
 	)
 	var origins: PackedVector3Array = _origins(body, items, definition)
 

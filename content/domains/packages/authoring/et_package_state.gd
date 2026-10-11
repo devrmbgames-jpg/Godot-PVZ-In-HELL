@@ -10,6 +10,7 @@ func _init() -> void:
 	required_root_class = &"RigidBody3D"
 	required_components = [C_Package, C_Health, C_ImpactReceiver, C_Grabbable]
 	initial_field_names[C_Package as Script] = PackedStringArray(["delivery_day", "supply_key"])
+	initial_field_names[C_PackageContents as Script] = PackedStringArray(["selected_item"])
 
 
 ## Validates the existing scene export as the single immutable package tuning owner.

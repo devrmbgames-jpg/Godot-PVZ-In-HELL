@@ -47,13 +47,10 @@ func present(
 		_label_package_name.text = record.package_id
 		lines.append("Данные посылки недоступны.")
 	else:
-		_label_package_name.text = (
-			definition.description
-			if not definition.description.is_empty()
-			else String(definition.key)
-		)
-		if not definition.comment.is_empty():
-			lines.append(definition.comment)
+		_label_package_name.text = PackageOrderPresentation.title(record)
+		var comment: String = PackageOrderPresentation.comment(record)
+		if not comment.is_empty():
+			lines.append(comment)
 		lines.append("Вес: %.1f кг" % definition.mass_kg)
 		lines.append("Учётная стоимость: %d" % definition.accounting_value)
 	if record.received_day > 0:

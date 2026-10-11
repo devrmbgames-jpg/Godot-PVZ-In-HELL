@@ -1,6 +1,6 @@
 @tool
 extends RefCounted
-## Refreshes saved archetypes and the two NPC identity policies, without changing authored files.
+## Refreshes archetypes and their exact identity/order dependencies without changing authored files.
 
 const ROOT: String = "res://content/domains/npc/definitions/"
 const ARCHETYPE_SCRIPT: String = ROOT + "def_npc_archetype.gd"
@@ -10,6 +10,11 @@ const IDENTITY_PATHS: PackedStringArray = [
 	AUTHORING_ROOT + "et_district_npc_npc_identity.tres",
 	AUTHORING_ROOT + "et_district_trader_npc_identity.tres",
 ]
+const ORDER_SUPPLY: String = (
+	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
+)
+const PACKAGE_AUTHORING_ROOT: String = "res://content/domains/packages/authoring/"
+const ORDER_POLICY: String = PACKAGE_AUTHORING_ROOT + "et_package_package_state.tres"
 const MAXIMUM_PATHS: int = 16
 
 
@@ -30,7 +35,7 @@ static func refresh_resources(paths: PackedStringArray, inspected: Resource = nu
 	if inspected != null and paths.has(inspected.resource_path.get_slice("::", 0)):
 		return { "error": "Close the target Resource Inspector before refreshing its cache." }
 	if paths.is_empty() or paths.size() > MAXIMUM_PATHS:
-		return { "error": "Expected one to sixteen supported authored NPC resources." }
+		return { "error": "Expected one to sixteen supported archetype/dependency resources." }
 	var seen: Dictionary[String, bool] = { }
 	for path: String in paths:
 		if (
@@ -46,7 +51,7 @@ static func refresh_resources(paths: PackedStringArray, inspected: Resource = nu
 		var resource: Resource = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
 		var resource_script: Script = resource.get_script() as Script if resource != null else null
 		if resource_script == null or resource_script.resource_path != _expected_script_path(path):
-			return { "error": "File does not have its declared NPC authoring type.", "path": path }
+			return { "error": "File does not have its declared authoring type.", "path": path }
 		refreshed.append(resource)
 	var completed: PackedStringArray = []
 	for path: String in paths:
@@ -74,6 +79,10 @@ static func refresh_resources(paths: PackedStringArray, inspected: Resource = nu
 
 
 static func _expected_script_path(path: String) -> String:
+	if path == ORDER_SUPPLY:
+		return "res://content/domains/packages/definitions/def_delivery.gd"
+	if path == ORDER_POLICY:
+		return "res://content/domains/packages/authoring/et_package_state.gd"
 	if IDENTITY_PATHS.has(path):
 		return IDENTITY_SCRIPT
 	if path.get_base_dir() == ROOT.trim_suffix("/"):

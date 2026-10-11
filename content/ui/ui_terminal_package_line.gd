@@ -89,15 +89,11 @@ func present(
 	if definition == null:
 		_label_price.text = "—"
 		_label_description_short.text = record.package_id
-		_set_status_icons(null)
+		_set_status_icons(record)
 	else:
 		_label_price.text = str(definition.accounting_value)
-		_label_description_short.text = (
-			definition.description
-			if not definition.description.is_empty()
-			else String(definition.key)
-		)
-		_set_status_icons(definition)
+		_label_description_short.text = PackageOrderPresentation.title(record)
+		_set_status_icons(record)
 
 	var can_declare: bool = (
 		actions_enabled and visit != null and visit.started
@@ -222,14 +218,16 @@ static func number_text(record: PackageRegistrationRecord) -> String:
 
 
 #region Иконки и запросы действий
-func _set_status_icons(definition: DEF_Package) -> void:
+func _set_status_icons(record: PackageRegistrationRecord) -> void:
+	var definition: DEF_Package = record.definition
 	var has_definition: bool = definition != null
+	var legacy_contents: bool = has_definition and record.ordered_item == null
 	var hazard_class: DEF_Package.HazardClass = (
 		definition.history_hazard_class
-		if has_definition
+		if legacy_contents
 		else DEF_Package.HazardClass.NORMAL
 	)
-	var tags: int = definition.tags if has_definition else 0
+	var tags: int = PackageOrderPresentation.tags(record)
 	_icon_status_explotion.visible = (
 		has_definition and hazard_class == DEF_Package.HazardClass.EXPLOSIVE
 	)
@@ -239,7 +237,7 @@ func _set_status_icons(definition: DEF_Package) -> void:
 
 	_icon_status_weight.visible = has_definition and bool(tags & DEF_Package.Tag.HEAVY)
 	_icon_status_anomaly.visible = (
-		has_definition
+		legacy_contents
 		and (
 			hazard_class == DEF_Package.HazardClass.OTHER
 			or definition.hazard_on_damaged != null or definition.hazard_on_destroyed != null

@@ -245,6 +245,39 @@ func test_released_contents_and_inventory_state_restore_without_duplication() ->
 
 
 #region Авторский ассортимент и опасности
+## Catalog payload replaces old bottle effects; reopening never duplicates it.
+func test_selected_catalog_weapon_releases_real_contents_without_legacy_bottle_hazards() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_ToxicAreaSetup.new())
+	_world.add_observer(O_PackageHazard.new())
+	_world.add_observer(O_PackageDestruction.new())
+	_world.add_observer(O_PackageDestroyedHazard.new())
+	_world.add_system(S_LiquidTilt.new())
+	var parcel: E_Package = _catalog_package(_supply_definition(&"bottles"))
+	var selected: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_axe.tres"
+	) as DEF_InventoryItem
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	contents.selected_item = selected
+	(parcel as Node as Node3D).rotation.z = PI / 2.0
+	_world.process(30.0)
+	assert_false((parcel.get_component(C_PackageState) as C_PackageState).leaking)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.DAMAGED, _actor)
+	assert_eq(_world.query.with_all([C_ToxicArea]).execute().size(), 0)
+	var items: Array[Entity] = PackageContentsService.release(parcel, _actor)
+	assert_eq(items.size(), 1)
+	if items.is_empty():
+		return
+	assert_eq(items[0].scene_file_path, selected.world_pickup_scene)
+	assert_same((items[0].get_component(C_InventoryItem) as C_InventoryItem).definition, selected)
+	assert_true(items[0].has_component(C_MeleeWeapon))
+	assert_true(contents.released)
+	assert_true(PackageContentsService.release(parcel, _actor).is_empty())
+	assert_eq(_world.query.with_all([C_ToxicArea]).execute().size(), 0)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.DESTROYED, _actor)
+	assert_eq(_world.query.with_all([C_ToxicArea]).execute().size(), 0)
+
+
 func _catalog_package(definition: DEF_Package) -> E_Package:
 	var scene: PackedScene = load(definition.scene_variants[0]) as PackedScene
 	var parcel: E_Package = scene.instantiate() as E_Package

@@ -17,3 +17,5 @@ var cause: DamageResult = null
 var world_pose: Transform3D = Transform3D.IDENTITY
 ## Пустая оболочка не наследует опасность уничтоженного содержимого.
 var contents_released: bool = false
+## A catalog payload owns its own effects; destruction must not emit legacy contents hazards.
+var catalog_order: bool = false

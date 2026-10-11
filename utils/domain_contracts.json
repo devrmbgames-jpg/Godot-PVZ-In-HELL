@@ -8784,13 +8784,15 @@
         "request"
       ],
       "public_methods": [
-        "is_empty"
+        "is_empty",
+        "has_catalog_order"
       ],
       "sources": [
         "content/observers/gameplay/o_package_hazard.gd"
       ],
       "method_rights": {
-        "is_empty": "query"
+        "is_empty": "query",
+        "has_catalog_order": "query"
       },
       "public_instance_methods": []
     },
@@ -13193,14 +13195,17 @@
         "read"
       ],
       "public_methods": [
-        "is_entity_scene_path"
+        "is_entity_scene_path",
+        "is_definition_path"
       ],
       "public_instance_methods": [],
       "sources": [
-        "content/services/gameplay/loot_drop_service.gd"
+        "content/services/gameplay/loot_drop_service.gd",
+        "content/domains/packages/rules/package_order_rules.gd"
       ],
       "method_rights": {
-        "is_entity_scene_path": "query"
+        "is_entity_scene_path": "query",
+        "is_definition_path": "query"
       }
     },
     {
@@ -15575,7 +15580,8 @@
       ],
       "public_methods": [],
       "sources": [
-        "content/services/persistence/save_data_codec.gd"
+        "content/services/persistence/save_data_codec.gd",
+        "content/domains/persistence/rules/package_order_snapshot_rules.gd"
       ],
       "purpose": "Prevalidated passive reconstruction of the declared SAVE_FIELDS/links; gameplay writers resume after fixup. This grants no live gameplay mutation.",
       "method_rights": {},
@@ -18643,6 +18649,93 @@
       "purpose": "Closed detached archetype variation record codec; district roster integration retains durable authority.",
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "inventory",
+      "symbol": "DEF_InventoryItem",
+      "path": "content/domains/inventory/definitions/def_inventory_item.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/domains/packages/definitions/def_delivery.gd",
+        "content/domains/packages/components/c_package_contents.gd",
+        "content/domains/packages/contracts/package_registration_record.gd",
+        "content/domains/packages/rules/package_order_rules.gd",
+        "content/domains/packages/services/receiving_delivery_service.gd"
+      ],
+      "purpose": "Reads immutable catalog data and retains the once-selected definition in the package and arrival projection; no inventory mutation.",
+      "method_rights": {}
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "inventory",
+      "symbol": "DEF_InventoryItem",
+      "path": "content/domains/inventory/definitions/def_inventory_item.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/domains/persistence/rules/receiving_snapshot_rules.gd"
+      ],
+      "purpose": "Offline validation of committed item-definition paths; no live inventory writes.",
+      "method_rights": {}
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "packages",
+      "symbol": "PackageOrderRules",
+      "path": "content/domains/packages/rules/package_order_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "is_orderable"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/domains/persistence/rules/receiving_snapshot_rules.gd",
+        "content/domains/persistence/rules/package_order_snapshot_rules.gd"
+      ],
+      "purpose": "Read-only preflight of retained order definitions before any world mutation; does not reroll orders.",
+      "method_rights": {
+        "is_orderable": "query"
+      }
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "packages",
+      "symbol": "PackageOrderPresentation",
+      "path": "content/domains/packages/presentation/package_order_presentation.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "title",
+        "comment",
+        "tags"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/ui/terminal_panel.gd",
+        "content/ui/ui_terminal_package_line.gd",
+        "content/ui/ui_terminal_package_detail_info.gd"
+      ],
+      "purpose": "Terminal rows, search and archives read the immutable arrival projection; presentation owns no gameplay state.",
+      "method_rights": {
+        "title": "query",
+        "comment": "query",
+        "tags": "query"
+      }
     }
   ],
   "legacy_decomposition": []

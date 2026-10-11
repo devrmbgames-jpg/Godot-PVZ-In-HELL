@@ -117,6 +117,7 @@ func _replace_with_debris(
 	spawned.cause = cause
 	spawned.world_pose = world_pose
 	spawned.contents_released = contents_released or PackageContentsService.is_empty(package)
+	spawned.catalog_order = PackageContentsService.has_catalog_order(package)
 	_world.emit_event(PackageDebrisSpawnedEvent.EVENT, debris, spawned)
 
 	_world.remove_entity(package)

@@ -117,6 +117,10 @@ func test_native_package_registration_publishes_complete_profile_without_default
 	var published_day: Array[int] = []
 	var published_throw: Array[float] = []
 	var published_supply: Array[StringName] = []
+	var published_item: Array[DEF_InventoryItem] = []
+	var ordered_item: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_axe.tres"
+	) as DEF_InventoryItem
 	parcel.component_added.connect(
 		func(_actor: Entity, component: Component) -> void:
 			delivered.append(component.get_script() as Script),
@@ -127,7 +131,10 @@ func test_native_package_registration_publishes_complete_profile_without_default
 			published_throw.append((actor.get_component(C_Grabbable) as C_Grabbable).throw_velocity)
 			var identity: C_Package = actor.get_component(C_Package) as C_Package
 			published_day.append(identity.delivery_day)
-			published_supply.append(identity.supply_key),
+			published_supply.append(identity.supply_key)
+			published_item.append(
+				(actor.get_component(C_PackageContents) as C_PackageContents).selected_item,
+			),
 	)
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		parcel,
@@ -138,12 +145,14 @@ func test_native_package_registration_publishes_complete_profile_without_default
 		&"delivery_day": 11,
 		&"supply_key": &"fixture_supply",
 	}
+	context.initial_fields[C_PackageContents as Script] = { &"selected_item": ordered_item }
 	assert_true(EntityCompositionService.try_register(context))
 	assert_eq(world.entities.size(), 1)
 	assert_eq(published_health, [73.0])
 	assert_eq(published_throw, [5.5])
 	assert_eq(published_day, [11])
 	assert_eq(published_supply, [&"fixture_supply"])
+	assert_eq(published_item, [ordered_item], "Selected contents exist before native publication")
 	assert_eq(delivered.count(C_Health as Script), 1)
 	assert_eq(delivered.count(C_PackageContents as Script), 1)
 	assert_eq(delivered.count(C_LiquidTilt as Script), 1)

@@ -24,7 +24,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var definition: DEF_Package = identity.definition if identity != null else null
 	if definition == null:
 		return
-	if PackageContentsService.is_empty(entity):
+	if PackageContentsService.is_empty(entity) or PackageContentsService.has_catalog_order(entity):
 		return
 	# При распаковке эффект переносит сервис извлечения на реальное содержимое.
 	if event.kind == PackageLifecycleEvent.Kind.OPENED and definition.unpack_scene != null:

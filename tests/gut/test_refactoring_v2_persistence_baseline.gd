@@ -110,6 +110,7 @@ func before_each() -> void:
 	batch.day_index = MORNING_DAY
 	batch.package_keys = [String(supply.packages[0].key)]
 	batch.package_scenes = [String(supply.packages[0].scene_variants[0])]
+	batch.order_item_paths = [""]
 	(session.get_component(C_Receiving) as C_Receiving).pending.append(batch)
 	var receiving: C_Receiving = session.get_component(C_Receiving) as C_Receiving
 	receiving.last_started_day = MORNING_DAY
@@ -263,10 +264,8 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_eq(restored_calendar.clock.tick_remainder, 0.625)
 	assert_eq(restored_calendar.clock.world_seed, -42)
 	assert_eq(restored_calendar.day_index, MORNING_DAY)
-	var restored_receiving: C_Receiving = (
-		_fixture_world.query.with_all([C_Receiving]).execute_one().get_component(C_Receiving)
-		as C_Receiving
-	)
+	var restored_zone: Entity = _fixture_world.query.with_all([C_Receiving]).execute_one()
+	var restored_receiving: C_Receiving = restored_zone.get_component(C_Receiving) as C_Receiving
 	assert_eq(restored_receiving.cargo_receipts.size(), 1)
 	assert_true(restored_receiving.cargo_receipts[0].removed)
 	assert_false(restored_receiving.cargo_receipts[0].settled)

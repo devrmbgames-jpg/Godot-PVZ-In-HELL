@@ -357,7 +357,7 @@ func _behavior_tree_authoring_spec() -> McpCustomToolSpec:
 func _npc_archetype_cache_spec() -> McpCustomToolSpec:
 	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
 	spec.name = "pvz_npc_archetype_cache_refresh"
-	spec.description = "Refresh stale NPC archetype caches after native saves; no file writes."
+	spec.description = "Refresh NPC archetypes and exact identity/order caches; no file writes."
 	spec.params_schema = {
 		"type": "object",
 		"properties": {

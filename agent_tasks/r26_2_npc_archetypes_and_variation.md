@@ -18,9 +18,13 @@ are read-only resolved views. Compiler instance fields compose speed, damage res
 receiver tags. Native MCP migrated all 12 existing profiles and the district while preserving
 paths, keys, schedules, roles and places. They retain existing behavior; the ten requested
 archetypes are authored assets awaiting live roster binding and new behavior implementation.
-Schema 14 rejects incomplete/unsupported records before mutation; restore never rerolls.
-Next: finish review of the integration checkpoint, bind all ten archetypes, category ordering,
-presentation/combat preferences and mandatory behaviors with R26.3/R26.4. Acceptance stays open.
+Schema 15 rejects incomplete/unsupported records before mutation; restore never rerolls.
+Category ordering now commits real catalog payloads with the existing receiving batch/parcel IDs.
+Weighted available categories feed deterministic per-person decisions; missing categories fall back.
+Contents and the terminal/archive arrival projection retain the choice through retry/restore.
+Native MCP adds all 15 physical catalog items while preserving all eight authored case paths.
+Next: review this checkpoint, implement R26.3/R26.4 and bind all ten requested archetypes.
+Presentation/combat/mandatory behavior acceptance remains open.
 
 ### Validation
 
@@ -39,11 +43,11 @@ inspected ::subresources lacked file-owner protection. FIXED
 fd2627ee7e6312efbc6c5a9afb70b77fa997ce1f; parser203852011/GUT203819728 3/3,35,
 live MCP diagnostics and targeted review PASS (2 s). No file/UID changes during cache refresh.
 Both repairs have ARCHITECTURE/STYLE PASS; reviewer runtime checks NOT_RUN.
-Integration: factory GUT205245545 13/13,102; world snapshot205034739 33/33,407;
-shared host205140832 2/2,260; doctor205354140 20/20,119; preview205302600 10/10,66;
-compiler205515135 33/33,189; recipe isolation205524795 7/7,42; perception205530362 8/8,27;
-blood205538943 10/10,120; community205551797 15/15,99; randomness205614732 11/11,103;
-save-data205633042 6/6,40; district plan205648020 41/41,260 PASS.
+Roster integration: factory205245545 13/13,102; shared host205140832 2/2,260;
+doctor205354140 20/20,119; preview205302600 10/10,66; compiler205515135 33/33,189;
+recipe isolation205524795 7/7,42; perception205530362 8/8,27; blood205538943 10/10,120;
+community205551797 15/15,99; randomness205614732 11/11,103; save-data205633042 6/6,40;
+district plan205648020 41/41,260 PASS. Current world-snapshot evidence below supersedes205034739.
 District snapshot211423055: 15/15,184 tests PASS, no runtime errors/orphan Nodes;
 runner FAIL solely on shutdown Resource/RID/VariantPools retention: KNOWN_ENGINE_LIMITATION/DEFERRED.
 New checks cover selected optional fire, receiver composition, fresh/reused variation restore,
@@ -60,7 +64,23 @@ RV-003/R1 P1: reused bodies retained stale variation-derived speed/receiver tags
 a081b0037081f117c0435af443c53fb2f626de70; targeted review PASS (7 s), ARCHITECTURE/STYLE PASS.
 Repair reconciles both after accepted snapshot and role cleanup, before participation/readiness;
 reused-body and rejected-snapshot regressions above PASS; owner parser211507727 PASS.
-NOT_RUN: ten-archetype roster binding, category ordering, new mandatory behaviors,
+Category orders: GUT214635170 7/7,199; cache213535399 5/5,63; compiler213539722 6/6,59;
+receiving213649524 22/22,151; contents213920106 14/14,244; truck214703675 14/14,96;
+world snapshot214710999 35/35,443; terminal214819154 7/7,28 PASS.
+These cover catalog growth/fallback, unchanged case paths, blocked real delivery/codec retry,
+one-shot actual weapon release without legacy bottle hazards, fresh/reused payload restore,
+archive projection and malformed order rejection before mutation. Baseline fixture and closed
+manifest now reflect schema15, including variation and complete order fields; static baseline PASS.
+Normal golden-file GUT215227300: 5/5,349 tests PASS, runner FAIL exit0 solely on shutdown
+Resource/RID/VariantPools retention: KNOWN_ENGINE_LIMITATION/DEFERRED. No runtime errors/orphans.
+Parser215443197: 34 files compiled without parser errors; aggregate runner FAIL solely on
+baseline-script shutdown retention above (KNOWN_ENGINE_LIMITATION/DEFERRED).
+Strict architecture/domain/project/style/persistence-baseline checks PASS. Week smoke PASS:
+tests/artifacts/district-20261012-075624916.log (all phases, eight mornings, save/restore).
+Category checkpoint review remains pending; no DONE or subjective gameplay acceptance is claimed.
+MCP refresh proves supply/policy caches update in place without file/UID changes; clean scene
+reload and six test diagnostics checked[]/reloaded PASS. Global reload43 remains NOT_PASS.
+NOT_RUN: ten-archetype roster binding, new mandatory behaviors,
 presentation hooks, rendered gameplay and owner acceptance. No external scene/resource rewrites.
 
 ### Owner QA / blockers

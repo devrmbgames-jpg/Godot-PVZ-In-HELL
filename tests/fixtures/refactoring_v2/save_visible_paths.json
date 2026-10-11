@@ -1,5 +1,5 @@
 {
-  "schema": 12,
+  "schema": 15,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -140,7 +140,8 @@
       "symbol": "C_PackageContents",
       "path": "res://content/domains/packages/components/c_package_contents.gd",
       "fields": [
-        "released"
+        "released",
+        "selected_item"
       ]
     },
     {
@@ -167,6 +168,14 @@
         "value",
         "current",
         "depleted"
+      ]
+    },
+    {
+      "symbol": "C_Karma",
+      "path": "res://content/domains/combat/components/c_karma.gd",
+      "fields": [
+        "value",
+        "policy"
       ]
     },
     {
@@ -270,6 +279,11 @@
       ]
     },
     {
+      "symbol": "C_BloodArea",
+      "path": "res://content/domains/hazards/components/c_blood_area.gd",
+      "fields": []
+    },
+    {
       "symbol": "C_Explosion",
       "path": "res://content/domains/hazards/components/c_explosion.gd",
       "fields": [
@@ -290,6 +304,10 @@
     {
       "symbol": "NpcRecord",
       "path": "res://content/domains/npc/contracts/npc_record.gd"
+    },
+    {
+      "symbol": "NpcVariation",
+      "path": "res://content/domains/npc/contracts/npc_variation.gd"
     },
     {
       "symbol": "NpcMemory",
@@ -371,6 +389,7 @@
     "res://content/domains/npc/components/c_npc_remains.gd",
     "res://content/domains/npc/contracts/npc_memory.gd",
     "res://content/domains/npc/contracts/npc_record.gd",
+    "res://content/domains/npc/contracts/npc_variation.gd",
     "res://content/domains/npc/definitions/def_district_default.tres",
     "res://content/domains/npc/definitions/def_npc_profile_1.tres",
     "res://content/domains/npc/definitions/def_npc_profile_10.tres",

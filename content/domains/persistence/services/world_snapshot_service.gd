@@ -328,6 +328,7 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 		and RawPhysicsSnapshot.valid_receipts(snapshot.raw_actors as Array, all_components)
 		and DistrictSnapshotRules.valid(records, all_components, int(snapshot.morning_day))
 		and LootSnapshotRules.valid(records, all_components)
+		and PackageOrderSnapshotRules.valid(all_components)
 	)
 
 

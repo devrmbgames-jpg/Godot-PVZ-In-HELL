@@ -57,6 +57,8 @@ static func record_arrival(parcel: Entity, day_index: int) -> PackageRegistratio
 	record.history_id = history_id
 	record.received_day = day_index
 	record.definition = identity.definition
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	record.ordered_item = contents.selected_item if contents != null else null
 	registry.records.append(record)
 	return record
 
