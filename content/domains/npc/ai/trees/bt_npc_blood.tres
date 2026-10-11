@@ -1,0 +1,39 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://kc4c4akjxpa7"]
+
+[ext_resource type="Script" uid="uid://bfu1aoqjlfwa0" path="res://content/domains/npc/ai/tasks/bt_npc_blood_available.gd" id="1_mpsww"]
+[ext_resource type="Script" uid="uid://r3msx4sq3elk" path="res://content/domains/npc/ai/tasks/bt_npc_blood_inside.gd" id="2_8r7pc"]
+[ext_resource type="Script" uid="uid://bkwoe8vl2mv" path="res://content/domains/npc/ai/tasks/bt_npc_blood_retain.gd" id="3_jtpyg"]
+[ext_resource type="Script" uid="uid://bmhevjusul8om" path="res://content/domains/npc/ai/tasks/bt_npc_blood_approach.gd" id="4_cfype"]
+
+[sub_resource type="BTCondition" id="BTCondition_d5o6i"]
+custom_name = "Воспринятая живая зона крови"
+script = ExtResource("1_mpsww")
+
+[sub_resource type="BTCondition" id="BTCondition_dd6s8"]
+custom_name = "Тело перекрывается с Area3D"
+script = ExtResource("2_8r7pc")
+
+[sub_resource type="BTAction" id="BTAction_j4hxd"]
+custom_name = "Оставаться у крови"
+script = ExtResource("3_jtpyg")
+intent_owner = 1
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_x5j5p"]
+custom_name = "Остаться в зоне"
+children = [SubResource("BTCondition_dd6s8"), SubResource("BTAction_j4hxd")]
+
+[sub_resource type="BTAction" id="BTAction_cuya0"]
+custom_name = "Подойти к крови по навигации"
+script = ExtResource("4_cfype")
+intent_owner = 1
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_lqvxi"]
+custom_name = "Притяжение и удержание"
+children = [SubResource("BTDynamicSequence_x5j5p"), SubResource("BTAction_cuya0")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_lybn4"]
+custom_name = "Кровь успокаивает вампира"
+children = [SubResource("BTCondition_d5o6i"), SubResource("BTDynamicSelector_lqvxi")]
+
+[resource]
+root_task = SubResource("BTDynamicSequence_lybn4")

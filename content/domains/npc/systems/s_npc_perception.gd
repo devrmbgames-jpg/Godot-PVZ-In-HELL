@@ -50,6 +50,7 @@ func _advance(entity_reference: WeakRef, captured: C_NpcDecision, captured_gener
 
 
 func _sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
+	_sample_blood(actor, person)
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.player_visible = (
 		player != null and NpcPerceptionService.can_see(actor, player, person.profile)
@@ -74,4 +75,54 @@ func _sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: floa
 		if noise.sequence > awareness.last_noise_sequence:
 			awareness.last_noise_sequence = noise.sequence
 			NpcPerceptionService.hear(actor, person.profile, noise)
+
+
+## Cadenced selection shares normal LOS/light/FOV and remembers only a native live binding.
+func _sample_blood(actor: E_DistrictNpc, person: NpcRecord) -> void:
+	if (
+		not NpcBloodQueries.has_trait(actor, C_ReceiverTraits.Trait.VAMPIRE)
+		and not NpcBloodQueries.has_trait(actor, C_ReceiverTraits.Trait.UNCLEAN)
+	):
+		NpcBloodService.release(actor)
+		return
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
+	var previous: E_BloodArea = NpcBloodQueries.zone_for(actor)
+	if previous != null and NpcBloodQueries.inside(actor, previous):
+		NpcBloodService.observe(actor, person, previous)
+		return
+	if previous != null and intent.navigation_blocked and not intent.navigation_pending:
+		if not awareness.rejected_blood_ids.has(previous.id):
+			awareness.rejected_blood_ids.append(previous.id)
+	var live_ids: Array[String] = []
+	var nearest: E_BloodArea = null
+	var distance: float = INF
+	var zones: QueryBuilder = _world.query.with_all([C_BloodArea, C_Hazard, C_HazardLifetime])
+	for entity: Entity in zones.enabled().execute():
+		if not NpcBloodQueries.valid_zone(entity):
+			continue
+		live_ids.append(entity.id)
+		var zone: E_BloodArea = entity as E_BloodArea
+		var candidate_distance: float = actor.global_position.distance_squared_to(
+			zone.global_position
+		)
+		if (
+			awareness.rejected_blood_ids.has(zone.id) or candidate_distance >= distance
+			or not NpcPerceptionService.can_see_point(
+				actor,
+				zone.global_position,
+				person.profile,
+				zone,
+			)
+		):
+			continue
+		nearest = zone
+		distance = candidate_distance
+	for rejected: String in awareness.rejected_blood_ids.duplicate():
+		if not live_ids.has(rejected):
+			awareness.rejected_blood_ids.erase(rejected)
+	if nearest != null:
+		NpcBloodService.observe(actor, person, nearest)
+	else:
+		NpcBloodService.release(actor)
 #endregion

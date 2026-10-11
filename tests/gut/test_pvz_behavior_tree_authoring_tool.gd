@@ -64,6 +64,11 @@ func test_native_graph_refuses_unknown_properties_foreign_scripts_and_budget_ove
 
 
 func test_only_direct_npc_tree_files_are_authorable() -> void:
+	assert_true(
+		AuthoringTool.valid_tree_path(
+			AuthoringTool.CUSTOMER_TREE_DIRECTORY + "bt_district_npc.tres"
+		)
+	)
 	assert_true(AuthoringTool.valid_tree_path(AuthoringTool.TREE_DIRECTORY + "bt_npc_blood.tres"))
 	assert_false(AuthoringTool.valid_tree_path(AuthoringTool.TREE_DIRECTORY + "../other.tres"))
 	assert_false(AuthoringTool.valid_tree_path(AuthoringTool.TREE_DIRECTORY + "nested/tree.tres"))

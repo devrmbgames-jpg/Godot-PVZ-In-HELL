@@ -18474,6 +18474,125 @@
       "purpose": "Validate typed blood prefab/profile and reconstruct the passive durable marker before lifecycle resumes.",
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "hazards",
+      "symbol": "E_BloodArea",
+      "path": "content/domains/hazards/entities/e_blood_area.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/npc/ai/tasks/bt_npc_blood_approach.gd",
+        "content/domains/npc/ai/tasks/bt_npc_blood_inside.gd",
+        "content/domains/npc/ai/tasks/bt_npc_blood_retain.gd",
+        "content/domains/npc/observers/o_npc_blood_stimulus.gd",
+        "content/domains/npc/services/npc_blood_queries.gd",
+        "content/domains/npc/services/npc_blood_service.gd",
+        "content/domains/npc/systems/s_npc_perception.gd"
+      ],
+      "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions.",
+      "method_rights": {
+        "get_area": "read"
+      },
+      "public_instance_methods": [
+        "get_area"
+      ]
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "hazards",
+      "symbol": "C_BloodArea",
+      "path": "content/domains/hazards/components/c_blood_area.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/npc/observers/o_npc_blood_stimulus.gd",
+        "content/domains/npc/services/npc_blood_queries.gd",
+        "content/domains/npc/systems/s_npc_perception.gd"
+      ],
+      "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions.",
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "hazards",
+      "symbol": "DEF_BloodArea",
+      "path": "content/domains/hazards/definitions/def_blood_area.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/npc/services/npc_blood_queries.gd",
+        "content/domains/npc/services/npc_blood_service.gd"
+      ],
+      "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions.",
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "hazards",
+      "symbol": "HazardProfileRules",
+      "path": "content/domains/hazards/rules/hazard_profile_rules.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [
+        "valid"
+      ],
+      "sources": [
+        "content/domains/npc/services/npc_blood_queries.gd"
+      ],
+      "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions.",
+      "method_rights": {
+        "valid": "read"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "hazards",
+      "symbol": "HazardSpawnResult",
+      "path": "content/domains/hazards/contracts/hazard_spawn_result.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/npc/observers/o_npc_blood_stimulus.gd"
+      ],
+      "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions.",
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "combat",
+      "symbol": "C_ReceiverTraits",
+      "path": "content/domains/combat/components/c_receiver_traits.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/npc/observers/o_npc_blood_stimulus.gd",
+        "content/domains/npc/services/npc_blood_queries.gd",
+        "content/domains/npc/services/npc_blood_service.gd",
+        "content/domains/npc/systems/s_npc_perception.gd"
+      ],
+      "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions.",
+      "method_rights": {},
+      "public_instance_methods": []
     }
   ],
   "legacy_decomposition": []

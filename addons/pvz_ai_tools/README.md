@@ -87,7 +87,7 @@ dialogues back to translation sources. Do not modify the vendored scanner for th
 ## Dependencies
 
 `pvz_behavior_tree_authoring` fills the native LimboAI child-insertion gap. It operates
-only on direct `content/domains/npc/ai/trees/*.tres` resources. `inspect` is read-only;
+only on direct NPC and customer `ai/trees/*.tres` resources. `inspect` is read-only;
 `create` refuses existing files and accepts a bounded native task graph; `insert`
 preserves the existing root, children and Blackboard plans and refuses stale child
 order, duplicate subtrees or cycles. Saves use editor-side ResourceSaver, are explicit

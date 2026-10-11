@@ -30,13 +30,15 @@ Break payloads share the existing emitter/factory and preserve captured throw at
 Shared sweep supports authored multi-target limits with synchronous cancellation.
 Combat-owned C_Karma now persists with authored strict thresholds and one runtime writer.
 Artifact receiver rules now use typed creature tags and player karma through the damage authority.
-Blood spawns non-damaging native zones; blood behavior and NPC milestones remain unfinished.
+Blood spawns non-damaging native zones; perceived vampire calm/approach/retention and
+typed unclean provocation now use native perception and visible LimboAI branches.
+The blood behavior batch awaits review; final catalog smoke and NPC milestones remain open.
 Current vertical domains, direct Entity Traits and save schema 13 remain authoritative.
 
 ### Next
 
-Continue R26.1 artifact receiver rules, blood stimulus and the remaining catalog.
-Stabilize shared item tags/effects and R26.2 data before archetype behavior.
+Finish R26.1 review and final 15-item physical smoke, then continue R26.2 persistent
+archetypes/variation and receiver-tag composition before broader NPC behavior.
 
 ### Validation
 

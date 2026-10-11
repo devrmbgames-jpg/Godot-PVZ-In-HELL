@@ -61,6 +61,11 @@ static func apply_reaction(
 	reaction: NpcMemory.Reaction,
 ) -> void:
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	if (
+		reaction in [NpcMemory.Reaction.ATTACK, NpcMemory.Reaction.FLEE]
+		and NpcBloodQueries.calmed(body)
+	):
+		reaction = NpcMemory.Reaction.TALK
 	match reaction:
 		NpcMemory.Reaction.ATTACK:
 			if GrabQueries.holder_available(actor):

@@ -2,6 +2,9 @@ extends Component
 ## Состояние восприятия и поиска; живого противника связывают Relationships.
 class_name C_NpcAwareness
 
+## Transient rejected navigation targets; cleared on reconstruction and when a zone expires.
+var rejected_blood_ids: Array[String] = []
+
 ## Связанный противник виден в текущем обновлении зрения.
 var target_visible: bool = false
 ## Игрок виден в текущем обновлении зрения.
@@ -51,6 +54,7 @@ var called_out: bool = false
 #region Transient state reset
 ## Clears derived state in place; retains the constructed Component and durable NPC authority.
 func reset_transient_state() -> void:
+	rejected_blood_ids.clear()
 	target_visible = false
 	player_visible = false
 	last_seen_position = Vector3.ZERO

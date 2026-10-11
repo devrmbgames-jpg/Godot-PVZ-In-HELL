@@ -106,7 +106,7 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 		and DamageResistanceRules.effective(actor, 1.0, DamageRequest.Type.FIRE) > 0.0
 	):
 		return false
-	if not CombatService.bind_target(actor, target):
+	if NpcBloodQueries.calmed(actor) or not CombatService.bind_target(actor, target):
 		return false
 
 	district.ambient_conflicts += 1

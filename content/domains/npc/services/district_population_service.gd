@@ -40,6 +40,7 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	CombatService.end_combat(body)
 	NpcAttackExecutionService.cancel(body)
 	NpcIntentService.stop(body)
+	NpcBloodService.release(body)
 	body.request_role_cleanup(NpcRoleCleanupRequest.Kind.RESET_RELEASE)
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision

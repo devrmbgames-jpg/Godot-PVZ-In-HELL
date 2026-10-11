@@ -3,6 +3,7 @@ extends RefCounted
 ## Bounded native LimboAI authoring; disk saves are explicit and non-undoable.
 
 const TREE_DIRECTORY: String = "res://content/domains/npc/ai/trees/"
+const CUSTOMER_TREE_DIRECTORY: String = "res://content/domains/customers/ai/trees/"
 const TASK_DIRECTORY: String = "res://content/domains/npc/ai/tasks/"
 const TASK_TYPES: Array[String] = [
 	"BTDynamicSelector",
@@ -26,7 +27,7 @@ func author(params: Dictionary, _context: McpCallContext) -> Dictionary:
 	var operation: String = String(params.get("op", ""))
 	var tree_path: String = String(params.get("path", ""))
 	if not valid_tree_path(tree_path):
-		return { "error": "Expected a direct NPC tree .tres path." }
+		return { "error": "Expected a direct NPC or customer tree .tres path." }
 	if operation == "create":
 		if FileAccess.file_exists(tree_path) or params.size() != 3:
 			return { "error": "Create refuses existing resources and unexpected parameters." }
@@ -75,8 +76,8 @@ func author(params: Dictionary, _context: McpCallContext) -> Dictionary:
 ## Only direct files in the existing authored NPC tree directory are writable.
 static func valid_tree_path(tree_path: String) -> bool:
 	return (
-		tree_path.begins_with(TREE_DIRECTORY) and tree_path.ends_with(".tres")
-		and tree_path.get_base_dir() + "/" == TREE_DIRECTORY
+		tree_path.ends_with(".tres")
+		and tree_path.get_base_dir() + "/" in [TREE_DIRECTORY, CUSTOMER_TREE_DIRECTORY]
 		and not tree_path.contains("..") and not tree_path.contains("\\")
 	)
 

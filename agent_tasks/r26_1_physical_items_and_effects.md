@@ -13,124 +13,66 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 
 ### Current
 
-Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
-Reviewed checkpoint: `0a8f1a98a242e695f0478057bfeaaed0a0c801db`.
-All 15 items have native MCP-authored RigidBody scenes and focused evidence, including
-bones, weapons, reagent/blood flasks, barrels, collar, chains and both artifacts.
-Categories remain separate from capabilities; PHYSICAL purchases/deliveries materialize
-native bodies and cannot become virtual stacks. Existing furniture courier policy stays.
-Shared sweep keeps default one target; scythe permits four with synchronous cancellation.
-Breakable payloads reuse C_Health/impact/emitter/retirement and the existing hazard factory.
-A contact snapshot preserves thrower identity across both directions and synchronous free.
-Reagent explosion uses IMPACT HP damage with a separate native radial impulse.
-Authored contact damage reuses System episode ownership, bypasses impact protection,
-rejects resting contacts and never cuts its physical holder.
-Player karma is now a combat-owned C_Karma with KarmaService as its explicit runtime writer.
-Persistence alone restores its validated SAVE_FIELDS; authored thresholds are strict and
-their boundary values neutral. Native player Trait survives main-level component overrides.
-Schema 13 requires this state and rejects schema 12 before mutation; no old-save conversion.
-Artifacts use authored physical Area3D volumes and S_ReceiverEffect cadence; immutable
-C_ReceiverTraits chooses creature damage/heal, with player karma taking precedence.
-All HP changes pass through DamageRequest/O_Damage, with resistance, source veto,
-held/thrown actor attribution and queued lifetime checks. Artifact clocks restart with
-a full interval after reconstruction; no pending health request is restored.
-Blood payloads spawn a typed non-damaging C_BloodArea/DEF_BloodArea through the existing
-factory; barrel tuning has a larger radius and TTL. Native geometry and marker/TTL restore
-through the existing passive boundary. NPC blood stimulus and final catalog smoke remain unfinished.
-
-Next: perceived blood stimulus and final catalog smoke; NPC composition follows in R26.2.
-Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
+Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, dev; reviewed checkpoint
+`ecc2b24e8c9d1c1ecfa054d48f08619eebb84a37`. All 15 items have native MCP-authored bodies.
+PHYSICAL commerce materializes bodies; inventory categories stay separate from capabilities.
+Shared sweep, contact episodes and break factory preserve attribution, lifetime and source veto.
+Combat-owned C_Karma persists with strict authored thresholds; schema 13 rejects schema 12 before mutation.
+Artifacts use native volumes, typed receiver tags/karma and DamageRequest HEAL/DAMAGE; restore restarts transient clocks.
+Blood payloads use typed non-damaging native zones with larger barrel radius/TTL and passive reconstruction.
+NPC perception now binds R_NpcBloodZone through LOS/FOV/light; spawn facts immediately calm perceived vampires.
+Native trees expose approach/retention after danger and before combat; native Area overlap retains the body.
+Other tagged unclean actors react only toward visible recognized instigators; failed routes are not retried per tick.
+Brain reconstruction clears transient blood bindings/rejections; HP and durable memories keep their existing owners.
+NPC blood batch review is pending; final 15-item physical smoke and R26.2 receiver composition remain open.
+Next: catalog smoke, then modular NPC archetypes. Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
 
-Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7.1.
-- PASS damage: parser 3/3 `parsefiles-20261011-171357080.stdout.log`;
-  GUT 8/8 `gut-20261011-171353779.stdout.log`; formatter/architecture.
-  Fixed warning-name table before acceptance. Review target `a8c5a83f8a69256e6c1bd3daa0ae8c4208216ed9`, no findings, 34 s.
-- PASS bones: parser 5/5 `parsefiles-20261011-172224170.stdout.log`;
-  stack GUT 16/16,129 `gut-20261011-172024637.stdout.log`; physical drop/isolation GUT
-  8/8,99 `gut-20261011-172219843.stdout.log`; formatter/static. Native scan fixed UID warnings.
-  Review target `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0`, no findings, 41 s.
-- PASS storage: parser 7/7 `parsefiles-20261011-172756196.stdout.log`; inventory
-  17/17,135 `gut-20261011-172821959.stdout.log`; purchase/arrival 32/32,414
-  `gut-20261011-172826250.stdout.log`; formatter/static. Initial dependency FAIL fixed
-  by explicit read-method API declaration. Review target `4eba367f5b06073ec21737cb332178a280a1b6f9`, no findings, 44 s.
-- PASS weapons: parser 9/9 `parsefiles-20261011-174642064.stdout.log`; melee
-  15/15,194 `gut-20261011-174600769.stdout.log`; formatter/static. Native ray pickup,
-  release and throw; episode tests inject contact snapshots. Weapon review no findings, 78 s.
-- PASS payload batch: parser 13/13 `parsefiles-20261011-180741444.stdout.log`;
-  GUT 8/8,169 `gut-20261011-180508009.stdout.log`; formatter13 and architecture/domain
-  structure/dependencies strict/project structure. Actual bounded Jolt flask/floor contact,
-  area FIRE ticks, one break/spawn, native explosion impulse and stable ID after actor free.
-- PASS regression: melee15/15,194 `gut-20261011-180156002.stdout.log`; packages13/13,234
-  `gut-20261011-180547285.stdout.log`; character physics8/8,41
-  `gut-20261011-180600373.stdout.log`; persistent hazards22/22,213
-  `gut-20261011-180632450.stdout.log`; queued lifetime13/13,100
-  `gut-20261011-180645765.stdout.log`.
-- Reviews use consecutive immutable SHA ranges, ARCHITECTURE/STYLE PASS,
-  reviewer VALIDATION NOT_RUN; serial/token comparison NOT_MEASURED.
-  Payload review to `20497d37158d8d29943db36a2142c599a1022b91`: no findings, 135 s.
-- PASS chains: native parser4/4 `parsefiles-20261011-181801371.stdout.log`; GUT6/6
-  `gut-20261011-181727375.stdout.log`, including native collision/resting and episode
-  separation, held/source veto and attribution. Formatter4 and strict/static checks PASS.
-  Payload8/8 regression `gut-20261011-181810657.stdout.log` and melee15/15
-  `gut-20261011-181820090.stdout.log` PASS. Review to
-  `dfb5e101deb02ce99125b1b973b28a7b7d2c3397`: no findings, 36 s.
-- PASS karma: parser10/10 `parsefiles-20261011-183129874.stdout.log`;
-  GUT4/4,40 `gut-20261011-182941944.stdout.log`; snapshot32/32,394
-  `gut-20261011-183001794.stdout.log`; character physics8/8,41
-  `gut-20261011-183056049.stdout.log`; formatter10 and strict architecture/domain
-  structure/dependencies/project checks. Native player and placed override each get
-  one isolated recipe; real slot restore and malformed/missing state rejection.
-  Review to `e505d83e96a6eccbb5f4968c09a52125f1d50b0e`: no findings, 136 s.
-- PASS artifacts: native parser6/6 `parsefiles-20261011-184241192.stdout.log`;
-  GUT7/7,104 `gut-20261011-184150165.stdout.log`; formatter6 and strict/static checks.
-  Actual native area overlaps, player/tag precedence, resistance and heal cap, cadence,
-  source veto, native pickup/throw attribution, disabled source and queued retirement.
-  Shared host startup2/2 `gut-20261011-184300129.stdout.log` and damage feedback8/8
-  `gut-20261011-184336631.stdout.log` regressions PASS.
-  Initial pickup fixture aimed an oblique ray that gameplay correctly reset; fixed to
-  the actual forward interaction ray. Review target
-  `0665c83e12f451806b6e844fcc699774ee34d5a7`: RV-001 identified, 106 s.
-  RV-001/P1: reused artifact retained transient clock during restore. FIXED
-  (`359dcd02c2c6f373df923d8e47db1716815fa554`, GUT33/33,407)
-  at the existing reconstruction boundary with explicit passive restore permission.
-  GUT33/33 `gut-20261011-184758090.stdout.log` verifies existing/fresh artifact clocks
-  reset to zero, next 0.1 s stays incomplete, rejected snapshot preserves 0.9 s.
-  First run exposed unregistered new blood classes; native MCP class scan resolved it.
-  Targeted fix re-review: no findings, ARCHITECTURE/STYLE PASS, 16 s; VALIDATION NOT_RUN.
-  Fix parser2/2 `parsefiles-20261011-184906734.stdout.log` PASS.
-- PASS blood foundation: parser11/11 `parsefiles-20261011-185512611.stdout.log`;
-  payload10/10,233 `gut-20261011-185450268.stdout.log`;
-  persistent runtime23/23,226 `gut-20261011-185403337.stdout.log`; formatter11 and
-  strict architecture/domain structure/dependencies/project checks. Native Jolt blood
-  throw/floor break, one attributed zone, native overlaps without HP requests, TTL expiry,
-  larger barrel tuning, missing-marker rejection and fresh/reused geometry reconstruction.
-  Review target `876f99d044dc20e43f55ce79ff3dadefb9e5e8bd`: RV-002 identified, 66 s.
-  RV-002/P2: geometry replaced the blood Mesh and lost its authored material. Accepted;
-  both native Visual nodes now use material_override, saved through MCP.
-  Payload10/10 `gut-20261011-185832961.stdout.log` and persistent runtime23/23
-  `gut-20261011-185850118.stdout.log` verify the material after spawn/reused/fresh restore.
-  RV-002 FIXED at `0a8f1a98a242e695f0478057bfeaaed0a0c801db`; targeted review
-  ARCHITECTURE/STYLE PASS, no findings, 16 s; reviewer VALIDATION NOT_RUN.
-  Fix parser2/2 `parsefiles-20261011-185859504.stdout.log` PASS.
-  Behavioral stimulus remains NOT_RUN.
-- Native BT authoring gap: installed MCP can create Resources but cannot insert a
-  LimboAI child while preserving loaded root/child/Blackboard identities. Project-owned
-  `pvz_behavior_tree_authoring` adds bounded create/inspect/guarded insert through native
-  ResourceSaver, without vendored addon edits. GUT4/4,23
-  `gut-20261011-190730338.stdout.log`, parser3/3
-  `parsefiles-20261011-190752580.stdout.log`, live MCP inspect and plugin reload PASS.
-  Initial structure check caught literal intentionally-invalid test paths; fixtures now
-  compose them from the tool's directory constant. Review at
-  `d81e256f95ebf4ee1e70419f23ea9d961f0c9473` identified RV-003/P1 (review R1), 69 s:
-  shared DAG traversal was bounded per tree, allowing exponential total visits.
-  One whole-operation budget now rejects excessive traversal before mutation;
-  24-level shared DAG regression GUT5/5,27 `gut-20261011-191241018.stdout.log` PASS.
-  Targeted fix re-review pending; reviewer VALIDATION NOT_RUN.
-- MCP native scene/resource saves used throughout. Loaded script hot reload error43:
-  NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
-- NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.
+Native logs: `.artifacts/godot_agent/`; names below use `{kind}-20261011-{stamp}.stdout.log`.
+All accepted batches passed formatter, parser and relevant strict/static gates. Reviews use
+consecutive immutable SHA ranges; reviewer VALIDATION NOT_RUN, serial/token comparison NOT_MEASURED.
+- Damage: parser171357080; GUT171353779 8/8,55. Review `a8c5a83f8a69256e6c1bd3daa0ae8c4208216ed9`, no findings,34s.
+- Bones: parser172224170; GUT172024637 16/16,129 and172219843 8/8,99. Native class scan fixed UID warnings.
+  Review `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0`, no findings,41s.
+- Storage: parser172756196; GUT172821959 17/17,135 and172826250 32/32,414.
+  Initial dependency declaration FAIL fixed. Review `4eba367f5b06073ec21737cb332178a280a1b6f9`, no findings,44s.
+- Weapons: parser174642064; GUT174600769 15/15,194, native ray pickup/release/throw and contact snapshots.
+  Review `e07ae9f016acb942079f57fe61348ddb46cdc6ac`, no findings,78s.
+- Payloads: parser180741444; GUT180508009 8/8,169, real bounded Jolt throw/floor break and native area/explosion.
+  Regressions GUT180156002 melee15/15,194;180547285 packages13/13,234;180600373 physics8/8,41;
+  180632450 persistence22/22,213;180645765 queued lifetime13/13,100.
+  Review `20497d37158d8d29943db36a2142c599a1022b91`, no findings,135s.
+- Chains: parser181801371; GUT181727375 6/6,40, real contact/resting episode, held/source veto and attribution.
+  Regressions181810657 payload8/8 and181820090 melee15/15. Review `dfb5e101deb02ce99125b1b973b28a7b7d2c3397`,no findings,36s.
+- Karma: parser183129874; GUT182941944 4/4,40;183001794 snapshot32/32,394;183056049 physics8/8,41.
+  Native player/placed override isolated recipes and pre-mutation malformed-state rejection.
+  Review `e505d83e96a6eccbb5f4968c09a52125f1d50b0e`,no findings,136s.
+- Artifacts: parser184241192; GUT184150165 7/7,104, real overlap/karma/resistance/heal/source veto/throw/lifetime.
+  Regressions184300129 host2/2,260 and184336631 damage8/8,55. Forward-ray fixture corrected.
+  Review `0665c83e12f451806b6e844fcc699774ee34d5a7`,106s, RV-001/P1 reused transient clock.
+  FIXED `359dcd02c2c6f373df923d8e47db1716815fa554`; parser184906734; GUT184758090 33/33,407.
+  Existing/fresh reset and rejected-save preservation verified; first run needed blood class registration.
+  Targeted review ARCHITECTURE/STYLE PASS,no findings,16s.
+- Blood foundation: parser185512611; GUT185450268 payload10/10,233 and185403337 persistence23/23,226.
+  Real throw/break, attribution, no HP requests, TTL, missing marker and fresh/reused geometry verified.
+  Review `876f99d044dc20e43f55ce79ff3dadefb9e5e8bd`,66s, RV-002/P2 authored Mesh material lost.
+  FIXED `0a8f1a98a242e695f0478057bfeaaed0a0c801db`; parser185859504;
+  GUT185832961 payload10/10 and185850118 persistence23/23 cover spawn/reused/fresh material_override.
+  Targeted review ARCHITECTURE/STYLE PASS,no findings,16s.
+- Native MCP tree tool: parser190752580; GUT190730338 4/4,23; live inspect/reload/save PASS.
+  Review `d81e256f95ebf4ee1e70419f23ea9d961f0c9473`,69s, RV-003/P1 unbounded shared-DAG traversal.
+  FIXED `ecc2b24e8c9d1c1ecfa054d48f08619eebb84a37`; GUT191241018 5/5,27; live diagnostics checked[].
+  Whole-operation budget/refusal before mutation verified; targeted review ARCHITECTURE/STYLE PASS,no findings,15s.
+- NPC blood: GUT192642226 7/7,91, actual composed bodies/LOS/overlap/native and customer trees,
+  immediate windup cancel, social ATTACK/FLEE suppression, hidden/unreachable/expired targets and reentrant retirement.
+  Parser192854798 17/17; GUT192930514 perception8/8,27 and192954230 community15/15,99 PASS.
+  Initial fixture lacked mandatory district definition: corrected through NpcConstructionService; failed log192319169 preserved.
+  GUT193204369 shared host2/2 and193216831 MCP authoring5/5,28 PASS; strict architecture/domain/project checks PASS.
+  MCP saved both tree insertions and the new World Observer; editor unsaved count is zero.
+- MCP native authored saves throughout. Loaded global script reload error43 remains NOT_PASS;
+  fresh parser/GUT are actual independent PASS. No rendered gameplay or clean editor visual QA claimed.
+- NOT_RUN: final 15-item physical smoke, archetype receiver composition and full owner acceptance.
 
 ### Owner QA / blockers
 
@@ -170,32 +112,15 @@ Large items remain physical and normally do not collapse into a stack.
 
 Represent reusable capabilities through typed definitions/components rather than `if item_id == ...`.
 
-Required concepts:
-- handheld;
-- large;
-- melee weapon;
-- large-AOE melee;
-- throwable;
-- explosive/breakable payload;
-- hazard producer;
-- contact damage;
-- valuable;
-- stackable;
-- has Health/destructible.
+Required reusable concepts: handheld, large, melee/large-AOE melee, throwable,
+explosive/breakable payload, hazard producer, contact damage, valuable, stackable and Health/destructible.
 
 Reuse `C_MeleeWeapon`, `DEF_MeleeAttack`, `C_Health`, impact profiles, `HazardSpawnService`, inventory contracts and existing grab/throw behavior where possible.
 
 ### Item categories
 
-Add an authored category/tag contract usable by commerce and NPC order preferences. At minimum support:
-- WEAPON
-- CLOTHING
-- ARTIFACT
-- REAGENT
-- TOY
-- VALUABLE
-
-An item may belong to several categories.
+Commerce and NPC preference tags support WEAPON, CLOTHING, ARTIFACT, REAGENT, TOY
+and VALUABLE. An item may belong to several categories.
 
 Do not equate gameplay capability with shopping category.
 

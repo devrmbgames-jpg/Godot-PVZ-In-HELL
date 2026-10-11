@@ -106,6 +106,9 @@ func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, de
 				"rule/%s/%d/%d/%d" % [person.npc_id, cycle.day_index, cycle.phase, rule.kind]
 			)
 			NpcSocialService.react(actor, player, NpcMemory.Kind.OFFENSE, incident)
+	# Cancel any same-step trait reaction before the native blood branch and combat owner.
+	if NpcBloodQueries.calmed(actor):
+		NpcBloodService.calm(actor)
 
 
 func _observe_retreat(
