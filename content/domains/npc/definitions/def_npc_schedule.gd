@@ -1,3 +1,4 @@
+@tool
 extends GameDefinition
 ## Размещение по фазам и дням недели; длительность фазы не двигает календарь.
 class_name DEF_NpcSchedule

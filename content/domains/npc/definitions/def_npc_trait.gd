@@ -1,3 +1,4 @@
+@tool
 extends GameDefinition
 ## Авторское правило нечисти, предупреждение и доступная контрмера.
 class_name DEF_NpcTrait

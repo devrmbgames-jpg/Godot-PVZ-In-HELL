@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="DEF_NpcArchetype" format=3 uid="uid://dji63qiulaykk"]
+
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="1_m1b1p"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="2_pse57"]
+[ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="3_stmwp"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_5.tres" id="4_yoaos"]
+[ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="5_5m8ff"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_2.tres" id="6_ko05t"]
+[ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_mqme8"]
+[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_eiiya"]
+
+[sub_resource type="Resource" id="Resource_pqpcj"]
+script = ExtResource("3_stmwp")
+rule = ExtResource("4_yoaos")
+
+[sub_resource type="Resource" id="Resource_hjpov"]
+script = ExtResource("7_mqme8")
+weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
+key = &"schedule/fire_elemental"
+
+[resource]
+script = ExtResource("8_eiiya")
+name_variants = PackedStringArray("Пирос", "Углик")
+dialogue_variants = PackedStringArray()
+optional_traits = Array[ExtResource("3_stmwp")]([SubResource("Resource_pqpcj")])
+maximum_optional_traits = 1
+item_category_weights = Dictionary[int, float]({
+8: 10.0
+})
+receiver_traits = 11
+damage_multipliers = Dictionary[int, float]({
+7: 0.0
+})
+presentation_cues = PackedStringArray("npc/fire/floor_warning")
+display_name = "Огненный элементаль"
+personality = 0
+schedule = SubResource("Resource_hjpov")
+rules = Array[ExtResource("5_5m8ff")]([ExtResource("6_ko05t")])
+interests = PackedStringArray()
+preferred_activities = PackedInt32Array(0, 1, 2, 3)
+body_color = Color(0.92941177, 0.3882353, 0.1764706, 1)
+key = &"archetype/fire_elemental"

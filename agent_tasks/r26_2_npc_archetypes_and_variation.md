@@ -22,9 +22,12 @@ combat/category/presentation data and bounded personality modifiers have typed d
 NpcVariationRules creates detached choices using DecisionRandomRules and sorts weighted candidates by key.
 NpcVariation stores canonical creation seed/day, selected name/dialogue/optional keys and modifiers;
 the closed codec preserves values and rejects missing/extra fields without rerolling.
-This is a definition/variation foundation, not live roster integration or ten-archetype acceptance.
+Ten native DEF_NpcArchetype .tres assets now provide all required placeholder name pairs,
+category preferences, receiver/damage data, existing reusable rules and optional weighted pools.
+Schedule/trait Resources are editor-instantiable; all new assets were saved through native MCP.
+These are authored inputs, not live roster integration or complete mandatory behavior acceptance.
 Next: migrate initial/replacement population and compiler consumers to durable variation;
-author all ten archetypes through MCP, compose receiver tags, version the changed snapshot contract
+bind the native ten-archetype inputs, compose receiver tags, version the changed snapshot contract
 and verify fresh/reused restore without reroll. Finish migration before marking this task DONE.
 
 ### Validation
@@ -37,8 +40,15 @@ Initial parser failed because `trait` is reserved in Godot 4.7.1; renamed fields
 preserving log195946517. Public pure seed/codec edges were declared before strict checks passed.
 MCP scan and fresh test diagnostics checked[] PASS; loaded global script reload43 remains NOT_PASS;
 fresh native parser/GUT PASS independently. No scene/resource external rewrites or rendered gameplay.
-Foundation immutable-SHA review is pending. NOT_RUN: roster integration, native ten-archetype
-authoring, complete persistence migration, gameplay/owner acceptance.
+Foundation review BASE b89a21f4bdf0daf0609595dc3adc502bd5424535 ->
+TARGET 473e1569425d9c6bcd809828c3c8422e6280b66f PASS; no material findings (69 s).
+Native catalog parser201559767 3/3 and GUT201615815 4/4 PASS: all ten assets load,
+generate and roundtrip deterministic variations, preserve shared inputs, and carry required names,
+existing capability/category and intrinsic immunity/receiver contracts. MCP test diagnostics checked[].
+Initial catalog parser201538629 failed on nested PackedStringArray constant; fixed to literal arrays.
+Catalog immutable-SHA review pending. NOT_RUN: roster/receiver integration, full persistence migration,
+new mandatory behaviors (angel observation/signs, grudges, toy witnessing, 10 m floor fire/opening,
+soul trade, stalking, vampire feeding/escape), presentation hooks, gameplay and owner acceptance.
 
 ### Owner QA / blockers
 

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="DEF_NpcArchetype" format=3 uid="uid://0a3pm3q24svl"]
+
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="1_uyeuf"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="2_qu77f"]
+[ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="3_f6iul"]
+[ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="4_sqqb0"]
+[ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="5_ykqfx"]
+[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="6_mtj5d"]
+
+[sub_resource type="Resource" id="Resource_trsjh"]
+script = ExtResource("5_ykqfx")
+weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
+key = &"schedule/lost"
+
+[resource]
+script = ExtResource("6_mtj5d")
+name_variants = PackedStringArray("Лука", "Ян")
+dialogue_variants = PackedStringArray()
+maximum_optional_traits = 0
+presentation_cues = PackedStringArray()
+display_name = "Потерянный"
+schedule = SubResource("Resource_trsjh")
+interests = PackedStringArray()
+preferred_activities = PackedInt32Array(0, 1, 2, 3)
+high_attack_probability = 0.45
+body_color = Color(0.6039216, 0.5529412, 0.45882353, 1)
+key = &"archetype/lost"
