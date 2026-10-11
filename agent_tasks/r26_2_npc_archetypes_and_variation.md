@@ -56,9 +56,10 @@ MCP refresh updates both exact identity policies in place and preserves referenc
 Week smoke PASS: tests/artifacts/district-20261012-065857869.log.
 Integration review BASE fd2627ee7e6312efbc6c5a9afb70b77fa997ce1f ->
 TARGET 3bfdde24cd8d7cdf6d2961637edd0aa07ebcc174 (136 s), STYLE PASS, runtime NOT_RUN.
-RV-003/R1 P1 ACCEPTED: reused bodies retained stale variation-derived speed/receiver tags.
+RV-003/R1 P1: reused bodies retained stale variation-derived speed/receiver tags. FIXED
+a081b0037081f117c0435af443c53fb2f626de70; targeted review PASS (7 s), ARCHITECTURE/STYLE PASS.
 Repair reconciles both after accepted snapshot and role cleanup, before participation/readiness;
-reused-body and rejected-snapshot regressions above PASS. Fix commit/targeted review pending.
+reused-body and rejected-snapshot regressions above PASS; owner parser211507727 PASS.
 NOT_RUN: ten-archetype roster binding, category ordering, new mandatory behaviors,
 presentation hooks, rendered gameplay and owner acceptance. No external scene/resource rewrites.
 
