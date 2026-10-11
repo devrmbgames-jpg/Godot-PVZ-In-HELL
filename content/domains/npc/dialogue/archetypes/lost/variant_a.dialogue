@@ -1,0 +1,143 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+{{ctx.speaker_name()}}: Привет. Я ещё привыкаю к району. Хорошо, что почта здесь работает.
+- Как тебе здесь живётся? [#hon] => neighborhood
+- Что обычно заказываешь? => goods
+- Договоримся о доставке домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Здесь хотя бы счета за отопление не приходят? [#jok] => street_flow/joke
+- До встречи. => END
+
+~ direct
+Клиент: Здравствуйте. Жду заказ №{{ctx.package_number_text()}}. Рад встретить знакомое лицо.
+- Сейчас посмотрю вашу посылку. => END
+- Что ещё хотелось бы заказать? => goods
+- Может, обсудим доставку домой? [if ctx.can_offer_delivery() /] => home_request
+- Сегодня не получится выдать заказ. => deny_start
+
+~ neighborhood
+Сосед: Учусь узнавать улицы и людей. А ты как справляешься?
+- По одному дню за раз. [#hon] => reassurance
+- Всё наладится, если помогать друг другу. [#prs] => reassurance
+- Я здесь уже местная легенда. [#lie] => reassurance
+- Мне пора. => END
+
+~ reassurance
+Сосед: Спасибо за разговор. Завтра, наверное, будет легче.
+=> END
+
+~ goods
+Сосед: Нужна то рубашка, то инструмент. Иногда беру игрушку — чтобы дома было уютнее.
+- А оружие? => practical_goods
+- Одежда или игрушки? => household_goods
+- Реагенты и артефакты тоже? => curious_goods
+- Понятно. => END
+
+~ practical_goods
+Сосед: Бывает и такое. Выбираю по нужде, без особых пристрастий.
+=> END
+
+~ household_goods
+Сосед: Почему нет? Обычные вещи напоминают, что жизнь продолжается.
+=> END
+
+~ curious_goods
+Сосед: Если пригодятся — закажу. Здесь любая вещь может оказаться нужной.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> service/provocation
+else
+	=> street_flow/provocation
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke

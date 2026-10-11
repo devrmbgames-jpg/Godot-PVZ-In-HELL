@@ -13,16 +13,35 @@ The owner will later copy these resources and add more variants. Therefore paths
 
 ### Current
 
-Started after reviewed ordering/observation foundations. First scope: route the committed
-per-person dialogue path through the existing street/customer UI and provide two reusable
-neutral/lost variants while preserving service cues, personal delivery and response tags.
-Remaining archetypes need their required interactions, including authoritative soul/blood
-transactions. No dialogue implementation acceptance is claimed yet.
+The street/customer router reads the committed per-person variant; an explicit visit resource
+keeps priority and legacy actors keep their role fallback. Two neutral/lost variants now have
+distinct greetings, neighborhood and broad shopping topics plus all existing role entry cues.
+Pinned Dialogue Manager imports preserve service outcomes, personal delivery and response tags;
+session cleanup releases cached imported line cycles as well as the root resource.
+The native lost archetype exposes both paths. Checkpoint review is REVIEW_PENDING against base
+`1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63`; only **2/20** variants are implemented.
+Remaining archetypes still need their required interactions, including authoritative soul/blood
+transactions; full task acceptance and live roster binding remain open.
+
+### Next
+
+Collect immutable-SHA review, then continue required archetype behavior/interaction capabilities
+and author the remaining 18 variants. No per-open reroll or new UI authority is introduced.
 
 ### Validation
 
-NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
-[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+- PASS: native parser for six edited GDScripts; incremental GDQuest style, strict architecture,
+  domain dependencies/structure, project structure, persistence baseline and diff checks.
+- PASS: `test_npc_dialogue_variants.gd` **30/30, 567 assertions**, including inherited district
+  regressions, native imported cues, stable codec restoration, both real contexts and actual
+  panel routing, delivery acceptance/idempotency, denial tags/idempotency and imported cleanup.
+  Logs: `.artifacts/godot_agent/gut-20261011-224831807.{stdout,stderr}.log`.
+- PASS: existing `test_customer_dialogue.gd`; logs
+  `.artifacts/godot_agent/gut-20261011-224919731.{stdout,stderr}.log`.
+- MCP: native authored lost catalog save/cache refresh and settled import/inspection of both
+  variants ran. Global-script hot reload returns fallback code 43 (NOT_PASS); fresh CLI checks
+  independently pass. No rendered gameplay/visual QA ran.
+- NOT_RUN: full 20-variant acceptance, remaining archetype interactions and owner dialogue QA.
 
 ### Owner QA / blockers
 

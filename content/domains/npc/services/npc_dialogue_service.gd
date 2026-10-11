@@ -6,6 +6,19 @@ const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 const DIALOGUE_PATH: String = "res://content/domains/npc/dialogue/npc_street.dialogue"
 
 
+#region Authored presentation
+## Reads the committed personal variant; legacy actors retain their role's fallback.
+static func dialogue_path_for(body: Entity, fallback: String = DIALOGUE_PATH) -> String:
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = (
+		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	)
+	if person != null and not person.variation.dialogue_path.is_empty():
+		return person.variation.dialogue_path
+	return fallback
+#endregion
+
+
 #region Связи собеседников
 ## Возвращает авторитетного живого собеседника из Relationships.
 static func participant(body: Entity) -> Entity:

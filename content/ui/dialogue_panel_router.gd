@@ -21,7 +21,10 @@ static func open_customer(
 		return false
 
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(captured_agent.visit_id)
-	var path: String = CustomerDialogueService.DIALOGUE_PATH
+	var path: String = NpcDialogueService.dialogue_path_for(
+		customer,
+		CustomerDialogueService.DIALOGUE_PATH,
+	)
 	if (
 		visit != null and visit.definition != null
 		and not visit.definition.dialogue_resource_path.is_empty()
@@ -65,7 +68,10 @@ static func open_customer(
 static func open_street(player: Entity, body: E_DistrictNpc) -> bool:
 	if not NpcDialogueService.can_start(player, body):
 		return false
-	var resource: DialogueResource = load(NpcDialogueService.DIALOGUE_PATH) as DialogueResource
+	var path: String = NpcDialogueService.dialogue_path_for(body)
+	var resource: DialogueResource = (
+		load(path) as DialogueResource if ResourceLoader.exists(path) else null
+	)
 	var context: NpcStreetDialogueContext = NpcStreetDialogueContext.new(player, body)
 	if resource == null or not resource.cues.has(context.dialogue_cue()) or not context.begin():
 		return false

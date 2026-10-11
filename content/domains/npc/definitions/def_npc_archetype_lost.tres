@@ -15,7 +15,7 @@ key = &"schedule/lost"
 [resource]
 script = ExtResource("6_mtj5d")
 name_variants = PackedStringArray("Лука", "Ян")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/lost/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/lost/variant_b.dialogue")
 maximum_optional_traits = 0
 presentation_cues = PackedStringArray()
 display_name = "Потерянный"

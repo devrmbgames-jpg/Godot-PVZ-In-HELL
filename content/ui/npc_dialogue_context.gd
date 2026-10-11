@@ -41,6 +41,11 @@ func perceived_text(actual_text: String) -> String:
 	return actual_text
 
 
+## Shared variants select the existing role-specific flow through this read-only adapter.
+func is_customer_service() -> bool:
+	return false
+
+
 ## Применяет смысл ответа через конкретный игровой адаптер.
 func apply_response_tags(_tags: PackedStringArray) -> bool:
 	return false

@@ -42,6 +42,9 @@ receiving, contents and archive projection, using the immutable authored catalog
 R26.3 adds a reusable observation-freeze trait and visible native safety subtree. Camera/LOS
 sampling precedes cadence; native freeze/animation, avoidance and attack gates share that fact.
 The checkpoint passed headless checks/smoke and review; full behaviors/binding remain open.
+R26.4 now routes committed personal dialogue variants and has two neutral/lost variants with
+imported service/delivery flows and imported-resource cleanup. Focused native checks pass;
+checkpoint review is pending, and the remaining 18 variants/interactions stay open.
 
 ### Next
 

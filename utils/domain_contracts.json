@@ -7114,18 +7114,21 @@
         "can_start",
         "end",
         "participant",
-        "valid_participants"
+        "valid_participants",
+        "dialogue_path_for"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
-        "content/dialogue/npc_street_dialogue_context.gd"
+        "content/dialogue/npc_street_dialogue_context.gd",
+        "content/ui/dialogue_panel_router.gd"
       ],
       "method_rights": {
         "end": "request",
         "participant": "request",
         "begin": "request",
         "can_start": "query",
-        "valid_participants": "query"
+        "valid_participants": "query",
+        "dialogue_path_for": "query"
       },
       "public_instance_methods": []
     },

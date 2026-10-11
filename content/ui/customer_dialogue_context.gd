@@ -100,6 +100,11 @@ func day_phase() -> int:
 	return cycle.phase if cycle != null else C_DayCycle.Phase.NIGHT
 
 
+## Identifies the service context for authored cue routing without mutating the visit.
+func is_customer_service() -> bool:
+	return true
+
+
 ## Читает интересы постоянной личности или правила старого клиента.
 func interests_text() -> String:
 	var visit: CustomerVisit = _visit()
