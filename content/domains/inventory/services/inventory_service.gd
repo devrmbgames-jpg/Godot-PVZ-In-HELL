@@ -48,7 +48,7 @@ static func item_by_id(owner: Entity, item_id: String) -> Entity:
 static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -> bool:
 	if (
 		not _owner_available(owner) or definition == null
-		or definition.kind == DEF_InventoryItem.Kind.FURNITURE
+		or definition.requires_world_body()
 		or quantity < 1 or quantity > definition.maximum_stack
 	):
 		return false
@@ -85,7 +85,7 @@ static func can_transfer(item: Entity, destination: Entity, expected_owner: Enti
 
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 	if (
-		not _valid_item(state) or state.definition.kind == DEF_InventoryItem.Kind.FURNITURE
+		not _valid_item(state) or state.definition.requires_world_body()
 		or state.transfer_in_progress or not state.pending_use_id.is_empty()
 	):
 		return false

@@ -18,7 +18,7 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 		or not ResourceLoader.exists(item.world_pickup_scene)
 	):
 		return false
-	if item.kind == DEF_InventoryItem.Kind.FURNITURE:
+	if item.requires_world_body():
 		var furniture: Entity = FurniturePlacement.create_validated(item)
 		if furniture == null:
 			return false
@@ -84,8 +84,8 @@ static func fulfill_one(
 			delivery.fulfilled = true
 			state.blocked = false
 			return true
-		if delivery.item.kind == DEF_InventoryItem.Kind.FURNITURE:
-			return _furniture(zone, state, delivery)
+		if delivery.item.requires_world_body():
+			return _physical_item(zone, state, delivery)
 
 		var scene_path: String = delivery.item.world_pickup_scene
 		if scene_path.is_empty() or not ResourceLoader.exists(scene_path, "PackedScene"):
@@ -173,7 +173,9 @@ static func fulfill_one(
 
 
 #region Полная форма мебели и резервы
-static func _furniture(zone: Entity, state: C_OrderReceiving, delivery: PendingDelivery) -> bool:
+static func _physical_item(
+	zone: Entity, state: C_OrderReceiving, delivery: PendingDelivery,
+) -> bool:
 	var marker: Node3D = (
 		zone.get_node_or_null(state.furniture_anchor_path) as Node3D
 		if not state.furniture_anchor_path.is_empty()

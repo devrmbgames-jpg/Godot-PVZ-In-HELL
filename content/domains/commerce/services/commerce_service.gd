@@ -71,8 +71,8 @@ static func purchase(
 		return _trace_result(Status.INVALID, operation_id, &"commerce.purchase", actor, item)
 	if not TraderCatalogRules.is_open(shop, cycle):
 		return _trace_result(Status.WRONG_PHASE, operation_id, &"commerce.purchase", actor, item)
-	if item.kind == DEF_InventoryItem.Kind.FURNITURE:
-		var furniture_status: Status = _purchase_furniture(
+	if item.requires_world_body():
+		var furniture_status: Status = _purchase_physical_item(
 			trader,
 			shop,
 			item,
@@ -118,7 +118,7 @@ static func purchase(
 	return _trace_result(Status.COMMITTED, operation_id, &"commerce.purchase", actor, item)
 
 
-static func _purchase_furniture(
+static func _purchase_physical_item(
 	trader: Entity,
 	shop: C_Trader,
 	item: DEF_InventoryItem,
@@ -219,7 +219,7 @@ static func home_delivery(
 	if (
 		profile.delivery_fee < 0 or profile.delivery_delay_days < 1
 		or profile.delivery_fee > WalletService.MAX_AMOUNT - item.market_price * quantity
-		or (item.kind == DEF_InventoryItem.Kind.FURNITURE and quantity != 1)
+		or (item.requires_world_body() and quantity != 1)
 	):
 		return _trace_result(Status.INVALID, operation_id, &"commerce.home_delivery", actor, item)
 	if not OrderDeliveryService.can_fulfill_definition(item):

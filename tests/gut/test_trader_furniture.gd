@@ -108,6 +108,69 @@ func _home() -> Entity:
 
 
 #region Физическая выдача и каталог
+## Physical-only weapons use native goods placement with one charge and no virtual stack.
+func test_physical_only_weapon_purchase_is_native_and_idempotent() -> void:
+	var definition: DEF_InventoryItem = _physical_weapon_definition()
+	var profile: DEF_TraderProfile = _shop.profile.duplicate() as DEF_TraderProfile
+	profile.catalog = [definition]
+	_shop.profile = profile
+	(_actor.get_component(C_Inventory) as C_Inventory).maximum_stacks = 0
+	assert_eq(
+		CommerceService.purchase(_actor, _trader, definition, 1, &"physical/one"),
+		CommerceService.Status.COMMITTED,
+	)
+	var goods: Entity = _goods("purchase/physical/one")
+	assert_not_null(goods)
+	assert_true((goods as Node) is RigidBody3D)
+	assert_false((goods as Node as RigidBody3D).freeze)
+	assert_true(goods.has_component(C_MeleeWeapon))
+	assert_true(goods.has_component(C_Grabbable))
+	assert_true(InventoryService.items(_actor).is_empty())
+	assert_null(InventoryService.owner_for(goods))
+	assert_eq(_wallet.balance, 975)
+	assert_eq(
+		CommerceService.purchase(_actor, _trader, definition, 1, &"physical/one"),
+		CommerceService.Status.DUPLICATE,
+	)
+	assert_same(_goods("purchase/physical/one"), goods)
+	assert_eq(_wallet.operations.size(), 1)
+	assert_eq(_wallet.balance, 975)
+
+
+## Terminal physical-only delivery materializes once through the native placement boundary.
+func test_physical_only_terminal_order_fulfills_as_native_weapon_once() -> void:
+	var definition: DEF_InventoryItem = _physical_weapon_definition()
+	_commerce.catalog = [definition]
+	assert_eq(
+		CommerceService.order(_actor, definition, 1, &"physical/order"),
+		CommerceService.Status.COMMITTED,
+	)
+	var delivery: PendingDelivery = _commerce.pending_deliveries.back()
+	var zone: Entity = _home()
+	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 1))
+	assert_true(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
+	var goods: Entity = _goods(OrderDeliveryService.key_for(delivery))
+	assert_not_null(goods)
+	assert_true((goods as Node) is RigidBody3D)
+	assert_true(goods.has_component(C_MeleeWeapon))
+	assert_true(delivery.fulfilled)
+	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
+	assert_same(_goods(OrderDeliveryService.key_for(delivery)), goods)
+	assert_eq(_wallet.operations.size(), 1)
+	assert_true(InventoryService.items(_actor).is_empty())
+
+
+func _physical_weapon_definition() -> DEF_InventoryItem:
+	var definition: DEF_InventoryItem = DEF_InventoryItem.new()
+	definition.key = &"physical_weapon"
+	definition.kind = DEF_InventoryItem.Kind.PHYSICAL
+	definition.categories = DEF_InventoryItem.Category.WEAPON
+	definition.maximum_stack = 1
+	definition.world_pickup_scene = "res://content/domains/combat/entities/utility_blade.tscn"
+	return definition
+
+
 ## Покупка создаёт тяжёлую фиксируемую полку рядом с торговцем один раз, вне виртуального инвентаря.
 func test_shelf_purchase_preserves_mass_anchor_location_and_once() -> void:
 	(_actor.get_component(C_Inventory) as C_Inventory).maximum_stacks = 0

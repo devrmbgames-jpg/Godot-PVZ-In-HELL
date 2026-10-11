@@ -84,6 +84,22 @@ func test_bones_stack_capacity_and_inert_use_preserve_owned_quantity() -> void:
 	assert_eq((_owner.get_component(C_Hunger) as C_Hunger).value, 75.0)
 
 
+## Physical-only storage rejects virtual grant/transfer even without a grab capability.
+func test_physical_only_definition_cannot_become_an_owned_virtual_stack() -> void:
+	var item: Entity = _item("bones")
+	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
+	state.definition = state.definition.duplicate() as DEF_InventoryItem
+	state.definition.kind = DEF_InventoryItem.Kind.PHYSICAL
+	state.definition.maximum_stack = 1
+	var before_count: int = _world.entities.size()
+	assert_false(InventoryService.grant(_owner, state.definition, 1))
+	assert_eq(_world.entities.size(), before_count)
+	assert_false(InventoryService.transfer(item, _owner))
+	assert_null(InventoryService.owner_for(item))
+	assert_eq(state.quantity, 1)
+	assert_true(InventoryService.items(_owner).is_empty())
+
+
 ## Передача сверяет прежнего владельца и сохраняет одну авторитетную связь.
 func test_pickup_and_compare_owner_transfer_never_creates_two_owners() -> void:
 	var item: Entity = _item("food", 2)

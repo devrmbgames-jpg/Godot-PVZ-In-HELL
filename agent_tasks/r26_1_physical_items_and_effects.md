@@ -17,9 +17,14 @@ Implementation baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
 Semantic damage checkpoint: `a8c5a83f8a69256e6c1bd3daa0ae8c4208216ed9`.
 ACID/HOLY/UNHOLY append after existing values 0..7; resistance, committed feedback,
 HEAL bypass and HUD labels use the existing damage authority.
-The next batch adds six independent shopping-category flags and inert VALUABLE stacks.
+Bones/category checkpoint: `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0`.
+It adds six independent shopping-category flags and inert VALUABLE stacks.
 Authored bones Definition, stack recipe and RigidBody pickup are saved through live MCP.
 Data-only item Definition/Component support native editor instantiation with `@tool`.
+Shared physical storage batch appends `Kind.PHYSICAL`: purchases and terminal deliveries
+materialize native bodies through the existing placement transaction; grant/transfer
+reject virtual ownership even without C_Grabbable. Marked furniture-only trader courier
+eligibility remains in its existing rule. No central item-ID dispatch was introduced.
 No receiver eligibility, karma or new hazard execution is claimed yet; 14 catalog items remain.
 
 Next: authored item category/capability definitions and receiver/karma ownership,
@@ -41,11 +46,25 @@ in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 - PASS: bones stack/inert-use GUT 16/16, 129 assertions;
   `.artifacts/godot_agent/gut-20261011-172024637.stdout.log`.
 - PASS: physical inventory GUT including bones drop/pickup, rejected drop and
-  per-instance recipe isolation;
+  per-instance recipe isolation, 8/8 and 99 assertions;
   `.artifacts/godot_agent/gut-20261011-172219843.stdout.log`.
   New UID warnings were resolved by native editor filesystem scan before acceptance.
 - PASS: bones batch native parser 5/5, formatter/role naming 5 scripts,
-  architecture/domain structure/domain dependencies strict.
+  architecture/domain structure/domain dependencies strict;
+  `.artifacts/godot_agent/parsefiles-20261011-172224170.stdout.log`.
+- PASS: independent bones/category review from damage checkpoint to
+  `c573beff8c2c5f0bfe25356bd3632d3ad8cfcfc0`; no material findings,
+  ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN; 41 seconds,
+  serial/token comparison NOT_MEASURED.
+- PASS: shared physical storage batch native parser 7/7,
+  `.artifacts/godot_agent/parsefiles-20261011-172756196.stdout.log`;
+  focused inventory GUT 17/17, 135 assertions,
+  `.artifacts/godot_agent/gut-20261011-172821959.stdout.log`.
+- PASS: physical purchase/courier/arrival regression including PHYSICAL purchase
+  and terminal fulfillment;
+  `.artifacts/godot_agent/gut-20261011-172826250.stdout.log`.
+- PASS: physical storage formatter/role naming 7 scripts, strict architecture,
+  domain structure and dependencies. Independent storage review pending commit.
 - MCP edits used native script patching. Tests reloaded without diagnostics;
   loaded DamageRequest and HUD script hot reload returned error 43, so live reload
   is NOT_PASS. Fresh-process native parser/GUT passed; editor log gained no new entries.

@@ -9,6 +9,7 @@ enum Kind {
 	BUBBLE_WRAP,
 	FURNITURE,
 	VALUABLE,
+	PHYSICAL,
 }
 
 ## Shopping categories are independent of inventory use effects and physical capabilities.
@@ -45,3 +46,10 @@ var categories: int = 0
 @export var healing: float = 35.0
 ## Уровень защиты посылки после использования BUBBLE_WRAP.
 @export var protection_tier: ImpactResult.Severity = ImpactResult.Severity.MEDIUM
+
+
+#region Storage policy
+## Physical-only catalog entries materialize a native body and never enter a virtual stack.
+func requires_world_body() -> bool:
+	return kind in [Kind.FURNITURE, Kind.PHYSICAL]
+#endregion

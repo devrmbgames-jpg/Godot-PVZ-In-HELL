@@ -9,6 +9,12 @@ Assign `C_Trader.profile` to a separate `DEF_TraderProfile` resource per store. 
 
 Furniture uses the appended `DEF_InventoryItem.Kind.FURNITURE`, `maximum_stack = 1` and a `world_pickup_scene` with an Entity/RigidBody root and usable colliders. Set `bulky_furniture = true` only on large furniture eligible for trader delivery; the large shelf is marked explicitly. Furniture cannot enter inventory. The large shelf is3×3×1.5m,75kg and uses existing physical carrying and hammer anchoring.
 
+Other physical-only catalog goods use `Kind.PHYSICAL` with `maximum_stack = 1`.
+`requires_world_body()` selects the existing native placement transaction for purchases
+and terminal deliveries; inventory grant/transfer rejects these definitions.
+Shopping-category flags remain independent of storage and capabilities. Trader home
+delivery still requires explicitly marked `Kind.FURNITURE`; `PHYSICAL` does not enable it.
+
 `C_Trader.furniture_pickup_path` points to an authored `FurniturePickup` marker. Purchases try four nearby positions at3.5m horizontal/2.5m depth spacing, projecting the actual prefab bounds onto support and checking the entire volume before payment. Move the marker to designate another area. Goods spawn as siblings of the trader and receive a persistent operation identity; they do not follow the NPC. Blocked/unsupported placement does not charge.
 
 Paid furniture arrives at `MainLevel.furniture_delivery_anchor`, assigned to `Entityes/OrderReceiving/FurnitureDelivery`. Move/rotate this Marker3D to edit the delivery area without code or navigation changes. `C_OrderReceiving.furniture_placement` references `def_furniture_delivery_placement.tres`: nine authored close positions in the marker's local axes, with five support probes and all physical shapes checked by `ItemPlacementSolver`. A delivery has no physical source trajectory, so its policy disables the source-to-candidate ray used by ordinary loot; shape, floor and same-frame reservation checks remain active.

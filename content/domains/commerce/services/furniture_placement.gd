@@ -62,10 +62,10 @@ static func prepare(
 	return proposal
 
 
-## Создаёт вне дерева проверенное тело мебели; вызывающий обязан освободить или разместить его.
+## Creates a detached physical-only catalog body; caller must free it or commit placement.
 static func create_validated(item: DEF_InventoryItem) -> Entity:
 	if (
-		item == null or item.kind != DEF_InventoryItem.Kind.FURNITURE or item.maximum_stack != 1
+		item == null or not item.requires_world_body() or item.maximum_stack != 1
 		or item.world_pickup_scene.is_empty() or not ResourceLoader.exists(item.world_pickup_scene)
 	):
 		return null
