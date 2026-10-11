@@ -11954,15 +11954,18 @@
         "read"
       ],
       "public_methods": [
-        "generator"
+        "generator",
+        "seed_for"
       ],
       "sources": [
         "content/services/npc/npc_schedule_rules.gd",
         "content/systems/gameplay/s_npc_cadence.gd",
-        "content/services/gameplay/npc_remains_service.gd"
+        "content/services/gameplay/npc_remains_service.gd",
+        "content/domains/npc/rules/npc_variation_rules.gd"
       ],
       "method_rights": {
-        "generator": "query"
+        "generator": "query",
+        "seed_for": "query"
       },
       "public_instance_methods": [],
       "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
@@ -18591,6 +18594,22 @@
         "content/domains/npc/systems/s_npc_perception.gd"
       ],
       "purpose": "Read typed non-damaging blood stimuli and immutable receiver traits through native perception; NPC relationships and explicit operations own behavioral reactions.",
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "NpcVariation",
+      "path": "content/domains/npc/contracts/npc_variation.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/persistence/services/save_data_codec.gd"
+      ],
+      "purpose": "Closed detached archetype variation record codec; district roster integration retains durable authority.",
       "method_rights": {},
       "public_instance_methods": []
     }

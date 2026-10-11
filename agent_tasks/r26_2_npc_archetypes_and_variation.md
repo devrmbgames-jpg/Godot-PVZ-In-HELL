@@ -1,5 +1,5 @@
 # R26.2 — NPC archetypes, composable traits and persistent variation
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -15,14 +15,30 @@ The system must make it easy to create later NPC combinations not explicitly ant
 
 ### Current
 
-PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
-in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
-The 2026-10-10 audit updates specification only.
+Started after reviewed physical-catalog checkpoint `b89a21f4bdf0daf0609595dc3adc502bd5424535`.
+DEF_NpcArchetype extends existing physical/social Profile tuning; inherited rules are mandatory.
+Authored name/dialogue pools, weighted optional traits, stable-key incompatibility, receiver tags,
+combat/category/presentation data and bounded personality modifiers have typed definitions.
+NpcVariationRules creates detached choices using DecisionRandomRules and sorts weighted candidates by key.
+NpcVariation stores canonical creation seed/day, selected name/dialogue/optional keys and modifiers;
+the closed codec preserves values and rejects missing/extra fields without rerolling.
+This is a definition/variation foundation, not live roster integration or ten-archetype acceptance.
+Next: migrate initial/replacement population and compiler consumers to durable variation;
+author all ten archetypes through MCP, compose receiver tags, version the changed snapshot contract
+and verify fresh/reused restore without reroll. Finish migration before marking this task DONE.
 
 ### Validation
 
-NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
-[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+Foundation parser200116353 7/7; GUT200129137 6/6,360 PASS (2026-10-11 native logs under
+`.artifacts/godot_agent/`). Checks cover repeatability, pool order, compatible bounded choices,
+weight influence, distinct seeds/names, malformed definitions/choices and exact codec roundtrip.
+GUT200240843 save-data regression PASS; formatter and strict architecture/domain/project checks PASS.
+Initial parser failed because `trait` is reserved in Godot 4.7.1; renamed fields/locals to `rule`,
+preserving log195946517. Public pure seed/codec edges were declared before strict checks passed.
+MCP scan and fresh test diagnostics checked[] PASS; loaded global script reload43 remains NOT_PASS;
+fresh native parser/GUT PASS independently. No scene/resource external rewrites or rendered gameplay.
+Foundation immutable-SHA review is pending. NOT_RUN: roster integration, native ten-archetype
+authoring, complete persistence migration, gameplay/owner acceptance.
 
 ### Owner QA / blockers
 

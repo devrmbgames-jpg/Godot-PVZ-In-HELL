@@ -34,6 +34,8 @@ Blood spawns non-damaging native zones; perceived vampire calm/approach/retentio
 typed unclean provocation now use native perception and visible LimboAI branches.
 Blood review fixes passed native checks and targeted review; final 15-item physical smoke passed.
 NPC archetypes/receiver composition and overall owner acceptance remain open.
+R26.2 now has a typed archetype/deterministic variation foundation and closed codec tests;
+live roster integration and authored ten-archetype composition remain open.
 Current vertical domains, direct Entity Traits and save schema 13 remain authoritative.
 
 ### Next

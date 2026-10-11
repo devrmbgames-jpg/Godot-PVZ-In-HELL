@@ -41,6 +41,7 @@ static var _component_fields: Dictionary = {
 static var _record_types: Array[Script] = [
 	GameClock,
 	NpcRecord,
+	NpcVariation,
 	NpcMemory,
 	NpcHomeDelivery,
 	CustomerVisit,
@@ -191,11 +192,14 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 ## заготовку.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
-	if script == GameClock:
-		if fields.size() != GameClock.SAVE_FIELDS.size():
+	if script in [GameClock, NpcVariation]:
+		var exact_fields: Array[String] = (
+			GameClock.SAVE_FIELDS if script == GameClock else NpcVariation.SAVE_FIELDS
+		)
+		if fields.size() != exact_fields.size():
 			return false
-		for clock_field: String in GameClock.SAVE_FIELDS:
-			if not fields.has(clock_field):
+		for required_field: String in exact_fields:
+			if not fields.has(required_field):
 				return false
 	var allowed: Array = _component_fields.get(script, []) as Array
 	if script in _record_types:

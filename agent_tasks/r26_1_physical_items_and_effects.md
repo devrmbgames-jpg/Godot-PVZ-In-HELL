@@ -83,9 +83,11 @@ consecutive immutable SHA ranges; reviewer VALIDATION NOT_RUN, serial/token comp
   actual impact/explosion owners run. Eleven hand grips/three Carry barrels release with inertia and throw physically.
   Bones retain stack pickup semantics. Initial fixture assumed inert throw attribution and lacked Carry Strength:
   corrected without gameplay changes; failed logs194712195/194757528 preserved.
-  Review `224df0182df4922e8ffdbe3201dd1f91b904855f`,102s: RV-006/P2 ACCEPTED,
+  Review `224df0182df4922e8ffdbe3201dd1f91b904855f`,102s: RV-006/P2 FIXED
+  `b89a21f4bdf0daf0609595dc3adc502bd5424535`:
   smoke counted any contact. It now requires the exact floor endpoint and reports each catalog path.
-  GUT195230008 12/12,527 PASS with all 15 floor contacts; fresh MCP checked[] PASS. Targeted review pending.
+  GUT195230008 12/12,527 and parser195325252 PASS with all 15 floor contacts; fresh MCP checked[] PASS.
+  Targeted review ARCHITECTURE/STYLE PASS,no findings,6s.
 - MCP native authored saves throughout. Loaded global script reload error43 remains NOT_PASS;
   fresh parser/GUT are actual independent PASS. No rendered gameplay or clean editor visual QA claimed.
 - NOT_RUN: archetype receiver composition and full owner acceptance.

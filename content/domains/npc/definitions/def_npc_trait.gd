@@ -30,5 +30,7 @@ enum Kind {
 @export var aura: DEF_ToxicArea = null
 ## Особенности, несовместимые с этим правилом.
 @export var incompatible: Array[Kind] = []
+## Stable-key exclusions support authored combinations independently of the behavior kind.
+@export var incompatible_keys: Array[StringName] = []
 ## Косинус угла длительного взгляда игрока.
 @export_range(0.5, 1.0) var gaze_alignment: float = 0.96
