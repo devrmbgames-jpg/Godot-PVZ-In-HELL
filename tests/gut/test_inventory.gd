@@ -61,6 +61,29 @@ func _item(key: String, quantity: int = 1) -> Entity:
 
 
 #region Владение и объединение
+## Кости объединяются как ценности; отказ переноса/применения не теряет количество и владение.
+func test_bones_stack_capacity_and_inert_use_preserve_owned_quantity() -> void:
+	(_owner.get_component(C_Inventory) as C_Inventory).maximum_stacks = 1
+	var first: Entity = _item("bones", 18)
+	var state: C_InventoryItem = first.get_component(C_InventoryItem) as C_InventoryItem
+	assert_eq(state.definition.kind, DEF_InventoryItem.Kind.VALUABLE)
+	assert_eq(state.definition.categories, DEF_InventoryItem.Category.VALUABLE)
+	assert_true(InventoryService.transfer(first, _owner))
+	assert_true(InventoryService.transfer(_item("bones", 2), _owner))
+	assert_eq(state.quantity, 20)
+
+	var rejected: Entity = _item("bones", 2)
+	assert_false(InventoryService.transfer(rejected, _owner))
+	assert_null(InventoryService.owner_for(rejected))
+	assert_eq((rejected.get_component(C_InventoryItem) as C_InventoryItem).quantity, 2)
+	assert_false(InventoryService.use(_owner, first))
+	assert_eq(InventoryService.use_reason(_owner, first), "У предмета нет эффекта использования")
+	assert_eq(state.quantity, 20)
+	assert_eq(InventoryService.owner_for(first), _owner)
+	assert_eq((_owner.get_component(C_Health) as C_Health).current, 50.0)
+	assert_eq((_owner.get_component(C_Hunger) as C_Hunger).value, 75.0)
+
+
 ## Передача сверяет прежнего владельца и сохраняет одну авторитетную связь.
 func test_pickup_and_compare_owner_transfer_never_creates_two_owners() -> void:
 	var item: Entity = _item("food", 2)

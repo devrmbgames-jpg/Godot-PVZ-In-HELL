@@ -1,3 +1,4 @@
+@tool
 extends GameDefinition
 ## Авторское описание предмета инвентаря, цены и эффекта использования.
 class_name DEF_InventoryItem
@@ -7,7 +8,22 @@ enum Kind {
 	MED_ITEM,
 	BUBBLE_WRAP,
 	FURNITURE,
+	VALUABLE,
 }
+
+## Shopping categories are independent of inventory use effects and physical capabilities.
+enum Category {
+	WEAPON = 1,
+	CLOTHING = 2,
+	ARTIFACT = 4,
+	REAGENT = 8,
+	TOY = 16,
+	VALUABLE = 32,
+}
+
+## Authored shopping-category mask; zero means no category is assigned.
+@export_flags("WEAPON", "CLOTHING", "ARTIFACT", "REAGENT", "TOY", "VALUABLE")
+var categories: int = 0
 
 ## Цена единицы в целых денежных единицах, отдельно от учётной стоимости посылок.
 @export_range(0, 1000000000) var market_price: int = 25

@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://tow36n8i5i1d"]
+
+[ext_resource type="Script" uid="uid://cro5fuhqyttha" path="res://content/domains/inventory/entities/e_inventory_pickup.gd" id="1_c1luw"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_7ifqn"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_qimi3"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_288in"]
+[ext_resource type="Resource" uid="uid://c7gae3x7bisaq" path="res://content/domains/inventory/authoring/bones_stack.tres" id="5_pb1yw"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="7_lsoje"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="8_l66by"]
+[ext_resource type="Script" uid="uid://chf6cei5kamcq" path="res://content/domains/inventory/definitions/def_inventory_pickup_action.gd" id="9_7mt4q"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="10_vp4u3"]
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("7_lsoje")
+
+[sub_resource type="Resource" id="Action"]
+script = ExtResource("9_7mt4q")
+action_id = &"inventory_pickup"
+slot = 0
+caption = "В инвентарь"
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("10_vp4u3")
+actions = Array[ExtResource("8_l66by")]([SubResource("Action")])
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c1luw"]
+albedo_color = Color(0.93333334, 0.8901961, 0.79607844, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_7ifqn"]
+material = SubResource("StandardMaterial3D_c1luw")
+radius = 0.09
+height = 0.45
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.45, 0.2, 0.25)
+
+[node name="FoodPickup" type="RigidBody3D" unique_id=1141256732]
+collision_layer = 8
+collision_mask = 29
+mass = 0.25
+continuous_cd = true
+script = ExtResource("1_c1luw")
+traits = Array[ExtResource("2_7ifqn")]([ExtResource("3_qimi3")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("4_288in")]([ExtResource("5_pb1yw"), SubResource("Interactable"), SubResource("Actions")])
+
+[node name="Visual" type="Node3D" parent="." unique_id=1437624012]
+
+[node name="Mesh" type="MeshInstance3D" parent="Visual" unique_id=601508447]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_7ifqn")
+
+[node name="Caption" type="Label3D" parent="Visual" unique_id=702577366]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+pixel_size = 0.002
+billboard = 1
+text = "Кости ×3"
+font_size = 26
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=2121444542]
+shape = SubResource("Shape")

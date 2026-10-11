@@ -14,9 +14,13 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 ### Current
 
 Implementation baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, `dev`.
-Initial batch appends ACID/HOLY/UNHOLY after existing damage values 0..7 and adds
-integration coverage for independent resistance, committed feedback and HEAL bypass.
-No receiver eligibility, karma, new catalog scene or hazard execution is claimed yet.
+Semantic damage checkpoint: `a8c5a83f8a69256e6c1bd3daa0ae8c4208216ed9`.
+ACID/HOLY/UNHOLY append after existing values 0..7; resistance, committed feedback,
+HEAL bypass and HUD labels use the existing damage authority.
+The next batch adds six independent shopping-category flags and inert VALUABLE stacks.
+Authored bones Definition, stack recipe and RigidBody pickup are saved through live MCP.
+Data-only item Definition/Component support native editor instantiation with `@tool`.
+No receiver eligibility, karma or new hazard execution is claimed yet; 14 catalog items remain.
 
 Next: authored item category/capability definitions and receiver/karma ownership,
 then physical catalog and shared payload/contact execution. Preserve the contracts
@@ -30,6 +34,18 @@ in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve).
   `.artifacts/godot_agent/gut-20261011-171353779.stdout.log`.
   Regression found and fixed the eight-entry warning-name table before acceptance.
 - PASS: incremental formatter/role naming (3 scripts), architecture strict.
+- PASS: independent scoped damage review from implementation baseline to
+  `a8c5a83f8a69256e6c1bd3daa0ae8c4208216ed9`; no material findings,
+  ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN; 34 seconds,
+  serial/token comparison NOT_MEASURED.
+- PASS: bones stack/inert-use GUT 16/16, 129 assertions;
+  `.artifacts/godot_agent/gut-20261011-172024637.stdout.log`.
+- PASS: physical inventory GUT including bones drop/pickup, rejected drop and
+  per-instance recipe isolation;
+  `.artifacts/godot_agent/gut-20261011-172219843.stdout.log`.
+  New UID warnings were resolved by native editor filesystem scan before acceptance.
+- PASS: bones batch native parser 5/5, formatter/role naming 5 scripts,
+  architecture/domain structure/domain dependencies strict.
 - MCP edits used native script patching. Tests reloaded without diagnostics;
   loaded DamageRequest and HUD script hot reload returned error 43, so live reload
   is NOT_PASS. Fresh-process native parser/GUT passed; editor log gained no new entries.

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="C_InventoryItem" format=3 uid="uid://c7gae3x7bisaq"]
+
+[ext_resource type="Resource" uid="uid://bhmjsqk8birom" path="res://content/domains/inventory/definitions/def_item_bones.tres" id="1_2r7tu"]
+[ext_resource type="Script" uid="uid://cfpg1tq1aldu0" path="res://content/domains/inventory/components/c_inventory_item.gd" id="2_xmmpr"]
+
+[resource]
+script = ExtResource("2_xmmpr")
+definition = ExtResource("1_2r7tu")
+quantity = 3

@@ -197,6 +197,9 @@ static func use_reason(owner: Entity, item: Entity, target: Entity = null) -> St
 			if not PackageProtectionService.can_apply(target, state.definition.protection_tier):
 				return "Наведитесь на целую посылку с меньшей защитой"
 
+		DEF_InventoryItem.Kind.VALUABLE:
+			return "У предмета нет эффекта использования"
+
 		_:
 			return "Неизвестный эффект"
 	return ""

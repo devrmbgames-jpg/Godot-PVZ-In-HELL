@@ -95,6 +95,64 @@ func _button(name: String) -> Button:
 
 
 #region Выбор, применение и выброс
+## Две authored копии не делят mutable Component стека и не изменяют внешний recipe.
+func test_authored_bones_pickups_materialize_independent_stack_state() -> void:
+	var prefab: PackedScene = (
+		load("res://content/domains/inventory/entities/bones_pickup.tscn") as PackedScene
+	)
+	var first: E_InventoryPickup = prefab.instantiate() as E_InventoryPickup
+	var second: E_InventoryPickup = prefab.instantiate() as E_InventoryPickup
+	_root.add_child(first)
+	_root.add_child(second)
+	EntityCompositionFixture.register(_world, first, false)
+	EntityCompositionFixture.register(_world, second, false)
+	var first_state: C_InventoryItem = first.get_component(C_InventoryItem) as C_InventoryItem
+	var second_state: C_InventoryItem = second.get_component(C_InventoryItem) as C_InventoryItem
+	var recipe: C_InventoryItem = (
+		load("res://content/domains/inventory/authoring/bones_stack.tres") as C_InventoryItem
+	)
+	assert_ne(first_state, second_state)
+	assert_ne(first_state, recipe)
+	first_state.quantity = 1
+	assert_eq(second_state.quantity, 3)
+	assert_eq(recipe.quantity, 3)
+	assert_eq(first_state.definition, second_state.definition, "Immutable definition is shared")
+
+
+## Кости возвращаются в Jolt-тело, а отклонённая выкладка сохраняет исходный стек.
+func test_bones_rejected_drop_and_physical_pickup_round_trip_preserve_stack() -> void:
+	var item: Entity = _item("bones", 7)
+	(_actor as Node as Node3D).position = Vector3(0, 0, 20)
+	assert_false(InventoryDropService.drop(_actor, item))
+	assert_eq(InventoryService.owner_for(item), _actor)
+	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 7)
+
+	(_actor as Node as Node3D).position = Vector3.ZERO
+	assert_true(InventoryDropService.drop(_actor, item))
+	assert_true(InventoryService.items(_actor).is_empty())
+	var drops: Array[Entity] = _world.query.with_all([C_InventoryItem]).execute()
+	assert_eq(drops.size(), 1)
+	var pickup: Entity = drops[0]
+	var body: RigidBody3D = pickup as Node as RigidBody3D
+	assert_not_null(body)
+	assert_false(body.freeze)
+	assert_true(pickup is E_InventoryPickup)
+	assert_false(
+		pickup.has_component(C_Grabbable), "Stack pickups retain the inventory transfer boundary",
+	)
+	assert_true(pickup.has_component(C_ImpactInbox), "Native impact capture remains composed")
+	assert_null(InventoryService.owner_for(pickup))
+	var state: C_InventoryItem = pickup.get_component(C_InventoryItem) as C_InventoryItem
+	assert_eq(state.quantity, 7)
+	assert_eq(state.definition.key, &"bones")
+
+	assert_true(InventoryService.transfer(pickup, _actor))
+	assert_eq(InventoryService.owner_for(pickup), _actor)
+	assert_eq(state.quantity, 7)
+	assert_false(InventoryService.use(_actor, pickup))
+	assert_eq(state.quantity, 7)
+
+
 ## Сетка показывает пустую ёмкость и отдельные авторские иконки четырёх типов предметов.
 func test_capacity_grid_has_empty_slots_and_four_unused_authored_icons() -> void:
 	assert_true(_panel.open_inventory())

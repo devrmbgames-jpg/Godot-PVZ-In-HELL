@@ -1,3 +1,4 @@
+@tool
 extends Component
 ## Данные виртуального стека; владелец определяется R_OwnedBy, применение — InventoryService.
 class_name C_InventoryItem

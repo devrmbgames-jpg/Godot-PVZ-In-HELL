@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://bhmjsqk8birom"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_riew4"]
+
+[resource]
+script = ExtResource("1_riew4")
+categories = 32
+market_price = 10
+display_name = "Кости"
+world_pickup_scene = "res://content/domains/inventory/entities/bones_pickup.tscn"
+kind = 4
+maximum_stack = 20
+key = &"bones"
