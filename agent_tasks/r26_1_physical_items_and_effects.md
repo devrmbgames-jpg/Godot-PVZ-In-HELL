@@ -106,7 +106,12 @@ Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7
   strict architecture/domain structure/dependencies/project checks. Native Jolt blood
   throw/floor break, one attributed zone, native overlaps without HP requests, TTL expiry,
   larger barrel tuning, missing-marker rejection and fresh/reused geometry reconstruction.
-  Blood foundation checkpoint review pending commit; behavioral stimulus remains NOT_RUN.
+  Review target `876f99d044dc20e43f55ce79ff3dadefb9e5e8bd`: RV-002 identified, 66 s.
+  RV-002/P2: geometry replaced the blood Mesh and lost its authored material. Accepted;
+  both native Visual nodes now use material_override, saved through MCP.
+  Payload10/10 `gut-20261011-185832961.stdout.log` and persistent runtime23/23
+  `gut-20261011-185850118.stdout.log` verify the material after spawn/reused/fresh restore.
+  Fix checkpoint re-review pending commit; behavioral stimulus remains NOT_RUN.
 - MCP native scene/resource saves used throughout. Loaded script hot reload error43:
   NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
 - NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.

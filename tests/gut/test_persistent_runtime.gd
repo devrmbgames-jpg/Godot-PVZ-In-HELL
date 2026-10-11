@@ -344,6 +344,10 @@ func test_blood_zone_roundtrip_rebuilds_geometry_and_requires_its_typed_marker()
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq((effect.get_shape().shape as SphereShape3D).radius, profile.radius)
 	assert_eq(lifetime.remaining_seconds, 17.0)
+	assert_eq(
+		(effect.get_visual().material_override as StandardMaterial3D).albedo_color,
+		Color("#791318"),
+	)
 	var effect_id: String = effect.id
 	_world.remove_entity(effect)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
@@ -353,6 +357,10 @@ func test_blood_zone_roundtrip_rebuilds_geometry_and_requires_its_typed_marker()
 		assert_true(effect.has_component(C_BloodArea))
 		assert_false(effect.has_component(C_ToxicArea))
 		assert_eq((effect.get_shape().shape as SphereShape3D).radius, profile.radius)
+		assert_eq(
+			(effect.get_visual().material_override as StandardMaterial3D).albedo_color,
+			Color("#791318"),
+		)
 		assert_eq(
 			(effect.get_component(C_HazardLifetime) as C_HazardLifetime).remaining_seconds,
 			17.0,

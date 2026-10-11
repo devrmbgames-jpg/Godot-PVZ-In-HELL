@@ -8,6 +8,9 @@
 [sub_resource type="SphereShape3D" id="SphereShape3D_bmqb2"]
 radius = 3.0
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_46d7h"]
+albedo_color = Color(0.4745098, 0.07450981, 0.09411765, 1)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ew0hb"]
 albedo_color = Color(0.4745098, 0.07450981, 0.09411765, 1)
 
@@ -32,5 +35,6 @@ monitorable = false
 shape = SubResource("SphereShape3D_bmqb2")
 
 [node name="Visual" type="MeshInstance3D" parent="." unique_id=450389345]
+material_override = SubResource("StandardMaterial3D_46d7h")
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_d1q4c")

@@ -258,6 +258,10 @@ func test_blood_payloads_spawn_non_damaging_zones_with_larger_barrel_tuning() ->
 		assert_false(effect.has_component(C_Explosion))
 		assert_eq((effect.get_shape().shape as SphereShape3D).radius, profile.radius)
 		assert_eq((effect.get_visual().mesh as CylinderMesh).top_radius, profile.radius)
+		assert_eq(
+			(effect.get_visual().material_override as StandardMaterial3D).albedo_color,
+			Color("#791318"),
+		)
 		_actor.global_position = Vector3(0.5, 0.0, 0.0)
 		for frame: int in 3:
 			await get_tree().physics_frame
