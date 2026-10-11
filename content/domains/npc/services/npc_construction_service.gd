@@ -14,6 +14,16 @@ static func configure_context(
 	context.definitions[&"district_definition"] = district_definition
 	context.initial_fields[C_NpcIdentity as Script] = { &"npc_id": person.npc_id }
 	context.initial_fields[C_PersistentIdentity as Script] = { &"key": String(person.npc_id) }
+	context.initial_fields[C_Motion as Script] = {
+		&"max_speed": person.profile.move_speed * person.variation.move_speed_multiplier,
+	}
+	var multipliers: Dictionary[int, float] = person.profile.damage_multipliers.duplicate()
+	if person.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
+		multipliers[DamageRequest.Type.FIRE] = 0.0
+	context.initial_fields[C_DamageResistance as Script] = { &"multipliers": multipliers }
+	context.initial_fields[C_ReceiverTraits as Script] = {
+		&"traits": person.profile.receiver_traits
+	}
 
 
 ## Supplies the stable authored home key before the common address compiler runs.
@@ -35,8 +45,15 @@ static func configure_placed(
 ) -> PackedStringArray:
 	var district_context: EntitySpawnContext = null
 	var district_recipe: C_District = null
+	var calendar_recipe: C_DayCycle = null
 	for context: EntitySpawnContext in contexts:
 		for recipe: Component in context.actor.component_resources:
+			if recipe is C_DayCycle:
+				if calendar_recipe != null:
+					return PackedStringArray(
+						["Placed construction requires a single calendar owner"]
+					)
+				calendar_recipe = recipe as C_DayCycle
 			if recipe is C_District:
 				if district_context != null:
 					return PackedStringArray(
@@ -46,6 +63,8 @@ static func configure_placed(
 				district_recipe = recipe as C_District
 	if district_recipe == null:
 		return PackedStringArray()
+	if saved_district == null and calendar_recipe == null:
+		return PackedStringArray(["New district variation requires the authored world clock"])
 
 	# These records are transient inputs. The common compiler isolates the committed aggregate.
 	var people: Array[NpcRecord] = (
@@ -54,6 +73,8 @@ static func configure_placed(
 		else NpcPopulationRules.initial_records(
 			district_recipe.definition,
 			district_recipe.next_person,
+			calendar_recipe.clock.world_seed,
+			calendar_recipe.day_index,
 		)
 	)
 	var next_person: int = (

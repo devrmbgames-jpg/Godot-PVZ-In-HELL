@@ -113,7 +113,7 @@ func dialogue_cue() -> String:
 		return "delivery_request"
 	return (
 		"provocation"
-		if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null
+		if person != null and person.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null
 		else "street"
 	)
 

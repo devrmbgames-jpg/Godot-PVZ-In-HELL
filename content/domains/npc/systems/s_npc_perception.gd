@@ -69,13 +69,13 @@ func _sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: floa
 	if not EntityAvailability.contains(player, _world):
 		player = null
 	awareness.player_visible = (
-		player != null and NpcPerceptionService.can_see(actor, player, person.profile)
+		player != null and NpcPerceptionService.can_see(actor, player, person)
 	)
 	if not awareness.player_visible and NpcDialogueService.participant(actor) == null:
 		NpcIntentService.look_along_movement(actor)
 	var opponent: Entity = CombatQueries.target_for(actor)
 	awareness.target_visible = (
-		opponent != null and NpcPerceptionService.can_see(actor, opponent, person.profile)
+		opponent != null and NpcPerceptionService.can_see(actor, opponent, person)
 	)
 	if awareness.target_visible:
 		awareness.last_seen_position = (opponent as Node as Node3D).global_position
@@ -123,12 +123,7 @@ func _sample_blood(actor: E_DistrictNpc, person: NpcRecord) -> void:
 		)
 		if (
 			awareness.rejected_blood_ids.has(zone.id) or candidate_distance >= distance
-			or not NpcPerceptionService.can_see_point(
-				actor,
-				zone.global_position,
-				person.profile,
-				zone,
-			)
+			or not NpcPerceptionService.can_see_point(actor, zone.global_position, person, zone)
 		):
 			continue
 		nearest = zone

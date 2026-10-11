@@ -54,7 +54,7 @@ func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, de
 	awareness.hazard_distress = NpcRouteSolver.danger_here(actor)
 	awareness.light_distress = false
 	_observe_retreat(actor, person, player, awareness, delta)
-	for rule: DEF_NpcTrait in person.profile.rules:
+	for rule: DEF_NpcTrait in person.rules_for():
 		if rule.kind == DEF_NpcTrait.Kind.FIRE_AURA:
 			NpcTraitService.ensure_aura(actor, person, rule)
 			continue

@@ -15,9 +15,10 @@ const SIGHT_MASK: int = 31
 static func can_see(
 	observer: Entity,
 	target: Entity,
-	profile: DEF_NpcProfile,
+	person: NpcRecord,
 	allow_dead_target: bool = false,
 ) -> bool:
+	var profile: DEF_NpcArchetype = person.profile
 	var target_available: bool = (
 		(
 			is_instance_valid(target) and is_instance_valid(ECS.world)
@@ -59,7 +60,7 @@ static func can_see(
 		return false
 
 	var dark_fraction: float = 1.0
-	if profile.rule_for(DEF_NpcTrait.Kind.DARK_PREDATOR) == null:
+	if person.rule_for(DEF_NpcTrait.Kind.DARK_PREDATOR) == null:
 		dark_fraction = profile.dark_vision_fraction
 	if distance > maxf(profile.near_recognition_range, profile.vision_range * dark_fraction):
 		var exposure: float = NpcLightingService.exposure_at(torso, [target_body.get_rid()])
@@ -106,12 +107,13 @@ static func _head_point(actor: Entity, physical: PhysicsBody3D) -> Vector3:
 static func can_see_point(
 	observer: E_DistrictNpc,
 	point: Vector3,
-	profile: DEF_NpcProfile,
+	person: NpcRecord,
 	target: Entity = null,
 ) -> bool:
 	if not GrabQueries.holder_available(observer):
 		return false
 
+	var profile: DEF_NpcArchetype = person.profile
 	var eye: Vector3 = observer.global_position + Vector3.UP * EYE_HEIGHT
 	var offset: Vector3 = point - eye
 	var distance: float = offset.length()
@@ -129,7 +131,7 @@ static func can_see_point(
 		return false
 
 	var dark_fraction: float = 1.0
-	if profile.rule_for(DEF_NpcTrait.Kind.DARK_PREDATOR) == null:
+	if person.rule_for(DEF_NpcTrait.Kind.DARK_PREDATOR) == null:
 		dark_fraction = profile.dark_vision_fraction
 	if distance > maxf(profile.near_recognition_range, profile.vision_range * dark_fraction):
 		var exposure: float = NpcLightingService.exposure_at(point, [observer.get_rid()])

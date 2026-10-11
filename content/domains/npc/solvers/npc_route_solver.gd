@@ -21,7 +21,7 @@ static func plan(
 	var context: NpcRouteContext = _context(actor)
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	var escape: bool = awareness != null and awareness.hazard_distress
-	var light_sensitive: bool = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) != null
+	var light_sensitive: bool = person.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) != null
 	var path: PackedVector3Array = (
 		_shade_path(start, goal, map)
 		if light_sensitive and not escape

@@ -211,7 +211,8 @@ func test_macro_schedule_goal_uses_sorted_ids_without_consuming_activity_sequenc
 	var district: DEF_District = DEF_District.new()
 	var person: NpcRecord = NpcRecord.new()
 	person.npc_id = &"npc/7"
-	person.profile = DEF_NpcProfile.new()
+	person.profile = DEF_NpcArchetype.new()
+	person.variation = NpcVariation.new()
 	person.activity_sequence = 19
 	for identity: StringName in [&"activity/z", &"activity/a", &"activity/m"]:
 		var place: DEF_DistrictPlace = DEF_DistrictPlace.new()

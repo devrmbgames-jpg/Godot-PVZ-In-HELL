@@ -48,7 +48,7 @@ static func react(
 		"npc/social/%d/%s" % [kind, incident],
 	)
 	var roll: float = reaction_random.randf()
-	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, roll, can_retreat)
+	var reaction: NpcMemory.Reaction = _choose(person, kind, roll, can_retreat)
 	remember(person, actor, body, kind, incident, reaction)
 	apply_reaction(body, actor, reaction)
 	return reaction
@@ -140,7 +140,7 @@ static func remember_promise(
 		"npc/social/%d/%s" % [NpcMemory.Kind.BROKEN_PROMISE, incident],
 	)
 	var roll: float = reaction_random.randf()
-	var reaction: NpcMemory.Reaction = _choose(person.profile, NpcMemory.Kind.BROKEN_PROMISE, roll)
+	var reaction: NpcMemory.Reaction = _choose(person, NpcMemory.Kind.BROKEN_PROMISE, roll)
 	remember(person, actor, body, NpcMemory.Kind.BROKEN_PROMISE, incident, reaction)
 	# Обещание принято игроком даже в тестовой сессии, где его физическое тело отсутствует.
 	person.memories.back().actor_id = &"player"
@@ -160,18 +160,26 @@ static func distrusts_player(person: NpcRecord) -> bool:
 
 
 static func _choose(
-	profile: DEF_NpcProfile,
+	person: NpcRecord,
 	kind: NpcMemory.Kind,
 	roll: float,
 	can_retreat: bool = false,
 ) -> NpcMemory.Reaction:
+	var profile: DEF_NpcArchetype = person.profile
+	var attack_probability: float = clampf(
+		profile.high_attack_probability * person.variation.aggression_multiplier,
+		0.0,
+		1.0,
+	)
+	var timid_attack: float = clampf(
+		profile.timid_attack_probability * person.variation.aggression_multiplier,
+		0.0,
+		1.0 - profile.timid_flee_probability,
+	)
 	if kind == NpcMemory.Kind.HELP:
 		return NpcMemory.Reaction.ACCEPT
 	if kind == NpcMemory.Kind.SUBMISSION:
-		if (
-			profile.personality == DEF_NpcProfile.Personality.BRAZEN
-			and roll < profile.high_attack_probability
-		):
+		if (profile.personality == DEF_NpcProfile.Personality.BRAZEN and roll < attack_probability):
 			return NpcMemory.Reaction.ATTACK
 		return NpcMemory.Reaction.TALK
 	if kind == NpcMemory.Kind.JOKE and profile.personality == DEF_NpcProfile.Personality.CHEERFUL:
@@ -185,7 +193,7 @@ static func _choose(
 			return NpcMemory.Reaction.FLEE
 		return (
 			NpcMemory.Reaction.ATTACK
-			if roll < profile.timid_flee_probability + profile.timid_attack_probability
+			if roll < profile.timid_flee_probability + timid_attack
 			else NpcMemory.Reaction.TALK
 		)
 	if profile.personality == DEF_NpcProfile.Personality.BRAZEN and kind == NpcMemory.Kind.THREAT:
@@ -196,17 +204,14 @@ static func _choose(
 		)
 	if kind == NpcMemory.Kind.JOKE:
 		return NpcMemory.Reaction.TALK
-	if roll < profile.high_attack_probability:
+	if roll < attack_probability:
 		return NpcMemory.Reaction.ATTACK
 	var fleeing_allowed: bool = (
 		profile.personality != DEF_NpcProfile.Personality.AGGRESSIVE or can_retreat
 	)
 	return (
 		NpcMemory.Reaction.FLEE
-		if (
-			fleeing_allowed
-			and roll < profile.high_attack_probability + profile.low_flee_probability
-		)
+		if (fleeing_allowed and roll < attack_probability + profile.low_flee_probability)
 		else NpcMemory.Reaction.TALK
 	)
 #endregion
@@ -258,7 +263,7 @@ static func observe_damage(damage_result: DamageResult) -> void:
 		if observer == null or observer.has_component(C_Death):
 			continue
 
-		var sees_actor: bool = NpcPerceptionService.can_see(observer, actor, person.profile)
+		var sees_actor: bool = NpcPerceptionService.can_see(observer, actor, person)
 		if observer == victim:
 			if sees_actor:
 				react(observer, actor, kind, request.incident_id)
@@ -267,6 +272,6 @@ static func observe_damage(damage_result: DamageResult) -> void:
 					observer.get_component(C_NpcAwareness) as C_NpcAwareness
 				)
 				awareness.fleeing = true
-		elif sees_actor and NpcPerceptionService.can_see(observer, victim, person.profile, true):
+		elif sees_actor and NpcPerceptionService.can_see(observer, victim, person, true):
 			remember(person, actor, victim, kind, request.incident_id)
 #endregion

@@ -7,66 +7,55 @@ Parent: [R26](r26_items_npc_expansion.md).
 
 ### Goal
 
-Replace “one fixed profile == one fixed NPC personality” with a data-driven model:
-
-**base archetype + mandatory traits + compatible optional traits + persistent per-person variation.**
-
-The system must make it easy to create later NPC combinations not explicitly anticipated today.
+Implement **base archetype + mandatory/compatible optional traits + persistent per-person variation**,
+so later combinations can be authored without central NPC-type code changes.
 
 ### Current
 
-Started after reviewed physical-catalog checkpoint `b89a21f4bdf0daf0609595dc3adc502bd5424535`.
-DEF_NpcArchetype extends existing physical/social Profile tuning; inherited rules are mandatory.
-Authored name/dialogue pools, weighted optional traits, stable-key incompatibility, receiver tags,
-combat/category/presentation data and bounded personality modifiers have typed definitions.
-NpcVariationRules creates detached choices using DecisionRandomRules and sorts weighted candidates by key.
-NpcVariation stores canonical creation seed/day, selected name/dialogue/optional keys and modifiers;
-the closed codec preserves values and rejects missing/extra fields without rerolling.
-Ten native DEF_NpcArchetype .tres assets now provide all required placeholder name pairs,
-category preferences, receiver/damage data, existing reusable rules and optional weighted pools.
-Schedule/trait Resources are editor-instantiable; all new assets were saved through native MCP.
-These are authored inputs, not live roster integration or complete mandatory behavior acceptance.
-Next: migrate initial/replacement population and compiler consumers to durable variation;
-bind the native ten-archetype inputs, compose receiver tags, version the changed snapshot contract
-and verify fresh/reused restore without reroll. Finish migration before marking this task DONE.
+Live initial/replacement population now commits deterministic NpcVariation before publication.
+NpcRecord references immutable DEF_NpcArchetype; its name and mandatory/selected optional traits
+are read-only resolved views. Compiler instance fields compose speed, damage resistance and
+receiver tags. Native MCP migrated all 12 existing profiles and the district while preserving
+paths, keys, schedules, roles and places. They retain existing behavior; the ten requested
+archetypes are authored assets awaiting live roster binding and new behavior implementation.
+Schema 14 rejects incomplete/unsupported records before mutation; restore never rerolls.
+Next: finish review of the integration checkpoint, bind all ten archetypes, category ordering,
+presentation/combat preferences and mandatory behaviors with R26.3/R26.4. Acceptance stays open.
 
 ### Validation
 
-Foundation parser200116353 7/7; GUT200129137 6/6,360 PASS (2026-10-11 native logs under
-`.artifacts/godot_agent/`). Checks cover repeatability, pool order, compatible bounded choices,
-weight influence, distinct seeds/names, malformed definitions/choices and exact codec roundtrip.
-GUT200240843 save-data regression PASS; formatter and strict architecture/domain/project checks PASS.
-Initial parser failed because `trait` is reserved in Godot 4.7.1; renamed fields/locals to `rule`,
-preserving log195946517. Public pure seed/codec edges were declared before strict checks passed.
-MCP scan and fresh test diagnostics checked[] PASS; loaded global script reload43 remains NOT_PASS;
-fresh native parser/GUT PASS independently. No scene/resource external rewrites or rendered gameplay.
+Native Godot 4.7.1 logs are under `.artifacts/godot_agent/` (2026-10-11 UTC).
+Foundation parser200116353 7/7, variation GUT200129137 6/6,360 and save-data200240843 PASS;
+catalog parser201559767 3/3, final GUT201925750 4/4,944 PASS. These prove bounded compatible
+deterministic choices, shared isolation, exact codec, all ten native assets/names/categories/tags.
 Foundation review BASE b89a21f4bdf0daf0609595dc3adc502bd5424535 ->
-TARGET 473e1569425d9c6bcd809828c3c8422e6280b66f PASS; no material findings (69 s).
-Native catalog parser201559767 3/3 and final GUT201925750 4/4,944 PASS: all ten assets load,
-generate and roundtrip deterministic variations, preserve shared inputs, and carry required names,
-existing capability/category and intrinsic immunity/receiver contracts. MCP test diagnostics checked[].
-Initial catalog parser201538629 failed on nested PackedStringArray constant; fixed to literal arrays.
-Catalog review BASE 473e1569425d9c6bcd809828c3c8422e6280b66f ->
-TARGET ca6bc069c5645028fd9b51e681d9364291e6f32c found RV-001 (70 s), STYLE PASS.
-RV-001 / R1 P2: angel receiver_traits=0 excluded it from holy artifacts before resistance.
-FIXED a02e250b80a4b984e662854452f8cc110e356660: native MCP repair sets HOLY_VULNERABLE;
-regression exercises actual ReceiverEffectRules HOLY DAMAGE / UNHOLY EXCLUDED.
-Targeted review PASS (8 s), ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN.
-Companion pvz_npc_archetype_cache_refresh closes a verified native-tool gap: ResourceSaver
-saved new script types while ResourceLoader still returned cached old Profile objects.
-Bounded native cache refresh preflights exact Archetype scripts, refuses dirty scenes/inspected
-targets, changes no files/UIDs, retains no Resources and unregisters on plugin exit.
-Parser203116194 and final GUT203405503 2/2,23 PASS; live MCP refreshed12 profiles and allowed
-native typed district save. Tool review BASE a02e250b80a4b984e662854452f8cc110e356660 ->
-TARGET 589cadfdca1b61006510338a5f88d94ec5ec8e9e found RV-002/R1 P1 (38 s).
-RV-002 accepted: Inspector guard compared root paths exactly, missing owned ::subresources.
-Repair normalizes the inspected file owner and preflights it before any cache work;
-native root/schedule/optional-setting edit preservation GUT203819728 3/3,35,
-parser203852011, scoped style and live MCP checked[] PASS. Targeted review pending.
-Roster migration remains uncommitted.
-NOT_RUN: roster/receiver integration, full persistence migration,
-new mandatory behaviors (angel observation/signs, grudges, toy witnessing, 10 m floor fire/opening,
-soul trade, stalking, vampire feeding/escape), presentation hooks, gameplay and owner acceptance.
+TARGET 473e1569425d9c6bcd809828c3c8422e6280b66f PASS, no findings (69 s).
+Catalog review TARGET ca6bc069c5645028fd9b51e681d9364291e6f32c (70 s) found RV-001/R1 P2:
+angel lacked holy eligibility. FIXED a02e250b80a4b984e662854452f8cc110e356660;
+actual HOLY DAMAGE/UNHOLY EXCLUDED regression and targeted review PASS (8 s).
+Cache tool review BASE a02e250b80a4b984e662854452f8cc110e356660 ->
+TARGET 589cadfdca1b61006510338a5f88d94ec5ec8e9e (38 s) found RV-002/R1 P1:
+inspected ::subresources lacked file-owner protection. FIXED
+fd2627ee7e6312efbc6c5a9afb70b77fa997ce1f; parser203852011/GUT203819728 3/3,35,
+live MCP diagnostics and targeted review PASS (2 s). No file/UID changes during cache refresh.
+Both repairs have ARCHITECTURE/STYLE PASS; reviewer runtime checks NOT_RUN.
+Integration: factory GUT205245545 13/13,102; world snapshot205034739 33/33,407;
+shared host205140832 2/2,260; doctor205354140 20/20,119; preview205302600 10/10,66;
+compiler205515135 33/33,189; recipe isolation205524795 7/7,42; perception205530362 8/8,27;
+blood205538943 10/10,120; community205551797 15/15,99; randomness205614732 11/11,103;
+save-data205633042 6/6,40; district plan205648020 41/41,260 PASS.
+District snapshot210427837: 15/15,169 tests PASS, no runtime errors/orphan Nodes;
+runner FAIL solely on shutdown Resource/RID/VariantPools retention: KNOWN_ENGINE_LIMITATION/DEFERRED.
+New checks cover selected optional fire, receiver composition, fresh/reused variation restore,
+missing/extra/invalid choices, replacement retry persistence and rejection before live mutation.
+Style and strict architecture/domain/project checks PASS. MCP test diagnostics checked[] PASS;
+global reload43 remains NOT_PASS; native CLI verifies separately. Clean game_world reloaded via MCP.
+Parser210253264: all 37 individual compilations PASS; aggregate runner FAIL on the snapshot test's
+shutdown retention above. Cache policy extension parser210707631 2/2/GUT210631184 4/4,52 PASS;
+MCP refresh updates both exact identity policies in place and preserves references/files/UIDs.
+Week smoke PASS: tests/artifacts/district-20261012-065857869.log. Integration review pending.
+NOT_RUN: ten-archetype roster binding, category ordering, new mandatory behaviors,
+presentation hooks, rendered gameplay and owner acceptance. No external scene/resource rewrites.
 
 ### Owner QA / blockers
 
@@ -78,18 +67,12 @@ Required owner acceptance remains open; explicitly deferred polish gets a QA che
 Prefer authored Resources instead of hard-coded type switches.
 
 Introduce/extend a base archetype definition containing:
-- archetype key/display label;
-- base physical scene/appearance reference;
-- two or more placeholder name variants;
-- mandatory traits;
-- optional weighted trait pool;
-- incompatible trait rules;
-- base personality/social tuning;
-- item order category weights;
-- dialogue variant paths/keys;
-- combat preference (melee/ranged/avoid);
-- receiver/species tags needed by holy/unholy/blood/fire rules;
-- archetype-specific presentation hooks as data, not direct UI/audio ownership.
+- archetype key/display label, physical scene/appearance and two or more placeholder names;
+- mandatory traits, optional weighted pool and incompatible trait rules;
+- base personality/social tuning and item order category weights;
+- dialogue variant paths/keys and combat preference (melee/ranged/avoid);
+- receiver/species tags for holy/unholy/blood/fire rules;
+- presentation hooks as data, with no direct UI/audio ownership.
 
 Keep `DEF_NpcTrait` as reusable behavior capability. If the current fixed enum becomes a bottleneck, migrate toward authored trait definitions/keys rather than adding one giant enum/match forever.
 
@@ -129,16 +112,11 @@ frame-time/instance-ID seed or sequence advance during preview/reload.
 
 Use two initial names per archetype; they are placeholders and must live in authored data.
 
-- Скромник: **Тихон**, **Мирон**
-- Плачущий ангел: **Сераф**, **Азариэль**
-- Ночной охотник: **Морок**, **Нокт**
-- Карга: **Морана**, **Аграфена**
-- Бугай: **Гром**, **Бран**
-- Огненный элементаль: **Пирос**, **Углик**
-- Потерянный: **Лука**, **Ян**
-- Цепной дьявол: **Азгар**, **Мальх**
-- Жуткий: **Шорох**, **Хрип**
-- Вампир: **Северин**, **Владен**
+- Скромник: **Тихон**, **Мирон**; Плачущий ангел: **Сераф**, **Азариэль**.
+- Ночной охотник: **Морок**, **Нокт**; Карга: **Морана**, **Аграфена**.
+- Бугай: **Гром**, **Бран**; Огненный элементаль: **Пирос**, **Углик**.
+- Потерянный: **Лука**, **Ян**; Цепной дьявол: **Азгар**, **Мальх**.
+- Жуткий: **Шорох**, **Хрип**; Вампир: **Северин**, **Владен**.
 
 ## Archetypes and mandatory behavior traits
 

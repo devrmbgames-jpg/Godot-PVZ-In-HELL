@@ -9,7 +9,7 @@ func _tick(_delta: float) -> Status:
 		return FAILURE
 	NpcIntentArbiter.stop(_actor, intent_owner)
 	var participant: Entity = NpcDialogueService.participant(_actor)
-	if participant != null and NpcPerceptionService.can_see(_actor, participant, _person.profile):
+	if participant != null and NpcPerceptionService.can_see(_actor, participant, _person):
 		NpcIntentService.watch(_actor, participant, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
 	return RUNNING
 

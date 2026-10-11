@@ -41,7 +41,7 @@ static func choose_loot(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 			not NpcPerceptionService.can_see_point(
 				actor,
 				spatial.global_position + Vector3.UP * 0.1,
-				person.profile,
+				person,
 				item,
 			)
 		):
@@ -82,8 +82,7 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 		return false
 	if (
 		target == null or target == actor or target.has_component(C_Death)
-		or target.has_active_role()
-		or not NpcPerceptionService.can_see(actor, target, person.profile)
+		or target.has_active_role() or not NpcPerceptionService.can_see(actor, target, person)
 	):
 		return false
 
@@ -102,7 +101,7 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 	var identity: C_NpcIdentity = target.get_component(C_NpcIdentity) as C_NpcIdentity
 	var target_person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
 	if (
-		target_person.profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null
+		target_person.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null
 		and DamageResistanceRules.effective(actor, 1.0, DamageRequest.Type.FIRE) > 0.0
 	):
 		return false

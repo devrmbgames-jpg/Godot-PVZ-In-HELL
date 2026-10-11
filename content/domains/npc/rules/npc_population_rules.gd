@@ -5,9 +5,14 @@ class_name NpcPopulationRules
 
 #region Initial roster
 ## Preserves authored Profile order, sequential identity, homes and paired entry/exit portals.
-static func initial_records(definition: DEF_District, next_person: int) -> Array[NpcRecord]:
+static func initial_records(
+	definition: DEF_District,
+	next_person: int,
+	world_seed: int,
+	creation_day: int = 1,
+) -> Array[NpcRecord]:
 	var people: Array[NpcRecord] = []
-	if definition == null:
+	if definition == null or next_person < 1 or creation_day < 1:
 		return people
 	var homes: Array[StringName] = []
 	var portals: Array[StringName] = []
@@ -18,14 +23,19 @@ static func initial_records(definition: DEF_District, next_person: int) -> Array
 			portals.append(place.key)
 
 	var home_index: int = 0
-	for profile: DEF_NpcProfile in definition.profiles:
+	for profile: DEF_NpcArchetype in definition.profiles:
 		if profile == null or not profile.valid_rules() or portals.is_empty():
 			continue
 		var person_number: int = next_person + people.size()
 		var person: NpcRecord = NpcRecord.new()
 		person.npc_id = StringName("npc/%d" % person_number)
 		person.profile = profile
-		person.display_name = profile.display_name
+		person.variation = NpcVariationRules.create(
+			profile,
+			world_seed,
+			person.npc_id,
+			creation_day,
+		)
 		person.recipient_key = profile.recipient_key
 		person.portal_id = portals[(person_number - 1) % portals.size()]
 		person.exit_id = portals[person_number % portals.size()]

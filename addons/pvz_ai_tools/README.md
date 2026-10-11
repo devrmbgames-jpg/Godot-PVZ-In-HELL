@@ -159,7 +159,10 @@ helper. Custom MCP tools must never terminate arbitrary OS processes.
 `content/domains/npc/definitions/` after a native MCP save changed their scripted type.
 Example: `custom_manage(op="invoke", params={"tool_name":"pvz_npc_archetype_cache_refresh",
 "params":{"paths":["res://content/domains/npc/definitions/def_npc_profile_1.tres"]}})`.
-Every file must freshly load with `DEF_NpcArchetype`; the whole set is checked before
+It also accepts exactly the two `et_district_{npc,trader}_npc_identity.tres` policies under
+`content/domains/npc/authoring/`, whose freshly loaded script must be `ET_NpcIdentity`.
+Other authoring resources are excluded. Definition files must load with `DEF_NpcArchetype`;
+the whole set is checked before
 native cache replacement. No files or UIDs are changed; cached definition values refresh from disk.
 Dirty scenes and
 an inspected target Resource refuse the operation; reload affected clean scenes afterwards.

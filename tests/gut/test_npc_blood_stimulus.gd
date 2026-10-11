@@ -85,13 +85,20 @@ func after_each() -> void:
 
 
 func _actor(key: StringName, position: Vector3, receiver_traits: int) -> E_DistrictNpc:
-	var profile: DEF_NpcProfile = DEF_NpcProfile.new()
+	var profile: DEF_NpcArchetype = DEF_NpcArchetype.new()
+	profile.key = &"fixture/blood_receiver"
 	profile.dark_vision_fraction = 1.0
 	profile.schedule = DEF_NpcSchedule.new()
 	profile.vision_angle = 150.0
 	var person: NpcRecord = NpcRecord.new()
 	person.npc_id = key
 	person.profile = profile
+	person.variation = NpcVariationRules.create(
+		profile,
+		GameTimeQueries.current().world_seed,
+		key,
+		1,
+	)
 	person.placement = NpcRecord.Placement.STREET
 	_district.people.append(person)
 	var scene: PackedScene = load(profile.npc_scene_path) as PackedScene

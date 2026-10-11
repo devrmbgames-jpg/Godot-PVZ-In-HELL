@@ -345,7 +345,7 @@ func _inspect_npc_prefab(actor: E_DistrictNpc, source: String) -> void:
 	for district: DEF_District in _districts:
 		if not ContentDoctorResourceRules.inspect(district, district.resource_path).is_empty():
 			continue
-		for person: NpcRecord in NpcPopulationRules.initial_records(district, 1):
+		for person: NpcRecord in NpcPopulationRules.initial_records(district, 1, 0):
 			if person.profile.npc_scene_path != source:
 				continue
 			uses += 1

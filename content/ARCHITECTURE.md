@@ -251,6 +251,13 @@ Do not run every suite after ordinary edits. See `AGENTS.md` for cadence.
 
 ## Game time and decision seeds
 
+District `NpcRecord` owns one durable `NpcVariation`: creation seed/day, selected name/dialogue,
+optional trait keys and rolled modifiers. The referenced `DEF_NpcArchetype` remains immutable;
+resolved trait/name views query the committed variation. Initial and replacement construction
+derive choices from the explicit world seed and stable person ID before roster publication.
+Entity Traits compile movement, resistance and receiver data through the existing instance-field
+boundary. Schema 14 requires complete validated records; restore preserves choices without reroll.
+
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances
 microsecond ticks/remainder; calendar transitions retain their existing player-driven authority.
 NPC cadence consumes the session timestamp and persists active interval/sample ticks in NpcRecord;

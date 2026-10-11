@@ -218,7 +218,7 @@ static func waiting_destination(body: E_DistrictNpc) -> Vector3:
 static func needs_darkness(body: E_DistrictNpc) -> bool:
 	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
 	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
-	var rule: DEF_NpcTrait = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
+	var rule: DEF_NpcTrait = person.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
 	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
 	if rule == null or station == null:
 		return false

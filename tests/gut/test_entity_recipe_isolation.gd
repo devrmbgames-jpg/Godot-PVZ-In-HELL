@@ -30,8 +30,10 @@ func test_two_builds_isolate_nested_records_and_retain_definition_references() -
 	var source: C_District = C_District.new()
 	source.definition = DEF_District.new()
 	var person: NpcRecord = NpcRecord.new()
+	person.variation = NpcVariation.new()
+	person.variation.display_name = "Committed name"
 	person.npc_id = &"fixture/person"
-	person.profile = DEF_NpcProfile.new()
+	person.profile = DEF_NpcArchetype.new()
 	var memory: NpcMemory = NpcMemory.new()
 	memory.incident_id = &"fixture/incident"
 	person.memories = [memory]
@@ -43,6 +45,13 @@ func test_two_builds_isolate_nested_records_and_retain_definition_references() -
 	assert_eq(first.people[0].profile, person.profile)
 	assert_ne(first.people[0], person)
 	assert_ne(first.people[0], second.people[0])
+	assert_ne(first.people[0].variation, person.variation)
+	assert_ne(first.people[0].variation, second.people[0].variation)
+	assert_eq(first.people[0].display_name, "Committed name")
+	first.people[0].variation.display_name = "Independent name"
+	assert_eq(first.people[0].display_name, "Independent name")
+	assert_eq(second.people[0].display_name, "Committed name")
+	assert_eq(person.display_name, "Committed name")
 	first.people[0].memories[0].day = 12
 	first.people.append(NpcRecord.new())
 	assert_eq(source.people.size(), 1)

@@ -21,7 +21,7 @@ static func choose(actor: E_DistrictNpc, person: NpcRecord) -> DEF_DistrictPlace
 		if place.activity == DEF_DistrictPlace.Activity.VISIT_SHOP and merchant() == null:
 			continue
 
-		var light_rule: DEF_NpcTrait = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
+		var light_rule: DEF_NpcTrait = person.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
 		var exposure: float = (
 			NpcLightingService.exposure_at(destination(place) + Vector3.UP, [actor.get_rid()])
 			if light_rule != null
@@ -79,10 +79,7 @@ static func observe(actor: E_DistrictNpc, person: NpcRecord, player_visible: boo
 				continue
 
 			var candidate: E_DistrictNpc = NpcPopulationQueries.body_for(record.npc_id)
-			if (
-				candidate == null
-				or not NpcPerceptionService.can_see(actor, candidate, person.profile)
-			):
+			if (candidate == null or not NpcPerceptionService.can_see(actor, candidate, person)):
 				continue
 
 			var distance: float = actor.global_position.distance_squared_to(
@@ -97,7 +94,7 @@ static func observe(actor: E_DistrictNpc, person: NpcRecord, player_visible: boo
 
 	if place.activity == DEF_DistrictPlace.Activity.VISIT_SHOP:
 		var shopkeeper: E_DistrictNpc = merchant()
-		if shopkeeper != null and NpcPerceptionService.can_see(actor, shopkeeper, person.profile):
+		if shopkeeper != null and NpcPerceptionService.can_see(actor, shopkeeper, person):
 			NpcIntentService.watch(actor, shopkeeper, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
 		return
 

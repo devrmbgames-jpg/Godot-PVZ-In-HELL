@@ -62,7 +62,8 @@ func test_base_action_is_not_an_executor() -> void:
 
 
 func test_missing_definition_scene_path_and_reversed_attack_range_reject() -> void:
-	var profile: DEF_NpcProfile = DEF_NpcProfile.new()
+	var profile: DEF_NpcArchetype = DEF_NpcArchetype.new()
+	profile.key = &"fixture/missing_scene"
 	profile.schedule = DEF_NpcSchedule.new()
 	profile.npc_scene_path = "res://".path_join("missing/doctor_npc.tscn")
 	var issues: Array[ContentDoctorIssue] = ContentDoctorResourceRules.inspect(profile, "profile")
@@ -316,7 +317,7 @@ func test_native_resource_cycle_blocks_before_scene_instantiation() -> void:
 
 func test_existing_wrong_resource_type_keeps_declaring_definition_field_context() -> void:
 	var path: String = "user://content_doctor_wrong_type.tres"
-	var profile: DEF_NpcProfile = DEF_NpcProfile.new()
+	var profile: DEF_NpcArchetype = DEF_NpcArchetype.new()
 	profile.schedule = DEF_NpcSchedule.new()
 	profile.npc_scene_path = "res://content/domains/commerce/definitions/def_trader_default.tres"
 	assert_eq(ResourceSaver.save(profile, path), OK)
@@ -354,7 +355,7 @@ func test_district_level_rejects_missing_home_and_wrong_type_portal_anchors() ->
 	var coordinate_only: DEF_DistrictPlace = DEF_DistrictPlace.new()
 	coordinate_only.key = &"coordinate"
 	district.definition.places = [home, portal, coordinate_only]
-	session.component_resources = [district]
+	session.component_resources = [district, C_DayCycle.new()]
 	var capability: EntityTrait = EntityTrait.new()
 	capability.trait_id = &"district"
 	capability.initial_field_names[C_District as Script] = PackedStringArray(

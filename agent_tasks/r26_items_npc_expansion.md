@@ -34,13 +34,14 @@ Blood spawns non-damaging native zones; perceived vampire calm/approach/retentio
 typed unclean provocation now use native perception and visible LimboAI branches.
 Blood review fixes passed native checks and targeted review; final 15-item physical smoke passed.
 NPC archetypes/receiver composition and overall owner acceptance remain open.
-R26.2 now has a typed archetype/deterministic variation foundation and closed codec tests;
-live roster integration and authored ten-archetype composition remain open.
-Current vertical domains, direct Entity Traits and save schema 13 remain authoritative.
+R26.2 now creates and restores persistent per-person variation in the existing live roster;
+Entity Traits compose movement, resistances and receiver tags from immutable archetypes.
+All ten requested archetypes have native authored data; live roster binding, category ordering
+and new behavior/dialogue acceptance remain open. Current save schema is 14.
 
 ### Next
 
-Continue R26.2 persistent archetypes/variation and receiver-tag composition before broader NPC behavior.
+Review the R26.2 roster migration, then continue ten-archetype binding and R26.3/R26.4 behavior.
 
 ### Validation
 
@@ -81,7 +82,7 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
   scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
 - Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
   native physics delta retains its existing authority.
-- Current save schema is `AutosaveStore.SCHEMA_VERSION = 13`; version incompatible
+- Current save schema is `AutosaveStore.SCHEMA_VERSION = 14`; version incompatible
   serialized changes from the actual implementation baseline. No old-save conversion,
   defaults that accept an unsupported format, or automatic rejected-slot overwrite.
 

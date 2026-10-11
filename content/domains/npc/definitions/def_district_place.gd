@@ -1,3 +1,4 @@
+@tool
 extends GameDefinition
 ## Постоянный адрес, проход, занятие или узел навигации в координатах района.
 class_name DEF_DistrictPlace

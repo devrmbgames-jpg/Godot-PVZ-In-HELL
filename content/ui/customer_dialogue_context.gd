@@ -169,13 +169,13 @@ func dialogue_cue() -> String:
 	if has_broken_promise():
 		return "broken_promise"
 	if (
-		person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null
+		person != null and person.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null
 		and not visit.riddle_solved
 	):
 		return "riddle"
 	if can_offer_delivery():
 		return "home_request"
-	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null:
+	if person != null and person.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null:
 		return "provocation"
 	if (
 		visit != null and visit.visit_count > 1

@@ -168,7 +168,7 @@ func test_snapshot_field_provenance_uses_original_authored_trait_paths() -> void
 			template.traits.append(capability)
 	var authoring: E_TraitedEntity = resident as E_TraitedEntity
 	authoring.traits = template.traits
-	authoring.definitions[&"npc_profile"] = DEF_NpcProfile.new()
+	authoring.definitions[&"npc_profile"] = DEF_NpcArchetype.new()
 	var snapshot: PackedScene = EntityAuthoringSnapshotRules.capture(level)
 	var scene_file: String = "res://".path_join(".artifacts/authoring_provenance_check.tscn")
 	assert_eq(ResourceSaver.save(snapshot, scene_file), OK)

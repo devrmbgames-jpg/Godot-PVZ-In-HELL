@@ -11,6 +11,7 @@ func _init() -> void:
 	required_components = [C_Motion]
 	initial_field_names[C_NpcIdentity as Script] = PackedStringArray(["npc_id"])
 	initial_field_names[C_PersistentIdentity as Script] = PackedStringArray(["key"])
+	initial_field_names[C_Motion as Script] = PackedStringArray(["max_speed"])
 
 
 ## Requires a captured roster identity rather than allocating or consulting the current World.
@@ -25,8 +26,12 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 	var npc_id: String = String(identity_fields.get(&"npc_id", ""))
 	if npc_id.is_empty() or String(persistent_fields.get(&"key", "")) != npc_id:
 		return PackedStringArray(["District identity requires one matching roster/persistent key"])
-	if not context.definitions.get(&"npc_profile") is DEF_NpcProfile:
+	if not context.definitions.get(&"npc_profile") is DEF_NpcArchetype:
 		return PackedStringArray(["District identity requires the roster's NPC Profile"])
+	var movement: Dictionary = context.initial_fields.get(C_Motion as Script, { })
+	var speed: Variant = movement.get(&"max_speed")
+	if not speed is float or not is_finite(speed) or speed <= 0.0:
+		return PackedStringArray(["District identity requires committed positive movement tuning"])
 	return PackedStringArray()
 #endregion
 
@@ -36,11 +41,4 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 func recipes_for(_context: EntitySpawnContext) -> Array[Component]:
 	return [C_NpcIdentity.new(), C_PersistentIdentity.new()]
 
-
-## Configures movement from the single immutable Profile; saved fields overlay after defaults.
-func configuration_for(context: EntitySpawnContext) -> Dictionary[Script, Dictionary]:
-	var profile: DEF_NpcProfile = context.definitions.get(&"npc_profile") as DEF_NpcProfile
-	if profile == null:
-		return { }
-	return { C_Motion as Script: { &"max_speed": profile.move_speed } }
 #endregion

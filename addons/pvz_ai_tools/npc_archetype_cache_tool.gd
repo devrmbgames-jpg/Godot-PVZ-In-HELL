@@ -1,9 +1,15 @@
 @tool
 extends RefCounted
-## Refreshes stale cached archetype definitions after native MCP saves, without changing files.
+## Refreshes saved archetypes and the two NPC identity policies, without changing authored files.
 
 const ROOT: String = "res://content/domains/npc/definitions/"
 const ARCHETYPE_SCRIPT: String = ROOT + "def_npc_archetype.gd"
+const AUTHORING_ROOT: String = "res://content/domains/npc/authoring/"
+const IDENTITY_SCRIPT: String = AUTHORING_ROOT + "et_npc_identity.gd"
+const IDENTITY_PATHS: PackedStringArray = [
+	AUTHORING_ROOT + "et_district_npc_npc_identity.tres",
+	AUTHORING_ROOT + "et_district_trader_npc_identity.tres",
+]
 const MAXIMUM_PATHS: int = 16
 
 
@@ -24,13 +30,12 @@ static func refresh_resources(paths: PackedStringArray, inspected: Resource = nu
 	if inspected != null and paths.has(inspected.resource_path.get_slice("::", 0)):
 		return { "error": "Close the target Resource Inspector before refreshing its cache." }
 	if paths.is_empty() or paths.size() > MAXIMUM_PATHS:
-		return { "error": "Expected one to sixteen authored NPC archetypes." }
+		return { "error": "Expected one to sixteen supported authored NPC resources." }
 	var seen: Dictionary[String, bool] = { }
 	for path: String in paths:
 		if (
-			not path.begins_with(ROOT) or not path.ends_with(".tres")
+			_expected_script_path(path).is_empty() or not path.ends_with(".tres")
 			or path.contains("..") or path.contains("::") or path.contains("\\")
-			or path.get_base_dir() != ROOT.trim_suffix("/")
 			or seen.has(path) or not ResourceLoader.exists(path)
 		):
 			return { "error": "Invalid, missing or repeated archetype path.", "path": path }
@@ -40,8 +45,8 @@ static func refresh_resources(paths: PackedStringArray, inspected: Resource = nu
 	for path: String in paths:
 		var resource: Resource = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
 		var resource_script: Script = resource.get_script() as Script if resource != null else null
-		if resource_script == null or resource_script.resource_path != ARCHETYPE_SCRIPT:
-			return { "error": "File is not an authored NPC archetype.", "path": path }
+		if resource_script == null or resource_script.resource_path != _expected_script_path(path):
+			return { "error": "File does not have its declared NPC authoring type.", "path": path }
 		refreshed.append(resource)
 	var completed: PackedStringArray = []
 	for path: String in paths:
@@ -49,7 +54,7 @@ static func refresh_resources(paths: PackedStringArray, inspected: Resource = nu
 		var replaced_script: Script = null
 		if replacement != null:
 			replaced_script = replacement.get_script() as Script
-		if replaced_script == null or replaced_script.resource_path != ARCHETYPE_SCRIPT:
+		if replaced_script == null or replaced_script.resource_path != _expected_script_path(path):
 			return {
 				"error": "Native cache refresh failed.",
 				"path": path,
@@ -66,4 +71,12 @@ static func refresh_resources(paths: PackedStringArray, inspected: Resource = nu
 			"undoable": false,
 		}
 	}
+
+
+static func _expected_script_path(path: String) -> String:
+	if IDENTITY_PATHS.has(path):
+		return IDENTITY_SCRIPT
+	if path.get_base_dir() == ROOT.trim_suffix("/"):
+		return ARCHETYPE_SCRIPT
+	return ""
 #endregion

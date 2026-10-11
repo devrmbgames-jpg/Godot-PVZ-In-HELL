@@ -81,7 +81,7 @@ static func _provoke(actor: E_DistrictNpc, person: NpcRecord, zone: E_BloodArea)
 		not profile.provokes_unclean or not EntityAvailability.contains(instigator, ECS.world)
 		or instigator == actor or instigator.has_component(C_Death)
 		or NpcSocialService.identity_for(instigator).is_empty()
-		or not NpcPerceptionService.can_see(actor, instigator, person.profile)
+		or not NpcPerceptionService.can_see(actor, instigator, person)
 	):
 		return
 	var incident: StringName = StringName("blood/%s" % hazard.request_id)

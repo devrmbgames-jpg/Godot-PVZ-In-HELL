@@ -66,7 +66,14 @@ static func valid(
 		if (
 			person == null or person.npc_id.is_empty() or people.has(person.npc_id)
 			or person.profile == null or not district.definition.profiles.has(person.profile)
-			or not person.profile.valid_rules() or person.display_name.is_empty()
+			or not person.profile.valid_rules()
+			or not NpcVariationRules.valid_variation(
+				person.profile,
+				person.variation,
+				calendar.clock.world_seed,
+				person.npc_id,
+			)
+			or person.variation.creation_day > morning_day
 		):
 			return false
 		if (

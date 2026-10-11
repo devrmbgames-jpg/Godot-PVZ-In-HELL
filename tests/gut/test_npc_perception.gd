@@ -7,7 +7,8 @@ var _world: World = null
 var _district: C_District = null
 var _observer: E_DistrictNpc = null
 var _target: E_DistrictNpc = null
-var _profile: DEF_NpcProfile = null
+var _observer_person: NpcRecord
+var _profile: DEF_NpcArchetype = null
 var _wall: StaticBody3D = null
 
 
@@ -33,9 +34,12 @@ func before_each() -> void:
 	session.component_resources = [component, C_DayCycle.new()]
 	_world.add_entity(session)
 	_district = session.get_component(C_District) as C_District
-	_profile = DEF_NpcProfile.new()
+	_profile = DEF_NpcArchetype.new()
 	_profile.dark_vision_fraction = 1.0
 	_profile.schedule = DEF_NpcSchedule.new()
+	_observer_person = NpcRecord.new()
+	_observer_person.profile = _profile
+	_observer_person.variation = NpcVariation.new()
 	_observer = _actor(Vector3.ZERO)
 	_target = _actor(Vector3(0, 0, -3))
 	_wall = StaticBody3D.new()
@@ -112,11 +116,11 @@ func test_held_upper_body_cover_does_not_hide_visible_legs() -> void:
 	item.add_relationship(Relationship.new(R_HeldBy.new(), _target))
 	await _synchronize()
 	assert_same(GrabQueries.held_relationship(item).target, _target)
-	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 	shape.size.y = 2.0
 	box.global_position.y = 0.85
 	await _synchronize()
-	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_false(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 
 
 ## Приседание использует фактическую высоту головы, не оставляя видимой точку стоящего тела.
@@ -133,23 +137,23 @@ func test_crouched_head_uses_actual_character_height() -> void:
 	wall_shape.size.y = 1.3
 	_wall.position = Vector3(0, 0.65, -1.5)
 	await _synchronize()
-	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_false(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 	_wall.position.x = 20.0
 	await _synchronize()
-	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 
 
 ## Стена скрывает все точки тела; небольшая коробка оставляет доступные лучам точки.
 func test_wall_occlusion_and_partial_cover() -> void:
 	await _synchronize()
-	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 	_wall.position = Vector3(0, 1.5, -1.5)
 	await _synchronize()
-	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_false(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 	var shape: BoxShape3D = (_wall.get_child(0) as CollisionShape3D).shape as BoxShape3D
 	shape.size = Vector3(0.25, 0.3, 0.3)
 	await _synchronize()
-	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 
 
 ## Обычное зрение теряет далёкую цель в темноте; ночное сохраняет обнаружение через физический LOS.
@@ -157,11 +161,11 @@ func test_darkness_and_night_vision() -> void:
 	_target.place_at(Vector3(0, 0, -8))
 	_profile.dark_vision_fraction = 0.1
 	await _synchronize()
-	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_false(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 	var night_rule: DEF_NpcTrait = DEF_NpcTrait.new()
 	night_rule.kind = DEF_NpcTrait.Kind.DARK_PREDATOR
 	_profile.rules.append(night_rule)
-	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 
 
 ## Поиск хранит последнюю видимую позицию и не копирует скрытое положение цели за стеной.
@@ -213,13 +217,13 @@ func test_light_switch_changes_visibility() -> void:
 	zone.position = Vector3(0, 1, -8)
 	_root.add_child(zone)
 	await _synchronize()
-	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 	assert_true(LightCircuitService.set_enabled(circuit, false))
 	assert_false(lamp.visible)
-	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_false(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 	assert_true(LightCircuitService.set_enabled(circuit, true))
 	assert_true(lamp.visible)
-	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _observer_person))
 
 
 ## Шум открытия физической двери сообщает место без автоматической социальной атрибуции.

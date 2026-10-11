@@ -6,6 +6,27 @@ const PROFILE: String = "res://content/domains/npc/definitions/def_npc_archetype
 const OTHER: String = "res://content/domains/npc/definitions/def_npc_archetype_fire_elemental.tres"
 
 
+## Saved policy refresh updates existing scene references, with the same Inspector/file guards.
+func test_identity_policy_refresh_updates_cached_values_without_replacing_live_references() -> void:
+	for path: String in TOOL.IDENTITY_PATHS:
+		var checksum: String = FileAccess.get_md5(path)
+		var uid: int = ResourceLoader.get_resource_uid(path)
+		var cached: EntityTrait = ResourceLoader.load(path) as EntityTrait
+		cached.initial_field_names.erase(C_Motion as Script)
+		assert_same(ResourceLoader.load(path), cached)
+		assert_true(TOOL.refresh_resources(PackedStringArray([path]), cached).has("error"))
+		assert_false(cached.initial_field_names.has(C_Motion as Script))
+		var result: Dictionary = TOOL.refresh_resources(PackedStringArray([path]))
+		assert_false(result.has("error"))
+		assert_same(ResourceLoader.load(path), cached, "Scene references refresh in place")
+		var expected: PackedStringArray = ["max_speed"]
+		assert_eq(cached.initial_field_names[C_Motion as Script], expected)
+		assert_eq(FileAccess.get_md5(path), checksum)
+		assert_eq(ResourceLoader.get_resource_uid(path), uid)
+	var excluded: String = TOOL.AUTHORING_ROOT + "et_district_npc_npc_brain_state.tres"
+	assert_true(TOOL.refresh_resources(PackedStringArray([excluded])).has("error"))
+
+
 func test_refresh_replaces_stale_cache_without_changing_authored_files_or_uid() -> void:
 	var checksum: String = FileAccess.get_md5(PROFILE)
 	var uid: int = ResourceLoader.get_resource_uid(PROFILE)
@@ -56,7 +77,7 @@ func test_invalid_batch_rejects_before_replacing_any_cache_entry() -> void:
 		PackedStringArray([PROFILE, PROFILE]),
 		PackedStringArray([PROFILE, "res://project.godot"]),
 		PackedStringArray([PROFILE, PROFILE + "::Schedule"]),
-		PackedStringArray([PROFILE, "res://content/domains/npc/definitions/../bad.tres"]),
+		PackedStringArray([PROFILE, PROFILE.get_base_dir().path_join("../bad.tres")]),
 	]:
 		assert_true(TOOL.refresh_resources(paths).has("error"))
 		assert_same(ResourceLoader.load(PROFILE), stale)

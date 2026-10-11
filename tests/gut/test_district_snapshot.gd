@@ -162,6 +162,18 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	assert_eq(person.memories.size(), 1)
 
 	var replacement_id: StringName = _district.people.back().npc_id
+	var replacement_variation: Dictionary = (
+		SaveDataCodec.encode(_district.people.back().variation) as Dictionary
+	)
+	assert_eq(_district.people.back().variation.creation_day, 3)
+	assert_true(
+		NpcVariationRules.valid_variation(
+			_district.people.back().profile,
+			_district.people.back().variation,
+			cycle.clock.world_seed,
+			replacement_id,
+		),
+	)
 	state.path = "user://gut_district_night_retry.pvzh"
 	state.retry_remaining = 0.0
 	_night_step(0.2)
@@ -169,6 +181,7 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	assert_true(cycle.night_ready)
 	assert_eq(_district.people.size(), 13)
 	assert_eq(_district.people.back().npc_id, replacement_id)
+	assert_eq(SaveDataCodec.encode(_district.people.back().variation), replacement_variation)
 	assert_eq(person.memories.size(), 1)
 
 	var snapshot: Dictionary = AutosaveStore.read(state.path)
@@ -240,7 +253,7 @@ func test_missing_body_restore_publishes_saved_identity_and_health_before_consum
 			assert_true(actor.has_component(C_InteractionActionSet))
 			assert_eq(
 				(actor.get_component(C_Motion) as C_Motion).max_speed,
-				person.profile.move_speed,
+				person.profile.move_speed * person.variation.move_speed_multiplier,
 			)
 			publications.append(identity.npc_id),
 	)
@@ -250,6 +263,62 @@ func test_missing_body_restore_publishes_saved_identity_and_health_before_consum
 	assert_not_null(recreated)
 	assert_eq((recreated.get_component(C_Health) as C_Health).current, 37.0)
 	assert_eq((recreated.get_component(C_Hunger) as C_Hunger).value, 73.0)
+	assert_eq(
+		SaveDataCodec.encode(NpcPopulationQueries.person_for(npc_id).variation),
+		SaveDataCodec.encode(person.variation),
+	)
+#endregion
+
+
+#region Durable archetype variation
+## Reused native bodies retain every committed choice; restore never reselects an individual.
+func test_variation_restore_preserves_committed_choices_on_reused_body() -> void:
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var committed: Dictionary = SaveDataCodec.encode(person.variation) as Dictionary
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	person.variation.display_name = "Transient unsaved name"
+	person.variation.move_speed_multiplier = 3.0
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: NpcRecord = NpcPopulationQueries.person_for(person.npc_id)
+	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
+	assert_eq(SaveDataCodec.encode(restored.variation), committed)
+	assert_eq(restored.display_name, restored.variation.display_name)
+	assert_same(restored.profile, person.profile)
+
+
+## Malformed committed choices reject before replacing roster, body state or calendar.
+func test_invalid_variation_rejects_snapshot_before_live_mutation() -> void:
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var health: C_Health = body.get_component(C_Health) as C_Health
+	health.current = 61.0
+	for invalid: String in ["missing", "extra", "seed", "future", "unknown_trait", "name"]:
+		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+		for record: Dictionary in snapshot.entities:
+			for component: Dictionary in record.components:
+				if component.type != C_District.resource_path:
+					continue
+				var entries: Array = component.fields.people as Array
+				var fields: Dictionary = entries[0].fields.variation.fields as Dictionary
+				match invalid:
+					"missing":
+						fields.erase("display_name")
+					"extra":
+						fields["unowned_state"] = 1
+					"seed":
+						fields.seed += 1
+					"future":
+						fields.creation_day = 100
+					"unknown_trait":
+						fields.optional_trait_keys = [&"unknown/trait"]
+					"name":
+						fields.display_name = "Unknown authored name"
+		assert_false(WorldSnapshotService.restore(snapshot, _root), invalid)
+		assert_same(NpcPopulationQueries.person_for(person.npc_id), person, invalid)
+		assert_same(NpcPopulationQueries.body_for(person.npc_id), body, invalid)
+		assert_eq(health.current, 61.0, invalid)
+		assert_eq(DayPhaseQueries.current().day_index, 1, invalid)
 #endregion
 
 

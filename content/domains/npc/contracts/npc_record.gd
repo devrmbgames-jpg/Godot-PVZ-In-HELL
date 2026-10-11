@@ -2,6 +2,27 @@ extends Resource
 ## Личность и история фаз; здоровье и предметы остаются на физическом теле.
 class_name NpcRecord
 
+## Exact durable identity/variation aggregate; derived views are never serialized twice.
+const SAVE_FIELDS: Array[String] = [
+	"npc_id",
+	"profile",
+	"variation",
+	"recipient_key",
+	"home_id",
+	"placement",
+	"portal_id",
+	"exit_id",
+	"goal_id",
+	"planned_day",
+	"planned_phase",
+	"phase_complete",
+	"memories",
+	"death_day",
+	"activity_sequence",
+	"cadence_sample_tick",
+	"cadence_elapsed_ticks",
+]
+
 enum Placement {
 	STREET,
 	HOME,
@@ -11,10 +32,14 @@ enum Placement {
 
 ## ID личности на всю жизнь, независимо от заказов и дат визита.
 @export var npc_id: StringName = &""
-## Ссылка на авторский профиль личности.
-@export var profile: DEF_NpcProfile = null
-## Постоянное имя, включая имя новой личности при заселении.
-@export var display_name: String = ""
+## Immutable authored archetype; runtime never writes its shared tuning or trait pools.
+@export var profile: DEF_NpcArchetype = null
+## Committed per-person choices; creation/restore establish this before any live publication.
+@export var variation: NpcVariation = null
+## Read-only display view; the committed variation is the single persistent name owner.
+var display_name: String:
+	get:
+		return variation.display_name
 ## Получатель новых поставок по адресу; старые заказы не переназначаются.
 @export var recipient_key: StringName = &""
 ## Постоянный домашний адрес; пуст у приезжих.
@@ -45,4 +70,22 @@ enum Placement {
 @export var cadence_sample_tick: int = -1
 ## Retained active AI interval in microsecond ticks; S_NpcCadence owns accumulation/consumption.
 @export var cadence_elapsed_ticks: int = 0
+#endregion
+
+
+#region Resolved immutable capabilities
+## Finds mandatory or committed optional behavior without allocating a collection or rerolling.
+func rule_for(kind: DEF_NpcTrait.Kind) -> DEF_NpcTrait:
+	var mandatory: DEF_NpcTrait = profile.rule_for(kind)
+	if mandatory != null:
+		return mandatory
+	for option: DEF_NpcTraitOption in profile.optional_traits:
+		if option.rule.kind == kind and variation.optional_trait_keys.has(option.rule.key):
+			return option.rule
+	return null
+
+
+## Supplies the bounded scheduled behavior set; returned definitions remain immutable.
+func rules_for() -> Array[DEF_NpcTrait]:
+	return NpcVariationRules.traits_for(profile, variation)
 #endregion

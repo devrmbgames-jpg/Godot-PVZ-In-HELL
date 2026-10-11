@@ -26,6 +26,26 @@
   },
   "public_edges": [
     {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "NpcVariationRules",
+      "path": "content/domains/npc/rules/npc_variation_rules.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "valid_variation"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "valid_variation": "query"
+      },
+      "sources": [
+        "content/services/persistence/district_snapshot_rules.gd"
+      ],
+      "purpose": "Validate committed archetype choices before restore; no reroll or live writes."
+    },
+    {
       "source_owner": "challenges",
       "target_owner": "combat",
       "symbol": "C_Death",
@@ -3451,6 +3471,7 @@
       "symbol": "NpcRecord",
       "path": "content/domains/npc/contracts/npc_record.gd",
       "rights": [
+        "query",
         "read",
         "request",
         "subscribe"
@@ -3463,8 +3484,12 @@
         "content/services/npc/npc_home_delivery_service.gd",
         "content/services/npc/npc_service_role.gd"
       ],
-      "method_rights": {},
-      "public_instance_methods": []
+      "method_rights": {
+        "rule_for": "query"
+      },
+      "public_instance_methods": [
+        "rule_for"
+      ]
     },
     {
       "source_owner": "customers",
@@ -7189,8 +7214,12 @@
         "content/dialogue/customer_dialogue_context.gd",
         "content/dialogue/npc_street_dialogue_context.gd"
       ],
-      "method_rights": {},
-      "public_instance_methods": []
+      "method_rights": {
+        "rule_for": "query"
+      },
+      "public_instance_methods": [
+        "rule_for"
+      ]
     },
     {
       "source_owner": "global",

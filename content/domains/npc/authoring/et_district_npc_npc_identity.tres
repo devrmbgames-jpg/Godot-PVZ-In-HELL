@@ -1,9 +1,12 @@
-[gd_resource type="Resource" format=3]
+[gd_resource type="Resource" script_class="ET_NpcIdentity" format=3 uid="uid://cgor7x3ikmr71"]
 
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_3k2yl"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="2_yfqs4"]
 [ext_resource type="Script" uid="uid://dlwax2x6w3y5q" path="res://content/domains/npc/components/c_npc_identity.gd" id="5_yoo7p"]
 [ext_resource type="Script" uid="uid://ci5p5fttb3jl1" path="res://content/shared/components/c_persistent_identity.gd" id="6_mayef"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="7_t1rwp"]
 [ext_resource type="Script" uid="uid://bh1l24fdkshu6" path="res://content/domains/npc/authoring/et_npc_identity.gd" id="Identity"]
+
 [resource]
 script = ExtResource("Identity")
 trait_id = &"npc_identity"
@@ -11,5 +14,6 @@ required_components = Array[Script]([ExtResource("7_t1rwp")])
 required_root_class = &"RigidBody3D"
 initial_field_names = Dictionary[Script, PackedStringArray]({
 ExtResource("5_yoo7p"): PackedStringArray("npc_id"),
-ExtResource("6_mayef"): PackedStringArray("key")
+ExtResource("6_mayef"): PackedStringArray("key"),
+ExtResource("7_t1rwp"): PackedStringArray("max_speed")
 })

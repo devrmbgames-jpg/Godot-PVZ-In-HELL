@@ -102,7 +102,7 @@ func test_killing_witness_requires_visible_actor_and_victim() -> void:
 	var victim: E_DistrictNpc = _stage_person(4, Vector3(0.6, 0, -3))
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	assert_true(NpcPerceptionService.can_see(witness, attacker, _district.people[0].profile))
+	assert_true(NpcPerceptionService.can_see(witness, attacker, _district.people[0]))
 	victim.add_component(C_Death.new())
 	DistrictPopulationService.mark_dead(_district.people[4], victim, 1)
 

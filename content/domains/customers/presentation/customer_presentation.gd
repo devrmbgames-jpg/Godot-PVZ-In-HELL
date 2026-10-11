@@ -22,7 +22,7 @@ static func customer_name(visit: CustomerVisit) -> String:
 static func request_text(visit: CustomerVisit) -> String:
 	var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
 	if (
-		person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null
+		person != null and person.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null
 		and not visit.riddle_solved
 	):
 		return "%s · Номер узнаешь, когда ответишь на мою загадку." % customer_name(visit)
@@ -46,8 +46,8 @@ static func uses_quick_visit(visit: CustomerVisit) -> bool:
 		return (
 			visit.definition != null
 			and visit.definition.introduction == DEF_Customer.Introduction.ANNOUNCE_ORDER
-			and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) == null
-			and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) == null
+			and person.rule_for(DEF_NpcTrait.Kind.RIDDLE) == null
+			and person.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) == null
 		)
 	return uses_quick_order(visit.definition)
 

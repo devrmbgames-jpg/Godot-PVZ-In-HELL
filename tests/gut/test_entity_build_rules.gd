@@ -90,6 +90,7 @@ func test_factory_field_containers_are_isolated_between_builds() -> void:
 	var capability: EntityTrait = _trait(&"district", [])
 	capability.initial_field_names[C_District as Script] = PackedStringArray(["people"])
 	var people: Array[NpcRecord] = [NpcRecord.new()]
+	people[0].variation = NpcVariation.new()
 	people[0].npc_id = &"factory_person"
 	var context: EntitySpawnContext = _context()
 	context.initial_fields[C_District as Script] = { &"people": people }
@@ -197,8 +198,9 @@ func test_configured_nested_records_are_copied_and_definitions_remain_shared() -
 	var capability: ConfiguredTrait = ConfiguredTrait.new()
 	capability.trait_id = &"population"
 	var person: NpcRecord = NpcRecord.new()
+	person.variation = NpcVariation.new()
 	person.npc_id = &"configured/person"
-	person.profile = DEF_NpcProfile.new()
+	person.profile = DEF_NpcArchetype.new()
 	var people: Array[NpcRecord] = [person]
 	capability.fields[C_District as Script] = { &"people": people }
 	var template: Array[EntityTrait] = _template([capability])
@@ -340,7 +342,8 @@ func test_two_compiled_builds_isolate_nested_state_and_share_definitions() -> vo
 	var district: C_District = C_District.new()
 	district.definition = DEF_District.new()
 	var person: NpcRecord = NpcRecord.new()
-	person.profile = DEF_NpcProfile.new()
+	person.variation = NpcVariation.new()
+	person.profile = DEF_NpcArchetype.new()
 	person.npc_id = &"fixture/person"
 	district.people = [person]
 	var template: Array[EntityTrait] = _template([_trait(&"population", [district])])

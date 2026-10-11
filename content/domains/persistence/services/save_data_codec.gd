@@ -192,10 +192,12 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 ## заготовку.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
-	if script in [GameClock, NpcVariation]:
-		var exact_fields: Array[String] = (
-			GameClock.SAVE_FIELDS if script == GameClock else NpcVariation.SAVE_FIELDS
-		)
+	if script in [GameClock, NpcVariation, NpcRecord]:
+		var exact_fields: Array[String] = GameClock.SAVE_FIELDS
+		if script == NpcVariation:
+			exact_fields = NpcVariation.SAVE_FIELDS
+		elif script == NpcRecord:
+			exact_fields = NpcRecord.SAVE_FIELDS
 		if fields.size() != exact_fields.size():
 			return false
 		for required_field: String in exact_fields:

@@ -99,7 +99,12 @@ static func initialize() -> bool:
 
 	var fresh_roster: bool = district.people.is_empty()
 	var people: Array[NpcRecord] = (
-		NpcPopulationRules.initial_records(district.definition, district.next_person)
+		NpcPopulationRules.initial_records(
+			district.definition,
+			district.next_person,
+			GameTimeQueries.current().world_seed,
+			DayPhaseQueries.current().day_index,
+		)
 		if fresh_roster
 		else district.people
 	)
@@ -412,12 +417,12 @@ static func replace_vacancies(district: C_District, morning_day: int) -> void:
 static func _replace_person(district: C_District, deceased: NpcRecord, morning_day: int) -> bool:
 	var replacement: NpcRecord = NpcRecord.new()
 	replacement.npc_id = StringName("npc/%d" % district.next_person)
-	var pool: Array[DEF_NpcProfile] = []
+	var pool: Array[DEF_NpcArchetype] = []
 	var initiators: int = 0
 	for person: NpcRecord in district.people:
 		if person.death_day == 0 and person.profile.resident and person.profile.initiates_conflicts:
 			initiators += 1
-	for candidate: DEF_NpcProfile in district.definition.profiles:
+	for candidate: DEF_NpcArchetype in district.definition.profiles:
 		if (
 			candidate.resident == deceased.profile.resident
 			and candidate.merchant == deceased.profile.merchant and candidate.valid_rules()
@@ -430,7 +435,7 @@ static func _replace_person(district: C_District, deceased: NpcRecord, morning_d
 	replacement.profile = deceased.profile
 	if not pool.is_empty():
 		pool.sort_custom(
-			func(a: DEF_NpcProfile, b: DEF_NpcProfile) -> bool:
+			func(a: DEF_NpcArchetype, b: DEF_NpcArchetype) -> bool:
 				return String(a.key) < String(b.key),
 		)
 		var random: RandomNumberGenerator = GameTimeQueries.decision(
@@ -440,11 +445,12 @@ static func _replace_person(district: C_District, deceased: NpcRecord, morning_d
 		)
 		replacement.profile = pool[random.randi_range(0, pool.size() - 1)]
 
-	var names: PackedStringArray = district.definition.replacement_names
-	var display_name: String = replacement.profile.display_name
-	if not names.is_empty():
-		display_name = names[(district.next_person - 1) % names.size()]
-	replacement.display_name = "%s %d" % [display_name, district.next_person]
+	replacement.variation = NpcVariationRules.create(
+		replacement.profile,
+		GameTimeQueries.current().world_seed,
+		replacement.npc_id,
+		morning_day,
+	)
 	replacement.recipient_key = deceased.recipient_key
 	replacement.home_id = deceased.home_id
 	replacement.portal_id = deceased.portal_id

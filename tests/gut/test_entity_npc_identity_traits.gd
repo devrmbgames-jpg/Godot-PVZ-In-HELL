@@ -51,8 +51,8 @@ func _context(actor: Entity, person: NpcRecord, actor_id: String) -> EntitySpawn
 #region Initial roster and identity
 ## Pure allocation preserves existing Profile/home/portal/ID order without sharing mutable records.
 func test_initial_roster_is_detached_and_preserves_authored_order() -> void:
-	var first: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1)
-	var second: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1)
+	var first: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)
+	var second: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)
 	assert_eq(first.size(), _DISTRICT.profiles.size())
 	assert_eq(first[0].npc_id, &"npc/1")
 	assert_true(first[7].profile.merchant)
@@ -67,7 +67,7 @@ func test_initial_roster_is_detached_and_preserves_authored_order() -> void:
 ## Scene and factory identity/Profile inputs are complete when native entity_added publishes.
 func test_native_publication_has_identity_persistent_key_and_profile_speed_once() -> void:
 	var actor: E_DistrictNpc = _SCENE.instantiate() as E_DistrictNpc
-	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[0]
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[0]
 	var context: EntitySpawnContext = _context(actor, person, "fixture/npc")
 	var publications: Array[StringName] = []
 	_world.entity_added.connect(
@@ -79,7 +79,10 @@ func test_native_publication_has_identity_persistent_key_and_profile_speed_once(
 			var motion: C_Motion = published.get_component(C_Motion) as C_Motion
 			assert_eq(identity.npc_id, person.npc_id)
 			assert_eq(persistent.key, String(person.npc_id))
-			assert_eq(motion.max_speed, person.profile.move_speed)
+			assert_eq(
+				motion.max_speed,
+				person.profile.move_speed * person.variation.move_speed_multiplier,
+			)
 			assert_true(published.has_component(C_NpcAwareness))
 			assert_true(published.has_component(C_NpcDecision))
 			assert_true(published.has_component(C_NpcRoute))
@@ -99,6 +102,12 @@ func test_native_publication_has_identity_persistent_key_and_profile_speed_once(
 			assert_eq(actions.actions[2].slot, DEF_InteractionAction.Slot.INTERACT)
 			publications.append(identity.npc_id),
 	)
+	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+	for issue: EntityBuildPlan.Issue in plan.issues:
+		fail_test("%s: %s" % [issue.code, issue.message])
+	if not plan.valid():
+		actor.free()
+		return
 	assert_true(EntityCompositionService.try_register(context))
 	assert_eq(publications, [person.npc_id])
 	assert_eq(_world.entities.size(), 1)
@@ -122,7 +131,7 @@ func test_missing_roster_inputs_reject_before_registration() -> void:
 func test_repeated_roster_identity_rejects_the_whole_batch() -> void:
 	var first: E_DistrictNpc = autofree(_SCENE.instantiate()) as E_DistrictNpc
 	var second: E_DistrictNpc = autofree(_SCENE.instantiate()) as E_DistrictNpc
-	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[0]
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[0]
 	var contexts: Array[EntitySpawnContext] = [
 		_context(first, person, "fixture/first"),
 		_context(second, person, "fixture/second"),
@@ -138,9 +147,48 @@ func test_repeated_roster_identity_rejects_the_whole_batch() -> void:
 
 
 #region Authored immunity defaults
+## A selected optional capability reaches native composition without changing shared definitions.
+func test_committed_optional_fire_and_receiver_tags_compile_before_publication() -> void:
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[0]
+	var base: DEF_NpcArchetype = person.profile.duplicate(true) as DEF_NpcArchetype
+	base.rules.clear()
+	var fire: DEF_NpcTrait = DEF_NpcTrait.new()
+	fire.key = &"fixture/optional_fire"
+	fire.kind = DEF_NpcTrait.Kind.FIRE_AURA
+	var option: DEF_NpcTraitOption = DEF_NpcTraitOption.new()
+	option.rule = fire
+	base.optional_traits = [option]
+	base.maximum_optional_traits = 1
+	base.receiver_traits = C_ReceiverTraits.Trait.UNCLEAN | C_ReceiverTraits.Trait.HOLY_VULNERABLE
+	person.profile = base
+	person.variation = NpcVariationRules.create(base, 0, person.npc_id, 1)
+	person.variation.optional_trait_keys = [fire.key]
+	assert_true(NpcVariationRules.valid_variation(base, person.variation, 0, person.npc_id))
+	assert_same(person.rule_for(DEF_NpcTrait.Kind.FIRE_AURA), fire)
+	assert_eq(person.rules_for(), [fire])
+	var committed: Dictionary = SaveDataCodec.encode(person.variation) as Dictionary
+	var actor: E_DistrictNpc = autofree(_SCENE.instantiate()) as E_DistrictNpc
+	var plan: EntityBuildPlan = EntityCompositionService.build_plan(
+		_context(actor, person, "fixture/optional_fire"),
+	)
+	assert_true(plan.valid())
+	var resistance_recipe: Component = _recipe(plan.component_recipes, C_DamageResistance)
+	var resistance: C_DamageResistance = resistance_recipe as C_DamageResistance
+	var receiver_recipe: Component = _recipe(plan.component_recipes, C_ReceiverTraits)
+	var receiver: C_ReceiverTraits = receiver_recipe as C_ReceiverTraits
+	assert_eq(resistance.multipliers[DamageRequest.Type.FIRE], 0.0)
+	assert_eq(receiver.traits, base.receiver_traits)
+	assert_false(base.damage_multipliers.has(DamageRequest.Type.FIRE))
+	assert_true(base.rules.is_empty())
+	assert_eq(SaveDataCodec.encode(person.variation), committed)
+	person.variation.optional_trait_keys.clear()
+	assert_null(person.rule_for(DEF_NpcTrait.Kind.FIRE_AURA))
+	assert_true(person.rules_for().is_empty())
+
+
 ## Fire immunity is already present at publication and mutable resistance maps are instance-local.
 func test_fire_resistance_compiles_before_publication_and_isolated_per_instance() -> void:
-	var people: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1)
+	var people: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)
 	var person: NpcRecord = null
 	for candidate: NpcRecord in people:
 		if candidate.profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
@@ -176,7 +224,7 @@ func test_fire_resistance_compiles_before_publication_and_isolated_per_instance(
 #region Resident and merchant provider ownership
 ## Spawned merchant gets the same declared role Traits and a scene-owned furniture marker.
 func test_spawned_merchant_compiles_inventory_hunger_trade_and_authored_marker() -> void:
-	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[7]
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[7]
 	var actor: E_DistrictNpc = autofree(_SCENE.instantiate()) as E_DistrictNpc
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(
 		_context(actor, person, "fixture/spawned_merchant")
@@ -212,7 +260,7 @@ func test_placed_trader_variant_preserves_scene_profile_and_merges_actions_expli
 	) as C_InteractionActionSet
 	var pickup: Marker3D = actor.get_node("FurniturePickup") as Marker3D
 	var authored_pickup_pose: Transform3D = pickup.transform
-	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[7]
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[7]
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(
 		_context(actor, person, "fixture/placed_merchant")
 	)
@@ -239,7 +287,7 @@ func test_missing_scene_trader_provider_rejects_without_fallback() -> void:
 		if not recipe is C_Trader:
 			remaining.append(recipe)
 	actor.component_resources = remaining
-	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[7]
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[7]
 	assert_false(
 		EntityCompositionService.try_register(
 			_context(actor, person, "fixture/missing_scene_trader"),
@@ -255,7 +303,7 @@ func test_missing_scene_trader_provider_rejects_without_fallback() -> void:
 func test_authored_inventory_conflicts_with_resident_trait_provider() -> void:
 	var actor: E_DistrictNpc = autofree(_SCENE.instantiate()) as E_DistrictNpc
 	actor.component_resources.append(C_Inventory.new())
-	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[0]
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[0]
 	var context: EntitySpawnContext = _context(actor, person, "fixture/conflicting_inventory")
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	assert_false(plan.valid())
@@ -277,7 +325,7 @@ func test_authored_inventory_conflicts_with_resident_trait_provider() -> void:
 ## Supplemental role Definitions cannot silently override another compiled action ID.
 func test_duplicate_additional_role_action_is_rejected_before_registration() -> void:
 	var actor: E_DistrictNpc = _SCENE.instantiate() as E_DistrictNpc
-	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[0]
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[0]
 	var context: EntitySpawnContext = _context(actor, person, "duplicate-action")
 	var roles: EntityTrait = null
 	for candidate: EntityTrait in actor.traits:
@@ -296,7 +344,7 @@ func test_duplicate_additional_role_action_is_rejected_before_registration() -> 
 #region Initial navigation route capability
 ## Native publication exposes private route buffers before any scheduled decision can advance.
 func test_route_state_is_ready_at_publication_and_isolated_between_instances() -> void:
-	var people: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1)
+	var people: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)
 	var published: Array[C_NpcRoute] = []
 	_world.entity_added.connect(
 		func(actor: Entity) -> void:
@@ -331,7 +379,7 @@ func test_route_state_is_ready_at_publication_and_isolated_between_instances() -
 #region Route participation reconstruction
 ## Explicit reset clears route data without removing/reinstalling the initial capability.
 func test_brain_reset_retains_the_compiled_route_without_component_events() -> void:
-	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[0]
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1, 0)[0]
 	var actor: E_DistrictNpc = _SCENE.instantiate() as E_DistrictNpc
 	assert_true(
 		EntityCompositionService.try_register(_context(actor, person, "fixture/reset_route"))

@@ -36,12 +36,7 @@ func _observe(reference: WeakRef, captured: C_Hazard) -> void:
 		var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
 		if (
 			person == null or person.death_day != 0
-			or not NpcPerceptionService.can_see_point(
-				actor,
-				zone.global_position,
-				person.profile,
-				zone,
-			)
+			or not NpcPerceptionService.can_see_point(actor, zone.global_position, person, zone)
 		):
 			continue
 		NpcBloodService.observe(actor, person, zone, true)

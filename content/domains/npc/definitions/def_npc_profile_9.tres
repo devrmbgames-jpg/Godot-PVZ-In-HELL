@@ -1,13 +1,14 @@
-[gd_resource type="Resource" script_class="DEF_NpcProfile" format=3 uid="uid://bj5xcperb0ri0"]
+[gd_resource type="Resource" script_class="DEF_NpcArchetype" format=3 uid="uid://bj5xcperb0ri0"]
 
 [ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="1_tobvg"]
 [ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="2_uwcre"]
-[ext_resource type="Script" uid="uid://b5sdb0rpo1bdu" path="res://content/domains/npc/definitions/def_npc_profile.gd" id="Profile"]
+[ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="3_66gst"]
+[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="7_p2m8v"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_0.tres" id="Rule"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="RuleScript"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="Schedule"]
 
-[sub_resource type="Resource" id="Schedule"]
+[sub_resource type="Resource" id="Resource_83n6r"]
 script = ExtResource("Schedule")
 weekdays = PackedInt32Array(0)
 morning = 2
@@ -15,12 +16,18 @@ day = 0
 evening = 2
 
 [resource]
-script = ExtResource("Profile")
+script = ExtResource("7_p2m8v")
+name_variants = PackedStringArray("Попутчик", "Путник")
+dialogue_variants = PackedStringArray()
+maximum_optional_traits = 0
+presentation_cues = PackedStringArray()
 display_name = "Попутчик"
 resident = false
 recipient_key = &"visitor_1"
 personality = 3
-schedule = SubResource("Schedule")
+schedule = SubResource("Resource_83n6r")
 rules = Array[ExtResource("RuleScript")]([ExtResource("Rule")])
+interests = PackedStringArray()
+preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.4, 0.6, 0.9, 1)
 key = &"person_9"
