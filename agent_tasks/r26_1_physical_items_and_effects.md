@@ -88,7 +88,14 @@ Evidence below is under `.artifacts/godot_agent/`; all native runs use Godot 4.7
   Shared host startup2/2 `gut-20261011-184300129.stdout.log` and damage feedback8/8
   `gut-20261011-184336631.stdout.log` regressions PASS.
   Initial pickup fixture aimed an oblique ray that gameplay correctly reset; fixed to
-  the actual forward interaction ray. Artifact checkpoint review pending commit.
+  the actual forward interaction ray. Review target
+  `0665c83e12f451806b6e844fcc699774ee34d5a7`: RV-001 identified, 106 s.
+  RV-001/P1: reused artifact retained transient clock during restore. Accepted and fixed
+  at the existing reconstruction boundary with explicit passive restore permission.
+  GUT33/33 `gut-20261011-184758090.stdout.log` verifies existing/fresh artifact clocks
+  reset to zero, next 0.1 s stays incomplete, rejected snapshot preserves 0.9 s.
+  First run exposed unregistered new blood classes; native MCP class scan resolved it.
+  Fix checkpoint re-review pending commit; artifact milestone remains REVIEW_PENDING.
 - MCP native scene/resource saves used throughout. Loaded script hot reload error43:
   NOT_PASS; fresh-process parser/GUT passed. Do not equate staged authoring logs with clean editor QA.
 - NOT_RUN: full 15-item/receiver/blood acceptance and final catalog physical smoke.

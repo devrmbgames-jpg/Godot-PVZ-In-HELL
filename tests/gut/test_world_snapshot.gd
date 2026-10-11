@@ -167,6 +167,44 @@ func test_invalid_or_missing_karma_rejects_restore_before_mutation() -> void:
 #endregion
 
 
+#region Artifact reconstruction cadence
+## Existing and freshly recreated native artifacts wait a full interval after accepted restore.
+func test_artifact_restore_resets_transient_clock_only_after_accepted_snapshot() -> void:
+	var artifact: Entity = (
+		(
+			load("res://content/domains/combat/entities/holy_artifact.tscn") as PackedScene
+		).instantiate()
+		as Entity
+	)
+	EntityCompositionFixture.register(_world, artifact)
+	var state: C_ReceiverEffect = artifact.get_component(C_ReceiverEffect) as C_ReceiverEffect
+	state.tick_elapsed = 0.9
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	var invalid: Dictionary = snapshot.duplicate(true)
+	invalid.version = AutosaveStore.SCHEMA_VERSION - 1
+	assert_false(WorldSnapshotService.restore(invalid, _root))
+	assert_eq(state.tick_elapsed, 0.9)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_same(artifact.get_component(C_ReceiverEffect), state, "Existing component is reused")
+	assert_eq(state.tick_elapsed, 0.0)
+	var owner: S_ReceiverEffect = S_ReceiverEffect.new()
+	_world.add_system(owner)
+	_world.process(0.1)
+	assert_almost_eq(state.tick_elapsed, 0.1, 0.0001)
+	var artifact_id: String = artifact.id
+	_world.remove_entity(artifact)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: Entity = _world.get_entity_by_id(artifact_id)
+	assert_not_null(restored)
+	if restored != null:
+		state = restored.get_component(C_ReceiverEffect) as C_ReceiverEffect
+		assert_eq(state.tick_elapsed, 0.0)
+		_world.process(0.1)
+		assert_almost_eq(state.tick_elapsed, 0.1, 0.0001)
+#endregion
+
+
 #region Quest variant persistence and exactly-once payment
 func _offered_quest() -> RefusalQuestRecord:
 	var cycle: C_DayCycle = DayPhaseQueries.current()

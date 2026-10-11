@@ -18399,6 +18399,24 @@
         "entity_for": "read"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "combat",
+      "symbol": "C_ReceiverEffect",
+      "path": "content/domains/combat/components/c_receiver_effect.gd",
+      "rights": [
+        "query",
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "purpose": "Reset transient artifact cadence to a full interval after accepted reconstruction, including live reuse.",
+      "method_rights": {},
+      "public_instance_methods": []
     }
   ],
   "legacy_decomposition": []

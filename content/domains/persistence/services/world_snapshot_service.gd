@@ -15,8 +15,8 @@ static func _cargo_transaction_in_progress() -> bool:
 ## Снимает постоянные сущности, включая отключённых NPC; копия цикла всегда задаёт указанное утро.
 static func capture(root: Node, morning_day: int) -> Dictionary:
 	if (
-		not is_instance_valid(ECS.world) or root == null or morning_day < 1
-		or _cargo_transaction_in_progress()
+		not is_instance_valid(ECS.world) or root == null
+		or morning_day < 1 or _cargo_transaction_in_progress()
 	):
 		return { }
 
@@ -518,6 +518,11 @@ static func restore(snapshot: Dictionary, root: Node) -> bool:
 		var restored_motion: C_Motion = entity.get_component(C_Motion) as C_Motion
 		if restored_motion != null:
 			restored_motion.sprint_multiplier = 1.0
+		var receiver_effect: C_ReceiverEffect = (
+			entity.get_component(C_ReceiverEffect) as C_ReceiverEffect
+		)
+		if receiver_effect != null:
+			receiver_effect.tick_elapsed = 0.0
 
 		if entity not in fresh:
 			PersistentInteractionState.restore(record.get("completed_actions", []) as Array, entity)
