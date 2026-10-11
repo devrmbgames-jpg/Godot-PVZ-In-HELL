@@ -1,5 +1,5 @@
 # Godot Agent Tooling — editor ownership and independent CLI validation
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -59,20 +59,32 @@ Restored one executable body and recognized `-e` alongside `--editor` for offlin
 New bounded companion signal verification checks the Direct Traits Inspector in the live
 editor without saving scenes/settings or disturbing authored content; nine assertions PASS.
 
-Remaining local acceptance:
+Local acceptance is complete at reviewed source
+`14b2934de1068ca501a29b0150a90096dccc40d2`:
 
-1. Confirm `custom_pvz_editor_ownership` reports changing `unsaved_scenes` values.
-   Verify a disposable open
-   scene can be edited/saved through MCP with no external-change modal.
-2. With a verified
-   project editor PID, test guarded recovery using `-WhatIf` and a foreign
-   PID refusal; do not force-kill merely to test.
-3. Review the final commit range independently with project workflow;
-   triage findings and record actual checks. Owner handles subjective
-   editor/visual and gameplay validation.
+- PASS: live MCP in Godot 4.7.1, verified project editor PID 15008.
+  Created `res://tests/artifacts/editor_ownership_acceptance.tscn` through
+  native scene operations; added a Node3D and instantiated the authored
+  `npc_service_routes.tscn` subscene. Ownership changed from clean/0 to
+  unsaved/1 and back to clean/0 after native save. Saved clean scene reopened
+  from disk with both children intact; original main menu restored.
+- PASS: guarded recovery `-EditorPid 15008 -WhatIf` did not terminate the
+  editor, verified afterward. Supplying PowerShell PID 14688 refused with
+  `not a Godot executable`. No actual modal recovery or termination claimed.
+- PASS: independent final scoped source review from baseline above to
+  `14b2934de1068ca501a29b0150a90096dccc40d2`, no material findings;
+  ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN. Review took 48 seconds;
+  serial comparison/token telemetry NOT_MEASURED.
+- PASS: no new editor log entries after cursor 4 during live acceptance.
+  Existing cyclic-authoring fixture diagnostics are not a clean-log claim.
+
+Next: owner editor/modal and subjective acceptance in
+[the tooling QA checklist](../qa_tasks/godot_agent_tooling.md).
 
 ### Owner QA / blockers
 
-Local Windows/editor acceptance is pending. Unrelated Godot 4.7.1
+Automated and live MCP local acceptance passed; subjective editor/modal
+behavior remains OWNER_QA. No rendered playtest or forced recovery was run.
+Unrelated Godot 4.7.1
 shutdown-only retained-resource diagnostics remain under the existing
 known-engine-limitation policy; do not launch a leak investigation here.
