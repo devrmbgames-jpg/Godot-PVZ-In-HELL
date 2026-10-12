@@ -142,14 +142,18 @@ static func valid(
 		for memory: NpcMemory in person.memories:
 			if (
 				memory == null or memory.incident_id.is_empty()
-				or incidents.has(memory.incident_id) or memory.kind < NpcMemory.Kind.HELP
-				or memory.kind > NpcMemory.Kind.OFFENSE
+				or incidents.has(memory.incident_id)
+				or memory.kind < NpcMemory.Kind.HELP
+				or memory.kind > NpcMemory.Kind.STALKING_NOTICED
 				or memory.reaction < NpcMemory.Reaction.TALK
 				or memory.reaction > NpcMemory.Reaction.RESPECT or memory.day < 1 or memory.day
 				> morning_day
 			):
 				return false
 
+			if memory.kind == NpcMemory.Kind.STALKING_NOTICED \
+					and not NpcStalkingRules.valid_memory(person, memory):
+				return false
 			incidents[memory.incident_id] = true
 	if (
 		district.next_person <= sequence or locals > district.definition.resident_count

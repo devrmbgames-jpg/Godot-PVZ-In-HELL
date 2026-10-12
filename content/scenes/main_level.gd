@@ -36,6 +36,7 @@ func _ready() -> void:
 	clock_owner.group = "Clock"
 	world.add_system(clock_owner)
 	world.add_observer(O_DistrictLifecycle.new())
+	world.add_observer(O_NpcStalkingNotice.new())
 	world.add_observer(O_CustomerPlanning.new())
 	world.add_observer(O_CustomerOutcomes.new())
 	world.add_observer(O_CustomerGreeting.new())
@@ -67,6 +68,7 @@ func _ready() -> void:
 		world.add_system(customer_owner)
 	for owner_type: Script in ([
 		S_NpcGazeFreeze,
+		S_NpcStalkingWitness,
 		S_NpcCadence,
 		S_NpcFootsteps,
 		S_NpcPerception,

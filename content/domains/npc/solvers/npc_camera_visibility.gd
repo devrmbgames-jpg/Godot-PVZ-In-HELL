@@ -6,6 +6,23 @@ class_name NpcCameraVisibility
 #region Actual player camera visibility
 ## Samples authored body points using the current player-owned camera and actual physics space.
 static func observed(actor: E_DistrictNpc, player: Entity, rule: DEF_NpcGazeFreeze) -> bool:
+	return position_observed(
+		actor,
+		player,
+		actor.global_position,
+		rule.visibility_mask,
+		rule.sample_offsets,
+	)
+
+
+## Tests authored body samples at a proposed physical position, without moving the body.
+static func position_observed(
+	actor: E_DistrictNpc,
+	player: Entity,
+	position: Vector3,
+	visibility_mask: int,
+	sample_offsets: Array[Vector3],
+) -> bool:
 	var observer: Node3D = player as Node as Node3D
 	if observer == null or not actor.is_visible_in_tree():
 		return false
@@ -20,12 +37,12 @@ static func observed(actor: E_DistrictNpc, player: Entity, rule: DEF_NpcGazeFree
 		exclusions.append((child as CollisionObject3D).get_rid())
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
 	ray.from = camera.global_position
-	ray.collision_mask = rule.visibility_mask
+	ray.collision_mask = visibility_mask
 	ray.exclude = exclusions
 	ray.hit_from_inside = true
 	var space: PhysicsDirectSpaceState3D = actor.get_world_3d().direct_space_state
-	for offset: Vector3 in rule.sample_offsets:
-		var point: Vector3 = actor.to_global(offset)
+	for offset: Vector3 in sample_offsets:
+		var point: Vector3 = position + actor.global_basis * offset
 		if not camera.is_position_in_frustum(point):
 			continue
 		ray.to = point

@@ -11502,8 +11502,12 @@
       "sources": [
         "content/services/npc/npc_community_service.gd"
       ],
-      "method_rights": {"requires_world_body": "query"},
-      "public_instance_methods": ["requires_world_body"]
+      "method_rights": {
+        "requires_world_body": "query"
+      },
+      "public_instance_methods": [
+        "requires_world_body"
+      ]
     },
     {
       "source_owner": "npc",
@@ -18795,13 +18799,19 @@
       "target_owner": "npc",
       "symbol": "NpcDarknessQueries",
       "path": "content/domains/npc/services/npc_darkness_queries.gd",
-      "rights": ["query"],
-      "public_methods": ["combat_suppressed"],
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "combat_suppressed"
+      ],
       "sources": [
         "content/domains/combat/services/npc_attack_service.gd",
         "content/domains/combat/systems/s_npc_combat.gd"
       ],
-      "method_rights": {"combat_suppressed": "query"},
+      "method_rights": {
+        "combat_suppressed": "query"
+      },
       "public_instance_methods": [],
       "purpose": "Combat start/progression/effect boundaries read the sampled light constraint without sensing or changing NPC state."
     },
@@ -18810,10 +18820,18 @@
       "target_owner": "npc",
       "symbol": "NpcDarknessQueries",
       "path": "content/domains/npc/services/npc_darkness_queries.gd",
-      "rights": ["query"],
-      "public_methods": ["player_in_hunting_darkness"],
-      "sources": ["content/ui/npc_dialogue_context.gd"],
-      "method_rights": {"player_in_hunting_darkness": "query"},
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "player_in_hunting_darkness"
+      ],
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "method_rights": {
+        "player_in_hunting_darkness": "query"
+      },
       "public_instance_methods": [],
       "purpose": "Street/customer dialogue reads the shared perceived-light criterion without new sensing or gameplay mutation."
     },
@@ -18822,9 +18840,13 @@
       "target_owner": "npc",
       "symbol": "S_NpcNightPresentation",
       "path": "content/domains/npc/systems/s_npc_night_presentation.gd",
-      "rights": ["read"],
+      "rights": [
+        "read"
+      ],
       "public_methods": [],
-      "sources": ["content/scenes/main_level.gd"],
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
       "method_rights": {},
       "public_instance_methods": [],
       "purpose": "Explicit System composition only; committed NPC facts project onto native presentation nodes."
@@ -19282,6 +19304,96 @@
         "content/ui/npc_dialogue_context.gd"
       ],
       "purpose": "Dialogue adapter reads captured soul terms/receipts and submits one explicit stable confirmation; no gameplay authority in UI."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "packages",
+      "symbol": "TerminalQueries",
+      "path": "content/domains/packages/services/terminal_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "reading"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "reading": "query"
+      },
+      "sources": [
+        "content/domains/npc/services/npc_stalking_queries.gd"
+      ],
+      "purpose": "Read exact native terminal reader for authored stalking range; never access global UI."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "C_InteractionActionSet",
+      "path": "content/domains/interaction/components/c_interaction_action_set.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/packages/services/terminal_queries.gd"
+      ],
+      "purpose": "Narrow physical interaction-target query for native terminal panels."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "NpcStalkingRules",
+      "path": "content/domains/npc/rules/npc_stalking_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "valid_memory"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "valid_memory": "query"
+      },
+      "sources": [
+        "content/domains/persistence/rules/district_snapshot_rules.gd"
+      ],
+      "purpose": "Validate fixed neutral detection receipts before snapshot publication."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "O_NpcStalkingNotice",
+      "path": "content/domains/npc/observers/o_npc_stalking_notice.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Explicit native World composition; existing NPC cadence and memory owners retain authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "S_NpcStalkingWitness",
+      "path": "content/domains/npc/systems/s_npc_stalking_witness.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Explicit native World composition; existing NPC cadence and memory owners retain authority."
     }
   ],
   "legacy_decomposition": []

@@ -11,6 +11,7 @@
 [ext_resource type="BehaviorTree" uid="uid://5vw2iauto3l7" path="res://content/domains/npc/ai/trees/bt_npc_ranged_combat.tres" id="6_vhr1v"]
 [ext_resource type="BehaviorTree" uid="uid://bfxjaic6iwa2l" path="res://content/domains/npc/ai/trees/bt_npc_toy_pride.tres" id="6_x7uby"]
 [ext_resource type="Script" uid="uid://jdb3ggonys57" path="res://content/domains/npc/ai/tasks/bt_npc_stop.gd" id="7_stop"]
+[ext_resource type="BehaviorTree" uid="uid://ddypvhdob1fg4" path="res://content/domains/npc/ai/trees/bt_npc_stalking.tres" id="11_x3c37"]
 
 [sub_resource type="BTCondition" id="Inactive"]
 custom_name = "Не участвует / погиб"
@@ -81,6 +82,13 @@ subtree = ExtResource("4_a4eqj")
 blackboard_plan = SubResource("BlackboardPlan_5nmkp")
 custom_name = "Задача расписания"
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_sb3qi"]
+
+[sub_resource type="BTSubtree" id="BTSubtree_w06uo"]
+subtree = ExtResource("11_x3c37")
+blackboard_plan = SubResource("BlackboardPlan_sb3qi")
+custom_name = "Жуткий: скрытное приближение"
+
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_okqqo"]
 
 [sub_resource type="BTSubtree" id="BTSubtree_4i138"]
@@ -89,7 +97,7 @@ blackboard_plan = SubResource("BlackboardPlan_okqqo")
 custom_name = "Свободное занятие"
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_nseog"]
-children = [SubResource("Terminal"), SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_x7uby"), SubResource("BTSubtree_vhr1v"), SubResource("BTSubtree_sb3qi"), SubResource("BTSubtree_x3c37"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_4i138")]
+children = [SubResource("Terminal"), SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_x7uby"), SubResource("BTSubtree_vhr1v"), SubResource("BTSubtree_sb3qi"), SubResource("BTSubtree_x3c37"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_w06uo"), SubResource("BTSubtree_4i138")]
 
 [resource]
 description = "District NPC: emergency, combat/search, parcel service, phase schedule, free activity."

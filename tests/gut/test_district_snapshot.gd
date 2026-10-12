@@ -409,3 +409,56 @@ func _address_for(address_id: StringName) -> Entity:
 			return actor
 	return null
 #endregion
+
+
+#region Durable stalking recognition
+## Detection persists after physical body recreation; sensing is reconstructed as transient state.
+func test_stalking_detection_roundtrip_rejects_malformed_receipts_before_mutation() -> void:
+	var person: NpcRecord = _district.people[0]
+	var npc_id: StringName = person.npc_id
+	var memory: NpcMemory = NpcMemory.new()
+	memory.kind = NpcMemory.Kind.STALKING_NOTICED
+	memory.actor_id = &"player"
+	memory.victim_id = npc_id
+	memory.incident_id = NpcStalkingRules.incident(person, memory.actor_id)
+	person.memories.append(memory)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(npc_id)
+	var state: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
+	state.observed = true
+	state.exposure_seconds = 0.3
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	for invalid: String in ["actor", "victim", "incident", "reaction"]:
+		var malformed: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in malformed.entities:
+			for data: Dictionary in record.components:
+				if String(data.type) != C_District.resource_path:
+					continue
+				var entries: Array = data.fields.people as Array
+				var fields: Dictionary = entries[0].fields.memories[0].fields as Dictionary
+				match invalid:
+					"actor":
+						fields.actor_id = &""
+					"victim":
+						fields.victim_id = &"other"
+					"incident":
+						fields.incident_id = &"not/recognition"
+					"reaction":
+						fields.reaction = NpcMemory.Reaction.ATTACK
+		assert_false(WorldSnapshotService.restore(malformed, _root), invalid)
+		assert_same(NpcPopulationQueries.body_for(npc_id), body)
+		assert_true(NpcStalkingRules.noticed(NpcPopulationQueries.person_for(npc_id), &"player"))
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	body = NpcPopulationQueries.body_for(npc_id)
+	state = body.get_component(C_NpcStalking) as C_NpcStalking
+	assert_true(NpcStalkingRules.noticed(NpcPopulationQueries.person_for(npc_id), &"player"))
+	assert_false(state.observed)
+	assert_eq(state.exposure_seconds, 0.0)
+	_world.remove_entity(body)
+	await get_tree().process_frame
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	body = NpcPopulationQueries.body_for(npc_id)
+	assert_not_null(body)
+	assert_true(NpcStalkingRules.noticed(NpcPopulationQueries.person_for(npc_id), &"player"))
+	assert_false((body.get_component(C_NpcStalking) as C_NpcStalking).observed)
+#endregion

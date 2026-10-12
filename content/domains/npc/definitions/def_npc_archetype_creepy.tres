@@ -6,6 +6,7 @@
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_6.tres" id="4_ov03i"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_5.tres" id="5_qfwov"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="6_ypw0r"]
+[ext_resource type="Resource" uid="uid://bbto0xjsmgakn" path="res://content/domains/npc/definitions/def_npc_stalking.tres" id="7_42spw"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_gvsv2"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_vijej"]
 
@@ -31,6 +32,7 @@ receiver_traits = 11
 presentation_cues = PackedStringArray("npc/creepy/questions")
 display_name = "Жуткий"
 schedule = SubResource("Resource_3c7r3")
+rules = Array[ExtResource("6_ypw0r")]([ExtResource("7_42spw")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.35686275, 0.42352942, 0.4117647, 1)

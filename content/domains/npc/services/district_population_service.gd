@@ -55,6 +55,8 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	gaze.observed = false
 	var pride: C_NpcPride = body.get_component(C_NpcPride) as C_NpcPride
 	pride.exposed_toy_id = ""
+	var stalking: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
+	stalking.reset_transient_state()
 	body.sync_gaze_constraint()
 
 	var runner: BTPlayer = body.get_node_or_null("Brain") as BTPlayer
@@ -91,6 +93,8 @@ static func restore_participation() -> void:
 		gaze.rule = NpcGazeQueries.selected_rule(person.rules_for())
 		var pride: C_NpcPride = body.get_component(C_NpcPride) as C_NpcPride
 		pride.rule = NpcPrideRules.selected_rule(person.rules_for())
+		var stalking: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
+		stalking.rule = NpcStalkingRules.selected_rule(person.rules_for())
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 		NpcBrainService.bind_engine(body)

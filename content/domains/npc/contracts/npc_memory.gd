@@ -12,6 +12,7 @@ enum Kind {
 	JOKE,
 	SUBMISSION,
 	OFFENSE,
+	STALKING_NOTICED,
 }
 enum Reaction {
 	TALK,

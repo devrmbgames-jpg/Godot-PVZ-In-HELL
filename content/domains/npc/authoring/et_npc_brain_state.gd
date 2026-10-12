@@ -13,6 +13,7 @@ func _init() -> void:
 	initial_field_names[C_ReceiverTraits as Script] = PackedStringArray(["traits"])
 	initial_field_names[C_NpcGazeFreeze as Script] = PackedStringArray(["rule"])
 	initial_field_names[C_NpcPride as Script] = PackedStringArray(["rule"])
+	initial_field_names[C_NpcStalking as Script] = PackedStringArray(["rule"])
 
 
 ## Requires the same immutable roster Profile used by identity and movement construction.
@@ -40,6 +41,7 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 		C_NpcRoute.new(),
 		C_NpcGazeFreeze.new(),
 		C_NpcPride.new(),
+		C_NpcStalking.new(),
 		resistance,
 		receiver,
 	]

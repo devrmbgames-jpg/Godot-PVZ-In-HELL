@@ -829,5 +829,5 @@ func _on_orders_pressed() -> void:
 
 #region Native terminal visibility response
 func _record_panel_state(query: TerminalPanelStateQuery) -> void:
-	query.record_open(visible)
+	query.record_open(visible, _reader)
 #endregion

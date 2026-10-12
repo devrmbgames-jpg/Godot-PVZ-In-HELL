@@ -27,4 +27,11 @@ func is_panel_open() -> bool:
 	var query: TerminalPanelStateQuery = TerminalPanelStateQuery.new()
 	panel_state_requested.emit(query)
 	return query.is_open()
+
+
+## Reads whether the native panel currently belongs to this exact player.
+func is_open_for(actor: Entity) -> bool:
+	var query: TerminalPanelStateQuery = TerminalPanelStateQuery.new(actor)
+	panel_state_requested.emit(query)
+	return query.is_open_for_reader()
 #endregion

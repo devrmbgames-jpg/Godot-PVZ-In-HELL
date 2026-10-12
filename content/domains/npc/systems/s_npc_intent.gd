@@ -65,7 +65,7 @@ func _apply(
 			if relation.relation is R_NpcMoveTarget or relation.relation is R_NpcLookTarget:
 				cmd.add_custom(_remove_captured_relationship.bind(weakref(actor), relation))
 		return
-	if NpcGazeQueries.frozen(actor):
+	if NpcGazeQueries.frozen(actor) or NpcStalkingQueries.holds_approach(actor):
 		controller.direction_look = Vector3.ZERO
 		_apply_avoidance(actor, intent, controller, neighbours)
 		return
