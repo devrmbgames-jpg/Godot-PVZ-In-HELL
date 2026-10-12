@@ -14,8 +14,9 @@ func resave(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	if not EditorInterface.get_unsaved_scenes().is_empty():
 		return { "error": "Save unsaved scenes before canonical resource resave." }
 	var hashes: Dictionary = params.get("fingerprints", { })
+	var pools: Dictionary = params.get("dialogue_pools", { })
 	var inspected: Resource = EditorInterface.get_inspector().get_edited_object() as Resource
-	var prepared: Dictionary = preflight(hashes, inspected)
+	var prepared: Dictionary = preflight(hashes, inspected, pools)
 	if prepared.has("error"):
 		return prepared
 	var resources: Array[Resource] = prepared.resources
@@ -36,9 +37,32 @@ func resave(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 
 #region Complete preflight
 ## Loads a separate native graph; cached Inspector edits cannot enter the saved files.
-static func preflight(fingerprints: Dictionary, inspected: Resource = null) -> Dictionary:
+static func preflight(
+	fingerprints: Dictionary,
+	inspected: Resource = null,
+	dialogue_pools: Dictionary = { },
+) -> Dictionary:
 	if fingerprints.is_empty() or fingerprints.size() > MAXIMUM_PATHS:
 		return { "error": "Expected one to eight fingerprinted NPC definitions." }
+	for pool_path: Variant in dialogue_pools:
+		if not fingerprints.has(pool_path) or not dialogue_pools[pool_path] is Array:
+			return { "error": "Dialogue pools require a fingerprinted target and an array." }
+		var pool: Array = dialogue_pools[pool_path]
+		if pool.size() < 2 or pool.size() > 16:
+			return { "error": "Expected two to sixteen imported dialogue variants." }
+		var seen: Dictionary[String, bool] = { }
+		for variant: Variant in pool:
+			if not variant is String:
+				return { "error": "Dialogue variant paths must be strings." }
+			var variant_path: String = variant
+			if (
+				not variant_path.begins_with("res://") or not variant_path.ends_with(".dialogue")
+				or variant_path.contains("..") or variant_path.contains("::")
+				or variant_path.contains("\\") or seen.has(variant_path)
+				or not ResourceLoader.exists(variant_path)
+			):
+				return { "error": "Missing, repeated or unsupported dialogue variant." }
+			seen[variant_path] = true
 	var resources: Array[Resource] = []
 	for key: Variant in fingerprints:
 		if not key is String:
@@ -65,6 +89,8 @@ static func preflight(fingerprints: Dictionary, inspected: Resource = null) -> D
 			return { "error": "Restart the editor to refresh the exported script layout." }
 		if ResourceLoader.get_resource_uid(path) == ResourceUID.INVALID_ID:
 			return { "error": "Authored definition requires a stable UID.", "path": path }
+		if dialogue_pools.has(path):
+			resource.set("dialogue_variants", PackedStringArray(dialogue_pools[path]))
 		resources.append(resource)
 	return { "resources": resources }
 #endregion

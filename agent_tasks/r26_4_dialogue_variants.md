@@ -18,7 +18,7 @@ keeps priority and legacy actors keep their role fallback. Two neutral/lost vari
 distinct greetings, neighborhood and broad shopping topics plus all existing role entry cues.
 Pinned Dialogue Manager imports preserve service outcomes, personal delivery and response tags;
 session cleanup releases cached imported line cycles as well as the root resource.
-The native lost, shy and night archetypes expose both paths; **6/20** variants are implemented.
+The native lost, shy, night and angel archetypes expose both paths; **8/20** variants are implemented.
 Shy variants distinguish withdrawn fear from resentful avoidance and read the committed
 gaze warning through a query adapter shared by street/customer contexts. Reading dialogue
 does not advance exposure or alter memory. Both keep the registration guard and role imports.
@@ -33,13 +33,17 @@ review of `c64c5f782ee1874c0e987b34064b132cb6a7c5e5` passed without remaining fi
 Shy dialogue review BASE `5ff85b58ea107ec795d3dea4319be9dcf10306b1` ->
 TARGET `b1b9c38f8844723850a5223d6f4c4271f5ef7ef7` PASS, no findings (61 s).
 Reviewer ARCHITECTURE/STYLE PASS; runtime VALIDATION NOT_RUN.
-Remaining archetypes still need their required interactions, including authoritative soul/blood
+Angel variants use terse instructions versus religious signs. Both roles render every line through
+an authored native board, retaining existing response tags, modal capture and gameplay context.
+The sign cue is immutable profile data, with ordinary actors retaining speaker/text presentation.
+Native pool authoring preserves all tuning/UIDs and changes only the two variant paths.
+Angel checkpoint review is pending. Remaining archetypes need interactions, including soul/blood
 transactions; full task acceptance and live roster binding remain open.
 
 ### Next
 
 Continue required archetype behavior/interaction capabilities
-and author the remaining 14 variants, starting with the angel's board presentation.
+and author the remaining 12 variants after the angel checkpoint review.
 No per-open reroll or new UI authority is introduced.
 
 ### Validation
@@ -73,6 +77,13 @@ No per-open reroll or new UI authority is introduced.
   Review `b798cfb4817c6d4e05f01a52a66695a9e82b3c71` ->
   `66813497b64120f26626b1ca2694207dc7cad146` PASS, no findings (17 s);
   ARCHITECTURE/STYLE PASS, reviewer runtime VALIDATION NOT_RUN. Rendered/dialogue feel: NOT_RUN.
+- Angel PASS: parser011202524/7, native GUT011214901 **38/889**; service011255565 **15/272**.
+  Tests include actual native boards, ordinary presentation, focus/mouse capture/release,
+  imported role cues, committed codec, registration/denial idempotency and four private deliveries.
+  Companion pool preflight GUT010415794 4/28 PASS; native catalog diff is exactly one pool line.
+  Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
+  MCP authored scene/style/pool/imports; test diagnostics checked[] PASS. Global reload43 NOT_PASS;
+  clean restart and CLI independently verify current source. Review REVIEW_PENDING; owner visual QA NOT_RUN.
 
 ### Review triage
 

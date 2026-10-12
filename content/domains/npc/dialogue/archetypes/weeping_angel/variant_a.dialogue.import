@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://bgcx7nchg5ovv"
+path="res://.godot/imported/variant_a.dialogue-9ae7baf8cca8960cc13929b296d223c0.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_a.dialogue"
+dest_files=["res://.godot/imported/variant_a.dialogue-9ae7baf8cca8960cc13929b296d223c0.tres"]
+
+[params]
+
+defaults=true

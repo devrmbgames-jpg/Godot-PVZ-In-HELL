@@ -181,5 +181,8 @@ Example: `custom_manage(op="invoke", params={"tool_name":"pvz_npc_archetype_resa
 "<SHA-256 of the inspected file>"}}})`. Native `ResourceSaver` retains the loaded graph
 and root UID; this persistent save has no editor undo. Restart the editor after adding
 the tool. Plugin exit unregisters it; no resources or connections survive a call.
+Optional `dialogue_pools` maps fingerprinted target paths to two through sixteen unique
+imported `.dialogue` paths. Only this authored field changes on a separate native graph;
+all pools preflight before saving, retaining embedded schedules/traits and other tuning.
 An anonymous global script reload error43 does not refresh exported layouts: confirm
 the actual exported properties or restart before saving authored resources.

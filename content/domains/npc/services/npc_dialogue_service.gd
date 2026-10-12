@@ -24,6 +24,17 @@ static func gaze_warning_given(body: Entity) -> bool:
 		return false
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	return awareness != null and awareness.warned_rules.has(DEF_NpcTrait.Kind.GAZE_AVERSION)
+
+
+## Reads the authored sign cue from the persistent person; ordinary role actors have no sign mode.
+static func uses_signboard(body: Entity) -> bool:
+	if body == null:
+		return false
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = (
+		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	)
+	return person != null and person.profile.presentation_cues.has("npc/angel/sign_dialogue")
 #endregion
 
 

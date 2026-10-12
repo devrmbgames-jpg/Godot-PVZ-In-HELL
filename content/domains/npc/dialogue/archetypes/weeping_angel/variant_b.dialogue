@@ -1,0 +1,146 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+Табличка: ГЛАЗ — СВЕЧА. НЕ ГАСИ ЕЁ МЕЖДУ НАМИ.
+- Я читаю твой знак. [#hon] => warning
+- Зачем тебе эти таблички? => silence
+- Какую святыню ты ждёшь? => goods
+- Могу доставить её к твоей двери. [if ctx.can_offer_delivery() /] => delivery_request
+- Пусть свет останется с тобой. => END
+
+~ direct
+if ctx.has_registered_number()
+	Табличка: ПЕЧАТЬ №{{ctx.package_number_text()}}. ПОД НЕЮ — ОЖИДАЕМАЯ СВЯТЫНЯ.
+	- Проверю номер и целостность посылки. => END
+	- Что за святыню ты заказал? => goods
+	- Обсудим доставку к твоей двери. [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Табличка: ПЕЧАТЬ НЕ НАЗВАНА. СНАЧАЛА ПРОСКАНИРУЙТЕ ПОСТУПИВШИЕ ПОСЫЛКИ.
+=> END
+
+~ warning
+Табличка: ПОКА ТЫ ВИДИШЬ МЕНЯ, Я — ИЗОБРАЖЕНИЕ. НЕ СПЕШИ УЗНАВАТЬ, ЧТО ЗА РАМОЙ.
+- Я сохраню взгляд. [#hon] => assurance
+- Пусть наша сделка будет мирной. [#prs] => assurance
+- За рамой пусто. Я проверял. [#lie] => provocation
+- Я разобью эту раму. [#thr] => threat
+
+~ assurance
+Табличка: ПУСТЬ ТВОЙ ВЗГЛЯД НЕ ДРОГНЕТ. ПУСТЬ ТВОЁ СЛОВО НЕ СОТРЁТСЯ.
+=> END
+
+~ silence
+Табличка: ГОЛОС БУДИТ КАМЕНЬ. БУКВЫ ПОЗВОЛЯЮТ ЕМУ СПАТЬ.
+- Я не стану его будить. [#hon] => warning
+- На камне ведь и долговые расписки долговечнее. [#jok] => joke
+- Расскажи надписью о своей посылке. => goods
+- Я понял знак. => END
+
+~ goods
+Табличка: РЕЛИКВИЯ ДЛЯ ПУСТОГО АЛТАРЯ. СВЕТ ДЛЯ ВНУТРЕННЕЙ СТОРОНЫ ВЕК.
+- Какой след она оставит? => artifact
+- Я донесу её к твоей двери. [if ctx.can_offer_delivery() /] => delivery_request
+- Печать останется целой. [#hon] => assurance
+- Пускай прибудет в срок. => END
+
+~ artifact
+Табличка: СВЯТЫНЯ ПОМНИТ ИМЯ ТОГО, КТО ЕЁ КОСНУЛСЯ. ОБЫЧНЫЙ КЛИНОК ИМЁН НЕ ПОМНИТ.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> service/provocation
+else
+	=> street_flow/provocation
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke

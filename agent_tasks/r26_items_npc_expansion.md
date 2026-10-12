@@ -52,11 +52,12 @@ for starting combat and calming on light; combat gates preserve emergency moveme
 cancelling the attack. Focused checks, final smoke and lifecycle repair review pass.
 Night music/shadow presentation now has native authored views, lifecycle checks,
 independent checkpoint review and district smoke PASS. Live archetype binding remains open.
-R26.4 routes committed personal variants, with two neutral/lost, two shy and two night variants using
+R26.4 routes committed personal variants, with two neutral/lost, two shy, two night and two angel variants using
 imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
 role/idempotency regressions and checkpoint review pass. Lost checkpoint review
 and registration-guard repair passed. Night light views and actual role/delivery checks pass,
-with checkpoint review passed; the remaining 14 variants/interactions stay open.
+with checkpoint review passed. Angel native board/pool/role checks pass, with its review pending;
+the remaining 12 variants/interactions stay open.
 
 ### Next
 

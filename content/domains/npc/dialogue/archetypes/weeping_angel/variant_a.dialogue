@@ -1,0 +1,146 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+Табличка: НЕ ОТВОДИ ВЗГЛЯД, ПОКА МЫ ДОГОВАРИВАЕМСЯ.
+- Я прочитал предупреждение. [#hon] => warning
+- Почему ты пишешь, а не говоришь? => silence
+- Что тебе нужно доставить? => goods
+- Могу принести посылку домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Я смотрю. До встречи. => END
+
+~ direct
+if ctx.has_registered_number()
+	Табличка: ЗАКАЗ №{{ctx.package_number_text()}}. АРТЕФАКТ. ВЫДАТЬ ЦЕЛЫМ.
+	- Сейчас проверю вашу посылку. => END
+	- Что за артефакт? => goods
+	- Договоримся о доставке домой. [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Табличка: НОМЕРА НЕТ. СНАЧАЛА ПРОСКАНИРУЙТЕ ПОСТУПИВШИЕ ПОСЫЛКИ.
+=> END
+
+~ warning
+Табличка: ВЗГЛЯД УДЕРЖИВАЕТ МЕНЯ. ТИШИНА УДЕРЖИВАЕТ РАЗГОВОР.
+- Я буду внимателен. [#hon] => assurance
+- Давай спокойно закончим выдачу. [#prs] => assurance
+- Я уже отвернулся, и ничего не случилось. [#lie] => provocation
+- Попробуй подойти ещё ближе. [#thr] => threat
+
+~ assurance
+Табличка: ПРИНЯТО. ДЕРЖИ ДИСТАНЦИЮ. ДЕРЖИ СЛОВО.
+=> END
+
+~ silence
+Табличка: У СЛОВ ЕСТЬ ЭХО. У НАДПИСИ ЕСТЬ КРАЙ.
+- Тогда прочитаю внимательно. [#hon] => warning
+- Хорошая экономия на телефонных звонках. [#jok] => joke
+- Что будет в посылке? => goods
+- Всё понятно. => END
+
+~ goods
+Табличка: АРТЕФАКТЫ. СВЯТЫНИ. ПЕЧАТИ. НЕ ВСКРЫВАТЬ ДО ВЫДАЧИ.
+- Почему тебе нужны святыни? => artifact
+- Могу доставить их домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Сохраню упаковку. [#hon] => assurance
+- Достаточно. => END
+
+~ artifact
+Табличка: СВЯТОЕ ОСТАВЛЯЕТ СЛЕД. ОСТАЛЬНОЕ ОСТАВЛЯЕТ ШУМ.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> service/provocation
+else
+	=> street_flow/provocation
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke

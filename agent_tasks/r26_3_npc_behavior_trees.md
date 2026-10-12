@@ -131,23 +131,10 @@ Do not duplicate navigation/physics/damage logic in BT tasks. Actions issue sema
 ## Required reusable BT leaves/subtrees
 
 Create reusable, narrowly named tasks where applicable:
-- player-visible / player-looking-at-NPC condition;
-- light-above / light-below threshold condition;
-- health/player-wounded condition;
-- has combat target;
-- has perceived Blood Hazard;
-- move to authored target/zone;
-- flee to safe/light/dark destination;
-- watch player without entering gaze;
-- begin/end combat;
-- maintain distance / ranged preference;
-- approach behind player;
-- freeze movement;
-- wait/observe;
-- open parcel request;
-- enter/stay in hazard-interest zone;
-- cloud escape;
-- visibility/invisibility presentation request.
+- conditions: player visibility/gaze, light thresholds, wounded health, combat target, perceived Blood Hazard;
+- actions: authored movement, safe/light/dark flight, watching outside gaze, begin/end combat;
+- distance/ranged preference, behind-player approach, freeze, wait/observe, parcel opening;
+- hazard-zone entry/retention, cloud escape and visibility/invisibility presentation requests.
 
 Do not force all of these into one generic mega-task with an enum.
 
@@ -184,13 +171,11 @@ immediate parcel opening -> combat/service/schedule. Roll explosion once per com
 opening; fire immunity belongs to resistance data. Hazard Systems own aura progression.
 
 ### Потерянный
-Baseline tree: safety -> ordinary social/aggression combat -> service -> schedule -> social
--> idle. No special dispatcher.
+Baseline safety -> ordinary social/aggression combat -> service -> schedule -> social -> idle; no dispatcher.
 
 ### Цепной дьявол
 Ordinary safety/combat -> anger/escalation -> social soul offer -> service/schedule.
-Offers use authoritative dialogue state/cooldown, not repeated tick effects. Fire immunity
-and soul stat transactions remain outside BT.
+Offers use authoritative dialogue state/cooldown, not tick effects; fire immunity/soul transactions stay outside BT.
 
 ### Жуткий
 Before detection: terminal-busy/facing-away player -> approach behind; entering visibility

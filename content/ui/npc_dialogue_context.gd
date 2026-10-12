@@ -56,6 +56,11 @@ func player_in_hunting_darkness() -> bool:
 	return is_valid() and NpcDarknessQueries.player_in_hunting_darkness(_delivery_npc())
 
 
+## Written communication reads an authored cue; both role adapters retain their gameplay owners.
+func uses_signboard() -> bool:
+	return is_valid() and NpcDialogueService.uses_signboard(_delivery_npc())
+
+
 ## Применяет смысл ответа через конкретный игровой адаптер.
 func apply_response_tags(_tags: PackedStringArray) -> bool:
 	return false

@@ -16,7 +16,7 @@ key = &"schedule/weeping_angel"
 [resource]
 script = ExtResource("6_3v5iu")
 name_variants = PackedStringArray("Сераф", "Азариэль")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_b.dialogue")
 maximum_optional_traits = 0
 aggressive_speed_multiplier = 4.0
 item_category_weights = Dictionary[int, float]({

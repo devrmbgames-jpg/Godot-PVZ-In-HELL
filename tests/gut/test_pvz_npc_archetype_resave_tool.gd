@@ -43,3 +43,23 @@ func test_invalid_paths_and_wrong_native_types_refuse_without_writing() -> void:
 	]:
 		assert_true(TOOL.preflight(fingerprints).has("error"))
 	assert_eq(FileAccess.get_sha256(PROFILE), checksum)
+
+
+func test_dialogue_pool_preflights_imports_and_changes_only_the_prepared_graph() -> void:
+	var checksum: String = FileAccess.get_sha256(PROFILE)
+	var cached: DEF_NpcArchetype = load(PROFILE) as DEF_NpcArchetype
+	var original: PackedStringArray = cached.dialogue_variants.duplicate()
+	var variants: Array = [
+		"res://content/domains/npc/dialogue/archetypes/lost/variant_a.dialogue",
+		"res://content/domains/npc/dialogue/archetypes/lost/variant_b.dialogue",
+	]
+	var result: Dictionary = TOOL.preflight({ PROFILE: checksum }, null, { PROFILE: variants })
+	assert_false(result.has("error"))
+	assert_eq(result.resources[0].get("dialogue_variants"), PackedStringArray(variants))
+	assert_eq(cached.dialogue_variants, original)
+	assert_eq(FileAccess.get_sha256(PROFILE), checksum)
+	for pool: Array in [[], [variants[0]], [variants[0], variants[0]], [variants[0], PROFILE]]:
+		assert_true(TOOL.preflight({ PROFILE: checksum }, null, { PROFILE: pool }).has("error"))
+	assert_true(TOOL.preflight({ PROFILE: checksum }, null, { "other": variants }).has("error"))
+	assert_eq(cached.dialogue_variants, original)
+	assert_eq(FileAccess.get_sha256(PROFILE), checksum)

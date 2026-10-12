@@ -389,7 +389,10 @@ func _npc_archetype_resave_spec() -> McpCustomToolSpec:
 	spec.description = "Canonical native resave of up to eight fingerprinted NPC definitions."
 	spec.params_schema = {
 		"type": "object",
-		"properties": { "fingerprints": { "type": "object", "maxProperties": 8 } },
+		"properties": {
+			"fingerprints": { "type": "object", "maxProperties": 8 },
+			"dialogue_pools": { "type": "object", "maxProperties": 8 },
+		},
 		"required": ["fingerprints"],
 		"additionalProperties": false,
 	}

@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://mficvu0jxxie"]
+
+[ext_resource type="StyleBox" uid="uid://cklrpiifk0xmp" path="res://content/ui/style_npc_signboard.tres" id="1_q8g8a"]
+
+[node name="NpcSignboard" type="PanelContainer" unique_id=1428103581]
+visible = false
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("1_q8g8a")
+
+[node name="Rows" type="VBoxContainer" parent="." unique_id=1947502316]
+layout_mode = 2
+
+[node name="Caption" type="Label" parent="Rows" unique_id=1800582669]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.27, 0.16, 1)
+theme_override_font_sizes/font_size = 16
+text = "Надпись на табличке"
+horizontal_alignment = 1
+
+[node name="Writing" type="RichTextLabel" parent="Rows" unique_id=978391487]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+theme_override_colors/default_color = Color(0.16, 0.11, 0.07, 1)
+theme_override_font_sizes/normal_font_size = 22
+fit_content = true
+scroll_active = false

@@ -7116,7 +7116,8 @@
         "participant",
         "valid_participants",
         "dialogue_path_for",
-        "gaze_warning_given"
+        "gaze_warning_given",
+        "uses_signboard"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
@@ -7131,7 +7132,8 @@
         "can_start": "query",
         "valid_participants": "query",
         "dialogue_path_for": "query",
-        "gaze_warning_given": "query"
+        "gaze_warning_given": "query",
+        "uses_signboard": "query"
       },
       "public_instance_methods": []
     },
