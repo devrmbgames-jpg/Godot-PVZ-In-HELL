@@ -92,6 +92,32 @@ func _next_offer() -> SoulTradeRecord:
 
 
 #region Authoritative effects and durable replay
+func test_fatal_policy_boundaries_reject_invalid_offers_without_touching_ledger() -> void:
+	_prepare_trade()
+	var person: NpcRecord = _district.people[0]
+	person.profile = CHAIN.duplicate(true) as DEF_NpcArchetype
+	var shared: DEF_NpcSoulTrade = SoulTradeService.rule_for(_dealer)
+	var rule: DEF_NpcSoulTrade = shared.duplicate() as DEF_NpcSoulTrade
+	person.profile.rules[person.profile.rules.find(shared)] = rule
+	for invalid: int in [0, 101]:
+		rule.fatal_deal_count = invalid
+		assert_false(rule.valid_configuration())
+		assert_false(SoulTradeService.available(_player, _dealer))
+		assert_null(SoulTradeService.offer(_player, _dealer))
+		assert_true(_ledger.offers.is_empty())
+		assert_eq(_ledger.next_sequence, 1)
+	for valid: int in [1, 100]:
+		rule.fatal_deal_count = valid
+		assert_true(rule.valid_configuration())
+		var record: SoulTradeRecord = SoulTradeService.offer(_player, _dealer)
+		assert_not_null(record)
+		if record == null:
+			continue
+		assert_eq(record.fatal_deal_count, valid)
+		assert_true(SoulTradeRules.valid(_ledger))
+		assert_eq(_resolve(record, false).reason, &"declined")
+		GameTimeQueries.current().elapsed_ticks = record.next_offer_tick
+
 
 func test_accept_commits_stats_and_receipt_once_before_property_callbacks() -> void:
 	_prepare_trade()
