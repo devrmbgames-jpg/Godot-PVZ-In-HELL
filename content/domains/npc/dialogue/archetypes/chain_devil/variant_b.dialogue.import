@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://cbqcc6kuwc887"
+path="res://.godot/imported/variant_b.dialogue-d4b2d0b8a5aa97f683fdfb006ab2a795.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/chain_devil/variant_b.dialogue"
+dest_files=["res://.godot/imported/variant_b.dialogue-d4b2d0b8a5aa97f683fdfb006ab2a795.tres"]
+
+[params]
+
+defaults=true

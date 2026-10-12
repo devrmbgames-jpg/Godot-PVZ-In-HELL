@@ -22,7 +22,7 @@ key = &"schedule/chain_devil"
 [resource]
 script = ExtResource("8_efetb")
 name_variants = PackedStringArray("Азгар", "Мальх")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/chain_devil/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/chain_devil/variant_b.dialogue")
 optional_traits = Array[ExtResource("3_dbphk")]([SubResource("Resource_w54bj")])
 maximum_optional_traits = 1
 item_category_weights = Dictionary[int, float]({

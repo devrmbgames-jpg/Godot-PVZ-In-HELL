@@ -4,6 +4,8 @@ class_name NpcDialogueContext
 
 var _delivery_job_id: StringName = &""
 var _closed: bool = false
+var _soul_confirmation_key: StringName = &""
+var _soul_result: SoulTradeResult = null
 
 
 #region Интерфейс контекста
@@ -79,6 +81,110 @@ func apply_response_tags(_tags: PackedStringArray) -> bool:
 ## Проверяет, относится ли открытый UI к этому NPC, без создания новой живой связи.
 func speaks_with(_npc: Entity) -> bool:
 	return false
+#endregion
+
+
+#region Explicit soul confirmation adapter
+## Observes the current offer/deadline; one context never allocates a second confirmation.
+func can_offer_soul() -> bool:
+	if not is_valid():
+		return false
+	if not _soul_confirmation_key.is_empty():
+		var record: SoulTradeRecord = _soul_receipt()
+		if record == null or record.outcome != SoulTradeRecord.Outcome.OFFERED:
+			return false
+	return SoulTradeService.available(_delivery_player(), _delivery_npc())
+
+
+## Captures one durable offer only at an authored mutation cue; reopening retains its saved key.
+func request_soul_offer() -> bool:
+	if not can_offer_soul():
+		return false
+	if not _soul_confirmation_key.is_empty():
+		return true
+	var record: SoulTradeRecord = SoulTradeService.offer(_delivery_player(), _delivery_npc())
+	if record == null:
+		return false
+	_soul_confirmation_key = record.confirmation_key
+	return true
+
+
+## Presents only a still-valid unresolved offer, without changing its captured terms.
+func has_soul_offer() -> bool:
+	var record: SoulTradeRecord = _soul_receipt()
+	return (
+		is_valid() and record != null and record.outcome == SoulTradeRecord.Outcome.OFFERED
+		and SoulTradeService.available(_delivery_player(), _delivery_npc())
+	)
+
+
+## Requests acceptance through the authoritative ledger and permanent stat transaction.
+func accept_soul_offer() -> bool:
+	return _resolve_soul_offer(true)
+
+
+## Requests refusal of this exact offer; previously accepted deals remain counted.
+func decline_soul_offer() -> bool:
+	return _resolve_soul_offer(false)
+
+
+## Reads the actual committed result, including an idempotent replay.
+func soul_offer_accepted() -> bool:
+	return _soul_result != null and _soul_result.reason == &"accepted"
+
+
+## Reads an actual committed refusal; accepting a key cannot be undone by a later refusal.
+func soul_offer_declined() -> bool:
+	return _soul_result != null and _soul_result.reason == &"declined"
+
+
+## Reads the immutable captured Strength gain for the displayed confirmation.
+func soul_strength_gain() -> float:
+	var record: SoulTradeRecord = _soul_receipt()
+	return record.strength_gain if record != null else 0.0
+
+
+## Reads the immutable maximum-Health cost; it is never damage guessed by dialogue.
+func soul_health_cost() -> float:
+	var record: SoulTradeRecord = _soul_receipt()
+	return record.maximum_health_cost if record != null else 0.0
+
+
+## Reads the authored captured total acceptance threshold for forfeiting life.
+func soul_fatal_count() -> int:
+	var record: SoulTradeRecord = _soul_receipt()
+	return record.fatal_deal_count if record != null else 0
+
+
+## Reads the current authoritative total before confirmation without creating an offer.
+func soul_accepted_count() -> int:
+	if not is_valid():
+		if _soul_result != null and _soul_result.receipt != null:
+			return _soul_result.receipt.accepted_count
+		return 0
+	var ledger: C_SoulTrade = _delivery_player().get_component(C_SoulTrade) as C_SoulTrade
+	return ledger.accepted_count if ledger != null else 0
+
+
+func _resolve_soul_offer(accept: bool) -> bool:
+	if not is_valid() or _soul_confirmation_key.is_empty():
+		return false
+	var request: SoulTradeRequest = SoulTradeRequest.new()
+	request.actor = _delivery_player()
+	request.dealer = _delivery_npc()
+	request.confirmation_key = _soul_confirmation_key
+	request.accept = accept
+	_soul_result = SoulTradeService.submit(request)
+	return _soul_result.reason == (&"accepted" if accept else &"declined")
+
+
+func _soul_receipt() -> SoulTradeRecord:
+	if _soul_result != null and _soul_result.receipt != null:
+		return _soul_result.receipt
+	var actor: Entity = _delivery_player()
+	if _soul_confirmation_key.is_empty() or not EntityAvailability.contains(actor, ECS.world):
+		return null
+	return SoulTradeService.receipt_for(actor, _soul_confirmation_key)
 #endregion
 
 

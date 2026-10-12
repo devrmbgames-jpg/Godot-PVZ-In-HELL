@@ -19184,6 +19184,104 @@
         "content/domains/persistence/services/world_snapshot_service.gd"
       ],
       "purpose": "Explicit soul/stat transaction or prevalidated passive snapshot reconstruction; no scheduled behavior."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "C_SoulTrade",
+      "path": "content/domains/npc/components/c_soul_trade.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads captured soul terms/receipts and submits one explicit stable confirmation; no gameplay authority in UI."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "SoulTradeRecord",
+      "path": "content/domains/npc/contracts/soul_trade_record.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads captured soul terms/receipts and submits one explicit stable confirmation; no gameplay authority in UI."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "SoulTradeResult",
+      "path": "content/domains/npc/contracts/soul_trade_result.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads captured soul terms/receipts and submits one explicit stable confirmation; no gameplay authority in UI."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "SoulTradeRequest",
+      "path": "content/domains/npc/contracts/soul_trade_request.gd",
+      "rights": [
+        "read",
+        "configure",
+        "request"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "request"
+      },
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads captured soul terms/receipts and submits one explicit stable confirmation; no gameplay authority in UI."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "SoulTradeService",
+      "path": "content/domains/npc/services/soul_trade_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "available",
+        "offer",
+        "receipt_for",
+        "submit"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "available": "query",
+        "offer": "request",
+        "receipt_for": "query",
+        "submit": "request"
+      },
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads captured soul terms/receipts and submits one explicit stable confirmation; no gameplay authority in UI."
     }
   ],
   "legacy_decomposition": []

@@ -1,0 +1,165 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+{{ctx.speaker_name()}}: Курьер, сколько стоит твоя решимость? Я могу сделать её тяжелее — вместе с ценой.
+- Покажи предложение, но без скрытой подписи. [if ctx.can_offer_soul() /] => soul_offer
+- На что тебе оружие? => goods
+- Почему цепи не горят? => fire
+- За отдельную плату доставлю домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Сегодня собой не торгую. => END
+
+~ direct
+if ctx.has_registered_number()
+	Клиент: Вот мой №{{ctx.package_number_text()}}. Принеси оружие или артефакт, а не очередное оправдание.
+	- Честно проверю посылку. [#hon] => END
+	- Что в твоём списке желаний? => goods
+	- Можно сначала узнать цену силы? [if ctx.can_offer_soul() /] => soul_offer
+	- Лучше отвезу домой. [if ctx.can_offer_delivery() /] => home_request
+	- Выдать сегодня не могу. => deny_start
+else
+	Клиент: Номер ещё не зарегистрирован? Тогда не изображай сделку. Просканируй коробки.
+=> END
+
+~ goods
+Дьявол: Оружие, артефакты, иногда одежда. Обожаю вещи, которые меняют цену разговора ещё до первого слова.
+- А скидка за красивую улыбку? [#flr] => affection
+- Я тоже умею договариваться. [#prs] => contract
+- Твои цепи гремят громче аргументов. [#jok] => contract
+- Тебя самого можно упаковать? [#thr] => threat
+
+~ contract
+Дьявол: Пока ты шутишь, я слушаю. Когда начнёшь угрожать, ответ будет другим. Не путай вежливость с терпением.
+=> END
+
+~ fire
+Дьявол: Пламя мне не вредит. Отличная привилегия — но в договоре для тебя такой строки нет.
+=> END
+
+~ affection
+Дьявол: Лесть приятна, но не оплачивает обязательств. Не трогай цепи: границу я обозначил.
+=> END
+
+~ soul_offer
+$> ctx.request_soul_offer()
+if ctx.has_soul_offer()
+	Дьявол: Соблазн простой: +{{ctx.soul_strength_gain()}} к силе, минус {{ctx.soul_health_cost()}} от максимума здоровья. Уже принято: {{ctx.soul_accepted_count()}}. Принятие №{{ctx.soul_fatal_count()}} всего до смерти — твоя смерть. Отказ не стирает прошлых сделок. Уйдёшь без ответа — предложение останется без подписи.
+	- Знаю цену и риск. Принимаю сделку. => soul_accept
+	- Нет, это предложение отклоняю. => soul_decline
+	- Закрою разговор без решения. => END
+else
+	Дьявол: Сейчас подпись не беру. После ответа нужно подождать, а цену здоровья ты должен пережить.
+=> END
+
+~ soul_accept
+$> ctx.accept_soul_offer()
+if ctx.soul_offer_accepted()
+	Дьявол: Вот и договорились. Сила твоя, цена взыскана. Эту подпись дважды не посчитаю.
+else
+	Дьявол: Не вышло. Без действительного подтверждения не добавлю ни силы, ни платы.
+=> END
+
+~ soul_decline
+$> ctx.decline_soul_offer()
+if ctx.soul_offer_declined()
+	Дьявол: Отказ принят. Отдохни от соблазна. Старые подписи никуда не делись.
+else
+	Дьявол: Этот ответ ничего не переписал. Уже принятое отказом не отменить.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
+
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong
