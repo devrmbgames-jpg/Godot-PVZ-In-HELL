@@ -44,13 +44,17 @@ Vampire native wounded feeding and ordinary damage floor
 `3961328cdc94dc93d56fa7336373af993128e0da` passed GUT123/1830, parser16files,
 static gates and bounded headless week. Review BASE `80eb932ff485fd714e8b111ea370629de3ec3f2f`
 -> that TARGET PASS (91s, no findings), same reviewer; details in R26.3.
-Cloud/light, all-ten live binding, R26.5 and required owner QA remain unfinished.
+Typed local light comfort `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` now adjusts optional
+position without emergency flight; authored routes and native cooldown preserve higher priorities.
+GUT65/1851, parser7files, scoped gates and headless week PASS; independent review BASE
+`8608f987f2a2a8965597829be98c2d6a7a8e94df` -> that TARGET PASS (210s, no findings).
+Conditional cloud/visibility, all-ten live binding, R26.5 and required owner QA remain unfinished.
 Existing user worktree edits were preserved.
 
 ### Next
 
-Implement typed Vampire light discomfort and conditional cloud/visibility through native
-BT/physical intent and authored presentation; bind all ten archetypes after their mandatory
+Implement typed Vampire conditional cloud/visibility through native BT/physical intent
+and authored presentation; bind all ten archetypes after their mandatory
 capabilities and cross-archetype acceptance are ready. Full integration/owner QA remain open.
 
 ### Validation

@@ -8,77 +8,67 @@ Parent: [R26](r26_items_npc_expansion.md).
 ### Goal
 
 Implement the requested NPC behaviors as **real Behavior Trees** using LimboAI v1.8.1.
-
 Follow [limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md) and [game-ai](../.agents/skills/game-ai/SKILL.md).
-
 `bt_npc_action.gd` is a narrow lifecycle base; `NpcDecisionService` exposes explicit operations.
 Extend visible tree selection; a leaf dispatching an entire decision tree remains prohibited.
 
 ### Current
 
-Native feeding `3961328cdc94dc93d56fa7336373af993128e0da` adds typed reusable policy and
-visible wounded-player/floor branches to both native roots. Active service/conversation remain
-protected; ordinary melee and launched projectiles capture the generic common Health bound.
-No offense is fabricated, HP below the floor never rises, blood/safety preempt feeding.
-Review BASE `80eb932ff485fd714e8b111ea370629de3ec3f2f` -> that TARGET **PASS**:
-same terminal reviewer, no material findings, architecture/style PASS (91s), reviewer tests NOT_RUN.
-Underlying queued Health bound `792481e4630d1ca70156654d3a22a1a91fd94cef` and blood consent
-`a407762ef018ab70715119cd432c63071d62d928` passed independent reviews; exact evidence
-remains in Git. Schema18 restores durable current-HP consent receipts without live mutation.
-R26.4 has20/20 native dialogue variants. Vampire dialogues
-`14cadff37461590c14454aabfdbca1fb4af11e94` passed native GUT78/2014 and review (50s).
-Cloud/light, all-ten live roster binding, full integration and required owner QA remain open.
+Local light comfort `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` adds typed reusable
+CAPABILITY data excludes emergency light aversion; a visible idle branch preserves higher priorities. Selection uses close authored activity/cover,
+actual authored light, synchronized navigation and zero-damage routes; no teleport or offense.
+Native movement handles interruption/abandonment; companion MCP authors bounded native BTCooldown.
+Review BASE `8608f987f2a2a8965597829be98c2d6a7a8e94df` -> that TARGET **PASS**:
+same reviewer, no findings, architecture/style PASS (210s); reviewer validation NOT_RUN.
+Feeding `3961328cdc94dc93d56fa7336373af993128e0da` GUT123/1830;
+review BASE `80eb932ff485fd714e8b111ea370629de3ec3f2f` PASS, no findings (91s).
+Underlying Health bound `792481e4630d1ca70156654d3a22a1a91fd94cef`, blood consent
+`a407762ef018ab70715119cd432c63071d62d928` and20/20 native dialogue variants are reviewed.
+Schema18 restores durable consent receipts without live mutation. Unique previous evidence is in Git.
+Conditional cloud/visibility, all-ten live binding, full integration and required owner QA remain open.
 
 ### Validation
 
-Feeding GUT **123/1830 PASS**: Feeding19353022011/95; Blood19333610810/122;
-Stalking19335153814/111; GazeAversion19340695411/113; Ranged1939126179/85;
-GazeFreeze19334952415/110; Dark19340189714/125; Vampire19393593939/1069.
-Logs under `.artifacts/godot_agent/`, date20261012. Fresh parser193937821 **16files PASS**;
-formatter/lint, strict architecture/dependencies, project, agent/index, diff and persistence PASS.
-Bounded headless week PASS: `tests/artifacts/district-20261013-053937434.log`.
-Global hot reload43 NOT_PASS; fresh CLI parser/GUT independently verify code. Editor cursor4 clean.
+Light batch GUT **65/1851 PASS**: Light19572317112/159; companion1955221737/55;
+Feeding19512318011/95; Gaze19513660211/113; Dark19514688014/125; Catalog1957251164/944; Variation1957284336/360.
+`.artifacts/godot_agent/`, date20261012; parser195725553 **7files PASS**; formatting/static/index/persistence gates PASS.
+Bounded headless week PASS: `tests/artifacts/district-20261013-055747863.log`, 42 routes/0 failures.
+Global hot reload43 NOT_PASS; fresh CLI checks independently verify. Editor cursor4 has no new logs.
 Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention
 KNOWN_ENGINE_LIMITATION/DEFERRED. Full mandatory/live/rendered behavior and owner QA remain open.
 
 ### Next
 
-Implement typed light discomfort without unconditional flight and conditional cloud/visibility,
-then
-cross-archetype acceptance before live roster binding.
+Implement typed conditional cloud escape/visibility through native BT, existing physical intent
+and authored presentation, then cross-archetype acceptance before live roster binding.
 
 ### Review triage
 
 Canonical source/fix SHAs below are ancestors of current code HEAD
-`3961328cdc94dc93d56fa7336373af993128e0da`; feeding and preceding blood/UI/Health-bound
-reviews added no findings. RV-001..005 retain FIXED with their actual regression/re-review evidence.
+`38b7f2a59ef3c344b03aafaf11e7f7911d60622c`; light, feeding and preceding blood/UI/Health-bound
+reviews added no findings. Full-SHA ancestry audit: 26 unique checkpoints PASS. RV-001..005 retain FIXED with their actual regression/re-review evidence.
 
-RV-005 P1 `S_NpcStalkingWitness._sample` / uninterrupted camera exposure:
-source `3e88b56983a775cc78c225353251ff6a98d33b87`, reviewer R1, owner Main.
-Same NPC/player suspension retained0.4s then0.1s incorrectly committed durable detection.
-FIXED(`23fa3d44d9024d4becb59477921be1d288d7bee9`, gut18342894914/111).
-Actual HOME/STREET regression baseline183345914 FAIL13/14 reproduces unwanted memory;
-repair resets transient sensing before native runner lookup, preserves durable memory.
-Parser1834543174/4 PASS; independent targeted re-review ARCHITECTURE/STYLE PASS, no findings.
+RV-005 P1 continuous camera exposure, source `3e88b56983a775cc78c225353251ff6a98d33b87`, R1/Main:
+FIXED `23fa3d44d9024d4becb59477921be1d288d7bee9`, GUT18342894914/111, parser1834543174/4.
+HOME/STREET baseline183345914 FAIL13/14: suspension retained0.4s then0.1s and committed detection.
+Repair resets transient sensing before runner lookup, preserving memory; targeted review PASS.
 
-RV-004 P2 fatal threshold101 created an invalid ledger at `3a18bbc5275463d05328744e767e923cf8242d7b`.
-FIXED(`4f956de8db9a62aa8bd13df53c150025798aa1d0`, Soul053521718 16/186, parser053544530/2).
+RV-004 P2 fatal threshold101, source `3a18bbc5275463d05328744e767e923cf8242d7b`:
+FIXED `4f956de8db9a62aa8bd13df53c150025798aa1d0`, Soul05352171816/186, parser053544530/2.
 Boundaries0/101 preserve ledger;1/100 produce valid offers. Targeted review PASS.
 
-RV-001 P1 native hunt publication/update lifetime:
-FIXED(`b798cfb4817c6d4e05f01a52a66695a9e82b3c71`, hunt001101329 14/125).
-Source `a963f56e83f29810238739751780e95041847078`; retirement/reset/dormant
-regressions and targeted immutable review PASS. Original evidence remains in Git.
+RV-001 P1 hunt publication/update lifetime, source `a963f56e83f29810238739751780e95041847078`:
+FIXED `b798cfb4817c6d4e05f01a52a66695a9e82b3c71`, hunt00110132914/125.
+Retirement/reset/dormant regressions and targeted immutable review PASS; original evidence in Git.
 
-RV-002 P1 cached native trait preflight:
-FIXED(`510a074b4161f65a67d93fb46d4a5f61a2b62b56`, preflight021037606 7/56).
-Source `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`; detached disk validation
-and targeted review PASS. Original live cache reproduction remains in Git.
+RV-002 P1 cached native trait preflight, source `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`:
+FIXED `510a074b4161f65a67d93fb46d4a5f61a2b62b56`, preflight0210376067/56.
+Detached disk validation and targeted review PASS; original live-cache reproduction in Git.
 
-RV-003 P1 ? `S_NpcTraits._advance_traits` continued after synchronous aura publication.
-FIXED(`2fbd959480f0c2ff5f028d7ba012651634ea9fe8`, fire041956067 11/77).
-Source `0daa93c2898a19b28f5c827a4e81b5436b67e9c8`; baseline041905500 reproduced freed-body access and writes after dormancy/reset through actual System query/CommandBuffer.
-Repair rejects changed world, receiver availability/enabled/death, Component identities and participation generation before later trait rules/blood reads; ordinary live continuation remains covered. Targeted immutable-SHA review PASS.
+RV-003 P1 post-aura publication continuation, source `0daa93c2898a19b28f5c827a4e81b5436b67e9c8`:
+FIXED `2fbd959480f0c2ff5f028d7ba012651634ea9fe8`, fire04195606711/77.
+Baseline041905500 reproduced freed-body access/writes after dormancy/reset via real System/CommandBuffer.
+Repair revalidates world, participation and Component identity; live continuation and targeted review PASS.
 
 ### Owner QA / blockers
 

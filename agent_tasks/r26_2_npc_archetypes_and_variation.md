@@ -30,7 +30,11 @@ Vampire now has reusable typed wounded feeding/floor data and native BT:
 `3961328cdc94dc93d56fa7336373af993128e0da`, reviewed against
 `80eb932ff485fd714e8b111ea370629de3ec3f2f` PASS (91s, no findings).
 Native GUT123/1830, parser16files, scoped static gates and headless week PASS in R26.3.
-Full cloud/light/presentation/mandatory behavior acceptance and all-ten live binding remain open.
+Reusable typed local light comfort `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` excludes legacy
+emergency light aversion while preserving higher obligations/conflicts. Review against
+`8608f987f2a2a8965597829be98c2d6a7a8e94df` PASS (210s, no findings); GUT65/1851,
+parser7files/scoped gates/headless week PASS in R26.3. Cloud/visibility/presentation/mandatory
+acceptance and all-ten live binding remain open.
 
 ### Validation
 
