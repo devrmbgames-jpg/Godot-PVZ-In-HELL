@@ -44,6 +44,7 @@ HazardSpawnService.submit(request)
 высоты над корнем NPC; реальные физические перекрытия позволяют уйти от огня, поднявшись выше
 пола. Риск маршрута, непосредственная опасность и блокировка сна учитывают ограничение по
 высоте; прежняя оценка сфер сохранена. Fire immunity проходит через общий resistance owner.
+Fire parcel ignition uses `def_npc_opening_fire_blast.tres` (FIRE damage, radius 3 m, lifetime 0.75 s). Customers commits one roll from a real eligible physical content fact; generic Explosion/HP/impulse owners execute it. See [Fire receiver opening](customers.md#fire-receiver-opening).
 
 Урон всегда имеет `source = hazard Entity`; живой `instigator` и стабильные идентификаторы передаются отдельно. `C_NoDamage` инициатора копируется на эффект при создании и продолжает блокировать HP после удаления инициатора. Он не отменяет физический импульс — это действующий контракт запрета исходящего урона. Цепные реакции проходят через обычный damage/depletion и отдельный one-shot каждого следующего инициатора.
 

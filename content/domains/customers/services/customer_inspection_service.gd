@@ -13,7 +13,8 @@ static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity
 		or customer.has_component(C_Death) or not EntityAvailability.contains(parcel, ECS.world)
 	):
 		return false
-	if not visit.definition.private_inspection and _pride_rule(customer) == null:
+	var immediate: bool = CustomerFireOpeningService.opens_at_handoff(customer, visit)
+	if not immediate and not visit.definition.private_inspection and _pride_rule(customer) == null:
 		return false
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -42,7 +43,9 @@ static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity
 			break
 
 	var home_door: Entity = HomeMeetingQueries.door_for(customer)
-	if home_door != null:
+	if immediate:
+		booth = slot
+	elif home_door != null:
 		booth = home_door
 	if booth == null:
 		return false
@@ -67,6 +70,12 @@ static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity
 	customer.add_relationship(Relationship.new(R_InspectingAt.new(), booth))
 	agent.inspection_open_attempted = false
 	agent.inspection_force_refusal = false
+	if immediate:
+		_transition(agent, C_CustomerAgent.Phase.INSPECTING)
+		NpcIntentService.stop(customer)
+		customer.show_message("Открою сейчас. Осторожно, может вспыхнуть!")
+		inspect_contents(customer, visit)
+		return true
 	if home_door != null:
 		_transition(agent, C_CustomerAgent.Phase.INSPECTING)
 		NpcIntentService.stop(customer)
@@ -100,13 +109,7 @@ static func bind_contents(package: Entity, contents: Array[Entity]) -> void:
 #region Исполнение и завершение осмотра
 ## Возвращает стабильный бросок 0–1 для выбора и номера прихода; повтор не меняет исход.
 static func roll(visit: CustomerVisit, choice: String) -> float:
-	var random: RandomNumberGenerator = GameTimeQueries.decision(
-		String(visit.visit_id),
-		maxi(1, visit.last_visit_day),
-		"customer/inspection/" + choice,
-		visit.visit_count,
-	)
-	return random.randf()
+	return CustomerInspectionRules.roll(visit, choice)
 
 
 ## Освобождает крепления и временные связи; принятое содержимое удаляется из мира.
@@ -143,11 +146,22 @@ static func inspect_contents(customer: E_NpcCharacter, visit: CustomerVisit) -> 
 	if agent.inspection_open_attempted:
 		return
 	agent.inspection_open_attempted = true
+	var immediate: bool = false
+	for binding: Relationship in customer.relationships:
+		if (
+			binding.relation is R_InspectingAt
+			and binding.target == customer.get_node("InspectionParcelSlot")
+		):
+			immediate = true
+			break
 	var pride: DEF_NpcStrengthPride = _pride_rule(customer)
 	var probability: float = (
-		pride.private_unpack_probability
-		if pride != null
-		else visit.definition.inspection_unpack_probability
+		1.0 if immediate
+		else (
+			pride.private_unpack_probability
+			if pride != null
+			else visit.definition.inspection_unpack_probability
+		)
 	)
 	if roll(visit, "unpack") < probability:
 		PackageOpening.request_open(customer, CustomerInspectionQueries.parcel_for(customer))

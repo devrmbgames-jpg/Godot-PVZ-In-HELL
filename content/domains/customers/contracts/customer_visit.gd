@@ -117,6 +117,10 @@ enum Feedback {
 @export var package_damaged: bool = false
 ## Зафиксированное вскрытие при получении, сохраняемое после удаления коробки.
 @export var package_opened: bool = false
+## The fire receiver committed its one ignition roll for this order's physical opening.
+@export var fire_opening_decided: bool = false
+## Committed ignition outcome, retained across repeat visits, brain reset and save/load.
+@export var fire_opening_explosion: bool = false
 ## Текущее физическое появление назначено получателю.
 @export var started: bool = false
 ## Текущее появление завершено; нерешённый заказ может иметь повторный визит.

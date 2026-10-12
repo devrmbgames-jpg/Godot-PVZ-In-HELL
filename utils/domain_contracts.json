@@ -11502,8 +11502,8 @@
       "sources": [
         "content/services/npc/npc_community_service.gd"
       ],
-      "method_rights": {},
-      "public_instance_methods": []
+      "method_rights": {"requires_world_body": "query"},
+      "public_instance_methods": ["requires_world_body"]
     },
     {
       "source_owner": "npc",
@@ -18962,6 +18962,76 @@
       "method_rights": {},
       "public_instance_methods": [],
       "purpose": "Explicit GamePlay System composition before NPC cadence."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "hazards",
+      "symbol": "HazardSpawnService",
+      "path": "content/domains/hazards/services/hazard_spawn_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "submit"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "submit": "request"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_fire_opening_service.gd"
+      ],
+      "purpose": "Customer heat ignition submits one committed opening blast through the generic Hazard factory."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "hazards",
+      "symbol": "HazardSpawnRequest",
+      "path": "content/domains/hazards/contracts/hazard_spawn_request.gd",
+      "rights": [
+        "read",
+        "request",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_fire_opening_service.gd"
+      ],
+      "purpose": "The inspection owner captures a one-shot physical opening effect intent and attribution."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "packages",
+      "symbol": "C_PackageContents",
+      "path": "content/domains/packages/components/c_package_contents.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_fire_opening_service.gd"
+      ],
+      "purpose": "Customer ignition reads the committed release guard; it never selects or materializes package contents."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "DEF_NpcFireAura",
+      "path": "content/domains/npc/definitions/def_npc_fire_aura.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_fire_opening_service.gd"
+      ],
+      "purpose": "Customer inspection reads immutable fire opening probability, blast profile and physical reagent eligibility."
     }
   ],
   "legacy_decomposition": []

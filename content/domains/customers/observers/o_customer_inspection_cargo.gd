@@ -23,6 +23,10 @@ func each(_event: Variant, source: Entity, payload: Variant = null) -> void:
 	for binding: Relationship in fact.source_bindings:
 		if binding.relation is R_InspectionCargo and binding in source.relationships:
 			if EntityAvailability.contains(binding.target, _world):
+				var customer_reference: WeakRef = weakref(binding.target)
 				CustomerInspectionService.bind_contents(source, [item])
+				CustomerFireOpeningService.ignite_contents(
+					customer_reference.get_ref() as E_NpcCharacter, source, item, fact.actor_id,
+				)
 			return
 #endregion

@@ -53,3 +53,11 @@ A finished NPC appearance is not necessarily a resolved package case. For regist
 ### Explicit postponement
 
 The persuasion branch "Приходите завтра" is an explicit service postponement, not PLAYER_DENIED. It stores a committed follow-up for exactly the next day, suppresses complaint RNG for that departing appearance, and reactivates the same registered package case on the next Morning. Random follow-up logic remains available for unresolved cases that did not receive an explicit promise.
+
+## Fire receiver opening
+
+The typed `DEF_NpcFireAura` supplies a default 0.8 probability of inspecting a received parcel immediately at handoff. `CustomerInspectionService` attaches the real parcel to the NPC's authored `InspectionParcelSlot`, reserves that slot through `R_InspectingAt` and enters the existing `INSPECTING` phase. It requests real `PackageOpening` once; the ordinary authored service tree owns later inspection/return/completion. A failed immediate choice preserves ordinary delivery or the visit's existing private-booth policy. Brute privacy keeps its own authored rule.
+
+`PackageContentPlaced.actor_id` retains the actual opening initiator from the durable pending-loot record. `O_CustomerInspectionCargo` first binds the placed physical item through the still-current reservation, then invokes the explicit fire ignition operation. The operation requires the matching receiver/opener, current order/package, committed opening/release and an eligible physical `C_InventoryItem` definition. The authored list contains fire flask/barrel; unrelated acid, blood and toys cannot trigger it. No closed parcel reveals or materializes its selected item through this policy.
+
+`CustomerVisit.fire_opening_decided` and `fire_opening_explosion` commit the default 0.3 roll before any factory publication. Both outcomes survive codec/save, repeat visits and brain reset; multiple relevant contents and replay cannot reroll or spawn another blast. The request uses a stable package key and receiver attribution, an authored FIRE blast profile and the ordinary Hazard factory/Explosion/damage owners. Fire resistance applies through the existing health owner; outgoing-damage prohibitions preserve their normal Hazard semantics.

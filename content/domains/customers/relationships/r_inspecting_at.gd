@@ -1,3 +1,3 @@
 extends Component
-## Получатель → место частного осмотра: зарезервированная кабинка или дверь домашней встречи.
+## Receiver → inspection location: reserved booth, home door or owned slot at immediate handoff.
 class_name R_InspectingAt

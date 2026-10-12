@@ -9,13 +9,16 @@ const EVENT: StringName = &"package_content_placed"
 var item_reference: WeakRef
 ## Captured native item identity, rejecting a recycled endpoint.
 var item_id: String
+## Stable initiator captured by the opening and retained by the pending physical loot record.
+var actor_id: String
 ## Borrowed binding identities at placement; no role state is copied or written here.
 var source_bindings: Array[Relationship] = []
 
 
 #region Committed fact construction
 ## Captures the committed item and the source's current native relationship identities.
-func _init(item: Entity, source: Entity) -> void:
+func _init(item: Entity, source: Entity, captured_actor_id: String = "") -> void:
+	actor_id = captured_actor_id
 	item_reference = weakref(item)
 	item_id = item.id
 	source_bindings.assign(source.relationships)

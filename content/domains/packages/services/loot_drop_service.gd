@@ -219,7 +219,7 @@ static func _finish_context(record: PendingLootDrop, item: Entity, source: Entit
 		ECS.world.emit_event(
 			PackageContentPlaced.EVENT,
 			source,
-			PackageContentPlaced.new(item, source),
+			PackageContentPlaced.new(item, source, record.actor_id),
 		)
 
 	if not record.primary or record.package_id.is_empty():
