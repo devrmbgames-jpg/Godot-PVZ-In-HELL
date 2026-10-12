@@ -24,24 +24,23 @@ Brute typed pride uses actual player-camera/solid visibility and NPC recognition
 Native toy/catalog and private booth opening retain physical, inspection, order, memory and save authorities. Brain recipes and both authored initial-field policies restore immutable pride and clear transient exposure. Both roots preserve safety/light/blood before toy/combat/service.
 Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation checks and immutable-SHA review PASS. Both strength/private-order dialogue variants `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed native checks/review; details in R26.4.
 
-Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; generic Hazard owners retain follow, overlap damage and teardown. Route and sleep risk clip floor height. Checkpoints `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` and RV-003 repair `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` passed checks/targeted review. Immediate parcel opening/explosion and both fire dialogues remain open.
+Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; generic Hazard owners retain follow, overlap damage and teardown. Route and sleep risk clip floor height. Checkpoints `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` and RV-003 repair `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` passed checks/targeted review. Immediate physical opening and one durable ignition roll now passed checks/review at `952c851545d2a4b28954a6a620cd0dfbbe8582e5`; both fire dialogues remain open. Existing service BT and Hazard owners execute opening/inspection/blast, with eligible physical item and actual opener facts.
 
 ### Validation
 
-Earlier freeze/speed/shy/night/ranged/grudge/hag checks and immutable-SHA reviews passed. Unique parser/GUT/smoke/MCP evidence remains in reviewed Git checkpoints and R26.4; RV-001/RV-002 fixes remain recorded below.
-Full mandatory behaviors/live integration and owner rendered movement/dialogue/assets/balance QA remain open.
-Brute PASS: parser032455776/23 + final032943100/2; GUT032844552 17/255 (real handoff/opening, two hands, occlusion, respect, codec/reset and synchronous retirement/dormant/reset).
-Regression PASS: authoring032618984 3/41, inspection032624264 12/163, grudge/ranged032636637 16/153, gaze032650035 15/110, blood032701361 10/122, shy032714702 11/112, catalog032725024 4/944, orders032929305 7/201. District-20261012-132636729.log PASS: eight mornings, phases and save/restore.
-Brute native MCP authored/saved toy, catalog, rule and trees; preserved UIDs and eight embedded supply cases, refreshed caches and restarted clean editor for new globals. Fresh helper/test diagnostics checked[] PASS. Formatter/lint, strict architecture/dependencies, project/domain/persistence/staged/diff PASS.
-Rendered Brute gameplay, readability/tone and balance remain owner QA NOT_RUN; reviewer runtime NOT_RUN.
-Brute review BASE `8d40a7b0d90e4332778dc896b7304f8a7af7aeaf` -> TARGET `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5` PASS, no findings (122 s); ARCHITECTURE/STYLE PASS, runtime NOT_RUN.
-
-Fire presence PASS: GUT040833392 7/57; repair041956067 11/77 (real queued trait step); cadence042024159 49/291; rules040527841 9/63, perf040545321 21/145, ranged040611805 9/85. Hazards-20261012-140540551.log smoke PASS. Parser040840736/3 and repair041945640/2, formatter/static/staged/diff PASS. MCP authored/saved profiles and inherited floor scene; native fresh test diagnostics checked[] PASS, global hot reload43 NOT_PASS.
-Fire review `6d58619e2cce15470871bd66c65159c1362bcae8` -> `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` found RV-003 (139 s); repair -> `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` targeted review PASS (16 s), ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+Fire opening PASS: GUT043754142 10/83, including actual authored service BT, handoff without booth, real contents/foreign opener, both outcomes/codec/replay, multiple reagents, common damage/immunity and synchronous receiver retirement. Parser043848494/10, final fresh MCP test diagnostics checked[] PASS.
+Regressions PASS: inspection043644896 12/163, Brute043657261 17/255, fire presence043804524 11/77; Hazards-20261012-143855734.log smoke PASS. Formatter/lint, strict architecture/dependencies, project/domain/persistence/staged/diff PASS. MCP authored/saved the FIRE blast/trait with preserved UIDs and refreshed caches.
+Opening review BASE `2c17ee81d8392279a67ed40d6c06e33593995733` -> TARGET `952c851545d2a4b28954a6a620cd0dfbbe8582e5` PASS, no findings (127 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+Fire floor PASS: GUT040833392 7/57, repair041956067 11/77; cadence042024159 49/291, rules040527841 9/63, perf040545321 21/145, ranged040611805 9/85. Hazards-20261012-140540551.log smoke PASS. Parser040840736/3 and repair041945640/2 PASS.
+Fire review `6d58619e2cce15470871bd66c65159c1362bcae8` -> `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` found RV-003 (139 s); repair -> `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` targeted review PASS (16 s).
+Brute behavior `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5` reviewed PASS (122 s), GUT032844552 17/255 and District-20261012-132636729.log smoke PASS. Both dialogue variants `50c2a2ef35cb78d036b96b2087a6bbe920279c21` reviewed PASS (41 s), GUT034921599 37/913; details in R26.4.
+Earlier freeze/speed/shy/night/ranged/grudge/hag checks and immutable-SHA reviews passed; unique evidence remains in reviewed Git checkpoints. RV-001/RV-002 repairs remain recorded below.
+Global hot reload43 NOT_PASS; actual layouts/restart and fresh CLI checks independently verify changes. Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED.
+Full mandatory behavior/live integration and owner rendered movement/dialogue/assets/balance QA remain open.
 
 ### Next
 
-Implement Fire Elemental immediate opening/explosion through physical inspection/opening and generic Hazard owners, then its dialogue variants and remaining mandatory capabilities before live roster binding.
+Finish both Fire Elemental dialogue variants; implement chain/creepy/vampire mandatory capabilities and outstanding cross-archetype acceptance before live roster binding.
 
 ### Review triage
 
