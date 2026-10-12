@@ -19,7 +19,7 @@ Hag checkpoint `6293c6bdb34334832f0c02e720df11c75cc20dd2` passed independent rev
 
 ### Next
 
-Implement brute witnessed-toy/strength/private-unpacking behavior, then its two threatening variants; finish the remaining fire/chain/creepy/vampire interactions. Soul/blood transactions and full owner acceptance remain open.
+Brute behavior `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5` passed implementation checks and independent review; author its two threatening variants. Finish remaining fire/chain/creepy/vampire interactions. Soul/blood transactions and full owner acceptance remain open.
 
 ### Validation
 

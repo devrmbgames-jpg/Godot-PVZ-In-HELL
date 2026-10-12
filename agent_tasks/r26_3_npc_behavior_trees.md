@@ -20,6 +20,9 @@ Reviewed native freeze/speed/shy/night behavior retains body, animation, combat,
 Hag RANGED preference selects visible distance/shot branches in both roots below immediate safety/light/blood. Bounded safe navigation previews preserve physical transform authority; combat owns shots/cooldowns, unreachable retreat permits defense and lost targets use search.
 Hag personal grudges derive from durable offender/victim IDs; repeats retain committed reactions and both dialogue roles read the same query. Bodyless promises, days/reset/save retain resentment; no grudge clock. Both hag riddle/deception variants now passed checks/review.
 Ranged checkpoint `4140fb04299a2b12597fdab832c913a02a08b172`, grudge `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`, repair `510a074b4161f65a67d93fb46d4a5f61a2b62b56`, dialogue `6293c6bdb34334832f0c02e720df11c75cc20dd2`: reviewed PASS. Other mandatory subtrees/live binding remain open.
+Brute typed pride uses actual player-camera/solid visibility and NPC recognition of held or opened TOY bodies. Customers samples exposure before cadence; explicit native branches commit one durable offense, while recognized applied strength records actor-specific respect and ends matching combat/panic.
+Native toy/catalog and private booth opening retain physical, inspection, order, memory and save authorities. Brain recipes and both authored initial-field policies restore immutable pride and clear transient exposure. Both roots preserve safety/light/blood before toy/combat/service.
+Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation checks and immutable-SHA review PASS.
 
 ### Validation
 
@@ -33,10 +36,15 @@ Hag dialogue GUT021925998 38/966 and parser022034711/1 PASS; review `9c70cd2c684
 Native MCP authoring preserved UIDs/tuning and refreshed caches. Formatter/lint, strict architecture/dependencies, domain/project structure, persistence baseline and staged checks PASS. No extra full smoke for explicit memory/query or authored-dialogue batches; focused actual native lifetimes/roles cover their scope.
 Snapshot003124389 tests/exit0 PASS; shutdown retention KNOWN_ENGINE_LIMITATION/DEFERRED. Global reload43 NOT_PASS: verify actual layouts or restart before native saves. Passing runs have no runtime errors/GUT orphan Nodes; reviewer runtime NOT_RUN.
 Full mandatory behaviors/live integration and owner rendered movement/dialogue/assets/balance QA remain open.
+Brute PASS: parser032455776/23 + final032943100/2; GUT032844552 17/255 (real handoff/opening, two hands, occlusion, respect, codec/reset and synchronous retirement/dormant/reset).
+Regression PASS: authoring032618984 3/41, inspection032624264 12/163, grudge/ranged032636637 16/153, gaze032650035 15/110, blood032701361 10/122, shy032714702 11/112, catalog032725024 4/944, orders032929305 7/201. District-20261012-132636729.log PASS: eight mornings, phases and save/restore.
+Brute native MCP authored/saved toy, catalog, rule and trees; preserved UIDs and eight embedded supply cases, refreshed caches and restarted clean editor for new globals. Fresh helper/test diagnostics checked[] PASS. Formatter/lint, strict architecture/dependencies, project/domain/persistence/staged/diff PASS.
+Rendered Brute gameplay, readability/tone and balance remain owner QA NOT_RUN; reviewer runtime NOT_RUN.
+Brute review BASE `8d40a7b0d90e4332778dc896b7304f8a7af7aeaf` -> TARGET `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5` PASS, no findings (122 s); ARCHITECTURE/STYLE PASS, runtime NOT_RUN.
 
 ### Next
 
-Implement brute witnessed-toy/strength/private-unpacking behavior and remaining mandatory capabilities before live roster binding.
+Author Brute's two threatening dialogue variants and implement remaining mandatory capabilities before live roster binding.
 
 ### Review triage
 
