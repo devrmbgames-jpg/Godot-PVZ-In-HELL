@@ -1,0 +1,161 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+{{ctx.speaker_name()}}: Бу! А, ты уже здесь. Скажи, сколько места остаётся между тобой и тем, кого ты не видишь?
+- Ты опять оказался у меня за спиной? => noticed
+- Что за странные вопросы? => questions
+- Давай без таких игр. [#prs] => distance
+- Могу доставить заказ домой. [if ctx.can_offer_delivery() /] => delivery_request
+- У меня работа. => END
+
+~ direct
+if ctx.has_registered_number()
+	Клиент: Заказ №{{ctx.package_number_text()}}. Признавайся: пока смотрел на экран, ожидал увидеть меня рядом?
+	- Проверю номер и целостность. [#hon] => END
+	- Почему так близко? => noticed
+	- У тебя есть нормальные вопросы? => questions
+	- Доставить коробку к твоей двери? [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Сначала просканируйте посылки. Без номера даже я не угадаю, которая моя.
+=> END
+
+~ noticed
+if ctx.stalking_noticed()
+	Жуткий: Поймал! Ты уже заметил меня, я это помню. Теперь можно разговаривать без игры в невидимого соседа.
+else
+	Жуткий: А ты быстро оборачиваешься! Не ищи люк или портал: ноги тоже умеют приводить соседей неожиданно близко.
+- Держись на расстоянии. [#prs] => distance
+- Я вообще не испугался. [#lie] => bluff
+- Ещё раз подкрадёшься — пожалеешь. [#thr] => threat
+- Закажи себе скрипучие ботинки. [#jok] => humor
+- Ладно, я тебя слышу. [#hon] => END
+
+~ questions
+Жуткий: Ты уверен, что отражение моргнуло одновременно с тобой? А если под кроватью кто-то тоже боится того, кто сверху?
+- Не хочу отвечать. [#hon] => distance
+- Это у тебя такая игра? => habits
+- Давай о посылках. => goods
+- Страшно обаятельно. [#flr] => affection
+
+~ habits
+Жуткий: Игра хороша, пока оба знают правила. Ты сказал хватит — я услышал. Не всякий вопрос требует проверки.
+=> END
+
+~ goods
+Жуткий: В закрытой коробке столько возможностей! Но выдача всё равно по настоящему номеру, никаких фокусов.
+=> END
+
+~ distance
+Жуткий: Ладно, страшную паузу закончили. Работай спокойно; слова сами по себе никого не передвигают.
+=> END
+
+~ bluff
+Жуткий: Конечно! Это лампа вздрогнула, а не ты. Запишем так, без экспериментов.
+=> END
+
+~ humor
+Жуткий: Ага, и колокольчик на воротник. Тогда вся улица будет знать, откуда ждать вопрос.
+=> END
+
+~ affection
+Жуткий: О, это уже неожиданный ответ. Придётся придумать вопрос ещё хуже!
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
+
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong

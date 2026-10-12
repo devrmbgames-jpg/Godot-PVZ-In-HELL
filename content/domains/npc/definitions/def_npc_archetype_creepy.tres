@@ -26,7 +26,7 @@ key = &"schedule/creepy"
 [resource]
 script = ExtResource("8_vijej")
 name_variants = PackedStringArray("Шорох", "Хрип")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/creepy/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/creepy/variant_b.dialogue")
 optional_traits = Array[ExtResource("3_b12gu")]([SubResource("Resource_0jcmm"), SubResource("Resource_deii1")])
 receiver_traits = 11
 presentation_cues = PackedStringArray("npc/creepy/questions")

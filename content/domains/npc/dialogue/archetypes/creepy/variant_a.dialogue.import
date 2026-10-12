@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://bre68e7d44alk"
+path="res://.godot/imported/variant_a.dialogue-93d07bc9334abf8bca064c1d1a035c99.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/creepy/variant_a.dialogue"
+dest_files=["res://.godot/imported/variant_a.dialogue-93d07bc9334abf8bca064c1d1a035c99.tres"]
+
+[params]
+
+defaults=true

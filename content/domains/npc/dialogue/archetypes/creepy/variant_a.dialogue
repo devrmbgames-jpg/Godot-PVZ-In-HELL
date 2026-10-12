@@ -1,0 +1,161 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+{{ctx.speaker_name()}}: Ты считаешь шаги за своей спиной? Я стараюсь не мешать... пока ты не обернёшься.
+- Откуда ты взялся так близко? => noticed
+- Что ты хотел спросить? => questions
+- Я вижу тебя. Отойди немного. [#prs] => distance
+- Могу доставить заказ домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Продолжим в другой раз. => END
+
+~ direct
+if ctx.has_registered_number()
+	Клиент: Мой заказ №{{ctx.package_number_text()}}. Я подожду здесь. Теперь ты знаешь, где я.
+	- Проверю номер и целостность. [#hon] => END
+	- Почему ты стоишь так близко? => noticed
+	- Что за вопросы у тебя ко мне? => questions
+	- Доставить коробку к твоей двери? [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Сначала просканируйте посылки. Я могу ждать молча, но чужой номер мне не нужен.
+=> END
+
+~ noticed
+if ctx.stalking_noticed()
+	Жуткий: Ты уже заметил меня. Я помню твой взгляд. Незачем снова притворяться, что за спиной никого нет.
+else
+	Жуткий: Иногда шаги слышны позже, чем человек оказывается рядом. Ты ведь оборачиваешься, когда тебе тревожно?
+- Держись на расстоянии. [#prs] => distance
+- Я ничего не боюсь. [#lie] => bluff
+- Ещё шаг — и получишь. [#thr] => threat
+- Ты тренируешься пугать почтальонов? [#jok] => humor
+- Хорошо, я тебя слышу. [#hon] => END
+
+~ questions
+Жуткий: Когда ты один, кто первым замечает, что ты перестал дышать во сне? И почему пустой коридор кажется длиннее знакомого?
+- Не хочу отвечать. [#hon] => distance
+- Ты всегда так разговариваешь? => habits
+- Лучше поговорим о заказах. => goods
+- Мне нравится твой тихий голос. [#flr] => affection
+
+~ habits
+Жуткий: Тихо. Так лучше слышно ответ. Я могу стоять дальше, если разговор пугает тебя сильнее вопроса.
+=> END
+
+~ goods
+Жуткий: Коробки, вещи, чужие привычки. Заказ ещё не рассказывает всё о том, кто его сделал.
+=> END
+
+~ distance
+Жуткий: Я услышал. Разговор не даёт мне права касаться тебя. Возвращайся к своим делам.
+=> END
+
+~ bluff
+Жуткий: Тогда зачем ты проверяешь тёмное стекло? Я не буду доказывать, что знаю ответ.
+=> END
+
+~ humor
+Жуткий: Если я засмеюсь слишком громко, будет уже не так тихо.
+=> END
+
+~ affection
+Жуткий: Тише. Некоторые слова лучше слышать только вдвоём.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
+
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong

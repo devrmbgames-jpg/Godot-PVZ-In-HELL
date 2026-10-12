@@ -63,6 +63,17 @@ static func has_respect_for(body: Entity, actor: Entity) -> bool:
 		person != null and NpcPrideRules.selected_rule(person.rules_for()) != null
 		and NpcPrideRules.respects(person, NpcSocialService.identity_for(actor))
 	)
+
+
+## Reads durable recognition for this actor; speech cannot create or clear the notice.
+static func has_stalking_notice(body: Entity, actor: Entity) -> bool:
+	if body == null:
+		return false
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = (
+		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	)
+	return person != null and NpcStalkingRules.noticed(person, NpcSocialService.identity_for(actor))
 #endregion
 
 

@@ -7124,7 +7124,8 @@
         "gaze_warning_given",
         "uses_signboard",
         "has_grudge_against",
-        "has_respect_for"
+        "has_respect_for",
+        "has_stalking_notice"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
@@ -7142,7 +7143,8 @@
         "gaze_warning_given": "query",
         "uses_signboard": "query",
         "has_grudge_against": "query",
-        "has_respect_for": "query"
+        "has_respect_for": "query",
+        "has_stalking_notice": "query"
       },
       "public_instance_methods": []
     },

@@ -73,6 +73,13 @@ func respects_player() -> bool:
 	return is_valid() and NpcDialogueService.has_respect_for(_delivery_npc(), _delivery_player())
 
 
+## Both roles read durable actor-specific notice without sampling gaze or creating recognition.
+func stalking_noticed() -> bool:
+	return (
+		is_valid() and NpcDialogueService.has_stalking_notice(_delivery_npc(), _delivery_player())
+	)
+
+
 ## Применяет смысл ответа через конкретный игровой адаптер.
 func apply_response_tags(_tags: PackedStringArray) -> bool:
 	return false
