@@ -1,0 +1,161 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+{{ctx.speaker_name()}}: Чуешь жар? Это я! Есть огненный реагент? Нет? Тогда хоть расскажи, где достать ещё.
+- Что ты ищешь в посылках? => goods
+- У тебя пол горит! => heat
+- Ты всегда так спешишь распаковать заказ? => opening
+- Принести коробку домой? [if ctx.can_offer_delivery() /] => delivery_request
+- Поговорим издалека. => END
+
+~ direct
+if ctx.has_registered_number()
+	Клиент: Заказ №{{ctx.package_number_text()}}! Давай сюда, уже руки чешутся открыть. Только сам отойди: огненный состав иногда взрывается!
+	- Сверю номер, потом передам. [#hon] => END
+	- Опять огненные реагенты? => goods
+	- Давай не разнесём стойку. [#prs] => caution
+	- Доставить домой и оставить у двери? [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Сначала просканируйте посылки! Хочу свой номер, а не случайную коробку.
+=> END
+
+~ goods
+Элементаль: Огненные реагенты, конечно! Флаконы, бочки — лишь бы пламя было настоящее. Не подсовывай кровь или кислоту, это совсем другая радость.
+- Почему тебя так радует флакон? => reagent
+- И бочку откроешь у стойки? => opening
+- Соседи рады такому увлечению? [#jok] => neighbors
+- Хорошо, запомнил. [#hon] => END
+
+~ reagent
+Элементаль: Маленький флакон, а сколько огня! Упаковку берегу до получения; потом удержаться трудно.
+=> END
+
+~ heat
+Элементаль: Ага, по полу аж на 10 метров! Дальше стой или заберись повыше. Рядом с моим телом тоже жарко — одной ступенькой совсем вплотную не спасёшься.
+- Отойду, спасибо за предупреждение. [#hon] => caution
+- Держи проход свободным для соседей. [#prs] => caution
+- Я огонь голыми руками ловлю. [#lie] => bluff
+- Сейчас силой тебя остужу. [#thr] => threat
+- Зато снег убирать не надо. [#jok] => neighbors
+
+~ caution
+Элементаль: Ладно, ладно! Пусть все отойдут. Я хочу увидеть пламя, а не слушать, как кто-то обжёгся.
+=> END
+
+~ opening
+Элементаль: Получил — и хочется открыть сразу! Огненный реагент может бахнуть, а может нет. От болтовни исход не меняется: опасна сама распаковка.
+- Перед передачей отойду подальше. [#hon] => caution
+- Сначала дай людям выйти. [#prs] => caution
+- Ты прямо искришь от обаяния. [#flr] => affection
+- Всё понял. => END
+
+~ affection
+Элементаль: Ха, вот это комплимент! Только искры по голове не гладь. Даже ласковый огонь остаётся горячим.
+=> END
+
+~ bluff
+Элементаль: Тогда ты умеешь больше, чем говоришь. Я всё равно предупрежу: чужим рукам моя радость может не понравиться.
+=> END
+
+~ neighbors
+Элементаль: Ворчат! Я прошу отойти, они просят остыть. Пока все целы, договоримся.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
+
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong

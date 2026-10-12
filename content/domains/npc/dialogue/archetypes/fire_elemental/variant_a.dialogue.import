@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://cahrt1wjs6rs7"
+path="res://.godot/imported/variant_a.dialogue-611c6bfdc990415b4c12d45f3e675479.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/fire_elemental/variant_a.dialogue"
+dest_files=["res://.godot/imported/variant_a.dialogue-611c6bfdc990415b4c12d45f3e675479.tres"]
+
+[params]
+
+defaults=true

@@ -1,0 +1,161 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+{{ctx.speaker_name()}}: Не подходи по полу слишком близко: от меня идёт жар. Говорить можно, обжигаться ни к чему.
+- Зачем тебе огненные реагенты? => goods
+- Как рядом с тобой не сгореть? => heat
+- Ты вскрываешь посылки прямо здесь? => opening
+- Могу доставить заказ домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Отойду подальше. => END
+
+~ direct
+if ctx.has_registered_number()
+	Клиент: Жду заказ №{{ctx.package_number_text()}}. Поставь осторожно: я могу открыть его сразу, а огненный реагент — вспыхнуть.
+	- Проверю номер и целостность. [#hon] => END
+	- Что за реагент ты заказал? => goods
+	- Может, сначала уберёмся подальше от людей? [#prs] => caution
+	- Доставить коробку к твоей двери? [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Сначала просканируйте посылки. Без номера я рискую открыть чужую коробку.
+=> END
+
+~ goods
+Элементаль: Огненные реагенты. Флаконы и бочки: у каждого пламени свой характер. С кислотой или кровью его не перепутаешь.
+- Что особенного во флаконе? => reagent
+- А бочку тоже откроешь сразу? => opening
+- Ты любишь огонь больше соседей? [#jok] => neighbors
+- Понятно, донесу аккуратно. [#hon] => END
+
+~ reagent
+Элементаль: Мне нужен настоящий огненный состав. Заказ выбираю по нему, а не по красивой надписи на коробке.
+=> END
+
+~ heat
+Элементаль: Огонь стелется по полу на 10 метров. Держись дальше или поднимись выше пола; вплотную жар есть и у самого тела.
+- Спасибо, буду осторожен. [#hon] => caution
+- Поможем людям обходить опасное место. [#prs] => caution
+- Я совсем не чувствую огня. [#lie] => bluff
+- А если я подойду силой? [#thr] => threat
+- Отличная замена печке. [#jok] => neighbors
+
+~ caution
+Элементаль: Согласен. Пламя приятно мне, но чужую боль я понимаю. Отойди до того, как коробка откроется.
+=> END
+
+~ opening
+Элементаль: Терпения мало: могу вскрыть полученную коробку тут же. Если внутри огненный реагент, бывает взрыв. Разговор этого не решает.
+- Тогда сначала отойду. [#hon] => caution
+- Лучше открыть подальше от толпы. [#prs] => caution
+- Мне нравится твой тёплый характер. [#flr] => affection
+- Понял. => END
+
+~ affection
+Элементаль: Приятно слышать. Только не пытайся погладить искры: симпатия не защищает руки от жара.
+=> END
+
+~ bluff
+Элементаль: Не стану проверять это твоей кожей. Мои слова — предупреждение, а не обещание безопасного пламени.
+=> END
+
+~ neighbors
+Элементаль: Соседи не должны становиться топливом. Пусть смеются, пока стоят на безопасном расстоянии.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
+
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong
