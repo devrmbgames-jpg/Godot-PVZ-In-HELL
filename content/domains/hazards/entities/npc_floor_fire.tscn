@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://cwod7g2rj5hnf"]
+
+[ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_area.tscn" id="1_lhpa0"]
+[ext_resource type="Resource" uid="uid://yqd50bp3wp64" path="res://content/domains/hazards/definitions/def_npc_floor_fire.tres" id="2_lhpa0"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_ulgp2"]
+[ext_resource type="Script" uid="uid://3eslsvv6pwq" path="res://content/domains/hazards/components/c_toxic_area.gd" id="4_lrfuw"]
+
+[sub_resource type="Resource" id="Resource_d40m3"]
+resource_local_to_scene = true
+script = ExtResource("4_lrfuw")
+
+[sub_resource type="StandardMaterial3D" id="Fire"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 0.22, 0.02, 0.25)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_6mxgn"]
+top_radius = 10.0
+bottom_radius = 10.0
+height = 0.2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ulgp2"]
+height = 0.2
+radius = 10.0
+
+[node name="FireAura" unique_id=1242341419 instance=ExtResource("1_lhpa0")]
+definition = ExtResource("2_lhpa0")
+ancestor_entity_bindings = PackedStringArray()
+id = ""
+enabled = null
+component_resources = Array[ExtResource("3_ulgp2")]([SubResource("Resource_d40m3")])
+serialize_config = null
+
+[node name="Visual" parent="." index="0"]
+material_override = SubResource("Fire")
+mesh = SubResource("CylinderMesh_6mxgn")
+
+[node name="Shape" parent="Area" index="0"]
+shape = SubResource("CylinderShape3D_ulgp2")

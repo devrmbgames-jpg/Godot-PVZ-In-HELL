@@ -13,7 +13,7 @@ static func valid(definition: DEF_Hazard) -> bool:
 		var toxin: DEF_ToxicArea = definition as DEF_ToxicArea
 		return (
 			_positive(toxin.radius) and _positive(toxin.tick_seconds)
-			and _nonnegative(toxin.damage_per_tick)
+			and _nonnegative(toxin.floor_height) and _nonnegative(toxin.damage_per_tick)
 		)
 	if definition is DEF_Explosion:
 		var blast: DEF_Explosion = definition as DEF_Explosion

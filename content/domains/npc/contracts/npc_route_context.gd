@@ -9,6 +9,8 @@ class Hazard extends RefCounted:
 	var center: Vector3 = Vector3.ZERO
 	## Радиус опасности с учётом физического размера NPC.
 	var radius: float = 0.0
+	## Finite half-height clips floor routes vertically; INF preserves the existing sphere estimate.
+	var half_height: float = INF
 	## Эффективный урон за секунду с учётом сопротивлений NPC.
 	var damage_rate: float = 0.0
 

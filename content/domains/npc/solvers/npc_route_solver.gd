@@ -4,6 +4,8 @@ class_name NpcRouteSolver
 
 ## Existing native endpoint tolerance used to reject incomplete paths.
 const ENDPOINT_TOLERANCE: float = 1.0
+## One millimetre absorbs native float32 boundary rounding for floor contact, without body height.
+const FLOOR_HEIGHT_MARGIN: float = 0.001
 
 static var _query_world: World = null
 static var _hazard_query: QueryBuilder = null
@@ -152,13 +154,18 @@ static func danger_here(actor: E_DistrictNpc) -> bool:
 			(effect.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
 		)
 		var spatial: Node3D = effect as Node as Node3D
+		if profile != null and spatial != null and profile.floor_height > 0.0:
+			var vertical_gap: float = absf(actor.global_position.y - spatial.global_position.y)
+			if vertical_gap > profile.floor_height * 0.5 + FLOOR_HEIGHT_MARGIN:
+				continue
+		var receiver_point: Vector3 = actor.global_position
+		if profile != null and profile.floor_height == 0.0:
+			receiver_point += Vector3.UP * NpcPerceptionService.TORSO_HEIGHT
 		if (
 			profile != null and spatial != null and not effect.has_component(C_NoDamage)
 			and DamageResistanceRules.effective(actor, profile.damage_per_tick, profile.damage_type)
 			> 0.0
-			and spatial
-			.global_position
-			.distance_to(actor.global_position + Vector3.UP * NpcPerceptionService.TORSO_HEIGHT)
+			and spatial.global_position.distance_to(receiver_point)
 			< profile.radius + actor.navigation_agent.radius
 		):
 			return true
@@ -169,6 +176,9 @@ static func danger_here(actor: E_DistrictNpc) -> bool:
 static func refuge(actor: E_DistrictNpc) -> Vector3:
 	var margin: float = NpcPopulationQueries.current().definition.local_detour_margin
 	for hazard: NpcRouteContext.Hazard in _hazards(actor):
+		var vertical_gap: float = absf(actor.global_position.y - hazard.center.y)
+		if vertical_gap > hazard.half_height + FLOOR_HEIGHT_MARGIN:
+			continue
 		var outward: Vector3 = actor.global_position - hazard.center
 		outward.y = 0.0
 		if outward.length() >= hazard.radius:
@@ -259,6 +269,8 @@ static func _hazards(actor: Entity) -> Array[NpcRouteContext.Hazard]:
 
 		var hazard: NpcRouteContext.Hazard = NpcRouteContext.Hazard.new()
 		hazard.center = spatial.global_position
+		if profile.floor_height > 0.0:
+			hazard.half_height = profile.floor_height * 0.5
 		hazard.radius = profile.radius + (
 			(actor as E_DistrictNpc).navigation_agent.radius if actor is E_DistrictNpc else 0.0
 		)
@@ -278,11 +290,33 @@ static func _damage(
 	var damage: float = 0.0
 	for hazard: NpcRouteContext.Hazard in hazards:
 		for index: int in range(1, path.size()):
+			var start: Vector3 = path[index - 1]
+			var end: Vector3 = path[index]
+			if is_finite(hazard.half_height):
+				var interval: Vector2 = _floor_interval(start.y, end.y, hazard)
+				if interval.x >= interval.y:
+					continue
+				end = start.lerp(end, interval.y)
+				start = start.lerp(path[index], interval.x)
 			damage += (
-				_inside_length(path[index - 1], path[index], hazard.center, hazard.radius) / speed
+				_inside_length(start, end, hazard.center, hazard.radius) / speed
 				* hazard.damage_rate
 			)
 	return damage
+
+
+static func _floor_interval(start: float, end: float, hazard: NpcRouteContext.Hazard) -> Vector2:
+	var lower: float = hazard.center.y - hazard.half_height
+	var upper: float = hazard.center.y + hazard.half_height
+	if is_equal_approx(start, end):
+		return (
+			Vector2(0.0, 1.0)
+			if start >= lower - FLOOR_HEIGHT_MARGIN and start <= upper + FLOOR_HEIGHT_MARGIN
+			else Vector2.ZERO
+		)
+	var enter: float = (lower - start) / (end - start)
+	var leave: float = (upper - start) / (end - start)
+	return Vector2(maxf(0.0, minf(enter, leave)), minf(1.0, maxf(enter, leave)))
 
 
 static func _inside_length(start: Vector3, end: Vector3, center: Vector3, radius: float) -> float:

@@ -6,10 +6,22 @@ class_name HazardGeometry
 #region Authored geometry materialization
 ## Requires the prevalidated toxic prefab/profile contract.
 static func configure_toxic(effect: E_ToxicArea, profile: DEF_ToxicArea) -> void:
+	effect.get_area().collision_mask = profile.collision_mask
+	if profile.floor_height > 0.0:
+		var cylinder: CylinderShape3D = CylinderShape3D.new()
+		cylinder.radius = profile.radius
+		cylinder.height = profile.floor_height
+		effect.get_shape().shape = cylinder
+		var disc: CylinderMesh = CylinderMesh.new()
+		disc.top_radius = profile.radius
+		disc.bottom_radius = profile.radius
+		disc.height = profile.floor_height
+		effect.get_visual().mesh = disc
+		return
+
 	var sphere: SphereShape3D = SphereShape3D.new()
 	sphere.radius = profile.radius
 	effect.get_shape().shape = sphere
-	effect.get_area().collision_mask = profile.collision_mask
 	var mesh: SphereMesh = SphereMesh.new()
 	mesh.radius = profile.radius
 	mesh.height = profile.radius * 2.0

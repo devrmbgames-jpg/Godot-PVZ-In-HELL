@@ -3,8 +3,10 @@ extends DEF_Hazard
 ## Авторские настройки объёмной опасности; получатели выбираются независимо от типа посылки.
 class_name DEF_ToxicArea
 
-## Радиус сферы в метрах; первый периодический урон наступает после полного интервала.
+## Радиус объёма в метрах; первый периодический урон наступает после полного интервала.
 @export_range(0.1, 100.0) var radius: float = 2.0
+## Zero preserves a sphere; positive metres select a thin cylinder centered at the effect origin.
+@export_range(0.0, 10.0) var floor_height: float = 0.0
 ## Положительный интервал периодического воздействия в секундах.
 @export_range(0.05, 60.0) var tick_seconds: float = 4.0
 ## Урон одного интервала до сопротивления в единицах здоровья.

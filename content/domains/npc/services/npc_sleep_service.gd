@@ -56,6 +56,10 @@ static func blockers() -> PackedStringArray:
 		var damage: float = 0.0
 		if hazard.definition is DEF_ToxicArea:
 			var area: DEF_ToxicArea = hazard.definition as DEF_ToxicArea
+			if area.floor_height > 0.0:
+				var vertical_gap: float = absf(spatial.global_position.y - point.global_position.y)
+				if vertical_gap > area.floor_height * 0.5 + NpcRouteSolver.FLOOR_HEIGHT_MARGIN:
+					continue
 			radius = area.radius
 			damage = DamageResistanceRules.effective(player, area.damage_per_tick, area.damage_type)
 		elif hazard.definition is DEF_Explosion:
