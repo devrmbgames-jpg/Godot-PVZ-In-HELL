@@ -7,7 +7,7 @@ const EVENT := &"damage_requested"
 enum Operation {
 	DAMAGE,
 	HEAL,
-	# Explicit voluntary maximum-Health transaction; ignores attack resistance/source veto.
+	# Explicit voluntary HP/maximum-Health transaction; ignores attack resistance/source veto.
 	SACRIFICE,
 }
 enum Type {

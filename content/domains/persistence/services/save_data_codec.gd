@@ -59,6 +59,7 @@ static var _record_types: Array[Script] = [
 	TruckCargoReceipt,
 	PendingLootDrop,
 	SoulTradeRecord,
+	BloodConsentRecord,
 ]
 ## Максимальная глубина вложенных сериализуемых данных.
 const MAX_DEPTH: int = 16
@@ -202,6 +203,7 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		ReceivingBatch,
 		PackageRegistrationRecord,
 		SoulTradeRecord,
+		BloodConsentRecord,
 	]:
 		var exact_fields: Array[String] = GameClock.SAVE_FIELDS
 		if script == NpcVariation:
@@ -214,6 +216,8 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			exact_fields = PackageRegistrationRecord.SAVE_FIELDS
 		elif script == SoulTradeRecord:
 			exact_fields = SoulTradeRecord.SAVE_FIELDS
+		elif script == BloodConsentRecord:
+			exact_fields = BloodConsentRecord.SAVE_FIELDS
 		if fields.size() != exact_fields.size():
 			return false
 		for required_field: String in exact_fields:

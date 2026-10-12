@@ -19396,6 +19396,92 @@
         "content/scenes/main_level.gd"
       ],
       "purpose": "Explicit native World composition; existing NPC cadence and memory owners retain authority."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "combat",
+      "symbol": "HealthConsentChange",
+      "path": "content/domains/combat/contracts/health_consent_change.gd",
+      "rights": [
+        "read",
+        "query",
+        "request"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "read"
+      },
+      "sources": [
+        "content/domains/npc/services/blood_consent_service.gd"
+      ],
+      "purpose": "Explicit voluntary current-HP transaction or closed personal receipt restore; no scheduled behavior."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "combat",
+      "symbol": "HealthConsentTransactionService",
+      "path": "content/domains/combat/services/health_consent_transaction_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "request"
+      ],
+      "public_methods": [
+        "can_apply",
+        "commit"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "can_apply": "query",
+        "commit": "request"
+      },
+      "sources": [
+        "content/domains/npc/services/blood_consent_service.gd"
+      ],
+      "purpose": "Explicit voluntary current-HP transaction or closed personal receipt restore; no scheduled behavior."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "BloodConsentRules",
+      "path": "content/domains/npc/rules/blood_consent_rules.gd",
+      "rights": [
+        "read",
+        "restore",
+        "query"
+      ],
+      "public_methods": [
+        "valid"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "valid": "query"
+      },
+      "sources": [
+        "content/domains/persistence/rules/district_snapshot_rules.gd"
+      ],
+      "purpose": "Explicit voluntary current-HP transaction or closed personal receipt restore; no scheduled behavior."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "BloodConsentRecord",
+      "path": "content/domains/npc/contracts/blood_consent_record.gd",
+      "rights": [
+        "read",
+        "restore",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/services/save_data_codec.gd"
+      ],
+      "purpose": "Explicit voluntary current-HP transaction or closed personal receipt restore; no scheduled behavior."
     }
   ],
   "legacy_decomposition": []

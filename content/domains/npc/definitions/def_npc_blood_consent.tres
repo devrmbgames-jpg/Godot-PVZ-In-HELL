@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_NpcBloodConsent" format=3 uid="uid://b2cxh7vstpong"]
+
+[ext_resource type="Script" uid="uid://duaost8bpvqe3" path="res://content/domains/npc/definitions/def_npc_blood_consent.gd" id="1_8kbg3"]
+
+[resource]
+script = ExtResource("1_8kbg3")
+kind = 7
+key = &"trait/blood_consent"

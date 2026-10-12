@@ -17,6 +17,8 @@ const SAVE_FIELDS: Array[String] = [
 	"planned_phase",
 	"phase_complete",
 	"memories",
+	"blood_offer_sequence",
+	"blood_offers",
 	"death_day",
 	"activity_sequence",
 	"cadence_sample_tick",
@@ -60,6 +62,10 @@ var display_name: String:
 @export var phase_complete: bool = false
 ## Воспринятые личностью социальные инциденты.
 @export var memories: Array[NpcMemory] = []
+## Next never-reused personal blood confirmation; BloodConsentService is the sole gameplay writer.
+@export var blood_offer_sequence: int = 1
+## Personal durable blood offers/receipts; no live participant references or duplicate HP state.
+@export var blood_offers: Array[BloodConsentRecord] = []
 ## День окончательной смерти; у живой личности равен нулю.
 @export var death_day: int = 0
 ## Последовательность занятий сохраняет выбор при перезагрузке.

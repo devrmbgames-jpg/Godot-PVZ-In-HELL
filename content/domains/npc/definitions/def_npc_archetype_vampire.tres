@@ -6,6 +6,7 @@
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_1.tres" id="4_7fx3v"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_6.tres" id="5_va3pa"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="6_0itk0"]
+[ext_resource type="Resource" uid="uid://b2cxh7vstpong" path="res://content/domains/npc/definitions/def_npc_blood_consent.tres" id="7_a5nvi"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_tyriv"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_0nxho"]
 
@@ -32,6 +33,7 @@ presentation_cues = PackedStringArray("npc/vampire/cloud")
 display_name = "Вампир"
 personality = 1
 schedule = SubResource("Resource_gwyun")
+rules = Array[ExtResource("6_0itk0")]([ExtResource("7_a5nvi")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.34117648, 0.22352941, 0.2901961, 1)

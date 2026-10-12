@@ -138,6 +138,9 @@ static func valid(
 			if exit_place == null or exit_place.kind != DEF_DistrictPlace.Kind.PORTAL:
 				return false
 
+		if not BloodConsentRules.valid(person):
+			return false
+
 		var incidents: Dictionary[StringName, bool] = { }
 		for memory: NpcMemory in person.memories:
 			if (

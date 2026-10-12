@@ -1,5 +1,5 @@
 {
-  "schema": 17,
+  "schema": 18,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -385,6 +385,10 @@
     {
       "symbol": "SoulTradeRecord",
       "path": "res://content/domains/npc/contracts/soul_trade_record.gd"
+    },
+    {
+      "symbol": "BloodConsentRecord",
+      "path": "res://content/domains/npc/contracts/blood_consent_record.gd"
     }
   ],
   "snapshot_paths": [
