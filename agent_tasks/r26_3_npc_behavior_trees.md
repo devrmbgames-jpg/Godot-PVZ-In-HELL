@@ -22,7 +22,8 @@ Real NPC sight recognizes clouds and rejects invisible bodies; schema18 excludes
 Review **PASS**: BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8`
 -> TARGET `588b59c1771d95b4ffba278988ddef0a364013a7`, same reviewer, no findings (95s).
 Architecture/style PASS; reviewer runtime NOT_RUN. Final smoke FAIL survival5/required6;
-Comparable BASE week PASS; current mortality diagnostic is running before selecting a repair.
+Comparable BASE week PASS; mortality traces prove floor-fire deaths. Endpoint repair is reviewed,
+but final week071658349 still FAIL5/required6; original causal diagnosis remains open.
 Prior light `8608f987f2a2a8965597829be98c2d6a7a8e94df` ->
 `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` review PASS (210s, no findings);
 feeding `80eb932ff485fd714e8b111ea370629de3ec3f2f` ->
@@ -49,7 +50,8 @@ KNOWN_ENGINE_LIMITATION/DEFERRED. Full mandatory/live/rendered behavior and owne
 
 ### Next
 
-Resolve the linked [hazard endpoint defect](npc_hazard_escape_navigation.md); week acceptance stays open.
+Endpoint defect is fixed/reviewed in [its task](npc_hazard_escape_navigation.md);
+continue baseline/current causal diagnosis of the surviving week failure before acceptance.
 Then cross-archetype acceptance and all-ten live roster binding; do not waive R26.5/owner QA.
 
 ### Review triage
