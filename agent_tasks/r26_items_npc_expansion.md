@@ -40,14 +40,18 @@ schema18 passive restore. GUT87/1069 and parser14files passed; independent immut
 BASE `ac0ee0dd55b99bc9324b31a6a5c8a757eb065960` -> that TARGET **PASS (125s, no material findings)**.
 Vampire UI/dialogues `14cadff37461590c14454aabfdbca1fb4af11e94` passed native GUT78/2014,
 parser2/2 and scoped gates; independent review **PASS** (50s, no material findings) on exact preceding code SHA.
-Vampire combat/cloud/light capabilities, all-ten live binding and R26.5 acceptance
-remain unfinished. Required owner QA stays open. Existing user worktree edits were preserved.
+Vampire native wounded feeding and ordinary damage floor
+`3961328cdc94dc93d56fa7336373af993128e0da` passed GUT123/1830, parser16files,
+static gates and bounded headless week. Review BASE `80eb932ff485fd714e8b111ea370629de3ec3f2f`
+-> that TARGET PASS (91s, no findings), same reviewer; details in R26.3.
+Cloud/light, all-ten live binding, R26.5 and required owner QA remain unfinished.
+Existing user worktree edits were preserved.
 
 ### Next
 
-Implement typed Vampire attacks/wounded feed BT/cloud/light using reviewed Health-bound
-`792481e4630d1ca70156654d3a22a1a91fd94cef` (44/504, parser4files, review23s PASS); bind all ten archetypes only
-after their mandatory capabilities and outstanding cross-archetype acceptance are ready.
+Implement typed Vampire light discomfort and conditional cloud/visibility through native
+BT/physical intent and authored presentation; bind all ten archetypes after their mandatory
+capabilities and cross-archetype acceptance are ready. Full integration/owner QA remain open.
 
 ### Validation
 

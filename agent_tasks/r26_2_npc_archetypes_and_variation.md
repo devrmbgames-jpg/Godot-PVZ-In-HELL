@@ -26,7 +26,11 @@ Native MCP adds all 15 physical catalog items while preserving all eight authore
 Category checkpoint review PASS. Next: implement R26.3/R26.4 and bind all ten requested archetypes.
 Night presentation has native authored spatial audio/Decal views and typed immutable tuning;
 its focused lifecycle checks, independent checkpoint review and district smoke pass in R26.3.
-Full presentation/combat/mandatory behavior acceptance remains open.
+Vampire now has reusable typed wounded feeding/floor data and native BT:
+`3961328cdc94dc93d56fa7336373af993128e0da`, reviewed against
+`80eb932ff485fd714e8b111ea370629de3ec3f2f` PASS (91s, no findings).
+Native GUT123/1830, parser16files, scoped static gates and headless week PASS in R26.3.
+Full cloud/light/presentation/mandatory behavior acceptance and all-ten live binding remain open.
 
 ### Validation
 

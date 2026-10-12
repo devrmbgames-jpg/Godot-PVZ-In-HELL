@@ -16,45 +16,42 @@ Extend visible tree selection; a leaf dispatching an entire decision tree remain
 
 ### Current
 
-Common queued Health bound `792481e4630d1ca70156654d3a22a1a91fd94cef` captures a DAMAGE-only
-fraction, applies it after resistance at resolution and never heals HP already below the floor.
-Separate default damage can still deplete through the common living lifecycle. Review BASE
-`14cadff37461590c14454aabfdbca1fb4af11e94` -> that TARGET **PASS** (23s, no material findings);
-same terminal reviewer reused. Typed Vampire feeding/BT/cloud/light wiring remains open.
-
-Blood consent core `a407762ef018ab70715119cd432c63071d62d928` captures an authored 5..40%
-current-HP percentage, durable person-owned key/deadline and terminal refusal/acceptance.
-Common Health calculation/publication preserves limits, Strength and social/combat ownership.
-Schema18 rejects malformed receipts/previous versions before live mutation. Independent review
-BASE `ac0ee0dd55b99bc9324b31a6a5c8a757eb065960` -> that TARGET **PASS**, no material findings (125s);
-previous terminal reviewer reused, ARCHITECTURE/STYLE PASS, reviewer tests NOT_RUN. Vampire combat/cloud/light remains open.
-
-Historical capability evidence remains in Git; accepted findings below retain exact source/fix SHAs.
-R26.4 now has20/20 native variants; Vampire `14cadff37461590c14454aabfdbca1fb4af11e94`
-GUT78/2014, parser2/2 and independent review PASS (50s, no findings). Combat/cloud/light,
-full integration and owner QA remain open.
+Native feeding `3961328cdc94dc93d56fa7336373af993128e0da` adds typed reusable policy and
+visible wounded-player/floor branches to both native roots. Active service/conversation remain
+protected; ordinary melee and launched projectiles capture the generic common Health bound.
+No offense is fabricated, HP below the floor never rises, blood/safety preempt feeding.
+Review BASE `80eb932ff485fd714e8b111ea370629de3ec3f2f` -> that TARGET **PASS**:
+same terminal reviewer, no material findings, architecture/style PASS (91s), reviewer tests NOT_RUN.
+Underlying queued Health bound `792481e4630d1ca70156654d3a22a1a91fd94cef` and blood consent
+`a407762ef018ab70715119cd432c63071d62d928` passed independent reviews; exact evidence
+remains in Git. Schema18 restores durable current-HP consent receipts without live mutation.
+R26.4 has20/20 native dialogue variants. Vampire dialogues
+`14cadff37461590c14454aabfdbca1fb4af11e94` passed native GUT78/2014 and review (50s).
+Cloud/light, all-ten live roster binding, full integration and required owner QA remain open.
 
 ### Validation
 
-Health-bound GUT PASS: floor191331383 **6/68**, DamageFeedback191335712 **8/55**,
-Blood191331384 **14/195**, Soul191354955 **16/186**; parser191441000 **4files**.
-Formatter/lint, strict architecture/dependencies, project/staged/diff PASS; new test MCP checked[].
-Blood core GUT **87/1069** across5 named suites and parser14files PASS; exact older logs remain
-in the prior task snapshot. Native MCP trait/profile save preserves UID/tuning. District smoke
-PASS: `tests/artifacts/district-20261013-045614946.log`; next native BT integration gets a new smoke.
+Feeding GUT **123/1830 PASS**: Feeding19353022011/95; Blood19333610810/122;
+Stalking19335153814/111; GazeAversion19340695411/113; Ranged1939126179/85;
+GazeFreeze19334952415/110; Dark19340189714/125; Vampire19393593939/1069.
+Logs under `.artifacts/godot_agent/`, date20261012. Fresh parser193937821 **16files PASS**;
+formatter/lint, strict architecture/dependencies, project, agent/index, diff and persistence PASS.
+Bounded headless week PASS: `tests/artifacts/district-20261013-053937434.log`.
 Global hot reload43 NOT_PASS; fresh CLI parser/GUT independently verify code. Editor cursor4 clean.
 Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention
 KNOWN_ENGINE_LIMITATION/DEFERRED. Full mandatory/live/rendered behavior and owner QA remain open.
 
 ### Next
 
-Implement typed Vampire attacks/wounded feed BT/conditional cloud/light and cross-archetype acceptance before live roster binding.
+Implement typed light discomfort without unconditional flight and conditional cloud/visibility,
+then
+cross-archetype acceptance before live roster binding.
 
 ### Review triage
 
 Canonical source/fix SHAs below are ancestors of current code HEAD
-`792481e4630d1ca70156654d3a22a1a91fd94cef`; latest blood/UI/Health-bound reviews
-added no findings. RV-001..005 retain FIXED with their actual regression/re-review evidence.
+`3961328cdc94dc93d56fa7336373af993128e0da`; feeding and preceding blood/UI/Health-bound
+reviews added no findings. RV-001..005 retain FIXED with their actual regression/re-review evidence.
 
 RV-005 P1 `S_NpcStalkingWitness._sample` / uninterrupted camera exposure:
 source `3e88b56983a775cc78c225353251ff6a98d33b87`, reviewer R1, owner Main.
