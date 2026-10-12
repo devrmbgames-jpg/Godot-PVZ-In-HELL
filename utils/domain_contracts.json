@@ -2711,14 +2711,16 @@
       "symbol": "GrabQueries",
       "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "request"
+        "request",
+        "query"
       ],
       "public_methods": [
         "entity_available",
         "held_in_slot",
         "held_relationship",
         "holder_available",
-        "physical_body"
+        "physical_body",
+        "held_object"
       ],
       "sources": [
         "content/services/customers/customer_dialogue_service.gd",
@@ -2733,7 +2735,8 @@
         "held_in_slot": "request",
         "held_relationship": "request",
         "holder_available": "request",
-        "physical_body": "request"
+        "physical_body": "request",
+        "held_object": "query"
       },
       "public_instance_methods": []
     },
@@ -3416,13 +3419,15 @@
         "request"
       ],
       "public_methods": [
-        "action_noise"
+        "action_noise",
+        "can_see"
       ],
       "sources": [
         "content/services/npc/npc_home_delivery_service.gd"
       ],
       "method_rights": {
-        "action_noise": "request"
+        "action_noise": "request",
+        "can_see": "query"
       },
       "public_instance_methods": []
     },
@@ -18832,6 +18837,129 @@
       "method_rights": {},
       "public_instance_methods": [],
       "purpose": "Explicit System composition only; the owner runs in GamePlay before the existing NPC cadence."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "C_NpcPride",
+      "path": "content/domains/npc/components/c_npc_pride.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/customers/services/customer_inspection_service.gd",
+        "content/domains/customers/systems/s_customer_toy_witness.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Customer toy sensing alone writes the derived exposed item ID; construction/restore owns the immutable rule."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "DEF_NpcStrengthPride",
+      "path": "content/domains/npc/definitions/def_npc_strength_pride.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/customers/services/customer_inspection_service.gd",
+        "content/domains/customers/services/customer_toy_exposure_queries.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Immutable selected private-inspection and physical visibility tuning."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcCameraVisibility",
+      "path": "content/domains/npc/solvers/npc_camera_visibility.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "item_observed"
+      ],
+      "sources": [
+        "content/domains/customers/services/customer_toy_exposure_queries.gd"
+      ],
+      "method_rights": {
+        "item_observed": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Pure actual player camera/frustum/solid-LOS query; never reveals unopened contents."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcDecisionService",
+      "path": "content/domains/npc/services/npc_decision_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "request_wake"
+      ],
+      "sources": [
+        "content/domains/customers/systems/s_customer_toy_witness.gd"
+      ],
+      "method_rights": {
+        "request_wake": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Invalidate cadence after newly observed physical toy; native tree commits the offense."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "inventory",
+      "symbol": "C_InventoryItem",
+      "path": "content/domains/inventory/components/c_inventory_item.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/customers/services/customer_toy_exposure_queries.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Read the actual materialized held/inspection item's category."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "inventory",
+      "symbol": "DEF_InventoryItem",
+      "path": "content/domains/inventory/definitions/def_inventory_item.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/domains/customers/services/customer_toy_exposure_queries.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Read category bits; a closed package is not observed contents."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "S_CustomerToyWitness",
+      "path": "content/domains/customers/systems/s_customer_toy_witness.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit GamePlay System composition before NPC cadence."
     }
   ],
   "legacy_decomposition": []

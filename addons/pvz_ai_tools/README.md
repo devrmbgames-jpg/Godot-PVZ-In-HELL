@@ -196,3 +196,14 @@ Preflight loads definitions and all external dependencies from disk with
 or the saved graph, and the editor's cached values remain unchanged.
 An anonymous global script reload error43 does not refresh exported layouts: confirm
 the actual exported properties or restart before saving authored resources.
+
+`pvz_delivery_catalog_append` appends one existing physical inventory definition to
+the exact morning supply. Generic resource creation cannot patch this embedded graph
+while rejecting unsaved cached edits. Pass `fingerprint` (the supply's current SHA-256)
+and `item`, for example `res://content/domains/inventory/definitions/def_item_toy_block.tres`,
+through `custom_manage(op="invoke", params={"tool_name":"pvz_delivery_catalog_append",
+"params":{"fingerprint":"<SHA-256>","item":"<res:// inventory definition>"}})`.
+Clean scenes and a closed target Inspector are required. Disk-isolated native loading
+preserves all packages, tuning and the root UID; duplicate keys and escaping paths
+refuse before saving. The save persists without UndoRedo. Restart the editor after
+registration changes; plugin exit unregisters the tool, and calls retain no resources.

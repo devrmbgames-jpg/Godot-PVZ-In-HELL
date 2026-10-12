@@ -53,6 +53,8 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	route.reset_transient_state()
 	var gaze: C_NpcGazeFreeze = body.get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
 	gaze.observed = false
+	var pride: C_NpcPride = body.get_component(C_NpcPride) as C_NpcPride
+	pride.exposed_toy_id = ""
 	body.sync_gaze_constraint()
 
 	var runner: BTPlayer = body.get_node_or_null("Brain") as BTPlayer
@@ -87,6 +89,8 @@ static func restore_participation() -> void:
 		receiver.traits = person.profile.receiver_traits
 		var gaze: C_NpcGazeFreeze = body.get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
 		gaze.rule = NpcGazeQueries.selected_rule(person.rules_for())
+		var pride: C_NpcPride = body.get_component(C_NpcPride) as C_NpcPride
+		pride.rule = NpcPrideRules.selected_rule(person.rules_for())
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 		NpcBrainService.bind_engine(body)

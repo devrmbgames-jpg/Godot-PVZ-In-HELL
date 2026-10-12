@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_NpcStrengthPride" format=3 uid="uid://bue18fdtfmpq6"]
+
+[ext_resource type="Script" uid="uid://cjekgit4cki5a" path="res://content/domains/npc/definitions/def_npc_strength_pride.gd" id="1_wxuo2"]
+
+[resource]
+script = ExtResource("1_wxuo2")
+kind = 7
+warning_text = "Не вздумай заглядывать в мой заказ."
+countermeasure = "Покажи настоящую силу или оставь меня в покое."
+key = &"npc/strength_pride"

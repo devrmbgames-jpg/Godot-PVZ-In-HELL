@@ -56,6 +56,19 @@ static func react(
 
 ## Commits the typed prolonged-gaze response once, preserving social memory and combat ownership.
 static func escalate_gaze(body: E_DistrictNpc, actor: Entity, incident: StringName) -> void:
+	_commit_forced_offense(body, actor, incident)
+
+
+## Commits the native toy-witness branch once; no random social threshold delays its attack.
+static func escalate_toy(body: E_DistrictNpc, actor: Entity, incident: StringName) -> void:
+	_commit_forced_offense(body, actor, incident)
+
+
+static func _commit_forced_offense(
+	body: E_DistrictNpc,
+	actor: Entity,
+	incident: StringName,
+) -> void:
 	if not EntityAvailability.contains(actor, ECS.world) or actor.has_component(C_Death):
 		return
 	var person: NpcRecord = NpcPopulationQueries.person_for(identity_for(body))
@@ -96,6 +109,13 @@ static func apply_reaction(
 				awareness.last_seen_position = (actor as Node as Node3D).global_position
 			body.show_message("Не трогай меня! Я ухожу.")
 		NpcMemory.Reaction.RESPECT:
+			var person: NpcRecord = NpcPopulationQueries.person_for(identity_for(body))
+			if NpcPrideRules.selected_rule(person.rules_for()) != null:
+				var target: Entity = CombatQueries.target_for(body)
+				if target == actor:
+					CombatService.end_combat(body)
+				if target == actor or target == null:
+					awareness.fleeing = false
 			body.show_message("Ладно. Вижу, ты умеешь постоять за себя.")
 		NpcMemory.Reaction.ACCEPT:
 			body.show_message("Ха! Договорились.")
@@ -287,6 +307,26 @@ static func observe_damage(damage_result: DamageResult) -> void:
 			continue
 
 		var sees_actor: bool = NpcPerceptionService.can_see(observer, actor, person)
+		var pride: DEF_NpcStrengthPride = NpcPrideRules.selected_rule(person.rules_for())
+		if (
+			pride != null and sees_actor
+			and (observer == victim or NpcPerceptionService.can_see(observer, victim, person, true))
+			and (
+				damage_result.applied_amount >= pride.respected_damage
+				or damage_result.outcome == DamageResult.Outcome.HEALTH_DEPLETED
+			)
+		):
+			if not NpcPrideRules.remembered(person, request.incident_id):
+				remember(
+					person,
+					actor,
+					victim,
+					kind,
+					request.incident_id,
+					NpcMemory.Reaction.RESPECT,
+				)
+				apply_reaction(observer, actor, NpcMemory.Reaction.RESPECT)
+			continue
 		if observer == victim:
 			if sees_actor:
 				react(observer, actor, kind, request.incident_id)

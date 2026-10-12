@@ -19,6 +19,7 @@
 [ext_resource type="Resource" uid="uid://cyphvbd2o5mf3" path="res://content/domains/inventory/definitions/def_item_unholy_artifact.tres" id="15_jps8y"]
 [ext_resource type="Resource" uid="uid://cdrxyvq5qi52m" path="res://content/domains/inventory/definitions/def_item_blood_flask.tres" id="16_hcnib"]
 [ext_resource type="Resource" uid="uid://b44jiwbnhykfs" path="res://content/domains/inventory/definitions/def_item_blood_barrel.tres" id="17_1stbv"]
+[ext_resource type="Resource" uid="uid://cvgyjdxiqmply" path="res://content/domains/inventory/definitions/def_item_toy_block.tres" id="17_nw77g"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/cloth_sample.tscn" id="ClothContents"]
 [ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_books.tscn" id="Contents_Books"]
 [ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_bottles.tscn" id="Contents_Bottles"]
@@ -149,5 +150,5 @@ key = &"tools"
 [resource]
 script = ExtResource("2_pfwa7")
 packages = Array[ExtResource("1_45rg7")]([SubResource("Books"), SubResource("Bottles"), SubResource("Equipment"), SubResource("Glass"), SubResource("Oil"), SubResource("Cells"), SubResource("Clothes"), SubResource("Tools")])
-order_catalog = Array[ExtResource("1_nw77g")]([ExtResource("2_uacu6"), ExtResource("3_kmcut"), ExtResource("4_k4434"), ExtResource("5_6cok5"), ExtResource("7_qiceb"), ExtResource("8_rxjc2"), ExtResource("9_5uown"), ExtResource("10_rpmd4"), ExtResource("11_iveuo"), ExtResource("12_hgvdw"), ExtResource("13_n05ce"), ExtResource("14_g3dxn"), ExtResource("15_jps8y"), ExtResource("16_hcnib"), ExtResource("17_1stbv")])
+order_catalog = Array[ExtResource("1_nw77g")]([ExtResource("2_uacu6"), ExtResource("3_kmcut"), ExtResource("4_k4434"), ExtResource("5_6cok5"), ExtResource("7_qiceb"), ExtResource("8_rxjc2"), ExtResource("9_5uown"), ExtResource("10_rpmd4"), ExtResource("11_iveuo"), ExtResource("12_hgvdw"), ExtResource("13_n05ce"), ExtResource("14_g3dxn"), ExtResource("15_jps8y"), ExtResource("16_hcnib"), ExtResource("17_1stbv"), ExtResource("17_nw77g")])
 key = &"base_supply"

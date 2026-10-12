@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://cn5i6ed8unjpf" path="res://content/domains/combat/components/c_receiver_traits.gd" id="4_34ixw"]
 [ext_resource type="Script" uid="uid://cajpfadnj3rfn" path="res://content/domains/npc/components/c_npc_gaze_freeze.gd" id="5_4bnag"]
 [ext_resource type="Script" uid="uid://dlwax2x6w3y5q" path="res://content/domains/npc/components/c_npc_identity.gd" id="5_s5cpd"]
+[ext_resource type="Script" uid="uid://bxbv407ok36pq" path="res://content/domains/npc/components/c_npc_pride.gd" id="6_um0te"]
 [ext_resource type="Script" uid="uid://cvgkpkfqjch0p" path="res://content/domains/combat/components/c_npc_combat.gd" id="9_kilkc"]
 [ext_resource type="Script" uid="uid://bx06h57gdvgkb" path="res://content/domains/npc/authoring/et_npc_brain_state.gd" id="Brain"]
 
@@ -17,5 +18,6 @@ required_root_class = &"RigidBody3D"
 initial_field_names = Dictionary[Script, PackedStringArray]({
 ExtResource("3_o7rmb"): PackedStringArray("multipliers"),
 ExtResource("4_34ixw"): PackedStringArray("traits"),
-ExtResource("5_4bnag"): PackedStringArray("rule")
+ExtResource("5_4bnag"): PackedStringArray("rule"),
+ExtResource("6_um0te"): PackedStringArray("rule")
 })

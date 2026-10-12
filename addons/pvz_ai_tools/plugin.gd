@@ -178,6 +178,7 @@ func _register_tools() -> void:
 		_behavior_tree_authoring_spec(),
 		_npc_archetype_cache_spec(),
 		_npc_archetype_resave_spec(),
+		_delivery_catalog_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -400,6 +401,27 @@ func _npc_archetype_resave_spec() -> McpCustomToolSpec:
 	}
 	spec.script_path = "res://addons/pvz_ai_tools/npc_archetype_resave_tool.gd"
 	spec.method = &"resave"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = false
+	return spec
+
+
+## Appends an existing physical item to the exact fingerprinted morning supply graph.
+func _delivery_catalog_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_delivery_catalog_append"
+	spec.description = "Append a physical item to the fingerprinted morning order catalog."
+	spec.params_schema = {
+		"type": "object",
+		"properties": { "fingerprint": { "type": "string" }, "item": { "type": "string" } },
+		"required": ["fingerprint", "item"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/delivery_catalog_authoring_tool.gd"
+	spec.method = &"append_item"
 	spec.source_path = SOURCE_CFG
 	spec.source = "PVZ Godot AI Tools"
 	spec.requires_writable = true

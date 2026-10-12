@@ -78,8 +78,8 @@ func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, de
 		)
 	_observe_retreat(actor, person, player, awareness, delta)
 	for rule: DEF_NpcTrait in person.rules_for():
-		if rule is DEF_NpcGrudge:
-			# Resentment is an explicit social-memory query, never a continuous exposure timer.
+		if rule.kind == DEF_NpcTrait.Kind.CAPABILITY:
+			# Typed discrete/frame capabilities have their own owner, never this exposure clock.
 			continue
 		if rule is DEF_NpcDarkPredator:
 			# The visible BT branches own reversible hunt/calm decisions, not an offense timer.

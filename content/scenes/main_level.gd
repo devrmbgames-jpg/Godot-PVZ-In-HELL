@@ -58,6 +58,7 @@ func _ready() -> void:
 		S_CustomerApproach,
 		S_CustomerWaiting,
 		S_CustomerInspection,
+		S_CustomerToyWitness,
 		S_CustomerDeparture,
 		S_CustomerArrivals,
 	]):

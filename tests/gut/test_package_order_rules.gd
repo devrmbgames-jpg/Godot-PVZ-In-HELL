@@ -5,13 +5,14 @@ const ITEMS_ROOT: String = "res://content/domains/inventory/definitions/"
 
 
 #region Category decisions
-## All fifteen physical catalog items are orderable; original case paths remain.
-func test_authored_catalog_has_fifteen_items_and_preserves_case_paths() -> void:
+## Original physical entries and the authored toy are orderable; case paths remain.
+func test_authored_catalog_includes_toy_and_preserves_case_paths() -> void:
 	var supply_path: String = (
 		"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
 	)
 	var supply: DEF_Delivery = load(supply_path) as DEF_Delivery
-	assert_eq(supply.order_catalog.size(), 15)
+	assert_eq(supply.order_catalog.size(), 16)
+	assert_true(_item("toy_block") in supply.order_catalog)
 	for item: DEF_InventoryItem in supply.order_catalog:
 		assert_true(PackageOrderRules.is_orderable(item), String(item.key))
 	var expected: PackedStringArray = [

@@ -27,6 +27,9 @@ static func configure_context(
 	context.initial_fields[C_NpcGazeFreeze as Script] = {
 		&"rule": NpcGazeQueries.selected_rule(person.rules_for()),
 	}
+	context.initial_fields[C_NpcPride as Script] = {
+		&"rule": NpcPrideRules.selected_rule(person.rules_for()),
+	}
 
 
 ## Supplies the stable authored home key before the common address compiler runs.

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_InventoryItem" format=3 uid="uid://d105vrmsrrvs0"]
+
+[ext_resource type="Resource" uid="uid://cvgyjdxiqmply" path="res://content/domains/inventory/definitions/def_item_toy_block.tres" id="1_axlao"]
+[ext_resource type="Script" uid="uid://cfpg1tq1aldu0" path="res://content/domains/inventory/components/c_inventory_item.gd" id="2_ieigi"]
+
+[resource]
+script = ExtResource("2_ieigi")
+definition = ExtResource("1_axlao")

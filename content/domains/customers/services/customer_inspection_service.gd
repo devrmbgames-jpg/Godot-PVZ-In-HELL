@@ -9,10 +9,11 @@ static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity
 	if (
 		visit == null or visit.definition == null or visit.finished
 		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
-		or not visit.definition.private_inspection
 		or not EntityAvailability.contains(customer, ECS.world)
 		or customer.has_component(C_Death) or not EntityAvailability.contains(parcel, ECS.world)
 	):
+		return false
+	if not visit.definition.private_inspection and _pride_rule(customer) == null:
 		return false
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -142,8 +143,19 @@ static func inspect_contents(customer: E_NpcCharacter, visit: CustomerVisit) -> 
 	if agent.inspection_open_attempted:
 		return
 	agent.inspection_open_attempted = true
-	if roll(visit, "unpack") < visit.definition.inspection_unpack_probability:
+	var pride: DEF_NpcStrengthPride = _pride_rule(customer)
+	var probability: float = (
+		pride.private_unpack_probability
+		if pride != null
+		else visit.definition.inspection_unpack_probability
+	)
+	if roll(visit, "unpack") < probability:
 		PackageOpening.request_open(customer, CustomerInspectionQueries.parcel_for(customer))
+
+
+static func _pride_rule(customer: Entity) -> DEF_NpcStrengthPride:
+	var pride: C_NpcPride = customer.get_component(C_NpcPride) as C_NpcPride
+	return pride.rule if pride != null else null
 
 
 ## Запрашивает возвращение с осмотра; момент перехода определяет дерево.

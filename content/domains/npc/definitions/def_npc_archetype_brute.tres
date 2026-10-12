@@ -6,6 +6,7 @@
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_5.tres" id="4_uvh6b"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="5_7ea56"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_4.tres" id="6_iff2w"]
+[ext_resource type="Resource" uid="uid://bue18fdtfmpq6" path="res://content/domains/npc/definitions/def_npc_strength_pride.tres" id="7_3clps"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_pmogq"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_td2xk"]
 
@@ -32,7 +33,7 @@ presentation_cues = PackedStringArray()
 display_name = "Бугай"
 personality = 1
 schedule = SubResource("Resource_y0rw4")
-rules = Array[ExtResource("5_7ea56")]([ExtResource("6_iff2w")])
+rules = Array[ExtResource("5_7ea56")]([ExtResource("6_iff2w"), ExtResource("7_3clps")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.5882353, 0.39607844, 0.29803923, 1)

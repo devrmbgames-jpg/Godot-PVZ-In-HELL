@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://bi3r588q8r6wq"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_2tlmo"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_5dmud"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_e4ucn"]
+[ext_resource type="Resource" uid="uid://dg0ulmq7du0j2" path="res://content/domains/interaction/authoring/et_handheld_item.tres" id="4_y4d0o"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="5_jeut1"]
+[ext_resource type="Resource" uid="uid://3muueba4sykl" path="res://content/domains/combat/authoring/flask_throw_origin.tres" id="6_024x0"]
+[ext_resource type="Resource" uid="uid://d105vrmsrrvs0" path="res://content/domains/inventory/authoring/toy_block_catalog.tres" id="7_1rdve"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_05qh5"]
+albedo_color = Color(0.93333334, 0.39215687, 0.45490196, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_cpl2m"]
+size = Vector3(0.3, 0.3, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cvnr1"]
+size = Vector3(0.3, 0.3, 0.3)
+
+[node name="ToyBlock" type="RigidBody3D" unique_id=1935923643]
+collision_layer = 10
+collision_mask = 31
+mass = 0.5
+continuous_cd = true
+script = ExtResource("1_2tlmo")
+traits = Array[ExtResource("2_5dmud")]([ExtResource("3_e4ucn"), ExtResource("4_y4d0o")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("5_jeut1")]([ExtResource("6_024x0"), ExtResource("7_1rdve")])
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=325706439]
+material_override = SubResource("StandardMaterial3D_05qh5")
+mesh = SubResource("BoxMesh_cpl2m")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1784344751]
+shape = SubResource("BoxShape3D_cvnr1")
