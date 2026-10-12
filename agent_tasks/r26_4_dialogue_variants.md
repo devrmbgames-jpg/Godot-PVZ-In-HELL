@@ -13,15 +13,26 @@ The owner will later copy these resources and add more variants. Therefore paths
 
 ### Current
 
-Native lost/shy/night/angel/hag/brute/fire/chain catalogs now expose **16/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
+Native lost/shy/night/angel/hag/brute/fire/chain/creepy catalogs now expose **18/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
 Shy variants read gaze warnings; night variants read authored perceived darkness; angel variants use native written boards. Hag variants differ in deception, reagents/artifacts and riddles (name versus hole), read personal grudges and keep street answers separate from idempotent service outcomes.
-Brute variants differ in direct threats and bragging, discuss weapons/private toy purchases and read recognized actor-specific strength. Dialogue never grants respect; street submission uses the existing social owner. Checkpoint `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed independent review. Fire variants differ in restrained care versus impatient enthusiasm; both discuss real fire reagents, floor/body heat and possible opening explosions without deciding gameplay outcomes. Chain variants now implement contractual/legalistic and mocking/tempting confirmations through a stable-key adapter; total accepted count, explicit refusal and UI closure follow the reviewed soul ledger. Remaining creepy/vampire need mandatory interactions and four variants before live roster binding.
+Brute variants differ in direct threats and bragging, discuss weapons/private toy purchases and read recognized actor-specific strength. Dialogue never grants respect; street submission uses the existing social owner. Checkpoint `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed independent review. Fire variants differ in restrained care versus impatient enthusiasm; both discuss real fire reagents, floor/body heat and possible opening explosions without deciding gameplay outcomes. Chain variants now implement contractual/legalistic and mocking/tempting confirmations through a stable-key adapter; total accepted count, explicit refusal and UI closure follow the reviewed soul ledger. Creepy variants read actor-specific durable notice through a public read-only NPC query; distinct quiet/invasive questions preserve both service roles. Remaining Vampire needs mandatory interactions and two variants before live roster binding.
 
 ### Next
 
-Implement creepy/vampire mandatory interactions and four variants, then outstanding cross-archetype acceptance before live roster binding. Full owner acceptance remains open.
+Implement Vampire mandatory interactions and two variants, then outstanding cross-archetype acceptance before live roster binding. Full owner acceptance remains open.
 
 ### Validation
+
+Creepy checkpoint `ad79c0eab6a00772dd578a3a7d25053166db70ef`: native GUT183720319 **36/1009**
+(including31 inherited), parser1837089193/3 PASS. Actor-specific notice in both roles is read-only;
+repeated unknown/known dialogue changes no memory, exposure, transform, combat or visit state.
+All imported cues/tags, scan/denial/private delivery, persistent selection and real panel/focus PASS.
+MCP imported both variants and saved native catalog pool preserving UID/tuning; fresh test checked[].
+Formatter/lint, strict domain dependencies/project structure/persistence/architecture/staged/diff PASS.
+Independent review BASE `23fa3d44d9024d4becb59477921be1d288d7bee9` -> that TARGET
+**PASS**, no material findings (60s; same terminal reviewer reused).
+ARCHITECTURE/STYLE PASS; reviewer runtime NOT_RUN.
+
 
 Fire PASS: parser045141074/1; native GUT045030048 **36/943** including inherited31, all shared cues, distinct topics/tags, stable choice/codec, both roles read-only with undecided and committed explosions, registration guard, one-shot denial, four private deliveries and actual headless panels/focus release.
 MCP authored/imported both Fire variants, saved the catalog pool with UIDs/tuning retained and refreshed cache; final test checked[] PASS. Formatter/lint and strict architecture/dependencies/domain/project/persistence/staged/diff PASS. No extra full smoke for authored-dialogue batch; native role/panel tests cover its scope.

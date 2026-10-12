@@ -13,7 +13,7 @@ Integrate physical items, modular NPC archetypes, LimboAI behavior and dialogue 
 
 PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
 in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
-Prerequisite milestones now include schema16 soul receipts and Strength; their scoped evidence is in R26.3. Full integration acceptance below remains NOT_RUN.
+Prerequisite milestones now include schema17 soul receipts, Strength and durable stalking notice; their scoped evidence is in R26.3. Full integration acceptance below remains NOT_RUN.
 
 ### Validation
 
@@ -113,7 +113,7 @@ Use placeholders if final assets do not exist.
 
 ## Schema and new-game construction
 
-Current `AutosaveStore.SCHEMA_VERSION` is 16. When serialized fields/paths/meaning change,
+Current `AutosaveStore.SCHEMA_VERSION` is 17. When serialized fields/paths/meaning change,
 advance the actual supported version, guards, golden fixture and save-visible inventory.
 Unsupported old/newer/invalid saves reject before live mutation, preserve original bytes
 and remain protected from later autosave. No conversion, previous-format aliases or load defaults.
@@ -171,7 +171,7 @@ Do not add per-frame verbose logging.
 - 2 variants × 10 archetypes load/import;
 - Angel sign communication works;
 - soul deal applies once per accepted confirmation;
-- third consecutive accepted deal causes player death;
+- third total accepted deal causes player death; refusals preserve the accepted count;
 - vampire accepted blood request removes 5–40% of current HP through gameplay contract;
 - decline/cancel paths do not mutate stats.
 

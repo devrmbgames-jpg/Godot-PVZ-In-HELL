@@ -16,6 +16,12 @@ Extend visible tree selection; a leaf dispatching an entire decision tree remain
 
 ### Current
 
+Latest Creepy checkpoint `3e88b56983a775cc78c225353251ff6a98d33b87` implements hidden native routes,
+actual camera/LOS stop, terminal-reader reach and durable actor-specific notice (schema17).
+Recovery review BASE `6f96be1e39eb94b4a4c307c8bce2d3b9a30a14f3` -> that TARGET collected;
+only R1 accepted as RV-005. Repair `23fa3d44d9024d4becb59477921be1d288d7bee9`
+passed independent targeted re-review (27s); reviewer was reused after its terminal result.
+
 Reviewed native freeze/speed/shy/night behavior retains body, animation, combat, cadence and motion authorities. Shy uses actual camera/LOS and safe idle repositioning; Trait System owns gaze escalation. Night uses due-step authored light, reversible combat suppression and native audio/Decal cleanup on dormant/dead/reset/replacement/disposal.
 Hag RANGED preference selects visible distance/shot branches in both roots below immediate safety/light/blood. Bounded safe navigation previews preserve physical transform authority; combat owns shots/cooldowns, unreachable retreat permits defense and lost targets use search.
 Hag personal grudges derive from durable offender/victim IDs; repeats retain committed reactions and both dialogue roles read the same query. Bodyless promises, days/reset/save retain resentment; no grudge clock. Both hag riddle/deception variants now passed checks/review.
@@ -28,6 +34,14 @@ Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; 
 Soul core `3a18bbc5275463d05328744e767e923cf8242d7b` commits +1 Strength/-10 maximum Health and the third total acceptance through common depletion. Refusals preserve count; closure keeps the pending key. Captured terms, durable receipts/cooldowns, schema16 and native player capability preserve save/lifetime authorities. Independent review and RV-004 repair PASS; both Chain variants `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b` passed native checks and independent review.
 
 ### Validation
+
+Recovered Creepy evidence: stalking06245473113/99, interaction0622085098/76,
+freeze06221985615/110, aversion06223225711/113, parser0626376215/5 PASS.
+Recovery review247s accepted RV-005 only; baseline183345914 FAIL13/14, fix18342894914/111 PASS.
+Formatter/lint34files vs recovery base, strict architecture/dependencies, domain/project/persistence
+and diff PASS after public-dialogue contract update. Connected district headless smoke PASS: `tests/artifacts/district-20261013-043550631.log`.
+Historical source-checkpoint smoke162810446 also PASS; neither is rendered QA.
+
 
 Chain dialogue GUT054458560 39/945, parser054654245/2 and fresh MCP checked[] PASS;
 review BASE `b2fa6988d8ff5abf378ac11d28de6d7b5d298412` ->
@@ -50,9 +64,18 @@ Full mandatory behavior/live integration and owner rendered movement/dialogue/as
 
 ### Next
 
-Implement creepy/vampire mandatory capabilities, their four dialogue variants and outstanding cross-archetype acceptance before live roster binding.
+Implement Vampire
+mandatory capabilities/two variants and cross-archetype acceptance before live roster binding.
 
 ### Review triage
+
+RV-005 P1 `S_NpcStalkingWitness._sample` / uninterrupted camera exposure:
+source `3e88b56983a775cc78c225353251ff6a98d33b87`, reviewer R1, owner Main.
+Same NPC/player suspension retained0.4s then0.1s incorrectly committed durable detection.
+FIXED(`23fa3d44d9024d4becb59477921be1d288d7bee9`, gut18342894914/111).
+Actual HOME/STREET regression baseline183345914 FAIL13/14 reproduces unwanted memory;
+repair resets transient sensing before native runner lookup, preserves durable memory.
+Parser1834543174/4 PASS; independent targeted re-review ARCHITECTURE/STYLE PASS, no findings.
 
 RV-004 P2 fatal threshold101 created an invalid ledger at `3a18bbc5275463d05328744e767e923cf8242d7b`.
 FIXED(`4f956de8db9a62aa8bd13df53c150025798aa1d0`, Soul053521718 16/186, parser053544530/2).

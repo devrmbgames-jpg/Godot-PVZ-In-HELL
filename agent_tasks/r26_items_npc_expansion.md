@@ -21,56 +21,27 @@ This root task owns overall status/current/next. Each supporting task owns its o
 
 ### Current
 
-R26.1 is in progress from baseline `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`.
-ACID/HOLY/UNHOLY append compatibly; six shopping categories and physical catalog
-storage share existing damage/inventory/commerce authorities. Bones, axe, scythe
-and throwing knife have native authored scenes and focused regression evidence.
-The full 15-item catalog now has native physical scenes, including both artifacts and blood payloads.
-Break payloads share the existing emitter/factory and preserve captured throw attribution.
-Shared sweep supports authored multi-target limits with synchronous cancellation.
-Combat-owned C_Karma now persists with authored strict thresholds and one runtime writer.
-Artifact receiver rules now use typed creature tags and player karma through the damage authority.
-Blood spawns non-damaging native zones; perceived vampire calm/approach/retention and
-typed unclean provocation now use native perception and visible LimboAI branches.
-Blood review fixes passed native checks and targeted review; final 15-item physical smoke passed.
-NPC archetypes/receiver composition and overall owner acceptance remain open.
-R26.2 now creates and restores persistent per-person variation in the existing live roster;
-Entity Traits compose movement, resistances and receiver tags from immutable archetypes.
-All ten requested archetypes have native authored data; live roster binding and new
-behavior/dialogue acceptance remain open. Category orders now commit actual payloads in
-receiving, contents and archive projection, using the immutable authored catalog. Schema is 15.
-R26.3 adds a reusable observation-freeze trait and visible native safety subtree. Camera/LOS
-sampling precedes cadence; native freeze/animation, avoidance and attack gates share that fact.
-Observation passed headless checks/smoke and review. Aggressive speed now shares motion
-and navigation authority, passes focused regressions, district smoke and review.
-Full behaviors/binding remain open.
-Shy gaze aversion now uses native idle-only observation/repositioning, real perception/camera,
-safe routes and one remembered prolonged-gaze attack. Focused/native regressions pass;
-district smoke/review passed. Live archetype binding remains open.
-Night hunting now uses due-step authored light sampling and visible native/customer branches
-for starting combat and calming on light; combat gates preserve emergency movement while
-cancelling the attack. Focused checks, final smoke and lifecycle repair review pass.
-Night music/shadow presentation now has native authored views, lifecycle checks,
-independent checkpoint review and district smoke PASS. Live archetype binding remains open.
-The hag's authored ranged preference now has visible distance/shot branches for both roles;
-focused native regressions, MCP authoring, district smoke and independent review PASS.
-Typed personal grudges now reuse saved incident memory and stable participant IDs; native checks
-pass. Checkpoint review and isolated-disk preflight repair review passed. Both hag riddle/deception
-variants now preserve service outcomes and personal grudges; native checks and independent review PASS.
-R26.4 routes committed personal variants, with two neutral/lost, two shy, two night and two angel variants using
-imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
-role/idempotency regressions and checkpoint review pass. Lost checkpoint review
-and registration-guard repair passed. Night light views and actual role/delivery checks pass,
-with checkpoint review passed. Angel native board/pool/role checks and independent review pass;
-the hag adds two distinct riddles, bringing implemented variants to 10/20. The remaining ten
-variants/interactions stay open.
+R26.1 physical catalog/framework and R26.2 persistent modular identity/category orders are
+implemented at the checkpoints recorded in their owning tasks; full integration remains open.
+R26.3 native safety/freeze/shy/night/hag/brute/fire/chain milestones passed scoped native
+checks and independent reviews. Creepy now uses hidden native paths, actual camera/LOS,
+terminal-reader reach and durable actor-specific notice at
+`3e88b56983a775cc78c225353251ff6a98d33b87` (schema17).
+Recovery review BASE `6f96be1e39eb94b4a4c307c8bce2d3b9a30a14f3` -> that TARGET accepted only
+RV-005 in R26.3. Repair `23fa3d44d9024d4becb59477921be1d288d7bee9` passed GUT14/111 and
+independent targeted review; suspension now breaks continuous exposure, preserving memory.
+R26.4 now has **18/20** native variants (lost/shy/night/angel/hag/brute/fire/chain/creepy).
+Creepy `ad79c0eab6a00772dd578a3a7d25053166db70ef` passed native GUT36/1009, parser3/3
+and static checks; independent review **PASS**, no findings, on exact
+`23fa3d44d9024d4becb59477921be1d288d7bee9..ad79c0eab6a00772dd578a3a7d25053166db70ef`.
+Mandatory Vampire capabilities/two dialogues, all-ten live roster binding and R26.5 acceptance
+remain unfinished. Required owner QA stays open. Existing user worktree edits were preserved.
 
 ### Next
 
-Goal resumed. Grudge RV-002 fixed/reviewed at `510a074b4161f65a67d93fb46d4a5f61a2b62b56`.
-Hag dialogue reviewed at `6293c6bdb34334832f0c02e720df11c75cc20dd2`.
-Implement brute witnessed-toy/strength/private-unpacking behavior and remaining R26.3/R26.4
-before binding all ten archetypes.
+Implement Vampire authoritative blood confirmation,
+health-floor combat/cloud/light behavior and its two variants; bind all ten archetypes only
+after their mandatory capabilities and outstanding cross-archetype acceptance are ready.
 
 ### Validation
 
@@ -111,7 +82,7 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
   scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
 - Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
   native physics delta retains its existing authority.
-- Current save schema is `AutosaveStore.SCHEMA_VERSION = 15`; version incompatible
+- Current save schema is `AutosaveStore.SCHEMA_VERSION = 17`; version incompatible
   serialized changes from the actual implementation baseline. No old-save conversion,
   defaults that accept an unsupported format, or automatic rejected-slot overwrite.
 
