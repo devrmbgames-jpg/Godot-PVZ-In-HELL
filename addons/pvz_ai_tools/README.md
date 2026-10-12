@@ -191,5 +191,8 @@ all pools preflight before saving, retaining embedded schedules/traits and other
 Optional `trait_additions` maps fingerprinted targets to one through four existing native
 NPC trait `.tres` paths. Only the separate graph's mandatory rules are appended; invalid,
 duplicate or incompatible traits refuse the complete batch before any save.
+Preflight loads definitions and all external dependencies from disk with
+`CACHE_MODE_IGNORE_DEEP`; unsaved cached trait edits cannot enter compatibility checks
+or the saved graph, and the editor's cached values remain unchanged.
 An anonymous global script reload error43 does not refresh exported layouts: confirm
 the actual exported properties or restart before saving authored resources.

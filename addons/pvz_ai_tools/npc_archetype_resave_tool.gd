@@ -87,7 +87,11 @@ static func preflight(
 				or seen.has(path) or not ResourceLoader.exists(path)
 			):
 				return { "error": "Missing, repeated or unsupported trait definition." }
-			var rule: DEF_NpcTrait = load(path) as DEF_NpcTrait
+			var rule: DEF_NpcTrait = ResourceLoader.load(
+				path,
+				"",
+				ResourceLoader.CACHE_MODE_IGNORE_DEEP,
+			) as DEF_NpcTrait
 			if rule == null or rule.key.is_empty() or not rule.valid_configuration():
 				return { "error": "Expected a valid native NPC trait definition." }
 			traits[target].append(rule)
@@ -107,7 +111,11 @@ static func preflight(
 			return { "error": "Close the target Resource Inspector before resaving.", "path": path }
 		if fingerprints[key] != FileAccess.get_sha256(path):
 			return { "error": "Resource changed since inspection.", "path": path }
-		var resource: Resource = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+		var resource: Resource = ResourceLoader.load(
+			path,
+			"",
+			ResourceLoader.CACHE_MODE_IGNORE_DEEP,
+		)
 		var resource_script: Script = resource.get_script() as Script if resource != null else null
 		if resource_script == null or resource_script != (DEF_NpcArchetype as Script):
 			return { "error": "Only DEF_NpcArchetype definitions may be resaved.", "path": path }
