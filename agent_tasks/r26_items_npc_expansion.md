@@ -52,6 +52,8 @@ for starting combat and calming on light; combat gates preserve emergency moveme
 cancelling the attack. Focused checks, final smoke and lifecycle repair review pass.
 Night music/shadow presentation now has native authored views, lifecycle checks,
 independent checkpoint review and district smoke PASS. Live archetype binding remains open.
+The hag's authored ranged preference now has visible distance/shot branches for both roles;
+focused native regressions, MCP authoring and district smoke PASS. Checkpoint review is pending.
 R26.4 routes committed personal variants, with two neutral/lost, two shy, two night and two angel variants using
 imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
 role/idempotency regressions and checkpoint review pass. Lost checkpoint review
@@ -61,8 +63,10 @@ the remaining 12 variants/interactions stay open.
 
 ### Next
 
-Continue the hag's ranged/riddle/grudge capabilities and remaining R26.3/R26.4,
-then bind all ten archetypes.
+Goal service reports `paused`. After resume, review ranged checkpoint
+`4140fb04299a2b12597fdab832c913a02a08b172` against
+`4d4866eea7cbff4b22a1845ffc8f3e2c7174de98`, then continue hag riddle/grudge capabilities
+and remaining R26.3/R26.4 before binding all ten archetypes.
 
 ### Validation
 

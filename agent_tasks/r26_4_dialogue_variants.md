@@ -43,7 +43,8 @@ transactions; full task acceptance and live roster binding remain open.
 ### Next
 
 Continue required archetype behavior/interaction capabilities
-and author the remaining 12 variants, starting with the hag's ranged/riddle/grudge capabilities.
+and author the remaining 12 variants, starting with the hag's riddle/grudge capabilities
+after the implemented ranged checkpoint review. Goal service currently reports `paused`.
 No per-open reroll or new UI authority is introduced.
 
 ### Validation
