@@ -350,14 +350,14 @@ func test_authored_native_roots_preserve_higher_priority_branches() -> void:
 	assert_true(_rule.valid_configuration())
 	assert_same(_state.rule, _rule)
 	var npc: BehaviorTree = load(NpcBrainService.TREE_PATH) as BehaviorTree
-	assert_eq(npc.get_root_task().get_child(9).get_custom_name(), "Задача расписания")
-	assert_same((npc.get_root_task().get_child(10) as BTSubtree).subtree, STALKING_TREE)
+	assert_eq(npc.get_root_task().get_child(10).get_custom_name(), "Задача расписания")
+	assert_same((npc.get_root_task().get_child(11) as BTSubtree).subtree, STALKING_TREE)
 	var customer: BehaviorTree = load(
 		"res://content/domains/customers/ai/trees/bt_district_npc.tres"
 	) as BehaviorTree
-	assert_eq(customer.get_root_task().get_child(7).get_custom_name(), "Обслуживание / разговор")
-	assert_eq(customer.get_root_task().get_child(8).get_custom_name(), "Задача расписания")
-	assert_same((customer.get_root_task().get_child(9) as BTSubtree).subtree, STALKING_TREE)
+	assert_eq(customer.get_root_task().get_child(8).get_custom_name(), "Обслуживание / разговор")
+	assert_eq(customer.get_root_task().get_child(9).get_custom_name(), "Задача расписания")
+	assert_same((customer.get_root_task().get_child(10) as BTSubtree).subtree, STALKING_TREE)
 #endregion
 
 

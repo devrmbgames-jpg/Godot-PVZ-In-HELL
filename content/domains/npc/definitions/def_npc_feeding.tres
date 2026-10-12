@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_NpcFeeding" format=3 uid="uid://by2rxwys8vivp"]
+
+[ext_resource type="Script" uid="uid://cvw4ggyinkq5l" path="res://content/domains/npc/definitions/def_npc_feeding.gd" id="1_xud0y"]
+
+[resource]
+script = ExtResource("1_xud0y")
+kind = 7
+key = &"trait/feeding"

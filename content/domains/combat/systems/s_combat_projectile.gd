@@ -66,6 +66,7 @@ func _step(projectile: Entity, delta: float) -> void:
 			request.instigator_id = state.instigator_id
 			request.target = target
 			request.amount = state.damage
+			request.minimum_health_fraction = state.minimum_health_fraction
 			request.damage_type = DamageRequest.Type.PROJECTILE
 			request.combat_context = state.attribution
 			DamageRequestService.submit(request)

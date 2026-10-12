@@ -1,0 +1,39 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://cpb07rvbdp8ik"]
+
+[ext_resource type="Script" uid="uid://bxfmv1x4k8y0o" path="res://content/domains/npc/ai/tasks/bt_npc_feeding_floor.gd" id="1_3fycu"]
+[ext_resource type="Script" uid="uid://cuvbp6ubcpqv5" path="res://content/domains/npc/ai/tasks/bt_npc_end_combat.gd" id="2_wc52w"]
+[ext_resource type="Script" uid="uid://sjx6dol72efu" path="res://content/domains/npc/ai/tasks/bt_npc_wounded_player.gd" id="3_irm2u"]
+[ext_resource type="Script" uid="uid://dssex3ydvhgw" path="res://content/domains/npc/ai/tasks/bt_npc_begin_feeding.gd" id="4_ptmnt"]
+
+[sub_resource type="BTCondition" id="BTCondition_8ar0n"]
+custom_name = "Достигнут авторский предел питания"
+script = ExtResource("1_3fycu")
+
+[sub_resource type="BTAction" id="BTAction_xl6go"]
+custom_name = "Закончить питание и отменить атаку"
+script = ExtResource("2_wc52w")
+intent_owner = 1
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_cgu43"]
+custom_name = "Видимая цель достигла порога здоровья"
+children = [SubResource("BTCondition_8ar0n"), SubResource("BTAction_xl6go")]
+
+[sub_resource type="BTCondition" id="BTCondition_fegr1"]
+custom_name = "Есть допустимая раненая цель"
+script = ExtResource("3_irm2u")
+
+[sub_resource type="BTAction" id="BTAction_1pytc"]
+custom_name = "Начать ограниченный бой через владельца реакции"
+script = ExtResource("4_ptmnt")
+intent_owner = 1
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_vx6th"]
+custom_name = "Видимый раненый игрок вне обслуживания"
+children = [SubResource("BTCondition_fegr1"), SubResource("BTAction_1pytc")]
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_puqde"]
+custom_name = "Питание: остановиться у порога или начать охоту"
+children = [SubResource("BTDynamicSequence_cgu43"), SubResource("BTDynamicSequence_vx6th")]
+
+[resource]
+root_task = SubResource("BTDynamicSelector_puqde")

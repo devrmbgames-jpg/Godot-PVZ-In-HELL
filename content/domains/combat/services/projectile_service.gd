@@ -13,6 +13,7 @@ static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool
 	if (
 		not GrabQueries.holder_available(actor)
 		or not GrabQueries.holder_available(target) or not is_instance_valid(ECS.world)
+		or not NpcFeedingQueries.can_attack(actor, target)
 	):
 		return false
 
@@ -37,6 +38,7 @@ static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool
 		actor.get_component(C_Hunger) as C_Hunger
 	)
 	state.collision_mask = attack.collision_mask
+	state.minimum_health_fraction = NpcFeedingQueries.minimum_health_fraction(actor)
 	var request: DamageRequest = DamageRequest.new()
 	request.instigator = actor
 	request.source = actor

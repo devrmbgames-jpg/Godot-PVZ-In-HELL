@@ -8,6 +8,8 @@ var velocity: Vector3 = Vector3.ZERO
 var remaining_seconds: float = 0.0
 ## Урон уже с множителем голода стрелка; сопротивление применяется у цели.
 var damage: float = 0.0
+## Captured ordinary damage bound; flight never reads the launcher's mutable target or trait data.
+var minimum_health_fraction: float = 0.0
 ## Слои луча пройденного отрезка.
 var collision_mask: int = 31
 ## Постоянный снимок контекста запуска без живых ссылок.

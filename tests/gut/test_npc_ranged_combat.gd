@@ -285,8 +285,8 @@ func test_customer_and_street_roots_share_ranged_priority_below_safety() -> void
 		"res://content/domains/customers/ai/trees/bt_district_npc.tres",
 	]:
 		var root_task: BTTask = (load(tree_path) as BehaviorTree).get_root_task()
-		var branch_index: int = 6 if tree_path == NpcBrainService.TREE_PATH else 5
-		assert_eq(root_task.get_child(branch_index - 2).get_custom_name(), "Воспринятая кровь")
+		var branch_index: int = 7 if tree_path == NpcBrainService.TREE_PATH else 6
+		assert_eq(root_task.get_child(branch_index - 3).get_custom_name(), "Воспринятая кровь")
 		assert_same((root_task.get_child(branch_index) as BTSubtree).subtree, RANGED_TREE)
 		assert_eq(root_task.get_child(branch_index + 1).get_custom_name(), "Бой / поиск")
 	var runner: BTPlayer = _actor.get_node("Brain") as BTPlayer

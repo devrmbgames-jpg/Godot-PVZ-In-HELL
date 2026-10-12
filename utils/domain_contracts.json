@@ -19564,6 +19564,30 @@
         "content/ui/npc_dialogue_context.gd"
       ],
       "purpose": "Dialogue adapter reads the captured blood percentage and durable receipt, then submits one stable-key confirmation through the gameplay owner."
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "npc",
+      "symbol": "NpcFeedingQueries",
+      "path": "content/domains/npc/services/npc_feeding_queries.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "can_attack",
+        "minimum_health_fraction"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "can_attack": "query",
+        "minimum_health_fraction": "query"
+      },
+      "sources": [
+        "content/domains/combat/services/combat_service.gd",
+        "content/domains/combat/services/npc_attack_service.gd",
+        "content/domains/combat/services/projectile_service.gd"
+      ],
+      "purpose": "Ordinary melee/projectile boundaries observe immutable authored feeding eligibility and capture its generic Health bound; NPC owns preferences, combat owns damage and execution."
     }
   ],
   "legacy_decomposition": []

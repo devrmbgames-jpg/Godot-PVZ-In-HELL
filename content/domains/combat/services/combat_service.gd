@@ -91,6 +91,9 @@ static func hit(actor: Entity, source: Entity, target: Entity, damage: float) ->
 	request.amount = (
 		damage * HungerRules.damage_multiplier(actor.get_component(C_Hunger) as C_Hunger)
 	)
+	if not NpcFeedingQueries.can_attack(actor, target):
+		return false
+	request.minimum_health_fraction = NpcFeedingQueries.minimum_health_fraction(actor)
 	request.damage_type = DamageRequest.Type.MELEE
 	return DamageRequestService.submit(request)
 

@@ -46,6 +46,7 @@ static func can_start_against(
 		valid_attack(attack, kind) and pair_available(actor, target)
 		and in_range(actor, target, attack)
 		and CombatGeometry.clear_line(actor, target, attack.collision_mask)
+		and NpcFeedingQueries.can_attack(actor, target)
 	)
 
 
@@ -160,7 +161,7 @@ static func commit_effect(actor: Entity) -> bool:
 		return false
 
 	var target: Entity = CombatQueries.target_for(actor)
-	if not pair_available(actor, target):
+	if not pair_available(actor, target) or not NpcFeedingQueries.can_attack(actor, target):
 		NpcAttackExecutionService.cancel(actor)
 		return false
 

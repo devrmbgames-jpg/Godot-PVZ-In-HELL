@@ -8,6 +8,7 @@
 [ext_resource type="BehaviorTree" uid="uid://kc4c4akjxpa7" path="res://content/domains/npc/ai/trees/bt_npc_blood.tres" id="4_cmgqs"]
 [ext_resource type="BehaviorTree" uid="uid://bmc5t70coej8t" path="res://content/domains/npc/ai/trees/bt_npc_idle.tres" id="5_boyj1"]
 [ext_resource type="Script" uid="uid://daqio4cpc6kq1" path="res://content/domains/npc/ai/tasks/bt_npc_inactive.gd" id="6_inactive"]
+[ext_resource type="BehaviorTree" uid="uid://cpb07rvbdp8ik" path="res://content/domains/npc/ai/trees/bt_npc_feeding.tres" id="6_sb3qi"]
 [ext_resource type="BehaviorTree" uid="uid://5vw2iauto3l7" path="res://content/domains/npc/ai/trees/bt_npc_ranged_combat.tres" id="6_vhr1v"]
 [ext_resource type="BehaviorTree" uid="uid://bfxjaic6iwa2l" path="res://content/domains/npc/ai/trees/bt_npc_toy_pride.tres" id="6_x7uby"]
 [ext_resource type="Script" uid="uid://jdb3ggonys57" path="res://content/domains/npc/ai/tasks/bt_npc_stop.gd" id="7_stop"]
@@ -46,6 +47,13 @@ custom_name = "Свет / охота в темноте"
 subtree = ExtResource("4_cmgqs")
 blackboard_plan = SubResource("BlackboardPlan_32fhq")
 custom_name = "Воспринятая кровь"
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_w06uo"]
+
+[sub_resource type="BTSubtree" id="BTSubtree_72ggp"]
+subtree = ExtResource("6_sb3qi")
+blackboard_plan = SubResource("BlackboardPlan_w06uo")
+custom_name = "Питание / предел обычного урона"
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_x3c37"]
 
@@ -97,7 +105,7 @@ blackboard_plan = SubResource("BlackboardPlan_okqqo")
 custom_name = "Свободное занятие"
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_nseog"]
-children = [SubResource("Terminal"), SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_x7uby"), SubResource("BTSubtree_vhr1v"), SubResource("BTSubtree_sb3qi"), SubResource("BTSubtree_x3c37"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_w06uo"), SubResource("BTSubtree_4i138")]
+children = [SubResource("Terminal"), SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_x7uby"), SubResource("BTSubtree_vhr1v"), SubResource("BTSubtree_72ggp"), SubResource("BTSubtree_sb3qi"), SubResource("BTSubtree_x3c37"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_w06uo"), SubResource("BTSubtree_4i138")]
 
 [resource]
 description = "District NPC: emergency, combat/search, parcel service, phase schedule, free activity."
