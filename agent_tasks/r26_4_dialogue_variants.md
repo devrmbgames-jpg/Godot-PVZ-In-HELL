@@ -18,10 +18,14 @@ keeps priority and legacy actors keep their role fallback. Two neutral/lost vari
 distinct greetings, neighborhood and broad shopping topics plus all existing role entry cues.
 Pinned Dialogue Manager imports preserve service outcomes, personal delivery and response tags;
 session cleanup releases cached imported line cycles as well as the root resource.
-The native lost and shy archetypes expose both paths; **4/20** variants are implemented.
+The native lost, shy and night archetypes expose both paths; **6/20** variants are implemented.
 Shy variants distinguish withdrawn fear from resentful avoidance and read the committed
 gaze warning through a query adapter shared by street/customer contexts. Reading dialogue
 does not advance exposure or alter memory. Both keep the registration guard and role imports.
+Night variants use restrained warning versus playful predatory tones, weapon/clothing topics
+and light advice. Both roles read the same authored perceived-light predicate as the native
+hunt guard. Dialogue performs no sensing or aggression mutation; registration guards and
+existing denial/private delivery owners remain intact. Night checkpoint review is pending.
 Review of `490efacd2b5888383325bdbf37aa13b3753be4a4` against
 `1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63` found the missing direct registration guard.
 The guard is restored in both variants, with focused native regression PASS. Targeted repair
@@ -35,7 +39,7 @@ transactions; full task acceptance and live roster binding remain open.
 ### Next
 
 Continue required archetype behavior/interaction capabilities
-and author the remaining 16 variants.
+and author the remaining 14 variants, starting with the angel's board presentation.
 No per-open reroll or new UI authority is introduced.
 
 ### Validation
@@ -59,6 +63,14 @@ No per-open reroll or new UI authority is introduced.
   Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
   MCP native catalog save, settled imports, test reload/diagnostics and clean scene reload PASS;
   no new editor errors after repair. Global-script reload43 NOT_PASS; CLI independently PASS.
+- Night PASS: parser001701989/5; `test_npc_night_dialogue.gd` **37/37, 831 assertions**,
+  actual imported role cues, codec selection, both light tones/hidden-player/threshold reads,
+  unregistered guard, registered denial/idempotency and four private-delivery acceptances.
+  Logs `.artifacts/godot_agent/gut-20261012-001711308.{stdout,stderr}.log`; no runtime errors.
+  Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
+  MCP saved the native catalog preserving UID and tuning, imported both dialogues and reloaded
+  the clean scene; test/leaf diagnostics PASS, global hot reload43 NOT_PASS, CLI independently PASS.
+  Night dialogue checkpoint review: REVIEW_PENDING. Rendered/dialogue feel: NOT_RUN.
 
 ### Review triage
 

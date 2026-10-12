@@ -1,9 +1,21 @@
 extends RefCounted
-## Read-only gaze/vulnerability decisions; exposure and retreat clocks belong to the trait System.
+## Read-only observed trait decisions; samples and clocks belong to their Systems.
 class_name NpcTraitRules
 
 
 #region Observed trait predicates
+## Shares the authored hunting-light criterion between native decisions and dialogue views.
+static func player_in_hunting_darkness(
+	awareness: C_NpcAwareness,
+	rule: DEF_NpcDarkPredator,
+) -> bool:
+	return (
+		rule != null and awareness.player_visible
+		and awareness.self_light_exposure <= rule.light_threshold
+		and awareness.player_light_exposure <= rule.light_threshold
+	)
+
+
 ## Tests the current player view against the authored gaze requirement.
 static func gazing(player: Entity, actor: E_DistrictNpc, rule: DEF_NpcTrait) -> bool:
 	var spatial: Node3D = player as Node as Node3D

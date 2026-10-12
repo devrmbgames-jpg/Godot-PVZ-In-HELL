@@ -22,7 +22,7 @@ key = &"schedule/night_hunter"
 [resource]
 script = ExtResource("9_2fbso")
 name_variants = PackedStringArray("Морок", "Нокт")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/night_hunter/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/night_hunter/variant_b.dialogue")
 optional_traits = Array[ExtResource("3_g28ce")]([SubResource("Resource_ipir7")])
 maximum_optional_traits = 1
 item_category_weights = Dictionary[int, float]({

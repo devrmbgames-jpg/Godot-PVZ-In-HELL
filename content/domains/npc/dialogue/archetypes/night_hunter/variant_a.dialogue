@@ -1,0 +1,152 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+if ctx.player_in_hunting_darkness()
+	{{ctx.speaker_name()}}: Здесь темно. Я пока ещё говорю с тобой, но лучше вернись под работающую лампу.
+else
+	{{ctx.speaker_name()}}: При свете я предпочитаю разговор. Не спеши выключать лампу за спиной.
+- Хорошо, оставлю свет включённым. [#hon] => light
+- Почему тебе важен свет? => light
+- Чем живёт район ночью? => neighborhood
+- Что ждёшь в посылках? => goods
+- Я могу доставить заказ домой. [if ctx.can_offer_delivery() /] => delivery_request
+- До встречи. => END
+
+~ direct
+if ctx.has_registered_number()
+	Клиент: Заказ №{{ctx.package_number_text()}}. Оружие или одежда — мне нужно и то и другое.
+	- Сейчас проверю вашу посылку. => END
+	- Подожди здесь, лампа работает. => light
+	- Зачем тебе такой заказ? => goods
+	- Можем договориться о доставке домой. [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Номер ещё не появился. Сначала просканируйте поступившие посылки; я подожду у света.
+=> END
+
+~ light
+if ctx.player_in_hunting_darkness()
+	Сосед: Теперь я вижу добычу лучше, чем собеседника. Зажги свет или выйди из темноты, пока можешь.
+else
+	Сосед: На свету я могу держать себя в руках. В темноте это даётся хуже; яркое место заставит меня отойти в укрытие.
+- Я тебя услышал. [#hon] => restraint
+- Тогда поговорим здесь, у лампы. [#prs] => restraint
+- Я совсем не боюсь темноты. [#lie] => street_flow/provocation
+- Давай проверим, кто здесь добыча. [#thr] => street_flow/threat
+
+~ restraint
+Сосед: Разумно. Оставим охоту за пределами этого разговора.
+=> END
+
+~ neighborhood
+Сосед: Днём здесь выбирают короткую дорогу. Ночью стоит выбирать освещённую. Выключатели меняют больше, чем кажется.
+- Я проверю, какая лампа работает. [#hon] => restraint
+- А если свет погаснет? => light
+- Благодарю за совет. => END
+
+~ goods
+Сосед: Надёжное оружие и плотная одежда. Клинок не должен подвести, а пальто — цепляться за каждый угол.
+- Для работы или для охоты? => equipment
+- Домашняя доставка избавит от очереди. [if ctx.can_offer_delivery() /] => delivery_request
+- Пусть заказ придёт целым. => END
+
+~ equipment
+Сосед: Я не даю обещаний о тёмных переулках. Но здесь, на свету, мне достаточно получить свои вещи.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> service/provocation
+else
+	=> street_flow/provocation
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke

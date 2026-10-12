@@ -73,6 +73,9 @@ offense. Combat start/progression/effect gates read the same sampled suppression
 execution cancellation preserves an emergency branch's replacement movement and live target
 cleanup stays with the native calm branch. Legacy trait reactions retain their original policy. Native shade routing remains
 authored and performs no repeated illumination search.
+Street/customer dialogue reads the same pure perceived-light predicate through
+NpcDarknessQueries. Context validity gates the optional actor view; reading a line performs
+no sensing, clock progression, offense or aggression mutation.
 
 ### Choosing execution ownership
 

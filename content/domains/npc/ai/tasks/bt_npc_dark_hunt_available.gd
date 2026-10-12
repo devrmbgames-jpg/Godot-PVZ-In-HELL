@@ -9,10 +9,8 @@ func _tick(_delta: float) -> Status:
 		_person.rule_for(DEF_NpcTrait.Kind.DARK_PREDATOR) as DEF_NpcDarkPredator
 	)
 	if (
-		rule == null or not _awareness.player_visible
+		not NpcTraitRules.player_in_hunting_darkness(_awareness, rule)
 		or NpcBloodQueries.calmed(_actor) or CombatQueries.target_for(_actor) != null
-		or _awareness.self_light_exposure > rule.light_threshold
-		or _awareness.player_light_exposure > rule.light_threshold
 	):
 		return FAILURE
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()

@@ -18786,6 +18786,18 @@
     {
       "source_owner": "global",
       "target_owner": "npc",
+      "symbol": "NpcDarknessQueries",
+      "path": "content/domains/npc/services/npc_darkness_queries.gd",
+      "rights": ["query"],
+      "public_methods": ["player_in_hunting_darkness"],
+      "sources": ["content/ui/npc_dialogue_context.gd"],
+      "method_rights": {"player_in_hunting_darkness": "query"},
+      "public_instance_methods": [],
+      "purpose": "Street/customer dialogue reads the shared perceived-light criterion without new sensing or gameplay mutation."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
       "symbol": "S_NpcGazeFreeze",
       "path": "content/domains/npc/systems/s_npc_gaze_freeze.gd",
       "rights": [

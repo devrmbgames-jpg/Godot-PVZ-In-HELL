@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://cqyg27qcqk8hh"
+path="res://.godot/imported/variant_a.dialogue-382f724796037ebff1ec0c689c7a5fe4.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/night_hunter/variant_a.dialogue"
+dest_files=["res://.godot/imported/variant_a.dialogue-382f724796037ebff1ec0c689c7a5fe4.tres"]
+
+[params]
+
+defaults=true

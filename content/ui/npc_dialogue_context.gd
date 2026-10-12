@@ -51,6 +51,11 @@ func gaze_warning_given() -> bool:
 	return is_valid() and NpcDialogueService.gaze_warning_given(_delivery_npc())
 
 
+## Reads perceived darkness without sampling light or changing combat, memory or trait clocks.
+func player_in_hunting_darkness() -> bool:
+	return is_valid() and NpcDarknessQueries.player_in_hunting_darkness(_delivery_npc())
+
+
 ## Применяет смысл ответа через конкретный игровой адаптер.
 func apply_response_tags(_tags: PackedStringArray) -> bool:
 	return false
