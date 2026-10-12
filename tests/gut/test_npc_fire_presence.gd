@@ -1,5 +1,5 @@
 extends GutTest
-## Real fire NPC presence, native floor overlap, common damage, route height and owner teardown.
+## Real fire presence, native overlap/risk and scheduled publication lifetime boundaries.
 
 const FIRE: DEF_NpcArchetype = preload(
 	"res://content/domains/npc/definitions/def_npc_archetype_fire_elemental.tres"
@@ -25,6 +25,8 @@ var _person: NpcRecord
 class PresenceMutator extends Observer:
 	## Zero retires, one suspends, two resets the real receiver during the first spawn fact.
 	var mode: int = 0
+	## Counts the real publication boundary reached by the scheduled regression.
+	var spawn_facts: int = 0
 
 
 	func query() -> QueryBuilder:
@@ -35,6 +37,7 @@ class PresenceMutator extends Observer:
 		var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 		if hazard.definition.key != &"npc_fire_aura":
 			return
+		spawn_facts += 1
 		var actor: E_DistrictNpc = hazard.origin as E_DistrictNpc
 		if mode == 0:
 			_world.remove_entity(actor)
@@ -149,6 +152,71 @@ func _ordinary_npc(point: Vector3) -> E_DistrictNpc:
 	body.freeze = true
 	body.place_at(point)
 	return body
+#endregion
+
+
+#region Scheduled publication regression
+func _queue_trait_step() -> C_NpcAwareness:
+	# A detached second rule makes any stale continuation observable after disable/reset.
+	var profile: DEF_NpcArchetype = FIRE.duplicate() as DEF_NpcArchetype
+	var later_rule: DEF_NpcTrait = DEF_NpcTrait.new()
+	later_rule.kind = DEF_NpcTrait.Kind.LIGHT_AVERSION
+	profile.rules = [_presence(), later_rule]
+	profile.optional_traits = []
+	_person.profile = profile
+	var awareness: C_NpcAwareness = _actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	var decision: C_NpcDecision = _actor.get_component(C_NpcDecision) as C_NpcDecision
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	decision.scheduled_delta = 0.2
+	decision.scheduled_day = cycle.day_index
+	decision.scheduled_phase = int(cycle.phase)
+	var traits: S_NpcTraits = S_NpcTraits.new()
+	traits.group = "fire_presence_traits"
+	traits.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(traits)
+	_world.process(0.0, traits.group)
+	assert_true(traits.has_pending_commands())
+	return awareness
+
+
+func test_scheduled_traits_materialize_both_effects_and_continue_the_live_step() -> void:
+	var awareness: C_NpcAwareness = _queue_trait_step()
+	_world.flush_command_buffers()
+	assert_not_null(_effect(&"npc_fire_aura"))
+	assert_not_null(_effect(&"npc_floor_fire"))
+	assert_true(awareness.rule_exposure.has(DEF_NpcTrait.Kind.LIGHT_AVERSION))
+
+
+func test_scheduled_traits_stop_after_spawn_receiver_retirement() -> void:
+	var mutator: PresenceMutator = PresenceMutator.new()
+	_world.add_observer(mutator)
+	_queue_trait_step()
+	_world.flush_command_buffers()
+	assert_eq(mutator.spawn_facts, 1)
+	assert_null(_effect(&"npc_floor_fire"))
+
+
+func test_scheduled_traits_stop_after_spawn_receiver_dormancy() -> void:
+	var mutator: PresenceMutator = PresenceMutator.new()
+	mutator.mode = 1
+	_world.add_observer(mutator)
+	var awareness: C_NpcAwareness = _queue_trait_step()
+	_world.flush_command_buffers()
+	assert_eq(mutator.spawn_facts, 1)
+	assert_null(_effect(&"npc_floor_fire"))
+	assert_false(_actor.enabled)
+	assert_true(awareness.rule_exposure.is_empty(), "A disabled actor cannot advance later rules")
+
+
+func test_scheduled_traits_stop_after_spawn_receiver_reset() -> void:
+	var mutator: PresenceMutator = PresenceMutator.new()
+	mutator.mode = 2
+	_world.add_observer(mutator)
+	var awareness: C_NpcAwareness = _queue_trait_step()
+	_world.flush_command_buffers()
+	assert_eq(mutator.spawn_facts, 1)
+	assert_null(_effect(&"npc_floor_fire"))
+	assert_true(awareness.rule_exposure.is_empty(), "An obsolete step cannot mutate reset state")
 #endregion
 
 

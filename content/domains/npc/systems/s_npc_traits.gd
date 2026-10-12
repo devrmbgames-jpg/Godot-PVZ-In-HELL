@@ -51,6 +51,8 @@ func _advance(entity_reference: WeakRef, captured: C_NpcDecision, captured_gener
 
 func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	var participation_generation: int = decision.participation_generation
 	awareness.hazard_distress = NpcRouteSolver.danger_here(actor)
 	awareness.light_distress = false
 	awareness.darkness_combat_suppressed = false
@@ -89,6 +91,18 @@ func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, de
 			continue
 		if rule.kind == DEF_NpcTrait.Kind.FIRE_AURA:
 			NpcTraitService.ensure_aura(actor, person, rule)
+			# Spawn facts are synchronous: subscribers may retire, replace or reset this owner.
+			if (
+				ECS.world != _world or not EntityAvailability.contains(actor, _world)
+				or not actor.enabled or actor.has_component(C_Death)
+			):
+				return
+			if (
+				actor.get_component(C_NpcAwareness) != awareness
+				or actor.get_component(C_NpcDecision) != decision
+				or decision.participation_generation != participation_generation
+			):
+				return
 			continue
 
 		var triggered: bool = false
