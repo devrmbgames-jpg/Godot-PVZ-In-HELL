@@ -53,7 +53,9 @@ cancelling the attack. Focused checks, final smoke and lifecycle repair review p
 Night music/shadow presentation now has native authored views, lifecycle checks,
 independent checkpoint review and district smoke PASS. Live archetype binding remains open.
 The hag's authored ranged preference now has visible distance/shot branches for both roles;
-focused native regressions, MCP authoring and district smoke PASS. Checkpoint review is pending.
+focused native regressions, MCP authoring, district smoke and independent review PASS.
+Typed personal grudges now reuse saved incident memory and stable participant IDs; native checks
+pass. Checkpoint review and isolated-disk preflight repair review passed. Hag riddle/deception dialogue remains open.
 R26.4 routes committed personal variants, with two neutral/lost, two shy, two night and two angel variants using
 imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
 role/idempotency regressions and checkpoint review pass. Lost checkpoint review
@@ -63,10 +65,9 @@ the remaining 12 variants/interactions stay open.
 
 ### Next
 
-Goal service reports `paused`. After resume, review ranged checkpoint
-`4140fb04299a2b12597fdab832c913a02a08b172` against
-`4d4866eea7cbff4b22a1845ffc8f3e2c7174de98`, then continue hag riddle/grudge capabilities
-and remaining R26.3/R26.4 before binding all ten archetypes.
+Goal resumed. Grudge RV-002 fixed/reviewed at `510a074b4161f65a67d93fb46d4a5f61a2b62b56`.
+Implement both hag riddle/deception
+variants and remaining R26.3/R26.4 before binding all ten archetypes.
 
 ### Validation
 
