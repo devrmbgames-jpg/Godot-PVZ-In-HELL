@@ -48,14 +48,18 @@ Typed local light comfort `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` now adjusts
 position without emergency flight; authored routes and native cooldown preserve higher priorities.
 GUT65/1851, parser7files, scoped gates and headless week PASS; independent review BASE
 `8608f987f2a2a8965597829be98c2d6a7a8e94df` -> that TARGET PASS (210s, no findings).
-Conditional cloud/visibility, all-ten live binding, R26.5 and required owner QA remain unfinished.
+Conditional cloud/visibility and authored appearance are implemented at
+`588b59c1771d95b4ffba278988ddef0a364013a7`, GUT136/2406 and parser/static gates PASS.
+Review BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8` -> that TARGET REVIEW_PENDING;
+same reviewer reused. Final smoke RUNNING; R26.3 owns prior-run failure and RV-006 evidence.
+All-ten live binding, R26.5 and required owner QA remain unfinished.
 Existing user worktree edits were preserved.
 
 ### Next
 
-Implement typed Vampire conditional cloud/visibility through native BT/physical intent
-and authored presentation; bind all ten archetypes after their mandatory
-capabilities and cross-archetype acceptance are ready. Full integration/owner QA remain open.
+Collect cloud checkpoint review/final smoke and resolve findings/failures. Bind all ten
+archetypes after mandatory capabilities and cross-archetype acceptance are ready.
+Full integration/owner QA remain open.
 
 ### Validation
 

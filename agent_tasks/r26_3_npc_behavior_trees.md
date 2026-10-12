@@ -14,6 +14,14 @@ Extend visible tree selection; a leaf dispatching an entire decision tree remain
 
 ### Current
 
+Conditional escape `588b59c1771d95b4ffba278988ddef0a364013a7` adds typed reusable Veil,
+native cloud hazard/confirmed-threat flight and optional invisibility after lost sight.
+Authored VeilPresence changes appearance only; physical movement/collision/damage remain intact.
+Task tokens protect replacement forms; reset, profile, death and participation clean synchronously.
+Real NPC sight recognizes clouds and rejects invisible bodies; schema18 excludes transient forms.
+Review **REVIEW_PENDING**: BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8`
+-> TARGET `588b59c1771d95b4ffba278988ddef0a364013a7`, same terminal reviewer reused.
+Final-code district smoke RUNNING; the pre-final FLEE guard smoke failed survival5/required6.
 Local light comfort `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` adds typed reusable
 CAPABILITY data excludes emergency light aversion; a visible idle branch preserves higher priorities. Selection uses close authored activity/cover,
 actual authored light, synchronized navigation and zero-damage routes; no teleport or offense.
@@ -25,28 +33,39 @@ review BASE `80eb932ff485fd714e8b111ea370629de3ec3f2f` PASS, no findings (91s).
 Underlying Health bound `792481e4630d1ca70156654d3a22a1a91fd94cef`, blood consent
 `a407762ef018ab70715119cd432c63071d62d928` and20/20 native dialogue variants are reviewed.
 Schema18 restores durable consent receipts without live mutation. Unique previous evidence is in Git.
-Conditional cloud/visibility, all-ten live binding, full integration and required owner QA remain open.
+All-ten live binding, full integration and required owner QA remain open.
 
 ### Validation
 
-Light batch GUT **65/1851 PASS**: Light19572317112/159; companion1955221737/55;
-Feeding19512318011/95; Gaze19513660211/113; Dark19514688014/125; Catalog1957251164/944; Variation1957284336/360.
-`.artifacts/godot_agent/`, date20261012; parser195725553 **7files PASS**; formatting/static/index/persistence gates PASS.
-Bounded headless week PASS: `tests/artifacts/district-20261013-055747863.log`, 42 routes/0 failures.
-Global hot reload43 NOT_PASS; fresh CLI checks independently verify. Editor cursor4 has no new logs.
+Cloud batch GUT **136/2406 PASS**, `.artifacts/godot_agent/`, date20261012:
+Veil20324494715/127; participation2025201979/162; sight2026361738/27;
+native lifecycle20313622251/346; feeding20323005711/95; light20324240812/159;
+night20265103420/186; catalog2027054844/944; variation2027088306/360.
+Parser20273604220files plus final2032045052files PASS; formatter, strict architecture/domain,
+structure, staged index, diff and persistence gates PASS. Final smoke RUNNING.
+Pre-final `tests/artifacts/district-20261013-062736299.log` FAIL, survival5/required6;
+not evidence for final code. Prior light-week PASS remains in Git. Global hot reload43 NOT_PASS;
+fresh CLI checks independently verify. Required editor/rendered verification remains open.
 Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention
 KNOWN_ENGINE_LIMITATION/DEFERRED. Full mandatory/live/rendered behavior and owner QA remain open.
 
 ### Next
 
-Implement typed conditional cloud escape/visibility through native BT, existing physical intent
-and authored presentation, then cross-archetype acceptance before live roster binding.
+Collect immutable cloud review and final smoke; resolve findings/failures before acceptance.
+Then cross-archetype acceptance and all-ten live roster binding; do not waive R26.5/owner QA.
 
 ### Review triage
 
 Canonical source/fix SHAs below are ancestors of current code HEAD
-`38b7f2a59ef3c344b03aafaf11e7f7911d60622c`; light, feeding and preceding blood/UI/Health-bound
-reviews added no findings. Full-SHA ancestry audit: 26 unique checkpoints PASS. RV-001..005 retain FIXED with their actual regression/re-review evidence.
+`588b59c1771d95b4ffba278988ddef0a364013a7`; prior light/feeding/blood/UI reviews added no findings.
+Full-SHA ancestry audit: 26 previous checkpoints PASS. RV-001..005 retain FIXED with their
+actual regression/re-review evidence. Current cloud review is REVIEW_PENDING, not PASS.
+
+RV-006 P1 FLEE_EXIT continuation, Main reproduction/source
+`a2b1d764b1b316b27df979a8d72917d6deab8ed8`, NpcDecisionService.flee:
+FIXED `588b59c1771d95b4ffba278988ddef0a364013a7`; baseline202020933 freed-actor access.
+Veil20324494715/127 and lifecycle20313622251/346 PASS, including native reset/retirement,
+normal dormant fear cleanup and direct role-release API. Targeted review REVIEW_PENDING.
 
 RV-005 P1 continuous camera exposure, source `3e88b56983a775cc78c225353251ff6a98d33b87`, R1/Main:
 FIXED `23fa3d44d9024d4becb59477921be1d288d7bee9`, GUT18342894914/111, parser1834543174/4.

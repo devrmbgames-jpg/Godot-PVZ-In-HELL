@@ -33,8 +33,11 @@ Native GUT123/1830, parser16files, scoped static gates and headless week PASS in
 Reusable typed local light comfort `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` excludes legacy
 emergency light aversion while preserving higher obligations/conflicts. Review against
 `8608f987f2a2a8965597829be98c2d6a7a8e94df` PASS (210s, no findings); GUT65/1851,
-parser7files/scoped gates/headless week PASS in R26.3. Cloud/visibility/presentation/mandatory
-acceptance and all-ten live binding remain open.
+parser7files/scoped gates/headless week PASS in R26.3. Typed cloud/visibility and authored
+presentation are implemented at `588b59c1771d95b4ffba278988ddef0a364013a7`;
+GUT136/2406 and parser/static gates PASS; review against
+`a2b1d764b1b316b27df979a8d72917d6deab8ed8` REVIEW_PENDING, final smoke RUNNING.
+Mandatory acceptance and all-ten live binding remain open; full evidence/triage in R26.3.
 
 ### Validation
 
