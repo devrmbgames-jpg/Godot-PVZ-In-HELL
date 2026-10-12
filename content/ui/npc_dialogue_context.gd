@@ -6,6 +6,8 @@ var _delivery_job_id: StringName = &""
 var _closed: bool = false
 var _soul_confirmation_key: StringName = &""
 var _soul_result: SoulTradeResult = null
+var _blood_confirmation_key: StringName = &""
+var _blood_result: BloodConsentResult = null
 
 
 #region Интерфейс контекста
@@ -192,6 +194,87 @@ func _soul_receipt() -> SoulTradeRecord:
 	if _soul_confirmation_key.is_empty() or not EntityAvailability.contains(actor, ECS.world):
 		return null
 	return SoulTradeService.receipt_for(actor, _soul_confirmation_key)
+#endregion
+
+
+#region Explicit blood confirmation adapter
+## Observes eligibility without allocating offers; a context retains one displayed confirmation.
+func can_offer_blood() -> bool:
+	if not is_valid():
+		return false
+	if not _blood_confirmation_key.is_empty():
+		var record: BloodConsentRecord = _blood_receipt()
+		if record == null or record.outcome != BloodConsentRecord.Outcome.OFFERED:
+			return false
+	return BloodConsentService.available(_delivery_player(), _delivery_npc())
+
+
+## Captures terms only at an authored cue; reopening retains the durable pending key.
+func request_blood_offer() -> bool:
+	if not can_offer_blood():
+		return false
+	if not _blood_confirmation_key.is_empty():
+		return true
+	var record: BloodConsentRecord = BloodConsentService.offer(_delivery_player(), _delivery_npc())
+	if record == null:
+		return false
+	_blood_confirmation_key = record.confirmation_key
+	return true
+
+
+## Presents a currently eligible unresolved offer without changing its captured percentage.
+func has_blood_offer() -> bool:
+	var record: BloodConsentRecord = _blood_receipt()
+	return (
+		is_valid() and record != null and record.outcome == BloodConsentRecord.Outcome.OFFERED
+		and BloodConsentService.available(_delivery_player(), _delivery_npc())
+	)
+
+
+## Requests the common Health transaction for this exact displayed offer.
+func accept_blood_offer() -> bool:
+	return _resolve_blood_offer(true)
+
+
+## Records refusal through its owner without creating damage or reversing a prior acceptance.
+func decline_blood_offer() -> bool:
+	return _resolve_blood_offer(false)
+
+
+## Reads the actual committed result, including terminal replay.
+func blood_offer_accepted() -> bool:
+	return _blood_result != null and _blood_result.reason == &"accepted"
+
+
+func blood_offer_declined() -> bool:
+	return _blood_result != null and _blood_result.reason == &"declined"
+
+
+## Reads the captured percentage; the gameplay owner samples current HP when accepted.
+func blood_percent() -> int:
+	var record: BloodConsentRecord = _blood_receipt()
+	return record.percent if record != null else 0
+
+
+func _resolve_blood_offer(accept: bool) -> bool:
+	if not is_valid() or _blood_confirmation_key.is_empty():
+		return false
+	var request: BloodConsentRequest = BloodConsentRequest.new()
+	request.actor = _delivery_player()
+	request.dealer = _delivery_npc()
+	request.confirmation_key = _blood_confirmation_key
+	request.accept = accept
+	_blood_result = BloodConsentService.submit(request)
+	return _blood_result.reason == (&"accepted" if accept else &"declined")
+
+
+func _blood_receipt() -> BloodConsentRecord:
+	if _blood_result != null and _blood_result.receipt != null:
+		return _blood_result.receipt
+	var dealer: E_DistrictNpc = _delivery_npc()
+	if _blood_confirmation_key.is_empty() or not EntityAvailability.contains(dealer, ECS.world):
+		return null
+	return BloodConsentService.receipt_for(dealer, _blood_confirmation_key)
 #endregion
 
 

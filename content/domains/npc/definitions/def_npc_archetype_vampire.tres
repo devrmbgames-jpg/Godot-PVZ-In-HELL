@@ -26,7 +26,7 @@ key = &"schedule/vampire"
 [resource]
 script = ExtResource("8_0nxho")
 name_variants = PackedStringArray("Северин", "Владен")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/vampire/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/vampire/variant_b.dialogue")
 optional_traits = Array[ExtResource("3_ucgtc")]([SubResource("Resource_rbum6"), SubResource("Resource_b5j1y")])
 receiver_traits = 15
 presentation_cues = PackedStringArray("npc/vampire/cloud")

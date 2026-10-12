@@ -1,0 +1,176 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+{{ctx.speaker_name()}}: Я слышу твой пульс, но умею ждать ответа. Можно попросить о небольшом глотке?
+- Сначала скажи, сколько крови тебе нужно. [if ctx.can_offer_blood() /] => blood_offer
+- Как ты справляешься с голодом? => hunger
+- Что у тебя в заказах? => goods
+- А яркий свет? => light
+- Могу доставить заказ домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Сегодня поговорим без укусов. => END
+
+~ direct
+if ctx.has_registered_number()
+	Клиент: Мой заказ №{{ctx.package_number_text()}}. Поставь коробку спокойно: бумагу я не кусаю.
+	- Сверю номер и целостность. [#hon] => END
+	- Что ты заказал? => goods
+	- Ты хотел попросить крови? [if ctx.can_offer_blood() /] => blood_offer
+	- Доставить к двери? [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Номер ещё не зарегистрирован. Сначала просканируй посылки, потом будем обсуждать выдачу.
+=> END
+
+~ hunger
+Вампир: Голод не даёт мне права на твоё согласие. Кровь поблизости притягивает и успокаивает; твой отказ я услышу.
+- Спасибо, что спросил. [#hon] => courtesy
+- Даже клыки умеют быть вежливыми? [#jok] => courtesy
+- Сделаем вид, что я тоже вампир. [#lie] => courtesy
+- Можно договориться без крови. [#prs] => courtesy
+- А я укушу первым. [#thr] => threat
+
+~ courtesy
+Вампир: На слово отвечу словом. Давай сохраним эту привычку.
+=> END
+
+~ goods
+Вампир: Одежда с плотным воротом, иногда артефакт или реагент. Заказы помогают жить среди вас, но голод не заменяют.
+- Тебе идёт этот ворот. [#flr] => affection
+- Понятно. [#hon] => END
+
+~ affection
+Вампир: Красивое слово я приму. Разрешение на укус из него не вытекает.
+=> END
+
+~ light
+Вампир: Яркий свет неприятен. Иногда достаточно выбрать место мягче; бросать каждый разговор из-за лампы я не собираюсь.
+=> END
+
+~ blood_offer
+$> ctx.request_blood_offer()
+if ctx.has_blood_offer()
+	Вампир: Прошу {{ctx.blood_percent()}}% от твоего текущего здоровья на момент согласия, не от максимума. Если здоровье изменится до ответа, доля будет взята от нового текущего значения. Максимум здоровья и сила сохранятся; этот глоток не убьёт. Отказ не отнимет здоровье, закрытие окна оставит просьбу без ответа.
+	- Понимаю долю и последствия. Разрешаю выпить кровь. => blood_accept
+	- Отказываюсь от этой просьбы. => blood_decline
+	- Пока уйду без ответа. => END
+else
+	Вампир: Сейчас я не прошу крови. После ответа нужно подождать, а тебе — оставаться в состоянии говорить.
+=> END
+
+~ blood_accept
+$> ctx.accept_blood_offer()
+if ctx.blood_offer_accepted()
+	Вампир: Спасибо. Согласованная доля уже взята. Повторять глоток по этому ответу я не стану.
+elif ctx.blood_offer_declined()
+	Вампир: Эта просьба уже отклонена. Я не изменю твой прежний ответ.
+else
+	Вампир: Согласие не удалось принять. Кровь по этой просьбе не взята.
+=> END
+
+~ blood_decline
+$> ctx.decline_blood_offer()
+if ctx.blood_offer_declined()
+	Вампир: Услышал отказ. Здоровье оставлено тебе; с новой просьбой подожду.
+elif ctx.blood_offer_accepted()
+	Вампир: По этой просьбе глоток уже взят. Второго не будет, но прошлое согласие отказом не отменить.
+else
+	Вампир: Ответ не удалось записать. Кровь по этой просьбе не взята.
+=> END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
+
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong

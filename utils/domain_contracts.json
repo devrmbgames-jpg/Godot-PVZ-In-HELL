@@ -19482,6 +19482,88 @@
         "content/domains/persistence/services/save_data_codec.gd"
       ],
       "purpose": "Explicit voluntary current-HP transaction or closed personal receipt restore; no scheduled behavior."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "BloodConsentRecord",
+      "path": "content/domains/npc/contracts/blood_consent_record.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads the captured blood percentage and durable receipt, then submits one stable-key confirmation through the gameplay owner."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "BloodConsentResult",
+      "path": "content/domains/npc/contracts/blood_consent_result.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads the captured blood percentage and durable receipt, then submits one stable-key confirmation through the gameplay owner."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "BloodConsentRequest",
+      "path": "content/domains/npc/contracts/blood_consent_request.gd",
+      "rights": [
+        "read",
+        "configure",
+        "request"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "request"
+      },
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads the captured blood percentage and durable receipt, then submits one stable-key confirmation through the gameplay owner."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "BloodConsentService",
+      "path": "content/domains/npc/services/blood_consent_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "available",
+        "offer",
+        "receipt_for",
+        "submit"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "available": "query",
+        "offer": "request",
+        "receipt_for": "query",
+        "submit": "request"
+      },
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue adapter reads the captured blood percentage and durable receipt, then submits one stable-key confirmation through the gameplay owner."
     }
   ],
   "legacy_decomposition": []

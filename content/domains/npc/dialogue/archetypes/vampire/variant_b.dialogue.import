@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://dm81o24et2d3x"
+path="res://.godot/imported/variant_b.dialogue-bfe32ec5b1d28b6aa8cd3b2bd8a312f0.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/vampire/variant_b.dialogue"
+dest_files=["res://.godot/imported/variant_b.dialogue-bfe32ec5b1d28b6aa8cd3b2bd8a312f0.tres"]
+
+[params]
+
+defaults=true
