@@ -50,6 +50,7 @@ static func submit(request: DamageRequest) -> bool:
 	snapshot.amount = request.amount
 	snapshot.operation = request.operation
 	snapshot.maximum_health_delta = request.maximum_health_delta
+	snapshot.minimum_health_fraction = request.minimum_health_fraction
 	snapshot.damage_type = request.damage_type
 	snapshot.incident_id = request.incident_id
 	snapshot.correlation_id = request.correlation_id

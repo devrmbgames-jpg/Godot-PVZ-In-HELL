@@ -8,6 +8,15 @@ Null, unavailable and non-Health targets are rejected at entry (false). The Obse
 
 `DamageResult.EVENT` carries the copied request, applied amount, old/new HP and pre-reaction world pose. Positive HP crossing zero sets `depleted` before current-value notifications and emits HEALTH_DEPLETED once. Later damage/healing cannot revive it. Reentrant consumers must defer removal until mandatory lifecycle hooks have run.
 
+`DamageRequest.minimum_health_fraction` is an explicit DAMAGE-only bound in [0,1], default0.
+`DamageRequestService` captures it with the request; `HealthMutationService` applies it after
+resistance against the maximum HP at resolution. Its effective lower bound is the lesser of
+previous HP and maximumHP ? fraction, so bounded damage never heals an already wounded target.
+Several deferred hits preserve the same floor. Other requests retain their own bounds; a default0
+request can still deplete Health. Invalid fractions and nonzero bounds on HEAL/SACRIFICE reject
+before mutation. This transient request field changes no save schema; NPC authored feeding rules
+will supply it through combat, while Health remains the sole HP authority.
+
 `O_HealthLifecycle` reacts only to `C_Living`, adds `C_Death` once and performs the existing control/grip cleanup. Package does not have C_Living and never receives C_Death. `O_PackageDamage` sets DAMAGED only when remaining HP falls to or below the package definition's `damaged_health_ratio` of effective maximum HP. DESTROYED remains exclusive to Health depletion; it releases interactions/cargo and clears ink. `O_PackageDestruction` then replaces the Package with the concrete scene's `C_PackageDestruction.debris_scene`, transfers pose/velocities, copies `package_id + DEF_Package` into `C_PackageDebris`, and removes the original Package Entity/Node. Warehouse registration is not released by destruction.
 
 `C_HealthDepletionEffects` remains optional generic authored data for independent post-depletion spawns/VFX/SFX. Package debris is intentionally not routed through it: debris is variant-specific gameplay identity and belongs to `C_PackageDestruction` on the concrete Package scene.

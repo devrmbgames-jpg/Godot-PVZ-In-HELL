@@ -35,6 +35,17 @@ static func apply(
 		result.reason = &"invalid_operation"
 		return
 
+	if (
+		not is_finite(request.minimum_health_fraction)
+		or request.minimum_health_fraction < 0.0 or request.minimum_health_fraction > 1.0
+		or (
+			request.operation != DamageRequest.Operation.DAMAGE
+			and request.minimum_health_fraction != 0.0
+		)
+	):
+		result.reason = &"invalid_health_floor"
+		return
+
 	if request.operation == DamageRequest.Operation.SACRIFICE:
 		_apply_sacrifice(request, health, result)
 		return
@@ -60,7 +71,10 @@ static func apply(
 		else DamageResistanceRules.effective(request.target, request.amount, request.damage_type)
 	)
 	var signed_amount: float = effective_amount if is_heal else -effective_amount
-	result.current_value = clampf(result.previous_value + signed_amount, 0.0, health.value)
+	var lower_bound: float = minf(
+		result.previous_value, health.value * request.minimum_health_fraction,
+	)
+	result.current_value = clampf(result.previous_value + signed_amount, lower_bound, health.value)
 	result.applied_amount = absf(result.current_value - result.previous_value)
 	var depleted: bool = result.previous_value > 0.0 and result.current_value <= 0.0
 	# Зафиксировать истощение до setter current и возможных вложенных уведомлений.

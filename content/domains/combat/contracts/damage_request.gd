@@ -37,6 +37,9 @@ var amount: float = 0.0
 var operation: Operation = Operation.DAMAGE
 ## Permanent maximum-Health delta for SACRIFICE only; ordinary damage/healing requires zero.
 var maximum_health_delta: float = 0.0
+## DAMAGE-only lower HP bound as a fraction of the resolution-time maximum; zero disables it.
+## Already lower HP is never raised by this damage request.
+var minimum_health_fraction: float = 0.0
 ## Тип урона для сопротивления и представления.
 var damage_type: Type = Type.GENERIC
 
