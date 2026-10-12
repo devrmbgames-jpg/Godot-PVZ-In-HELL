@@ -89,6 +89,27 @@ func test_existing_navigable_radial_exit_is_preserved() -> void:
 	assert_false(_escape(actor).is_empty())
 
 
+## A wounded actor inside fire must still attempt the connected exit instead of waiting to die.
+func test_low_health_escape_keeps_the_native_exit_when_predicted_exposure_exceeds_hp() -> void:
+	var actor: E_DistrictNpc = await _bounded_map()
+	_fire(Vector3(7, 0, 0), 5.0)
+	var health: C_Health = actor.get_component(C_Health) as C_Health
+	health.current = 0.5
+	var path: PackedVector3Array = _escape(actor)
+	if path.is_empty():
+		return
+	assert_gt(NpcRouteSolver.expected_damage(actor, path), health.current)
+	assert_gt(
+		path[path.size() - 1].distance_to(Vector3(7, 0, 0)), 5.0 + actor.navigation_agent.radius,
+	)
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.hazard_distress = false
+	var ordinary: PackedVector3Array = NpcRouteSolver.plan(
+		actor, _district.people[0], actor.global_position, path[path.size() - 1], _map,
+	)
+	assert_true(ordinary.is_empty(), "Ordinary travel retains its authored damage budget")
+
+
 func test_fire_immunity_does_not_request_hazard_escape() -> void:
 	var actor: E_DistrictNpc = await _bounded_map()
 	_fire(Vector3(7, 0, 0), 5.0)

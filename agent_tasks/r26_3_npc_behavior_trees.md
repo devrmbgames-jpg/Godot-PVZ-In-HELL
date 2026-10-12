@@ -26,8 +26,9 @@ but final week071658349 still FAIL5/required6; original causal diagnosis remains
 Reset-call ablation080407835 still FAIL5. First-tick traces prove a separate deterministic
 schedule defect: equal seed/index select different StringName candidate orders before movement.
 Explicit text-order repair and regression are in [their task](npc_schedule_canonical_order.md);
-focused GUT12/167 and parser PASS; unchanged full week is running, review pending.
-Prior reviewed light/feeding checkpoints and their native evidence remain in Git.
+focused GUT12/167 and parser PASS; unchanged week082044400 still FAIL5. Repair review PASS24s
+on `f8e5ea5c0d6935c1187232826cbd53efd0f4a411` -> `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c`.
+Native low-health exit rejection is reproduced; [repair/acceptance](npc_hazard_escape_low_health.md).
 
 ### Validation
 
@@ -45,19 +46,17 @@ old scene073431612, reverted decision073919530, actor074843088, zero-clock075712
 All six corresponding native parsers PASS. Reset-call ablation080407835 FAIL5.
 Bounded179sample traces (full week NOT_RUN) isolate the first goal difference at equal clock16666;
 allocation-dependent schedule ordering is proven; detailed evidence is in the linked task.
-Global hot reload43 NOT_PASS; fresh CLI checks independently verify.
 Shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED; mandatory/live/owner QA remains open.
 
 ### Next
 
-Endpoint defect is fixed/reviewed in [its task](npc_hazard_escape_navigation.md); collect schedule repair
-full week and immutable review before dependent integration.
-Then cross-archetype acceptance and all-ten live roster binding; do not waive R26.5/owner QA.
+Collect [low-health repair](npc_hazard_escape_low_health.md) native batch/review/full week, then
+cross-archetype acceptance and all-ten live roster binding; do not waive R26.5/owner QA.
 
 ### Review triage
 
 Canonical source/fix SHAs below are ancestors of current code HEAD
-`7de8659ea150953b7b317ff6e5e8e6a9cc328e26`; prior light/feeding/blood/UI reviews added no findings.
+`c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c`; prior light/feeding/blood/UI reviews added no findings.
 Full-SHA ancestry audit: 26 previous checkpoints PASS. RV-001..005 retain FIXED.
 
 RV-006 P1 FLEE_EXIT continuation, Main reproduction/source

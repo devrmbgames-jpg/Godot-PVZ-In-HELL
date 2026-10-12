@@ -15,21 +15,25 @@ full district week. R26.3 integration and owner gameplay QA remain separate open
 
 ### Current
 
-BASE `f8e5ea5c0d6935c1187232826cbd53efd0f4a411`; repair checkpoint to be resolved after commit.
+BASE `f8e5ea5c0d6935c1187232826cbd53efd0f4a411` ->
+TARGET `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c`.
 `NpcScheduleRules.goal_for` now compares `String(first) < String(second)` explicitly.
 No schema or durable record changes; already committed goals retain their authored IDs.
-Full district week is running. Review **REVIEW_PENDING** until immutable repair SHA is collected.
+Immutable review **PASS**, same reviewer, no findings (24s).
+Architecture/style PASS; reviewer runtime NOT_RUN. Full week082044400 still FAIL5/required6;
+independent low-health escape rejection is reproduced in [its task](npc_hazard_escape_low_health.md).
 
 ### Review triage
 
 RV-001 P1, source `f8e5ea5c0d6935c1187232826cbd53efd0f4a411`,
-`content/domains/npc/rules/npc_schedule_rules.gd::goal_for`: **ACCEPTED / repair validated**.
+`content/domains/npc/rules/npc_schedule_rules.gd::goal_for`: **FIXED**
+`c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c`, GUT12/167 and immutable review PASS.
 `Array[StringName].sort()` orders interned addresses in pinned Godot 4.7.1.
 At equal first-tick clock16666, actor-script-only ablation changes candidate order while
 RNG seed/index stay equal: original `[activity_1, activity_0, activity_3, activity_2]`,
 material-filter actor `[activity_1, activity_0, activity_2, activity_3]`.
 Thus npc/2, npc/4 and npc/7 receive different initial goals before physical positions diverge.
-This disproves the earlier actor-reset hypothesis; week survival causality after repair is pending.
+This disproves the earlier actor-reset hypothesis. The repaired order alone does not resolve survival.
 
 ### Validation
 
@@ -43,12 +47,14 @@ Native unfixed GUT `.artifacts/godot_agent/gut-20261012-221944532.*.log` FAIL11/
 150/167 assertions; canonical sequence test demonstrates17 incorrect choices.
 Repaired GUT222017084 **PASS12/167**; native parser222019411 **PASS2files**;
 scoped GDQuest formatter/lint PASS. Editor hot reload43 NOT_PASS; fresh native parser PASS.
+Affected native schedule/route acceptance GUT222506041 **PASS41/260**.
+Full unchanged week `tests/artifacts/district-20261013-082044400.log` **FAIL5/required6**.
 
 ### Next
 
-Collect unchanged full week, commit the coherent fix, reuse the existing reviewer on full SHAs,
-triage against current HEAD, then resume R26.3 cross-archetype/roster integration.
+Resolve the independently reproduced low-health escape rejection and collect the linked
+mandatory week; then resume R26.3 cross-archetype/roster integration.
 
 ### Owner QA / blockers
 
-Required full week and immutable review are pending. No rendered gameplay or visual QA ran.
+Required full week FAIL; immutable review is collected. No rendered gameplay or visual QA ran.

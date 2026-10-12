@@ -251,7 +251,9 @@ static func expected_damage(actor: Entity, path: PackedVector3Array) -> float:
 static func acceptable(actor: Entity, person: NpcRecord, damage: float) -> bool:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	if awareness != null and awareness.hazard_distress:
-		return is_finite(damage) and damage < (actor.get_component(C_Health) as C_Health).current
+		# Staying in the harmful volume keeps taking damage; a viable exit must remain actionable
+		# even when its predicted exposure exceeds the wounded actor's remaining health.
+		return is_finite(damage)
 	return is_finite(damage) and damage <= _risk_budget(actor, person)
 
 
