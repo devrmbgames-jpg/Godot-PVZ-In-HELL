@@ -13,19 +13,20 @@ The owner will later copy these resources and add more variants. Therefore paths
 
 ### Current
 
-Native lost/shy/night/angel/hag catalogs now expose **10/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
+Native lost/shy/night/angel/hag/brute catalogs now expose **12/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
 Shy variants read gaze warnings; night variants read authored perceived darkness; angel variants use native written boards. Hag variants differ in deception, reagents/artifacts and riddles (name versus hole), read personal grudges and keep street answers separate from idempotent service outcomes.
-Hag checkpoint `6293c6bdb34334832f0c02e720df11c75cc20dd2` passed independent review. Remaining five archetypes need their mandatory behaviors/interactions and ten variants before live roster binding.
+Brute variants differ in direct threats and bragging, discuss weapons/private toy purchases and read recognized actor-specific strength. Dialogue never grants respect; street submission uses the existing social owner. Checkpoint `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed independent review. Remaining four archetypes need their mandatory behaviors/interactions and eight variants before live roster binding.
 
 ### Next
 
-Brute behavior `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5` passed implementation checks and independent review; author its two threatening variants. Finish remaining fire/chain/creepy/vampire interactions. Soul/blood transactions and full owner acceptance remain open.
+Implement Fire Elemental's thin 10 m floor Hazard and immediate opening/explosion contract, then its two variants. Finish chain/creepy/vampire interactions. Soul/blood transactions and full owner acceptance remain open.
 
 ### Validation
 
-Hag PASS: parser022034711/1; native GUT021925998 **38/966** including inherited31, all role cues, saved selection, read-only grudge tone, correct/wrong retries, solved-but-unregistered guard, denial, four private deliveries and actual headless modal panels with response/focus release.
-MCP authored/imported both variants, saved exactly one catalog-pool line with UID/tuning retained and refreshed cache; fresh test diagnostics checked[] PASS. Formatter incremental/strict, architecture/project/persistence/staged/diff PASS. No extra full smoke for this authored-dialogue batch; native role/panel tests cover its scope.
-Hag review BASE `9c70cd2c684994a907e35cd74fd01b9bc30e20e7` -> TARGET `6293c6bdb34334832f0c02e720df11c75cc20dd2` PASS, no findings (119 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+Brute PASS: parser034933645/3; native GUT034921599 **37/913** including inherited31, all role cues, saved selection, read-only respect in both roles, other-actor exclusion, real submission/codec, registration guard, one-shot denial, four private deliveries and actual headless panels/focus release.
+MCP authored/imported both variants, saved exactly one catalog-pool line with UID/tuning retained and refreshed cache; fresh test diagnostics checked[] PASS. Formatter incremental/strict, architecture/dependencies/domain/project/persistence/staged/diff PASS. No extra full smoke for this authored-dialogue batch; native role/panel tests cover its scope.
+Brute review BASE `04cc048ebcd920f434ca7109fe24df9d36a361a3` -> TARGET `50c2a2ef35cb78d036b96b2087a6bbe920279c21` PASS, no findings (41 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+Hag parser022034711/1 and GUT021925998 **38/966** PASS; review `9c70cd2c684994a907e35cd74fd01b9bc30e20e7` -> `6293c6bdb34334832f0c02e720df11c75cc20dd2` PASS (119 s). Unique branch evidence remains in that checkpoint.
 Earlier native PASS: lost225318292 **31/621** + service224919731; shy233416121 **35/759**; night001711308 **37/831**; angel011214901 **38/889** + service011255565 **15/272**. Logs under `.artifacts/godot_agent/gut-202610{11,12}-<timestamp>.{stdout,stderr}.log`; unique parser/MCP/static evidence remains in Git checkpoints.
 Shy reviewed `5ff85b58ea107ec795d3dea4319be9dcf10306b1` -> `b1b9c38f8844723850a5223d6f4c4271f5ef7ef7` PASS (61 s).
 Night reviewed `b798cfb4817c6d4e05f01a52a66695a9e82b3c71` -> `66813497b64120f26626b1ca2694207dc7cad146` PASS (17 s).

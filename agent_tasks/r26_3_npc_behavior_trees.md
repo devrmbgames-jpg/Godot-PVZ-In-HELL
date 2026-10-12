@@ -22,7 +22,7 @@ Hag personal grudges derive from durable offender/victim IDs; repeats retain com
 Ranged checkpoint `4140fb04299a2b12597fdab832c913a02a08b172`, grudge `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`, repair `510a074b4161f65a67d93fb46d4a5f61a2b62b56`, dialogue `6293c6bdb34334832f0c02e720df11c75cc20dd2`: reviewed PASS. Other mandatory subtrees/live binding remain open.
 Brute typed pride uses actual player-camera/solid visibility and NPC recognition of held or opened TOY bodies. Customers samples exposure before cadence; explicit native branches commit one durable offense, while recognized applied strength records actor-specific respect and ends matching combat/panic.
 Native toy/catalog and private booth opening retain physical, inspection, order, memory and save authorities. Brain recipes and both authored initial-field policies restore immutable pride and clear transient exposure. Both roots preserve safety/light/blood before toy/combat/service.
-Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation checks and immutable-SHA review PASS.
+Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation checks and immutable-SHA review PASS. Both strength/private-order dialogue variants `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed native checks/review; details in R26.4.
 
 ### Validation
 
@@ -44,7 +44,7 @@ Brute review BASE `8d40a7b0d90e4332778dc896b7304f8a7af7aeaf` -> TARGET `b72342b7
 
 ### Next
 
-Author Brute's two threatening dialogue variants and implement remaining mandatory capabilities before live roster binding.
+Implement Fire Elemental's thin 10 m floor Hazard and immediate opening/explosion contract, then the remaining mandatory capabilities before live roster binding.
 
 ### Review triage
 
