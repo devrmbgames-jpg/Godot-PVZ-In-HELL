@@ -1,101 +1,102 @@
 [gd_scene format=3 uid="uid://b0pc5w4y4qidn"]
 
 [ext_resource type="Script" uid="uid://dvkv57cqxayt3" path="res://content/domains/motion/entities/e_character_body_player.gd" id="1_hqtr2"]
-[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_uo1oq"]
-[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/domains/motion/components/c_character_body.gd" id="3_lm6lx"]
 [ext_resource type="Resource" uid="uid://dnpjmpoy0nopk" path="res://content/domains/combat/authoring/et_player_karma.tres" id="4_0swh6"]
-[ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/domains/interaction/components/c_player_input_controller.gd" id="4_hdpx1"]
-[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="5_d0m3p"]
-[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/domains/motion/components/c_look.gd" id="6_r8al5"]
-[ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/domains/motion/components/c_jump.gd" id="7_rvtjd"]
-[ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/domains/motion/components/c_crouch.gd" id="8_2gvdo"]
-[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/domains/interaction/components/c_controller.gd" id="9_oanka"]
-[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="10_5dcb1"]
-[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="11_fy2jt"]
+[ext_resource type="Resource" uid="uid://c2bwors7biovh" path="res://content/domains/npc/authoring/et_player_soul_trade.tres" id="5_0kq7m"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="6_b7vbj"]
+[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/domains/motion/components/c_character_body.gd" id="7_1j15x"]
+[ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/domains/interaction/components/c_player_input_controller.gd" id="8_l5t0r"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="9_hpxnw"]
+[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/domains/motion/components/c_look.gd" id="10_odx3c"]
+[ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/domains/motion/components/c_jump.gd" id="11_hbq1j"]
+[ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/domains/motion/components/c_crouch.gd" id="12_jx005"]
 [ext_resource type="PackedScene" uid="uid://c57tjcgwtk4qh" path="res://resources/Animation Library[Standard]/AnimationLibrary_Godot_Standard.glb" id="12_lm6lx"]
+[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/domains/interaction/components/c_controller.gd" id="13_djfvj"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="14_aanvx"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="15_lldrk"]
+[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/domains/interaction/components/c_interactor.gd" id="16_n4ovm"]
+[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/domains/interaction/components/c_grab_control.gd" id="17_cay3d"]
+[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/domains/interaction/components/c_carry_load.gd" id="18_r3poh"]
+[ext_resource type="Resource" path="res://content/domains/motion/definitions/def_attr_strength.tres" id="19_0aa7q"]
+[ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/domains/motion/components/c_strength.gd" id="20_qvh1s"]
+[ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/domains/interaction/components/c_push_control.gd" id="21_ic7ie"]
+[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/domains/combat/components/c_living.gd" id="22_wi6rm"]
+[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/domains/combat/definitions/def_impact_living.tres" id="23_a155r"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="24_gqho0"]
+[ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/domains/motion/components/c_stamina.gd" id="25_sqeal"]
 [ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
 [ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 [ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
-[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/domains/interaction/components/c_carry_load.gd" id="Grab_carry_load"]
-[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/domains/interaction/components/c_grab_control.gd" id="Grab_grab_control"]
-[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/domains/interaction/components/c_interactor.gd" id="Grab_interactor"]
-[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="ImpactReceiver"]
-[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/domains/combat/components/c_living.gd" id="Living"]
-[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/domains/combat/definitions/def_impact_living.tres" id="LivingImpact"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/physical_slot.tscn" id="PhysicalSlot"]
-[ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/domains/interaction/components/c_push_control.gd" id="Push_control"]
-[ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/domains/motion/components/c_stamina.gd" id="Stamina"]
-[ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/domains/motion/components/c_strength.gd" id="Strength"]
-[ext_resource type="Resource" path="res://content/domains/motion/definitions/def_attr_strength.tres" id="StrengthDef"]
 
 [sub_resource type="Resource" id="Resource_bghjr"]
-script = ExtResource("3_lm6lx")
+script = ExtResource("7_1j15x")
 
 [sub_resource type="Resource" id="Resource_lqn1g"]
-script = ExtResource("4_hdpx1")
+script = ExtResource("8_l5t0r")
 metadata/_custom_type_script = "uid://iq4pnvam7fq5"
 
 [sub_resource type="Resource" id="Resource_mn5t4"]
-script = ExtResource("5_d0m3p")
+script = ExtResource("9_hpxnw")
 floor_snap_distance = 0.12
 metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
 
 [sub_resource type="Resource" id="Resource_f5i5i"]
-script = ExtResource("6_r8al5")
+script = ExtResource("10_odx3c")
 direct_input = true
 metadata/_custom_type_script = "uid://cfqxt4h2ae432"
 
 [sub_resource type="Resource" id="Resource_o5mei"]
-script = ExtResource("7_rvtjd")
+script = ExtResource("11_hbq1j")
 jump_force = 350.0
 metadata/_custom_type_script = "uid://2wyyc10rw1bb"
 
 [sub_resource type="Resource" id="Resource_rthl4"]
-script = ExtResource("8_2gvdo")
+script = ExtResource("12_jx005")
 camera_height_standing = 0.0
 camera_height_crouching = -0.75
 metadata/_custom_type_script = "uid://cg8i3jfsnahs3"
 
 [sub_resource type="Resource" id="Resource_wo3yc"]
-script = ExtResource("9_oanka")
+script = ExtResource("13_djfvj")
 metadata/_custom_type_script = "uid://c772oxgdtatqf"
 
 [sub_resource type="Resource" id="Resource_2vn7f"]
-script = ExtResource("11_fy2jt")
-definition = ExtResource("10_5dcb1")
+script = ExtResource("15_lldrk")
+definition = ExtResource("14_aanvx")
 metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 
 [sub_resource type="Resource" id="Grab_interactor"]
-script = ExtResource("Grab_interactor")
+script = ExtResource("16_n4ovm")
 collision_mask = 31
 
 [sub_resource type="Resource" id="Grab_grab_control"]
 resource_local_to_scene = true
-script = ExtResource("Grab_grab_control")
+script = ExtResource("17_cay3d")
 
 [sub_resource type="Resource" id="Grab_carry_load"]
-script = ExtResource("Grab_carry_load")
+script = ExtResource("18_r3poh")
 
 [sub_resource type="Resource" id="Strength"]
-script = ExtResource("Strength")
-definition = ExtResource("StrengthDef")
+script = ExtResource("20_qvh1s")
+definition = ExtResource("19_0aa7q")
 base = 1.0
 value = 1.0
 
 [sub_resource type="Resource" id="Push_control"]
-script = ExtResource("Push_control")
+script = ExtResource("21_ic7ie")
 
 [sub_resource type="Resource" id="Living"]
-script = ExtResource("Living")
+script = ExtResource("22_wi6rm")
 
 [sub_resource type="Resource" id="ImpactReceiver"]
 resource_local_to_scene = true
-script = ExtResource("ImpactReceiver")
-profile = ExtResource("LivingImpact")
+script = ExtResource("24_gqho0")
+profile = ExtResource("23_a155r")
 
 [sub_resource type="Resource" id="Stamina"]
 resource_local_to_scene = true
-script = ExtResource("Stamina")
+script = ExtResource("25_sqeal")
 
 [sub_resource type="CapsuleShape3D" id="CylinderShape3D_bghjr"]
 radius = 0.18896484
@@ -123,9 +124,9 @@ ray_standing = NodePath("RayCanStand")
 crouch_mounts = [NodePath("BeltSlotLeft"), NodePath("BeltSlotRight")]
 head_axis_y = NodePath("HeadY")
 head_axis_x = NodePath("HeadY/HeadX")
-traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("4_0swh6")])
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("4_0swh6"), ExtResource("5_0kq7m")])
 ancestor_entity_bindings = PackedStringArray()
-component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("ImpactReceiver"), SubResource("Stamina")])
+component_resources = Array[ExtResource("6_b7vbj")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("ImpactReceiver"), SubResource("Stamina")])
 
 [node name="HeadY" type="Marker3D" parent="." unique_id=1109415379]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)

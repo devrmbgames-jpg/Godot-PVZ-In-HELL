@@ -1,5 +1,5 @@
 {
-  "schema": 15,
+  "schema": 16,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -168,6 +168,23 @@
         "value",
         "current",
         "depleted"
+      ]
+    },
+    {
+      "symbol": "C_Strength",
+      "path": "res://content/domains/motion/components/c_strength.gd",
+      "fields": [
+        "base",
+        "value"
+      ]
+    },
+    {
+      "symbol": "C_SoulTrade",
+      "path": "res://content/domains/npc/components/c_soul_trade.gd",
+      "fields": [
+        "next_sequence",
+        "accepted_count",
+        "offers"
       ]
     },
     {
@@ -364,6 +381,10 @@
     {
       "symbol": "PendingLootDrop",
       "path": "res://content/domains/packages/contracts/pending_loot_drop.gd"
+    },
+    {
+      "symbol": "SoulTradeRecord",
+      "path": "res://content/domains/npc/contracts/soul_trade_record.gd"
     }
   ],
   "snapshot_paths": [

@@ -11792,13 +11792,16 @@
         "read"
       ],
       "public_methods": [
-        "key_for"
+        "key_for",
+        "trace_key_for"
       ],
       "sources": [
-        "content/services/gameplay/npc_remains_service.gd"
+        "content/services/gameplay/npc_remains_service.gd",
+        "content/domains/npc/services/soul_trade_service.gd"
       ],
       "method_rights": {
-        "key_for": "query"
+        "key_for": "query",
+        "trace_key_for": "query"
       },
       "public_instance_methods": [],
       "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
@@ -15835,14 +15838,16 @@
         "read"
       ],
       "public_methods": [
-        "key_for"
+        "key_for",
+        "trace_key_from_components"
       ],
       "sources": [
         "content/services/persistence/persistent_hazard_state.gd",
         "content/services/persistence/world_snapshot_service.gd"
       ],
       "method_rights": {
-        "key_for": "read"
+        "key_for": "read",
+        "trace_key_from_components": "query"
       },
       "public_instance_methods": []
     },
@@ -19032,6 +19037,153 @@
         "content/domains/customers/services/customer_fire_opening_service.gd"
       ],
       "purpose": "Customer inspection reads immutable fire opening probability, blast profile and physical reagent eligibility."
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "motion",
+      "symbol": "C_Strength",
+      "path": "content/domains/motion/components/c_strength.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "begin_transaction",
+        "end_transaction"
+      ],
+      "public_instance_methods": [
+        "begin_transaction",
+        "end_transaction"
+      ],
+      "method_rights": {
+        "begin_transaction": "request",
+        "end_transaction": "request"
+      },
+      "sources": [
+        "content/domains/combat/services/character_stats_transaction_service.gd"
+      ],
+      "purpose": "Explicit soul/stat transaction or prevalidated passive snapshot reconstruction; no scheduled behavior."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "combat",
+      "symbol": "CharacterStatsChange",
+      "path": "content/domains/combat/contracts/character_stats_change.gd",
+      "rights": [
+        "read",
+        "configure",
+        "request"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/npc/services/soul_trade_service.gd"
+      ],
+      "purpose": "Explicit soul/stat transaction or prevalidated passive snapshot reconstruction; no scheduled behavior."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "combat",
+      "symbol": "CharacterStatsTransactionService",
+      "path": "content/domains/combat/services/character_stats_transaction_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "request"
+      ],
+      "public_methods": [
+        "can_apply",
+        "commit"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "can_apply": "query",
+        "commit": "request"
+      },
+      "sources": [
+        "content/domains/npc/services/soul_trade_service.gd"
+      ],
+      "purpose": "Explicit soul/stat transaction or prevalidated passive snapshot reconstruction; no scheduled behavior."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "SoulTradeRules",
+      "path": "content/domains/npc/rules/soul_trade_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "valid",
+        "valid_for_actor"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "valid": "query",
+        "valid_for_actor": "query"
+      },
+      "sources": [
+        "content/domains/persistence/services/save_data_codec.gd",
+        "content/domains/persistence/services/world_snapshot_service.gd"
+      ],
+      "purpose": "Explicit soul/stat transaction or prevalidated passive snapshot reconstruction; no scheduled behavior."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "motion",
+      "symbol": "C_Strength",
+      "path": "content/domains/motion/components/c_strength.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/services/save_data_codec.gd",
+        "content/domains/persistence/services/world_snapshot_service.gd",
+        "content/domains/persistence/rules/snapshot_graph_rules.gd"
+      ],
+      "purpose": "Explicit soul/stat transaction or prevalidated passive snapshot reconstruction; no scheduled behavior."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "SoulTradeRecord",
+      "path": "content/domains/npc/contracts/soul_trade_record.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/services/save_data_codec.gd"
+      ],
+      "purpose": "Explicit soul/stat transaction or prevalidated passive snapshot reconstruction; no scheduled behavior."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "C_SoulTrade",
+      "path": "content/domains/npc/components/c_soul_trade.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/services/save_data_codec.gd",
+        "content/domains/persistence/rules/snapshot_graph_rules.gd",
+        "content/domains/persistence/services/world_snapshot_service.gd"
+      ],
+      "purpose": "Explicit soul/stat transaction or prevalidated passive snapshot reconstruction; no scheduled behavior."
     }
   ],
   "legacy_decomposition": []

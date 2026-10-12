@@ -7,6 +7,8 @@ const EVENT := &"damage_requested"
 enum Operation {
 	DAMAGE,
 	HEAL,
+	# Explicit voluntary maximum-Health transaction; ignores attack resistance/source veto.
+	SACRIFICE,
 }
 enum Type {
 	GENERIC,
@@ -33,6 +35,8 @@ var target: Entity = null
 var amount: float = 0.0
 ## Урон или лечение; лечение не использует сопротивление урону.
 var operation: Operation = Operation.DAMAGE
+## Permanent maximum-Health delta for SACRIFICE only; ordinary damage/healing requires zero.
+var maximum_health_delta: float = 0.0
 ## Тип урона для сопротивления и представления.
 var damage_type: Type = Type.GENERIC
 

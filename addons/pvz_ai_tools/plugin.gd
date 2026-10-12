@@ -179,6 +179,7 @@ func _register_tools() -> void:
 		_npc_archetype_cache_spec(),
 		_npc_archetype_resave_spec(),
 		_delivery_catalog_spec(),
+		_player_soul_trade_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -422,6 +423,30 @@ func _delivery_catalog_spec() -> McpCustomToolSpec:
 	}
 	spec.script_path = "res://addons/pvz_ai_tools/delivery_catalog_authoring_tool.gd"
 	spec.method = &"append_item"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = false
+	return spec
+
+
+## Preserves packed GECS fields while adding the player's exact soul ledger capability.
+func _player_soul_trade_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_player_soul_trade_authoring"
+	spec.description = "Native packed player save from an exact fingerprinted checkpoint."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {
+			"source_fingerprint": { "type": "string" },
+			"target_fingerprint": { "type": "string" },
+		},
+		"required": ["source_fingerprint", "target_fingerprint"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/player_soul_trade_authoring_tool.gd"
+	spec.method = &"save"
 	spec.source_path = SOURCE_CFG
 	spec.source = "PVZ Godot AI Tools"
 	spec.requires_writable = true

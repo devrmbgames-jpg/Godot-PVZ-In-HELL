@@ -21,6 +21,8 @@ static var _component_fields: Dictionary = {
 	C_NpcRemains: C_NpcRemains.SAVE_FIELDS,
 	C_LootDrops: C_LootDrops.SAVE_FIELDS,
 	C_Health: C_Health.SAVE_FIELDS,
+	C_Strength: C_Strength.SAVE_FIELDS,
+	C_SoulTrade: C_SoulTrade.SAVE_FIELDS,
 	C_Karma: C_Karma.SAVE_FIELDS,
 	C_Hunger: C_Hunger.SAVE_FIELDS,
 	C_Stamina: C_Stamina.SAVE_FIELDS,
@@ -56,6 +58,7 @@ static var _record_types: Array[Script] = [
 	ReceivingBatch,
 	TruckCargoReceipt,
 	PendingLootDrop,
+	SoulTradeRecord,
 ]
 ## Максимальная глубина вложенных сериализуемых данных.
 const MAX_DEPTH: int = 16
@@ -192,7 +195,14 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 ## заготовку.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
-	if script in [GameClock, NpcVariation, NpcRecord, ReceivingBatch, PackageRegistrationRecord]:
+	if script in [
+		GameClock,
+		NpcVariation,
+		NpcRecord,
+		ReceivingBatch,
+		PackageRegistrationRecord,
+		SoulTradeRecord,
+	]:
 		var exact_fields: Array[String] = GameClock.SAVE_FIELDS
 		if script == NpcVariation:
 			exact_fields = NpcVariation.SAVE_FIELDS
@@ -202,6 +212,8 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			exact_fields = ReceivingBatch.SAVE_FIELDS
 		elif script == PackageRegistrationRecord:
 			exact_fields = PackageRegistrationRecord.SAVE_FIELDS
+		elif script == SoulTradeRecord:
+			exact_fields = SoulTradeRecord.SAVE_FIELDS
 		if fields.size() != exact_fields.size():
 			return false
 		for required_field: String in exact_fields:
@@ -283,6 +295,8 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			resource.set(field, decoded)
 	if resource is GameClock:
 		return GameTimeRules.valid(resource as GameClock)
+	if resource is C_SoulTrade:
+		return SoulTradeRules.valid(resource as C_SoulTrade)
 	return true
 
 #endregion

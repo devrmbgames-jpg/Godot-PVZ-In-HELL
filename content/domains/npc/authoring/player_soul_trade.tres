@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="C_SoulTrade" format=3 uid="uid://btvyjbssasl0n"]
+
+[ext_resource type="Script" uid="uid://cmgxmeydsibuy" path="res://content/domains/npc/contracts/soul_trade_record.gd" id="1_4350s"]
+[ext_resource type="Script" uid="uid://cnogyo0t82jlf" path="res://content/domains/npc/components/c_soul_trade.gd" id="2_pdkmi"]
+
+[resource]
+script = ExtResource("2_pdkmi")

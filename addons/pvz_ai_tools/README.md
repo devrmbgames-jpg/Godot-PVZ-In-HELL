@@ -207,3 +207,27 @@ Clean scenes and a closed target Inspector are required. Disk-isolated native lo
 preserves all packages, tuning and the root UID; duplicate keys and escaping paths
 refuse before saving. The save persists without UndoRedo. Restart the editor after
 registration changes; plugin exit unregisters the tool, and calls retain no resources.
+
+
+## Player soul capability packed-state save
+
+`pvz_player_soul_trade_authoring` addresses the confirmed native editor placeholder
+gap: saving the player through ordinary scene_save dropped inherited GECS
+component_resources. The bounded tool preserves the original PackedScene graph
+and changes only its root traits array; it never instantiates gameplay Nodes.
+It accepts only the fixed player, soul trait and
+`res://.artifacts/player_before_soul.tscn` checkpoint paths. Prepare that checkpoint
+from the reviewed Git version before the capability addition, retaining the player
+UID. Existing recipes must include Health and Strength; duplicate capabilities,
+dirty editor scenes, changed fingerprints and a different UID refuse the save.
+
+Example:
+`custom_manage(op="invoke", params={"tool_name":"pvz_player_soul_trade_authoring",
+"params":{"source_fingerprint":"<checkpoint SHA-256>",
+"target_fingerprint":"<current player SHA-256>"}})`.
+The native ResourceSaver operation preserves the UID and reloads the clean player
+scene. It persists without UndoRedo. Restart the editor after registration changes;
+plugin exit unregisters the tool, and no Nodes, Resources or requests survive calls.
+Focused tests: `res://tests/gut/test_pvz_player_soul_trade_authoring_tool.gd`
+compare every packed node/property, refusal guards, and fresh ledgers for standalone
+and main-level player instances. Headless checks do not provide visual acceptance.

@@ -23,17 +23,29 @@ static func key_for(entity: Entity, root: Node) -> String:
 static func trace_key_for(entity: Entity) -> String:
 	if not is_instance_valid(entity):
 		return ""
-	var identity: C_ActorIdentityReference = _reference_for(entity, true)
-	return identity.trace_key() if identity != null else entity.id
+	return trace_key_from_components(entity.components, entity.id)
+
+
+## Reads the same trace identity from validated detached snapshot components before world mutation.
+static func trace_key_from_components(components: Dictionary, runtime_id: String) -> String:
+	var identity: C_ActorIdentityReference = _reference_from_components(components, true)
+	return identity.trace_key() if identity != null else runtime_id
 
 
 static func _reference_for(entity: Entity, diagnostic: bool) -> C_ActorIdentityReference:
+	return _reference_from_components(entity.components, diagnostic)
+
+
+static func _reference_from_components(
+	components: Dictionary,
+	diagnostic: bool,
+) -> C_ActorIdentityReference:
 	var selected: C_ActorIdentityReference = null
 	var selected_priority: C_ActorIdentityReference.Specificity = (
 		C_ActorIdentityReference.Specificity.NONE
 	)
 	# GECS indexes concrete classes; read their shared contract without duplicating keys.
-	for component: Component in entity.components.values():
+	for component: Component in components.values():
 		var candidate: C_ActorIdentityReference = component as C_ActorIdentityReference
 		if candidate == null:
 			continue

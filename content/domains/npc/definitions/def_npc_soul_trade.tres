@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_NpcSoulTrade" format=3 uid="uid://b7d3tf2o4qxlu"]
+
+[ext_resource type="Script" uid="uid://bonjd7btxtu6s" path="res://content/domains/npc/definitions/def_npc_soul_trade.gd" id="1_xx3ts"]
+
+[resource]
+script = ExtResource("1_xx3ts")
+kind = 7
+warning_text = "За силу отдаётся часть жизни. Третья принятая сделка заберёт всё; отказы счётчик не сбрасывают."
+countermeasure = "Откажитесь или закройте разговор до подтверждения."
+key = &"npc/soul_trade"

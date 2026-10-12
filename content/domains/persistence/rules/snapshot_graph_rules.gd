@@ -77,8 +77,9 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 					return false
 		if record.has("pose") and not (entity as Node) is Node3D:
 			return false
-		if _component(entity, C_Karma) != null and not saved_types.has(C_Karma):
-			return false
+		for required: Script in [C_Karma, C_Strength, C_SoulTrade]:
+			if _component(entity, required) != null and not saved_types.has(required):
+				return false
 		if entity is E_Package and not saved_types.has(C_Package):
 			return false
 		if entity is E_Package:

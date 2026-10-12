@@ -253,6 +253,16 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 				)
 			):
 				return false
+			if (
+				probe is C_Strength
+				and (
+					not is_finite((probe as C_Strength).base)
+					or (probe as C_Strength).base <= 0.0
+					or not is_finite((probe as C_Strength).value) or (probe as C_Strength).value
+					<= 0.0
+				)
+			):
+				return false
 			if probe is C_Karma and not KarmaRules.valid(probe as C_Karma):
 				return false
 			if (
@@ -267,6 +277,14 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 					or (probe as C_Stamina).current < 0.0
 				)
 			):
+				return false
+
+		if types.has(C_SoulTrade):
+			var soul_actor_id: String = ActorIdentityRules.trace_key_from_components(
+				types,
+				String(record.entity_id),
+			)
+			if not SoulTradeRules.valid_for_actor(types[C_SoulTrade] as C_SoulTrade, soul_actor_id):
 				return false
 
 		all_components[String(record.key)] = types

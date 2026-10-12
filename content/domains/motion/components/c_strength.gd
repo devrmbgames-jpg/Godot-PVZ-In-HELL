@@ -3,6 +3,9 @@ extends C_Attribute
 ## Сила для предела массы и замедления Carry; перевод в килограммы задаёт CarryLoadPolicy.
 class_name C_Strength
 
+## Permanent Strength changes survive the closed world snapshot.
+const SAVE_FIELDS: Array[String] = ["base", "value"]
+
 
 func _init(new_val: float = 1.0) -> void:
 	_init_definition()

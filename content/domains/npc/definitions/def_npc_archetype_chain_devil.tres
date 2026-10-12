@@ -6,6 +6,7 @@
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_6.tres" id="4_fcyps"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="5_77mij"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_5.tres" id="6_q3msj"]
+[ext_resource type="Resource" uid="uid://b7d3tf2o4qxlu" path="res://content/domains/npc/definitions/def_npc_soul_trade.tres" id="7_cjcgr"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_nu0xv"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_efetb"]
 
@@ -37,7 +38,7 @@ presentation_cues = PackedStringArray()
 display_name = "Цепной дьявол"
 personality = 1
 schedule = SubResource("Resource_axyi5")
-rules = Array[ExtResource("5_77mij")]([ExtResource("6_q3msj")])
+rules = Array[ExtResource("5_77mij")]([ExtResource("6_q3msj"), ExtResource("7_cjcgr")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.4745098, 0.27058825, 0.30588236, 1)

@@ -14,8 +14,7 @@ func _set_current(new_value: float) -> void:
 	var old_value := current
 	current = new_value
 	assert(definition)
-	if definition.has_emit_changes_enabled:
-		property_changed.emit(self, definition.key_current, old_value, new_value)
+	_notify_change(definition.key_current, old_value, new_value)
 
 
 func _init(new_val: float = 100.0, current_val: float = DEFAULT_CURRENT) -> void:
