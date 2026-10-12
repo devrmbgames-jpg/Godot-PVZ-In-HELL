@@ -50,16 +50,17 @@ district smoke/review passed. Live archetype binding remains open.
 Night hunting now uses due-step authored light sampling and visible native/customer branches
 for starting combat and calming on light; combat gates preserve emergency movement while
 cancelling the attack. Focused checks, final smoke and lifecycle repair review pass.
-Night music/shadow presentation and live archetype binding remain open.
+Night music/shadow presentation now has native authored views and lifecycle checks;
+its checkpoint review/smoke and live archetype binding remain open.
 R26.4 routes committed personal variants, with two neutral/lost, two shy and two night variants using
 imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
 role/idempotency regressions and checkpoint review pass. Lost checkpoint review
 and registration-guard repair passed. Night light views and actual role/delivery checks pass,
-with checkpoint review pending; the remaining 14 variants/interactions stay open.
+with checkpoint review passed; the remaining 14 variants/interactions stay open.
 
 ### Next
 
-Continue night-hunter music/shadow presentation and remaining R26.3/R26.4,
+Close night-hunter presentation review/smoke, then continue remaining R26.3/R26.4,
 then bind all ten archetypes.
 
 ### Validation

@@ -1,23 +1,42 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d08rcl6qr8w3s"]
 
+[ext_resource type="Script" uid="uid://7ewwb1k83dml" path="res://content/domains/npc/presentation/npc_night_presentation.gd" id="8_dtgwa"]
+[ext_resource type="Resource" uid="uid://d3s73ddmq0a52" path="res://content/domains/npc/definitions/def_npc_night_presentation.tres" id="9_eafli"]
+[ext_resource type="AudioStream" uid="uid://ddi58a60ftxny" path="res://content/domains/npc/presentation/night_presence.wav" id="10_ch0dj"]
+[ext_resource type="Texture2D" uid="uid://b1vm1dufpx08" path="res://content/domains/npc/presentation/night_shadow.svg" id="11_v0oo2"]
 [ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Base"]
-[ext_resource type="Script" path="res://content/domains/npc/entities/e_district_npc.gd" id="Entity"]
-[ext_resource type="Script" path="res://content/domains/npc/components/c_npc_identity.gd" id="Identity"]
-
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
-
-[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_npc_npc_identity.tres" id="DirectTrait_1"]
-
-[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_npc_npc_brain_state.tres" id="DirectTrait_2"]
-
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+[ext_resource type="Resource" uid="uid://cgor7x3ikmr71" path="res://content/domains/npc/authoring/et_district_npc_npc_identity.tres" id="DirectTrait_1"]
+[ext_resource type="Resource" uid="uid://c0qw8fsya8w4c" path="res://content/domains/npc/authoring/et_district_npc_npc_brain_state.tres" id="DirectTrait_2"]
 [ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_npc_npc_roles.tres" id="DirectTrait_3"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_4"]
+[ext_resource type="Script" uid="uid://cwknel8uiy5sw" path="res://content/domains/npc/entities/e_district_npc.gd" id="Entity"]
 
-[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_4"]
-
-[node name="DistrictNpc" instance=ExtResource("Base")]
+[node name="DistrictNpc" unique_id=316302539 instance=ExtResource("Base")]
 script = ExtResource("Entity")
 traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2"), ExtResource("DirectTrait_3"), ExtResource("DirectTrait_4")])
+ancestor_entity_bindings = PackedStringArray()
 
-[node name="FurniturePickup" type="Marker3D" parent="."]
-position = Vector3(2, 0, 0)
+[node name="FurniturePickup" type="Marker3D" parent="." index="9" unique_id=177978350]
 editor_description = "Authored pickup origin for a spawned merchant; ordinary residents do not use it."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
+
+[node name="NightPresence" type="Node3D" parent="." index="10" unique_id=979361694]
+script = ExtResource("8_dtgwa")
+definition = ExtResource("9_eafli")
+
+[node name="Music" type="AudioStreamPlayer3D" parent="NightPresence" index="0" unique_id=1812983306]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
+stream = ExtResource("10_ch0dj")
+volume_db = -60.0
+unit_size = 1.0
+max_distance = 8.0
+
+[node name="Shadow" type="Decal" parent="NightPresence" index="1" unique_id=338155772]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+visible = false
+size = Vector3(3.6, 0.4, 3.6)
+texture_albedo = ExtResource("11_v0oo2")
+modulate = Color(1, 1, 1, 0)
+
+[editable path="Body"]

@@ -97,6 +97,9 @@ func place_at(world_position: Vector3) -> void:
 
 ## Показывает постоянную личность независимо от активного заказа.
 func present_profile(profile: DEF_NpcProfile) -> void:
+	var night_view: NpcNightPresentation = get_node_or_null("NightPresence") as NpcNightPresentation
+	if night_view != null:
+		night_view.suspend()
 	show_message(profile.display_name)
 	var skeleton_meshes: Array[Node] = find_children("*", "MeshInstance3D", true, false)
 	var material: StandardMaterial3D = StandardMaterial3D.new()

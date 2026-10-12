@@ -29,7 +29,11 @@ Final smoke PASS. Review found synchronous receiver retirement/reset; RV-001 is 
 Repair stops obsolete leaf/scheduler continuations and revalidates the native runner.
 It preserves urgent-wake semantics and completes deferred abort for dormant retained bodies.
 Repair regressions, final smoke and targeted repair review PASS.
-Night presentation/dialogues, remaining mandatory subtrees and live roster binding stay open.
+Night dialogue light views and both personal variants passed independent review.
+Night presentation now projects authored cues onto native spatial audio and a shadow Decal;
+native Tweens blend committed hunting intensity without sensing or mutating gameplay.
+Dormancy, death, brain reset, profile replacement and actor disposal clear native work.
+Presentation checkpoint review/smoke remain pending; mandatory subtrees and live roster binding stay open.
 
 ### Validation
 
@@ -61,6 +65,17 @@ domain/project structure and persistence PASS. MCP authors native traits/catalog
 UIDs preserved; leaf diagnostics/reload and clean scene reload/no new editor errors PASS.
 Global reload43 NOT_PASS; CLI independently PASS. Reviewed ARCHITECTURE/STYLE PASS; runtime VALIDATION NOT_RUN.
 Full mandatory behaviors, live roster integration and owner gameplay/visual QA: NOT_RUN.
+Presentation PASS: parser003052461/6; native GUT005054038 20/186, catalog005050732 4/944;
+participation003105891 12/133. Snapshot003124389 8/148 tests/exit0 PASS, runner FAIL solely
+on shutdown retention (KNOWN_ENGINE_LIMITATION/DEFERRED); logs preserved.
+MCP authored/saved native audio/Decal nodes and typed tuning. An old exported script layout
+serialized 21 invalid speed defaults; clean editor restart and fingerprinted native resave
+restored all 21 files exactly to Git, including UIDs. Full Git restore was rejected/not used.
+Companion resave parser004924005/3 and GUT004927301 3/17 PASS; MCP diagnostics checked[] PASS.
+Final parser005239384/4 and dialogue005249769 37/831 PASS. Existing passive-reset test now
+counts only customer-role bindings, preserving its duplicate-installation assertion with the view subscribed.
+Imported original twelve-second music and SVG shadow are placeholders awaiting owner QA.
+Presentation review: REVIEW_PENDING; current integration smoke: NOT_RUN.
 
 ### Review triage
 

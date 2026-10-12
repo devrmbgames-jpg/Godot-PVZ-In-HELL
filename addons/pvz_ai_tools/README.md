@@ -172,3 +172,14 @@ native cache replacement. No files or UIDs are changed; cached definition values
 Dirty scenes and
 an inspected target Resource refuse the operation; reload affected clean scenes afterwards.
 Registration is removed on plugin exit; the handler retains no resources or connections.
+
+`pvz_npc_archetype_resave` fills the native resource tool's gap for existing graphs
+with embedded schedules/trait options. It saves up to eight existing `DEF_NpcArchetype`
+definitions after clean-scene, Inspector, exact SHA-256, exported-default and UID checks.
+Example: `custom_manage(op="invoke", params={"tool_name":"pvz_npc_archetype_resave",
+"params":{"fingerprints":{"res://content/domains/npc/definitions/def_npc_profile_1.tres":
+"<SHA-256 of the inspected file>"}}})`. Native `ResourceSaver` retains the loaded graph
+and root UID; this persistent save has no editor undo. Restart the editor after adding
+the tool. Plugin exit unregisters it; no resources or connections survive a call.
+An anonymous global script reload error43 does not refresh exported layouts: confirm
+the actual exported properties or restart before saving authored resources.

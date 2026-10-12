@@ -73,6 +73,7 @@ func _ready() -> void:
 		S_NpcRoute,
 		S_NpcRoutePlanning,
 		S_NpcNoise,
+		S_NpcNightPresentation,
 	]):
 		var npc_owner: System = owner_type.new() as System
 		npc_owner.group = "GamePlay"

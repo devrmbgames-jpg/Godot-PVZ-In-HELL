@@ -177,6 +177,7 @@ func _register_tools() -> void:
 		_translation_sources_spec(),
 		_behavior_tree_authoring_spec(),
 		_npc_archetype_cache_spec(),
+		_npc_archetype_resave_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -373,6 +374,27 @@ func _npc_archetype_cache_spec() -> McpCustomToolSpec:
 	}
 	spec.script_path = "res://addons/pvz_ai_tools/npc_archetype_cache_tool.gd"
 	spec.method = &"refresh"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = false
+	return spec
+
+
+## Resaves an existing resource graph only after exact fingerprint and editor ownership checks.
+func _npc_archetype_resave_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_npc_archetype_resave"
+	spec.description = "Canonical native resave of up to eight fingerprinted NPC definitions."
+	spec.params_schema = {
+		"type": "object",
+		"properties": { "fingerprints": { "type": "object", "maxProperties": 8 } },
+		"required": ["fingerprints"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/npc_archetype_resave_tool.gd"
+	spec.method = &"resave"
 	spec.source_path = SOURCE_CFG
 	spec.source = "PVZ Godot AI Tools"
 	spec.requires_writable = true

@@ -57,7 +57,12 @@ func test_passive_native_reset_releases_role_with_suspended_observers() -> void:
 	NpcServiceRole.begin(body, person, visit, 1)
 	NpcCustomerComposition.install(_world)
 	NpcCustomerComposition.install(_world)
-	assert_eq(body.role_cleanup_requested.get_connections().size(), 1)
+	var role_bindings: int = 0
+	for connection: Dictionary in body.role_cleanup_requested.get_connections():
+		var handler: Callable = connection["callable"]
+		if handler.get_object() == (CustomerNpcLifecycleBinding as Script):
+			role_bindings += 1
+	assert_eq(role_bindings, 1, "Repeated composition installs exactly one customer role binding")
 	assert_eq(body.role_presence_requested.get_connections().size(), 1)
 	assert_true(body.has_active_role())
 

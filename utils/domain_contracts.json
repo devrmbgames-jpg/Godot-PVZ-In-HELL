@@ -10575,6 +10575,7 @@
       "public_methods": [],
       "sources": [
         "content/ai/tasks/bt_npc_inactive.gd",
+        "content/domains/npc/systems/s_npc_night_presentation.gd",
         "content/ai/tasks/bt_npc_target_available.gd",
         "content/entities/characters/e_npc_character.gd",
         "content/observers/gameplay/o_district_lifecycle.gd",
@@ -10706,7 +10707,8 @@
         "content/systems/gameplay/s_npc_perception.gd",
         "content/systems/gameplay/s_npc_route.gd",
         "content/systems/gameplay/s_npc_traits.gd",
-        "content/domains/npc/systems/s_npc_intent.gd"
+        "content/domains/npc/systems/s_npc_intent.gd",
+        "content/domains/npc/systems/s_npc_night_presentation.gd"
       ],
       "method_rights": {
         "target_for": "request"
@@ -18794,6 +18796,18 @@
       "method_rights": {"player_in_hunting_darkness": "query"},
       "public_instance_methods": [],
       "purpose": "Street/customer dialogue reads the shared perceived-light criterion without new sensing or gameplay mutation."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "S_NpcNightPresentation",
+      "path": "content/domains/npc/systems/s_npc_night_presentation.gd",
+      "rights": ["read"],
+      "public_methods": [],
+      "sources": ["content/scenes/main_level.gd"],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Explicit System composition only; committed NPC facts project onto native presentation nodes."
     },
     {
       "source_owner": "global",

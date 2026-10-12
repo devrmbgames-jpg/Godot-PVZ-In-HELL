@@ -24,7 +24,9 @@ Weighted available categories feed deterministic per-person decisions; missing c
 Contents and the terminal/archive arrival projection retain the choice through retry/restore.
 Native MCP adds all 15 physical catalog items while preserving all eight authored case paths.
 Category checkpoint review PASS. Next: implement R26.3/R26.4 and bind all ten requested archetypes.
-Presentation/combat/mandatory behavior acceptance remains open.
+Night presentation has native authored spatial audio/Decal views and typed immutable tuning;
+its focused lifecycle checks pass, with checkpoint review/smoke pending in R26.3.
+Full presentation/combat/mandatory behavior acceptance remains open.
 
 ### Validation
 

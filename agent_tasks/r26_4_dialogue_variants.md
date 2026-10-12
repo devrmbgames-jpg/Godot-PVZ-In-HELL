@@ -25,7 +25,7 @@ does not advance exposure or alter memory. Both keep the registration guard and 
 Night variants use restrained warning versus playful predatory tones, weapon/clothing topics
 and light advice. Both roles read the same authored perceived-light predicate as the native
 hunt guard. Dialogue performs no sensing or aggression mutation; registration guards and
-existing denial/private delivery owners remain intact. Night checkpoint review is pending.
+existing denial/private delivery owners remain intact. Night checkpoint review passed.
 Review of `490efacd2b5888383325bdbf37aa13b3753be4a4` against
 `1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63` found the missing direct registration guard.
 The guard is restored in both variants, with focused native regression PASS. Targeted repair
@@ -70,7 +70,9 @@ No per-open reroll or new UI authority is introduced.
   Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
   MCP saved the native catalog preserving UID and tuning, imported both dialogues and reloaded
   the clean scene; test/leaf diagnostics PASS, global hot reload43 NOT_PASS, CLI independently PASS.
-  Night dialogue checkpoint review: REVIEW_PENDING. Rendered/dialogue feel: NOT_RUN.
+  Review `b798cfb4817c6d4e05f01a52a66695a9e82b3c71` ->
+  `66813497b64120f26626b1ca2694207dc7cad146` PASS, no findings (17 s);
+  ARCHITECTURE/STYLE PASS, reviewer runtime VALIDATION NOT_RUN. Rendered/dialogue feel: NOT_RUN.
 
 ### Review triage
 
