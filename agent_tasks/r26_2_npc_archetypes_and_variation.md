@@ -18,7 +18,7 @@ are read-only resolved views. Compiler instance fields compose speed, damage res
 receiver tags. Native MCP migrated all 12 existing profiles and the district while preserving
 paths, keys, schedules, roles and places. They retain existing behavior; the ten requested
 archetypes are authored assets awaiting live roster binding and new behavior implementation.
-Schema 15 rejects incomplete/unsupported records before mutation; restore never rerolls.
+Schema 16 rejects incomplete/unsupported records before mutation; restore never rerolls.
 Category ordering now commits real catalog payloads with the existing receiving batch/parcel IDs.
 Weighted available categories feed deterministic per-person decisions; missing categories fall back.
 Contents and the terminal/archive arrival projection retain the choice through retry/restore.
@@ -30,62 +30,23 @@ Full presentation/combat/mandatory behavior acceptance remains open.
 
 ### Validation
 
-Native Godot 4.7.1 logs are under `.artifacts/godot_agent/` (2026-10-11 UTC).
-Foundation parser200116353 7/7, variation GUT200129137 6/6,360 and save-data200240843 PASS;
-catalog parser201559767 3/3, final GUT201925750 4/4,944 PASS. These prove bounded compatible
-deterministic choices, shared isolation, exact codec, all ten native assets/names/categories/tags.
-Foundation review BASE b89a21f4bdf0daf0609595dc3adc502bd5424535 ->
-TARGET 473e1569425d9c6bcd809828c3c8422e6280b66f PASS, no findings (69 s).
-Catalog review TARGET ca6bc069c5645028fd9b51e681d9364291e6f32c (70 s) found RV-001/R1 P2:
-angel lacked holy eligibility. FIXED a02e250b80a4b984e662854452f8cc110e356660;
-actual HOLY DAMAGE/UNHOLY EXCLUDED regression and targeted review PASS (8 s).
-Cache tool review BASE a02e250b80a4b984e662854452f8cc110e356660 ->
-TARGET 589cadfdca1b61006510338a5f88d94ec5ec8e9e (38 s) found RV-002/R1 P1:
-inspected ::subresources lacked file-owner protection. FIXED
-fd2627ee7e6312efbc6c5a9afb70b77fa997ce1f; parser203852011/GUT203819728 3/3,35,
-live MCP diagnostics and targeted review PASS (2 s). No file/UID changes during cache refresh.
-Both repairs have ARCHITECTURE/STYLE PASS; reviewer runtime checks NOT_RUN.
-Roster integration: factory205245545 13/13,102; shared host205140832 2/2,260;
-doctor205354140 20/20,119; preview205302600 10/10,66; compiler205515135 33/33,189;
-recipe isolation205524795 7/7,42; perception205530362 8/8,27; blood205538943 10/10,120;
-community205551797 15/15,99; randomness205614732 11/11,103; save-data205633042 6/6,40;
-district plan205648020 41/41,260 PASS. Current world-snapshot evidence below supersedes205034739.
-District snapshot211423055: 15/15,184 tests PASS, no runtime errors/orphan Nodes;
-runner FAIL solely on shutdown Resource/RID/VariantPools retention: KNOWN_ENGINE_LIMITATION/DEFERRED.
-New checks cover selected optional fire, receiver composition, fresh/reused variation restore,
-missing/extra/invalid choices, replacement retry persistence and rejection before live mutation.
-Style and strict architecture/domain/project checks PASS. MCP test diagnostics checked[] PASS;
-global reload43 remains NOT_PASS; native CLI verifies separately. Clean game_world reloaded via MCP.
-Parser210253264: all 37 individual compilations PASS; aggregate runner FAIL on the snapshot test's
-shutdown retention above. Cache policy extension parser210707631 2/2/GUT210631184 4/4,52 PASS;
-MCP refresh updates both exact identity policies in place and preserves references/files/UIDs.
-Week smoke PASS: tests/artifacts/district-20261012-065857869.log.
-Integration review BASE fd2627ee7e6312efbc6c5a9afb70b77fa997ce1f ->
-TARGET 3bfdde24cd8d7cdf6d2961637edd0aa07ebcc174 (136 s), STYLE PASS, runtime NOT_RUN.
-RV-003/R1 P1: reused bodies retained stale variation-derived speed/receiver tags. FIXED
-a081b0037081f117c0435af443c53fb2f626de70; targeted review PASS (7 s), ARCHITECTURE/STYLE PASS.
-Repair reconciles both after accepted snapshot and role cleanup, before participation/readiness;
-reused-body and rejected-snapshot regressions above PASS; owner parser211507727 PASS.
-Category orders: GUT214635170 7/7,199; cache213535399 5/5,63; compiler213539722 6/6,59;
-receiving213649524 22/22,151; contents213920106 14/14,244; truck214703675 14/14,96;
-world snapshot214710999 35/35,443; terminal214819154 7/7,28 PASS.
-These cover catalog growth/fallback, unchanged case paths, blocked real delivery/codec retry,
-one-shot actual weapon release without legacy bottle hazards, fresh/reused payload restore,
-archive projection and malformed order rejection before mutation. Baseline fixture and closed
-manifest now reflect schema15, including variation and complete order fields; static baseline PASS.
-Normal golden-file GUT215227300: 5/5,349 tests PASS, runner FAIL exit0 solely on shutdown
-Resource/RID/VariantPools retention: KNOWN_ENGINE_LIMITATION/DEFERRED. No runtime errors/orphans.
-Parser215443197: 34 files compiled without parser errors; aggregate runner FAIL solely on
-baseline-script shutdown retention above (KNOWN_ENGINE_LIMITATION/DEFERRED).
-Strict architecture/domain/project/style/persistence-baseline checks PASS. Week smoke PASS:
-tests/artifacts/district-20261012-075624916.log (all phases, eight mornings, save/restore).
-Category review BASE 6aa34fcd379e8cd23396b69dc3b80ae4e21a7ad8 ->
-TARGET 7723b5a2a5ffce79d67895a9724234dd42080d24 PASS, no findings (104 s).
-ARCHITECTURE/STYLE PASS; reviewer runtime VALIDATION NOT_RUN. No DONE/owner acceptance claimed.
-MCP refresh proves supply/policy caches update in place without file/UID changes; clean scene
-reload and six test diagnostics checked[]/reloaded PASS. Global reload43 remains NOT_PASS.
-NOT_RUN: ten-archetype roster binding, new mandatory behaviors,
-presentation hooks, rendered gameplay and owner acceptance. No external scene/resource rewrites.
+Foundation/catalog/integration/category implementation and independent reviews PASS at
+`473e1569425d9c6bcd809828c3c8422e6280b66f`,
+`ca6bc069c5645028fd9b51e681d9364291e6f32c`,
+`3bfdde24cd8d7cdf6d2961637edd0aa07ebcc174`; unique checks remain in those Git checkpoints.
+RV-001 holy eligibility FIXED `a02e250b80a4b984e662854452f8cc110e356660`;
+RV-002 inspected-subresource ownership FIXED `fd2627ee7e6312efbc6c5a9afb70b77fa997ce1f`;
+RV-003 reused-body variation reconciliation FIXED `a081b0037081f117c0435af443c53fb2f626de70`.
+All targeted reviews PASS; architecture/style PASS, reviewer runtime NOT_RUN.
+Category GUT214635170 7/199, receiving213649524 22/151, contents213920106 14/244,
+truck214703675 14/96, world214710999 35/443, terminal214819154 7/28 PASS.
+Week smoke district-20261012-075624916.log PASS. Exact category checkpoint evidence remains in Git.
+Schema16 now covers Strength and complete soul receipts/ledger:
+`3a18bbc5275463d05328744e767e923cf8242d7b`, repaired/reviewed `4f956de8db9a62aa8bd13df53c150025798aa1d0` PASS; details in R26.3.
+Latest world snapshot052321580 35/443 and soul053521718 16/186 PASS;
+golden baseline052241040 5/362 assertions PASS, runner FAIL solely at engine shutdown.
+Static persistence baseline PASS. Specified shutdown Resource/RID/VariantPools retention
+KNOWN_ENGINE_LIMITATION/DEFERRED. Global MCP reload43 NOT_PASS; fresh native CLI verifies separately.
 
 ### Owner QA / blockers
 
@@ -193,7 +154,7 @@ sometimes CLOTHING.
 Soul trade:
 - accepted deal gives player **+1 Strength**;
 - subtracts **10 from maximum Health**;
-- three consecutive accepted deals => player death for now;
+- third accepted deal in total before death => player death for now; refusal does not reset the count (owner clarification 2026-10-12);
 - persist deal count/state;
 - all mutations go through the authoritative player stats/Health contracts, not UI/dialogue direct field hacks.
 

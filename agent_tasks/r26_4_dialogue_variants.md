@@ -26,14 +26,10 @@ Implement Chain Devil's authoritative soul transactions and two variants, then c
 Fire PASS: parser045141074/1; native GUT045030048 **36/943** including inherited31, all shared cues, distinct topics/tags, stable choice/codec, both roles read-only with undecided and committed explosions, registration guard, one-shot denial, four private deliveries and actual headless panels/focus release.
 MCP authored/imported both Fire variants, saved the catalog pool with UIDs/tuning retained and refreshed cache; final test checked[] PASS. Formatter/lint and strict architecture/dependencies/domain/project/persistence/staged/diff PASS. No extra full smoke for authored-dialogue batch; native role/panel tests cover its scope.
 Fire review BASE `3a0e634409856c6facedc7431745614e9178f453` -> TARGET `044de4285d22ff67c53635fbff5596d3dab7cbf6` PASS, no findings (13 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
-Brute PASS: parser034933645/3; native GUT034921599 **37/913** including inherited31, all role cues, saved selection, read-only respect in both roles, other-actor exclusion, real submission/codec, registration guard, one-shot denial, four private deliveries and actual headless panels/focus release.
-MCP authored/imported both variants, saved exactly one catalog-pool line with UID/tuning retained and refreshed cache; fresh test diagnostics checked[] PASS. Formatter incremental/strict, architecture/dependencies/domain/project/persistence/staged/diff PASS. No extra full smoke for this authored-dialogue batch; native role/panel tests cover its scope.
-Brute review BASE `04cc048ebcd920f434ca7109fe24df9d36a361a3` -> TARGET `50c2a2ef35cb78d036b96b2087a6bbe920279c21` PASS, no findings (41 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
-Hag parser022034711/1 and GUT021925998 **38/966** PASS; review `9c70cd2c684994a907e35cd74fd01b9bc30e20e7` -> `6293c6bdb34334832f0c02e720df11c75cc20dd2` PASS (119 s). Unique branch evidence remains in that checkpoint.
-Earlier native PASS: lost225318292 **31/621** + service224919731; shy233416121 **35/759**; night001711308 **37/831**; angel011214901 **38/889** + service011255565 **15/272**. Logs under `.artifacts/godot_agent/gut-202610{11,12}-<timestamp>.{stdout,stderr}.log`; unique parser/MCP/static evidence remains in Git checkpoints.
-Shy reviewed `5ff85b58ea107ec795d3dea4319be9dcf10306b1` -> `b1b9c38f8844723850a5223d6f4c4271f5ef7ef7` PASS (61 s).
-Night reviewed `b798cfb4817c6d4e05f01a52a66695a9e82b3c71` -> `66813497b64120f26626b1ca2694207dc7cad146` PASS (17 s).
-Angel reviewed `e905f5ea0809dafbb2008d52f4b8283af43dbb2c` -> `373dc4a1f64ad3f4f57cf8c322cea6bb77158cbb` PASS (45 s).
+Earlier lost/shy/night/angel/hag/brute variants and immutable reviews PASS;
+unique role, codec, panel/refusal/delivery evidence remains in their Git checkpoints.
+Soul core `3a18bbc5275463d05328744e767e923cf8242d7b`, repaired/reviewed `4f956de8db9a62aa8bd13df53c150025798aa1d0` PASS; two new
+Chain drafts are imported work in progress and are not counted among the 14 verified variants.
 Global hot reload43 remains NOT_PASS; actual layouts/restart and fresh CLI checks independently verify saves. Full 20-variant acceptance and rendered/tone/modal owner QA NOT_RUN.
 
 ### Review triage
@@ -156,8 +152,8 @@ Two variants must include soul-sale offer.
 Accepted soul deal calls a narrow gameplay service that:
 - +1 Strength;
 - -10 max Health;
-- increments persistent consecutive accepted-deal count;
-- third consecutive accepted deal causes death for now.
+- increments the persistent total accepted-deal count before death;
+- third total accepted deal causes death for now; refusal never resets the count (owner clarification 2026-10-12).
 
 Variant A: contractual/legalistic.
 Variant B: mocking/tempting.

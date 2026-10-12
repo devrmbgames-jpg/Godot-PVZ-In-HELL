@@ -25,16 +25,22 @@ Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation chec
 
 Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; generic Hazard owners retain follow, overlap damage and teardown. Route and sleep risk clip floor height. Checkpoints `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` and RV-003 repair `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` passed checks/targeted review. Immediate physical opening and one durable ignition roll now passed checks/review at `952c851545d2a4b28954a6a620cd0dfbbe8582e5`; both Fire dialogue variants `044de4285d22ff67c53635fbff5596d3dab7cbf6` passed native tests and review. Existing service BT and Hazard owners execute opening/inspection/blast, with eligible physical item and actual opener facts.
 
+Soul core `3a18bbc5275463d05328744e767e923cf8242d7b` commits +1 Strength/-10 maximum Health and the third total acceptance through common depletion. Refusals preserve count; closure keeps the pending key. Captured terms, durable receipts/cooldowns, schema16 and native player capability preserve save/lifetime authorities. Independent review and RV-004 repair PASS; two Chain dialogue variants remain open.
+
 ### Validation
 
-Fire dialogue PASS: GUT045030048 36/943, parser045141074/1, fresh MCP checked[]; immutable review BASE `3a0e634409856c6facedc7431745614e9178f453` -> TARGET `044de4285d22ff67c53635fbff5596d3dab7cbf6` PASS, no findings (13 s). Details in R26.4.
-Fire opening PASS: GUT043754142 10/83, including actual authored service BT, handoff without booth, real contents/foreign opener, both outcomes/codec/replay, multiple reagents, common damage/immunity and synchronous receiver retirement. Parser043848494/10, final fresh MCP test diagnostics checked[] PASS.
-Regressions PASS: inspection043644896 12/163, Brute043657261 17/255, fire presence043804524 11/77; Hazards-20261012-143855734.log smoke PASS. Formatter/lint, strict architecture/dependencies, project/domain/persistence/staged/diff PASS. MCP authored/saved the FIRE blast/trait with preserved UIDs and refreshed caches.
-Opening review BASE `2c17ee81d8392279a67ed40d6c06e33593995733` -> TARGET `952c851545d2a4b28954a6a620cd0dfbbe8582e5` PASS, no findings (127 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
-Fire floor PASS: GUT040833392 7/57, repair041956067 11/77; cadence042024159 49/291, rules040527841 9/63, perf040545321 21/145, ranged040611805 9/85. Hazards-20261012-140540551.log smoke PASS. Parser040840736/3 and repair041945640/2 PASS.
-Fire review `6d58619e2cce15470871bd66c65159c1362bcae8` -> `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` found RV-003 (139 s); repair -> `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` targeted review PASS (16 s).
-Brute behavior `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5` reviewed PASS (122 s), GUT032844552 17/255 and District-20261012-132636729.log smoke PASS. Both dialogue variants `50c2a2ef35cb78d036b96b2087a6bbe920279c21` reviewed PASS (41 s), GUT034921599 37/913; details in R26.4.
-Earlier freeze/speed/shy/night/ranged/grudge/hag checks and immutable-SHA reviews passed; unique evidence remains in reviewed Git checkpoints. RV-001/RV-002 repairs remain recorded below.
+Latest soul PASS: GUT053521718 16/186, native packed authoring052140988 4/328,
+contact052230683 6/40, world052321580 35/443; parser052429308/25.
+MCP saved native trait/profile/player with preserved UID/recipes; fresh tests checked[].
+District-20261012-152551456.log smoke PASS. Formatter/lint, strict architecture/dependencies,
+project/domain/persistence/diff PASS. Incremental gate's ResourceSaver REVIEW accepted by independent review as editor-only native authoring.
+Baseline052241040 5/362 assertions PASS; runner FAIL solely shutdown retention.
+Review BASE `f89a150b439a78473848ffe416eca306085ed0d4` ->
+TARGET `3a18bbc5275463d05328744e767e923cf8242d7b`, repaired/reviewed `4f956de8db9a62aa8bd13df53c150025798aa1d0` PASS.
+Reviewed Fire presence/opening/dialogues and Brute milestones above passed focused
+GUT/parser/static/smoke and immutable reviews; unique evidence remains in those checkpoints.
+Earlier freeze/speed/shy/night/ranged/grudge/hag checks and immutable reviews passed.
+RV-001/RV-002/RV-003 repairs remain recorded below.
 Global hot reload43 NOT_PASS; actual layouts/restart and fresh CLI checks independently verify changes. Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED.
 Full mandatory behavior/live integration and owner rendered movement/dialogue/assets/balance QA remain open.
 
@@ -44,23 +50,19 @@ Implement chain/creepy/vampire mandatory capabilities, their six dialogue varian
 
 ### Review triage
 
-RV-001 P1 — `bt_npc_begin_dark_hunt._tick` / native update continuation:
-FIXED(`b798cfb4817c6d4e05f01a52a66695a9e82b3c71`, hunt001101329 14/125).
-Source `a963f56e83f29810238739751780e95041847078` matches current reproduction.
-GUT000655821 FAIL: observer removes receiver or resets brain during the hunt fact;
-leaf reads a freed actor, brain adapter reads freed runner, scheduler cancels a freed actor.
-Repair guards receiver/component/participation and runner identities after publication/update.
-Urgent wakes remain cadence invalidation, distinct from reset/participation incarnation.
-Native regressions cover retirement, reset/rebind, deferred dormant abort and ordinary hunt.
-Targeted immutable-SHA repair review PASS; ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+RV-004 P2 fatal threshold101 created an invalid ledger at `3a18bbc5275463d05328744e767e923cf8242d7b`.
+FIXED(`4f956de8db9a62aa8bd13df53c150025798aa1d0`, Soul053521718 16/186, parser053544530/2).
+Boundaries0/101 preserve ledger;1/100 produce valid offers. Targeted review PASS.
 
-RV-002 P1 — `npc_archetype_resave_tool.preflight` used cached external trait values.
+RV-001 P1 native hunt publication/update lifetime:
+FIXED(`b798cfb4817c6d4e05f01a52a66695a9e82b3c71`, hunt001101329 14/125).
+Source `a963f56e83f29810238739751780e95041847078`; retirement/reset/dormant
+regressions and targeted immutable review PASS. Original evidence remains in Git.
+
+RV-002 P1 cached native trait preflight:
 FIXED(`510a074b4161f65a67d93fb46d4a5f61a2b62b56`, preflight021037606 7/56).
-Source `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`; reproduction020450065 FAIL:
-unsaved cached gaze-kind edit bypasses the disk graph's mandatory-trait incompatibility.
-Deep disk-backed loading isolates added traits and existing compatibility dependencies;
-regressions preserve cached unsaved edits and both resource file fingerprints.
-Targeted immutable-SHA review PASS; ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+Source `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`; detached disk validation
+and targeted review PASS. Original live cache reproduction remains in Git.
 
 RV-003 P1 ? `S_NpcTraits._advance_traits` continued after synchronous aura publication.
 FIXED(`2fbd959480f0c2ff5f028d7ba012651634ea9fe8`, fire041956067 11/77).
