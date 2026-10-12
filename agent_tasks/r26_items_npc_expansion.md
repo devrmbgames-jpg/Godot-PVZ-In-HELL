@@ -53,14 +53,17 @@ Conditional cloud/visibility and authored appearance are implemented at
 Review BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8` -> that TARGET PASS (95s, no findings);
 same reviewer reused. Final week smoke FAIL survival5/required6; comparable BASE week PASS.
 R26.3 owns mortality diagnosis/RV-006; integration acceptance remains open.
+Independent schedule ordering `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c` and low-health
+escape `5670d3566328a3e831921f2a845276de6a981ee1` are fixed with native regressions
+and collected immutable reviews PASS. Latest unchanged week083125987 still FAIL5/required6.
 All-ten live binding, R26.5 and required owner QA remain unfinished.
 Existing user worktree edits were preserved.
 
 ### Next
 
-Resolve the current week failure against the passing BASE. Bind all ten
-archetypes after mandatory capabilities and cross-archetype acceptance are ready.
-Full integration/owner QA remain open.
+Continue all-ten cross-archetype acceptance/live binding with explicit role and save contracts.
+Preserve unchanged mandatory full-week survival6 acceptance; mortality remains unresolved.
+Full integration/owner QA remain open; do not change balance solely to force this gate.
 
 ### Validation
 

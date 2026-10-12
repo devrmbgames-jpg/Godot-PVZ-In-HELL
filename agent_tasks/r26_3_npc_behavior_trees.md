@@ -28,7 +28,8 @@ schedule defect: equal seed/index select different StringName candidate orders b
 Explicit text-order repair and regression are in [their task](npc_schedule_canonical_order.md);
 focused GUT12/167 and parser PASS; unchanged week082044400 still FAIL5. Repair review PASS24s
 on `f8e5ea5c0d6935c1187232826cbd53efd0f4a411` -> `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c`.
-Native low-health exit rejection is reproduced; [repair/acceptance](npc_hazard_escape_low_health.md).
+Low-health exit rejection FIXED `5670d3566328a3e831921f2a845276de6a981ee1`;
+[native89/627 and immutable review PASS24s](npc_hazard_escape_low_health.md). Full week083125987 FAIL5.
 
 ### Validation
 
@@ -50,13 +51,13 @@ Shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED; mandatory/live/owner Q
 
 ### Next
 
-Collect [low-health repair](npc_hazard_escape_low_health.md) native batch/review/full week, then
-cross-archetype acceptance and all-ten live roster binding; do not waive R26.5/owner QA.
+Continue cross-archetype acceptance and all-ten live roster binding with explicit role/save contracts.
+Keep unchanged full week survival6 mandatory; do not waive R26.5/owner QA or claim mortality resolved.
 
 ### Review triage
 
 Canonical source/fix SHAs below are ancestors of current code HEAD
-`c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c`; prior light/feeding/blood/UI reviews added no findings.
+`5670d3566328a3e831921f2a845276de6a981ee1`; prior light/feeding/blood/UI reviews added no findings.
 Full-SHA ancestry audit: 26 previous checkpoints PASS. RV-001..005 retain FIXED.
 
 RV-006 P1 FLEE_EXIT continuation, Main reproduction/source
