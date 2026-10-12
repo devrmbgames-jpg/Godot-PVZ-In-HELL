@@ -34,6 +34,8 @@ func _run() -> void:
 		(load("res://content/scenes/main_level.tscn") as PackedScene).instantiate() as Node3D
 	)
 	level.set("autosave_path", SAVE_PATH)
+	if not restoring:
+		_configure_creation_seed(level)
 	if restoring:
 		var box: Node = level.get_node("Entityes/AnchorableTestBox")
 		box.name = "RenamedPersistentBox"
@@ -59,6 +61,21 @@ func _run() -> void:
 	get_tree().quit(1 if _failed else 0)
 
 
+## Initialize the detached authored clock before population/placed-merchant variation is compiled.
+func _configure_creation_seed(level: Node3D) -> void:
+	var session: Entity = level.get_node("Entityes/DaySession") as Entity
+	var recipes: Array[Component] = session.component_resources.duplicate()
+	for index: int in recipes.size():
+		if not recipes[index] is C_DayCycle:
+			continue
+		var calendar: C_DayCycle = recipes[index].duplicate(true) as C_DayCycle
+		calendar.clock.world_seed = EXPECTED_WORLD_SEED
+		recipes[index] = calendar
+		session.component_resources = recipes
+		return
+	_check(false, "authored session exposes its creation clock recipe")
+
+
 func _write_night(level: Node3D, actor: Entity) -> void:
 	await _prepare_domains(level, actor)
 	if _failed:
@@ -75,7 +92,10 @@ func _write_night(level: Node3D, actor: Entity) -> void:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.clock.elapsed_ticks = EXPECTED_ELAPSED_TICKS
 	cycle.clock.tick_remainder = EXPECTED_TICK_REMAINDER
-	cycle.clock.world_seed = EXPECTED_WORLD_SEED
+	_check(
+		cycle.clock.world_seed == EXPECTED_WORLD_SEED,
+		"creation seed precedes roster publication",
+	)
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	cycle.night_ready = false
 	var initial_population: int = NpcPopulationQueries.current().people.size()

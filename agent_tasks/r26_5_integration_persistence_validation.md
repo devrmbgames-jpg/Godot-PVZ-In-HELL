@@ -1,5 +1,5 @@
 # R26.5 — Integration, persistence and acceptance for R26
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -11,14 +11,36 @@ Integrate physical items, modular NPC archetypes, LimboAI behavior and dialogue 
 
 ### Current
 
-PLANNED; no R26 implementation or acceptance is claimed. Apply the current contracts
-in [R26](r26_items_npc_expansion.md#existing-contracts-to-preserve) when this milestone starts.
-Prerequisite milestones now include schema18 soul/blood receipts, Strength and durable stalking notice; their scoped evidence is in R26.3. Full integration acceptance below remains NOT_RUN.
+Live roster integration started from full BASE `25e54edea6bf38d28d3d4548d79a38155ed29a89`.
+Native ResourceSaver now binds all ten canonical archetypes and two explicit visitor presets.
+Twelve stable NPC slots, eight residents/four visitors, slot-eight merchant, recipients and
+participation schedules are preserved. Legacy profiles remain authored fixtures for isolated
+regressions; actual live-roster acceptance and district smoke use the production definition.
+Schema advances from 18 to 19 because saved profile paths/meaning change; no conversion or alias.
+Changes are UNCOMMITTED, review NOT_RUN; full integration acceptance remains open.
 
 ### Validation
 
-NOT_RUN: R26 engine/gameplay checks. Follow the acceptance and validation sections below,
-[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and the root review gate.
+PASS: clean native visitor reference/UID finalization, `.artifacts/r26_roster_finalize-uid-20261013.log`.
+Earlier authoring attempts with real early-autoload compiler errors were FAIL despite exit zero;
+the entry helper now defers project-resource loading and uses typed native Resource reflection.
+PASS: production live-roster GUT `gut-20261012-225635220` 10 tests/798 assertions;
+parser225451860 four files and230043030 final helper/test; formatter/strict architecture/structure/index.
+Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
+at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRED. Inventory PASS.
+Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
+FAIL: unchanged production district week `district-20261013-085722945.log`, survival4/required6,
+no other runtime errors. Previous legacy weeks FAIL5/required6; acceptance is not waived.
+IN_PROGRESS: complete affected native regression batch `.artifacts/r26_roster_regressions-20261013.log`;
+scope pinned by `.artifacts/r26_roster_regression_paths-20261013.txt`. Export/owner QA NOT_RUN.
+
+### Review / triage
+
+Checkpoint review NOT_RUN until the coherent commit supplies a full target SHA; reuse existing reviewer.
+RV-001/P2: night smoke mutated world_seed after native population/merchant publication at BASE
+`25e54edea6bf38d28d3d4548d79a38155ed29a89`, violating the committed variation seed contract.
+ACCEPTED, repair implemented in detached clock recipe before registration; fresh-process checks PASS.
+No gameplay reroll, compatibility default or save validator weakening. Fix SHA/review pending commit.
 
 ### Owner QA / blockers
 
@@ -113,7 +135,7 @@ Use placeholders if final assets do not exist.
 
 ## Schema and new-game construction
 
-Current `AutosaveStore.SCHEMA_VERSION` is 18. When serialized fields/paths/meaning change,
+Current `AutosaveStore.SCHEMA_VERSION` is 19 in this migration. When serialized fields/paths/meaning change,
 advance the actual supported version, guards, golden fixture and save-visible inventory.
 Unsupported old/newer/invalid saves reject before live mutation, preserve original bytes
 and remain protected from later autosave. No conversion, previous-format aliases or load defaults.

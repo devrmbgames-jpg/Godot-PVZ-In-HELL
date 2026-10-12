@@ -16,14 +16,16 @@ Live initial/replacement population now commits deterministic NpcVariation befor
 NpcRecord references immutable DEF_NpcArchetype; its name and mandatory/selected optional traits
 are read-only resolved views. Compiler instance fields compose speed, damage resistance and
 receiver tags. Native MCP migrated all 12 existing profiles and the district while preserving
-paths, keys, schedules, roles and places. They retain existing behavior; the ten requested
-archetypes are authored assets awaiting live roster binding and new behavior implementation.
-Schema 16 rejects incomplete/unsupported records before mutation; restore never rerolls.
+paths, keys, schedules, roles and places. R26.5 now connects all ten requested archetypes and
+two explicit visitor presets to the production district, preserving twelve identity slots,
+eight resident/four visitor roles, merchant slot eight, recipients and participation schedules.
+The live binding is UNCOMMITTED; schema19 deliberately rejects schema18 before mutation.
+Restore never rerolls; targeted production roster GUT10/798 PASS, broader acceptance pending.
 Category ordering now commits real catalog payloads with the existing receiving batch/parcel IDs.
 Weighted available categories feed deterministic per-person decisions; missing categories fall back.
 Contents and the terminal/archive arrival projection retain the choice through retry/restore.
 Native MCP adds all 15 physical catalog items while preserving all eight authored case paths.
-Category checkpoint review PASS. Next: implement R26.3/R26.4 and bind all ten requested archetypes.
+Category checkpoint review PASS. Next: collect R26.5 integration checks and immutable review.
 Night presentation has native authored spatial audio/Decal views and typed immutable tuning;
 its focused lifecycle checks, independent checkpoint review and district smoke pass in R26.3.
 Vampire now has reusable typed wounded feeding/floor data and native BT:
@@ -38,7 +40,7 @@ presentation are implemented at `588b59c1771d95b4ffba278988ddef0a364013a7`;
 GUT136/2406 and parser/static gates PASS; review against
 `a2b1d764b1b316b27df979a8d72917d6deab8ed8` PASS (95s, no findings).
 Final week smoke FAIL survival5/required6; comparable previous-SHA week PASS, diagnosis in R26.3.
-Mandatory acceptance and all-ten live binding remain open; full evidence/triage in R26.3.
+Mandatory integration acceptance remains open; current live-binding evidence belongs to R26.5.
 
 ### Validation
 

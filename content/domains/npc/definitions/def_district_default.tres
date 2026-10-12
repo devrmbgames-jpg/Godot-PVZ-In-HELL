@@ -1,21 +1,21 @@
 [gd_resource type="Resource" script_class="DEF_District" format=3 uid="uid://0japh62q4h57"]
 
-[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="3_1we3o"]
+[ext_resource type="Script" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="3_1we3o"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_night_hunter.tres" id="4_ulw18"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_fire_elemental.tres" id="5_y75xp"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_shy.tres" id="6_0ljim"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_creepy.tres" id="7_32p23"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_brute.tres" id="8_fvfmh"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_hag.tres" id="9_rm2lr"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_weeping_angel.tres" id="10_8vajv"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_lost.tres" id="11_eqa8t"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_chain_devil.tres" id="12_s15uw"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_vampire.tres" id="13_p34nc"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_lost_visitor.tres" id="14_1we3o"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_archetype_shy_visitor.tres" id="15_41ajp"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_delivery_door_ambush.tres" id="DeliveryAmbush"]
-[ext_resource type="Script" uid="uid://hvheqqr7idk0" path="res://content/domains/npc/definitions/def_district.gd" id="District"]
-[ext_resource type="Resource" uid="uid://bek5jpjn2x3iw" path="res://content/domains/npc/definitions/def_npc_profile_1.tres" id="Person1"]
-[ext_resource type="Resource" uid="uid://b4uhj10iv4eg" path="res://content/domains/npc/definitions/def_npc_profile_2.tres" id="Person2"]
-[ext_resource type="Resource" uid="uid://c1yve1adpnxk0" path="res://content/domains/npc/definitions/def_npc_profile_3.tres" id="Person3"]
-[ext_resource type="Resource" uid="uid://ct8ee0w2frd6y" path="res://content/domains/npc/definitions/def_npc_profile_4.tres" id="Person4"]
-[ext_resource type="Resource" uid="uid://dcdbsid6u701n" path="res://content/domains/npc/definitions/def_npc_profile_5.tres" id="Person5"]
-[ext_resource type="Resource" uid="uid://c8sewdhwf65n5" path="res://content/domains/npc/definitions/def_npc_profile_6.tres" id="Person6"]
-[ext_resource type="Resource" uid="uid://ct6475rsrndpi" path="res://content/domains/npc/definitions/def_npc_profile_7.tres" id="Person7"]
-[ext_resource type="Resource" uid="uid://bgdvk3v4ung7m" path="res://content/domains/npc/definitions/def_npc_profile_8.tres" id="Person8"]
-[ext_resource type="Resource" uid="uid://bj5xcperb0ri0" path="res://content/domains/npc/definitions/def_npc_profile_9.tres" id="Person9"]
-[ext_resource type="Resource" uid="uid://e5j7iq2pdsb7" path="res://content/domains/npc/definitions/def_npc_profile_10.tres" id="Person10"]
-[ext_resource type="Resource" uid="uid://ba447hcivbpbv" path="res://content/domains/npc/definitions/def_npc_profile_11.tres" id="Person11"]
-[ext_resource type="Resource" uid="uid://b4uwkghcuclvf" path="res://content/domains/npc/definitions/def_npc_profile_12.tres" id="Person12"]
-[ext_resource type="Script" uid="uid://3jqx0cuvmvqq" path="res://content/domains/npc/definitions/def_district_place.gd" id="PlaceScript"]
+[ext_resource type="Script" path="res://content/domains/npc/definitions/def_district.gd" id="District"]
+[ext_resource type="Script" path="res://content/domains/npc/definitions/def_district_place.gd" id="PlaceScript"]
 
 [sub_resource type="Resource" id="Resource_41ajp"]
 script = ExtResource("PlaceScript")
@@ -276,7 +276,7 @@ script = ExtResource("District")
 replacement_names = PackedStringArray("Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник")
 shade_route = PackedStringArray()
 shade_refuge = &"south_1"
-profiles = Array[ExtResource("3_1we3o")]([ExtResource("Person1"), ExtResource("Person2"), ExtResource("Person3"), ExtResource("Person4"), ExtResource("Person5"), ExtResource("Person6"), ExtResource("Person7"), ExtResource("Person8"), ExtResource("Person9"), ExtResource("Person10"), ExtResource("Person11"), ExtResource("Person12")])
+profiles = Array[ExtResource("3_1we3o")]([ExtResource("4_ulw18"), ExtResource("5_y75xp"), ExtResource("6_0ljim"), ExtResource("7_32p23"), ExtResource("8_fvfmh"), ExtResource("9_rm2lr"), ExtResource("10_8vajv"), ExtResource("11_eqa8t"), ExtResource("12_s15uw"), ExtResource("13_p34nc"), ExtResource("14_1we3o"), ExtResource("15_41ajp")])
 places = Array[ExtResource("PlaceScript")]([SubResource("Resource_41ajp"), SubResource("Resource_nrqmx"), SubResource("Resource_yiw8n"), SubResource("Resource_ouo3p"), SubResource("Resource_ulw18"), SubResource("Resource_y75xp"), SubResource("Resource_0ljim"), SubResource("Resource_32p23"), SubResource("Resource_fvfmh"), SubResource("Resource_rm2lr"), SubResource("Resource_8vajv"), SubResource("Resource_eqa8t"), SubResource("Resource_s15uw"), SubResource("Resource_p34nc"), SubResource("Resource_m4x64"), SubResource("Resource_a0cue"), SubResource("Resource_cul27"), SubResource("Resource_73ceu"), SubResource("Resource_k7fqm"), SubResource("Resource_y6k6r"), SubResource("Resource_yq0jd"), SubResource("Resource_v08a7"), SubResource("Resource_bv1s5"), SubResource("Resource_ws6yt"), SubResource("Resource_g3e2f"), SubResource("Resource_5n4ka"), SubResource("Resource_xm7pm"), SubResource("Resource_v3boq"), SubResource("Resource_wys6a"), SubResource("Resource_jtscu"), SubResource("Resource_vmu75"), SubResource("Resource_7ss4k"), SubResource("Resource_gp8kk"), SubResource("Resource_o66np")])
 personal_delivery_scenario = ExtResource("DeliveryAmbush")
 key = &"hell_district"

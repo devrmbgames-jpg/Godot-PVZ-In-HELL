@@ -18,11 +18,13 @@
 "people": [{
 "fields": {
 "activity_sequence": 19,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 12345,
 "cadence_sample_tick": 123456789,
 "death_day": 0,
 "exit_id": &"portal_north",
-"goal_id": &"activity_3",
+"goal_id": &"activity_2",
 "home_id": &"home_1",
 "memories": [],
 "npc_id": &"npc/1",
@@ -32,18 +34,18 @@
 "planned_phase": 0,
 "portal_id": &"portal_east",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_1.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_night_hunter.tres"
 },
 "recipient_key": &"customer_01",
 "variation": {
 "fields": {
-"aggression_multiplier": 0.9015619,
-"archetype_key": &"person_1",
+"aggression_multiplier": 0.9313319,
+"archetype_key": &"archetype/night_hunter",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Летописец",
-"move_speed_multiplier": 1.0623137,
-"optional_trait_keys": [],
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/night_hunter/variant_a.dialogue",
+"display_name": "Нокт",
+"move_speed_multiplier": 0.9850507,
+"optional_trait_keys": [&"trait_5"],
 "seed": 734053864478955485
 },
 "type": "res://content/domains/npc/contracts/npc_variation.gd"
@@ -53,11 +55,13 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
 "exit_id": &"portal_south",
-"goal_id": &"activity_1",
+"goal_id": &"activity_0",
 "home_id": &"home_2",
 "memories": [{
 "fields": {
@@ -77,18 +81,18 @@
 "planned_phase": 0,
 "portal_id": &"portal_north",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_2.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_fire_elemental.tres"
 },
 "recipient_key": &"customer_02",
 "variation": {
 "fields": {
-"aggression_multiplier": 1.0522604,
-"archetype_key": &"person_2",
+"aggression_multiplier": 1.0161899,
+"archetype_key": &"archetype/fire_elemental",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Угольщик",
-"move_speed_multiplier": 1.0680225,
-"optional_trait_keys": [],
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/fire_elemental/variant_b.dialogue",
+"display_name": "Углик",
+"move_speed_multiplier": 1.0488681,
+"optional_trait_keys": [&"trait_5"],
 "seed": 1340646504996622662
 },
 "type": "res://content/domains/npc/contracts/npc_variation.gd"
@@ -98,6 +102,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
@@ -112,18 +118,18 @@
 "planned_phase": 0,
 "portal_id": &"portal_south",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_3.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_shy.tres"
 },
 "recipient_key": &"customer_03",
 "variation": {
 "fields": {
-"aggression_multiplier": 1.0154202,
-"archetype_key": &"person_3",
+"aggression_multiplier": 1.0001242,
+"archetype_key": &"archetype/shy",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Костоправ",
-"move_speed_multiplier": 0.9629691,
-"optional_trait_keys": [],
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/shy/variant_b.dialogue",
+"display_name": "Тихон",
+"move_speed_multiplier": 0.9152463,
+"optional_trait_keys": [&"trait_6"],
 "seed": 4498808451725542350
 },
 "type": "res://content/domains/npc/contracts/npc_variation.gd"
@@ -133,11 +139,13 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
 "exit_id": &"portal_north",
-"goal_id": &"activity_3",
+"goal_id": &"activity_2",
 "home_id": &"home_4",
 "memories": [],
 "npc_id": &"npc/4",
@@ -147,17 +155,17 @@
 "planned_phase": 0,
 "portal_id": &"portal_east",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_4.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_creepy.tres"
 },
 "recipient_key": &"customer_04",
 "variation": {
 "fields": {
-"aggression_multiplier": 0.93076915,
-"archetype_key": &"person_4",
+"aggression_multiplier": 1.0107149,
+"archetype_key": &"archetype/creepy",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Стекольщик",
-"move_speed_multiplier": 1.0579436,
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/creepy/variant_a.dialogue",
+"display_name": "Хрип",
+"move_speed_multiplier": 0.93076915,
 "optional_trait_keys": [],
 "seed": 3288267337222647912
 },
@@ -168,6 +176,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
@@ -182,17 +192,17 @@
 "planned_phase": 0,
 "portal_id": &"portal_north",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_5.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_brute.tres"
 },
 "recipient_key": &"customer_05",
 "variation": {
 "fields": {
-"aggression_multiplier": 0.90910715,
-"archetype_key": &"person_5",
+"aggression_multiplier": 0.9309645,
+"archetype_key": &"archetype/brute",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Ночной сосед",
-"move_speed_multiplier": 0.9637057,
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/brute/variant_a.dialogue",
+"display_name": "Гром",
+"move_speed_multiplier": 0.90910715,
 "optional_trait_keys": [],
 "seed": 7058668593754602891
 },
@@ -203,6 +213,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
@@ -217,18 +229,18 @@
 "planned_phase": 0,
 "portal_id": &"portal_south",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_6.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_hag.tres"
 },
 "recipient_key": &"customer_06",
 "variation": {
 "fields": {
-"aggression_multiplier": 1.0372258,
-"archetype_key": &"person_6",
+"aggression_multiplier": 0.9983849,
+"archetype_key": &"archetype/hag",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Следователь",
-"move_speed_multiplier": 0.93774486,
-"optional_trait_keys": [],
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/hag/variant_a.dialogue",
+"display_name": "Морана",
+"move_speed_multiplier": 0.9683373,
+"optional_trait_keys": [&"trait_1"],
 "seed": 7209351705428669052
 },
 "type": "res://content/domains/npc/contracts/npc_variation.gd"
@@ -238,11 +250,13 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
 "exit_id": &"portal_north",
-"goal_id": &"activity_1",
+"goal_id": &"activity_0",
 "home_id": &"home_7",
 "memories": [],
 "npc_id": &"npc/7",
@@ -252,17 +266,17 @@
 "planned_phase": 0,
 "portal_id": &"portal_east",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_7.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_weeping_angel.tres"
 },
 "recipient_key": &"customer_07",
 "variation": {
 "fields": {
-"aggression_multiplier": 0.9164619,
-"archetype_key": &"person_7",
+"aggression_multiplier": 1.0195861,
+"archetype_key": &"archetype/weeping_angel",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Швея",
-"move_speed_multiplier": 0.9886348,
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_a.dialogue",
+"display_name": "Сераф",
+"move_speed_multiplier": 0.9624135,
 "optional_trait_keys": [],
 "seed": 3253482343620916333
 },
@@ -273,6 +287,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
@@ -287,17 +303,17 @@
 "planned_phase": 0,
 "portal_id": &"portal_north",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_8.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_lost.tres"
 },
 "recipient_key": &"customer_08",
 "variation": {
 "fields": {
-"aggression_multiplier": 1.0461947,
-"archetype_key": &"person_8",
+"aggression_multiplier": 0.93677825,
+"archetype_key": &"archetype/lost",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Лавочник",
-"move_speed_multiplier": 0.99597543,
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/lost/variant_a.dialogue",
+"display_name": "Ян",
+"move_speed_multiplier": 1.0560716,
 "optional_trait_keys": [],
 "seed": 7093353845818957759
 },
@@ -308,6 +324,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
@@ -322,17 +340,17 @@
 "planned_phase": 0,
 "portal_id": &"portal_south",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_9.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_chain_devil.tres"
 },
 "recipient_key": &"visitor_1",
 "variation": {
 "fields": {
-"aggression_multiplier": 1.0832361,
-"archetype_key": &"person_9",
+"aggression_multiplier": 1.0788532,
+"archetype_key": &"archetype/chain_devil",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Попутчик",
-"move_speed_multiplier": 1.0182308,
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/chain_devil/variant_b.dialogue",
+"display_name": "Азгар",
+"move_speed_multiplier": 1.0832361,
 "optional_trait_keys": [],
 "seed": 1886186642140925115
 },
@@ -343,6 +361,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
@@ -357,17 +377,17 @@
 "planned_phase": 0,
 "portal_id": &"portal_east",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_10.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_vampire.tres"
 },
 "recipient_key": &"visitor_2",
 "variation": {
 "fields": {
-"aggression_multiplier": 0.96078527,
-"archetype_key": &"person_10",
+"aggression_multiplier": 1.0704947,
+"archetype_key": &"archetype/vampire",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Приставала",
-"move_speed_multiplier": 1.0940661,
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/vampire/variant_a.dialogue",
+"display_name": "Северин",
+"move_speed_multiplier": 0.96078527,
 "optional_trait_keys": [],
 "seed": 2706028108871584010
 },
@@ -378,6 +398,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
@@ -392,17 +414,17 @@
 "planned_phase": 0,
 "portal_id": &"portal_north",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_11.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_lost_visitor.tres"
 },
 "recipient_key": &"visitor_3",
 "variation": {
 "fields": {
-"aggression_multiplier": 1.0415367,
-"archetype_key": &"person_11",
+"aggression_multiplier": 0.9348723,
+"archetype_key": &"archetype/lost_visitor",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Собиратель загадок",
-"move_speed_multiplier": 1.0959256,
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/lost/variant_b.dialogue",
+"display_name": "Лука",
+"move_speed_multiplier": 1.0636991,
 "optional_trait_keys": [],
 "seed": 4596133869527283827
 },
@@ -413,6 +435,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"blood_offer_sequence": 1,
+"blood_offers": [],
 "cadence_elapsed_ticks": 0,
 "cadence_sample_tick": -1,
 "death_day": 0,
@@ -427,18 +451,18 @@
 "planned_phase": 0,
 "portal_id": &"portal_south",
 "profile": {
-"definition": "res://content/domains/npc/definitions/def_npc_profile_12.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_archetype_shy_visitor.tres"
 },
 "recipient_key": &"visitor_4",
 "variation": {
 "fields": {
-"aggression_multiplier": 1.0959461,
-"archetype_key": &"person_12",
+"aggression_multiplier": 0.93362695,
+"archetype_key": &"archetype/shy_visitor",
 "creation_day": 1,
-"dialogue_path": "",
-"display_name": "Паломник",
-"move_speed_multiplier": 1.0570949,
-"optional_trait_keys": [],
+"dialogue_path": "res://content/domains/npc/dialogue/archetypes/shy/variant_b.dialogue",
+"display_name": "Тихон",
+"move_speed_multiplier": 1.0275156,
+"optional_trait_keys": [&"trait_6"],
 "seed": 7567242350917975779
 },
 "type": "res://content/domains/npc/contracts/npc_variation.gd"
@@ -1021,7 +1045,19 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
-"multipliers": {}
+"multipliers": {
+0: 0.0,
+1: 0.0,
+2: 0.0,
+3: 0.0,
+4: 0.0,
+5: 0.0,
+6: 0.0,
+7: 0.0,
+8: 0.0,
+9: 1.0,
+10: 0.0
+}
 },
 "type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }, {
@@ -1119,7 +1155,9 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
-"multipliers": {}
+"multipliers": {
+7: 0.0
+}
 },
 "type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }, {
@@ -1448,5 +1486,5 @@
 }]),
 "morning_day": 2,
 "raw_actors": Array[Dictionary]([]),
-"version": 18
+"version": 19
 }

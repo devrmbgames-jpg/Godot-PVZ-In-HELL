@@ -56,13 +56,16 @@ R26.3 owns mortality diagnosis/RV-006; integration acceptance remains open.
 Independent schedule ordering `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c` and low-health
 escape `5670d3566328a3e831921f2a845276de6a981ee1` are fixed with native regressions
 and collected immutable reviews PASS. Latest unchanged week083125987 still FAIL5/required6.
-All-ten live binding, R26.5 and required owner QA remain unfinished.
+R26.5 live binding now connects all ten archetypes and two explicit visitor presets while
+preserving twelve identity slots and participation; schema19 is intentional incompatibility.
+Native live-roster GUT10/798 and MCP resource inspection PASS. This batch is UNCOMMITTED;
+full regression/week acceptance, immutable review and required owner QA remain unfinished.
 Existing user worktree edits were preserved.
 
 ### Next
 
-Continue all-ten cross-archetype acceptance/live binding with explicit role and save contracts.
-Preserve unchanged mandatory full-week survival6 acceptance; mortality remains unresolved.
+Collect all-ten cross-archetype acceptance and review with explicit role and save contracts.
+Preserve unchanged mandatory full-week survival6 acceptance; new roster week085722945 FAIL4/required6.
 Full integration/owner QA remain open; do not change balance solely to force this gate.
 
 ### Validation
@@ -104,7 +107,7 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
   scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
 - Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
   native physics delta retains its existing authority.
-- Current save schema is `AutosaveStore.SCHEMA_VERSION = 18`; version incompatible
+- Current save schema is `AutosaveStore.SCHEMA_VERSION = 19`; version incompatible
   serialized changes from the actual implementation baseline. No old-save conversion,
   defaults that accept an unsupported format, or automatic rejected-slot overwrite.
 

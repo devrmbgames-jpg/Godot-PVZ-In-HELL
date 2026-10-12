@@ -24,15 +24,18 @@ func before_each() -> void:
 	owner_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
 	var owner_entity: Entity = owner_node as Entity
 	_district = C_District.new()
-	_district.definition = (
-		load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
-	)
+	_district.definition = (load(_district_definition_path()) as DEF_District)
 	owner_entity.component_resources = [_district, C_DayCycle.new()]
 	_world.add_entity(owner_entity)
 	_district = owner_entity.get_component(C_District) as C_District
 	_world.add_observer(O_DistrictLifecycle.new())
 	_world.add_observer(O_CustomerPlanning.new())
 	DistrictPopulationService.initialize()
+
+
+## Isolated legacy scenarios keep their authored trait positions; live integration overrides this.
+func _district_definition_path() -> String:
+	return "res://tests/fixtures/r26/def_district_legacy.tres"
 
 
 ## Освобождает World до окружающей сцены и сбрасывает глобальное участие ECS.

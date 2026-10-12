@@ -19,13 +19,15 @@ denial/private delivery authority, response tags and imported-cycle cleanup. His
 flavor/interaction evidence remains in Git; required individual intent is specified below.
 Vampire variants differ in restraint/direct hunger. Shared confirmation captures current-HP terms,
 explicit acceptance/refusal, durable closure/replay and actual street/service panel responses.
-Full mandatory behavior, live roster integration and owner acceptance remain open.
+All ten archetypes now enter the production roster in the uncommitted R26.5 migration.
+Real selected dialogue paths/variations and native reconstruction pass live-roster GUT10/798.
+Full mandatory behavior, immutable review and owner acceptance remain open.
 
 ### Next
 
 Vampire review collected on BASE `a407762ef018ab70715119cd432c63071d62d928` ->
 TARGET `14cadff37461590c14454aabfdbca1fb4af11e94` **PASS** (50s, no material findings); same terminal reviewer
-reused, no second reviewer. Next: full20-variant/live integration and owner acceptance.
+reused, no second reviewer. Next: collect R26.5 full integration and owner acceptance.
 
 ### Validation
 
