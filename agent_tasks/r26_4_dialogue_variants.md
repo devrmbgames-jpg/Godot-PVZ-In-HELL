@@ -13,81 +13,24 @@ The owner will later copy these resources and add more variants. Therefore paths
 
 ### Current
 
-The street/customer router reads the committed per-person variant; an explicit visit resource
-keeps priority and legacy actors keep their role fallback. Two neutral/lost variants now have
-distinct greetings, neighborhood and broad shopping topics plus all existing role entry cues.
-Pinned Dialogue Manager imports preserve service outcomes, personal delivery and response tags;
-session cleanup releases cached imported line cycles as well as the root resource.
-The native lost, shy, night and angel archetypes expose both paths; **8/20** variants are implemented.
-Shy variants distinguish withdrawn fear from resentful avoidance and read the committed
-gaze warning through a query adapter shared by street/customer contexts. Reading dialogue
-does not advance exposure or alter memory. Both keep the registration guard and role imports.
-Night variants use restrained warning versus playful predatory tones, weapon/clothing topics
-and light advice. Both roles read the same authored perceived-light predicate as the native
-hunt guard. Dialogue performs no sensing or aggression mutation; registration guards and
-existing denial/private delivery owners remain intact. Night checkpoint review passed.
-Review of `490efacd2b5888383325bdbf37aa13b3753be4a4` against
-`1bb1f2a02cfc92ee247c3b1bf34028aedd0b3d63` found the missing direct registration guard.
-The guard is restored in both variants, with focused native regression PASS. Targeted repair
-review of `c64c5f782ee1874c0e987b34064b132cb6a7c5e5` passed without remaining findings.
-Shy dialogue review BASE `5ff85b58ea107ec795d3dea4319be9dcf10306b1` ->
-TARGET `b1b9c38f8844723850a5223d6f4c4271f5ef7ef7` PASS, no findings (61 s).
-Reviewer ARCHITECTURE/STYLE PASS; runtime VALIDATION NOT_RUN.
-Angel variants use terse instructions versus religious signs. Both roles render every line through
-an authored native board, retaining existing response tags, modal capture and gameplay context.
-The sign cue is immutable profile data, with ordinary actors retaining speaker/text presentation.
-Native pool authoring preserves all tuning/UIDs and changes only the two variant paths.
-Angel checkpoint review passed. Remaining archetypes need interactions, including soul/blood
-transactions; full task acceptance and live roster binding remain open.
+Native lost/shy/night/angel/hag catalogs now expose **10/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
+Shy variants read gaze warnings; night variants read authored perceived darkness; angel variants use native written boards. Hag variants differ in deception, reagents/artifacts and riddles (name versus hole), read personal grudges and keep street answers separate from idempotent service outcomes.
+Hag checkpoint `6293c6bdb34334832f0c02e720df11c75cc20dd2` passed independent review. Remaining five archetypes need their mandatory behaviors/interactions and ten variants before live roster binding.
 
 ### Next
 
-Continue required archetype behavior/interaction capabilities
-and author the remaining 12 variants, starting with the hag's riddle/deception paths.
-Ranged and personal grudge checkpoints passed review; authoring-cache RV-002 repair passed review.
-No per-open reroll or new UI authority is introduced.
+Implement brute witnessed-toy/strength/private-unpacking behavior, then its two threatening variants; finish the remaining fire/chain/creepy/vampire interactions. Soul/blood transactions and full owner acceptance remain open.
 
 ### Validation
 
-- PASS: native parser for six edited GDScripts; incremental GDQuest style, strict architecture,
-  domain dependencies/structure, project structure, persistence baseline and diff checks.
-- PASS: `test_npc_dialogue_variants.gd` **31/31, 621 assertions**, including inherited district
-  regressions, native imported cues, stable codec restoration, both real contexts and actual
-  panel routing, delivery acceptance/idempotency, denial tags/idempotency and imported cleanup.
-  Logs: `.artifacts/godot_agent/gut-20261011-225318292.{stdout,stderr}.log`.
-- PASS: existing `test_customer_dialogue.gd`; logs
-  `.artifacts/godot_agent/gut-20261011-224919731.{stdout,stderr}.log`.
-- MCP: native authored lost catalog save/cache refresh and settled import/inspection of both
-  variants ran. Global-script hot reload returns fallback code 43 (NOT_PASS); fresh CLI checks
-  independently pass. No rendered gameplay/visual QA ran.
-- NOT_RUN: full 20-variant acceptance, remaining archetype interactions and owner dialogue QA.
-- Shy PASS: parser233406749/3 and `test_npc_shy_dialogue.gd` **35/35, 759 assertions**,
-  including inherited role/routing/delivery regressions, both native variants, warning reads,
-  repeated unregistered entry and registered denial/idempotency. Logs:
-  `.artifacts/godot_agent/gut-20261011-233416121.{stdout,stderr}.log`; no runtime errors.
-  Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
-  MCP native catalog save, settled imports, test reload/diagnostics and clean scene reload PASS;
-  no new editor errors after repair. Global-script reload43 NOT_PASS; CLI independently PASS.
-- Night PASS: parser001701989/5; `test_npc_night_dialogue.gd` **37/37, 831 assertions**,
-  actual imported role cues, codec selection, both light tones/hidden-player/threshold reads,
-  unregistered guard, registered denial/idempotency and four private-delivery acceptances.
-  Logs `.artifacts/godot_agent/gut-20261012-001711308.{stdout,stderr}.log`; no runtime errors.
-  Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
-  MCP saved the native catalog preserving UID and tuning, imported both dialogues and reloaded
-  the clean scene; test/leaf diagnostics PASS, global hot reload43 NOT_PASS, CLI independently PASS.
-  Review `b798cfb4817c6d4e05f01a52a66695a9e82b3c71` ->
-  `66813497b64120f26626b1ca2694207dc7cad146` PASS, no findings (17 s);
-  ARCHITECTURE/STYLE PASS, reviewer runtime VALIDATION NOT_RUN. Rendered/dialogue feel: NOT_RUN.
-- Angel PASS: parser011202524/7, native GUT011214901 **38/889**; service011255565 **15/272**.
-  Tests include actual native boards, ordinary presentation, focus/mouse capture/release,
-  imported role cues, committed codec, registration/denial idempotency and four private deliveries.
-  Companion pool preflight GUT010415794 4/28 PASS; native catalog diff is exactly one pool line.
-  Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
-  MCP authored scene/style/pool/imports; test diagnostics checked[] PASS. Global reload43 NOT_PASS;
-  clean restart and CLI independently verify current source. Review
-  `e905f5ea0809dafbb2008d52f4b8283af43dbb2c` ->
-  `373dc4a1f64ad3f4f57cf8c322cea6bb77158cbb` PASS, no findings (45 s);
-  ARCHITECTURE/STYLE PASS, reviewer runtime VALIDATION NOT_RUN; owner visual QA NOT_RUN.
+Hag PASS: parser022034711/1; native GUT021925998 **38/966** including inherited31, all role cues, saved selection, read-only grudge tone, correct/wrong retries, solved-but-unregistered guard, denial, four private deliveries and actual headless modal panels with response/focus release.
+MCP authored/imported both variants, saved exactly one catalog-pool line with UID/tuning retained and refreshed cache; fresh test diagnostics checked[] PASS. Formatter incremental/strict, architecture/project/persistence/staged/diff PASS. No extra full smoke for this authored-dialogue batch; native role/panel tests cover its scope.
+Hag review BASE `9c70cd2c684994a907e35cd74fd01b9bc30e20e7` -> TARGET `6293c6bdb34334832f0c02e720df11c75cc20dd2` PASS, no findings (119 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+Earlier native PASS: lost225318292 **31/621** + service224919731; shy233416121 **35/759**; night001711308 **37/831**; angel011214901 **38/889** + service011255565 **15/272**. Logs under `.artifacts/godot_agent/gut-202610{11,12}-<timestamp>.{stdout,stderr}.log`; unique parser/MCP/static evidence remains in Git checkpoints.
+Shy reviewed `5ff85b58ea107ec795d3dea4319be9dcf10306b1` -> `b1b9c38f8844723850a5223d6f4c4271f5ef7ef7` PASS (61 s).
+Night reviewed `b798cfb4817c6d4e05f01a52a66695a9e82b3c71` -> `66813497b64120f26626b1ca2694207dc7cad146` PASS (17 s).
+Angel reviewed `e905f5ea0809dafbb2008d52f4b8283af43dbb2c` -> `373dc4a1f64ad3f4f57cf8c322cea6bb77158cbb` PASS (45 s).
+Global hot reload43 remains NOT_PASS; actual layouts/restart and fresh CLI checks independently verify saves. Full 20-variant acceptance and rendered/tone/modal owner QA NOT_RUN.
 
 ### Review triage
 

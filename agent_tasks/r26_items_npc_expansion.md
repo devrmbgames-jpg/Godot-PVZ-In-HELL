@@ -55,19 +55,22 @@ independent checkpoint review and district smoke PASS. Live archetype binding re
 The hag's authored ranged preference now has visible distance/shot branches for both roles;
 focused native regressions, MCP authoring, district smoke and independent review PASS.
 Typed personal grudges now reuse saved incident memory and stable participant IDs; native checks
-pass. Checkpoint review and isolated-disk preflight repair review passed. Hag riddle/deception dialogue remains open.
+pass. Checkpoint review and isolated-disk preflight repair review passed. Both hag riddle/deception
+variants now preserve service outcomes and personal grudges; native checks and independent review PASS.
 R26.4 routes committed personal variants, with two neutral/lost, two shy, two night and two angel variants using
 imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
 role/idempotency regressions and checkpoint review pass. Lost checkpoint review
 and registration-guard repair passed. Night light views and actual role/delivery checks pass,
 with checkpoint review passed. Angel native board/pool/role checks and independent review pass;
-the remaining 12 variants/interactions stay open.
+the hag adds two distinct riddles, bringing implemented variants to 10/20. The remaining ten
+variants/interactions stay open.
 
 ### Next
 
 Goal resumed. Grudge RV-002 fixed/reviewed at `510a074b4161f65a67d93fb46d4a5f61a2b62b56`.
-Implement both hag riddle/deception
-variants and remaining R26.3/R26.4 before binding all ten archetypes.
+Hag dialogue reviewed at `6293c6bdb34334832f0c02e720df11c75cc20dd2`.
+Implement brute witnessed-toy/strength/private-unpacking behavior and remaining R26.3/R26.4
+before binding all ten archetypes.
 
 ### Validation
 

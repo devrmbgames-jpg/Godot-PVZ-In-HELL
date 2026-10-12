@@ -16,61 +16,27 @@ Extend visible tree selection; a leaf dispatching an entire decision tree remain
 
 ### Current
 
-Reviewed freeze/speed retain body/animation, combat, cadence and motion authorities.
-Reviewed shy idle observation/repositioning uses actual camera/LOS and safe routes;
-S_NpcTraits owns exposure and one remembered prolonged-gaze attack. Interruption releases
-only the owned movement/look. Reviewed night hunting samples authored light at due steps,
-shares reversible combat suppression and preserves replacement emergency movement.
-RV-001 receiver-retirement/reset repair and targeted review passed. Reviewed native night
-audio/Decal presentation clears Tweens/audio on dormancy, death, reset/replacement and disposal.
-The hag's existing RANGED preference now selects a visible native distance/attack subtree in
-street and customer roots below immediate safety/light/blood. Separate Conditions and Actions
-hold firing distance during cooldown or request at most three safe navmesh previews through
-NpcRouteSolver; existing combat owns shots and physical bodies own transforms.
-Unreachable retreat permits existing close-range defense; lost targets use existing search.
-MCP replacement prepares an isolated fingerprinted graph and preserves resource UID/Blackboard.
-Ranged checkpoint review PASS, no findings. Goal resumed.
-Typed hag resentment now derives from durable personal incidents by stable offender/victim IDs;
-new interactions gain a bounded attack bonus, while repeats retain the committed reaction.
-Bodyless promises keep personal victim identity; days/body reset/save preserve resentment.
-Both dialogue roles share a read-only view; Trait System creates no grudge clock.
-Grudge checkpoint `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42` and RV-002 repair
-`510a074b4161f65a67d93fb46d4a5f61a2b62b56`: checks and targeted review PASS.
-Both hag riddle variants, other mandatory subtrees and live roster binding remain open.
+Reviewed native freeze/speed/shy/night behavior retains body, animation, combat, cadence and motion authorities. Shy uses actual camera/LOS and safe idle repositioning; Trait System owns gaze escalation. Night uses due-step authored light, reversible combat suppression and native audio/Decal cleanup on dormant/dead/reset/replacement/disposal.
+Hag RANGED preference selects visible distance/shot branches in both roots below immediate safety/light/blood. Bounded safe navigation previews preserve physical transform authority; combat owns shots/cooldowns, unreachable retreat permits defense and lost targets use search.
+Hag personal grudges derive from durable offender/victim IDs; repeats retain committed reactions and both dialogue roles read the same query. Bodyless promises, days/reset/save retain resentment; no grudge clock. Both hag riddle/deception variants now passed checks/review.
+Ranged checkpoint `4140fb04299a2b12597fdab832c913a02a08b172`, grudge `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`, repair `510a074b4161f65a67d93fb46d4a5f61a2b62b56`, dialogue `6293c6bdb34334832f0c02e720df11c75cc20dd2`: reviewed PASS. Other mandatory subtrees/live binding remain open.
 
 ### Validation
 
-Earlier freeze/speed/shy/night checkpoints passed native checks and independent review;
-historical immutable-SHA evidence remains in Git versions of this owning task.
-Ranged review BASE `4d4866eea7cbff4b22a1845ffc8f3e2c7174de98` ->
-TARGET `4140fb04299a2b12597fdab832c913a02a08b172` PASS, no findings (93 s).
-Ranged PASS: parser013605055/12; GUT013520033 9/85, attacks013625559 22/160,
-blood013633935 10/122, gaze013642158 11/112; authoring-tool013726549 6/38.
-District-20261012-113652858.log smoke PASS: eight mornings, all phases, save/restore.
-Grudge PASS: parser015722064/9 + final015949452/2; native GUT020000814 16/153,
-personal-delivery015733448 31/308, rules015813053 9/63, catalog015831436 4/944;
-native resave preflight015303465 5/42. Actual actor-specific social reactions, stable
-save/day/body identity, incident replay and due-step no-clock behavior ran.
-Native MCP created/added the typed trait with root UID/tuning preserved and refreshed cache.
-Classless test/helper diagnostics checked[] PASS. Formatter/lint, strict architecture/dependencies,
-domain/project structure, persistence baseline and staged incremental architecture PASS.
-No extra full smoke for the explicit memory/query batch; focused native checks cover its scope.
-Snapshot003124389 tests/exit0 PASS; shutdown-only retention is KNOWN_ENGINE_LIMITATION/DEFERRED.
-Global reload43 remains NOT_PASS: confirm actual exported layouts or restart before native saves.
-Original night music/shadow and rendered movement/dialogue feel remain owner QA.
-Grudge review BASE `955e8ba636d2c1a4200be6b5ca14c31e0879ea9e` ->
-TARGET `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`: R1 accepted as RV-002 (64 s).
-Targeted repair review -> `510a074b4161f65a67d93fb46d4a5f61a2b62b56` PASS (8 s).
-Repair PASS: parser021131639/2, native preflight GUT021037606 7/56, style/static/staged checks.
-MCP script diagnostics checked[] PASS; native conflict invocation transport outcome UNKNOWN,
-target SHA-256 unchanged and editor scenes clean. This invocation is not counted as PASS.
-Passing runs have no runtime errors/GUT orphan Nodes. Reviewer runtime VALIDATION NOT_RUN.
-Full mandatory behaviors/live roster integration and owner gameplay/visual QA remain open.
+Earlier native freeze/speed/shy/night checkpoints and RV-001 repair passed checks/review; unique immutable-SHA evidence remains in Git versions of this owner.
+Ranged review `4d4866eea7cbff4b22a1845ffc8f3e2c7174de98` -> `4140fb04299a2b12597fdab832c913a02a08b172` PASS, no findings (93 s).
+Ranged PASS: parser013605055/12; GUT013520033 9/85, attacks013625559 22/160, blood013633935 10/122, gaze013642158 11/112; authoring013726549 6/38. District-20261012-113652858.log smoke PASS: eight mornings, all phases, save/restore.
+Grudge PASS: parser015722064/9 + final015949452/2; GUT020000814 16/153, personal-delivery015733448 31/308, rules015813053 9/63, catalog015831436 4/944. Actual actor-specific reactions, stable save/day/body identity, replay and no-clock due steps ran.
+Grudge review `955e8ba636d2c1a4200be6b5ca14c31e0879ea9e` -> `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`: R1 accepted as RV-002 (64 s); targeted repair -> `510a074b4161f65a67d93fb46d4a5f61a2b62b56` PASS (8 s).
+Repair PASS: parser021131639/2, preflight021037606 7/56, style/static/staged checks. MCP fresh helper diagnostics checked[] PASS; conflict invocation transport UNKNOWN, target hash unchanged/editor clean, invocation not counted PASS. Subsequent native hag pool save passed with one-line disk diff.
+Hag dialogue GUT021925998 38/966 and parser022034711/1 PASS; review `9c70cd2c684994a907e35cd74fd01b9bc30e20e7` -> `6293c6bdb34334832f0c02e720df11c75cc20dd2` PASS (119 s); details in R26.4.
+Native MCP authoring preserved UIDs/tuning and refreshed caches. Formatter/lint, strict architecture/dependencies, domain/project structure, persistence baseline and staged checks PASS. No extra full smoke for explicit memory/query or authored-dialogue batches; focused actual native lifetimes/roles cover their scope.
+Snapshot003124389 tests/exit0 PASS; shutdown retention KNOWN_ENGINE_LIMITATION/DEFERRED. Global reload43 NOT_PASS: verify actual layouts or restart before native saves. Passing runs have no runtime errors/GUT orphan Nodes; reviewer runtime NOT_RUN.
+Full mandatory behaviors/live integration and owner rendered movement/dialogue/assets/balance QA remain open.
 
 ### Next
 
-Implement both hag riddle/deception variants and the
-remaining mandatory archetype capabilities before live roster binding.
+Implement brute witnessed-toy/strength/private-unpacking behavior and remaining mandatory capabilities before live roster binding.
 
 ### Review triage
 
