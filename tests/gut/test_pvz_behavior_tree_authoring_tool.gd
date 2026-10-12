@@ -4,6 +4,34 @@ extends GutTest
 const AuthoringTool = preload("res://addons/pvz_ai_tools/behavior_tree_authoring_tool.gd")
 
 
+func test_replacement_prepares_detached_root_without_writing_or_mutating_cached_tree() -> void:
+	var path: String = AuthoringTool.TREE_DIRECTORY + "bt_npc_ranged_combat.tres"
+	var cached: BehaviorTree = load(path) as BehaviorTree
+	var original: BTTask = cached.get_root_task()
+	var fingerprint: String = FileAccess.get_sha256(path)
+	var params: Dictionary = {
+		"op": "replace",
+		"path": path,
+		"fingerprint": fingerprint,
+		"root": { "type": "BTSequence", "name": "Prepared" },
+	}
+	var prepared: Dictionary = AuthoringTool.prepare_replacement(params)
+	assert_false(prepared.has("error"))
+	var tree: BehaviorTree = prepared.tree
+	assert_not_same(tree, cached)
+	assert_eq(tree.get_root_task().get_custom_name(), "Prepared")
+	assert_same(cached.get_root_task(), original)
+	assert_eq(FileAccess.get_sha256(path), fingerprint)
+	assert_true(AuthoringTool.prepare_replacement(params, cached).has("error"))
+	params.fingerprint = "stale"
+	assert_true(AuthoringTool.prepare_replacement(params).has("error"))
+	params.fingerprint = fingerprint
+	params.root = { "type": "Node" }
+	assert_true(AuthoringTool.prepare_replacement(params).has("error"))
+	assert_same(cached.get_root_task(), original)
+	assert_eq(FileAccess.get_sha256(path), fingerprint)
+
+
 func test_insert_retains_existing_native_resources_and_rejects_stale_order() -> void:
 	var tree: BehaviorTree = BehaviorTree.new()
 	var root_task: BTDynamicSelector = BTDynamicSelector.new()

@@ -329,13 +329,14 @@ func _source_property() -> Dictionary:
 func _behavior_tree_authoring_spec() -> McpCustomToolSpec:
 	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
 	spec.name = "pvz_behavior_tree_authoring"
-	spec.description = "Inspect/create an NPC LimboAI tree or insert a guarded native subtree."
+	spec.description = "Inspect/create/replace an NPC LimboAI tree or insert a guarded subtree."
 	spec.params_schema = {
 		"type": "object",
 		"properties": {
-			"op": { "type": "string", "enum": ["inspect", "create", "insert"] },
+			"op": { "type": "string", "enum": ["inspect", "create", "replace", "insert"] },
 			"path": { "type": "string" },
 			"root": { "type": "object" },
+			"fingerprint": { "type": "string" },
 			"subtree": { "type": "string" },
 			"index": { "type": "integer", "minimum": 0, "maximum": 64 },
 			"name": { "type": "string" },

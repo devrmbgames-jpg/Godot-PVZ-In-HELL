@@ -43,7 +43,7 @@ static func can_start_against(
 
 	var attack: DEF_NpcAttack = variant_for(state, kind, index)
 	return (
-		_valid_attack(attack, kind) and pair_available(actor, target)
+		valid_attack(attack, kind) and pair_available(actor, target)
 		and in_range(actor, target, attack)
 		and CombatGeometry.clear_line(actor, target, attack.collision_mask)
 	)
@@ -208,7 +208,8 @@ static func pair_available(actor: Entity, target: Entity) -> bool:
 	)
 
 
-static func _valid_attack(attack: DEF_NpcAttack, kind: C_NpcCombat.Kind) -> bool:
+## Shares the executor's immutable definition checks with native combat-position planning.
+static func valid_attack(attack: DEF_NpcAttack, kind: C_NpcCombat.Kind) -> bool:
 	if attack == null:
 		return false
 

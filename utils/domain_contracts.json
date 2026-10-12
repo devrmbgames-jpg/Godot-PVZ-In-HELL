@@ -10887,7 +10887,9 @@
       "public_methods": [
         "choose",
         "commit_effect",
-        "start"
+        "start",
+        "pair_available",
+        "valid_attack"
       ],
       "sources": [
         "content/ai/tasks/bt_npc_attack.gd",
@@ -10897,7 +10899,9 @@
       "method_rights": {
         "choose": "request",
         "commit_effect": "request",
-        "start": "request"
+        "start": "request",
+        "pair_available": "query",
+        "valid_attack": "query"
       },
       "public_instance_methods": []
     },

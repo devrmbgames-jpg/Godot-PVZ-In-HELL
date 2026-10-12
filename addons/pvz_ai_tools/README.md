@@ -92,6 +92,10 @@ only on direct NPC and customer `ai/trees/*.tres` resources. `inspect` is read-o
 preserves the existing root, children and Blackboard plans and refuses stale child
 order, duplicate subtrees or cycles. Saves use editor-side ResourceSaver, are explicit
 and non-undoable. No retained Resources or pending requests survive plugin exit.
+`replace` requires `root` and the exact SHA-256 `fingerprint` of an existing tree,
+clean editor scenes and an uninspected target. It prepares a detached native graph
+before writing, retains the resource UID/Blackboard plan and refreshes the native cache.
+Malformed graphs and stale fingerprints leave the file and cached tree unchanged.
 Reload Godot AI after registration; the companion registry unregisters on exit.
 
 Example: `custom_manage(op="invoke", params={"tool_name":"pvz_behavior_tree_authoring",

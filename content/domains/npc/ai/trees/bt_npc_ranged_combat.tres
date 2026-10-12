@@ -1,0 +1,39 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://5vw2iauto3l7"]
+
+[ext_resource type="Script" uid="uid://cqwbunnvr2bot" path="res://content/domains/npc/ai/tasks/bt_npc_ranged_available.gd" id="1_q0sbh"]
+[ext_resource type="Script" uid="uid://cvgybd77725rw" path="res://content/domains/npc/ai/tasks/bt_npc_ranged_combat.gd" id="1_sucs6"]
+[ext_resource type="Script" uid="uid://yqgoag77nma7" path="res://content/domains/npc/ai/tasks/bt_npc_ranged_positioned.gd" id="2_r0qpl"]
+[ext_resource type="Script" uid="uid://b8s2lwk6utd5d" path="res://content/domains/npc/ai/tasks/bt_npc_ranged_reposition.gd" id="4_ox2ey"]
+
+[sub_resource type="BTCondition" id="BTCondition_ger7p"]
+custom_name = "Видна цель / дальний набор готов"
+script = ExtResource("1_q0sbh")
+
+[sub_resource type="BTCondition" id="BTCondition_bhuwy"]
+custom_name = "Дистанция подходит"
+script = ExtResource("2_r0qpl")
+
+[sub_resource type="BTAction" id="BTAction_s0df2"]
+custom_name = "Остановиться / выстрел / перезарядка"
+script = ExtResource("1_sucs6")
+intent_owner = 1
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_w1ksa"]
+custom_name = "Позиция в рабочем диапазоне"
+children = [SubResource("BTCondition_bhuwy"), SubResource("BTAction_s0df2")]
+
+[sub_resource type="BTAction" id="BTAction_amiri"]
+custom_name = "Безопасно отойти или приблизиться"
+script = ExtResource("4_ox2ey")
+intent_owner = 1
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_vd26g"]
+custom_name = "Стрелять с позиции или сменить дистанцию"
+children = [SubResource("BTDynamicSequence_w1ksa"), SubResource("BTAction_amiri")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_a32bv"]
+custom_name = "Наблюдаемая дальняя цель"
+children = [SubResource("BTCondition_ger7p"), SubResource("BTDynamicSelector_vd26g")]
+
+[resource]
+root_task = SubResource("BTDynamicSequence_a32bv")

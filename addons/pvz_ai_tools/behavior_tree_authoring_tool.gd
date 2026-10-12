@@ -20,7 +20,7 @@ func quiesce_for_script_swap() -> Dictionary:
 	return { "ok": true }
 
 
-## Create a new tree, inspect root children, or insert one subtree with an optimistic guard.
+## Native graph creation, fingerprinted root replacement and guarded subtree insertion.
 func author(params: Dictionary, _context: McpCallContext) -> Dictionary:
 	if not Engine.is_editor_hint():
 		return { "error": "Behavior-tree authoring requires the native editor." }
@@ -28,6 +28,23 @@ func author(params: Dictionary, _context: McpCallContext) -> Dictionary:
 	var tree_path: String = String(params.get("path", ""))
 	if not valid_tree_path(tree_path):
 		return { "error": "Expected a direct NPC or customer tree .tres path." }
+	if operation == "replace":
+		if params.size() != 4 or not EditorInterface.get_unsaved_scenes().is_empty():
+			return { "error": "Expected a fingerprinted replacement with clean editor scenes." }
+		var inspected: Resource = EditorInterface.get_inspector().get_edited_object() as Resource
+		var prepared: Dictionary = prepare_replacement(params, inspected)
+		if prepared.has("error"):
+			return prepared
+		var replacement: BehaviorTree = prepared.tree
+		var stable_uid: int = ResourceLoader.get_resource_uid(tree_path)
+		var result: Dictionary = _save(replacement, tree_path)
+		if result.has("error"):
+			return result
+		var uid_error: Error = ResourceSaver.set_uid(tree_path, stable_uid)
+		if uid_error != OK:
+			return { "error": "Tree saved, UID restoration failed.", "code": uid_error }
+		ResourceLoader.load(tree_path, "BehaviorTree", ResourceLoader.CACHE_MODE_REPLACE)
+		return result
 	if operation == "create":
 		if FileAccess.file_exists(tree_path) or params.size() != 3:
 			return { "error": "Create refuses existing resources and unexpected parameters." }
@@ -71,6 +88,37 @@ func author(params: Dictionary, _context: McpCallContext) -> Dictionary:
 	if result.has("error"):
 		tree.get_root_task().remove_child(added)
 	return result
+
+
+## Prepares an isolated graph, refusing stale fingerprints or inspected target resources.
+## No files or cached trees are changed before every check and native task build succeeds.
+static func prepare_replacement(params: Dictionary, inspected: Resource = null) -> Dictionary:
+	var path: String = String(params.get("path", ""))
+	var fingerprint: String = String(params.get("fingerprint", ""))
+	var graph: Variant = params.get("root")
+	if (
+		not valid_tree_path(path) or not FileAccess.file_exists(path)
+		or fingerprint.is_empty() or FileAccess.get_sha256(path) != fingerprint
+		or not graph is Dictionary or ResourceLoader.get_resource_uid(path) < 0
+	):
+		return { "error": "Missing native tree, stable UID, graph or exact fingerprint." }
+	if (
+		inspected != null
+		and (inspected.resource_path == path or inspected.resource_path.begins_with(path + "::"))
+	):
+		return { "error": "Finish inspecting/editing the target resource before replacement." }
+	var task: BTTask = build_task(graph)
+	if task == null:
+		return { "error": "Invalid bounded task graph; unchanged." }
+	var tree: BehaviorTree = ResourceLoader.load(
+		path,
+		"BehaviorTree",
+		ResourceLoader.CACHE_MODE_IGNORE,
+	) as BehaviorTree
+	if tree == null:
+		return { "error": "Expected a native BehaviorTree." }
+	tree.set_root_task(task)
+	return { "tree": tree }
 
 
 ## Only direct files in the existing authored NPC tree directory are writable.
