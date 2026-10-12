@@ -22,6 +22,38 @@ var _awareness: C_NpcAwareness
 var _decision: C_NpcDecision
 
 
+class HuntReceiverMutator extends Observer:
+	## Removes the receiver synchronously at the social fact boundary.
+	var retire: bool = false
+	## Retains the body but disables participation during the native update.
+	var suspend: bool = false
+	## Number of committed hunt facts received by this fixture.
+	var calls: int = 0
+
+
+	func query() -> QueryBuilder:
+		return q.with_all([C_NpcIdentity]).on_event(NpcSocialReactionCommitted.EVENT)
+
+
+	func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
+		calls += 1
+		if retire:
+			_world.remove_entity(entity)
+			entity.free()
+		elif suspend:
+			var identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity
+			DistrictPopulationService.set_placement(
+				NpcPopulationQueries.person_for(identity.npc_id),
+				entity as E_DistrictNpc,
+				NpcRecord.Placement.OUTSIDE,
+			)
+		else:
+			DistrictPopulationService.reset_brain(entity as E_DistrictNpc)
+			var awareness: C_NpcAwareness = entity.get_component(C_NpcAwareness) as C_NpcAwareness
+			awareness.heard_remaining = 9.0
+			awareness.player_visible = true
+
+
 #region Real native fixture
 func before_each() -> void:
 	_root = Node3D.new()
@@ -106,10 +138,58 @@ func _combat() -> C_NpcCombat:
 
 
 #region Reversible native behavior
+func test_native_hunt_completes_deferred_abort_when_receiver_becomes_dormant() -> void:
+	var observer: HuntReceiverMutator = HuntReceiverMutator.new()
+	observer.suspend = true
+	_world.add_observer(observer)
+	NpcAiFixture.advance(_district, 0.2)
+	assert_eq(observer.calls, 1)
+	assert_false(_actor.enabled)
+	assert_false(_decision.tree_updating)
+	assert_eq(_decision.intent_owner, C_NpcDecision.Owner.NONE)
+	var runner: BTPlayer = _actor.get_node("Brain") as BTPlayer
+	assert_false(runner.active)
+	assert_eq(runner.get_bt_instance().get_root_task().get_status(), BTTask.FRESH)
+	assert_null(CombatQueries.target_for(_actor))
+
+
+func test_native_hunt_stops_after_synchronous_receiver_retirement() -> void:
+	var observer: HuntReceiverMutator = HuntReceiverMutator.new()
+	observer.retire = true
+	_world.add_observer(observer)
+	var reference: WeakRef = weakref(_actor)
+	NpcAiFixture.advance(_district, 0.2)
+	assert_eq(observer.calls, 1)
+	assert_null(reference.get_ref())
+	assert_eq(_person.memories.size(), 0)
+
+
+func test_native_hunt_preserves_reset_state_after_synchronous_brain_reset() -> void:
+	var observer: HuntReceiverMutator = HuntReceiverMutator.new()
+	_world.add_observer(observer)
+	var generation: int = _decision.lifecycle_generation
+	NpcAiFixture.advance(_district, 0.2)
+	assert_eq(observer.calls, 1)
+	assert_gt(_decision.lifecycle_generation, generation)
+	assert_false(_decision.tree_updating)
+	assert_eq(_decision.intent_owner, C_NpcDecision.Owner.NONE)
+	assert_eq(_awareness.heard_remaining, 9.0)
+	assert_false(_awareness.target_visible)
+	assert_null(_actor.get_node_or_null("Brain"))
+	assert_null(CombatQueries.target_for(_actor))
+	assert_eq(_person.memories.size(), 0)
+	_world.remove_observer(observer)
+	NpcBrainService.bind_engine(_actor)
+	NpcAiFixture.advance(_district, 0.2)
+	assert_same(CombatQueries.target_for(_actor), _player)
+	assert_eq(_decision.intent_owner, C_NpcDecision.Owner.COMBAT)
+
+
 func test_visible_dark_player_starts_hunt_without_durable_offense_or_restart() -> void:
 	_step()
 	assert_same(CombatQueries.target_for(_actor), _player)
 	assert_true(_awareness.target_visible)
+	assert_false(_decision.tree_updating, "An urgent hunt wake keeps the same native runtime")
 	assert_eq(_person.memories.size(), 0)
 	assert_false(_awareness.reacted_rules.has(DEF_NpcTrait.Kind.DARK_PREDATOR))
 	var generation: int = _combat().execution_generation

@@ -43,8 +43,19 @@ static func update_tree(actor: E_DistrictNpc, delta: float) -> bool:
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 	if runner == null or decision == null or not runner.active:
 		return false
+	var world: World = ECS.world
 	decision.tree_updating = true
 	runner.update(delta)
+	# Native leaves publish facts whose observers may synchronously remove this runtime.
+	if (
+		not is_instance_valid(actor) or not is_instance_valid(world)
+		or ECS.world != world or not world.entity_to_archetype.has(actor)
+		or actor.get_component(C_NpcDecision) != decision
+	):
+		return false
+	if not is_instance_valid(runner) or actor.get_node_or_null("Brain") != runner:
+		return false
+	# Urgent wakes invalidate queued cadence work, but do not replace this native runtime.
 	decision.tree_updating = false
 	var claimed: bool = decision.intent_owner != C_NpcDecision.Owner.NONE
 	if not runner.active:

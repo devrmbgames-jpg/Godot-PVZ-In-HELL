@@ -69,7 +69,15 @@ func _decide(actor: E_DistrictNpc, decision: C_NpcDecision) -> void:
 		return
 
 	decision.intent_owner = C_NpcDecision.Owner.NONE
+	var participation_generation: int = decision.participation_generation
 	NpcBrainService.update_tree(actor, decision.scheduled_delta)
+	# The native update crosses the same synchronous publication boundary as the ready event.
+	if (
+		not EntityAvailability.contains(actor, _world)
+		or actor.get_component(C_NpcDecision) != decision
+		or decision.participation_generation != participation_generation
+	):
+		return
 	if decision.intent_owner != C_NpcDecision.Owner.SCHEDULE:
 		NpcScheduleActionService.cancel_schedule(actor, &"branch_released")
 	if actor.enabled:

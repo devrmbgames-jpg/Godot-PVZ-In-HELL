@@ -25,7 +25,10 @@ Typed night hunting now samples authored light zones only at due steps and at pe
 positions. Visible branches start combat in darkness and cancel it in brighter light with separate thresholds;
 no durable offense; native/customer roots retain immediate safety/blood priority.
 Combat gates share the light fact and preserve replacement emergency movement on cancellation.
-Focused regressions pass; final smoke is NOT_RUN and checkpoint review is REVIEW_PENDING.
+Final smoke PASS. Review found synchronous receiver retirement/reset; RV-001 is accepted.
+Repair stops obsolete leaf/scheduler continuations and revalidates the native runner.
+It preserves urgent-wake semantics and completes deferred abort for dormant retained bodies.
+Repair regressions pass; targeted repair review is pending.
 Night presentation/dialogues, remaining mandatory subtrees and live roster binding stay open.
 
 ### Validation
@@ -46,13 +49,27 @@ Night PASS: parser235825476/12; hunt235740214 11/100, blood234948208 10/120,
 gaze234959632 11/112, performance235010025 21/145, catalog235034482 4/944.
 Native cadence, solid occlusion, switches, cancellation, thresholds, reset and codec ran;
 freeze235843927 15/110 and attacks235911380 22/160 PASS after combat gate changes.
-Initial district-20261012-095117326.log smoke PASS; final gate-change smoke NOT_RUN. Review BASE
-`b1b9c38f8844723850a5223d6f4c4271f5ef7ef7`, TARGET pending commit: REVIEW_PENDING.
-No runtime errors or GUT orphan Nodes. Formatter/lint, strict architecture/dependencies,
+District-20261012-100018077.log final smoke PASS (eight mornings/all phases/save/restore).
+Review `b1b9c38f8844723850a5223d6f4c4271f5ef7ef7` ->
+`a963f56e83f29810238739751780e95041847078`: P1/R1 accepted (113 s).
+Repair PASS: parser001140479/4; hunt001101329 14/125, participation000955165 12/133,
+blood001111645 10/120 and gaze001149800 11/112. Final repair smoke/review pending.
+No runtime errors or GUT orphan Nodes in passing runs. Formatter/lint, strict architecture/dependencies,
 domain/project structure and persistence PASS. MCP authors native traits/catalog/trees with
 UIDs preserved; leaf diagnostics/reload and clean scene reload/no new editor errors PASS.
 Global reload43 NOT_PASS; CLI independently PASS. Reviewed ARCHITECTURE/STYLE PASS; runtime VALIDATION NOT_RUN.
 Full mandatory behaviors, live roster integration and owner gameplay/visual QA: NOT_RUN.
+
+### Review triage
+
+RV-001 P1 — `bt_npc_begin_dark_hunt._tick` / native update continuation: ACCEPTED.
+Source `a963f56e83f29810238739751780e95041847078` matches current reproduction.
+GUT000655821 FAIL: observer removes receiver or resets brain during the hunt fact;
+leaf reads a freed actor, brain adapter reads freed runner, scheduler cancels a freed actor.
+Repair guards receiver/component/participation and runner identities after publication/update.
+Urgent wakes remain cadence invalidation, distinct from reset/participation incarnation.
+Native regressions cover retirement, reset/rebind, deferred dormant abort and ordinary hunt.
+Targeted immutable-SHA repair review remains REVIEW_PENDING.
 
 ### Owner QA / blockers
 
