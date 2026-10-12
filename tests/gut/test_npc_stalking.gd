@@ -416,6 +416,31 @@ func test_real_service_role_preempts_stalking_without_cancelling_visit() -> void
 #endregion
 
 
+#region Participation boundary
+func test_suspension_restarts_exposure_and_preserves_durable_recognition() -> void:
+	_sample(_rule.notice_seconds * 0.8)
+	assert_true(_state.observed)
+	assert_true(DistrictPopulationService.set_placement(_person, _actor, NpcRecord.Placement.HOME))
+	_sample(2.0)
+	assert_true(
+		DistrictPopulationService.set_placement(_person, _actor, NpcRecord.Placement.STREET),
+	)
+	await _sync_physics()
+	_sample(_rule.notice_seconds * 0.2)
+	assert_almost_eq(_state.exposure_seconds, _rule.notice_seconds * 0.2, 0.00001)
+	assert_true(_person.memories.is_empty(), "Interrupted exposure must not commit recognition")
+	_sample(_rule.notice_seconds * 0.8)
+	assert_true(NpcStalkingRules.noticed(_person, &"player"))
+	assert_eq(_person.memories.size(), 1)
+	assert_true(DistrictPopulationService.set_placement(_person, _actor, NpcRecord.Placement.HOME))
+	assert_true(
+		DistrictPopulationService.set_placement(_person, _actor, NpcRecord.Placement.STREET),
+	)
+	assert_true(NpcStalkingRules.noticed(_person, &"player"))
+	assert_eq(_person.memories.size(), 1)
+#endregion
+
+
 #region Player incarnation boundary
 ## Recreating the same authored player ID cannot transfer continuous exposure to a new body.
 func test_replaced_player_with_same_stable_id_starts_fresh_exposure() -> void:

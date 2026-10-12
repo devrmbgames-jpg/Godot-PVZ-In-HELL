@@ -28,6 +28,10 @@ static func bind_engine(actor: E_DistrictNpc) -> void:
 ## Включает дерево либо прерывает его листья; из выполняющегося такта abort завершается после
 ## update.
 static func set_participating(actor: E_DistrictNpc, participating: bool) -> void:
+	if not participating:
+		var stalking: C_NpcStalking = actor.get_component(C_NpcStalking) as C_NpcStalking
+		if stalking != null:
+			stalking.reset_transient_state()
 	var runner: BTPlayer = actor.get_node_or_null("Brain") as BTPlayer
 	if runner == null:
 		return
