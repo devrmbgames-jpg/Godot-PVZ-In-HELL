@@ -1,11 +1,19 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://ins84eoxxqqw"]
 
+[ext_resource type="BehaviorTree" uid="uid://bkdybh1yrgyec" path="res://content/domains/npc/ai/trees/bt_npc_veil_escape.tres" id="1_fnt8l"]
 [ext_resource type="Script" uid="uid://dj74y4sqxxcrf" path="res://content/domains/npc/ai/tasks/bt_npc_hazard.gd" id="s1"]
 [ext_resource type="Script" uid="uid://qcf4axdc8q6b" path="res://content/domains/npc/ai/tasks/bt_npc_escape_hazard.gd" id="s2"]
 [ext_resource type="Script" uid="uid://bwoscx2du1goy" path="res://content/domains/customers/ai/tasks/bt_npc_light_escape.gd" id="s3"]
 [ext_resource type="Script" uid="uid://bv1i6ii5dejm0" path="res://content/domains/npc/ai/tasks/bt_npc_escape_light.gd" id="s4"]
 [ext_resource type="Script" uid="uid://btx0oqh5nemt7" path="res://content/domains/npc/ai/tasks/bt_npc_needs_flee.gd" id="s5"]
 [ext_resource type="Script" uid="uid://clb4cd3beypj2" path="res://content/domains/npc/ai/tasks/bt_npc_flee.gd" id="s6"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_qoqf0"]
+
+[sub_resource type="BTSubtree" id="BTSubtree_enlpn"]
+subtree = ExtResource("1_fnt8l")
+blackboard_plan = SubResource("BlackboardPlan_qoqf0")
+custom_name = "Условный уход облаком"
 
 [sub_resource type="BTCondition" id="BTCondition_1"]
 custom_name = "Опасная зона"
@@ -48,7 +56,7 @@ children = [SubResource("BTCondition_7"), SubResource("BTAction_8")]
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_10"]
 custom_name = "Опасность"
-children = [SubResource("BTDynamicSequence_3"), SubResource("BTDynamicSequence_6"), SubResource("BTDynamicSequence_9")]
+children = [SubResource("BTSubtree_enlpn"), SubResource("BTDynamicSequence_3"), SubResource("BTDynamicSequence_6"), SubResource("BTDynamicSequence_9")]
 
 [resource]
 description = "Приоритеты непосредственной опасности, светобоязненности и бегства."

@@ -30,6 +30,9 @@ static func can_see(
 	if observer == target or not target_available or not GrabQueries.holder_available(observer):
 		return false
 
+	if NpcVeilQueries.concealed(target):
+		return false
+
 	var observer_body: PhysicsBody3D = observer as Node as PhysicsBody3D
 	var target_body: PhysicsBody3D = target as Node as PhysicsBody3D
 	if (
@@ -110,7 +113,7 @@ static func can_see_point(
 	person: NpcRecord,
 	target: Entity = null,
 ) -> bool:
-	if not GrabQueries.holder_available(observer):
+	if not GrabQueries.holder_available(observer) or NpcVeilQueries.concealed(target):
 		return false
 
 	var profile: DEF_NpcArchetype = person.profile

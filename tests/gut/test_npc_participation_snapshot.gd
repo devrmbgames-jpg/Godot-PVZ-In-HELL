@@ -90,6 +90,37 @@ func _assert_saved_actor(npc_id: StringName, expected: Dictionary) -> void:
 #endregion
 
 
+#region Transient form persistence
+## A captured body restores durable pose/HP while its native form and task token are cleared.
+func test_disk_restore_clears_transient_concealment_before_participation() -> void:
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	decision.active_task_id = 42
+	assert_true(NpcVeilService.claim(body, C_NpcVeil.Form.INVISIBLE, 42))
+	var veil: C_NpcVeil = body.get_component(C_NpcVeil) as C_NpcVeil
+	assert_eq(SaveDataCodec.component_data(veil), { })
+	assert_false((body.get_node("Body") as Node3D).visible)
+	var pose: Transform3D = body.global_transform
+	var health: float = (body.get_component(C_Health) as C_Health).current
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+	var loaded: Dictionary = AutosaveStore.read(SAVE_PATH)
+	assert_true(WorldSnapshotService.valid(loaded, _root))
+	assert_true(WorldSnapshotService.restore(loaded, _root))
+	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
+	assert_eq(veil.form, C_NpcVeil.Form.VISIBLE)
+	assert_eq(veil.task_id, 0)
+	assert_true((body.get_node("Body") as Node3D).visible)
+	assert_false((body.get_node("VeilPresence/Cloud") as Node3D).visible)
+	assert_eq(body.global_transform, pose)
+	assert_eq((body.get_component(C_Health) as C_Health).current, health)
+	assert_eq(decision.active_task_id, 0)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+#endregion
+
+
 #region Fresh dormant reconstruction
 ## An absent saved dormant body is reconstructed once, remains dormant and reuses its stable ID.
 func test_missing_dormant_body_restores_identity_and_dormancy() -> void:

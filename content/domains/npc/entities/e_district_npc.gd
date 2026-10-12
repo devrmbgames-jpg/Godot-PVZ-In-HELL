@@ -50,6 +50,8 @@ func participation_collision_mask() -> int:
 
 ## Изменяет физическое участие без удаления или сброса личности.
 func set_participating(participating: bool) -> void:
+	if not participating:
+		NpcVeilService.reset(self)
 	var body: RigidBody3D = self as Node as RigidBody3D
 	# GECS stops root callbacks; the native mode also suspends inherited child animation work.
 	process_mode = _body_process_mode if participating else Node.PROCESS_MODE_DISABLED
@@ -80,6 +82,9 @@ func sync_gaze_constraint() -> void:
 ## Death presentation and observation share the body's native freeze policy.
 func sync_death_presentation() -> void:
 	super.sync_death_presentation()
+	var health: C_Health = get_component(C_Health) as C_Health
+	if has_component(C_Death) or (health != null and health.depleted):
+		NpcVeilService.reset(self)
 	sync_gaze_constraint()
 
 
@@ -97,14 +102,18 @@ func place_at(world_position: Vector3) -> void:
 
 ## Показывает постоянную личность независимо от активного заказа.
 func present_profile(profile: DEF_NpcProfile) -> void:
+	NpcVeilService.reset(self)
 	var night_view: NpcNightPresentation = get_node_or_null("NightPresence") as NpcNightPresentation
 	if night_view != null:
 		night_view.suspend()
 	show_message(profile.display_name)
 	var skeleton_meshes: Array[Node] = find_children("*", "MeshInstance3D", true, false)
+	var veil_view: NpcVeilPresentation = get_node_or_null("VeilPresence") as NpcVeilPresentation
 	var material: StandardMaterial3D = StandardMaterial3D.new()
 	material.albedo_color = profile.body_color
 	for mesh_node: Node in skeleton_meshes:
+		if veil_view != null and veil_view.is_ancestor_of(mesh_node):
+			continue
 		var mesh_instance: MeshInstance3D = mesh_node as MeshInstance3D
 		mesh_instance.material_override = material
 #endregion
@@ -113,6 +122,7 @@ func present_profile(profile: DEF_NpcProfile) -> void:
 #region Higher-role lifecycle boundary
 ## Publishes one synchronous lifecycle step without importing the higher role implementation.
 func request_role_cleanup(kind: NpcRoleCleanupRequest.Kind, day_index: int = 0) -> void:
+	NpcVeilService.reset(self)
 	role_cleanup_requested.emit(NpcRoleCleanupRequest.new(kind, day_index))
 #endregion
 

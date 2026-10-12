@@ -42,6 +42,7 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 		C_NpcGazeFreeze.new(),
 		C_NpcPride.new(),
 		C_NpcStalking.new(),
+		C_NpcVeil.new(),
 		resistance,
 		receiver,
 	]

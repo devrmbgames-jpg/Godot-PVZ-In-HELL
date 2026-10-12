@@ -98,16 +98,36 @@ static func flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwaren
 		var interruption: NpcRoleInterruptionRequest = NpcRoleInterruptionRequest.new(
 			NpcRoleInterruptionRequest.Kind.FLEE_EXIT
 		)
-		ECS.world.emit_event(NpcRoleInterruptionRequest.EVENT, actor, interruption)
+		var world: World = ECS.world
+		var actor_reference: WeakRef = weakref(actor)
+		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+		var task_id: int = decision.active_task_id
+		world.emit_event(NpcRoleInterruptionRequest.EVENT, actor, interruption)
+		# Synchronous role observers may retire the body or replace this native flight.
+		if (
+			not is_instance_valid(world) or ECS.world != world
+			or not _flight_current(actor_reference, world, person, awareness, decision, task_id)
+		):
+			return false
 		CombatService.end_combat(actor)
 		var completion: NpcScheduleCompletionRequest = (
 			NpcScheduleActionService.request_phase_completion(actor, NpcRecord.Placement.OUTSIDE)
 		)
 		if not completion.completed or not completion.succeeded:
 			return false
-		awareness.fleeing = false
-		awareness.flee_portal_id = &""
-		awareness.has_last_seen = false
+		# Normal suspension keeps the sensor Component; clear fear without touching a replacement.
+		var departed: E_DistrictNpc = actor_reference.get_ref() as E_DistrictNpc
+		if (
+			is_instance_valid(world) and ECS.world == world
+			and is_instance_valid(departed) and departed.is_inside_tree()
+			and not departed.is_queued_for_deletion() and world.entity_to_archetype.has(departed)
+			and NpcPopulationQueries.person_for(person.npc_id) == person
+			and departed.get_component(C_NpcAwareness) == awareness
+			and person.placement == NpcRecord.Placement.OUTSIDE and not departed.enabled
+		):
+			awareness.fleeing = false
+			awareness.flee_portal_id = &""
+			awareness.has_last_seen = false
 		return true
 
 	NpcIntentArbiter.move_to(
@@ -119,6 +139,28 @@ static func flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwaren
 
 	return false
 
+#endregion
+
+
+#region Callback lifetime
+static func _flight_current(
+	actor_reference: WeakRef,
+	world: World,
+	person: NpcRecord,
+	awareness: C_NpcAwareness,
+	decision: C_NpcDecision,
+	task_id: int,
+) -> bool:
+	var actor: E_DistrictNpc = actor_reference.get_ref() as E_DistrictNpc
+	if (
+		not EntityAvailability.contains(actor, world) or ECS.world != world
+		or not actor.enabled or actor.get_component(C_NpcAwareness) != awareness
+		or actor.get_component(C_NpcDecision) != decision or decision.active_task_id != task_id
+		or not awareness.fleeing
+	):
+		return false
+	var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
+	return NpcPopulationQueries.person_for(identity.npc_id) == person
 #endregion
 
 

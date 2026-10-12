@@ -1,0 +1,85 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://bkdybh1yrgyec"]
+
+[ext_resource type="Script" uid="uid://cy3hk8vovmyk7" path="res://content/domains/npc/ai/tasks/bt_npc_has_veil.gd" id="1_hwb0j"]
+[ext_resource type="Script" uid="uid://dj74y4sqxxcrf" path="res://content/domains/npc/ai/tasks/bt_npc_hazard.gd" id="2_r7pr0"]
+[ext_resource type="Script" uid="uid://d4doajkoh4i7d" path="res://content/domains/npc/ai/tasks/bt_npc_cloud_hazard.gd" id="3_13jvr"]
+[ext_resource type="Script" uid="uid://cbh65fm6q1bt5" path="res://content/domains/npc/ai/tasks/bt_npc_needs_veil_flee.gd" id="4_wwu5b"]
+[ext_resource type="Script" uid="uid://dxo024qdlxkji" path="res://content/domains/npc/ai/tasks/bt_npc_can_conceal_flight.gd" id="5_ye5gk"]
+[ext_resource type="Script" uid="uid://chabd21xn0khq" path="res://content/domains/npc/ai/tasks/bt_npc_invisible_flee.gd" id="6_p51il"]
+[ext_resource type="Script" uid="uid://b24xe2ibdugkd" path="res://content/domains/npc/ai/tasks/bt_npc_cloud_flee.gd" id="7_236sw"]
+
+[sub_resource type="BTCondition" id="BTCondition_uwxsq"]
+custom_name = "Авторская способность ухода"
+script = ExtResource("1_hwb0j")
+
+[sub_resource type="BTCondition" id="BTCondition_2rbbw"]
+custom_name = "Воспринятый вред рядом"
+script = ExtResource("2_r7pr0")
+
+[sub_resource type="BTAction" id="BTAction_w3cxn"]
+custom_name = "Выйти облаком"
+script = ExtResource("3_13jvr")
+intent_owner = 0
+
+[sub_resource type="BTCooldown" id="BTCooldown_jkp48"]
+duration = 3.0
+trigger_on_failure = true
+custom_name = "Повтор после отказа маршрута"
+children = [SubResource("BTAction_w3cxn")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_ytkuo"]
+custom_name = "Облаком из вредной зоны"
+children = [SubResource("BTCondition_2rbbw"), SubResource("BTCooldown_jkp48")]
+
+[sub_resource type="BTCondition" id="BTCondition_jia8d"]
+custom_name = "Ранен и видит угрозу или уже уходит"
+script = ExtResource("4_wwu5b")
+
+[sub_resource type="BTCondition" id="BTCondition_r2pgw"]
+custom_name = "Помнит угрозу без видимости"
+script = ExtResource("5_ye5gk")
+
+[sub_resource type="BTAction" id="BTAction_x8o27"]
+custom_name = "Продолжить невидимым"
+script = ExtResource("6_p51il")
+intent_owner = 0
+
+[sub_resource type="BTCooldown" id="BTCooldown_csgcf"]
+duration = 3.0
+trigger_on_failure = true
+custom_name = "Повтор после отказа маршрута"
+children = [SubResource("BTAction_x8o27")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_owk82"]
+custom_name = "Невидимость после потери видимости"
+children = [SubResource("BTCondition_r2pgw"), SubResource("BTCooldown_csgcf")]
+
+[sub_resource type="BTAction" id="BTAction_0xdlc"]
+custom_name = "Уйти облаком"
+script = ExtResource("7_236sw")
+intent_owner = 0
+
+[sub_resource type="BTCooldown" id="BTCooldown_mg0ke"]
+duration = 3.0
+trigger_on_failure = true
+custom_name = "Повтор после отказа маршрута"
+children = [SubResource("BTAction_0xdlc")]
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_bflvl"]
+custom_name = "Видимая или невидимая форма"
+children = [SubResource("BTDynamicSequence_owk82"), SubResource("BTCooldown_mg0ke")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_mw8pl"]
+custom_name = "Уход от подтверждённой угрозы"
+children = [SubResource("BTCondition_jia8d"), SubResource("BTDynamicSelector_bflvl")]
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_nvppv"]
+custom_name = "Подтверждённая опасность"
+children = [SubResource("BTDynamicSequence_ytkuo"), SubResource("BTDynamicSequence_mw8pl")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_37gu0"]
+custom_name = "Условная скрытая форма"
+children = [SubResource("BTCondition_uwxsq"), SubResource("BTDynamicSelector_nvppv")]
+
+[resource]
+root_task = SubResource("BTDynamicSequence_37gu0")

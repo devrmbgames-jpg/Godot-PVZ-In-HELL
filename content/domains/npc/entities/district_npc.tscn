@@ -4,6 +4,7 @@
 [ext_resource type="Resource" uid="uid://d3s73ddmq0a52" path="res://content/domains/npc/definitions/def_npc_night_presentation.tres" id="9_eafli"]
 [ext_resource type="AudioStream" uid="uid://ddi58a60ftxny" path="res://content/domains/npc/presentation/night_presence.wav" id="10_ch0dj"]
 [ext_resource type="Texture2D" uid="uid://b1vm1dufpx08" path="res://content/domains/npc/presentation/night_shadow.svg" id="11_v0oo2"]
+[ext_resource type="PackedScene" uid="uid://nadvgogvro7m" path="res://content/domains/npc/presentation/npc_veil_presence.tscn" id="12_eafli"]
 [ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Base"]
 [ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 [ext_resource type="Resource" uid="uid://cgor7x3ikmr71" path="res://content/domains/npc/authoring/et_district_npc_npc_identity.tres" id="DirectTrait_1"]
@@ -38,5 +39,7 @@ visible = false
 size = Vector3(3.6, 0.4, 3.6)
 texture_albedo = ExtResource("11_v0oo2")
 modulate = Color(1, 1, 1, 0)
+
+[node name="VeilPresence" parent="." index="11" unique_id=1466320856 instance=ExtResource("12_eafli")]
 
 [editable path="Body"]

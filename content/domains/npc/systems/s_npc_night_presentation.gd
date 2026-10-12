@@ -24,7 +24,7 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		)
 		if view == null:
 			continue
-		if not entity.enabled or entity.has_component(C_Death):
+		if not entity.enabled or entity.has_component(C_Death) or NpcVeilQueries.concealed(entity):
 			view.suspend()
 			continue
 		var identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity

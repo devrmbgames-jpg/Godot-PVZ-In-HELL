@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_NpcVeil" format=3 uid="uid://dcmt3al5mb5ax"]
+
+[ext_resource type="Script" uid="uid://bewe8qivgwsk5" path="res://content/domains/npc/definitions/def_npc_veil.gd" id="1_378gn"]
+
+[resource]
+script = ExtResource("1_378gn")
+kind = 7
+warning_text = "При угрозе вампир может уйти облаком."
+countermeasure = "Преследуй по шуму и следи за выходами."
+key = &"trait/veil_escape"

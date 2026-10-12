@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://nadvgogvro7m"]
+
+[ext_resource type="Script" uid="uid://c4um113ki44iu" path="res://content/domains/npc/presentation/npc_veil_presentation.gd" id="1_alabt"]
+[ext_resource type="Material" uid="uid://ciaywgxg6d1fu" path="res://content/domains/npc/presentation/mat_npc_veil_cloud.tres" id="2_alabt"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_pkfvv"]
+radius = 0.48
+height = 0.7
+radial_segments = 16
+rings = 8
+
+[sub_resource type="SphereMesh" id="SphereMesh_f7o7k"]
+radius = 0.42
+height = 0.75
+radial_segments = 16
+rings = 8
+
+[sub_resource type="SphereMesh" id="SphereMesh_70njk"]
+radius = 0.4
+height = 0.7
+radial_segments = 16
+rings = 8
+
+[sub_resource type="SphereMesh" id="SphereMesh_488xa"]
+radius = 0.38
+height = 0.65
+radial_segments = 16
+rings = 8
+
+[node name="VeilPresence" type="Node3D" unique_id=1466320856]
+script = ExtResource("1_alabt")
+
+[node name="Cloud" type="Node3D" parent="." unique_id=1734884659]
+visible = false
+
+[node name="Low" type="MeshInstance3D" parent="Cloud" unique_id=1210564697]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+material_override = ExtResource("2_alabt")
+cast_shadow = 0
+mesh = SubResource("SphereMesh_pkfvv")
+
+[node name="Left" type="MeshInstance3D" parent="Cloud" unique_id=1070696814]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, 0.85, 0)
+material_override = ExtResource("2_alabt")
+cast_shadow = 0
+mesh = SubResource("SphereMesh_f7o7k")
+
+[node name="Right" type="MeshInstance3D" parent="Cloud" unique_id=863563034]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.9, 0.12)
+material_override = ExtResource("2_alabt")
+cast_shadow = 0
+mesh = SubResource("SphereMesh_70njk")
+
+[node name="Top" type="MeshInstance3D" parent="Cloud" unique_id=238650773]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+material_override = ExtResource("2_alabt")
+cast_shadow = 0
+mesh = SubResource("SphereMesh_488xa")

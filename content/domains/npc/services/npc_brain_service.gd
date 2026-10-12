@@ -29,6 +29,7 @@ static func bind_engine(actor: E_DistrictNpc) -> void:
 ## update.
 static func set_participating(actor: E_DistrictNpc, participating: bool) -> void:
 	if not participating:
+		NpcVeilService.reset(actor)
 		var stalking: C_NpcStalking = actor.get_component(C_NpcStalking) as C_NpcStalking
 		if stalking != null:
 			stalking.reset_transient_state()
