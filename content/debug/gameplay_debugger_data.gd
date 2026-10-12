@@ -52,6 +52,36 @@ static func snapshot(candidate: Variant) -> Dictionary[String, Variant]:
 		"reservations": _reservations(actor),
 		"limboai": _brain(actor),
 	}
+	if actor.has_component(C_InventoryItem):
+		var item: C_InventoryItem = actor.get_component(C_InventoryItem) as C_InventoryItem
+		result["item"] = {
+			"definition": item.definition.resource_path,
+			"key": String(item.definition.key),
+			"quantity": item.quantity,
+			"kind": DEF_InventoryItem.Kind.keys()[item.definition.kind],
+			"categories": _flags(item.definition.categories, DEF_InventoryItem.Category),
+		}
+	if actor.has_component(C_ReceiverTraits):
+		var receiver: C_ReceiverTraits = actor.get_component(C_ReceiverTraits) as C_ReceiverTraits
+		result["receiver_tags"] = _flags(receiver.traits, C_ReceiverTraits.Trait)
+	if actor.has_component(C_ReceiverEffect):
+		var effect: C_ReceiverEffect = actor.get_component(C_ReceiverEffect) as C_ReceiverEffect
+		result["receiver_effect"] = {
+			"definition": effect.definition.resource_path,
+			"alignment": DEF_ReceiverEffect.Alignment.keys()[effect.definition.alignment],
+			"amount_per_tick": effect.definition.amount_per_tick,
+			"tick_seconds": effect.definition.tick_seconds,
+			"area": String(effect.area_path),
+		}
+	if actor.has_component(C_Hazard):
+		var hazard: C_Hazard = actor.get_component(C_Hazard) as C_Hazard
+		result["hazard_source"] = {
+			"definition": hazard.definition.resource_path,
+			"request_id": hazard.request_id,
+			"origin_id": hazard.origin_id,
+			"instigator_id": hazard.instigator_id,
+			"blood_zone": actor.has_component(C_BloodArea),
+		}
 	if actor.has_component(C_Package):
 		var package: C_Package = actor.get_component(C_Package) as C_Package
 		identities.append(package.package_id)
@@ -67,6 +97,19 @@ static func snapshot(candidate: Variant) -> Dictionary[String, Variant]:
 		result["perception"] = _perception(actor.get_component(C_NpcAwareness) as C_NpcAwareness)
 		var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
 		var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
+		result["archetype"] = _archetype(person)
+		var blood: E_BloodArea = NpcBloodQueries.zone_for(actor)
+		result["blood"] = {
+			"zone": blood.id if blood != null else "",
+			"calmed": NpcBloodQueries.calmed(actor),
+			"inside": blood != null and NpcBloodQueries.inside(npc, blood),
+		}
+		if actor.has_component(C_NpcGazeFreeze):
+			var gaze: C_NpcGazeFreeze = actor.get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
+			result["gaze"] = { "constrained": gaze.rule != null, "observed": gaze.observed }
+		if actor.has_component(C_NpcVeil):
+			var veil: C_NpcVeil = actor.get_component(C_NpcVeil) as C_NpcVeil
+			result["veil"] = C_NpcVeil.Form.keys()[veil.form]
 		result["obligation"] = {
 			"goal": String(person.goal_id),
 			"day": person.planned_day,
@@ -85,6 +128,30 @@ static func snapshot(candidate: Variant) -> Dictionary[String, Variant]:
 		}
 	result["recent_events"] = _events(identities)
 	return result
+
+
+static func _archetype(person: NpcRecord) -> Dictionary[String, Variant]:
+	var traits: PackedStringArray = []
+	for rule: DEF_NpcTrait in person.rules_for():
+		traits.append(String(rule.key))
+	return {
+		"definition": person.profile.resource_path,
+		"key": String(person.profile.key),
+		"name": person.variation.display_name,
+		"variation_seed": person.variation.seed,
+		"creation_day": person.variation.creation_day,
+		"traits": traits,
+		"optional_traits": person.variation.optional_trait_keys.duplicate(),
+		"dialogue": person.variation.dialogue_path,
+	}
+
+
+static func _flags(mask: int, names: Dictionary) -> PackedStringArray:
+	var selected: PackedStringArray = []
+	for label: String in names:
+		if mask & int(names[label]) != 0:
+			selected.append(label)
+	return selected
 
 
 static func _relationships(actor: Entity) -> Array[Dictionary]:
@@ -124,7 +191,13 @@ static func _brain(actor: Entity) -> Dictionary[String, Variant]:
 		return { "status": "NOT_INSTALLED" }
 	var instance: BTInstance = runner.get_bt_instance()
 	var root_status: String = "NOT_INITIALIZED"
+	var running_branches: PackedStringArray = []
 	if instance != null:
+		var root: BTTask = instance.get_root_task()
+		for index: int in root.get_child_count():
+			var branch: BTTask = root.get_child(index)
+			if branch.get_status() == BTTask.RUNNING:
+				running_branches.append(branch.custom_name)
 		match instance.get_root_task().get_status():
 			BTTask.FRESH:
 				root_status = "FRESH"
@@ -138,6 +211,7 @@ static func _brain(actor: Entity) -> Dictionary[String, Variant]:
 		"node": String(runner.get_path()),
 		"active": runner.active,
 		"status": root_status,
+		"running_branches": running_branches,
 		"tree": runner.behavior_tree.resource_path if runner.behavior_tree != null else "",
 		"instance_id": instance.get_instance_id() if instance != null else 0,
 		"inspector": "Use the native LimboAI debugger for this Brain; no duplicate tree view.",
@@ -174,6 +248,9 @@ static func _perception(awareness: C_NpcAwareness) -> Dictionary[String, Variant
 		"fleeing": awareness.fleeing,
 		"flee_portal": String(awareness.flee_portal_id),
 		"light_distress": awareness.light_distress,
+		"self_light_exposure": awareness.self_light_exposure,
+		"player_light_exposure": awareness.player_light_exposure,
+		"darkness_combat_suppressed": awareness.darkness_combat_suppressed,
 		"hazard_distress": awareness.hazard_distress,
 		"rule_exposure": awareness.rule_exposure.duplicate(),
 		"warned_rules": awareness.warned_rules.duplicate(),

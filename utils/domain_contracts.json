@@ -7231,14 +7231,18 @@
       "public_methods": [],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
-        "content/dialogue/npc_street_dialogue_context.gd"
+        "content/dialogue/npc_street_dialogue_context.gd",
+        "content/debug/gameplay_debugger_data.gd"
       ],
       "method_rights": {
-        "rule_for": "query"
+        "rule_for": "query",
+        "rules_for": "query"
       },
       "public_instance_methods": [
-        "rule_for"
-      ]
+        "rule_for",
+        "rules_for"
+      ],
+      "purpose": "Dialogue consumers retain their existing operations; selected-Entity diagnostics only read immutable resolved traits and return detached values."
     },
     {
       "source_owner": "global",
@@ -19588,6 +19592,150 @@
         "content/domains/combat/services/projectile_service.gd"
       ],
       "purpose": "Ordinary melee/projectile boundaries observe immutable authored feeding eligibility and capture its generic Health bound; NPC owns preferences, combat owns damage and execution."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "C_NpcGazeFreeze",
+      "path": "content/domains/npc/components/c_npc_gaze_freeze.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "C_NpcVeil",
+      "path": "content/domains/npc/components/c_npc_veil.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcBloodQueries",
+      "path": "content/domains/npc/services/npc_blood_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "zone_for",
+        "calmed",
+        "inside"
+      ],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {
+        "zone_for": "query",
+        "calmed": "query",
+        "inside": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "combat",
+      "symbol": "C_ReceiverEffect",
+      "path": "content/domains/combat/components/c_receiver_effect.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "combat",
+      "symbol": "C_ReceiverTraits",
+      "path": "content/domains/combat/components/c_receiver_traits.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "combat",
+      "symbol": "DEF_ReceiverEffect",
+      "path": "content/domains/combat/definitions/def_receiver_effect.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "hazards",
+      "symbol": "E_BloodArea",
+      "path": "content/domains/hazards/entities/e_blood_area.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "hazards",
+      "symbol": "C_BloodArea",
+      "path": "content/domains/hazards/components/c_blood_area.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
     }
   ],
   "legacy_decomposition": []

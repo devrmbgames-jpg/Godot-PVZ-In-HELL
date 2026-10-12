@@ -14,17 +14,16 @@ Integrate physical items, modular NPC archetypes, LimboAI behavior and dialogue 
 Live roster integration started from full BASE `25e54edea6bf38d28d3d4548d79a38155ed29a89`.
 Native ResourceSaver now binds all ten canonical archetypes and two explicit visitor presets.
 Twelve stable NPC slots, eight residents/four visitors, slot-eight merchant, recipients and
-participation schedules are preserved. Legacy profiles remain authored fixtures for isolated
-regressions; actual live-roster acceptance and district smoke use the production definition.
+participation schedules preserved. Legacy fixtures isolate regressions; live acceptance and smoke
+use the production definition.
 Schema advances from 18 to 19 because saved profile paths/meaning change; no conversion or alias.
-Checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` is committed; review PASS, no findings.
-Full integration acceptance remains open.
+Roster checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` and repair
+`5a861f1a83cef7c53a962326eda42420de1238cd` have collected review PASS; integration remains open.
 
 ### Validation
 
 PASS: clean native visitor reference/UID finalization, `.artifacts/r26_roster_finalize-uid-20261013.log`.
-Earlier authoring attempts with real early-autoload compiler errors were FAIL despite exit zero;
-the entry helper now defers project-resource loading and uses typed native Resource reflection.
+Early-autoload authoring attempts FAIL despite exit0; deferred native Resource loading repaired them.
 PASS: production live-roster GUT `gut-20261012-225635220` 10 tests/798 assertions;
 parser225451860 four files and230043030 final helper/test; formatter/strict architecture/structure/index.
 Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
@@ -54,22 +53,24 @@ RV-001/P2: night smoke mutated world_seed after native population/merchant publi
 `25e54edea6bf38d28d3d4548d79a38155ed29a89`, violating the committed variation seed contract.
 FIXED `81f22ee6e09a3466237ac67564554052fc4a2634`, detached clock recipe before registration;
 fresh-process night write/restore and collected review PASS. No reroll/default/validator weakening.
-RV-002/P1 ACCEPTED: new legacy DEF_District fixture resides under tests/, rejected by the
+RV-002/P1 FIXED: new legacy DEF_District fixture resides under tests/, rejected by the
 existing closed GameplayResourcePaths definition roots during snapshot decode at target81f above.
 Production live-roster/native restore passes. Native move into NPC definitions root preserves
-exact bytes/UID and changes three test/helper literals; snapshot16/205 PASS. Fix SHA/review pending.
+exact bytes/UID and changes three test/helper literals; snapshot16/205 PASS. Fix/review PASS at repair SHA below.
 MCP move refused before mutation at discovery limit10000; editor clean/quit, native move log
 `.artifacts/r26_legacy_fixture_move-20261013.log` PASS. Whitelist/production district unchanged.
-RV-003/P2 ACCEPTED: lifecycle test retained Array[DEF_NpcProfile] after profiles became typed
-Array[DEF_NpcArchetype]; repair19/166 PASS. RV-004/P2 ACCEPTED: catalog/home-dialogue tests
+RV-003/P2 FIXED: lifecycle test retained Array[DEF_NpcProfile] after profiles became typed
+Array[DEF_NpcArchetype]; repair19/166 PASS. RV-004/P2 FIXED: catalog/home-dialogue tests
 assumed canonical visitors had resident participation; live schedule parity retains coverage,
 private-home scenarios now use isolated resident copies, shared authored data unchanged.
-RV-005/P2 ACCEPTED: fire queue asserted one effect after authored floor effect was added;
+RV-005/P2 FIXED: fire queue asserted one effect after authored floor effect was added;
 now both effects bind the emitter and retire on death, queue51/340 and inherited stage PASS.
-RV-006/P2 ACCEPTED: pride test's fixed child index points to the newer feeding subtree.
+RV-006/P2 FIXED: pride test's fixed child index points to the newer feeding subtree.
 Resource-identity hypothesis was disproven by fresh path assertions232240604; actual typed toy
 subtree lookup now checks relative safety/blood/feeding/combat order and real native execution.
-Fix SHAs/targeted immutable review pending coherent repair commit.
+RV-002..006 FIXED `5a861f1a83cef7c53a962326eda42420de1238cd`; targeted review PASS, no findings.
+BASE `81f22ee6e09a3466237ac67564554052fc4a2634` -> repair TARGET above; elapsed55s,
+architecture/style PASS, reviewer validation NOT_RUN.
 
 ### Owner QA / blockers
 
@@ -95,7 +96,6 @@ transient; no serialized NodePath/instance identity or second item model. Check 
 with `TruckCargoReceipt.raw_actor_id`; pending runtime disposal without a recipe rejects.
 
 ## Existing-system integration
-
 ### Parcel/customer flow
 
 Requested physical item definitions must be orderable/packageable where fulfillment makes sense.
@@ -121,14 +121,12 @@ NPCs should use receiver/archetype/trait data when deciding conflicts:
 - traits/memory may influence conflict but do not bypass the existing relationship/intent ownership.
 
 ## Presentation hooks
-
 Expose narrow events/state for Night Hunter music/shadows, Vampire invisibility/cloud escape,
 Angel signs and elemental aura VFX.
 
 Gameplay logic is independent of renderer/audio completion; use placeholders for missing final assets.
 
 ## Schema and new-game construction
-
 Current `AutosaveStore.SCHEMA_VERSION` is 19 in this migration. When serialized fields/paths/meaning change,
 advance the actual supported version, guards, golden fixture and save-visible inventory.
 Unsupported old/newer/invalid saves reject before live mutation, preserve original bytes
@@ -142,9 +140,11 @@ Extend compact read-only diagnostics with item capabilities/categories/effect so
 NPC archetype, selected traits/dialogue variant and species/receiver tags. Show important
 BT branch/status where LimboAI exposes it cheaply, and relevant blood/light/gaze conditions.
 
-Do not add per-frame verbose logging.
+Implemented: explicit-refresh detached archetype/variation/tags, item categories/effect source,
+native running branches and blood/light/gaze/veil state. GUT23353043921/202 PASS,
+parser2336473932files and formatter/architecture/structure PASS; immutable review pending next commit.
+No per-frame verbose logging or duplicated gameplay authority.
 ## Automated acceptance matrix
-
 ### Physical items
 - each requested item scene root/body is `RigidBody3D`;
 - grab/release/throw preserves physical authority;

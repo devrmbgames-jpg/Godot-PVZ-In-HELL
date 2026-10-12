@@ -34,6 +34,116 @@ func test_npc_snapshot_explains_current_obligation_without_advancing_native_tree
 	assert_false(_contains_object(state), "No live gameplay references escape the snapshot")
 
 
+func test_npc_archetype_conditions_and_variation_are_detached_live_owner_reads() -> void:
+	var person: NpcRecord = _district.people[0]
+	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.self_light_exposure = 0.2
+	awareness.player_light_exposure = 0.7
+	awareness.darkness_combat_suppressed = true
+	var gaze: C_NpcGazeFreeze = actor.get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
+	gaze.rule = DEF_NpcGazeFreeze.new()
+	gaze.observed = true
+	var receiver: C_ReceiverTraits = actor.get_component(C_ReceiverTraits) as C_ReceiverTraits
+	receiver.traits = C_ReceiverTraits.Trait.VAMPIRE | C_ReceiverTraits.Trait.UNCLEAN
+	var before_traits: Array[StringName] = person.variation.optional_trait_keys.duplicate()
+	var before_rules: int = person.rules_for().size()
+	var state: Dictionary[String, Variant] = GameplayDebuggerData.snapshot(actor)
+	assert_eq(state["archetype"]["definition"], person.profile.resource_path)
+	assert_eq(state["archetype"]["key"], String(person.profile.key))
+	assert_eq(state["archetype"]["name"], person.display_name)
+	assert_eq(state["archetype"]["variation_seed"], person.variation.seed)
+	assert_eq(state["archetype"]["dialogue"], person.variation.dialogue_path)
+	assert_eq(state["archetype"]["traits"].size(), before_rules)
+	assert_eq(state["receiver_tags"], PackedStringArray(["VAMPIRE", "UNCLEAN"]))
+	assert_eq(state["perception"]["self_light_exposure"], 0.2)
+	assert_eq(state["perception"]["player_light_exposure"], 0.7)
+	assert_true(state["perception"]["darkness_combat_suppressed"])
+	assert_true(state["gaze"]["constrained"] and state["gaze"]["observed"])
+	assert_false(state["blood"]["calmed"])
+	assert_eq(state["blood"]["zone"], "")
+	assert_true(state["limboai"].has("running_branches"))
+	state["archetype"]["optional_traits"].append(&"forged")
+	state["archetype"]["traits"].clear()
+	state["receiver_tags"].clear()
+	assert_eq(person.variation.optional_trait_keys, before_traits)
+	assert_eq(person.rules_for().size(), before_rules)
+	assert_eq(receiver.traits, C_ReceiverTraits.Trait.VAMPIRE | C_ReceiverTraits.Trait.UNCLEAN)
+	assert_false(_contains_object(state))
+
+
+func test_physical_artifact_diagnostics_preserve_quantity_effect_cadence_and_body() -> void:
+	var scene: PackedScene = load(
+		"res://content/domains/combat/entities/holy_artifact.tscn"
+	) as PackedScene
+	var actor: Entity = scene.instantiate() as Entity
+	EntityCompositionFixture.register(_world, actor)
+	assert_true(_world.entities.has(actor))
+	var body: RigidBody3D = actor as Node as RigidBody3D
+	body.freeze = true
+	var item: C_InventoryItem = actor.get_component(C_InventoryItem) as C_InventoryItem
+	var effect: C_ReceiverEffect = actor.get_component(C_ReceiverEffect) as C_ReceiverEffect
+	effect.tick_elapsed = 0.4
+	var pose: Transform3D = body.global_transform
+	var state: Dictionary[String, Variant] = GameplayDebuggerData.snapshot(actor)
+	assert_eq(state["item"]["definition"], item.definition.resource_path)
+	assert_eq(state["item"]["categories"], PackedStringArray(["ARTIFACT"]))
+	assert_true(state["components"].has("C_Grabbable"))
+	assert_eq(state["receiver_effect"]["definition"], effect.definition.resource_path)
+	assert_eq(state["receiver_effect"]["alignment"], "HOLY")
+	assert_eq(state["receiver_effect"]["amount_per_tick"], effect.definition.amount_per_tick)
+	state["item"]["quantity"] = 99
+	state["item"]["categories"].clear()
+	state["receiver_effect"]["amount_per_tick"] = 900.0
+	assert_eq(item.quantity, 1)
+	assert_eq(effect.tick_elapsed, 0.4)
+	assert_eq(item.definition.categories, DEF_InventoryItem.Category.ARTIFACT)
+	assert_eq(body.global_transform, pose)
+	assert_false(_contains_object(state))
+
+
+func test_blood_diagnostics_read_native_binding_and_durable_source_without_health_changes() -> void:
+	var person: NpcRecord = _district.people[0]
+	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	assert_true(DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.STREET))
+	actor.freeze = true
+	var receiver: C_ReceiverTraits = actor.get_component(C_ReceiverTraits) as C_ReceiverTraits
+	receiver.traits = C_ReceiverTraits.Trait.VAMPIRE
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_BloodAreaSetup.new())
+	var request: HazardSpawnRequest = HazardSpawnRequest.new()
+	request.request_id = "debugger/blood/1"
+	request.origin_id = "debugger/retired/origin"
+	request.instigator_id = "debugger/retired/instigator"
+	request.scene = load("res://content/domains/hazards/entities/blood_spill.tscn") as PackedScene
+	request.definition = DEF_BloodArea.new()
+	request.world_pose.origin = actor.global_position
+	assert_true(HazardSpawnService.submit(request))
+	_world.flush_command_buffers()
+	var zone: E_BloodArea = _world.query.with_all([C_BloodArea]).execute_one() as E_BloodArea
+	assert_not_null(zone)
+	if zone == null:
+		return
+	actor.add_relationship(Relationship.new(R_NpcBloodZone.new(), zone))
+	for frame: int in 10:
+		await get_tree().physics_frame
+		if zone.get_area().overlaps_body(actor):
+			break
+	assert_true(zone.get_area().overlaps_body(actor), "Native blood geometry contains the actor")
+	var health: C_Health = actor.get_component(C_Health) as C_Health
+	var hp: float = health.current
+	var state: Dictionary[String, Variant] = GameplayDebuggerData.snapshot(actor)
+	var source: Dictionary[String, Variant] = GameplayDebuggerData.snapshot(zone)
+	assert_eq(state["blood"]["zone"], zone.id)
+	assert_true(state["blood"]["calmed"] and state["blood"]["inside"])
+	assert_eq(source["hazard_source"]["origin_id"], request.origin_id)
+	assert_eq(source["hazard_source"]["instigator_id"], request.instigator_id)
+	assert_true(source["hazard_source"]["blood_zone"])
+	assert_eq(health.current, hp)
+	assert_same(NpcBloodQueries.zone_for(actor), zone)
+	assert_false(_contains_object(state) or _contains_object(source))
+
+
 func test_dormant_body_remains_selectable_without_enabling_physical_or_ai_work() -> void:
 	var person: NpcRecord = _district.people[0]
 	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
