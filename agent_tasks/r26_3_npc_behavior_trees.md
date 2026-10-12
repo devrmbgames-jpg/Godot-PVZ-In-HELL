@@ -33,49 +33,39 @@ Night dialogue light views and both personal variants passed independent review.
 Night presentation now projects authored cues onto native spatial audio and a shadow Decal;
 native Tweens blend committed hunting intensity without sensing or mutating gameplay.
 Dormancy, death, brain reset, profile replacement and actor disposal clear native work.
-Presentation checkpoint review/smoke remain pending; mandatory subtrees and live roster binding stay open.
+Presentation checkpoint review/smoke PASS; mandatory subtrees and live roster binding stay open.
 
 ### Validation
 
-Freeze PASS: parser222334705/20; GUT222305503 11/75, cache222111743 6/77, variation222116292 6/360,
-catalog222119532 4/944, attacks222155017 22/160, identity222203373 13/102, participation222209670 12/133,
-world222227075 35/443; district-20261012-082437905.log smoke.
-MCP camera/LOS/Jolt/animation/subtree, complete brain fields/cache and clean reload verified.
-Review `7d1a4b2dfefb840e30fba336389da367f1d5f8b2` -> `71c592dc86e292b0a2cbc8f772e7025adcb965c5` PASS (99 s).
-Speed PASS: parser225807185/7; gaze225851972 15/110, sprint225935638 9/55,
-hunger230013530 8/106, world230020810 35/443; district-20261012-090138493.log smoke.
-Review `69506165b6ff97d0495864c0512de2b1f4343a54` -> `5339a67e38824f88a80a5bc266a404927ef0bbbb` PASS (17 s).
-Shy PASS: parser232439318/9; gaze232244950 11/112, performance232334680 21/145,
-customer232400198 15/272, freeze232405471 15/110, catalog232520640 4/944;
-district-20261012-092523857.log smoke (eight mornings/all phases/save/restore).
-Review `5339a67e38824f88a80a5bc266a404927ef0bbbb` -> `5ff85b58ea107ec795d3dea4319be9dcf10306b1` PASS (66 s).
-Night PASS: parser235825476/12; hunt235740214 11/100, blood234948208 10/120,
-gaze234959632 11/112, performance235010025 21/145, catalog235034482 4/944.
-Native cadence, solid occlusion, switches, cancellation, thresholds, reset and codec ran;
-freeze235843927 15/110 and attacks235911380 22/160 PASS after combat gate changes.
-District-20261012-100018077.log final smoke PASS (eight mornings/all phases/save/restore).
-Review `b1b9c38f8844723850a5223d6f4c4271f5ef7ef7` ->
-`a963f56e83f29810238739751780e95041847078`: P1/R1 accepted (113 s).
-Repair PASS: parser001140479/4; hunt001101329 14/125, participation000955165 12/133,
-blood001111645 10/120 and gaze001149800 11/112; district-20261012-101245672.log smoke PASS.
+Freeze/speed/shy milestone reviews PASS, no remaining findings:
+`7d1a4b2dfefb840e30fba336389da367f1d5f8b2` -> `71c592dc86e292b0a2cbc8f772e7025adcb965c5` (99 s);
+`69506165b6ff97d0495864c0512de2b1f4343a54` -> `5339a67e38824f88a80a5bc266a404927ef0bbbb` (17 s);
+`5339a67e38824f88a80a5bc266a404927ef0bbbb` -> `5ff85b58ea107ec795d3dea4319be9dcf10306b1` (66 s).
+Native regression coverage includes freeze235843927 15/110, sprint225935638 9/55,
+gaze232244950 11/112, performance232334680 21/145, customer232400198 15/272 and catalog232520640 4/944.
+Night lifecycle repair PASS: parser001140479/4, hunt001101329 14/125, participation000955165 12/133,
+blood001111645 10/120, gaze001149800 11/112 and attacks235911380 22/160.
+Actual cadence, perception, occlusion, light switches, thresholds and synchronous retirement/reset ran.
 Targeted review `a963f56e83f29810238739751780e95041847078` ->
 `b798cfb4817c6d4e05f01a52a66695a9e82b3c71` PASS, no remaining findings (13 s).
-No runtime errors or GUT orphan Nodes in passing runs. Formatter/lint, strict architecture/dependencies,
-domain/project structure and persistence PASS. MCP authors native traits/catalog/trees with
-UIDs preserved; leaf diagnostics/reload and clean scene reload/no new editor errors PASS.
-Global reload43 NOT_PASS; CLI independently PASS. Reviewed ARCHITECTURE/STYLE PASS; runtime VALIDATION NOT_RUN.
-Full mandatory behaviors, live roster integration and owner gameplay/visual QA: NOT_RUN.
-Presentation PASS: parser003052461/6; native GUT005054038 20/186, catalog005050732 4/944;
+Night presentation PASS: parser003052461/6; native GUT005054038 20/186, catalog005050732 4/944;
 participation003105891 12/133. Snapshot003124389 8/148 tests/exit0 PASS, runner FAIL solely
 on shutdown retention (KNOWN_ENGINE_LIMITATION/DEFERRED); logs preserved.
+Final parser005239384/4 and dialogue005249769 37/831 PASS. Passive-reset coverage counts
+customer-role bindings specifically, preserving the duplicate-installation assertion with the view subscribed.
 MCP authored/saved native audio/Decal nodes and typed tuning. An old exported script layout
 serialized 21 invalid speed defaults; clean editor restart and fingerprinted native resave
 restored all 21 files exactly to Git, including UIDs. Full Git restore was rejected/not used.
-Companion resave parser004924005/3 and GUT004927301 3/17 PASS; MCP diagnostics checked[] PASS.
-Final parser005239384/4 and dialogue005249769 37/831 PASS. Existing passive-reset test now
-counts only customer-role bindings, preserving its duplicate-installation assertion with the view subscribed.
-Imported original twelve-second music and SVG shadow are placeholders awaiting owner QA.
-Presentation review: REVIEW_PENDING; current integration smoke: NOT_RUN.
+Companion final parser005536724/1 and GUT005538930 3/17 PASS; MCP diagnostics checked[]/reload PASS.
+Original twelve-second music and SVG shadow are placeholders awaiting owner QA.
+Review `66813497b64120f26626b1ca2694207dc7cad146` ->
+`e905f5ea0809dafbb2008d52f4b8283af43dbb2c` PASS, no findings (44 s).
+Final district-20261012-105605461.log smoke PASS: eight mornings, all phases, save/restore.
+No runtime errors or GUT orphan Nodes in passing runs. Formatter/lint, strict architecture/dependencies,
+domain/project structure, staged incremental architecture and persistence PASS.
+Global reload43 NOT_PASS: it can leave stale exported layouts; fresh CLI checks independently PASS.
+Reviewer ARCHITECTURE/STYLE PASS; runtime VALIDATION NOT_RUN.
+Full mandatory behaviors, live roster integration and owner gameplay/visual QA: NOT_RUN.
 
 ### Review triage
 

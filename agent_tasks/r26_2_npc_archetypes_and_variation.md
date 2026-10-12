@@ -25,7 +25,7 @@ Contents and the terminal/archive arrival projection retain the choice through r
 Native MCP adds all 15 physical catalog items while preserving all eight authored case paths.
 Category checkpoint review PASS. Next: implement R26.3/R26.4 and bind all ten requested archetypes.
 Night presentation has native authored spatial audio/Decal views and typed immutable tuning;
-its focused lifecycle checks pass, with checkpoint review/smoke pending in R26.3.
+its focused lifecycle checks, independent checkpoint review and district smoke pass in R26.3.
 Full presentation/combat/mandatory behavior acceptance remains open.
 
 ### Validation
