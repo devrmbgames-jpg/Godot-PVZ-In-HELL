@@ -158,3 +158,48 @@ func test_escape_endpoint_avoids_a_second_overlapping_hazard() -> void:
 	var endpoint: Vector3 = path[path.size() - 1]
 	assert_gt(endpoint.distance_to(Vector3(7, 0, 0)), 5.0 + actor.navigation_agent.radius)
 	assert_gt(endpoint.distance_to(Vector3(7, 0, 5)), 3.0 + actor.navigation_agent.radius)
+
+
+## A moving refuge can shift below the waypoint threshold after the native agent finishes.
+func test_finished_stale_endpoint_replans_to_the_current_movement_goal() -> void:
+	var actor: E_DistrictNpc = await _bounded_map()
+	var person: NpcRecord = _district.people[0]
+	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	var old_goal: Vector3 = Vector3(8.8, 0, 0)
+	route.points = NpcRouteSolver.plan(actor, person, actor.global_position, old_goal, _map)
+	assert_false(route.points.is_empty())
+	route.goal = old_goal
+	route.navigation_map = _map
+	route.map_iteration = NavigationServer3D.map_get_iteration_id(_map)
+	route.point_index = route.points.size() - 1
+	route.reachable = true
+	intent.movement_active = true
+	intent.navigation_enabled = true
+	intent.move_position = Vector3(9.08, 0, 0)
+	intent.arrival_distance = NpcDecisionService.ARRIVAL_DISTANCE
+	actor.place_at(Vector3(8.65, 0, 0))
+	actor.navigation_agent.avoidance_enabled = false
+	var owner: S_NpcIntent = S_NpcIntent.new()
+	owner.group = "stale_endpoint_fixture"
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	_world.remove_system(owner)
+	assert_false(intent.arrived)
+	assert_true(intent.navigation_blocked, "Native agent finished before the current goal")
+	assert_lt(old_goal.distance_to(intent.move_position), _district.definition.waypoint_distance)
+	NpcAiFixture.route(actor, person, 0.2)
+	assert_true(route.pending, "The finished stale route must rejoin the fair planning queue")
+	assert_true(_district.pending_routes.has(person.npc_id))
+	NpcAiFixture.plan_routes(_district)
+	assert_false(route.pending)
+	assert_true(route.reachable)
+	assert_almost_eq(route.goal, intent.move_position, Vector3.ONE * 0.001)
+	assert_almost_eq(
+		route.points[route.points.size() - 1], intent.move_position, Vector3.ONE * 0.001,
+	)
+	var stable: PackedVector3Array = route.points.duplicate()
+	NpcAiFixture.route(actor, person, 0.2)
+	assert_false(route.pending, "The same blocked observation does not requeue an unchanged goal")
+	assert_false(_district.pending_routes.has(person.npc_id))
+	assert_eq(route.points, stable)

@@ -6,11 +6,9 @@ Parent: [R26](r26_items_npc_expansion.md).
 ## Task state
 
 ### Goal
-
 Integrate physical items, modular NPC archetypes, LimboAI behavior and dialogue into the existing district/parcel/save systems without regressing current gameplay.
 
 ### Current
-
 Live roster integration started from full BASE `25e54edea6bf38d28d3d4548d79a38155ed29a89`.
 Native ResourceSaver now binds all ten canonical archetypes and two explicit visitor presets.
 Twelve stable NPC slots, eight residents/four visitors, slot-eight merchant, recipients and
@@ -21,7 +19,6 @@ Roster checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` and repair
 `5a861f1a83cef7c53a962326eda42420de1238cd` have collected review PASS; integration remains open.
 
 ### Validation
-
 PASS: clean native visitor reference/UID finalization, `.artifacts/r26_roster_finalize-uid-20261013.log`.
 Early-autoload authoring attempts FAIL despite exit0; deferred native Resource loading repaired them.
 PASS: production live-roster GUT `gut-20261012-225635220` 10 tests/798 assertions;
@@ -40,8 +37,9 @@ Fresh failed/omitted/live suites PASS: 293 tests/5690 assertions, logs date20261
 stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
-Readonly production mortality probe091100283 confirms floor-fire deaths npc4/day2, npc3/day3,
-npc1/day4 with near-goal/empty-route states; diagnostic7200frames, full week NOT_RUN. No tuning change.
+Readonly mortality probe091100283 confirms floor-fire deaths npc4/day2, npc3/day3, npc1/day4;
+7200frames, full week NOT_RUN. Native stale-endpoint reproduction/repair owns
+[route convergence](npc_route_goal_convergence.md); no tuning or acceptance change.
 
 ### Review / triage
 
@@ -142,7 +140,9 @@ BT branch/status where LimboAI exposes it cheaply, and relevant blood/light/gaze
 
 Implemented: explicit-refresh detached archetype/variation/tags, item categories/effect source,
 native running branches and blood/light/gaze/veil state. GUT23353043921/202 PASS,
-parser2336473932files and formatter/architecture/structure PASS; immutable review pending next commit.
+parser2336473932files and formatter/architecture/structure PASS. Review PASS, no findings:
+BASE `5a861f1a83cef7c53a962326eda42420de1238cd` ->
+TARGET `1b37fcb468e1c0c7d996d1d4df3d7940c933a807`; architecture/style PASS, runtime NOT_RUN.
 No per-frame verbose logging or duplicated gameplay authority.
 ## Automated acceptance matrix
 ### Physical items

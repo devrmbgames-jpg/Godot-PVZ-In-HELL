@@ -62,7 +62,10 @@ Native live-roster GUT10/798 and MCP resource inspection PASS at
 `81f22ee6e09a3466237ac67564554052fc4a2634`; collected review PASS against
 `25e54edea6bf38d28d3d4548d79a38155ed29a89`, no findings,108s.
 Initial full regression1252 FAIL; isolated fixture/test repairs293/5690 PASS, repair review PASS `5a861f1a83cef7c53a962326eda42420de1238cd`.
-Week acceptance and required owner QA remain unfinished; details/triage in R26.5.
+Read-only diagnostics `1b37fcb468e1c0c7d996d1d4df3d7940c933a807` GUT21/202 and
+collected immutable review PASS against `5a861f1a83cef7c53a962326eda42420de1238cd`.
+Native finished-stale-goal defect is isolated in [route convergence](npc_route_goal_convergence.md);
+week acceptance and required owner QA remain unfinished; details/triage in R26.5.
 Existing user worktree edits were preserved.
 
 ### Next

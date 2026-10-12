@@ -68,9 +68,16 @@ func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> v
 
 	route.elapsed += delta
 	var district: C_District = NpcPopulationQueries.current()
-	var new_goal: bool = route.goal.distance_to(intent.move_position) > district \
-			.definition \
-			.waypoint_distance
+	# The native agent can finish the retained endpoint before a slightly shifted goal is reached.
+	# Its blocked observation invalidates that stale path without repathing stable goals each tick.
+	var stale_endpoint: bool = (
+		intent.navigation_blocked and not intent.arrived
+		and not route.goal.is_equal_approx(intent.move_position)
+	)
+	var new_goal: bool = (
+		stale_endpoint
+		or route.goal.distance_to(intent.move_position) > district.definition.waypoint_distance
+	)
 	if new_goal:
 		route.progress_initialized = false
 		route.points.clear()
