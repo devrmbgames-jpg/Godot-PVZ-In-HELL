@@ -13,16 +13,19 @@ The owner will later copy these resources and add more variants. Therefore paths
 
 ### Current
 
-Native lost/shy/night/angel/hag/brute catalogs now expose **12/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
+Native lost/shy/night/angel/hag/brute/fire catalogs now expose **14/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
 Shy variants read gaze warnings; night variants read authored perceived darkness; angel variants use native written boards. Hag variants differ in deception, reagents/artifacts and riddles (name versus hole), read personal grudges and keep street answers separate from idempotent service outcomes.
-Brute variants differ in direct threats and bragging, discuss weapons/private toy purchases and read recognized actor-specific strength. Dialogue never grants respect; street submission uses the existing social owner. Checkpoint `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed independent review. Remaining four archetypes need their mandatory behaviors/interactions and eight variants before live roster binding.
+Brute variants differ in direct threats and bragging, discuss weapons/private toy purchases and read recognized actor-specific strength. Dialogue never grants respect; street submission uses the existing social owner. Checkpoint `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed independent review. Fire variants differ in restrained care versus impatient enthusiasm; both discuss real fire reagents, floor/body heat and possible opening explosions without deciding gameplay outcomes. Remaining chain/creepy/vampire need mandatory interactions and six variants before live roster binding.
 
 ### Next
 
-Implement Fire Elemental's thin 10 m floor Hazard and immediate opening/explosion contract, then its two variants. Finish chain/creepy/vampire interactions. Soul/blood transactions and full owner acceptance remain open.
+Implement Chain Devil's authoritative soul transactions and two variants, then creepy/vampire interactions and their variants. Full owner acceptance remains open.
 
 ### Validation
 
+Fire PASS: parser045141074/1; native GUT045030048 **36/943** including inherited31, all shared cues, distinct topics/tags, stable choice/codec, both roles read-only with undecided and committed explosions, registration guard, one-shot denial, four private deliveries and actual headless panels/focus release.
+MCP authored/imported both Fire variants, saved the catalog pool with UIDs/tuning retained and refreshed cache; final test checked[] PASS. Formatter/lint and strict architecture/dependencies/domain/project/persistence/staged/diff PASS. No extra full smoke for authored-dialogue batch; native role/panel tests cover its scope.
+Fire review BASE `3a0e634409856c6facedc7431745614e9178f453` -> TARGET `044de4285d22ff67c53635fbff5596d3dab7cbf6` PASS, no findings (13 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
 Brute PASS: parser034933645/3; native GUT034921599 **37/913** including inherited31, all role cues, saved selection, read-only respect in both roles, other-actor exclusion, real submission/codec, registration guard, one-shot denial, four private deliveries and actual headless panels/focus release.
 MCP authored/imported both variants, saved exactly one catalog-pool line with UID/tuning retained and refreshed cache; fresh test diagnostics checked[] PASS. Formatter incremental/strict, architecture/dependencies/domain/project/persistence/staged/diff PASS. No extra full smoke for this authored-dialogue batch; native role/panel tests cover its scope.
 Brute review BASE `04cc048ebcd920f434ca7109fe24df9d36a361a3` -> TARGET `50c2a2ef35cb78d036b96b2087a6bbe920279c21` PASS, no findings (41 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.

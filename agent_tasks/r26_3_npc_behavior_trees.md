@@ -19,15 +19,15 @@ Extend visible tree selection; a leaf dispatching an entire decision tree remain
 Reviewed native freeze/speed/shy/night behavior retains body, animation, combat, cadence and motion authorities. Shy uses actual camera/LOS and safe idle repositioning; Trait System owns gaze escalation. Night uses due-step authored light, reversible combat suppression and native audio/Decal cleanup on dormant/dead/reset/replacement/disposal.
 Hag RANGED preference selects visible distance/shot branches in both roots below immediate safety/light/blood. Bounded safe navigation previews preserve physical transform authority; combat owns shots/cooldowns, unreachable retreat permits defense and lost targets use search.
 Hag personal grudges derive from durable offender/victim IDs; repeats retain committed reactions and both dialogue roles read the same query. Bodyless promises, days/reset/save retain resentment; no grudge clock. Both hag riddle/deception variants now passed checks/review.
-Ranged checkpoint `4140fb04299a2b12597fdab832c913a02a08b172`, grudge `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`, repair `510a074b4161f65a67d93fb46d4a5f61a2b62b56`, dialogue `6293c6bdb34334832f0c02e720df11c75cc20dd2`: reviewed PASS. Other mandatory subtrees/live binding remain open.
 Brute typed pride uses actual player-camera/solid visibility and NPC recognition of held or opened TOY bodies. Customers samples exposure before cadence; explicit native branches commit one durable offense, while recognized applied strength records actor-specific respect and ends matching combat/panic.
 Native toy/catalog and private booth opening retain physical, inspection, order, memory and save authorities. Brain recipes and both authored initial-field policies restore immutable pride and clear transient exposure. Both roots preserve safety/light/blood before toy/combat/service.
 Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation checks and immutable-SHA review PASS. Both strength/private-order dialogue variants `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed native checks/review; details in R26.4.
 
-Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; generic Hazard owners retain follow, overlap damage and teardown. Route and sleep risk clip floor height. Checkpoints `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` and RV-003 repair `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` passed checks/targeted review. Immediate physical opening and one durable ignition roll now passed checks/review at `952c851545d2a4b28954a6a620cd0dfbbe8582e5`; both fire dialogues remain open. Existing service BT and Hazard owners execute opening/inspection/blast, with eligible physical item and actual opener facts.
+Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; generic Hazard owners retain follow, overlap damage and teardown. Route and sleep risk clip floor height. Checkpoints `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` and RV-003 repair `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` passed checks/targeted review. Immediate physical opening and one durable ignition roll now passed checks/review at `952c851545d2a4b28954a6a620cd0dfbbe8582e5`; both Fire dialogue variants `044de4285d22ff67c53635fbff5596d3dab7cbf6` passed native tests and review. Existing service BT and Hazard owners execute opening/inspection/blast, with eligible physical item and actual opener facts.
 
 ### Validation
 
+Fire dialogue PASS: GUT045030048 36/943, parser045141074/1, fresh MCP checked[]; immutable review BASE `3a0e634409856c6facedc7431745614e9178f453` -> TARGET `044de4285d22ff67c53635fbff5596d3dab7cbf6` PASS, no findings (13 s). Details in R26.4.
 Fire opening PASS: GUT043754142 10/83, including actual authored service BT, handoff without booth, real contents/foreign opener, both outcomes/codec/replay, multiple reagents, common damage/immunity and synchronous receiver retirement. Parser043848494/10, final fresh MCP test diagnostics checked[] PASS.
 Regressions PASS: inspection043644896 12/163, Brute043657261 17/255, fire presence043804524 11/77; Hazards-20261012-143855734.log smoke PASS. Formatter/lint, strict architecture/dependencies, project/domain/persistence/staged/diff PASS. MCP authored/saved the FIRE blast/trait with preserved UIDs and refreshed caches.
 Opening review BASE `2c17ee81d8392279a67ed40d6c06e33593995733` -> TARGET `952c851545d2a4b28954a6a620cd0dfbbe8582e5` PASS, no findings (127 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
@@ -40,7 +40,7 @@ Full mandatory behavior/live integration and owner rendered movement/dialogue/as
 
 ### Next
 
-Finish both Fire Elemental dialogue variants; implement chain/creepy/vampire mandatory capabilities and outstanding cross-archetype acceptance before live roster binding.
+Implement chain/creepy/vampire mandatory capabilities, their six dialogue variants and outstanding cross-archetype acceptance before live roster binding.
 
 ### Review triage
 
