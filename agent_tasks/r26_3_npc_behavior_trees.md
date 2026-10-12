@@ -24,17 +24,11 @@ Brute typed pride uses actual player-camera/solid visibility and NPC recognition
 Native toy/catalog and private booth opening retain physical, inspection, order, memory and save authorities. Brain recipes and both authored initial-field policies restore immutable pride and clear transient exposure. Both roots preserve safety/light/blood before toy/combat/service.
 Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation checks and immutable-SHA review PASS. Both strength/private-order dialogue variants `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed native checks/review; details in R26.4.
 
+Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; generic Hazard owners retain follow, overlap damage and teardown. Route and sleep risk clip floor height. Checkpoints `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` and RV-003 repair `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` passed checks/targeted review. Immediate parcel opening/explosion and both fire dialogues remain open.
+
 ### Validation
 
-Earlier native freeze/speed/shy/night checkpoints and RV-001 repair passed checks/review; unique immutable-SHA evidence remains in Git versions of this owner.
-Ranged review `4d4866eea7cbff4b22a1845ffc8f3e2c7174de98` -> `4140fb04299a2b12597fdab832c913a02a08b172` PASS, no findings (93 s).
-Ranged PASS: parser013605055/12; GUT013520033 9/85, attacks013625559 22/160, blood013633935 10/122, gaze013642158 11/112; authoring013726549 6/38. District-20261012-113652858.log smoke PASS: eight mornings, all phases, save/restore.
-Grudge PASS: parser015722064/9 + final015949452/2; GUT020000814 16/153, personal-delivery015733448 31/308, rules015813053 9/63, catalog015831436 4/944. Actual actor-specific reactions, stable save/day/body identity, replay and no-clock due steps ran.
-Grudge review `955e8ba636d2c1a4200be6b5ca14c31e0879ea9e` -> `eb3b40d44d9da9e36c1b7d69bc9b36e148b74b42`: R1 accepted as RV-002 (64 s); targeted repair -> `510a074b4161f65a67d93fb46d4a5f61a2b62b56` PASS (8 s).
-Repair PASS: parser021131639/2, preflight021037606 7/56, style/static/staged checks. MCP fresh helper diagnostics checked[] PASS; conflict invocation transport UNKNOWN, target hash unchanged/editor clean, invocation not counted PASS. Subsequent native hag pool save passed with one-line disk diff.
-Hag dialogue GUT021925998 38/966 and parser022034711/1 PASS; review `9c70cd2c684994a907e35cd74fd01b9bc30e20e7` -> `6293c6bdb34334832f0c02e720df11c75cc20dd2` PASS (119 s); details in R26.4.
-Native MCP authoring preserved UIDs/tuning and refreshed caches. Formatter/lint, strict architecture/dependencies, domain/project structure, persistence baseline and staged checks PASS. No extra full smoke for explicit memory/query or authored-dialogue batches; focused actual native lifetimes/roles cover their scope.
-Snapshot003124389 tests/exit0 PASS; shutdown retention KNOWN_ENGINE_LIMITATION/DEFERRED. Global reload43 NOT_PASS: verify actual layouts or restart before native saves. Passing runs have no runtime errors/GUT orphan Nodes; reviewer runtime NOT_RUN.
+Earlier freeze/speed/shy/night/ranged/grudge/hag checks and immutable-SHA reviews passed. Unique parser/GUT/smoke/MCP evidence remains in reviewed Git checkpoints and R26.4; RV-001/RV-002 fixes remain recorded below.
 Full mandatory behaviors/live integration and owner rendered movement/dialogue/assets/balance QA remain open.
 Brute PASS: parser032455776/23 + final032943100/2; GUT032844552 17/255 (real handoff/opening, two hands, occlusion, respect, codec/reset and synchronous retirement/dormant/reset).
 Regression PASS: authoring032618984 3/41, inspection032624264 12/163, grudge/ranged032636637 16/153, gaze032650035 15/110, blood032701361 10/122, shy032714702 11/112, catalog032725024 4/944, orders032929305 7/201. District-20261012-132636729.log PASS: eight mornings, phases and save/restore.
@@ -42,9 +36,12 @@ Brute native MCP authored/saved toy, catalog, rule and trees; preserved UIDs and
 Rendered Brute gameplay, readability/tone and balance remain owner QA NOT_RUN; reviewer runtime NOT_RUN.
 Brute review BASE `8d40a7b0d90e4332778dc896b7304f8a7af7aeaf` -> TARGET `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5` PASS, no findings (122 s); ARCHITECTURE/STYLE PASS, runtime NOT_RUN.
 
+Fire presence PASS: GUT040833392 7/57; repair041956067 11/77 (real queued trait step); cadence042024159 49/291; rules040527841 9/63, perf040545321 21/145, ranged040611805 9/85. Hazards-20261012-140540551.log smoke PASS. Parser040840736/3 and repair041945640/2, formatter/static/staged/diff PASS. MCP authored/saved profiles and inherited floor scene; native fresh test diagnostics checked[] PASS, global hot reload43 NOT_PASS.
+Fire review `6d58619e2cce15470871bd66c65159c1362bcae8` -> `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` found RV-003 (139 s); repair -> `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` targeted review PASS (16 s), ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+
 ### Next
 
-Implement Fire Elemental's thin 10 m floor Hazard and immediate opening/explosion contract, then the remaining mandatory capabilities before live roster binding.
+Implement Fire Elemental immediate opening/explosion through physical inspection/opening and generic Hazard owners, then its dialogue variants and remaining mandatory capabilities before live roster binding.
 
 ### Review triage
 
@@ -65,6 +62,11 @@ unsaved cached gaze-kind edit bypasses the disk graph's mandatory-trait incompat
 Deep disk-backed loading isolates added traits and existing compatibility dependencies;
 regressions preserve cached unsaved edits and both resource file fingerprints.
 Targeted immutable-SHA review PASS; ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
+
+RV-003 P1 ? `S_NpcTraits._advance_traits` continued after synchronous aura publication.
+FIXED(`2fbd959480f0c2ff5f028d7ba012651634ea9fe8`, fire041956067 11/77).
+Source `0daa93c2898a19b28f5c827a4e81b5436b67e9c8`; baseline041905500 reproduced freed-body access and writes after dormancy/reset through actual System query/CommandBuffer.
+Repair rejects changed world, receiver availability/enabled/death, Component identities and participation generation before later trait rules/blood reads; ordinary live continuation remains covered. Targeted immutable-SHA review PASS.
 
 ### Owner QA / blockers
 
