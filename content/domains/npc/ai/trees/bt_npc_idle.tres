@@ -1,6 +1,7 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://bmc5t70coej8t"]
 
 [ext_resource type="BehaviorTree" uid="uid://brmmh3rdl244c" path="res://content/domains/npc/ai/trees/bt_npc_gaze_aversion.tres" id="11_tq6rh"]
+[ext_resource type="BehaviorTree" uid="uid://dupwg0wxlgyia" path="res://content/domains/npc/ai/trees/bt_npc_light_comfort.tres" id="12_24vli"]
 [ext_resource type="Script" uid="uid://bt3g5ndvuexik" path="res://content/domains/npc/ai/tasks/bt_npc_merchant.gd" id="s1"]
 [ext_resource type="Script" uid="uid://bix1fbh8p2fhq" path="res://content/domains/npc/ai/tasks/bt_npc_eat_food.gd" id="s2"]
 [ext_resource type="Script" uid="uid://bwqd23vmxqyc6" path="res://content/domains/npc/ai/tasks/bt_npc_has_loot.gd" id="s3"]
@@ -140,6 +141,13 @@ subtree = ExtResource("11_tq6rh")
 blackboard_plan = SubResource("BlackboardPlan_24vli")
 custom_name = "Свободное наблюдение вне взгляда игрока"
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_kkuwg"]
+
+[sub_resource type="BTSubtree" id="BTSubtree_toqlj"]
+subtree = ExtResource("12_24vli")
+blackboard_plan = SubResource("BlackboardPlan_kkuwg")
+custom_name = "Местный комфорт освещения"
+
 [sub_resource type="BTCondition" id="BTCondition_29"]
 custom_name = "Торговец"
 script = ExtResource("s1")
@@ -178,7 +186,7 @@ script = ExtResource("s15")
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_38"]
 custom_name = "Свободное занятие"
-children = [SubResource("BTDynamicSequence_4"), SubResource("BTDynamicSequence_13"), SubResource("BTDynamicSequence_18"), SubResource("BTDynamicSequence_23"), SubResource("BTDynamicSequence_28"), SubResource("BTSubtree_kkuwg"), SubResource("BTDynamicSequence_33"), SubResource("BTDynamicSequence_36"), SubResource("BTAction_37")]
+children = [SubResource("BTDynamicSequence_4"), SubResource("BTDynamicSequence_13"), SubResource("BTDynamicSequence_18"), SubResource("BTDynamicSequence_23"), SubResource("BTDynamicSequence_28"), SubResource("BTSubtree_kkuwg"), SubResource("BTSubtree_toqlj"), SubResource("BTDynamicSequence_33"), SubResource("BTDynamicSequence_36"), SubResource("BTAction_37")]
 
 [resource]
 description = "Еда, добыча, ограниченный конфликт, слух, прогулка и наблюдение."

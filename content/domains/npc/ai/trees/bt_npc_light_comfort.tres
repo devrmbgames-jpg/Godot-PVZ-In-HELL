@@ -1,0 +1,25 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://dupwg0wxlgyia"]
+
+[ext_resource type="Script" uid="uid://cjf73modnpq5v" path="res://content/domains/npc/ai/tasks/bt_npc_light_uncomfortable.gd" id="1_tomw4"]
+[ext_resource type="Script" uid="uid://csdsmddgqxm5l" path="res://content/domains/npc/ai/tasks/bt_npc_adjust_light_position.gd" id="2_tvq2o"]
+
+[sub_resource type="BTCondition" id="BTCondition_tomw4"]
+custom_name = "Свет некомфортен вне обязательств"
+script = ExtResource("1_tomw4")
+
+[sub_resource type="BTAction" id="BTAction_tvq2o"]
+custom_name = "Перейти к близкой комфортной точке"
+script = ExtResource("2_tvq2o")
+
+[sub_resource type="BTCooldown" id="BTCooldown_ruo7f"]
+duration = 3.0
+trigger_on_failure = true
+custom_name = "Повторять недоступный переход не чаще раза в 3 секунды"
+children = [SubResource("BTAction_tvq2o")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_bw12f"]
+custom_name = "Местная смена позиции от света"
+children = [SubResource("BTCondition_tomw4"), SubResource("BTCooldown_ruo7f")]
+
+[resource]
+root_task = SubResource("BTDynamicSequence_bw12f")

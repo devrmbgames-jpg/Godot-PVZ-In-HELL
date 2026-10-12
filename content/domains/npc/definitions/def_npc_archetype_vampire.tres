@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_tyriv"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_0nxho"]
 [ext_resource type="Resource" uid="uid://by2rxwys8vivp" path="res://content/domains/npc/definitions/def_npc_feeding.tres" id="8_ucgtc"]
+[ext_resource type="Resource" uid="uid://c4lwn1xshrnjk" path="res://content/domains/npc/definitions/def_npc_light_comfort.tres" id="9_7fx3v"]
 
 [sub_resource type="Resource" id="Resource_rbum6"]
 script = ExtResource("3_ucgtc")
@@ -34,7 +35,7 @@ presentation_cues = PackedStringArray("npc/vampire/cloud")
 display_name = "Вампир"
 personality = 1
 schedule = SubResource("Resource_gwyun")
-rules = Array[ExtResource("6_0itk0")]([ExtResource("7_a5nvi"), ExtResource("8_ucgtc")])
+rules = Array[ExtResource("6_0itk0")]([ExtResource("7_a5nvi"), ExtResource("8_ucgtc"), ExtResource("9_7fx3v")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.34117648, 0.22352941, 0.2901961, 1)

@@ -91,6 +91,33 @@ func test_native_graph_refuses_unknown_properties_foreign_scripts_and_budget_ove
 	)
 
 
+func test_native_cooldown_requires_bounded_duration_one_child_and_typed_properties() -> void:
+	var graph: Dictionary = {
+		"type": "BTCooldown",
+		"duration": 3.0,
+		"trigger_on_failure": true,
+		"children": [{ "type": "BTAction" }],
+	}
+	var cooldown: BTCooldown = AuthoringTool.build_task(graph) as BTCooldown
+	assert_not_null(cooldown)
+	assert_eq(cooldown.duration, 3.0)
+	assert_true(cooldown.trigger_on_failure)
+	assert_eq(cooldown.get_child_count(), 1)
+	for duration: Variant in [null, "3", -1.0, 0.0, 0.09, 61.0, NAN, INF]:
+		graph.duration = duration
+		assert_null(AuthoringTool.build_task(graph))
+	graph.duration = 3.0
+	graph.trigger_on_failure = 1
+	assert_null(AuthoringTool.build_task(graph))
+	graph.trigger_on_failure = true
+	graph.children = []
+	assert_null(AuthoringTool.build_task(graph))
+	graph.children = [{ "type": "BTAction" }, { "type": "BTAction" }]
+	assert_null(AuthoringTool.build_task(graph))
+	assert_null(AuthoringTool.build_task({ "type": "BTSequence", "duration": 3.0 }))
+	assert_null(AuthoringTool.build_task({ "type": "BTAction", "trigger_on_failure": true }))
+
+
 func test_only_direct_npc_tree_files_are_authorable() -> void:
 	assert_true(
 		AuthoringTool.valid_tree_path(

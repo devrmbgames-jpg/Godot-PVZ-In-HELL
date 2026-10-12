@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_NpcLightComfort" format=3 uid="uid://c4lwn1xshrnjk"]
+
+[ext_resource type="Script" uid="uid://b5ikgpdr8ey28" path="res://content/domains/npc/definitions/def_npc_light_comfort.gd" id="1_87yiu"]
+
+[resource]
+script = ExtResource("1_87yiu")
+kind = 7
+incompatible = Array[int]([1])
+key = &"trait/light_comfort"

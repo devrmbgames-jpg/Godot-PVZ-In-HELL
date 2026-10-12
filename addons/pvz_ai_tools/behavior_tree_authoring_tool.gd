@@ -12,6 +12,7 @@ const TASK_TYPES: Array[String] = [
 	"BTSequence",
 	"BTAction",
 	"BTCondition",
+	"BTCooldown",
 ]
 
 
@@ -136,12 +137,33 @@ static func build_task(graph: Dictionary, depth: int = 0, budget: Array[int] = [
 		return null
 	budget[0] -= 1
 	for key: Variant in graph:
-		if key not in ["type", "name", "script", "intent_owner", "children"]:
+		if key not in [
+			"type",
+			"name",
+			"script",
+			"intent_owner",
+			"children",
+			"duration",
+			"trigger_on_failure",
+		]:
 			return null
 	var task_type: String = String(graph.get("type", ""))
 	if task_type not in TASK_TYPES:
 		return null
+	if task_type != "BTCooldown" and (graph.has("duration") or graph.has("trigger_on_failure")):
+		return null
 	var task: BTTask = ClassDB.instantiate(task_type) as BTTask
+	if task_type == "BTCooldown":
+		var seconds: Variant = graph.get("duration", null)
+		var trigger: Variant = graph.get("trigger_on_failure", false)
+		if (
+			(not seconds is int and not seconds is float) or not trigger is bool
+			or not is_finite(float(seconds)) or float(seconds) < 0.1 or float(seconds) > 60.0
+		):
+			return null
+		var cooldown: BTCooldown = task as BTCooldown
+		cooldown.duration = float(seconds)
+		cooldown.trigger_on_failure = trigger
 	var script_path: String = String(graph.get("script", ""))
 	if not script_path.is_empty():
 		if (
@@ -174,6 +196,7 @@ static func build_task(graph: Dictionary, depth: int = 0, budget: Array[int] = [
 	if (
 		not children is Array
 		or (task_type in ["BTAction", "BTCondition"] and not children.is_empty())
+		or (task_type == "BTCooldown" and children.size() != 1)
 	):
 		return null
 	for child_graph: Variant in children:
