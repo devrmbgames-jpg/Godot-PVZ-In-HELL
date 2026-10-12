@@ -30,17 +30,23 @@ terminal-reader reach and durable actor-specific notice at
 Recovery review BASE `6f96be1e39eb94b4a4c307c8bce2d3b9a30a14f3` -> that TARGET accepted only
 RV-005 in R26.3. Repair `23fa3d44d9024d4becb59477921be1d288d7bee9` passed GUT14/111 and
 independent targeted review; suspension now breaks continuous exposure, preserving memory.
-R26.4 now has **18/20** native variants (lost/shy/night/angel/hag/brute/fire/chain/creepy).
+R26.4 now has **20/20** native variants (lost/shy/night/angel/hag/brute/fire/chain/creepy/vampire).
 Creepy `ad79c0eab6a00772dd578a3a7d25053166db70ef` passed native GUT36/1009, parser3/3
 and static checks; independent review **PASS**, no findings, on exact
 `23fa3d44d9024d4becb59477921be1d288d7bee9..ad79c0eab6a00772dd578a3a7d25053166db70ef`.
-Mandatory Vampire capabilities/two dialogues, all-ten live roster binding and R26.5 acceptance
+Blood consent core `a407762ef018ab70715119cd432c63071d62d928` now has native typed
+5..40% current-HP transactions, personal durable keys/receipts, refusals/cooldowns and
+schema18 passive restore. GUT87/1069 and parser14files passed; independent immutable review
+BASE `ac0ee0dd55b99bc9324b31a6a5c8a757eb065960` -> that TARGET **PASS (125s, no material findings)**.
+Vampire UI/dialogues `14cadff37461590c14454aabfdbca1fb4af11e94` passed native GUT78/2014,
+parser2/2 and scoped gates; independent review **PASS** (50s, no material findings) on exact preceding code SHA.
+Vampire combat/cloud/light capabilities, all-ten live binding and R26.5 acceptance
 remain unfinished. Required owner QA stays open. Existing user worktree edits were preserved.
 
 ### Next
 
-Implement Vampire authoritative blood confirmation,
-health-floor combat/cloud/light behavior and its two variants; bind all ten archetypes only
+Implement typed Vampire attacks/wounded feed BT/cloud/light using reviewed Health-bound
+`792481e4630d1ca70156654d3a22a1a91fd94cef` (44/504, parser4files, review23s PASS); bind all ten archetypes only
 after their mandatory capabilities and outstanding cross-archetype acceptance are ready.
 
 ### Validation
@@ -82,7 +88,7 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
   scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
 - Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
   native physics delta retains its existing authority.
-- Current save schema is `AutosaveStore.SCHEMA_VERSION = 17`; version incompatible
+- Current save schema is `AutosaveStore.SCHEMA_VERSION = 18`; version incompatible
   serialized changes from the actual implementation baseline. No old-save conversion,
   defaults that accept an unsupported format, or automatic rejected-slot overwrite.
 

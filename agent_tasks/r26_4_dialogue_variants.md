@@ -13,32 +13,33 @@ The owner will later copy these resources and add more variants. Therefore paths
 
 ### Current
 
-Native lost/shy/night/angel/hag/brute/fire/chain/creepy catalogs now expose **18/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
-Shy variants read gaze warnings; night variants read authored perceived darkness; angel variants use native written boards. Hag variants differ in deception, reagents/artifacts and riddles (name versus hole), read personal grudges and keep street answers separate from idempotent service outcomes.
-Brute variants differ in direct threats and bragging, discuss weapons/private toy purchases and read recognized actor-specific strength. Dialogue never grants respect; street submission uses the existing social owner. Checkpoint `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed independent review. Fire variants differ in restrained care versus impatient enthusiasm; both discuss real fire reagents, floor/body heat and possible opening explosions without deciding gameplay outcomes. Chain variants now implement contractual/legalistic and mocking/tempting confirmations through a stable-key adapter; total accepted count, explicit refusal and UI closure follow the reviewed soul ledger. Creepy variants read actor-specific durable notice through a public read-only NPC query; distinct quiet/invasive questions preserve both service roles. Remaining Vampire needs mandatory interactions and two variants before live roster binding.
+All ten native archetype catalogs expose **20/20** variants. Committed personal selection survives
+codec/save; visit overrides retain priority. Every variant preserves role cues, scan guards,
+denial/private delivery authority, response tags and imported-cycle cleanup. Historical archetype
+flavor/interaction evidence remains in Git; required individual intent is specified below.
+Vampire variants differ in restraint/direct hunger. Shared confirmation captures current-HP terms,
+explicit acceptance/refusal, durable closure/replay and actual street/service panel responses.
+Full mandatory behavior, live roster integration and owner acceptance remain open.
 
 ### Next
 
-Implement Vampire mandatory interactions and two variants, then outstanding cross-archetype acceptance before live roster binding. Full owner acceptance remains open.
+Vampire review collected on BASE `a407762ef018ab70715119cd432c63071d62d928` ->
+TARGET `14cadff37461590c14454aabfdbca1fb4af11e94` **PASS** (50s, no material findings); same terminal reviewer
+reused, no second reviewer. Next: full20-variant/live integration and owner acceptance.
 
 ### Validation
 
-Creepy checkpoint `ad79c0eab6a00772dd578a3a7d25053166db70ef`: native GUT183720319 **36/1009**
-(including31 inherited), parser1837089193/3 PASS. Actor-specific notice in both roles is read-only;
-repeated unknown/known dialogue changes no memory, exposure, transform, combat or visit state.
-All imported cues/tags, scan/denial/private delivery, persistent selection and real panel/focus PASS.
-MCP imported both variants and saved native catalog pool preserving UID/tuning; fresh test checked[].
-Formatter/lint, strict domain dependencies/project structure/persistence/architecture/staged/diff PASS.
-Independent review BASE `23fa3d44d9024d4becb59477921be1d288d7bee9` -> that TARGET
-**PASS**, no material findings (60s; same terminal reviewer reused).
-ARCHITECTURE/STYLE PASS; reviewer runtime NOT_RUN.
+Vampire checkpoint `14cadff37461590c14454aabfdbca1fb4af11e94`: native GUT190739486
+**39/1069**, Chain common-context regression190855067 **39/945**, parser1907427702/2 PASS.
+Both roles and variants preserve percentage from offer, actual acceptance-time HP, limits/Strength,
+nonlethal cost, terminal replay/refusal and pending codec restore. Real panels confirm/refuse and
+release modal focus; role cues/tags, scan/denial/private delivery and selection PASS. Native MCP
+import/ResourceSaver retains profile UID/tuning; final new test diagnostics checked[]. Formatter/lint,
+strict architecture/dependencies, project/persistence/staged/diff PASS. Full20 live QA stays open.
 
-
-Earlier lost/shy/night/angel/hag/brute/fire/chain variants passed native role/cue/tag,
-scan/denial/private-delivery/codec/panel checks and immutable reviews. Unique evidence stays
-in their committed task snapshots; latest Chain `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b`
-GUT05445856039/945, parser0546542452/2, review59s PASS, no findings. Soul core and
-repair `4f956de8db9a62aa8bd13df53c150025798aa1d0` passed; details belong to R26.3.
+Earlier variant checks/reviews remain in their task snapshots. Latest Creepy
+`ad79c0eab6a00772dd578a3a7d25053166db70ef` GUT36/1009, parser3files, immutable review
+PASS on BASE `23fa3d44d9024d4becb59477921be1d288d7bee9`, no material findings.
 Global hot reload43 remains NOT_PASS; actual layouts/restart and fresh CLI checks independently verify saves. Full 20-variant acceptance and rendered/tone/modal owner QA NOT_RUN.
 
 ### Review triage

@@ -16,48 +16,45 @@ Extend visible tree selection; a leaf dispatching an entire decision tree remain
 
 ### Current
 
-Latest Creepy checkpoint `3e88b56983a775cc78c225353251ff6a98d33b87` implements hidden native routes,
-actual camera/LOS stop, terminal-reader reach and durable actor-specific notice (schema17).
-Recovery review BASE `6f96be1e39eb94b4a4c307c8bce2d3b9a30a14f3` -> that TARGET collected;
-only R1 accepted as RV-005. Repair `23fa3d44d9024d4becb59477921be1d288d7bee9`
-passed independent targeted re-review (27s); reviewer was reused after its terminal result.
+Common queued Health bound `792481e4630d1ca70156654d3a22a1a91fd94cef` captures a DAMAGE-only
+fraction, applies it after resistance at resolution and never heals HP already below the floor.
+Separate default damage can still deplete through the common living lifecycle. Review BASE
+`14cadff37461590c14454aabfdbca1fb4af11e94` -> that TARGET **PASS** (23s, no material findings);
+same terminal reviewer reused. Typed Vampire feeding/BT/cloud/light wiring remains open.
 
-Earlier reviewed native freeze/speed/shy/night/ranged/grudge and Brute/Fire/Chain
-milestones preserve physical, animation, combat, cadence, service, memory and save owners.
-Unique capability/authoring/regression evidence remains in their committed task snapshots.
-Brute `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`, dialogs
-`50c2a2ef35cb78d036b96b2087a6bbe920279c21`; Fire presence
-`0daa93c2898a19b28f5c827a4e81b5436b67e9c8`, opening
-`952c851545d2a4b28954a6a620cd0dfbbe8582e5`, dialogs
-`044de4285d22ff67c53635fbff5596d3dab7cbf6` passed focused checks/reviews.
-Soul `3a18bbc5275463d05328744e767e923cf8242d7b` and RV-004 repair use common
-Strength/Health authority, captured terms/receipts/cooldowns and total acceptance count;
-Chain dialogs `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b` passed checks/review.
-Creepy dialogs `ad79c0eab6a00772dd578a3a7d25053166db70ef` passed independent review;
-actual role/panel evidence belongs to R26.4. Vampire/full integration and owner QA stay open.
+Blood consent core `a407762ef018ab70715119cd432c63071d62d928` captures an authored 5..40%
+current-HP percentage, durable person-owned key/deadline and terminal refusal/acceptance.
+Common Health calculation/publication preserves limits, Strength and social/combat ownership.
+Schema18 rejects malformed receipts/previous versions before live mutation. Independent review
+BASE `ac0ee0dd55b99bc9324b31a6a5c8a757eb065960` -> that TARGET **PASS**, no material findings (125s);
+previous terminal reviewer reused, ARCHITECTURE/STYLE PASS, reviewer tests NOT_RUN. Vampire combat/cloud/light remains open.
+
+Historical capability evidence remains in Git; accepted findings below retain exact source/fix SHAs.
+R26.4 now has20/20 native variants; Vampire `14cadff37461590c14454aabfdbca1fb4af11e94`
+GUT78/2014, parser2/2 and independent review PASS (50s, no findings). Combat/cloud/light,
+full integration and owner QA remain open.
 
 ### Validation
 
-Recovered Creepy evidence: stalking06245473113/99, interaction0622085098/76,
-freeze06221985615/110, aversion06223225711/113, parser0626376215/5 PASS.
-Recovery review247s accepted RV-005 only; baseline183345914 FAIL13/14, fix18342894914/111 PASS.
-Formatter/lint34files vs recovery base, strict architecture/dependencies, domain/project/persistence
-and diff PASS after public-dialogue contract update. Connected district headless smoke PASS: `tests/artifacts/district-20261013-043550631.log`.
-Historical source-checkpoint smoke162810446 also PASS; neither is rendered QA.
-
-
-Previous Brute/Fire/Chain and earlier native milestones passed focused GUT/parser/static/smoke
-and immutable reviews at the checkpoints above. Their unique historical evidence remains in Git.
-Canonical findings below retain original source/fix SHA and focused verification.
-Global hot reload43 NOT_PASS; actual layouts/restart and fresh CLI checks independently verify changes. Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED.
-Full mandatory behavior/live integration and owner rendered movement/dialogue/assets/balance QA remain open.
+Health-bound GUT PASS: floor191331383 **6/68**, DamageFeedback191335712 **8/55**,
+Blood191331384 **14/195**, Soul191354955 **16/186**; parser191441000 **4files**.
+Formatter/lint, strict architecture/dependencies, project/staged/diff PASS; new test MCP checked[].
+Blood core GUT **87/1069** across5 named suites and parser14files PASS; exact older logs remain
+in the prior task snapshot. Native MCP trait/profile save preserves UID/tuning. District smoke
+PASS: `tests/artifacts/district-20261013-045614946.log`; next native BT integration gets a new smoke.
+Global hot reload43 NOT_PASS; fresh CLI parser/GUT independently verify code. Editor cursor4 clean.
+Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention
+KNOWN_ENGINE_LIMITATION/DEFERRED. Full mandatory/live/rendered behavior and owner QA remain open.
 
 ### Next
 
-Implement Vampire
-mandatory capabilities/two variants and cross-archetype acceptance before live roster binding.
+Implement typed Vampire attacks/wounded feed BT/conditional cloud/light and cross-archetype acceptance before live roster binding.
 
 ### Review triage
+
+Canonical source/fix SHAs below are ancestors of current code HEAD
+`792481e4630d1ca70156654d3a22a1a91fd94cef`; latest blood/UI/Health-bound reviews
+added no findings. RV-001..005 retain FIXED with their actual regression/re-review evidence.
 
 RV-005 P1 `S_NpcStalkingWitness._sample` / uninterrupted camera exposure:
 source `3e88b56983a775cc78c225353251ff6a98d33b87`, reviewer R1, owner Main.
@@ -93,13 +90,8 @@ Required owner acceptance remains open; explicitly deferred polish gets a QA che
 
 ## Mandatory BT pattern
 
-Composites own control flow, Conditions observe, Actions perform narrow work,
-Decorators own execution policy, and Subtrees expose reusable branches.
-
-- Actions are narrow leaf behaviors.
-- Composites own ordering/fallback/priority/concurrency.
-- Decorators own timeout/repeat/cooldown/invert/limits where applicable.
-- Subtrees represent semantic reusable branches.
+Composites own ordering/fallback/priority/concurrency; Conditions observe; Actions perform
+narrow work; Decorators own timeout/repeat/cooldown/invert/limits; Subtrees expose reusable branches.
 - Blackboard stores transient context/references, not a hidden mode FSM.
 - Domain services may implement algorithms but may not choose among sibling BT behaviors.
 
