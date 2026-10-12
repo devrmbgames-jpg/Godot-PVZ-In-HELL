@@ -5,8 +5,8 @@ extends SceneTree
 const PLAN_PATH: String = "res://.artifacts/r26_roster_binding_plan.json"
 const DISTRICT_PATH: String = "res://content/domains/npc/definitions/def_district_default.tres"
 const DISTRICT_UID: String = "uid://0japh62q4h57"
-const LEGACY_FIXTURE_PATH: String = "res://tests/fixtures/r26/def_district_legacy.tres"
 const DEFINITION_ROOT: String = "res://content/domains/npc/definitions/"
+const LEGACY_FIXTURE_PATH: String = DEFINITION_ROOT + "def_district_legacy_fixture.tres"
 const BINDINGS: Array[String] = [
 	"night_hunter",
 	"fire_elemental",

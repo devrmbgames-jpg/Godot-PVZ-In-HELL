@@ -332,9 +332,24 @@ func test_both_native_roots_place_toy_after_safety_and_before_ordinary_combat() 
 		"res://content/domains/customers/ai/trees/bt_district_npc.tres",
 	]:
 		var tree: BehaviorTree = load(path) as BehaviorTree
-		var index: int = 5 if path == NpcBrainService.TREE_PATH else 4
-		assert_same((tree.get_root_task().get_child(index) as BTSubtree).subtree, TOY_TREE)
-		assert_eq(tree.get_root_task().get_child(index - 1).get_custom_name(), "Воспринятая кровь")
+		var root_task: BTTask = tree.get_root_task()
+		var branch_indices: Dictionary[String, int] = { }
+		var toy_index: int = -1
+		for child_index: int in root_task.get_child_count():
+			var child: BTTask = root_task.get_child(child_index)
+			branch_indices[child.get_custom_name()] = child_index
+			if child is BTSubtree:
+				var subtree: BehaviorTree = (child as BTSubtree).subtree
+				if subtree.resource_path == TOY_TREE.resource_path:
+					toy_index = child_index
+		assert_gte(toy_index, 0, "Both native roots retain the authored typed toy subtree")
+		if toy_index < 0:
+			continue
+		assert_lt(branch_indices["Опасность"], toy_index)
+		assert_lt(branch_indices["Воспринятая кровь"], toy_index)
+		assert_lt(branch_indices["Питание / предел обычного урона"], toy_index)
+		assert_lt(toy_index, branch_indices["Дистанционный бой"])
+		assert_lt(toy_index, branch_indices["Бой / поиск"])
 		var item: Entity = _toy()
 		item.add_relationship(Relationship.new(R_InspectionCargo.new(), _actor))
 		await _sync_physics()

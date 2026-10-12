@@ -16,7 +16,9 @@ const ARCHETYPE_NAMES: Array[String] = [
 	"shy_visitor",
 ]
 const LIVE_DISTRICT: String = ("res://content/domains/npc/definitions/def_district_default.tres")
-const LEGACY_DISTRICT: String = "res://tests/fixtures/r26/def_district_legacy.tres"
+const LEGACY_DISTRICT: String = (
+	"res://content/domains/npc/definitions/" + "def_district_legacy_fixture.tres"
+)
 
 
 #region Production fixture boundary

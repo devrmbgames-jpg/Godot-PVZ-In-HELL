@@ -37,11 +37,7 @@ func test_native_archetypes_have_required_names_and_valid_isolated_creation() ->
 		assert_true(archetype.valid_rules(), archetype.resource_path)
 		assert_eq(archetype.name_variants, PackedStringArray(PLACEHOLDER_NAMES[index]))
 		assert_true(ResourceLoader.exists(archetype.npc_scene_path))
-		assert_eq(
-			archetype.schedule.location_for(1, C_DayCycle.Phase.MORNING),
-			DEF_NpcSchedule.Location.STREET,
-		)
-
+		# Live integration checks participation schedules against the legacy roster.
 		var original_speed: float = archetype.move_speed
 		var original_rules: Array[DEF_NpcTrait] = archetype.rules.duplicate()
 		var original_options: Array[DEF_NpcTraitOption] = archetype.optional_traits.duplicate()

@@ -299,8 +299,10 @@ func test_vampire_variants_preserve_private_home_delivery_in_both_roles() -> voi
 	_district.definition.personal_delivery_probability = 1.0
 	for index: int in range(4):
 		var person: NpcRecord = _district.people[index]
-		person.profile = VAMPIRE_PROFILE
-		person.variation = NpcVariationRules.create(VAMPIRE_PROFILE, 1234, person.npc_id, 1)
+		# This scenario is a resident variant; production Vampire is an authored visitor.
+		person.profile = VAMPIRE_PROFILE.duplicate(false) as DEF_NpcArchetype
+		person.profile.resident = true
+		person.variation = NpcVariationRules.create(person.profile, 1234, person.npc_id, 1)
 		person.variation.dialogue_path = VAMPIRE_PROFILE.dialogue_variants[index / 2]
 		var visit: CustomerVisit = _delivery_case(person, "vampire/delivery/%d" % index)
 		var job: NpcHomeDelivery = HomeDeliveryQueries.personal_for(person.npc_id, visit.visit_id)

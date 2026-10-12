@@ -24,18 +24,19 @@ func test_fire_customer_death_releases_aura_and_counter() -> void:
 	NpcAiFixture.traits(fire_body, fire_person, null, 0.2)
 	_world.process(0.0)
 	var effects: Array = _world.query.with_all([C_Hazard, C_ToxicArea]).execute()
-	assert_eq(effects.size(), 1, "A real fire aura exists before death")
+	assert_eq(effects.size(), 2, "The real fire aura and thin floor hazard exist before death")
 	if effects.is_empty():
 		return
-	var aura: Entity = effects[0] as Entity
-	assert_same(HazardFollowService.binding(aura).target, fire_body)
+	for effect: Entity in effects:
+		assert_same(HazardFollowService.binding(effect).target, fire_body)
 	assert_false(NpcServiceRole.can_approach(next_body))
 
 	fire_body.add_component(C_Death.new())
 	DistrictPopulationService.mark_dead(fire_person, fire_body, cycle.day_index)
 	_world.process(0.0)
 	assert_true(_world.query.with_all([C_Hazard, C_ToxicArea]).execute().is_empty())
-	assert_true(aura.is_queued_for_deletion())
+	for effect: Entity in effects:
+		assert_true(effect.is_queued_for_deletion())
 	assert_false(fire_body.has_component(C_CustomerAgent))
 	assert_eq(fire_body.get_relationships(Relationship.new(
 			R_NpcServiceAt.new(),

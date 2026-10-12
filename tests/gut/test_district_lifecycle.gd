@@ -309,9 +309,9 @@ func test_rejected_replacement_keeps_vacancy_history_person_sequence_and_retry_d
 	var deceased: NpcRecord = _district.people[0]
 	DistrictPopulationService.mark_dead(deceased, NpcPopulationQueries.body_for(deceased.npc_id), 1)
 	var definition: DEF_District = _district.definition.duplicate() as DEF_District
-	var profiles: Array[DEF_NpcProfile] = []
-	for original: DEF_NpcProfile in definition.profiles:
-		var candidate: DEF_NpcProfile = original.duplicate() as DEF_NpcProfile
+	var profiles: Array[DEF_NpcArchetype] = []
+	for original: DEF_NpcArchetype in definition.profiles:
+		var candidate: DEF_NpcArchetype = original.duplicate() as DEF_NpcArchetype
 		candidate.npc_scene_path = "res://content/domains/npc/entities/npc_address.tscn"
 		profiles.append(candidate)
 	definition.profiles = profiles

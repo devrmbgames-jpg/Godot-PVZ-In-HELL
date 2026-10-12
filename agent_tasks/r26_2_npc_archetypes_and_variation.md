@@ -19,7 +19,8 @@ receiver tags. Native MCP migrated all 12 existing profiles and the district whi
 paths, keys, schedules, roles and places. R26.5 now connects all ten requested archetypes and
 two explicit visitor presets to the production district, preserving twelve identity slots,
 eight resident/four visitor roles, merchant slot eight, recipients and participation schedules.
-The live binding is UNCOMMITTED; schema19 deliberately rejects schema18 before mutation.
+Live binding `81f22ee6e09a3466237ac67564554052fc4a2634` review PASS in R26.5;
+schema19 deliberately rejects schema18 before mutation.
 Restore never rerolls; targeted production roster GUT10/798 PASS, broader acceptance pending.
 Category ordering now commits real catalog payloads with the existing receiving batch/parcel IDs.
 Weighted available categories feed deterministic per-person decisions; missing categories fall back.

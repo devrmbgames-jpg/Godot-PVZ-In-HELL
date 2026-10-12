@@ -58,8 +58,11 @@ escape `5670d3566328a3e831921f2a845276de6a981ee1` are fixed with native regressi
 and collected immutable reviews PASS. Latest unchanged week083125987 still FAIL5/required6.
 R26.5 live binding now connects all ten archetypes and two explicit visitor presets while
 preserving twelve identity slots and participation; schema19 is intentional incompatibility.
-Native live-roster GUT10/798 and MCP resource inspection PASS. This batch is UNCOMMITTED;
-full regression/week acceptance, immutable review and required owner QA remain unfinished.
+Native live-roster GUT10/798 and MCP resource inspection PASS at
+`81f22ee6e09a3466237ac67564554052fc4a2634`; collected review PASS against
+`25e54edea6bf38d28d3d4548d79a38155ed29a89`, no findings,108s.
+Initial full regression1252 FAIL; isolated fixture/test repairs293/5690 PASS, repair review pending.
+Week acceptance and required owner QA remain unfinished; details/triage in R26.5.
 Existing user worktree edits were preserved.
 
 ### Next

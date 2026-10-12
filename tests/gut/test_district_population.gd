@@ -35,7 +35,7 @@ func before_each() -> void:
 
 ## Isolated legacy scenarios keep their authored trait positions; live integration overrides this.
 func _district_definition_path() -> String:
-	return "res://tests/fixtures/r26/def_district_legacy.tres"
+	return "res://content/domains/npc/definitions/def_district_legacy_fixture.tres"
 
 
 ## Освобождает World до окружающей сцены и сбрасывает глобальное участие ECS.

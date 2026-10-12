@@ -17,7 +17,8 @@ Twelve stable NPC slots, eight residents/four visitors, slot-eight merchant, rec
 participation schedules are preserved. Legacy profiles remain authored fixtures for isolated
 regressions; actual live-roster acceptance and district smoke use the production definition.
 Schema advances from 18 to 19 because saved profile paths/meaning change; no conversion or alias.
-Changes are UNCOMMITTED, review NOT_RUN; full integration acceptance remains open.
+Checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` is committed; review PASS, no findings.
+Full integration acceptance remains open.
 
 ### Validation
 
@@ -31,16 +32,44 @@ at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRE
 Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
 FAIL: unchanged production district week `district-20261013-085722945.log`, survival4/required6,
 no other runtime errors. Previous legacy weeks FAIL5/required6; acceptance is not waived.
-IN_PROGRESS: complete affected native regression batch `.artifacts/r26_roster_regressions-20261013.log`;
-scope pinned by `.artifacts/r26_roster_regression_paths-20261013.txt`. Export/owner QA NOT_RUN.
+Full affected batch `.artifacts/r26_roster_regressions-20261013.log` FAIL: 57 suites,
+1232/1252 tests, 17719/17793 assertions, one lifecycle suite failed to parse. Scope pinned by
+`.artifacts/r26_roster_regression_paths-20261013.txt`. Only failed/omitted suites are rerun
+after repair in fresh processes; collected current totals below. Export/owner QA NOT_RUN.
+Fresh failed/omitted/live suites PASS: 293 tests/5690 assertions, logs date20261012 under
+`.artifacts/godot_agent/`: blood23175732114/195, queue23205106551/340, snapshot23184298816/205,
+stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
+pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
+live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
+Readonly production mortality probe091100283 confirms floor-fire deaths npc4/day2, npc3/day3,
+npc1/day4 with near-goal/empty-route states; diagnostic7200frames, full week NOT_RUN. No tuning change.
 
 ### Review / triage
 
-Checkpoint review NOT_RUN until the coherent commit supplies a full target SHA; reuse existing reviewer.
+PASS: existing terminal reviewer reused after live-status check, exact BASE
+`25e54edea6bf38d28d3d4548d79a38155ed29a89` -> TARGET
+`81f22ee6e09a3466237ac67564554052fc4a2634`; no findings, elapsed108s;
+architecture/style PASS, reviewer validation NOT_RUN. Required week FAIL remains unresolved.
 RV-001/P2: night smoke mutated world_seed after native population/merchant publication at BASE
 `25e54edea6bf38d28d3d4548d79a38155ed29a89`, violating the committed variation seed contract.
-ACCEPTED, repair implemented in detached clock recipe before registration; fresh-process checks PASS.
-No gameplay reroll, compatibility default or save validator weakening. Fix SHA/review pending commit.
+FIXED `81f22ee6e09a3466237ac67564554052fc4a2634`, detached clock recipe before registration;
+fresh-process night write/restore and collected review PASS. No reroll/default/validator weakening.
+RV-002/P1 ACCEPTED: new legacy DEF_District fixture resides under tests/, rejected by the
+existing closed GameplayResourcePaths definition roots during snapshot decode at target81f above.
+Production live-roster/native restore passes. Native move into NPC definitions root preserves
+exact bytes/UID and changes three test/helper literals; snapshot16/205 PASS. Fix SHA/review pending.
+MCP move refused before mutation at discovery limit10000; editor clean/quit, native move log
+`.artifacts/r26_legacy_fixture_move-20261013.log` PASS. Whitelist/production district unchanged.
+RV-003/P2 ACCEPTED: lifecycle test retained Array[DEF_NpcProfile] after profiles became typed
+Array[DEF_NpcArchetype]; repair19/166 PASS. RV-004/P2 ACCEPTED: catalog/home-dialogue tests
+assumed canonical visitors had resident participation; live schedule parity retains coverage,
+private-home scenarios now use isolated resident copies, shared authored data unchanged.
+RV-005/P2 ACCEPTED: fire queue asserted one effect after authored floor effect was added;
+now both effects bind the emitter and retire on death, queue51/340 and inherited stage PASS.
+RV-006/P2 ACCEPTED: pride test's fixed child index points to the newer feeding subtree.
+Resource-identity hypothesis was disproven by fresh path assertions232240604; actual typed toy
+subtree lookup now checks relative safety/blood/feeding/combat order and real native execution.
+Fix SHAs/targeted immutable review pending coherent repair commit.
 
 ### Owner QA / blockers
 
@@ -49,28 +78,10 @@ Required owner acceptance remains open; explicitly deferred polish gets a QA che
 
 ## Persistence
 
-Extend the closed save schema deliberately.
-
-Persist only durable facts:
-- physical persistent item state required by the existing world snapshot contract;
-- item Health where already supported by snapshot rules;
-- player karma if introduced;
-- player soul-deal/progression state;
-- NPC archetype;
-- stable variation seed;
-- selected name;
-- selected optional traits;
-- selected dialogue variant;
-- durable NPC personal memories already owned by `NpcRecord`;
-
-Do **not** persist:
-- live Node/Object references;
-- BT task instances;
-- transient Blackboard references;
-- current physics contact inboxes;
-- per-frame perception;
-- temporary route caches;
-- derived hazard interest that can be reconstructed.
+Persist durable physical item state/Health supported by existing snapshot rules, player karma,
+soul-deal/progression, NPC archetype/variation seed/name/selected traits/dialogue and personal memories.
+Exclude live Node/Object references, BT instances/Blackboards, physics inboxes, per-frame perception,
+route caches and reconstructible hazard interest.
 
 Restore authoritative data first, then rebuild derived BT/perception/presentation state.
 
@@ -87,26 +98,16 @@ with `TruckCargoReceipt.raw_actor_id`; pending runtime disposal without a recipe
 
 ### Parcel/customer flow
 
-Requested item definitions must be orderable/packageable where their physical fulfillment makes sense.
-
-NPC order preferences use category weights:
-- clothing;
-- weapon;
-- artifact;
-- reagent;
-- toy;
-- unrestricted/anything.
+Requested physical item definitions must be orderable/packageable where fulfillment makes sense.
+NPC order preferences weight clothing, weapons, artifacts, reagents, toys or unrestricted/anything.
 
 Large barrels may require large-item/package policy rather than ordinary stack inventory. Do not force them through a small stack path just to satisfy ordering.
 
-NPC parcel opening must reuse existing package opening/lifecycle/hazard behavior.
-
+NPC parcel opening reuses existing package opening/lifecycle/hazard behavior.
 ### Combat/social memory
 
-Damage from player-owned thrown/melee/explosive items must preserve player attribution so:
-- NPC retaliation works;
-- witness memory works;
-- killing/attack incidents remain correct.
+Player-owned thrown/melee/explosive damage retains player attribution for retaliation,
+witness memory and killing/attack incidents.
 
 Blood Hazard behavior stimulus must not be recorded as damage because it is harmless.
 
@@ -121,17 +122,10 @@ NPCs should use receiver/archetype/trait data when deciding conflicts:
 
 ## Presentation hooks
 
-Expose narrow events/state for:
-- Night Hunter appearance music change;
-- denser shadow presentation;
-- Vampire invisibility;
-- Vampire cloud escape;
-- Angel signs;
-- elemental aura VFX.
+Expose narrow events/state for Night Hunter music/shadows, Vampire invisibility/cloud escape,
+Angel signs and elemental aura VFX.
 
-Gameplay logic must not depend on a renderer/audio node completing successfully.
-
-Use placeholders if final assets do not exist.
+Gameplay logic is independent of renderer/audio completion; use placeholders for missing final assets.
 
 ## Schema and new-game construction
 
@@ -149,7 +143,6 @@ NPC archetype, selected traits/dialogue variant and species/receiver tags. Show 
 BT branch/status where LimboAI exposes it cheaply, and relevant blood/light/gaze conditions.
 
 Do not add per-frame verbose logging.
-
 ## Automated acceptance matrix
 
 ### Physical items
@@ -163,45 +156,31 @@ Do not add per-frame verbose logging.
 - player attribution survives thrown/broken source lifetime.
 
 ### Damage
-- FIRE immunity for Fire Elemental and Chain Devil;
-- Angel ignores non-HOLY damage and receives HOLY;
-- ACID resistance path uses typed damage;
-- HOLY player rule obeys low-karma threshold;
-- UNHOLY heals authored unholy NPC and damages high-karma player;
-- healing never exceeds ordinary Health authority rules;
-- Blood Hazard causes zero HP damage.
+- FIRE immunity for Fire Elemental/Chain Devil; Angel ignores non-HOLY and receives HOLY;
+  ACID resistance uses typed damage.
+- HOLY player rule obeys low-karma threshold; UNHOLY heals authored unholy NPC and damages
+  high-karma player. Healing respects Health authority; Blood Hazard causes zero HP damage.
 
 ### NPC variation
-- same seed => same name/traits/dialogue variant;
-- save/load => same person variation;
-- replacement/new person can roll a different valid combination;
-- incompatible traits never coexist;
-- missing order category degrades gracefully.
+- Same seed/save-load keeps name/traits/dialogue; replacement may roll a different valid combination.
+- Incompatible traits never coexist; missing order categories degrade gracefully.
 
 ### Behavior
-- Angel freezes while truly observed and can move while unobserved;
-- aggressive Angel is faster but still freezes when seen;
-- Night Hunter attacks in dark and flees in bright light;
-- Shy NPC reacts to sustained direct gaze;
-- Brute toy embarrassment requires real perception;
+- Angel freezes under actual observation, moves unobserved; aggressive form is faster but still freezes.
+- Night Hunter attacks in dark/flees bright light; Shy reacts to sustained gaze; Brute perceives real toys.
 - Fire Elemental maintains authored fire/floor hazard without duplicate spawn storm;
-- Creepy NPC approaches from behind without teleporting;
+  Creepy approaches from behind without teleporting.
 - Vampire prioritizes blood zone, calms, stops before ordinary lethal finish, and can escape as cloud;
 - BT resources are composed from real conditions/actions/composites/decorators/subtrees rather than one generic dispatcher action.
 
 ### Dialogue
-- 2 variants × 10 archetypes load/import;
-- Angel sign communication works;
-- soul deal applies once per accepted confirmation;
-- third total accepted deal causes player death; refusals preserve the accepted count;
-- vampire accepted blood request removes 5–40% of current HP through gameplay contract;
-- decline/cancel paths do not mutate stats.
+- 2 variants × 10 archetypes load/import; Angel communicates with signs.
+- Soul confirmations apply once; third accepted deal kills player; refusals retain total count.
+- Accepted vampire blood request removes 5–40% of current HP; decline/cancel never mutates stats.
 
 ### Performance/safety
-- no broad ECS/world scan added per physics frame where an existing bounded perception query/event can be reused;
-- hazard spawning is bounded/idempotent;
-- no resource loads in hot BT ticks;
-- no per-frame debug spam.
+- Bounded perception/events replace broad per-frame scans; hazard spawning is bounded/idempotent.
+- No resource loads in hot BT ticks or per-frame debug spam.
 
 ## Validation sequence
 
@@ -213,7 +192,6 @@ Do not add per-frame verbose logging.
 6. Runnable Windows QA export under `.export/` at the completed large gameplay milestone.
 
 Do not run rendered gameplay automatically.
-
 ## Owner QA
 
 Manual owner checks cover scythe AOE/thrown-knife feel, barrel/flask physics and hazard
