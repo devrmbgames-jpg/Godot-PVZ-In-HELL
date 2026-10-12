@@ -18,19 +18,16 @@ Conditional escape `588b59c1771d95b4ffba278988ddef0a364013a7` adds typed reusabl
 native cloud hazard/confirmed-threat flight and optional invisibility after lost sight.
 Authored VeilPresence changes appearance only; physical movement/collision/damage remain intact.
 Task tokens protect replacement forms; reset, profile, death and participation clean synchronously.
-Real NPC sight recognizes clouds and rejects invisible bodies; schema18 excludes transient forms.
 Review **PASS**: BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8`
 -> TARGET `588b59c1771d95b4ffba278988ddef0a364013a7`, same reviewer, no findings (95s).
 Architecture/style PASS; reviewer runtime NOT_RUN. Final smoke FAIL survival5/required6;
 Comparable BASE week PASS; mortality traces prove floor-fire deaths. Endpoint repair is reviewed,
 but final week071658349 still FAIL5/required6; original causal diagnosis remains open.
-Prior light `8608f987f2a2a8965597829be98c2d6a7a8e94df` ->
-`38b7f2a59ef3c344b03aafaf11e7f7911d60622c` review PASS (210s, no findings);
-feeding `80eb932ff485fd714e8b111ea370629de3ec3f2f` ->
-`3961328cdc94dc93d56fa7336373af993128e0da` review PASS (91s, no findings).
-Reviewed Health `792481e4630d1ca70156654d3a22a1a91fd94cef` and blood
-`a407762ef018ab70715119cd432c63071d62d928` underpin schema18 and20/20 variants.
-Prior checks remain in Git; all-ten binding, full integration and required owner QA remain open.
+Reset-call ablation080407835 still FAIL5. First-tick traces prove a separate deterministic
+schedule defect: equal seed/index select different StringName candidate orders before movement.
+Explicit text-order repair and regression are in [their task](npc_schedule_canonical_order.md);
+focused GUT12/167 and parser PASS; unchanged full week is running, review pending.
+Prior reviewed light/feeding checkpoints and their native evidence remain in Git.
 
 ### Validation
 
@@ -43,23 +40,25 @@ structure, staged index, diff and persistence gates PASS. Final smoke
 `tests/artifacts/district-20261013-063246721.log` FAIL, survival5/required6; preceding
 062736299 also FAIL before final FLEE fixes. Comparable BASE week PASS:
 `.artifacts/cloud_baseline_588b59c1/tests/artifacts/district-20261013-064942431.log`.
-Prior light-week PASS remains in Git. Global hot reload43 NOT_PASS;
-fresh CLI checks independently verify. Required editor/rendered verification remains open.
-Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention
-KNOWN_ENGINE_LIMITATION/DEFERRED. Full mandatory/live/rendered behavior and owner QA remain open.
+Same BASE controls: component072420148, BT073004587, visibility074419873 PASS;
+old scene073431612, reverted decision073919530, actor074843088, zero-clock075712248 FAIL5.
+All six corresponding native parsers PASS. Reset-call ablation080407835 FAIL5.
+Bounded179sample traces (full week NOT_RUN) isolate the first goal difference at equal clock16666;
+allocation-dependent schedule ordering is proven; detailed evidence is in the linked task.
+Global hot reload43 NOT_PASS; fresh CLI checks independently verify.
+Shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED; mandatory/live/owner QA remains open.
 
 ### Next
 
-Endpoint defect is fixed/reviewed in [its task](npc_hazard_escape_navigation.md);
-continue baseline/current causal diagnosis of the surviving week failure before acceptance.
+Endpoint defect is fixed/reviewed in [its task](npc_hazard_escape_navigation.md); collect schedule repair
+full week and immutable review before dependent integration.
 Then cross-archetype acceptance and all-ten live roster binding; do not waive R26.5/owner QA.
 
 ### Review triage
 
 Canonical source/fix SHAs below are ancestors of current code HEAD
-`588b59c1771d95b4ffba278988ddef0a364013a7`; prior light/feeding/blood/UI reviews added no findings.
-Full-SHA ancestry audit: 26 previous checkpoints PASS. RV-001..005 retain FIXED with their
-actual regression/re-review evidence. Current cloud review PASS, no additional findings.
+`7de8659ea150953b7b317ff6e5e8e6a9cc328e26`; prior light/feeding/blood/UI reviews added no findings.
+Full-SHA ancestry audit: 26 previous checkpoints PASS. RV-001..005 retain FIXED.
 
 RV-006 P1 FLEE_EXIT continuation, Main reproduction/source
 `a2b1d764b1b316b27df979a8d72917d6deab8ed8`, NpcDecisionService.flee:

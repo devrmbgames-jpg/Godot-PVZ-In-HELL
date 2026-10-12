@@ -31,7 +31,12 @@ static func goal_for(
 			activities.append(place.key)
 	if activities.is_empty():
 		return person.portal_id
-	activities.sort()
+	# StringName ordering depends on interned addresses in the pinned engine.
+	# Text ordering keeps keyed decisions independent of resource loading/allocation.
+	activities.sort_custom(
+		func(first: StringName, second: StringName) -> bool:
+			return String(first) < String(second),
+	)
 	var random: RandomNumberGenerator = DecisionRandomRules.generator(
 		world_seed,
 		String(person.npc_id),

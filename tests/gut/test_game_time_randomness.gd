@@ -238,6 +238,33 @@ func test_macro_schedule_goal_uses_sorted_ids_without_consuming_activity_sequenc
 	)
 	assert_eq(reordered_goal, goal)
 	assert_eq(person.activity_sequence, 19)
+
+
+## Canonical choices must follow ID text even when StringNames have a different intern order.
+func test_macro_schedule_choices_match_canonical_text_order() -> void:
+	var district: DEF_District = DEF_District.new()
+	var person: NpcRecord = NpcRecord.new()
+	person.npc_id = &"npc/7"
+	person.profile = DEF_NpcArchetype.new()
+	person.variation = NpcVariation.new()
+	var canonical_ids: Array[String] = ["schedule/z", "schedule/a", "schedule/m", "schedule/b"]
+	for identity: String in canonical_ids:
+		var place: DEF_DistrictPlace = DEF_DistrictPlace.new()
+		place.key = StringName(identity)
+		place.kind = DEF_DistrictPlace.Kind.ACTIVITY
+		district.places.append(place)
+	canonical_ids.sort()
+	for sequence: int in 32:
+		person.activity_sequence = sequence
+		var random: RandomNumberGenerator = DecisionRandomRules.generator(
+			-42, String(person.npc_id), 12, "npc/schedule/%d" % C_DayCycle.Phase.DAY, sequence,
+		)
+		var expected: String = canonical_ids[random.randi_range(0, canonical_ids.size() - 1)]
+		var actual: StringName = NpcScheduleRules.goal_for(
+			district, person, DEF_NpcSchedule.Location.STREET, -42, 12, C_DayCycle.Phase.DAY,
+		)
+		assert_eq(String(actual), expected, "canonical schedule sequence %d" % sequence)
+		assert_eq(person.activity_sequence, sequence, "preview preserves durable sequence")
 #endregion
 
 
