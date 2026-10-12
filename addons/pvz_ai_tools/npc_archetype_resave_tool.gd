@@ -15,8 +15,9 @@ func resave(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 		return { "error": "Save unsaved scenes before canonical resource resave." }
 	var hashes: Dictionary = params.get("fingerprints", { })
 	var pools: Dictionary = params.get("dialogue_pools", { })
+	var additions: Dictionary = params.get("trait_additions", { })
 	var inspected: Resource = EditorInterface.get_inspector().get_edited_object() as Resource
-	var prepared: Dictionary = preflight(hashes, inspected, pools)
+	var prepared: Dictionary = preflight(hashes, inspected, pools, additions)
 	if prepared.has("error"):
 		return prepared
 	var resources: Array[Resource] = prepared.resources
@@ -41,6 +42,7 @@ static func preflight(
 	fingerprints: Dictionary,
 	inspected: Resource = null,
 	dialogue_pools: Dictionary = { },
+	trait_additions: Dictionary = { },
 ) -> Dictionary:
 	if fingerprints.is_empty() or fingerprints.size() > MAXIMUM_PATHS:
 		return { "error": "Expected one to eight fingerprinted NPC definitions." }
@@ -63,6 +65,33 @@ static func preflight(
 			):
 				return { "error": "Missing, repeated or unsupported dialogue variant." }
 			seen[variant_path] = true
+	var traits: Dictionary[String, Array] = { }
+	for target: Variant in trait_additions:
+		if (
+			not target is String or not fingerprints.has(target)
+			or not trait_additions[target] is Array
+		):
+			return { "error": "Trait additions require a fingerprinted target and an array." }
+		var paths: Array = trait_additions[target]
+		if paths.is_empty() or paths.size() > 4:
+			return { "error": "Expected one to four existing native trait definitions." }
+		traits[target] = []
+		var seen: Dictionary[String, bool] = { }
+		for entry: Variant in paths:
+			if not entry is String:
+				return { "error": "Trait definition paths must be strings." }
+			var path: String = entry
+			if (
+				path.get_base_dir() != ROOT.trim_suffix("/") or not path.ends_with(".tres")
+				or path.contains("..") or path.contains("::") or path.contains("\\")
+				or seen.has(path) or not ResourceLoader.exists(path)
+			):
+				return { "error": "Missing, repeated or unsupported trait definition." }
+			var rule: DEF_NpcTrait = load(path) as DEF_NpcTrait
+			if rule == null or rule.key.is_empty() or not rule.valid_configuration():
+				return { "error": "Expected a valid native NPC trait definition." }
+			traits[target].append(rule)
+			seen[path] = true
 	var resources: Array[Resource] = []
 	for key: Variant in fingerprints:
 		if not key is String:
@@ -91,6 +120,12 @@ static func preflight(
 			return { "error": "Authored definition requires a stable UID.", "path": path }
 		if dialogue_pools.has(path):
 			resource.set("dialogue_variants", PackedStringArray(dialogue_pools[path]))
+		if traits.has(path):
+			var archetype: DEF_NpcArchetype = resource as DEF_NpcArchetype
+			for rule: DEF_NpcTrait in traits[path]:
+				archetype.rules.append(rule)
+			if not archetype.valid_rules():
+				return { "error": "Trait addition violates archetype bounds or compatibility." }
 		resources.append(resource)
 	return { "resources": resources }
 #endregion

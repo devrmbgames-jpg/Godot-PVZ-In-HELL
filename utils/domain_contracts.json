@@ -7117,7 +7117,8 @@
         "valid_participants",
         "dialogue_path_for",
         "gaze_warning_given",
-        "uses_signboard"
+        "uses_signboard",
+        "has_grudge_against"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
@@ -7133,7 +7134,8 @@
         "valid_participants": "query",
         "dialogue_path_for": "query",
         "gaze_warning_given": "query",
-        "uses_signboard": "query"
+        "uses_signboard": "query",
+        "has_grudge_against": "query"
       },
       "public_instance_methods": []
     },

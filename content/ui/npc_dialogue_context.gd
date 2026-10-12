@@ -61,6 +61,11 @@ func uses_signboard() -> bool:
 	return is_valid() and NpcDialogueService.uses_signboard(_delivery_npc())
 
 
+## Shares the existing persistent personal memory view between street and service roles.
+func holds_grudge() -> bool:
+	return is_valid() and NpcDialogueService.has_grudge_against(_delivery_npc(), _delivery_player())
+
+
 ## Применяет смысл ответа через конкретный игровой адаптер.
 func apply_response_tags(_tags: PackedStringArray) -> bool:
 	return false

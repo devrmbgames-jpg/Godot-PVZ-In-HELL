@@ -188,5 +188,8 @@ the tool. Plugin exit unregisters it; no resources or connections survive a call
 Optional `dialogue_pools` maps fingerprinted target paths to two through sixteen unique
 imported `.dialogue` paths. Only this authored field changes on a separate native graph;
 all pools preflight before saving, retaining embedded schedules/traits and other tuning.
+Optional `trait_additions` maps fingerprinted targets to one through four existing native
+NPC trait `.tres` paths. Only the separate graph's mandatory rules are appended; invalid,
+duplicate or incompatible traits refuse the complete batch before any save.
 An anonymous global script reload error43 does not refresh exported layouts: confirm
 the actual exported properties or restart before saving authored resources.

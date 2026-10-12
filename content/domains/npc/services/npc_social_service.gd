@@ -48,7 +48,7 @@ static func react(
 		"npc/social/%d/%s" % [kind, incident],
 	)
 	var roll: float = reaction_random.randf()
-	var reaction: NpcMemory.Reaction = _choose(person, kind, roll, can_retreat)
+	var reaction: NpcMemory.Reaction = _choose(person, kind, roll, can_retreat, identity_for(actor))
 	remember(person, actor, body, kind, incident, reaction)
 	apply_reaction(body, actor, reaction)
 	return reaction
@@ -154,10 +154,17 @@ static func remember_promise(
 		"npc/social/%d/%s" % [NpcMemory.Kind.BROKEN_PROMISE, incident],
 	)
 	var roll: float = reaction_random.randf()
-	var reaction: NpcMemory.Reaction = _choose(person, NpcMemory.Kind.BROKEN_PROMISE, roll)
+	var reaction: NpcMemory.Reaction = _choose(
+		person,
+		NpcMemory.Kind.BROKEN_PROMISE,
+		roll,
+		false,
+		&"player",
+	)
 	remember(person, actor, body, NpcMemory.Kind.BROKEN_PROMISE, incident, reaction)
 	# Обещание принято игроком даже в тестовой сессии, где его физическое тело отсутствует.
 	person.memories.back().actor_id = &"player"
+	person.memories.back().victim_id = person.npc_id
 
 
 ## Житель после сорванного обещания больше не предлагает игроку случайную личную подработку.
@@ -178,15 +185,17 @@ static func _choose(
 	kind: NpcMemory.Kind,
 	roll: float,
 	can_retreat: bool = false,
+	actor_id: StringName = &"",
 ) -> NpcMemory.Reaction:
 	var profile: DEF_NpcArchetype = person.profile
+	var grudge_bonus: float = NpcGrudgeRules.attack_bonus(person, actor_id)
 	var attack_probability: float = clampf(
-		profile.high_attack_probability * person.variation.aggression_multiplier,
+		profile.high_attack_probability * person.variation.aggression_multiplier + grudge_bonus,
 		0.0,
 		1.0,
 	)
 	var timid_attack: float = clampf(
-		profile.timid_attack_probability * person.variation.aggression_multiplier,
+		profile.timid_attack_probability * person.variation.aggression_multiplier + grudge_bonus,
 		0.0,
 		1.0 - profile.timid_flee_probability,
 	)
@@ -213,7 +222,7 @@ static func _choose(
 	if profile.personality == DEF_NpcProfile.Personality.BRAZEN and kind == NpcMemory.Kind.THREAT:
 		return (
 			NpcMemory.Reaction.RESPECT
-			if roll < profile.high_attack_probability
+			if roll < maxf(0.0, profile.high_attack_probability - grudge_bonus)
 			else NpcMemory.Reaction.ATTACK
 		)
 	if kind == NpcMemory.Kind.JOKE:

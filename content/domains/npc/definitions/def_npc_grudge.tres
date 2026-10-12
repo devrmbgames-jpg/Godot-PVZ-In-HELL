@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_NpcGrudge" format=3 uid="uid://845py5l75ect"]
+
+[ext_resource type="Script" uid="uid://b0dua02bbhqmb" path="res://content/domains/npc/definitions/def_npc_grudge.gd" id="1_83e2b"]
+
+[resource]
+script = ExtResource("1_83e2b")
+kind = 7
+warning_text = "Обиды помню дольше, чем ты живёшь."
+countermeasure = "Не лги, не угрожай и выполняй свои обещания."
+key = &"npc/grudge"

@@ -35,6 +35,20 @@ static func uses_signboard(body: Entity) -> bool:
 		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
 	)
 	return person != null and person.profile.presentation_cues.has("npc/angel/sign_dialogue")
+
+
+## Reads personal resentment from the durable incident owner without changing memory or combat.
+static func has_grudge_against(body: Entity, actor: Entity) -> bool:
+	if body == null:
+		return false
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = (
+		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	)
+	return (
+		person != null
+		and NpcGrudgeRules.remembers_offender(person, NpcSocialService.identity_for(actor))
+	)
 #endregion
 
 

@@ -5,6 +5,37 @@ const TOOL: Script = preload("res://addons/pvz_ai_tools/npc_archetype_resave_too
 const PROFILE: String = "res://content/domains/npc/definitions/def_npc_archetype_shy.tres"
 
 
+func test_trait_addition_prepares_complete_graph_and_refuses_duplicates_or_wrong_type() -> void:
+	var trait_path: String = TOOL.ROOT + "def_npc_grudge.tres"
+	var checksum: String = FileAccess.get_sha256(PROFILE)
+	var cached: DEF_NpcArchetype = load(PROFILE) as DEF_NpcArchetype
+	var original: Array[DEF_NpcTrait] = cached.rules.duplicate()
+	var result: Dictionary = TOOL.preflight(
+		{ PROFILE: checksum },
+		null,
+		{ },
+		{ PROFILE: [trait_path] },
+	)
+	assert_false(result.has("error"))
+	var prepared: DEF_NpcArchetype = result.resources[0] as DEF_NpcArchetype
+	assert_eq(prepared.rules.size(), original.size() + 1)
+	assert_is(prepared.rules.back(), DEF_NpcGrudge)
+	assert_same(prepared.rules[0], original[0])
+	assert_eq(cached.rules, original)
+	assert_eq(FileAccess.get_sha256(PROFILE), checksum)
+	for paths: Array in [[], [trait_path, trait_path], [PROFILE], ["res://project.godot"]]:
+		assert_true(TOOL.preflight({ PROFILE: checksum }, null, { }, { PROFILE: paths }).has(
+				"error"
+			))
+	assert_true(TOOL.preflight({ PROFILE: checksum }, null, { }, {
+			PROFILE: [original[0].resource_path]
+		}).has("error"))
+	var invalid_target: Dictionary = { "unfingerprinted": [trait_path] }
+	assert_true(TOOL.preflight({ PROFILE: checksum }, null, { }, invalid_target).has("error"))
+	assert_eq(cached.rules, original)
+	assert_eq(FileAccess.get_sha256(PROFILE), checksum)
+
+
 func test_preflight_preserves_disk_and_loads_complete_separate_resource_graph() -> void:
 	var checksum: String = FileAccess.get_sha256(PROFILE)
 	var cached: DEF_NpcArchetype = load(PROFILE) as DEF_NpcArchetype

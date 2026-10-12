@@ -393,6 +393,7 @@ func _npc_archetype_resave_spec() -> McpCustomToolSpec:
 		"properties": {
 			"fingerprints": { "type": "object", "maxProperties": 8 },
 			"dialogue_pools": { "type": "object", "maxProperties": 8 },
+			"trait_additions": { "type": "object", "maxProperties": 8 },
 		},
 		"required": ["fingerprints"],
 		"additionalProperties": false,
