@@ -12,7 +12,7 @@ Linked mandatory district-week acceptance: [R26.3](r26_3_npc_behavior_trees.md).
 
 ### Current
 
-Scoped repair is ready for checkpoint. It tests bounded point projections around harmful volumes,
+Checkpoint `63279cf2a0f5b1f9a70bea13ee40759dc19db067` tests point projections around harmful volumes,
 requires the destination to clear all overlapping hazards plus arrival tolerance,
 and preserves the valid direct exit. The fair planning queue still builds actual paths.
 No renderer, physics-body transform, immunity, hazard radius or survival threshold changes.
@@ -20,7 +20,11 @@ No renderer, physics-body transform, immunity, hazard radius or survival thresho
 ### Validation
 
 RV-001 P1, Main: `NpcRouteSolver.refuge`, unreachable/clamped unsafe escape endpoint.
-Source `a2b1d764b1b316b27df979a8d72917d6deab8ed8`; status ACCEPTED, repair validation underway.
+Source `a2b1d764b1b316b27df979a8d72917d6deab8ed8`; status ACCEPTED, review repair underway.
+Review `588b59c1771d95b4ffba278988ddef0a364013a7` ->
+`63279cf2a0f5b1f9a70bea13ee40759dc19db067` found R1 P1 (52s), minimum authored margin.
+R1 is merged into RV-001 (same solver/unsafe-endpoint contract). Reproduction211735164
+FAIL10/11,85/86; minimum clearance now exceeds arrival tolerance plus rounding.
 Identical native bounded-map regressions compare source and current: corrected source
 GUT211101065 FAIL6/8,62/64 assertions under `.artifacts/cloud_baseline_588b59c1/`.
 Earlier readiness-only fixture failures are not source evidence. Final coherent GUT

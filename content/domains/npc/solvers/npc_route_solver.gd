@@ -174,7 +174,10 @@ static func danger_here(actor: E_DistrictNpc) -> bool:
 
 ## Chooses a projected safe endpoint; the fair route-planning System still owns actual paths.
 static func refuge(actor: E_DistrictNpc) -> Vector3:
-	var margin: float = NpcPopulationQueries.current().definition.local_detour_margin
+	var margin: float = maxf(
+		NpcPopulationQueries.current().definition.local_detour_margin,
+		NpcDecisionService.ARRIVAL_DISTANCE + FLOOR_HEIGHT_MARGIN * 2.0,
+	)
 	var hazards: Array[NpcRouteContext.Hazard] = _hazards(actor)
 	var map: RID = actor.navigation_agent.get_navigation_map()
 	var has_map: bool = map.is_valid() and NavigationServer3D.map_get_iteration_id(map) > 0

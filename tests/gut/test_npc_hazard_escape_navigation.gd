@@ -112,6 +112,21 @@ func test_escape_near_map_edge_reaches_outside_fire_instead_of_a_clamped_inside_
 	assert_lte(absf(endpoint.z), 10.0)
 
 
+func test_escape_at_minimum_authored_detour_margin_clears_arrival_tolerance() -> void:
+	var actor: E_DistrictNpc = await _bounded_map()
+	_district.definition = _district.definition.duplicate() as DEF_District
+	_district.definition.local_detour_margin = 0.1
+	_fire(Vector3(7, 0, 0), 5.0)
+	var path: PackedVector3Array = _escape(actor)
+	if path.is_empty():
+		return
+	var endpoint: Vector3 = path[path.size() - 1]
+	assert_gt(
+		endpoint.distance_to(Vector3(7, 0, 0)),
+		5.0 + actor.navigation_agent.radius + NpcDecisionService.ARRIVAL_DISTANCE,
+	)
+
+
 func test_escape_endpoint_avoids_a_second_overlapping_hazard() -> void:
 	var actor: E_DistrictNpc = await _bounded_map()
 	_fire(Vector3(7, 0, 0), 5.0)
