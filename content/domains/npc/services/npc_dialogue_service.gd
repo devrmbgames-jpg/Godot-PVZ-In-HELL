@@ -49,6 +49,20 @@ static func has_grudge_against(body: Entity, actor: Entity) -> bool:
 		person != null
 		and NpcGrudgeRules.remembers_offender(person, NpcSocialService.identity_for(actor))
 	)
+
+
+## Reads demonstrated strength for the recognized actor; dialogue never grants respect.
+static func has_respect_for(body: Entity, actor: Entity) -> bool:
+	if body == null:
+		return false
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = (
+		NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
+	)
+	return (
+		person != null and NpcPrideRules.selected_rule(person.rules_for()) != null
+		and NpcPrideRules.respects(person, NpcSocialService.identity_for(actor))
+	)
 #endregion
 
 

@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://coyf51reluypv"
+path="res://.godot/imported/variant_b.dialogue-98a3f04a9cfea08eee51b628f9af49bb.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/brute/variant_b.dialogue"
+dest_files=["res://.godot/imported/variant_b.dialogue-98a3f04a9cfea08eee51b628f9af49bb.tres"]
+
+[params]
+
+defaults=true

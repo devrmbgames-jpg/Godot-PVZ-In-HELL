@@ -7123,7 +7123,8 @@
         "dialogue_path_for",
         "gaze_warning_given",
         "uses_signboard",
-        "has_grudge_against"
+        "has_grudge_against",
+        "has_respect_for"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
@@ -7140,7 +7141,8 @@
         "dialogue_path_for": "query",
         "gaze_warning_given": "query",
         "uses_signboard": "query",
-        "has_grudge_against": "query"
+        "has_grudge_against": "query",
+        "has_respect_for": "query"
       },
       "public_instance_methods": []
     },

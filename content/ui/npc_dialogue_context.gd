@@ -66,6 +66,11 @@ func holds_grudge() -> bool:
 	return is_valid() and NpcDialogueService.has_grudge_against(_delivery_npc(), _delivery_player())
 
 
+## Both roles read personal strength memory without changing social or combat state.
+func respects_player() -> bool:
+	return is_valid() and NpcDialogueService.has_respect_for(_delivery_npc(), _delivery_player())
+
+
 ## Применяет смысл ответа через конкретный игровой адаптер.
 func apply_response_tags(_tags: PackedStringArray) -> bool:
 	return false

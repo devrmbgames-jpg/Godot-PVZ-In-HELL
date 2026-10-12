@@ -1,0 +1,164 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+if ctx.respects_player()
+	{{ctx.speaker_name()}}: Твою силу видел. Подходи, поговорим как равные.
+else
+	{{ctx.speaker_name()}}: Проход не загородил? Тогда говори быстро. Жалобы слушать не стану.
+- Почему для тебя всё решает сила? => strength
+- Что ты заказываешь? => goods
+- Что происходит в районе? => neighborhood
+- Я могу доставить заказ домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Ладно, пойду. => END
+
+~ direct
+if ctx.has_registered_number()
+	if ctx.respects_player()
+		Клиент: Заказ №{{ctx.package_number_text()}}. Твою силу уважаю; теперь проверь номер, и разойдёмся спокойно.
+	else
+		Клиент: Заказ №{{ctx.package_number_text()}}. Коробку подай целой. Внутрь не лезь — пальцы мне пересчитывать легко.
+	- Проверю номер и упаковку. [#hon] => END
+	- Зачем тебе столько оружия? => goods
+	- Давай обойдёмся без угроз. [#prs] => restraint
+	- Могу доставить заказ домой. [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Сначала просканируйте посылки. Без номера чужую коробку я не возьму.
+=> END
+
+~ strength
+Бугай: Слова не держат дверь, когда в неё ломятся. Сильного узнаю по делу. Бахвальство я тоже узнаю.
+- Я отвечаю за свои действия. [#hon] => restraint
+- У каждого здесь своя работа. [#prs] => restraint
+- Попробуй меня сломать. [#thr] => threat
+- Только не бей, я всё отдам. [if not ctx.is_customer_service() /] [#sub] => surrender
+- Я одним пальцем стену обрушил. [#lie] => bluff
+
+~ restraint
+if ctx.respects_player()
+	Бугай: Мы оба знаем, что ты можешь постоять за себя. Значит, кулаки сегодня отдохнут.
+else
+	Бугай: Пока держишь слово, я держу руки при себе. Не заставляй менять порядок.
+=> END
+
+~ bluff
+Бугай: Стена хотя бы стоит молча. Твою похвальбу запомню, но силой её не сочту.
+=> END
+
+~ goods
+Бугай: Оружие. Крепкое, тяжёлое. А остальное в моей посылке — моё дело.
+- Что считаешь надёжным оружием? => weapon
+- Почему распаковываешь в кабинке? => privacy
+- Соседям лучше не попадаться под руку? [#jok] => joke
+- Понял. Внутрь не полезу. [#hon] => END
+
+~ weapon
+Бугай: Такое, которое переживёт первый удар. Покупку выбираю сам; твоя работа — донести её целой.
+=> END
+
+~ privacy
+Бугай: Кабинка для того и стоит, чтобы чужие глаза остались за дверью. Увидишь мою игрушку — разговор кончится плохо.
+=> END
+
+~ neighborhood
+Бугай: По ночам дверь запирай. Не рассчитывай, что кто-то побежит защищать тебя за красивые слова.
+- Я сам отвечаю за свой дом. [#hon] => restraint
+- Спасибо за предупреждение. => END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
+
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong

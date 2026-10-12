@@ -22,7 +22,7 @@ key = &"schedule/brute"
 [resource]
 script = ExtResource("8_td2xk")
 name_variants = PackedStringArray("Гром", "Бран")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/brute/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/brute/variant_b.dialogue")
 optional_traits = Array[ExtResource("3_wwjdq")]([SubResource("Resource_tpbao")])
 maximum_optional_traits = 1
 item_category_weights = Dictionary[int, float]({

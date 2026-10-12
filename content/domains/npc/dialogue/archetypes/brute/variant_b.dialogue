@@ -1,0 +1,164 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+if ctx.respects_player()
+	{{ctx.speaker_name()}}: А, достойный соперник! Для тебя место найдётся. Только локтями меня не тесни.
+else
+	{{ctx.speaker_name()}}: Гляди, кого принесло. Хочешь поговорить с самым крепким в квартале? Начинай, пока мне не скучно.
+- Самым крепким? Как ты это решил? => strength
+- Что сегодня в твоём заказе? => goods
+- Чего боятся местные? => neighborhood
+- Доставить заказ домой? [if ctx.can_offer_delivery() /] => delivery_request
+- Уже ухожу. => END
+
+~ direct
+if ctx.has_registered_number()
+	if ctx.respects_player()
+		Клиент: №{{ctx.package_number_text()}}. Руки у тебя крепкие, это я помню. Выдай заказ — и оба останемся довольны.
+	else
+		Клиент: №{{ctx.package_number_text()}}. Мне нужны покупки, а не отговорки. Помнёшь коробку — научу аккуратности.
+	- Сверю номер, потом подам коробку. [#hon] => END
+	- Чем пополняешь свою коллекцию? => goods
+	- Сначала договоримся спокойно. [#prs] => restraint
+	- Принести заказ домой? [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдать посылку нельзя. => deny_start
+else
+	Клиент: Не нашёл номер? Тогда просканируйте посылки. Моя очередь никуда не денется.
+=> END
+
+~ strength
+Бугай: Кто-то собирает медали. Я собираю взгляды тех, кто решил поспорить. Но достойную силу признаю: видел дело — запомнил человека.
+- Пусть дела говорят сами. [#hon] => restraint
+- Нам незачем мериться кулаками. [#prs] => restraint
+- Хочешь ещё один повод запомнить меня? [#thr] => threat
+- Ты победил, только не трогай. [if not ctx.is_customer_service() /] [#sub] => surrender
+- Я страшнее всех твоих соперников вместе. [#lie] => bluff
+
+~ restraint
+if ctx.respects_player()
+	Бугай: Вот и договорились. Достойного человека я уважаю, даже когда он не хвалит меня.
+else
+	Бугай: Хорошо говоришь. Посмотрим, так же ли крепко держишь обещания. Пустых слов я не уважаю.
+=> END
+
+~ bluff
+Бугай: Ха! Таких великих героев я встречаю каждую неделю. Слова громкие, доказательств мало.
+=> END
+
+~ goods
+Бугай: Оружие для коллекции и дела. У каждой вещи свой вес. Что ещё заказал — не твой вопрос.
+- Что самое ценное в коллекции? => weapon
+- Почему прячешь покупки в кабинке? => privacy
+- Тяжёлая у тебя работа: носить свою славу. [#jok] => joke
+- Твой заказ останется закрытым до выдачи. [#hon] => END
+
+~ weapon
+Бугай: Самое ценное — то, что не подвело. Вывеску «легендарное» на железку повесить легко; испытать её сложнее.
+=> END
+
+~ privacy
+Бугай: Я сам выбираю, чем хвастаться. Мою игрушку увидишь без спроса — пожалеешь о своей любознательности.
+=> END
+
+~ neighborhood
+Бугай: Здесь даже тени любят подкрасться сзади. Я шагаю так, чтобы знали: иду я. А ты сам решай, чем заявишь о себе.
+- Сначала разберусь, кто живёт рядом. [#hon] => restraint
+- Буду смотреть по сторонам. => END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
+
+
+~ riddle
+=> service/riddle
+
+~ riddle_correct
+=> service/riddle_correct
+
+~ riddle_wrong
+=> service/riddle_wrong
