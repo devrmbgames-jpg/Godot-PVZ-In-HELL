@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bber51n8y75hy"]
+
+[ext_resource type="Script" uid="uid://coovv6bq7fpxh" path="res://tests/smoke/district_survival_probe.gd" id="1_tlwfl"]
+
+[node name="DistrictSurvivalProbe" type="Node" unique_id=1103350795]
+script = ExtResource("1_tlwfl")

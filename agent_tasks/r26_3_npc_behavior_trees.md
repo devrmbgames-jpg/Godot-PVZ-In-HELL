@@ -19,21 +19,17 @@ native cloud hazard/confirmed-threat flight and optional invisibility after lost
 Authored VeilPresence changes appearance only; physical movement/collision/damage remain intact.
 Task tokens protect replacement forms; reset, profile, death and participation clean synchronously.
 Real NPC sight recognizes clouds and rejects invisible bodies; schema18 excludes transient forms.
-Review **REVIEW_PENDING**: BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8`
--> TARGET `588b59c1771d95b4ffba278988ddef0a364013a7`, same terminal reviewer reused.
-Final-code district smoke RUNNING; the pre-final FLEE guard smoke failed survival5/required6.
-Local light comfort `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` adds typed reusable
-CAPABILITY data excludes emergency light aversion; a visible idle branch preserves higher priorities. Selection uses close authored activity/cover,
-actual authored light, synchronized navigation and zero-damage routes; no teleport or offense.
-Native movement handles interruption/abandonment; companion MCP authors bounded native BTCooldown.
-Review BASE `8608f987f2a2a8965597829be98c2d6a7a8e94df` -> that TARGET **PASS**:
-same reviewer, no findings, architecture/style PASS (210s); reviewer validation NOT_RUN.
-Feeding `3961328cdc94dc93d56fa7336373af993128e0da` GUT123/1830;
-review BASE `80eb932ff485fd714e8b111ea370629de3ec3f2f` PASS, no findings (91s).
-Underlying Health bound `792481e4630d1ca70156654d3a22a1a91fd94cef`, blood consent
-`a407762ef018ab70715119cd432c63071d62d928` and20/20 native dialogue variants are reviewed.
-Schema18 restores durable consent receipts without live mutation. Unique previous evidence is in Git.
-All-ten live binding, full integration and required owner QA remain open.
+Review **PASS**: BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8`
+-> TARGET `588b59c1771d95b4ffba278988ddef0a364013a7`, same reviewer, no findings (95s).
+Architecture/style PASS; reviewer runtime NOT_RUN. Final smoke FAIL survival5/required6;
+Comparable BASE week PASS; current mortality diagnostic is running before selecting a repair.
+Prior light `8608f987f2a2a8965597829be98c2d6a7a8e94df` ->
+`38b7f2a59ef3c344b03aafaf11e7f7911d60622c` review PASS (210s, no findings);
+feeding `80eb932ff485fd714e8b111ea370629de3ec3f2f` ->
+`3961328cdc94dc93d56fa7336373af993128e0da` review PASS (91s, no findings).
+Reviewed Health `792481e4630d1ca70156654d3a22a1a91fd94cef` and blood
+`a407762ef018ab70715119cd432c63071d62d928` underpin schema18 and20/20 variants.
+Prior checks remain in Git; all-ten binding, full integration and required owner QA remain open.
 
 ### Validation
 
@@ -42,16 +38,18 @@ Veil20324494715/127; participation2025201979/162; sight2026361738/27;
 native lifecycle20313622251/346; feeding20323005711/95; light20324240812/159;
 night20265103420/186; catalog2027054844/944; variation2027088306/360.
 Parser20273604220files plus final2032045052files PASS; formatter, strict architecture/domain,
-structure, staged index, diff and persistence gates PASS. Final smoke RUNNING.
-Pre-final `tests/artifacts/district-20261013-062736299.log` FAIL, survival5/required6;
-not evidence for final code. Prior light-week PASS remains in Git. Global hot reload43 NOT_PASS;
+structure, staged index, diff and persistence gates PASS. Final smoke
+`tests/artifacts/district-20261013-063246721.log` FAIL, survival5/required6; preceding
+062736299 also FAIL before final FLEE fixes. Comparable BASE week PASS:
+`.artifacts/cloud_baseline_588b59c1/tests/artifacts/district-20261013-064942431.log`.
+Prior light-week PASS remains in Git. Global hot reload43 NOT_PASS;
 fresh CLI checks independently verify. Required editor/rendered verification remains open.
 Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention
 KNOWN_ENGINE_LIMITATION/DEFERRED. Full mandatory/live/rendered behavior and owner QA remain open.
 
 ### Next
 
-Collect immutable cloud review and final smoke; resolve findings/failures before acceptance.
+Resolve the linked [hazard endpoint defect](npc_hazard_escape_navigation.md); week acceptance stays open.
 Then cross-archetype acceptance and all-ten live roster binding; do not waive R26.5/owner QA.
 
 ### Review triage
@@ -59,18 +57,18 @@ Then cross-archetype acceptance and all-ten live roster binding; do not waive R2
 Canonical source/fix SHAs below are ancestors of current code HEAD
 `588b59c1771d95b4ffba278988ddef0a364013a7`; prior light/feeding/blood/UI reviews added no findings.
 Full-SHA ancestry audit: 26 previous checkpoints PASS. RV-001..005 retain FIXED with their
-actual regression/re-review evidence. Current cloud review is REVIEW_PENDING, not PASS.
+actual regression/re-review evidence. Current cloud review PASS, no additional findings.
 
 RV-006 P1 FLEE_EXIT continuation, Main reproduction/source
 `a2b1d764b1b316b27df979a8d72917d6deab8ed8`, NpcDecisionService.flee:
 FIXED `588b59c1771d95b4ffba278988ddef0a364013a7`; baseline202020933 freed-actor access.
 Veil20324494715/127 and lifecycle20313622251/346 PASS, including native reset/retirement,
-normal dormant fear cleanup and direct role-release API. Targeted review REVIEW_PENDING.
+normal dormant fear cleanup and direct role-release API. Immutable checkpoint review PASS.
 
-RV-005 P1 continuous camera exposure, source `3e88b56983a775cc78c225353251ff6a98d33b87`, R1/Main:
-FIXED `23fa3d44d9024d4becb59477921be1d288d7bee9`, GUT18342894914/111, parser1834543174/4.
-HOME/STREET baseline183345914 FAIL13/14: suspension retained0.4s then0.1s and committed detection.
-Repair resets transient sensing before runner lookup, preserving memory; targeted review PASS.
+RV-005 P1 camera exposure, source `3e88b56983a775cc78c225353251ff6a98d33b87`:
+FIXED `23fa3d44d9024d4becb59477921be1d288d7bee9`, GUT18342894914/111,
+parser1834543174/4; baseline183345914 FAIL13/14 retained exposure across suspension.
+Sensing reset before runner lookup preserves memory; targeted review PASS.
 
 RV-004 P2 fatal threshold101, source `3a18bbc5275463d05328744e767e923cf8242d7b`:
 FIXED `4f956de8db9a62aa8bd13df53c150025798aa1d0`, Soul05352171816/186, parser053544530/2.
@@ -107,15 +105,11 @@ add another automatic BT tick or Service clock. Gaze/blood/light emergencies use
 `NpcDecisionService.request_wake` urgent invalidation; test reaction latency at the actual
 decision/physics boundary. Timed trait state stays in its authoritative Component/System.
 Long-lived target/zone bindings use Relationships, not a second Blackboard registry.
-
-Architectural acceptance test:
-
-> If leaf implementations are hidden and only node names/hierarchy remain, a reviewer must still understand the NPC's high-level decisions.
+Architectural acceptance: node names/hierarchy alone must expose high-level NPC decisions.
 
 ## Shared top-level tree
 
 Prefer a common root shape with archetype/trait subtrees plugged in:
-
 ```text
 DynamicSelector
 ├─ ImmediateSafety / ForcedFreeze
@@ -130,8 +124,7 @@ DynamicSelector
 ```
 
 Exact ordering may differ where an archetype requires it, but priority must be visible in the resource.
-
-Do not duplicate navigation/physics/damage logic in BT tasks. Actions issue semantic intents through existing services.
+BT tasks issue semantic intents through existing services; preserve navigation/physics/damage owners.
 
 ## Required reusable BT leaves/subtrees
 
@@ -142,7 +135,6 @@ Create reusable, narrowly named tasks where applicable:
 - hazard-zone entry/retention, cloud escape and visibility/invisibility presentation requests.
 
 Do not force all of these into one generic mega-task with an enum.
-
 ## Archetype trees
 
 ### Скромник
@@ -196,23 +188,13 @@ future lethal contexts require a separate explicit data/branch rule.
 
 ## Interruptions/lifecycle
 
-Every long-running action must define:
-- start;
-- RUNNING condition;
-- SUCCESS;
-- FAILURE;
-- interruption cleanup.
-
+Every long-running action defines start, RUNNING/SUCCESS/FAILURE and interruption cleanup.
 No stale move targets, attack phase, invisibility, reserved booth, hazard interest, or animation state after branch interruption.
 
 ## Validation requirements
 
-Create focused BT tests proving:
-- tree resources have meaningful composites/conditions, not single dispatcher leaves;
-- high-priority freeze/light/blood branches preempt lower priority work;
-- interruption clears semantic intent correctly;
-- no branch performs omniscient perception;
-- two NPCs with different trait sets can reuse the same tree/subtrees;
-- behavior remains deterministic enough for headless tests with authored seeds.
+Focused BT tests prove native composites/conditions, high-priority preemption, clean
+interruption, perception without hidden-position knowledge, reuse across trait sets and
+deterministic headless behavior with authored seeds.
 
 Near completion run parser + focused GUT + bounded headless district smoke. Rendered feel remains owner QA.

@@ -172,10 +172,17 @@ static func danger_here(actor: E_DistrictNpc) -> bool:
 	return false
 
 
-## Отступает от текущей вредной сферы; обычная навигация проверяет путь выхода.
+## Chooses a projected safe endpoint; the fair route-planning System still owns actual paths.
 static func refuge(actor: E_DistrictNpc) -> Vector3:
 	var margin: float = NpcPopulationQueries.current().definition.local_detour_margin
-	for hazard: NpcRouteContext.Hazard in _hazards(actor):
+	var hazards: Array[NpcRouteContext.Hazard] = _hazards(actor)
+	var map: RID = actor.navigation_agent.get_navigation_map()
+	var has_map: bool = map.is_valid() and NavigationServer3D.map_get_iteration_id(map) > 0
+	var fallback: Vector3 = actor.global_position
+	var has_fallback: bool = false
+	var best: Vector3 = actor.global_position
+	var best_distance: float = INF
+	for hazard: NpcRouteContext.Hazard in hazards:
 		var vertical_gap: float = absf(actor.global_position.y - hazard.center.y)
 		if vertical_gap > hazard.half_height + FLOOR_HEIGHT_MARGIN:
 			continue
@@ -188,8 +195,48 @@ static func refuge(actor: E_DistrictNpc) -> Vector3:
 			outward.y = 0.0
 		var center: Vector3 = hazard.center
 		center.y = actor.global_position.y
-		return center + outward.normalized() * (hazard.radius + margin)
-	return actor.global_position
+		var radial: Vector3 = center + outward.normalized() * (hazard.radius + margin)
+		if not has_fallback:
+			fallback = radial
+			has_fallback = true
+		if not has_map:
+			continue
+		# Point projections do not build paths or consume the planning queue's budget.
+		for direction: int in 8:
+			var candidate: Vector3 = center + outward.normalized().rotated(
+				Vector3.UP,
+				TAU * float(direction) / 8.0,
+			) * (hazard.radius + margin)
+			var projected: Vector3 = NavigationServer3D.map_get_closest_point(map, candidate)
+			projected.y = actor.global_position.y
+			if not _safe_refuge_point(projected, hazards):
+				continue
+			# Preserve the direct exit when projection leaves its endpoint within arrival tolerance.
+			if (
+				direction == 0
+				and projected.distance_to(radial) <= NpcDecisionService.ARRIVAL_DISTANCE
+			):
+				return projected
+			var distance: float = actor.global_position.distance_squared_to(projected)
+			if distance < best_distance:
+				best_distance = distance
+				best = projected
+	return best if is_finite(best_distance) else fallback
+
+
+static func _safe_refuge_point(point: Vector3, hazards: Array[NpcRouteContext.Hazard]) -> bool:
+	for hazard: NpcRouteContext.Hazard in hazards:
+		if absf(point.y - hazard.center.y) > hazard.half_height + FLOOR_HEIGHT_MARGIN:
+			continue
+		var offset: Vector3 = point - hazard.center
+		offset.y = 0.0
+		# Arrival tolerance must not stop the body just inside the padded danger boundary.
+		var clearance: float = (
+			hazard.radius + NpcDecisionService.ARRIVAL_DISTANCE + FLOOR_HEIGHT_MARGIN
+		)
+		if offset.length() <= clearance:
+			return false
+	return true
 
 
 ## Ожидаемый периодический урон использует тот же множитель типа, что и O_Damage.

@@ -36,7 +36,8 @@ emergency light aversion while preserving higher obligations/conflicts. Review a
 parser7files/scoped gates/headless week PASS in R26.3. Typed cloud/visibility and authored
 presentation are implemented at `588b59c1771d95b4ffba278988ddef0a364013a7`;
 GUT136/2406 and parser/static gates PASS; review against
-`a2b1d764b1b316b27df979a8d72917d6deab8ed8` REVIEW_PENDING, final smoke RUNNING.
+`a2b1d764b1b316b27df979a8d72917d6deab8ed8` PASS (95s, no findings).
+Final week smoke FAIL survival5/required6; comparable previous-SHA week PASS, diagnosis in R26.3.
 Mandatory acceptance and all-ten live binding remain open; full evidence/triage in R26.3.
 
 ### Validation

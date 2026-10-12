@@ -50,14 +50,15 @@ GUT65/1851, parser7files, scoped gates and headless week PASS; independent revie
 `8608f987f2a2a8965597829be98c2d6a7a8e94df` -> that TARGET PASS (210s, no findings).
 Conditional cloud/visibility and authored appearance are implemented at
 `588b59c1771d95b4ffba278988ddef0a364013a7`, GUT136/2406 and parser/static gates PASS.
-Review BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8` -> that TARGET REVIEW_PENDING;
-same reviewer reused. Final smoke RUNNING; R26.3 owns prior-run failure and RV-006 evidence.
+Review BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8` -> that TARGET PASS (95s, no findings);
+same reviewer reused. Final week smoke FAIL survival5/required6; comparable BASE week PASS.
+R26.3 owns mortality diagnosis/RV-006; integration acceptance remains open.
 All-ten live binding, R26.5 and required owner QA remain unfinished.
 Existing user worktree edits were preserved.
 
 ### Next
 
-Collect cloud checkpoint review/final smoke and resolve findings/failures. Bind all ten
+Resolve the current week failure against the passing BASE. Bind all ten
 archetypes after mandatory capabilities and cross-archetype acceptance are ready.
 Full integration/owner QA remain open.
 
