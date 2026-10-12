@@ -56,12 +56,12 @@ R26.4 routes committed personal variants, with two neutral/lost, two shy, two ni
 imported service/delivery flows and imported-resource cleanup. Shy warning reads and actual
 role/idempotency regressions and checkpoint review pass. Lost checkpoint review
 and registration-guard repair passed. Night light views and actual role/delivery checks pass,
-with checkpoint review passed. Angel native board/pool/role checks pass, with its review pending;
+with checkpoint review passed. Angel native board/pool/role checks and independent review pass;
 the remaining 12 variants/interactions stay open.
 
 ### Next
 
-Continue the angel's board variants and remaining R26.3/R26.4,
+Continue the hag's ranged/riddle/grudge capabilities and remaining R26.3/R26.4,
 then bind all ten archetypes.
 
 ### Validation

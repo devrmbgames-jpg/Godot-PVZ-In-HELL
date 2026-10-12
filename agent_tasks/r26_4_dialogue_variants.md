@@ -37,13 +37,13 @@ Angel variants use terse instructions versus religious signs. Both roles render 
 an authored native board, retaining existing response tags, modal capture and gameplay context.
 The sign cue is immutable profile data, with ordinary actors retaining speaker/text presentation.
 Native pool authoring preserves all tuning/UIDs and changes only the two variant paths.
-Angel checkpoint review is pending. Remaining archetypes need interactions, including soul/blood
+Angel checkpoint review passed. Remaining archetypes need interactions, including soul/blood
 transactions; full task acceptance and live roster binding remain open.
 
 ### Next
 
 Continue required archetype behavior/interaction capabilities
-and author the remaining 12 variants after the angel checkpoint review.
+and author the remaining 12 variants, starting with the hag's ranged/riddle/grudge capabilities.
 No per-open reroll or new UI authority is introduced.
 
 ### Validation
@@ -83,7 +83,10 @@ No per-open reroll or new UI authority is introduced.
   Companion pool preflight GUT010415794 4/28 PASS; native catalog diff is exactly one pool line.
   Formatter/lint, strict architecture/dependencies, domain/project structure and persistence PASS.
   MCP authored scene/style/pool/imports; test diagnostics checked[] PASS. Global reload43 NOT_PASS;
-  clean restart and CLI independently verify current source. Review REVIEW_PENDING; owner visual QA NOT_RUN.
+  clean restart and CLI independently verify current source. Review
+  `e905f5ea0809dafbb2008d52f4b8283af43dbb2c` ->
+  `373dc4a1f64ad3f4f57cf8c322cea6bb77158cbb` PASS, no findings (45 s);
+  ARCHITECTURE/STYLE PASS, reviewer runtime VALIDATION NOT_RUN; owner visual QA NOT_RUN.
 
 ### Review triage
 
