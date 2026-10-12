@@ -22,16 +22,19 @@ Recovery review BASE `6f96be1e39eb94b4a4c307c8bce2d3b9a30a14f3` -> that TARGET c
 only R1 accepted as RV-005. Repair `23fa3d44d9024d4becb59477921be1d288d7bee9`
 passed independent targeted re-review (27s); reviewer was reused after its terminal result.
 
-Reviewed native freeze/speed/shy/night behavior retains body, animation, combat, cadence and motion authorities. Shy uses actual camera/LOS and safe idle repositioning; Trait System owns gaze escalation. Night uses due-step authored light, reversible combat suppression and native audio/Decal cleanup on dormant/dead/reset/replacement/disposal.
-Hag RANGED preference selects visible distance/shot branches in both roots below immediate safety/light/blood. Bounded safe navigation previews preserve physical transform authority; combat owns shots/cooldowns, unreachable retreat permits defense and lost targets use search.
-Hag personal grudges derive from durable offender/victim IDs; repeats retain committed reactions and both dialogue roles read the same query. Bodyless promises, days/reset/save retain resentment; no grudge clock. Both hag riddle/deception variants now passed checks/review.
-Brute typed pride uses actual player-camera/solid visibility and NPC recognition of held or opened TOY bodies. Customers samples exposure before cadence; explicit native branches commit one durable offense, while recognized applied strength records actor-specific respect and ends matching combat/panic.
-Native toy/catalog and private booth opening retain physical, inspection, order, memory and save authorities. Brain recipes and both authored initial-field policies restore immutable pride and clear transient exposure. Both roots preserve safety/light/blood before toy/combat/service.
-Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation checks and immutable-SHA review PASS. Both strength/private-order dialogue variants `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed native checks/review; details in R26.4.
-
-Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; generic Hazard owners retain follow, overlap damage and teardown. Route and sleep risk clip floor height. Checkpoints `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` and RV-003 repair `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` passed checks/targeted review. Immediate physical opening and one durable ignition roll now passed checks/review at `952c851545d2a4b28954a6a620cd0dfbbe8582e5`; both Fire dialogue variants `044de4285d22ff67c53635fbff5596d3dab7cbf6` passed native tests and review. Existing service BT and Hazard owners execute opening/inspection/blast, with eligible physical item and actual opener facts.
-
-Soul core `3a18bbc5275463d05328744e767e923cf8242d7b` commits +1 Strength/-10 maximum Health and the third total acceptance through common depletion. Refusals preserve count; closure keeps the pending key. Captured terms, durable receipts/cooldowns, schema16 and native player capability preserve save/lifetime authorities. Independent review and RV-004 repair PASS; both Chain variants `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b` passed native checks and independent review.
+Earlier reviewed native freeze/speed/shy/night/ranged/grudge and Brute/Fire/Chain
+milestones preserve physical, animation, combat, cadence, service, memory and save owners.
+Unique capability/authoring/regression evidence remains in their committed task snapshots.
+Brute `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`, dialogs
+`50c2a2ef35cb78d036b96b2087a6bbe920279c21`; Fire presence
+`0daa93c2898a19b28f5c827a4e81b5436b67e9c8`, opening
+`952c851545d2a4b28954a6a620cd0dfbbe8582e5`, dialogs
+`044de4285d22ff67c53635fbff5596d3dab7cbf6` passed focused checks/reviews.
+Soul `3a18bbc5275463d05328744e767e923cf8242d7b` and RV-004 repair use common
+Strength/Health authority, captured terms/receipts/cooldowns and total acceptance count;
+Chain dialogs `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b` passed checks/review.
+Creepy dialogs `ad79c0eab6a00772dd578a3a7d25053166db70ef` passed independent review;
+actual role/panel evidence belongs to R26.4. Vampire/full integration and owner QA stay open.
 
 ### Validation
 
@@ -43,22 +46,9 @@ and diff PASS after public-dialogue contract update. Connected district headless
 Historical source-checkpoint smoke162810446 also PASS; neither is rendered QA.
 
 
-Chain dialogue GUT054458560 39/945, parser054654245/2 and fresh MCP checked[] PASS;
-review BASE `b2fa6988d8ff5abf378ac11d28de6d7b5d298412` ->
-TARGET `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b` PASS, no findings (59 s); details R26.4.
-
-Latest soul PASS: GUT053521718 16/186, native packed authoring052140988 4/328,
-contact052230683 6/40, world052321580 35/443; parser052429308/25.
-MCP saved native trait/profile/player with preserved UID/recipes; fresh tests checked[].
-District-20261012-152551456.log smoke PASS. Formatter/lint, strict architecture/dependencies,
-project/domain/persistence/diff PASS. Incremental gate's ResourceSaver REVIEW accepted by independent review as editor-only native authoring.
-Baseline052241040 5/362 assertions PASS; runner FAIL solely shutdown retention.
-Review BASE `f89a150b439a78473848ffe416eca306085ed0d4` ->
-TARGET `3a18bbc5275463d05328744e767e923cf8242d7b`, repaired/reviewed `4f956de8db9a62aa8bd13df53c150025798aa1d0` PASS.
-Reviewed Fire presence/opening/dialogues and Brute milestones above passed focused
-GUT/parser/static/smoke and immutable reviews; unique evidence remains in those checkpoints.
-Earlier freeze/speed/shy/night/ranged/grudge/hag checks and immutable reviews passed.
-RV-001/RV-002/RV-003 repairs remain recorded below.
+Previous Brute/Fire/Chain and earlier native milestones passed focused GUT/parser/static/smoke
+and immutable reviews at the checkpoints above. Their unique historical evidence remains in Git.
+Canonical findings below retain original source/fix SHA and focused verification.
 Global hot reload43 NOT_PASS; actual layouts/restart and fresh CLI checks independently verify changes. Passing runs have no runtime errors/GUT orphan Nodes. Specified shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED.
 Full mandatory behavior/live integration and owner rendered movement/dialogue/assets/balance QA remain open.
 
