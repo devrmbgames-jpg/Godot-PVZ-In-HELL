@@ -25,9 +25,13 @@ Brute checkpoint `b72342b7ab3c08fdd49fa1b9c9ebb55ced9a80b5`: implementation chec
 
 Fire presence uses separate authored torso sphere and thin 10 m floor Cylinder; generic Hazard owners retain follow, overlap damage and teardown. Route and sleep risk clip floor height. Checkpoints `0daa93c2898a19b28f5c827a4e81b5436b67e9c8` and RV-003 repair `2fbd959480f0c2ff5f028d7ba012651634ea9fe8` passed checks/targeted review. Immediate physical opening and one durable ignition roll now passed checks/review at `952c851545d2a4b28954a6a620cd0dfbbe8582e5`; both Fire dialogue variants `044de4285d22ff67c53635fbff5596d3dab7cbf6` passed native tests and review. Existing service BT and Hazard owners execute opening/inspection/blast, with eligible physical item and actual opener facts.
 
-Soul core `3a18bbc5275463d05328744e767e923cf8242d7b` commits +1 Strength/-10 maximum Health and the third total acceptance through common depletion. Refusals preserve count; closure keeps the pending key. Captured terms, durable receipts/cooldowns, schema16 and native player capability preserve save/lifetime authorities. Independent review and RV-004 repair PASS; two Chain dialogue variants remain open.
+Soul core `3a18bbc5275463d05328744e767e923cf8242d7b` commits +1 Strength/-10 maximum Health and the third total acceptance through common depletion. Refusals preserve count; closure keeps the pending key. Captured terms, durable receipts/cooldowns, schema16 and native player capability preserve save/lifetime authorities. Independent review and RV-004 repair PASS; both Chain variants `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b` passed native checks and independent review.
 
 ### Validation
+
+Chain dialogue GUT054458560 39/945, parser054654245/2 and fresh MCP checked[] PASS;
+review BASE `b2fa6988d8ff5abf378ac11d28de6d7b5d298412` ->
+TARGET `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b` PASS, no findings (59 s); details R26.4.
 
 Latest soul PASS: GUT053521718 16/186, native packed authoring052140988 4/328,
 contact052230683 6/40, world052321580 35/443; parser052429308/25.
@@ -46,7 +50,7 @@ Full mandatory behavior/live integration and owner rendered movement/dialogue/as
 
 ### Next
 
-Implement chain/creepy/vampire mandatory capabilities, their six dialogue variants and outstanding cross-archetype acceptance before live roster binding.
+Implement creepy/vampire mandatory capabilities, their four dialogue variants and outstanding cross-archetype acceptance before live roster binding.
 
 ### Review triage
 

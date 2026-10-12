@@ -13,13 +13,13 @@ The owner will later copy these resources and add more variants. Therefore paths
 
 ### Current
 
-Native lost/shy/night/angel/hag/brute/fire catalogs now expose **14/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
+Native lost/shy/night/angel/hag/brute/fire/chain catalogs now expose **16/20** variants. Committed per-person selection survives codec/save; explicit visit resources retain priority. All variants preserve imported role cues, registered-number guards, denial/private delivery authority, response tags and imported-cycle cleanup.
 Shy variants read gaze warnings; night variants read authored perceived darkness; angel variants use native written boards. Hag variants differ in deception, reagents/artifacts and riddles (name versus hole), read personal grudges and keep street answers separate from idempotent service outcomes.
-Brute variants differ in direct threats and bragging, discuss weapons/private toy purchases and read recognized actor-specific strength. Dialogue never grants respect; street submission uses the existing social owner. Checkpoint `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed independent review. Fire variants differ in restrained care versus impatient enthusiasm; both discuss real fire reagents, floor/body heat and possible opening explosions without deciding gameplay outcomes. Remaining chain/creepy/vampire need mandatory interactions and six variants before live roster binding.
+Brute variants differ in direct threats and bragging, discuss weapons/private toy purchases and read recognized actor-specific strength. Dialogue never grants respect; street submission uses the existing social owner. Checkpoint `50c2a2ef35cb78d036b96b2087a6bbe920279c21` passed independent review. Fire variants differ in restrained care versus impatient enthusiasm; both discuss real fire reagents, floor/body heat and possible opening explosions without deciding gameplay outcomes. Chain variants now implement contractual/legalistic and mocking/tempting confirmations through a stable-key adapter; total accepted count, explicit refusal and UI closure follow the reviewed soul ledger. Remaining creepy/vampire need mandatory interactions and four variants before live roster binding.
 
 ### Next
 
-Implement Chain Devil's authoritative soul transactions and two variants, then creepy/vampire interactions and their variants. Full owner acceptance remains open.
+Implement creepy/vampire mandatory interactions and four variants, then outstanding cross-archetype acceptance before live roster binding. Full owner acceptance remains open.
 
 ### Validation
 
@@ -28,8 +28,15 @@ MCP authored/imported both Fire variants, saved the catalog pool with UIDs/tunin
 Fire review BASE `3a0e634409856c6facedc7431745614e9178f453` -> TARGET `044de4285d22ff67c53635fbff5596d3dab7cbf6` PASS, no findings (13 s); ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN.
 Earlier lost/shy/night/angel/hag/brute variants and immutable reviews PASS;
 unique role, codec, panel/refusal/delivery evidence remains in their Git checkpoints.
-Soul core `3a18bbc5275463d05328744e767e923cf8242d7b`, repaired/reviewed `4f956de8db9a62aa8bd13df53c150025798aa1d0` PASS; two new
-Chain drafts are imported work in progress and are not counted among the 14 verified variants.
+Soul core reviewed/repaired `4f956de8db9a62aa8bd13df53c150025798aa1d0` PASS; details R26.3.
+Chain PASS: GUT054458560 **39/945** including31 inherited; parser054654245/2,
+fresh MCP test checked[]. Native import/pool save retains UID/tuning.
+Both role confirmations, replay/opposite response, pending closure, refusal count,
+invalid stats, actual third-acceptance death/panel cleanup, scan/denial/private delivery PASS.
+Formatter/lint, strict architecture/dependencies/project/domain/persistence/staged/diff PASS.
+Review BASE `b2fa6988d8ff5abf378ac11d28de6d7b5d298412` ->
+TARGET `fd7fbd0fe70d682c4af5e9454525d5cf08b0fa1b` PASS, no findings (59 s).
+ARCHITECTURE/STYLE PASS; reviewer runtime and rendered owner QA NOT_RUN.
 Global hot reload43 remains NOT_PASS; actual layouts/restart and fresh CLI checks independently verify saves. Full 20-variant acceptance and rendered/tone/modal owner QA NOT_RUN.
 
 ### Review triage
