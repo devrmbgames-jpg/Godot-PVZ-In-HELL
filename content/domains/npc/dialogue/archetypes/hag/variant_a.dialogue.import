@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://dfijw67d262bt"
+path="res://.godot/imported/variant_a.dialogue-e9f052fd5c98eed32954f40d0e4bbae3.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/archetypes/hag/variant_a.dialogue"
+dest_files=["res://.godot/imported/variant_a.dialogue-e9f052fd5c98eed32954f40d0e4bbae3.tres"]
+
+[params]
+
+defaults=true

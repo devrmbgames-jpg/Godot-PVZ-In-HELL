@@ -1,0 +1,191 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+if ctx.holds_grudge()
+	{{ctx.speaker_name()}}: Твою прежнюю обиду я помню. Новое слово взвешу прежде, чем поверю.
+else
+	{{ctx.speaker_name()}}: Я торгую вопросами. Ответишь честно — останемся соседями.
+- Задай свою загадку. => street_riddle
+- Как понять, когда ты обманываешь? => tricks
+- Что скрывает этот район? => neighborhood
+- Что ты заказываешь? => goods
+- Я могу доставить заказ домой. [if ctx.can_offer_delivery() /] => delivery_request
+- До встречи. => END
+
+~ direct
+if ctx.has_registered_number()
+	if ctx.holds_grudge()
+		Клиент: Заказ №{{ctx.package_number_text()}}. Обиду я помню; коробку проверь особенно тщательно.
+	else
+		Клиент: Заказ №{{ctx.package_number_text()}}. Ищу реагенты и артефакты, а не пустые обещания.
+	- Проверю посылку по номеру. => END
+	- Расскажи о своих покупках. => goods
+	- Лучше договоримся без уловок. [#prs] => restraint
+	- Могу доставить заказ домой. [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Номера нет. Сначала просканируйте поступившие посылки, потом будем играть словами.
+=> END
+
+~ tricks
+Карга: Правду проще всего спрятать между двумя точными словами. Скажу «почти целая» — сам решай, какой половины не хватает.
+- Я скажу прямо, если не знаю ответа. [#hon] => restraint
+- Давай обойдёмся без двойных смыслов. [#prs] => restraint
+- Я никогда никого не обманывал. [#lie] => caught_lie
+- Ещё одна уловка — и пожалеешь. [#thr] => threat
+
+~ caught_lie
+if ctx.holds_grudge()
+	Карга: Снова ложь? Прежнюю обиду я не забыла, а теперь ты прибавил к ней новую.
+else
+	Карга: «Никогда» — удобное слово для лжеца. Я запомню, кто его произнёс.
+=> END
+
+~ restraint
+Карга: За честный ответ не укушу. За незнание тоже. Но обещание считай своим долгом.
+=> END
+
+~ neighborhood
+Карга: В этом районе не всякий запертый дом пуст. Дверь может держать хозяина внутри, а не гостя снаружи.
+- Значит, сперва постучу. [#hon] => restraint
+- Есть загадка про двери? => street_riddle
+- Спасибо за предупреждение. => END
+
+~ goods
+Карга: Реагенты нужны для варева, артефакты — чтобы оно не перепутало повара с добычей.
+- Что за реагенты? => reagents
+- А зачем тебе артефакт? => artifact
+- Домашняя доставка избавит от очереди. [if ctx.can_offer_delivery() /] => delivery_request
+- Пусть заказ придёт целым. => END
+
+~ reagents
+Карга: Мне нужны подписанные пузырьки. Если состав неизвестен, так и скажи: я не люблю чужую ложь в своём котле.
+=> END
+
+~ artifact
+Карга: Артефакт выбирают по тому, что он удерживает. Красивый блеск ещё не означает добрую силу.
+=> END
+
+~ street_riddle
+Карга: Что принадлежит тебе, но другие произносят его чаще тебя?
+- Моё имя. [#hon] => street_riddle_correct
+- Мой долг. => street_riddle_wrong
+- Конечно, нос: он у меня разговорчивый. [#jok] => street_riddle_wrong
+- Я уже разгадал, просто не скажу. [#lie] => caught_lie
+
+~ street_riddle_correct
+Карга: Имя. Я запоминаю имена особенно хорошо. Держи своё слово, и мне не придётся вспоминать его со злостью.
+=> END
+
+~ street_riddle_wrong
+Карга: Нет, это имя. Ошибка — ещё не обман; попробуешь другую загадку в другой раз.
+=> END
+
+~ riddle
+if ctx.holds_grudge()
+	Клиент: Обиду я помню. Вот новый вопрос: что принадлежит тебе, но другие произносят его чаще тебя?
+else
+	Клиент: Прежде номера — вопрос: что принадлежит тебе, но другие произносят его чаще тебя?
+- Моё имя. [#hon] => riddle_correct
+- Мой долг. => riddle_wrong
+- Мой голос. => riddle_wrong
+- Я не знаю. => riddle_wrong
+
+~ riddle_correct
+$> ctx.answer_riddle_correct()
+Клиент: Имя. Ответ верный; теперь можно перейти к посылке.
+=> direct
+
+~ riddle_wrong
+$> ctx.answer_riddle_wrong()
+Клиент: Нет. Я запомню неудачный ответ, но не выдам его за ложь.
+- Попробовать ещё раз. => riddle
+- Тогда пока закончим. => END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke

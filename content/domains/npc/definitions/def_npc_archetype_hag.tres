@@ -24,7 +24,7 @@ key = &"schedule/hag"
 [resource]
 script = ExtResource("10_aihwi")
 name_variants = PackedStringArray("Морана", "Аграфена")
-dialogue_variants = PackedStringArray()
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/hag/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/hag/variant_b.dialogue")
 optional_traits = Array[ExtResource("3_b6p0t")]([SubResource("Resource_j7au8")])
 maximum_optional_traits = 1
 item_category_weights = Dictionary[int, float]({

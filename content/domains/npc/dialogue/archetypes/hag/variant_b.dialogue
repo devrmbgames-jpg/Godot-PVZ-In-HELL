@@ -1,0 +1,191 @@
+import "res://content/domains/npc/dialogue/npc_street.dialogue" as street_flow
+import "res://content/domains/customers/dialogue/customer_service.dialogue" as service
+
+~ street
+if ctx.holds_grudge()
+	{{ctx.speaker_name()}}: А, должник по обидам! Старый счёт у меня цел, даже если ты его потерял.
+else
+	{{ctx.speaker_name()}}: Ставлю пустой кошелёк против твоей догадливости. Пустота тоже бывает ценным товаром!
+- Проверим мою догадливость. => street_riddle
+- Зачем ты всё переворачиваешь? => tricks
+- Какие слухи ходят по району? => neighborhood
+- Что в твоих заказах? => goods
+- Я могу доставить заказ домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Мне пора. => END
+
+~ direct
+if ctx.has_registered_number()
+	if ctx.holds_grudge()
+		Клиент: Заказ №{{ctx.package_number_text()}}. Старый счёт по обидам не закрыт; новый заказ выдавай честно.
+	else
+		Клиент: Заказ №{{ctx.package_number_text()}}. Реагенты, артефакты — всё самое сомнительное, зато настоящее!
+	- Сверю номер и коробку. => END
+	- Что ты собираешься с ними делать? => goods
+	- Предлагаю честную сделку. [#prs] => restraint
+	- Могу доставить заказ домой. [if ctx.can_offer_delivery() /] => home_request
+	- Сегодня выдача невозможна. => deny_start
+else
+	Клиент: Не угадывай мой номер. Сначала просканируйте поступившие посылки: загадки у нас отдельно.
+=> END
+
+~ tricks
+Карга: Я обещала пустой кошелёк — не сказала, что отдам его! Ты сам дописал выгодную половину сделки.
+- Значит, буду уточнять условия. [#hon] => restraint
+- Давай договоримся без таких фокусов. [#prs] => restraint
+- У меня все посылки уже выданы, честное слово. [#lie] => caught_lie
+- Сейчас кошелёк станет на одну каргу легче. [#thr] => threat
+
+~ caught_lie
+if ctx.holds_grudge()
+	Карга: Опять врёшь? Старый счёт по обидам ещё не оплачен, а ты уже открываешь следующий.
+else
+	Карга: Хорошая попытка. Плохой выбор слушателя. Эту ложь я сохраню вместе с твоим именем.
+=> END
+
+~ restraint
+Карга: Уточняй! От прямого вопроса мне труднее увильнуть. От угроз я, напротив, становлюсь удивительно меткой.
+=> END
+
+~ neighborhood
+Карга: Сосед обещал мне тишину. Теперь его никто не слышит. Видишь, как опасны слишком удачные обещания?
+- Я обещаю только то, что могу выполнить. [#hon] => restraint
+- Лучше расскажи загадку. => street_riddle
+- На сегодня хватит слухов. => END
+
+~ goods
+Карга: Заказываю реагенты и артефакты. Одни меняют вещи, другие мешают вещам поменять меня.
+- Покажешь реагенты? => reagents
+- Чего ждёшь от артефакта? => artifact
+- Можно договориться о доставке домой. [if ctx.can_offer_delivery() /] => delivery_request
+- Удачного заказа. => END
+
+~ reagents
+Карга: Реагент должен быть тем, что написано на этикетке. Шутки я люблю, подмену состава — гораздо меньше.
+=> END
+
+~ artifact
+Карга: Если артефакт шепчет «совсем безопасно», положи его подальше и спроси, для кого именно.
+=> END
+
+~ street_riddle
+Карга: Что становится больше, когда из него больше вынимают?
+- Яма. [#hon] => street_riddle_correct
+- Кошелёк. => street_riddle_wrong
+- Очередь: все выходят, а она растёт! [#jok] => street_riddle_wrong
+- Я знаю ответ, но хочу, чтобы ты проиграла. [#lie] => caught_lie
+
+~ street_riddle_correct
+Карга: Яма! Кошелёк так не умеет. Жаль: я бы давно стала богаче, раздавая пустоту.
+=> END
+
+~ street_riddle_wrong
+Карга: Это яма. Из кошелька вынешь монету — он опустеет, а яма от каждой лопаты вырастет. Никакой магии, одна хитрая формулировка.
+=> END
+
+~ riddle
+if ctx.holds_grudge()
+	Клиент: Старый счёт по обидам помню. Новый вопрос: что становится больше, когда из него больше вынимают?
+else
+	Клиент: Сначала выиграй словесную сделку: что становится больше, когда из него больше вынимают?
+- Яма. [#hon] => riddle_correct
+- Кошелёк. => riddle_wrong
+- Коробка. => riddle_wrong
+- Не стану угадывать. => riddle_wrong
+
+~ riddle_correct
+$> ctx.answer_riddle_correct()
+Клиент: Яма! Ответ принимаю; теперь очередь за твоей честной выдачей.
+=> direct
+
+~ riddle_wrong
+$> ctx.answer_riddle_wrong()
+Клиент: Не угадал. Один неверный ответ я уже учла; второй раз один и тот же долг не взыщу.
+- Повторить вопрос. => riddle
+- Продолжим в другой раз. => END
+
+~ provocation
+if ctx.is_customer_service()
+	=> direct
+else
+	=> street
+
+~ broken_promise
+if ctx.is_customer_service()
+	=> service/broken_promise
+else
+	=> street_flow/broken_promise
+
+~ challenge
+=> service/challenge
+
+~ provocation_answer
+=> service/provocation_answer
+
+~ followup
+=> service/followup
+
+~ home_delivery
+=> service/home_delivery
+
+~ home_request
+=> service/home_request
+
+~ home_bargain
+=> service/home_bargain
+
+~ home_declined
+=> service/home_declined
+
+~ promise_reaction
+=> service/promise_reaction
+
+~ deny_start
+=> service/deny_start
+
+~ deny_honest
+=> service/deny_honest
+
+~ deny_lie
+=> service/deny_lie
+
+~ deny_persuade
+=> service/deny_persuade
+
+~ deny_flirt
+=> service/deny_flirt
+
+~ deny_threat
+=> service/deny_threat
+
+~ deny_joke
+=> service/deny_joke
+
+~ voluntary_refusal
+=> service/voluntary_refusal
+
+~ false_taken
+=> service/false_taken
+
+~ delivery_offer
+=> street_flow/delivery_offer
+
+~ delivery_request
+=> street_flow/delivery_request
+
+~ delivery_bargain
+=> street_flow/delivery_bargain
+
+~ delivery_declined
+=> street_flow/delivery_declined
+
+~ friendly
+=> street_flow/friendly
+
+~ surrender
+=> street_flow/surrender
+
+~ threat
+=> street_flow/threat
+
+~ joke
+=> street_flow/joke
