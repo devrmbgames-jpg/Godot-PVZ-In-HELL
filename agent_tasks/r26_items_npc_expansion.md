@@ -68,15 +68,17 @@ Native stale-goal repair `19a080981bcec44fb2be2c8725892129db6f200a` and review P
 Connected-candidate [repair](npc_hazard_escape_connected_candidates.md)
 `a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`: current native120/899 and immutable review PASS;
 week acceptance and required owner QA remain unfinished; details/triage in R26.5.
+Unsafe endpoint retirement `78e9b826470dce320bf9999f495ed0c05ab8c8f5`: native121/918
+and immutable review PASS; unchanged full week111311881 FAIL5/6.
 Existing user worktree edits were preserved.
 
 ### Next
 
 Collect all-ten cross-archetype acceptance and review with explicit role and save contracts.
-Preserve unchanged mandatory full-week survival6 acceptance; latest105104090 FAIL5/required6,
+Preserve unchanged mandatory full-week survival6 acceptance; latest111311881 FAIL5/required6,
 cursor/cache diagnostic confirms actual reachable escape; isolated floor-damage2 also FAIL5/6,
 original4 restored; successful-goal retention repair/native120/899 and review PASS.
-Full integration/owner QA remain open; unsafe retained endpoint has native proof/repair in route convergence.
+Full integration/owner QA remain open; endpoint native repair/review PASS, production week FAIL5/6.
 Diagnostic [QA export/checklist](../qa_tasks/r26_acceptance.md) is ready; rendered permission pending.
 
 ### Validation

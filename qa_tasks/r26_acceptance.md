@@ -12,6 +12,8 @@ Status: **PENDING_OWNER_QA**
 Сборка включает сохранённые пользовательские working-tree edits (`dirty=true`),
 Недельный тест105104090 FAIL5/required6; reviewed navigation-cache, moving-source
 и repair сохранения успешной безопасной цели включены. Баланс огня исходный4HP/0,5с/60с.
+Последующий reviewed repair небезопасной конечной точки `78e9b826470dce320bf9999f495ed0c05ab8c8f5`
+пока в эту сборку не входит; его production-неделя111311881 также FAIL5/required6.
 
 ## Предметы и физика
 

@@ -23,8 +23,8 @@ parser225451860 four files and230043030 final helper/test; formatter/strict arch
 Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
 at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRED. Inventory PASS.
 Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
-FAIL: unchanged reviewed retained-goal week `district-20261013-105104090.log`, survival5/required6;
-prior094309939/085722945 FAIL4, legacy FAIL5. Latest native night/snapshot/restore checks pass; no other runtime errors.
+FAIL: unchanged reviewed endpoint-safety week `district-20261013-111311881.log`, survival5/required6;
+prior094309939/085722945 FAIL4, legacy FAIL5. Night/snapshot/restore pass; shutdown retention DEFERRED, no other runtime errors.
 Full affected batch `.artifacts/r26_roster_regressions-20261013.log` FAIL: 57 suites,
 1232/1252 tests, 17719/17793 assertions, one lifecycle suite failed to parse. Scope pinned by
 `.artifacts/r26_roster_regression_paths-20261013.txt`. Only failed/omitted suites are rerun
@@ -35,7 +35,7 @@ Fresh failed/omitted/live suites PASS: 293 tests/5690 assertions, logs date20261
 stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
-[Route convergence](npc_route_goal_convergence.md): RV-001 reviewed FIXED; RV-002 unsafe endpoint retirement native121/918/parser/static PASS, review pending.
+[Route convergence](npc_route_goal_convergence.md): RV-001/002 reviewed FIXED; latest unsafe endpoint retirement native121/918/parser/static/review PASS, week FAIL5/6.
 [Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): native131/1842,
 map repair103/1549/review PASS; moving-source139/1904/review PASS; retained-goal120/899/review PASS, unchanged week FAIL5/6.
 Latest bounded probe1055116147200frames PASS: retained safe goal, reachable movement/no combat;

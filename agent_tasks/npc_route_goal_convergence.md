@@ -24,7 +24,8 @@ Veil23410082415/127; fire23410998611/77; blood23411610210/122; live23412423310/7
 Parser2339533562files, formatter/strict architecture/structure PASS.
 Production mortality probe091100283 shows a comparable near-goal state, but this isolated
 proof does not establish the complete week failure's cause or waive its survival criterion.
-RV-002/P1 ACCEPTED, source `2da4a456d66a137e5316af2ba87355fa2cc94a08`
+RV-002/P1 FIXED `78e9b826470dce320bf9999f495ed0c05ab8c8f5`, source
+`2da4a456d66a137e5316af2ba87355fa2cc94a08`
 (production code identical to reviewed `a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`):
 `S_NpcRoute._progress_route` retains a newly unsafe escape endpoint until native stopping
 because the replacement is only0.32m away, below waypoint0.5. Distinct from RV-001's
@@ -45,9 +46,12 @@ Unchanged reconstruction/schema gates remain valid; no fields/reset/save authori
 
 ### Current
 
-RV-001 reviewed repair remains FIXED. RV-002 endpoint-safety retirement repair is prepared;
-affected native/static checks PASS; immutable review and new full week remain pending.
-Latest reviewed production week105104090 FAIL5/required6; linked
+RV-001 reviewed repair remains FIXED. RV-002 endpoint-safety retirement repair committed;
+affected native/static checks PASS; collected immutable review PASS, unchanged full week FAIL5/6.
+Review BASE `2da4a456d66a137e5316af2ba87355fa2cc94a08` -> TARGET
+`78e9b826470dce320bf9999f495ed0c05ab8c8f5`, same reviewer,25s, no findings.
+Architecture/style PASS; reviewer validation NOT_RUN. RV-002 resolved, no pending accepted finding.
+Latest reviewed production week111311881 FAIL5/required6; linked
 [connected refuge candidates](npc_hazard_escape_connected_candidates.md) RV-001..004 remain FIXED.
 
 ### Owner QA / blockers
@@ -55,10 +59,10 @@ Latest reviewed production week105104090 FAIL5/required6; linked
 Immutable review PASS, no findings,34s: BASE
 `1b37fcb468e1c0c7d996d1d4df3d7940c933a807` -> TARGET
 `19a080981bcec44fb2be2c8725892129db6f200a`; architecture/style PASS, reviewer validation NOT_RUN.
-Focused native acceptance PASS. Unchanged week `tests/artifacts/district-20261013-094309939.log`
-FAIL4/required6, with shutdown retention preserved; no other runtime errors.
-Bounded readonly probe0946017147200frames confirms the same floor-fire deaths on days2/3/4;
-full week NOT_RUN in probe. Near-retained-endpoint and empty-route states still need causal proof.
+Focused native acceptance PASS. Latest unchanged week `tests/artifacts/district-20261013-111311881.log`
+FAIL5/required6; night/snapshot/restore pass. Shutdown4ObjectDB/2Resource retention is
+KNOWN_ENGINE_LIMITATION/DEFERRED; no other runtime errors. Prior RV-001 week094309939 FAIL4/6.
+Both scoped endpoint defects now have native before/after proof and collected review; mortality remains open.
 Rendered QA NOT_RUN.
 Required full-week acceptance remains open.
 
