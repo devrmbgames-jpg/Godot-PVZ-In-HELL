@@ -13,12 +13,16 @@ const BATCH_SIZE: int = 5
 const MAX_RECEIVING_FRAMES: int = 1800
 const MAX_SERVICE_FRAMES: int = 18000
 const MAX_TRANSITION_FRAMES: int = 1200
+const MAX_ENCOUNTER_FRAMES: int = 3600
 const UNLOAD_DISTANCE: float = 12.0
 const READY_RADIUS: float = 6.0
 const INITIAL_BALANCE: int = 1000
 const LIGHT_TIMEOUT_REASON: String = "Свет не выключили"
 # Проверяем авторский регулируемый timeout до вмешательства соседних опасных NPC.
 const SMOKE_LIGHT_WAIT_SECONDS: float = 5.0
+# Peaceful outdoor exposure: above dark-hunt threshold, below light aversion.
+# The authored service light still forces the real light-warning/timeout branch.
+const SMOKE_AMBIENT_LIGHT: float = 0.3
 
 var _failed: bool = false
 var _scenario_completed: bool = false
@@ -118,6 +122,7 @@ func _connected_days() -> void:
 	await _transition(DayTransitionRequest.Kind.FINISH_SHIFT, C_DayCycle.Phase.EVENING, 1)
 	if _failed:
 		return
+	district.definition.ambient_light = SMOKE_AMBIENT_LIGHT
 	await _home_handoff(_day_one_jobs[0], false)
 	await _home_handoff(_day_one_jobs[1], true)
 	_check(
@@ -131,6 +136,7 @@ func _connected_days() -> void:
 	_check_day_one_history()
 	district.definition = district.definition.duplicate() as DEF_District
 	district.definition.service_wait_timeout = SMOKE_LIGHT_WAIT_SECONDS
+	district.definition.ambient_light = SMOKE_AMBIENT_LIGHT
 	await _unload(2)
 	await _wait_furniture()
 	_load_refused_return()
@@ -261,12 +267,16 @@ func _unload(day_index: int) -> void:
 
 
 func _prepare_terminal() -> void:
-	var missing_visit: CustomerVisit = _flow.visits.back()
+	var missing_visit: CustomerVisit = null
 	for visit: CustomerVisit in _flow.visits:
-		if not NpcPopulationQueries.person_for(visit.customer_id).profile.resident:
+		var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
+		if person.profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
 			missing_visit = visit
 			break
-	_check(missing_visit != null, "actual incoming parcel selected for manual LOST")
+	_check(
+		missing_visit != null,
+		"actual fire recipient's incoming parcel selected for manual LOST",
+	)
 	if missing_visit == null:
 		return
 	ECS.world.remove_entity(PackageQueries.find_live_package(missing_visit.package_id))
@@ -333,6 +343,14 @@ func _register_incoming() -> void:
 	for package_id: String in _receiving.incoming_package_ids:
 		var parcel: Entity = PackageQueries.find_live_package(package_id)
 		if parcel != null:
+			var visit: CustomerVisit = CustomerFlowQueries.find_visit(
+				StringName("visit/" + package_id),
+			)
+			var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
+			# Player input leaves the fire order unscanned; its aura and native AI stay active.
+			# Fire opening/damage has separate regressions; this fixture exercises ordinary service.
+			if person.profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
+				continue
 			_check(
 				PackageRegistrationService.register_package(parcel).outcome
 				== PackageScanResult.Outcome.REGISTERED,
@@ -436,6 +454,16 @@ func _wait_furniture() -> void:
 func _home_handoff(job_id: StringName, refusal: bool) -> void:
 	var job: NpcHomeDelivery = HomeDeliveryQueries.find(job_id)
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(job.npc_id)
+	var home_position: Vector3 = NpcPopulationQueries.position_for(job.address_id)
+	var safe_home: bool = false
+	for _frame: int in MAX_ENCOUNTER_FRAMES:
+		safe_home = NpcRouteSolver.refuge_is_safe(body, home_position)
+		if safe_home:
+			break
+		await get_tree().physics_frame
+	_check(safe_home, "moving native hazards clear the actual home handoff location")
+	if _failed:
+		return
 	_check(
 		NpcHomeDeliveryService.knock(_player, _door(job.address_id)),
 		"correct home door binds meeting",
@@ -443,7 +471,7 @@ func _home_handoff(job_id: StringName, refusal: bool) -> void:
 	if _failed:
 		return
 	# Home path/visual acceptance belongs to owner QA; native BT still owns the encounter.
-	body.place_at(NpcPopulationQueries.position_for(job.address_id))
+	body.place_at(home_position)
 	(body.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
 	(_player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD
 	NpcDecisionService.request_wake(body, &"smoke/home", true)
@@ -452,7 +480,7 @@ func _home_handoff(job_id: StringName, refusal: bool) -> void:
 		var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 		if agent != null and agent.phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 			break
-	_give_box(body, CustomerFlowQueries.find_visit(job.visit_id), refusal)
+	await _give_box(body, CustomerFlowQueries.find_visit(job.visit_id), refusal)
 	for _frame: int in MAX_TRANSITION_FRAMES:
 		await get_tree().physics_frame
 		if job.status != NpcHomeDelivery.Status.ACCEPTED:
@@ -479,14 +507,24 @@ func _home_handoff(job_id: StringName, refusal: bool) -> void:
 		)
 
 
-func _give_box(body: E_DistrictNpc, visit: CustomerVisit, refusal: bool = false) -> void:
+func _give_box(
+	body: E_DistrictNpc,
+	visit: CustomerVisit,
+	refusal: bool = false,
+	watch_light: bool = false,
+) -> void:
+	_check(GrabQueries.holder_available(_player), "handoff player remains alive and controllable")
+	if _failed:
+		return
 	var original: DEF_Customer = visit.definition
 	visit.definition = original.duplicate() as DEF_Customer
 	visit.definition.private_inspection = false
 	visit.definition.voluntary_refusal = refusal
+	visit.definition.inspection_keep_probability = 1.0
 	visit.definition.false_complaint_probability = 0.0
 	visit.definition.voluntary_complaint_probability = 0.0
 	(_player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD
+	NpcDialogueService.close_for(body)
 	CustomerFlowService.greet(body)
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	_check(parcel != null, "handoff requires live assigned parcel")
@@ -499,6 +537,24 @@ func _give_box(body: E_DistrictNpc, visit: CustomerVisit, refusal: bool = false)
 			== PackageDeliveryCheck.Result.READY,
 			"actual handoff passes ordinary parcel checks",
 		)
+	# READY may start an archetype-forced inspection. Withdraw while the native BT completes it;
+	# standing at the counter throughout inspection exposes the fixture player to nearby attackers.
+	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
+		(_player as Node as Node3D).global_position = (
+			_level.get_node("Entityes/SleepPoint") as Node3D
+		).global_position
+	for _frame: int in MAX_ENCOUNTER_FRAMES:
+		if watch_light:
+			_stage_light_recipients()
+			_observe_light_waits(_cycle.day_index)
+		if _failed or visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
+			break
+		await get_tree().physics_frame
+	_check(
+		visit.actual
+		== (CustomerVisit.Actual.CUSTOMER_REFUSED if refusal else CustomerVisit.Actual.DELIVERED),
+		"actual handoff completes before terminal declaration",
+	)
 	visit.definition = original
 
 
@@ -528,7 +584,9 @@ func _serve_counter(day_index: int, require_light_timeout: bool) -> void:
 				continue
 			arrived += 1
 			print("Actual counter arrival day=", day_index, " npc=", visit.customer_id)
-			_give_box(body, visit)
+			await _give_box(body, visit, false, require_light_timeout)
+			if _failed:
+				return
 			_panel.open_for(_player)
 			_panel.call("_refresh", true)
 			var row: UI_TerminalButtonPackage = _row(visit.package_id)
@@ -777,6 +835,7 @@ func _check_results() -> void:
 				"manual unregistered loss remains explicit and closed",
 			)
 	_check(lost == 1, "only the player's single manual declaration is LOST")
+	_check_unscanned_fire_order()
 	var commerce: C_Commerce = CommerceService.current()
 	_check(
 		commerce.pending_deliveries.size() == 1 and commerce.receipts.size() == 1,
@@ -789,6 +848,29 @@ func _check_results() -> void:
 			"one fulfilled physical furniture identity persists",
 		)
 	_check(NpcPopulationQueries.current().people.size() == 12, "no duplicate permanent people")
+
+
+func _check_unscanned_fire_order() -> void:
+	var unscanned: int = 0
+	for visit: CustomerVisit in _flow.visits:
+		var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
+		if (
+			visit.arrival_day != 2
+			or person.profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) == null
+		):
+			continue
+		unscanned += 1
+		var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
+		var record: PackageRegistrationRecord = PackageHistoryService.record_for(visit.package_id)
+		_check(
+			parcel != null and record != null and record.number == 0
+			and visit.actual == CustomerVisit.Actual.NOT_RESOLVED
+			and visit.declaration == CustomerVisit.Declaration.NONE
+			and not visit.settlement_committed and visit.money_delta == 0
+			and visit.disposition == CustomerVisit.Disposition.WAREHOUSE,
+			"unscanned fire order survives Night/replay without invented delivery, LOST or payment",
+		)
+	_check(unscanned == 1, "one real day-two fire order remains unscanned")
 
 
 func _check_saved_domains(snapshot: Dictionary) -> void:
