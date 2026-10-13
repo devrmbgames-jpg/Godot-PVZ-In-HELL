@@ -2,6 +2,11 @@ extends RefCounted
 ## Личная память, фиксированные реакции и свидетели с ограниченным восприятием.
 class_name NpcSocialService
 
+const TRAFFIC_RULE: DEF_NpcTraffic = preload(
+	"res://content/domains/npc/definitions/def_npc_traffic.tres"
+)
+const TRAFFIC_BARKS: Array[String] = ["Посторонись", "Проваливай", "Дай пройду сопляк"]
+
 
 #region Инциденты и характер
 ## Возвращает постоянный ID участника только на границе уже распознанного взаимодействия.
@@ -208,7 +213,10 @@ static func _choose(
 	actor_id: StringName = &"",
 ) -> NpcMemory.Reaction:
 	var profile: DEF_NpcArchetype = person.profile
-	var grudge_bonus: float = NpcGrudgeRules.attack_bonus(person, actor_id)
+	var grudge_bonus: float = (
+		NpcGrudgeRules.attack_bonus(person, actor_id)
+		+ NpcTrafficRules.attack_bonus(person, actor_id, TRAFFIC_RULE)
+	)
 	var attack_probability: float = clampf(
 		profile.high_attack_probability * person.variation.aggression_multiplier + grudge_bonus,
 		0.0,
@@ -257,6 +265,24 @@ static func _choose(
 		if (fleeing_allowed and roll < attack_probability + profile.low_flee_probability)
 		else NpcMemory.Reaction.TALK
 	)
+#endregion
+
+
+#region Discrete passage threats
+## Commits one mutual conflict into the existing durable pair memories without cancelling roles.
+static func threaten_passage(body: E_DistrictNpc, opponent: E_DistrictNpc) -> void:
+	var district: C_District = NpcPopulationQueries.current()
+	var person: NpcRecord = NpcPopulationQueries.person_for(identity_for(body))
+	var other: NpcRecord = NpcPopulationQueries.person_for(identity_for(opponent))
+	if not NpcTrafficRules.aggressive(person) or not NpcTrafficRules.aggressive(other):
+		return
+	var incident: StringName = StringName("traffic/%d" % district.next_incident)
+	district.next_incident += 1
+	remember(person, opponent, body, NpcMemory.Kind.THREAT, incident)
+	remember(other, body, opponent, NpcMemory.Kind.THREAT, incident)
+	var bark_index: int = (district.next_incident - 2) % TRAFFIC_BARKS.size()
+	body.show_message(TRAFFIC_BARKS[bark_index])
+	opponent.show_message(TRAFFIC_BARKS[(bark_index + 1) % TRAFFIC_BARKS.size()])
 #endregion
 
 

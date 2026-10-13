@@ -34,7 +34,12 @@ Unrelated dirty user resources/settings/addon edits must be preserved.
 
 Evening delivery checkpoint `136cfa18cbc5d6e9e0f20d5c8e58347ecdd2bf31` passes native gates;
 Review PASS from base `1c225a959f7e408cb90d42a43a5ee7bef39df1ab`; no material findings.
-Next: native signboard authoring; passing and rooms still pending.
+Signboard checkpoint `2636f85dd143841f8586827ba3ee996056b9456a` passes native gates;
+Review PASS from base `136cfa18cbc5d6e9e0f20d5c8e58347ecdd2bf31`; no material findings.
+Reviewer architecture/style PASS, validation NOT_RUN;400s, UTC08:51:49?08:58:29.
+MCP includes bounded native path diagnostics for new project-owned scripts.
+Physical passing/spacing now passes native physics, social/freeze and production-week gates.
+REVIEW_PENDING for its next immutable checkpoint; ten reset-on-entry rooms remain pending.
 Main is sole writer; reuse existing read-only reviewer on immutable checkpoints.
 Independent [home-night fixture mismatch](completed/r27_home_night_fixture_identity.md)
 is repaired, tested, reviewed and archived; original FAIL evidence remains in its task.

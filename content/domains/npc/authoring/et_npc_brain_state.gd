@@ -3,6 +3,10 @@ extends EntityTrait
 ## Compiles native decision/sensor state, combat Profile defaults and authored fire resistance.
 class_name ET_NpcBrainState
 
+const TRAFFIC_RULE: DEF_NpcTraffic = preload(
+	"res://content/domains/npc/definitions/def_npc_traffic.tres"
+)
+
 
 #region Required capability inputs
 func _init() -> void:
@@ -27,6 +31,8 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 #region Pure brain and immunity recipes
 ## Supplies fresh decision/route state and durable resistance before damage/AI consumers react.
 func recipes_for(context: EntitySpawnContext) -> Array[Component]:
+	var traffic: C_NpcTraffic = C_NpcTraffic.new()
+	traffic.rule = TRAFFIC_RULE
 	var resistance: C_DamageResistance = C_DamageResistance.new()
 	var profile: DEF_NpcArchetype = context.definitions.get(&"npc_profile") as DEF_NpcArchetype
 	var receiver: C_ReceiverTraits = C_ReceiverTraits.new()
@@ -36,6 +42,7 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 	if profile != null and profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
 		resistance.multipliers[DamageRequest.Type.FIRE] = 0.0
 	return [
+		traffic,
 		C_NpcAwareness.new(),
 		C_NpcDecision.new(),
 		C_NpcRoute.new(),

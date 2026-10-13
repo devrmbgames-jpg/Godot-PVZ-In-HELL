@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="DEF_NpcTraffic" format=3 uid="uid://d1sxvh3h46287"]
+
+[ext_resource type="Script" uid="uid://dgooapx05ydff" path="res://content/domains/npc/definitions/def_npc_traffic.gd" id="1_xmm2k"]
+
+[resource]
+script = ExtResource("1_xmm2k")

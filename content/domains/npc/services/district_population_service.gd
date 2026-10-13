@@ -57,6 +57,11 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	pride.exposed_toy_id = ""
 	var stalking: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
 	stalking.reset_transient_state()
+	var traffic: C_NpcTraffic = body.get_component(C_NpcTraffic) as C_NpcTraffic
+	traffic.reset_transient_state()
+	for encounter: Relationship in body.relationships.duplicate():
+		if encounter.relation is R_NpcBlocking:
+			body.remove_relationship(encounter)
 	body.sync_gaze_constraint()
 
 	var runner: BTPlayer = body.get_node_or_null("Brain") as BTPlayer

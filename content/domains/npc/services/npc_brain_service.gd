@@ -30,6 +30,12 @@ static func bind_engine(actor: E_DistrictNpc) -> void:
 static func set_participating(actor: E_DistrictNpc, participating: bool) -> void:
 	if not participating:
 		NpcVeilService.reset(actor)
+		var traffic: C_NpcTraffic = actor.get_component(C_NpcTraffic) as C_NpcTraffic
+		if traffic != null:
+			traffic.reset_transient_state()
+		for encounter: Relationship in actor.relationships.duplicate():
+			if encounter.relation is R_NpcBlocking:
+				actor.remove_relationship(encounter)
 		var stalking: C_NpcStalking = actor.get_component(C_NpcStalking) as C_NpcStalking
 		if stalking != null:
 			stalking.reset_transient_state()
