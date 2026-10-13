@@ -4,8 +4,6 @@ class_name NpcTraitService
 
 ## Authored effect prefab for explicit fire-aura materialization.
 const AURA_SCENE: String = "res://content/domains/hazards/entities/npc_fire_aura.tscn"
-## Authored thin floor prefab; its definition remains separate from the torso sphere.
-const FLOOR_SCENE: String = "res://content/domains/hazards/entities/npc_floor_fire.tscn"
 
 
 #region Жизненный цикл особенностей
@@ -22,20 +20,7 @@ static func dark_refuge(_actor: E_DistrictNpc, person: NpcRecord) -> Vector3:
 static func ensure_aura(actor: E_DistrictNpc, person: NpcRecord, rule: DEF_NpcTrait) -> void:
 	if rule.aura == null:
 		return
-	var captured_world: World = ECS.world
-	var captured_decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-	var generation: int = captured_decision.participation_generation
 	_ensure_fire_volume(actor, person, rule.aura, AURA_SCENE)
-	# Factory facts may synchronously retire, suspend or reset the owner before the second effect.
-	if (
-		ECS.world != captured_world or not EntityAvailability.contains(actor, captured_world)
-		or actor.get_component(C_NpcDecision) != captured_decision
-		or captured_decision.participation_generation != generation
-	):
-		return
-	if rule is DEF_NpcFireAura:
-		var presence: DEF_NpcFireAura = rule as DEF_NpcFireAura
-		_ensure_fire_volume(actor, person, presence.floor_hazard, FLOOR_SCENE)
 
 
 static func _ensure_fire_volume(

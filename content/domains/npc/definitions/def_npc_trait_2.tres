@@ -1,16 +1,14 @@
 [gd_resource type="Resource" script_class="DEF_NpcFireAura" format=3 uid="uid://cuhy4qwx18m2a"]
 
-[ext_resource type="Resource" uid="uid://yqd50bp3wp64" path="res://content/domains/hazards/definitions/def_npc_floor_fire.tres" id="2_6wdqr"]
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="3_6vd22"]
 [ext_resource type="Script" uid="uid://dhiux8ft05inn" path="res://content/domains/npc/definitions/def_npc_fire_aura.gd" id="3_101pn"]
 [ext_resource type="Resource" uid="uid://ccn1cx5xe2k76" path="res://content/domains/inventory/definitions/def_item_fire_flask.tres" id="4_8xxfj"]
 [ext_resource type="Resource" uid="uid://bift6tvdjcwmp" path="res://content/domains/inventory/definitions/def_item_fire_barrel.tres" id="5_up0vn"]
 [ext_resource type="Resource" uid="uid://bxjqjviqxwvj6" path="res://content/domains/hazards/definitions/def_npc_opening_fire_blast.tres" id="6_0lrnv"]
-[ext_resource type="Resource" path="res://content/domains/hazards/definitions/def_npc_fire_aura.tres" id="Aura"]
+[ext_resource type="Resource" uid="uid://dpqtjgsju5120" path="res://content/domains/hazards/definitions/def_npc_fire_aura.tres" id="Aura"]
 
 [resource]
 script = ExtResource("3_101pn")
-floor_hazard = ExtResource("2_6wdqr")
 kind = 2
 warning_text = "Держись подальше. Я обжигаю."
 countermeasure = "Держать дистанцию"

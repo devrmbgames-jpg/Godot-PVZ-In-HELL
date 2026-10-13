@@ -24,7 +24,7 @@ func test_fire_customer_death_releases_aura_and_counter() -> void:
 	NpcAiFixture.traits(fire_body, fire_person, null, 0.2)
 	_world.process(0.0)
 	var effects: Array = _world.query.with_all([C_Hazard, C_ToxicArea]).execute()
-	assert_eq(effects.size(), 2, "The real fire aura and thin floor hazard exist before death")
+	assert_eq(effects.size(), 1, "Only the real contact fire aura exists before death")
 	if effects.is_empty():
 		return
 	for effect: Entity in effects:

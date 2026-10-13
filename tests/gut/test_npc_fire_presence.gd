@@ -8,9 +8,6 @@ const BODY: PackedScene = preload("res://content/domains/npc/entities/district_n
 const DISTRICT: DEF_District = preload(
 	"res://content/domains/npc/definitions/def_district_default.tres"
 )
-const FLOOR: DEF_ToxicArea = preload(
-	"res://content/domains/hazards/definitions/def_npc_floor_fire.tres"
-)
 const LOST: DEF_NpcArchetype = preload(
 	"res://content/domains/npc/definitions/def_npc_archetype_lost.tres"
 )
@@ -179,11 +176,12 @@ func _queue_trait_step() -> C_NpcAwareness:
 	return awareness
 
 
-func test_scheduled_traits_materialize_both_effects_and_continue_the_live_step() -> void:
+func test_scheduled_traits_materialize_contact_aura_and_continue_the_live_step() -> void:
 	var awareness: C_NpcAwareness = _queue_trait_step()
 	_world.flush_command_buffers()
 	assert_not_null(_effect(&"npc_fire_aura"))
-	assert_not_null(_effect(&"npc_floor_fire"))
+	assert_null(_effect(&"npc_floor_fire"))
+	assert_eq(_world.query.with_all([C_Hazard, C_ToxicArea]).execute().size(), 1)
 	assert_true(awareness.rule_exposure.has(DEF_NpcTrait.Kind.LIGHT_AVERSION))
 
 
@@ -221,115 +219,106 @@ func test_scheduled_traits_stop_after_spawn_receiver_reset() -> void:
 
 
 #region Independent immutable profiles and physical exposure
-func test_native_presence_has_one_sphere_and_one_authored_ten_metre_floor() -> void:
+func test_native_presence_has_one_reduced_sphere_and_no_floor_effect() -> void:
 	assert_true(FIRE.valid_rules())
 	assert_true(_presence().valid_configuration())
 	var invalid: DEF_NpcFireAura = _presence().duplicate(true) as DEF_NpcFireAura
-	invalid.floor_hazard = DEF_ToxicArea.new()
-	invalid.floor_hazard.floor_height = 0.2
-	invalid.floor_hazard.key = invalid.aura.key
-	assert_false(invalid.valid_configuration(), "The two effects require distinct authored keys")
-	invalid.floor_hazard = null
-	assert_false(invalid.valid_configuration(), "Typed fire presence requires its floor profile")
-	assert_eq(FLOOR.radius, 10.0)
-	assert_eq(FLOOR.floor_height, 0.2)
+	invalid.aura = invalid.aura.duplicate() as DEF_ToxicArea
+	invalid.aura.floor_height = 0.2
+	assert_false(invalid.valid_configuration(), "Fire contact must remain spherical")
+	invalid.aura = null
+	assert_false(invalid.valid_configuration(), "Fire presence requires its contact profile")
 	NpcTraitService.ensure_aura(_actor, _person, _presence())
 	var sphere: E_ToxicArea = _effect(&"npc_fire_aura")
-	var floor: E_ToxicArea = _effect(&"npc_floor_fire")
 	assert_not_null(sphere)
-	assert_not_null(floor)
-	assert_true(floor.enabled)
-	assert_eq((sphere.get_shape().shape as SphereShape3D).radius, 2.25)
-	assert_eq((floor.get_shape().shape as CylinderShape3D).radius, 10.0)
-	assert_almost_eq((floor.get_shape().shape as CylinderShape3D).height, 0.2, 0.001)
-	assert_almost_eq((floor.get_visual().mesh as CylinderMesh).height, 0.2, 0.001)
-	assert_eq(floor.global_position, Vector3.UP * 0.1)
+	assert_null(_effect(&"npc_floor_fire"))
+	assert_eq((sphere.get_shape().shape as SphereShape3D).radius, 1.6875)
+	assert_eq((sphere.get_visual().mesh as SphereMesh).radius, 1.6875)
+	assert_false((sphere.get_component(C_HazardLifetime) as C_HazardLifetime).persistent)
 	var before: int = _district.next_aura
 	for repeat: int in range(3):
 		NpcTraitService.ensure_aura(_actor, _person, _presence())
 	assert_eq(_district.next_aura, before)
-	assert_eq(_world.query.with_all([C_Hazard, C_ToxicArea]).execute().size(), 2)
+	assert_eq(_world.query.with_all([C_Hazard, C_ToxicArea]).execute().size(), 1)
 
 
-func test_floor_burns_real_ground_receiver_but_not_raised_or_outside_and_source_is_immune() -> void:
+func test_contact_burns_inside_but_not_removed_shell_or_wide_radius_and_source_is_immune() -> void:
 	NpcTraitService.ensure_aura(_actor, _person, _presence())
-	var ground: Entity = _receiver(Vector3(8.0, 0.0, 0.0))
-	var raised: Entity = _receiver(Vector3(8.0, 1.0, 0.0))
-	var outside: Entity = _receiver(Vector3(11.0, 0.0, 0.0))
+	var inside: Entity = _receiver(Vector3(1.0, 0.0, 0.0))
+	var removed_shell: Entity = _receiver(Vector3(2.2, 0.0, 0.0))
+	var wide: Entity = _receiver(Vector3(8.0, 0.0, 0.0))
 	await _physics_ready()
-	var floor: E_ToxicArea = _effect(&"npc_floor_fire")
-	assert_true(floor.get_area().overlaps_body(ground as Node as PhysicsBody3D))
-	assert_false(floor.get_area().overlaps_body(raised as Node as PhysicsBody3D))
-	assert_false(floor.get_area().overlaps_body(outside as Node as PhysicsBody3D))
-	_world.process(FLOOR.tick_seconds)
-	assert_eq((ground.get_component(C_Health) as C_Health).current, 100.0 - FLOOR.damage_per_tick)
-	assert_eq((raised.get_component(C_Health) as C_Health).current, 100.0)
-	assert_eq((outside.get_component(C_Health) as C_Health).current, 100.0)
+	var sphere: E_ToxicArea = _effect(&"npc_fire_aura")
+	assert_true(sphere.get_area().overlaps_body(inside as Node as PhysicsBody3D))
+	assert_false(sphere.get_area().overlaps_body(removed_shell as Node as PhysicsBody3D))
+	assert_false(sphere.get_area().overlaps_body(wide as Node as PhysicsBody3D))
+	_world.process(_presence().aura.tick_seconds)
+	assert_eq((inside.get_component(C_Health) as C_Health).current, 96.0)
+	assert_eq((removed_shell.get_component(C_Health) as C_Health).current, 100.0)
+	assert_eq((wide.get_component(C_Health) as C_Health).current, 100.0)
 	assert_eq((_actor.get_component(C_Health) as C_Health).current, 100.0)
 
 
-func test_floor_route_risk_clips_height_and_agrees_with_damage_and_immunity() -> void:
+func test_contact_route_risk_and_sleep_exclude_removed_shell_and_wide_radius() -> void:
 	NpcTraitService.ensure_aura(_actor, _person, _presence())
-	var normal: E_DistrictNpc = _ordinary_npc(Vector3(8.0, 0.0, 0.0))
+	var normal: E_DistrictNpc = _ordinary_npc(Vector3(1.0, 0.0, 0.0))
 	assert_true(NpcRouteSolver.danger_here(normal))
 	normal.add_component(C_PlayerInputController.new())
 	assert_false(NpcSleepService.blockers().is_empty())
-	normal.place_at(Vector3(8.0, 1.0, 0.0))
+	normal.place_at(Vector3(2.2, 0.0, 0.0))
 	assert_false(NpcRouteSolver.danger_here(normal))
+	# Sleep retains its separate authored safety margin beyond the physical contact volume.
+	normal.place_at(Vector3(8.0, 0.0, 0.0))
 	assert_true(NpcSleepService.blockers().is_empty())
-	var floor_path: PackedVector3Array = [Vector3(7.0, 0.0, 0.0), Vector3(9.0, 0.0, 0.0)]
-	var raised_path: PackedVector3Array = [Vector3(7.0, 1.0, 0.0), Vector3(9.0, 1.0, 0.0)]
-	var ascent: PackedVector3Array = [Vector3(7.0, 0.0, 0.0), Vector3(9.0, 1.0, 0.0)]
-	var full: float = NpcRouteSolver.expected_damage(normal, floor_path)
-	assert_gt(full, 0.0)
-	assert_eq(NpcRouteSolver.expected_damage(normal, raised_path), 0.0)
-	assert_almost_eq(NpcRouteSolver.expected_damage(normal, ascent), full * 0.2, 0.001)
-	assert_eq(NpcRouteSolver.expected_damage(_actor, floor_path), 0.0)
-	var legacy: DEF_ToxicArea = DEF_ToxicArea.new()
-	assert_eq(legacy.floor_height, 0.0)
-	assert_true(HazardProfileRules.valid(legacy))
-	for invalid: float in [-0.1, INF, NAN]:
-		legacy.floor_height = invalid
-		assert_false(HazardProfileRules.valid(legacy))
+	var contact_path: PackedVector3Array = [Vector3(1.0, 0.0, 0.0), Vector3(1.5, 0.0, 0.0)]
+	var shell_path: PackedVector3Array = [Vector3(2.2, 0.0, 0.0), Vector3(2.4, 0.0, 0.0)]
+	var wide_path: PackedVector3Array = [Vector3(7.0, 0.0, 0.0), Vector3(9.0, 0.0, 0.0)]
+	assert_gt(NpcRouteSolver.expected_damage(normal, contact_path), 0.0)
+	assert_eq(NpcRouteSolver.expected_damage(normal, shell_path), 0.0)
+	assert_eq(NpcRouteSolver.expected_damage(normal, wide_path), 0.0)
+	assert_eq(NpcRouteSolver.expected_damage(_actor, contact_path), 0.0)
 
 
-func test_both_effects_follow_native_owner_and_retire_when_it_becomes_dormant() -> void:
+func test_contact_aura_follows_native_owner_and_retires_when_it_becomes_dormant() -> void:
 	NpcTraitService.ensure_aura(_actor, _person, _presence())
 	_actor.place_at(Vector3(3.0, 0.0, 2.0))
 	_world.process(0.0)
-	assert_eq(_effect(&"npc_floor_fire").global_position, Vector3(3.0, 0.1, 2.0))
 	assert_eq(
 		_effect(&"npc_fire_aura").global_position,
 		Vector3(3.0, NpcPerceptionService.TORSO_HEIGHT, 2.0),
 	)
-	var floor: E_ToxicArea = _effect(&"npc_floor_fire")
-	var hazard: C_Hazard = floor.get_component(C_Hazard) as C_Hazard
+	var sphere: E_ToxicArea = _effect(&"npc_fire_aura")
+	var hazard: C_Hazard = sphere.get_component(C_Hazard) as C_Hazard
 	var restored: C_Hazard = C_Hazard.new()
 	assert_true(SaveDataCodec.apply_fields(restored, SaveDataCodec.component_data(hazard).fields))
-	assert_eq((restored.definition as DEF_ToxicArea).floor_height, 0.2)
-	var references: Dictionary = PersistentHazardState.capture(floor, _root)
+	assert_eq((restored.definition as DEF_ToxicArea).radius, 1.6875)
+	var references: Dictionary = PersistentHazardState.capture(sphere, _root)
 	var actors: Dictionary[String, Entity] = { }
 	actors[ActorIdentityRules.key_for(_actor, _root)] = _actor
 	var before: int = _district.next_aura
-	PersistentHazardState.restore(references, floor, actors)
+	PersistentHazardState.restore(references, sphere, actors)
 	assert_eq(_district.next_aura, before)
-	var binding: Relationship = HazardFollowService.binding(floor)
+	var binding: Relationship = HazardFollowService.binding(sphere)
 	assert_same(binding.target, _actor)
-	assert_eq((binding.relation as R_HazardFollow).local_offset.origin, Vector3.UP * 0.1)
-	assert_eq((floor.get_shape().shape as CylinderShape3D).radius, 10.0)
+	assert_eq(
+		(binding.relation as R_HazardFollow).local_offset.origin,
+		Vector3.UP * NpcPerceptionService.TORSO_HEIGHT,
+	)
+	assert_eq((sphere.get_shape().shape as SphereShape3D).radius, 1.6875)
 	DistrictPopulationService.set_placement(_person, _actor, NpcRecord.Placement.OUTSIDE)
 	_world.process(0.0)
 	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 0)
 
 
-func test_first_spawn_receiver_retirement_prevents_second_effect() -> void:
+func test_contact_spawn_receiver_retirement_never_materializes_floor_effect() -> void:
 	var mutator: PresenceMutator = PresenceMutator.new()
 	_world.add_observer(mutator)
 	NpcTraitService.ensure_aura(_actor, _person, _presence())
+	assert_eq(mutator.spawn_facts, 1)
 	assert_null(_effect(&"npc_floor_fire"))
 
 
-func test_first_spawn_receiver_dormancy_prevents_second_effect() -> void:
+func test_contact_spawn_receiver_dormancy_never_materializes_floor_effect() -> void:
 	var mutator: PresenceMutator = PresenceMutator.new()
 	mutator.mode = 1
 	_world.add_observer(mutator)
@@ -338,7 +327,7 @@ func test_first_spawn_receiver_dormancy_prevents_second_effect() -> void:
 	assert_false(_actor.enabled)
 
 
-func test_first_spawn_receiver_reset_prevents_old_second_effect() -> void:
+func test_contact_spawn_receiver_reset_never_materializes_floor_effect() -> void:
 	var mutator: PresenceMutator = PresenceMutator.new()
 	mutator.mode = 2
 	_world.add_observer(mutator)
