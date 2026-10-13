@@ -16,7 +16,8 @@ Schema advances from 18 to 19 because saved profile paths/meaning change; no con
 Roster checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` and repair `5a861f1a83cef7c53a962326eda42420de1238cd` have collected review PASS; automated integration is PASS.
 Wide floor pressure now uses1HP/0.5s; radius10m/TTL60s and torso aura4HP unchanged.
 Final production week112524520 PASS (unchanged >=6/8); reviewed code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`.
-All accepted defects FIXED; only required owner gameplay/visual and final balance QA remain open.
+Recorded R26 defects remain FIXED. Connected write/restore PASS, exits0/0; RV-004/005 FIXED and reviewed at `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`.
+[District integration](district_release_validation.md) owns full evidence/source review FAIL; required owner QA remains open.
 
 ### Validation
 Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely

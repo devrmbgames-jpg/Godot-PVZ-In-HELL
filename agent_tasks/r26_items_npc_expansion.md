@@ -26,14 +26,17 @@ R26.3 native archetype behavior and R26.4 all20 dialogue/sign variants are imple
 R26.5 binds all ten archetypes and two visitor presets; twelve stable slots, eight residents,
 four visitors, merchant, recipients and participation are preserved. Current save schema19
 intentionally rejects schema18; restored identity/traits/dialogue are not rerolled.
-Each supporting task owns its implementation/review evidence; R26.5 owns final integration.
+Each supporting task owns implementation/review evidence; R26.5 owns final integration.
+Current connected district write/restore native PASS, exits0/0; reviewed test checkpoint
+`1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`. RV-004/005 FIXED, full evidence and historical FAIL
+owned by [district integration](district_release_validation.md).
 Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days,
 unchanged survival requirement >=6/8 original residents, night/snapshot/restore/navigation/identity pass.
 Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
 BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
 Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
 Scoped repair code/reviews remain valid ancestors; prior failed weeks below are historical evidence.
-No accepted findings or required automated gates remain open in this scoped task.
+Recorded findings remain FIXED; current connected automated/review gates are closed.
 Rendered gameplay/visual and final balance QA NOT_RUN; these remain in the original R26 tasks.
 Windows QA export `.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa` and headless menu/level120frames PASS.
 Build contains preserved user working-tree changes (dirty=true); it is not a clean immutable checkout.
@@ -43,12 +46,12 @@ Final subjective acceptance remains open; no rendered gameplay or capture has ru
 
 Complete [owner QA](../qa_tasks/r26_acceptance.md): item feel/physics readability, all-ten NPC
 behavior/presentation, dialogue, save/load, diagnostics and final balance/assets.
-Rendered-playtest permission remains pending; no automated implementation gate is pending.
-Keep R26 OWNER_QA until acceptance closes or the owner explicitly defers remaining manual scope.
+Automated/review gates pass; rendered permission and required owner acceptance remain pending.
+Keep R26 active until automated and required owner acceptance close or the owner explicitly defers manual scope.
 
 ### Validation
 
-Automated implementation/review gates PASS; final district week retains its >=6 survival criterion.
+Recorded implementation/review gates and final production week PASS; current connected integration/review PASS.
 R26.5 preserves original failed batches/weeks, fresh repair evidence and exact immutable review SHAs.
 Full owner item/NPC acceptance NOT_RUN. Checkpoint completion uses
 [validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and

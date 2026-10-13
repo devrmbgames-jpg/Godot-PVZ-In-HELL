@@ -12,11 +12,16 @@ Status: **OWNER_QA**
 
 ### Current
 
+Current connected all-ten gate native write/restore PASS, exits0/0; exact-SHA
+review PASS on test checkpoint `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`. RV-004/005 FIXED;
+evidence and historical FAIL are owned by [district integration](district_release_validation.md).
+Truck/gate/cargo/save reviews remain accepted. Required owner QA remains open.
+
 Этапы 1–3 завершены по реализации и автоматической приёмке; evidence и ручные пункты
 принадлежат архивным задачам ниже. Этап 4 — OWNER_QA: машина и входящая партия
 подключены; общий gate разгрузки и конечный lifecycle уже существуют в текущем коде.
 Обратный груз для физических Entity и raw/scriptless тел подключён; source review/triage
-и targeted repairs завершены. Схема сохранения уже 12; итоговая автоматическая интеграция принята.
+и targeted repairs завершены. Текущая production-схема сохранения 19; итоговая автоматическая интеграция принята.
 
 Gate разгрузки и [обратный груз](district_truck_returns_resale.md) прошли автоматическую
 приёмку и independent review/triage; их обязательная ручная приёмка остаётся OWNER_QA.

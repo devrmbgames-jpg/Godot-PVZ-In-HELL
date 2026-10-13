@@ -2,18 +2,17 @@
 
 Status: **PENDING_OWNER_QA**
 
-Owning task: [итоговая интеграция и Windows QA](../agent_tasks/district_release_validation.md).
-Сборка: `.export/windows/20261011-165403Z-4cec6443-district-release/PVZInHell.exe`.
-Manifest: `.export/windows/20261011-165403Z-4cec6443-district-release/build_info.json`.
-Windows export, headless startup меню и основного уровня PASS. Источник: checkpoint
-`4cec64434b4937a2f032806d56c3952792687efd` + dirty worktree с сохранёнными пользовательскими
-изменениями; это не immutable snapshot. Connected native write/restore и targeted review
-PASS на code checkpoint `0f2d65b980c53a22337736e6b5b9b2cbf07bcc42`.
-Write wrapper FAIL по известному shutdown-only retention; rendered owner QA NOT_RUN.
-Launcher: `.export/LATEST.cmd`.
-
-Проводит владелец в отдельном QA-профиле. Автоматические headless checks не подтверждают
-удобство, читаемость, анимации, маршруты в кадре или субъективное поведение NPC.
+Owning task: [district integration](../agent_tasks/district_release_validation.md).
+Current runnable build: [PVZInHell.exe](../.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa/PVZInHell.exe).
+Manifest: `.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa/build_info.json`; `.export/LATEST.cmd` points to this build.
+Compiled gameplay checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366` plus preserved
+user changes (dirty=true); export/headless menu/level120frames PASS. It is not an immutable checkout.
+External test-only connected checkpoint `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`: native write/restore
+PASS, exits0/0; exact-SHA targeted review ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN.
+The binary was not re-exported for the fixture repair; gameplay/resources did not change.
+Write wrapper FAIL only known shutdown retention; rendered/subjective owner QA NOT_RUN.
+All-ten profiles/default ambient0.15/authored light timeout60s remain the manual QA scope.
+Use a separate QA save profile; headless checks do not prove feel, readability or visual routes.
 
 ## Связное прохождение
 

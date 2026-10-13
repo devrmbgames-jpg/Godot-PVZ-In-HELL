@@ -18,47 +18,53 @@ Status: **OWNER_QA**
 
 ### Current
 
-Автоматическая приёмка завершена 2026-10-12; обязательная owner QA остаётся открытой.
-Code checkpoint: `0f2d65b980c53a22337736e6b5b9b2cbf07bcc42`. Connected
-`tests/smoke/district_release_smoke.tscn` проходит реальные shifts/Nights 1/2 через
-обычные Systems и `DayPhaseService`, затем startup Morning3 в отдельном процессе.
-Проверены terminal LOST/заметка/принятие предложений, success/refusal/failed promise,
-продажа/raw disposal и следующий утренний возврат, физическая мебель и очередь второго
-дня. Семь полных агрегатов и физическая мебель сверяются после restore и после каждого
-повтора fulfill/complete/finish_evening до следующего restore; counters 3/3 + 2 сохранены.
-RV-001/002/003 FIXED; independent targeted review без material findings.
-Fixture задаёт физические входы игрока/разгрузки и home pose; движение очереди обычное.
-Три предложения выбираются на копии Definition, перед Night возвращается authored .tres.
-Source checkpoint: `22ec1db34b4c0b5962b0a5f8f92e65169c8633cf`.
-Fix RV-001/002 проверен: ожидание наблюдается по visit ID и текущему дню,
-сверяется точная authored причина и отсутствие settlement; после повторных операций
-сверяются все семь агрегатов и физическая мебель, отдельный счётчик требует обе проверки.
-Первый усиленный write FAIL (`tests/artifacts/district_release-write-20261012-023802121.log`):
-светобоязненный npc/7 перенёс визит из-за недоступного пути, предупреждения света не было.
-Это подтверждает прежний validation gap, а не light timeout. Попытка размещения до новой
-партии также FAIL: lifecycle активации заменяет раннюю позицию (RV-003 ниже).
-Fixture теперь размещает получателя один раз после фактического создания native QUEUED
-визита; дальнейшим движением, предупреждением и timeout владеют обычные BT/Systems.
-В следующем прогоне warning наблюдался, но aura/опасная зона прервала ожидание
-(`district_release-write-20261012-025232640.log`); predicate правильно вернул FAIL.
-В test-only копии Definition задан поддерживаемый 5-секундный service wait timeout,
-чтобы проверить световую ветку до вмешательства опасных NPC; authored 60 секунд не меняются,
-перед Night2 восстанавливается исходная Definition. Проверка штатного 60-секундного
-ожидания в кадре остаётся обязательной owner QA.
-Следующее: обязательная ручная приёмка владельца по связному чеклисту.
-Windows QA export/headless PASS,
-build `.export/windows/20261011-165403Z-4cec6443-district-release/`, dirty worktree recorded.
+Connected all-ten production-roster gate restored and reviewed. Latest test checkpoint
+`1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`; BASE `ca6ed1425d617b504b6afaa39759e65e0b9fc5c7`.
+Targeted repair cycle1: ARCHITECTURE/STYLE PASS, no findings; reviewer VALIDATION NOT_RUN.
+RV-001..005 are FIXED; source reviews with FAIL remain recorded below. Native write/restore
+PASS, exits0/0; wrapper write FAIL only at known shutdown retention. Required owner QA is open.
 
-Baseline district smoke выявил устаревший legacy junction graph gate. Исправление и
-review/triage закрыты в [задаче validator](completed/warehouse_navigation_validation_contract.md).
-Повторный недельный district smoke PASS: семь дней, Night/save/restore и 12 records/bodies
-через Morning8. Этот сценарий не покрывает все требуемые терминал/LOST/доставку/мебель/груз;
-его acceptance дополнен текущим connected smoke. Геометрия/navmesh владельца не изменялись.
+Actual shifts/Nights1/2 and fresh-process Morning3 cover terminal LOST/note/offers,
+success/refusal/failed promise, SALE/raw DISPOSAL/RETURN, physical furniture, queue3,
+counter arrivals>=2, warned light-specific timeout with negative controls, all seven durable
+aggregates and replay counters3/3+2. Player input selects Fire's genuine day1 parcel for one
+manual LOST and leaves its real day2 parcel unscanned: unresolved WAREHOUSE, number0,
+no invented delivery/LOST/payment. Fire AI/aura/damage and production profiles remain active.
+Private DEF ambient0.3 and existing5s light wait provide ordinary-service fixture inputs;
+authored DEF is restored before each Night. Native safe-home wait/dialogue close and awaited
+actual inspection own outcomes; player withdraws indoors during inspection. Home pose remains
+fixture input; actual walking/default ambient0.15/authored light timeout60s require owner QA.
+
+Production gameplay checkpoint remains `4c60e3dc784352c2fb95ca617cebbafa9a834366`;
+default production week112524520 PASS (unchanged >=6/8), see [R26.5](r26_5_integration_persistence_validation.md).
+Runnable QA build `.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa/`; export/menu/level120frames PASS,
+dirty worktree recorded. Test-only repair does not require re-export; manifest distinguishes
+compiled gameplay from external connected-test evidence. Historical build20261011 remains prior evidence.
+Next: required [owner acceptance](../qa_tasks/district_release_validation.md); no automated/review blocker remains.
 
 ### Validation
 
-Автоматический batch принят. Проверки 2026-10-12 на пользовательском dirty worktree;
-это не immutable runtime validation:
+Current native checks on preserved dirty worktree (not immutable runtime checkout):
+
+- GUT async-counter/native light retirement: PASS42/42, 276 assertions;
+  `.artifacts/godot_agent/gut-20261013-030903633.stdout.log`, wrapper PASS.
+  Earlier fixture trials failed signature/light-entry/order setup; none are counted as PASS.
+- Parser2/2, zero failures, native exit0: `parsefiles-20261013-030947898`;
+  wrapper FAIL only known shutdown3RID/293Resource/VariantPools retention.
+- Full connected native write/restore PASS, exits0/0:
+  `tests/artifacts/district_release-write-20261013-130958158.log` and
+  `tests/artifacts/district_release-restore-20261013-131145156.log` (actual exit in adjacent `.result.json`).
+  Write wrapper FAIL only shutdown35RID/414ObjectDB/325Resource/VariantPools; restore ran
+  separately in a fresh process. All original outcome/timeout/replay gates retained.
+- Inspection12/163 and district delivery22/166 PASS, wrappers PASS on source fixture checkpoint:
+  `gut-20261013-025047741` / `gut-20261013-025105226`; logic unchanged by async-loop repair.
+- Incremental formatter/lint2files, strict architecture0findings, project structure,
+  staged agent-change gate (0 eligible gameplay files) and scoped `git diff --check` PASS.
+- Latest exact-SHA targeted review: PASS, UTC03:10:34..03:11:23, 49s; reviewer validation NOT_RUN.
+  MCP session inspection returned no live editor; native headless checks ran independently.
+  Shutdown-only retention is KNOWN_ENGINE_LIMITATION / DEFERRED. Rendered QA NOT_RUN.
+
+Historical acceptance before R26 (2026-10-12, preserved dirty worktree):
 
 - GUT `test_world_snapshot`: PASS 30/30, 352 assertions;
   `.artifacts/godot_agent/gut-20261011-163946671.stdout.log`.
@@ -90,19 +96,9 @@ review/triage закрыты в [задаче validator](completed/warehouse_nav
   Три restore/result и два post-operation gates выполнены. Runtime/script errors нет;
   KNOWN_ENGINE_LIMITATION / DEFERRED; wrapper FAIL не объявлять wrapper PASS.
 
-Предыдущий offline Import (`import-20261010-152757603`) не доказывал актуальность
-каждого диалога; текущий compiler/import comparator проверил все три imported ресурса.
-
-Выполнены итоговый реальный parser через `utils/godot_agent.ps1`, incremental formatter,
-`validate_agent_changes.py`, strict architecture/domain, структура, импорт диалогов,
-профильный GUT, fresh-process roundtrip/rejected-slot protection, многодневный headless
-smoke, Windows export/headless startup и `git diff --check`. Immutable-SHA
-review/triage собран по [review-orchestration](../.agents/skills/review-orchestration/SKILL.md).
-MCP недоступность не заменяет engine checks; shutdown-only retention классифицировать
-по текущей политике KNOWN_ENGINE_LIMITATION / DEFERRED.
-
 ### Owner QA / blockers
 
+Connected native gate and exact-SHA review pass; required owner acceptance remains open.
 Rendered gameplay, визуальная съёмка и субъективная приёмка владельца не выполняются автоматически.
 Подготовлен [связный чеклист итоговой сборки](../qa_tasks/district_release_validation.md),
 PENDING_OWNER_QA; runnable build подготовлен, см. точный manifest выше.
@@ -130,11 +126,17 @@ PENDING_OWNER_QA; runnable build подготовлен, см. точный mani
 
 ## Review findings
 
-BASE_SHA: `6120e69b93de80cfa2c30b4dc2798cc41185659f`.
-TARGET_SHA: `22ec1db34b4c0b5962b0a5f8f92e65169c8633cf`.
-Review state: COLLECTED / TRIAGED / FIXED; fix owner — Main.
-Замечания относятся к исходному immutable target; это пробелы acceptance, не доказанные
-production-регрессии. Verification final native write/restore PASS/PASS.
+BASE_SHA: `ca6ed1425d617b504b6afaa39759e65e0b9fc5c7`.
+TARGET_SHA: `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`.
+Collected targeted repair cycle1 UTC2026-10-13 03:10:34..03:11:23 (49s):
+ARCHITECTURE/STYLE PASS, no findings; reviewer VALIDATION NOT_RUN.
+Same existing read-only reviewer reused serially; Main owns fixes and actual native validation.
+Source review BASE `433380e05cc7509c911936000a884e7f0f7862d5`
+-> TARGET `ca6ed1425d617b504b6afaa39759e65e0b9fc5c7` remains ARCHITECTURE FAIL by RV-005,
+STYLE PASS / VALIDATION NOT_RUN, UTC02:52:23..02:55:45 (202s).
+Main checked source/current HEAD and deduplicated by owner/symbol/violated contract.
+Historical source review BASE `6120e69b93de80cfa2c30b4dc2798cc41185659f`
+-> TARGET `22ec1db34b4c0b5962b0a5f8f92e65169c8633cf` found RV-001/002.
 Fix checkpoint: `4cec64434b4937a2f032806d56c3952792687efd`; независимый read-only
 review собран, STYLE PASS, ARCHITECTURE FAIL по RV-003, VALIDATION NOT_RUN.
 Targeted cycle 1 `4cec64434b4937a2f032806d56c3952792687efd` →
@@ -160,6 +162,23 @@ ARCHITECTURE/STYLE PASS; reviewer VALIDATION NOT_RUN. Main выполнил пр
   Fix owner Main: staging один раз после создания native QUEUED роли; native write/restore
   и targeted re-review PASS. Source review intervals 97/47 seconds; serial/token comparison
   NOT_MEASURED, это не завершает parallel pilot.
+
+- RV-004/P2: current connected fixture inputs failed on source
+  `433380e05cc7509c911936000a884e7f0f7862d5` (native write114552126 FAIL, restore NOT_RUN).
+  Matched legacy control also failed with current floor pressure; this does not prove a roster-only bug.
+  Native queue diagnostic showed actual danger/path deferrals; light control verified player HP0/controlfalse.
+  FIXED `ca6ed1425d617b504b6afaa39759e65e0b9fc5c7`: valid player-selected
+  parcel/offer inputs, private ambient copy, native safe-home wait, native dialogue close,
+  awaited actual inspection with player indoors. All original gates preserved; unscanned Fire order added.
+  Native write124709286/restore124920790 PASS, exits0/0. Latest targeted review closes the distinct RV-005 repair.
+- RV-005 (ca6 reviewer R1), P1 FIXED `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`; source
+  `ca6ed1425d617b504b6afaa39759e65e0b9fc5c7`, `_serve_counter`.
+  The captured query survives awaited `_give_box`; another native light timeout can remove
+  C_CustomerAgent before the next candidate's `agent.visit_id` dereference.
+  Fix owner Main: revalidate captured Entity membership and fresh role after the genuine await boundary.
+  Native regression42/276 executes the actual smoke traversal with light BT retirement during
+  suspended first handoff and preserves unresolved order/declaration/payment semantics.
+  Full connected write/restore and targeted repair cycle1 review PASS; no ACCEPTED findings remain.
 
 Пункты относятся к [connected smoke](../tests/smoke/district_release_smoke.gd).
 Открытые ACCEPTED P2 блокируют DONE; engine shutdown deferral их не отменяет.

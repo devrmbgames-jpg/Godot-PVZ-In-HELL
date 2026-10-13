@@ -12,6 +12,11 @@ Status: **OWNER_QA**
 
 ### Current
 
+Current connected all-ten gate native write/restore PASS, exits0/0; exact-SHA
+review PASS on test checkpoint `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`. RV-004/005 FIXED;
+evidence and historical FAIL are owned by [district integration](district_release_validation.md).
+Truck/gate/cargo/save reviews remain accepted. Required owner QA remains open.
+
 Подключены утренняя машина, авторская стоянка/грузовые места и постоянная входящая партия.
 Поставка сохраняет ID/состав/физические варианты, ждёт свободного места и публикует
 поступления без номера. Gate начала смены и конечный lifecycle двери уже реализованы;
@@ -22,7 +27,7 @@ Gate, обратный груз и согласованный snapshot оста�
 приёмки/review. Материалы вынесены из `.bin`, scanner repair RV-001 и targeted re-review
 закрыты в задаче инструментов. Итоговая автоматическая интеграция и Windows QA-сборка
 приняты в [owning task](district_release_validation.md): native write/restore и targeted
-review PASS, wrapper shutdown-only retention DEFERRED. Фактическая схема 12;
+review PASS, wrapper shutdown-only retention DEFERRED. Текущая production-схема 19;
 этап остаётся OWNER_QA до обязательной ручной приёмки.
 
 ### Validation
