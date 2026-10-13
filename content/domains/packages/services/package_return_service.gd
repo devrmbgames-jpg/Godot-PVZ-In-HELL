@@ -50,8 +50,12 @@ static func can_return(parcel: Entity) -> bool:
 		return false
 
 	for visit: CustomerVisit in flow.visits:
+		# Early home delivery is dated by the actual encounter, not its future collection plan.
+		var encounter_day: int = (
+			visit.last_visit_day if visit.last_visit_day > 0 else visit.arrival_day
+		)
 		if (
-			visit.package_id == identity.package_id and visit.arrival_day < cycle.day_index
+			visit.package_id == identity.package_id and encounter_day < cycle.day_index
 			and visit.disposition == CustomerVisit.Disposition.WAREHOUSE
 			and visit.actual
 			in [CustomerVisit.Actual.PLAYER_DENIED, CustomerVisit.Actual.CUSTOMER_REFUSED]

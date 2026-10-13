@@ -1,6 +1,6 @@
 # R27.1 — план визита сохраняется до вызова к стойке
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -39,11 +39,14 @@ Checkpoint `4a287e181a9d03ecc00105cb7a6edc1d6cae93ab`, base
 ARCHITECTURE FAIL for RV-001; STYLE PASS; reviewer validation NOT_RUN.
 Repair: home completion is restricted to DELIVERED/CUSTOMER_REFUSED; counter terminal cleanup
 retains the broader condition. Native completion32/375 PASS (`gut-20261013-073035059`),
-parser2 PASS and companion MCP checked/error_code0. Targeted re-review pending repair commit.
+parser2 PASS and companion MCP checked/error_code0. Targeted re-review PASS on
+`1c225a959f7e408cb90d42a43a5ee7bef39df1ab`, base
+`4a287e181a9d03ecc00105cb7a6edc1d6cae93ab`,34seconds; no further findings.
 
 Canonical RV-001 (reviewer R1, P1), source `4a287e181a9d03ecc00105cb7a6edc1d6cae93ab`:
 CustomerRoleInterruptionService.suspend returned early for home PLAYER_DENIED although
-NpcHomeDeliveryService.complete rejects that actual. ACCEPTED; implemented cleanup repair,
+NpcHomeDeliveryService.complete rejects that actual.
+FIXED(`1c225a959f7e408cb90d42a43a5ee7bef39df1ab`, native completion32/375),
 native denied-home emergency test verifies role/meeting/inspection release and no invented payment.
 
 ### Owner QA / blockers
@@ -52,4 +55,4 @@ Owner gameplay acceptance remains open; no rendered playtest was run by the agen
 
 ### Next
 
-Commit RV-001 repair and collect targeted re-review; continue independent R27 scopes.
+Owner verifies planned recipients persist through temporary avoidance; continue other R27 scopes.

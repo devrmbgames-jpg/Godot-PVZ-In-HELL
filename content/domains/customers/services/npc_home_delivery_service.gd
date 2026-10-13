@@ -175,10 +175,21 @@ static func finish_evening(day_index: int) -> bool:
 	var settled: bool = true
 
 	for job: NpcHomeDelivery in district.home_deliveries:
-		if job.day_index != day_index:
+		if (
+			job.day_index != day_index
+			and not (
+				job.day_index < day_index and job.source == NpcHomeDelivery.Source.TERMINAL
+				and job.status == NpcHomeDelivery.Status.OFFERED
+			)
+		):
 			continue
 		if job.status == NpcHomeDelivery.Status.OFFERED:
-			job.status = NpcHomeDelivery.Status.EXPIRED
+			var offered_visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
+			if (
+				job.source == NpcHomeDelivery.Source.PERSONAL or offered_visit == null
+				or day_index + 1 >= HomeDeliveryQueries.collection_day(offered_visit)
+			):
+				job.status = NpcHomeDelivery.Status.EXPIRED
 			continue
 		if job.status != NpcHomeDelivery.Status.ACCEPTED:
 			continue

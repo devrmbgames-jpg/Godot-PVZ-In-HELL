@@ -1,9 +1,9 @@
 # R27 — согласованный authored district в home-night регрессии
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
-Found while validating [visit commitment](r27_service_visit_commitment.md);
-independent fixture owner, linked by [R27](r27_qa_followup.md).
+Found while validating [visit commitment](../r27_service_visit_commitment.md);
+independent fixture owner, linked by [R27](../r27_qa_followup.md).
 
 ## Task state
 
@@ -26,12 +26,14 @@ authored definition and asserts roster membership; production snapshot rules rem
 ### Validation
 
 PASS: native completion31/359assertions (`gut-20261013-071042400`), parser and formatter.
-Exact-SHA review NOT_RUN until the owning coherent milestone is committed.
+Review PASS: base `d0568a32b4f80ab02a9ab8ab0d84babe341a91be` to
+`4a287e181a9d03ecc00105cb7a6edc1d6cae93ab`; no findings for the fixture repair.
+The independent home cleanup finding was resolved under the visit commitment task.
 
 ### Owner QA / blockers
 
-No subjective fixture acceptance required. Immutable-SHA review remains required before archive.
+No subjective fixture acceptance required. Native tests and immutable-SHA review completed.
 
 ### Next
 
-Collect exact-SHA review with the owning milestone, then archive this independent fixture repair.
+Archived; no remaining fixture repair work.

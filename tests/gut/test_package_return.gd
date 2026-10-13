@@ -159,6 +159,17 @@ func test_terminal_refused_cannot_invent_actual_refusal_or_return_future_target(
 
 
 ## Возврат требует согласованных ID, регистрации и активного номера.
+func test_early_refusal_uses_actual_encounter_and_late_refusal_waits_one_night() -> void:
+	_visit.arrival_day = 11
+	_visit.last_visit_day = 1
+	assert_true(PackageReturnService.can_return(_parcel))
+	_visit.last_visit_day = 2
+	assert_false(PackageReturnService.can_return(_parcel))
+	_cycle.day_index = 3
+	assert_true(PackageReturnService.can_return(_parcel))
+	assert_true(_record.active)
+
+
 func test_registration_identity_and_active_number_are_required() -> void:
 	_record.active = false
 	assert_false(PackageReturnService.can_return(_parcel))

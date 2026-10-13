@@ -14,7 +14,8 @@ Parent acceptance: [R26](r26_items_npc_expansion.md), [QA checklist](../qa_tasks
 
 ### Current
 
-Visit commitment implementation and native regressions pass; its committed review remains pending.
+Visit commitment implementation, native regressions and exact-SHA review pass after RV-001 repair
+at `1c225a959f7e408cb90d42a43a5ee7bef39df1ab`; owner acceptance remains open.
 MCP editor connected: Godot4.7.1, ready/stopped; saved main_menu is editor-owned.
 Unrelated dirty user resources/settings/addon edits must be preserved.
 
@@ -31,9 +32,10 @@ Unrelated dirty user resources/settings/addon edits must be preserved.
    native scene transitions туда/обратно, один архетип/две посылки в день.
    Owner answer: **10 rooms, reset on every entry**, no retained per-room progress.
 
-Next: milestone1; main is sole writer, reuse existing read-only reviewer on immutable checkpoints.
-Independent [home-night fixture mismatch](r27_home_night_fixture_identity.md) was reproduced
-with12 mismatched profiles/0 active roles during milestone1 validation; repair it before closing that gate.
+Next: evening delivery contract is in implementation; passing, signs and rooms still pending.
+Main is sole writer; reuse existing read-only reviewer on immutable checkpoints.
+Independent [home-night fixture mismatch](completed/r27_home_night_fixture_identity.md)
+is repaired, tested, reviewed and archived; original FAIL evidence remains in its task.
 
 ### Validation / completion
 

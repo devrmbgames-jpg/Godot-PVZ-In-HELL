@@ -242,7 +242,7 @@ func test_home_inspection_acceptance_releases_all_cargo_before_bonus() -> void:
 func test_failed_base_payment_waits_before_bonus_and_night_preparation() -> void:
 	_district.definition.terminal_delivery_bonus = 1
 	_delivery_case(_district.people[0], "minimum_for_payment")
-	var visit: CustomerVisit = _delivery_case(_district.people[3], "base_payment")
+	var visit: CustomerVisit = _delivery_case(_district.people[3], "base_payment", 3)
 	var body: E_DistrictNpc = _meeting(visit)
 	_handoff(body, visit)
 	var job: NpcHomeDelivery = _job(visit)

@@ -222,7 +222,7 @@ func _plan_phase(
 		return
 	if already_planned and not synchronize and not force:
 		# Explicit retries reconcile a blocked arrival without assigning the obligation twice.
-		_try_arrival(person, body, person.profile.schedule.location_for(day, phase))
+		_try_arrival(person, body, NpcScheduleRules.location_for(district, person, day, phase))
 		return
 
 	# Commit the new macro goal and reset only phase-scoped reaction state.
@@ -237,7 +237,12 @@ func _plan_phase(
 		awareness.reacted_rules.clear()
 		awareness.rule_exposure.clear()
 
-	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(day, phase)
+	var location: DEF_NpcSchedule.Location = NpcScheduleRules.location_for(
+		district,
+		person,
+		day,
+		phase,
+	)
 	person.goal_id = NpcScheduleRules.goal_for(
 		district.definition,
 		person,
@@ -246,6 +251,8 @@ func _plan_phase(
 		day,
 		phase,
 	)
+	if NpcScheduleRules.waiting_at_home(district, person, day, phase):
+		person.goal_id = person.home_id
 	NpcDecisionService.request_wake(body, &"obligation_changed", true)
 
 	# Synchronization teleports at preparation; ordinary transitions preserve native travel.

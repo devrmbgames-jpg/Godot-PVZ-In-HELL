@@ -77,12 +77,24 @@ static func published_by_package(
 		info.published = true
 		info.address = NpcPopulationQueries.place_name(job.address_id)
 		info.bonus = job.bonus
-		info.deadline_day = job.deadline_day
+		info.deadline_day = (
+			cycle.day_index + 1
+			if job.status == NpcHomeDelivery.Status.OFFERED
+			and job.source == NpcHomeDelivery.Source.TERMINAL
+			else job.deadline_day
+		)
 		info.status = job.status
 		info.status_text = _STATUS_TEXT[job.status]
 		var visit: CustomerVisit = visits.get(job.package_id) as CustomerVisit
 		if (
-			job.status == NpcHomeDelivery.Status.OFFERED and job.day_index == cycle.day_index
+			job.status == NpcHomeDelivery.Status.OFFERED
+			and (
+				job.day_index == cycle.day_index
+				or (
+					job.source == NpcHomeDelivery.Source.TERMINAL
+					and job.day_index < cycle.day_index
+				)
+			)
 			and cycle.phase != C_DayCycle.Phase.NIGHT and visit != null
 		):
 			info.can_respond = eligible(
@@ -91,6 +103,7 @@ static func published_by_package(
 				entries.get(job.package_id) as PackageRegistrationRecord,
 				states.get(job.package_id) as C_PackageState,
 				cycle.day_index,
+				job.source,
 			)
 		deliveries_by_package[job.package_id] = info
 	return deliveries_by_package
@@ -101,18 +114,23 @@ static func available(job: NpcHomeDelivery) -> bool:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if (
 		cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT
-		or job.day_index != cycle.day_index or job.status != NpcHomeDelivery.Status.OFFERED
+		or job.status != NpcHomeDelivery.Status.OFFERED or job.day_index > cycle.day_index
+		or (job.source == NpcHomeDelivery.Source.PERSONAL and job.day_index != cycle.day_index)
 	):
 		return false
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
 	return (
 		visit != null and visit.package_id == job.package_id
-		and visit_available(visit, cycle.day_index)
+		and visit_available(visit, cycle.day_index, job.source)
 	)
 
 
 ## Проверяет пригодность визита по живой коробке и регистрации.
-static func visit_available(visit: CustomerVisit, day_index: int) -> bool:
+static func visit_available(
+	visit: CustomerVisit,
+	day_index: int,
+	source: NpcHomeDelivery.Source = NpcHomeDelivery.Source.PERSONAL,
+) -> bool:
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	var state: C_PackageState = (
 		parcel.get_component(C_PackageState) as C_PackageState if parcel != null else null
@@ -123,6 +141,7 @@ static func visit_available(visit: CustomerVisit, day_index: int) -> bool:
 		PackageHistoryService.record_for(visit.package_id),
 		state,
 		day_index,
+		source,
 	)
 
 
@@ -133,6 +152,7 @@ static func eligible(
 	entry: PackageRegistrationRecord,
 	state: C_PackageState,
 	day_index: int,
+	source: NpcHomeDelivery.Source = NpcHomeDelivery.Source.PERSONAL,
 ) -> bool:
 	if (
 		person == null or person.profile == null or not person.profile.resident
@@ -140,9 +160,14 @@ static func eligible(
 	):
 		return false
 	if (
-		visit.customer_dead or visit.home_delivery_declined or visit.arrival_day > day_index
-		or (visit.finished and visit.next_followup_day > day_index)
+		visit.customer_dead or visit.home_delivery_declined
+		or (
+			source == NpcHomeDelivery.Source.PERSONAL
+			and visit.finished and visit.next_followup_day > day_index
+		)
 	):
+		return false
+	if source == NpcHomeDelivery.Source.TERMINAL and day_index >= collection_day(visit):
 		return false
 	if (
 		visit.actual != CustomerVisit.Actual.NOT_RESOLVED
@@ -155,4 +180,9 @@ static func eligible(
 		and state.registration == C_PackageState.Registration.REGISTERED
 		and state.registration_number == entry.number
 	)
+
+
+## Planned personal collection includes an explicitly deferred follow-up.
+static func collection_day(visit: CustomerVisit) -> int:
+	return maxi(visit.arrival_day, visit.next_followup_day)
 #endregion

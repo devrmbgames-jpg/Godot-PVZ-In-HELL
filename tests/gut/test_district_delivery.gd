@@ -40,8 +40,9 @@ func before_each() -> void:
 	actor_node.freeze = true
 
 
-func _delivery_case(person: NpcRecord, suffix: String) -> CustomerVisit:
+func _delivery_case(person: NpcRecord, suffix: String, arrival_day: int = 1) -> CustomerVisit:
 	var visit: CustomerVisit = _case(person, suffix)
+	visit.arrival_day = arrival_day
 	visit.payment = 10
 	visit.definition = DEF_Customer.new()
 	var parcel: E_Package = (
@@ -117,8 +118,8 @@ func test_three_optional_jobs_and_night_failure_keep_physical_boxes() -> void:
 	_district.definition.terminal_delivery_minimum = 2
 	_district.definition.terminal_delivery_maximum = 2
 	var first: CustomerVisit = _delivery_case(_district.people[0], "home_first")
-	_delivery_case(_district.people[3], "home_second")
-	_delivery_case(_district.people[6], "home_third")
+	_delivery_case(_district.people[3], "home_second", 3)
+	_delivery_case(_district.people[6], "home_third", 3)
 	var parcel: Entity = PackageQueries.find_live_package(first.package_id)
 	var pose: Transform3D = (parcel as Node as Node3D).global_transform
 	for job: NpcHomeDelivery in _district.home_deliveries:

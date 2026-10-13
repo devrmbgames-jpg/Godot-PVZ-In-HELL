@@ -83,7 +83,17 @@ static func prepare_day(day_index: int) -> void:
 			)
 			claimed[visit.package_id] = true
 			personal_count += 1
-		elif terminal_count < district.terminal_offer_target:
+		elif (
+			terminal_count < district.terminal_offer_target
+			and HomeDeliveryQueries.eligible(
+				visit,
+				person,
+				entry,
+				state,
+				day_index,
+				NpcHomeDelivery.Source.TERMINAL,
+			)
+		):
 			_create(district, visit, person, entry, day_index, NpcHomeDelivery.Source.TERMINAL)
 			claimed[visit.package_id] = true
 			terminal_count += 1
@@ -160,10 +170,16 @@ static func accept(job_id: StringName) -> bool:
 	if not HomeDeliveryQueries.available(job):
 		return false
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	job.day_index = cycle.day_index
+	job.deadline_day = cycle.day_index + 1
 	job.status = NpcHomeDelivery.Status.ACCEPTED
 	visit.next_followup_day = job.deadline_day
 	visit.followup_committed = true
 	_finish_visit(visit)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(job.npc_id)
+	if body != null and cycle.phase == C_DayCycle.Phase.EVENING:
+		DistrictPopulationService.request_phase(body, cycle.day_index, cycle.phase, false, true)
 	return true
 
 

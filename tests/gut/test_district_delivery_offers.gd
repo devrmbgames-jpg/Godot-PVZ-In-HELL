@@ -10,6 +10,11 @@ func before_each() -> void:
 	_district.definition.terminal_delivery_maximum = 3
 
 
+## Terminal candidates are registered before their authored collection day.
+func _delivery_case(person: NpcRecord, suffix: String, arrival_day: int = 3) -> CustomerVisit:
+	return super._delivery_case(person, suffix, arrival_day)
+
+
 func _pause_offers() -> void:
 	_district.definition.terminal_delivery_minimum = 0
 	_district.definition.terminal_delivery_maximum = 0

@@ -340,6 +340,7 @@ func _prepare_terminal() -> void:
 
 
 func _register_incoming() -> void:
+	var future_collections: int = 0
 	for package_id: String in _receiving.incoming_package_ids:
 		var parcel: Entity = PackageQueries.find_live_package(package_id)
 		if parcel != null:
@@ -351,6 +352,12 @@ func _register_incoming() -> void:
 			# Fire opening/damage has separate regressions; this fixture exercises ordinary service.
 			if person.profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
 				continue
+			# Day-one home offers require a future personal collection before registration.
+			# The same three real parcels still exercise acceptance, refusal and failed promise.
+			if _cycle.day_index == 1 and person.profile.resident and future_collections < 3:
+				_check(not visit.started, "future collection input precedes live counter execution")
+				visit.arrival_day = 2
+				future_collections += 1
 			_check(
 				PackageRegistrationService.register_package(parcel).outcome
 				== PackageScanResult.Outcome.REGISTERED,

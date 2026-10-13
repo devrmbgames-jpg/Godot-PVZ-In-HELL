@@ -47,8 +47,43 @@ static func goal_for(
 	return activities[random.randi_range(0, activities.size() - 1)]
 
 
+## Accepted evening deliveries keep the recipient outside its own entrance.
+static func waiting_at_home(
+	district: C_District,
+	person: NpcRecord,
+	day: int,
+	phase: C_DayCycle.Phase,
+) -> bool:
+	if phase != C_DayCycle.Phase.EVENING:
+		return false
+	for job: NpcHomeDelivery in district.home_deliveries:
+		if (
+			job.npc_id == person.npc_id and job.address_id == person.home_id
+			and job.day_index == day and job.status == NpcHomeDelivery.Status.ACCEPTED
+		):
+			return true
+	return false
+
+
+## Resolves the authored location with a durable accepted-delivery obligation.
+static func location_for(
+	district: C_District,
+	person: NpcRecord,
+	day: int,
+	phase: C_DayCycle.Phase,
+) -> DEF_NpcSchedule.Location:
+	if waiting_at_home(district, person, day, phase):
+		return DEF_NpcSchedule.Location.STREET
+	return person.profile.schedule.location_for(day, phase)
+
+
 ## Chooses participation after arriving at the captured authored goal.
-static func completed_placement(person: NpcRecord) -> NpcRecord.Placement:
+static func completed_placement(
+	person: NpcRecord,
+	waiting_for_delivery: bool = false,
+) -> NpcRecord.Placement:
+	if waiting_for_delivery:
+		return NpcRecord.Placement.STREET
 	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(
 		person.planned_day,
 		person.planned_phase as C_DayCycle.Phase,

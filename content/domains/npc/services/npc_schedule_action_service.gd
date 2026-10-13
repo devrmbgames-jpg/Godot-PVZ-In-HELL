@@ -27,7 +27,15 @@ static func request_phase_completion(
 	):
 		request.action_generation = decision.action_generation
 	request.placement = (
-		NpcScheduleRules.completed_placement(person)
+		NpcScheduleRules.completed_placement(
+			person,
+			NpcScheduleRules.waiting_at_home(
+				NpcPopulationQueries.current(),
+				person,
+				person.planned_day,
+				person.planned_phase as C_DayCycle.Phase,
+			),
+		)
 		if placement < 0
 		else placement as NpcRecord.Placement
 	)
