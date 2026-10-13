@@ -15,7 +15,14 @@ static func suspend(body: E_DistrictNpc) -> void:
 	if visit == null:
 		NpcServiceRole.release(body, agent.visit_id)
 		return
-	if visit.actual != CustomerVisit.Actual.NOT_RESOLVED or (home == null and visit.finished):
+	var home_outcome: bool = visit.actual in [
+		CustomerVisit.Actual.DELIVERED,
+		CustomerVisit.Actual.CUSTOMER_REFUSED,
+	]
+	if (
+		(home != null and home_outcome)
+		or (home == null and (visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED))
+	):
 		if home != null:
 			NpcHomeDeliveryService.complete(home)
 		else:

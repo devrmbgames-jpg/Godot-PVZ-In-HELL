@@ -48,6 +48,30 @@ func _handoff(body: E_DistrictNpc, visit: CustomerVisit) -> Entity:
 	return parcel
 
 
+## A denied home handoff cannot bypass emergency cleanup through unsupported completion.
+func test_home_player_denial_emergency_releases_role_and_inspection() -> void:
+	var person: NpcRecord = _district.people[0]
+	var visit: CustomerVisit = _delivery_case(person, "home_denial_emergency")
+	visit.definition.private_inspection = true
+	var body: E_DistrictNpc = _meeting(visit)
+	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
+	assert_true(CustomerInspectionService.begin(body, visit, parcel))
+	assert_true(CustomerOutcomeService.commit_player_denial(visit))
+	var interruption: NpcRoleInterruptionRequest = NpcRoleInterruptionRequest.new(
+		NpcRoleInterruptionRequest.Kind.EMERGENCY,
+	)
+	_world.emit_event(NpcRoleInterruptionRequest.EVENT, body, interruption)
+	assert_true(interruption.handled)
+	assert_false(body.has_component(C_CustomerAgent))
+	assert_null(HomeMeetingQueries.meeting_for(body))
+	assert_null(CustomerInspectionQueries.owner_for(parcel))
+	assert_null(PhysicalSlotService.relationship(parcel))
+	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
+	assert_eq(_job(visit).status, NpcHomeDelivery.Status.ACCEPTED)
+	assert_false(_job(visit).bonus_committed)
+	assert_eq(WalletService.current().operations.size(), 0)
+
+
 func _night_session() -> Entity:
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
 	session.name = "Session"
