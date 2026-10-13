@@ -5,12 +5,14 @@ extends EditorPlugin
 const SOURCE_CFG: String = "res://addons/pvz_ai_tools/plugin.cfg"
 const HANDLER_PATH: String = "res://addons/pvz_ai_tools/gecs_tools.gd"
 const RETRY_SECONDS: float = 1.0
+const REGISTRATION_REVISION: int = 1
 const DebuggerBridgeScript := preload("res://addons/pvz_ai_tools/debugger_bridge.gd")
 
 var _registry: McpToolRegistry = null
 var _debugger_bridge: PvzAiDebuggerBridge = null
 var _retry_elapsed: float = 0.0
 var _registered: bool = false
+var _registered_revision: int = 0
 
 
 #region Lifecycle
@@ -54,7 +56,10 @@ func _process(delta: float) -> void:
 func _refresh_registry() -> void:
 	var current: McpToolRegistry = McpToolRegistry.get_instance()
 	if current == _registry and is_instance_valid(_registry):
-		if _registry.is_ready() and not _registered:
+		if (
+			_registry.is_ready()
+			and (not _registered or _registered_revision != REGISTRATION_REVISION)
+		):
 			_register_tools()
 		return
 
@@ -174,6 +179,7 @@ func _register_tools() -> void:
 		_editor_traits_signal_spec(),
 		_gdscript_style_spec(),
 		_style_script_validation_spec(),
+		_owned_script_diagnostics_spec(),
 		_translation_sources_spec(),
 		_behavior_tree_authoring_spec(),
 		_npc_archetype_cache_spec(),
@@ -183,6 +189,8 @@ func _register_tools() -> void:
 	]
 
 	_registered = _registry.batch_register(specs)
+	if _registered:
+		_registered_revision = REGISTRATION_REVISION
 	if not _registered:
 		push_warning(
 			"PVZ Godot AI Tools: custom tool registration failed; see Godot AI diagnostics."
@@ -267,6 +275,36 @@ func _gdscript_style_spec() -> McpCustomToolSpec:
 	spec.source = "PVZ Godot AI Tools"
 	spec.requires_writable = true
 	spec.undoable = false
+	return spec
+
+
+## Explicit project-owned path batches also cover scripts outside the historical style manifest.
+func _owned_script_diagnostics_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_gdscript_path_diagnostics"
+	spec.description = "Compile one through eight existing project-owned scripts at native paths."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {
+			"paths": {
+				"type": "array",
+				"items": { "type": "string" },
+				"minItems": 1,
+				"maxItems": 8,
+				"uniqueItems": true,
+			},
+		},
+		"required": ["paths"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/owned_script_diagnostics_tool.gd"
+	spec.method = &"inspect_paths"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = false
+	spec.undoable = false
+	spec.deferred = false
+	spec.timeout_ms = 7000
 	return spec
 
 

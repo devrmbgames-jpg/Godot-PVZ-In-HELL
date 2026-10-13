@@ -150,7 +150,7 @@ static func valid_participants(player: Entity, body: E_DistrictNpc) -> bool:
 ## Проверяет optional physical candidate и разрешение его текущей роли без импорта её состояния.
 static func can_start(player: Entity, body: E_DistrictNpc) -> bool:
 	if (
-		body == null
+		body == null or uses_signboard(body)
 		or InteractionControlFocus.current(player) >= InteractionControlFocus.Priority.PUSH
 		or bool(Console.is_visible())
 	):

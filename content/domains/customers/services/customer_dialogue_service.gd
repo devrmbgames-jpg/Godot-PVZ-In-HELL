@@ -9,6 +9,8 @@ const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 #region Запуск разговора
 ## Проверяет живого получателя, готовую фазу визита и отсутствие конкурирующего модального ввода.
 static func can_start(actor: Entity, customer: E_NpcCharacter) -> bool:
+	if NpcDialogueService.uses_signboard(customer):
+		return false
 	if (
 		not GrabQueries.holder_available(actor)
 		or not EntityAvailability.contains(customer, ECS.world) or customer.has_component(C_Death)

@@ -1,6 +1,6 @@
 # R27.4 — ожидание частной доставки вечером и срок terminal offer
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -41,7 +41,9 @@ Initial integration FAIL demonstrated old same-day terminal fixture inputs and f
 gate. Real parcels now have three future collection inputs before registration; offer count and full
 scenario acceptance remain. PackageReturnService uses actual last_visit_day (legacy fallback arrival),
 covered by native early-home refusal and late-encounter return tests. No production gate weakened.
-Exact-SHA review NOT_RUN until this checkpoint is committed.
+Review PASS: base `1c225a959f7e408cb90d42a43a5ee7bef39df1ab`,
+target `136cfa18cbc5d6e9e0f20d5c8e58347ecdd2bf31`;307seconds, no material findings.
+ARCHITECTURE/STYLE PASS; reviewer validation NOT_RUN. No accepted findings remain.
 
 ### Owner QA / blockers
 
@@ -49,4 +51,4 @@ Owner gameplay acceptance of evening waiting and terminal timing remains open.
 
 ### Next
 
-Complete native regressions, parser/static checks and connected integration; commit and review full SHA.
+Owner checks evening entrance waiting and terminal collection-day timing; continue other R27 scopes.

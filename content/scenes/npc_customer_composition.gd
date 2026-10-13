@@ -20,4 +20,10 @@ static func _bind_actor(actor: Entity, world: World) -> void:
 	var body: E_DistrictNpc = actor as E_DistrictNpc
 	if body != null:
 		CustomerNpcLifecycleBinding.bind(body, world)
+		var sign: NpcSignboard = body.get_node_or_null("Signboard") as NpcSignboard
+		if sign == null:
+			return
+		var project_text: Callable = CustomerPresentation.project_sign.bind(body)
+		if not sign.text_requested.is_connected(project_text):
+			sign.text_requested.connect(project_text)
 #endregion

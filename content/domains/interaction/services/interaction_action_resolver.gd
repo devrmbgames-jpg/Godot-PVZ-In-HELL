@@ -247,7 +247,8 @@ static func refresh_prompt(actor: Entity) -> void:
 			else resolve(actor, slot_index as DEF_InteractionAction.Slot)
 		)
 		if choice != null:
-			lines.append("[%s] %s" % [button_label(slot_index), choice.action.caption])
+			var caption: String = choice.action.caption_for(actor, choice.source, choice.target)
+			lines.append("[%s] %s" % [button_label(slot_index), caption])
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS:
 		for secondary: bool in [false, true]:
 			if (

@@ -231,3 +231,23 @@ plugin exit unregisters the tool, and no Nodes, Resources or requests survive ca
 Focused tests: `res://tests/gut/test_pvz_player_soul_trade_authoring_tool.gd`
 compare every packed node/property, refusal guards, and fresh ledgers for standalone
 and main-level player instances. Headless checks do not provide visual acceptance.
+
+## Diagnostics for new project scripts
+
+`pvz_gdscript_path_diagnostics` compiles one through eight existing project-owned
+GDScript paths, including files outside the historical style manifest. Example:
+`custom_manage(op="invoke", params={"tool_name":"pvz_gdscript_path_diagnostics",
+"params":{"paths":["res://content/domains/npc/presentation/npc_signboard.gd"]}})`.
+It preflights the whole request, rejecting third-party addons, traversal, missing
+files and duplicates. Compilation uses native resource paths and instantiates no
+gameplay scripts or Nodes. Reports include error codes and captured diagnostics.
+An executing handler or its base is never reloaded: `compiled_handler` means its
+loaded source matches disk; `handler_reload_required` is unavailable, never PASS.
+
+The plugin's registration revision allows a safe script reload to atomically
+replace its own tool specs on the next registry refresh without restarting the
+editor or altering project settings. Plugin exit still unregisters all tools from
+its source and releases its existing debugger bridge. If a live handler's source
+was externally formatted, refresh it with `script_create` between calls before
+requiring `compiled_handler`. No requests or resources are retained by this tool.
+Focused tests: `res://tests/gut/test_pvz_owned_script_diagnostics_tool.gd`.

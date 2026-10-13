@@ -26,6 +26,11 @@ enum Slot {
 
 
 #region Контракт доступности и исполнения
+## Returns a read-only contextual caption; authored captions remain immutable and are the default.
+func caption_for(_actor: Entity, _source: Entity, _target: Entity) -> String:
+	return caption
+
+
 ## Проверяет доступность; обработчик не хранит состояние, изменяемые данные принадлежат Components.
 func is_available(_actor: Entity, _source: Entity, _target: Entity) -> bool:
 	return false

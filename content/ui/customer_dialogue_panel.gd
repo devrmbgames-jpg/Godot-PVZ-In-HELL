@@ -7,7 +7,6 @@ const PANEL_MIN_WIDTH: float = 720.0
 const PANEL_MIN_HEIGHT: float = 220.0
 const ROOT_MARGIN: float = 32.0
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
-const SIGNBOARD_SCENE: PackedScene = preload("res://content/ui/npc_signboard_view.tscn")
 
 var _actor: Entity = null
 var _context: NpcDialogueContext = null
@@ -19,8 +18,6 @@ var _input_enabled: bool = false
 var _closed: bool = false
 var _advancing: bool = false
 
-var _signboard: PanelContainer = null
-var _sign_text: RichTextLabel = null
 var _speaker: Label = null
 var _text: RichTextLabel = null
 var _responses: VBoxContainer = null
@@ -168,13 +165,8 @@ func _render_line() -> void:
 
 
 func _render_text() -> void:
-	var written: bool = _context.uses_signboard()
-	var rendered: String = _context.perceived_text(_line.text)
-	_signboard.visible = written
-	_sign_text.text = rendered if written else ""
-	_speaker.visible = not written and not _line.character.is_empty()
-	_text.visible = not written
-	_text.text = "" if written else rendered
+	_speaker.visible = not _line.character.is_empty()
+	_text.text = _context.perceived_text(_line.text)
 
 
 ## Добавляет подсказку к ответу, не меняя его авторский текст и теги перехода.
@@ -275,10 +267,6 @@ func _build_ui() -> void:
 	var rows: VBoxContainer = VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 10)
 	margin.add_child(rows)
-
-	_signboard = SIGNBOARD_SCENE.instantiate() as PanelContainer
-	rows.add_child(_signboard)
-	_sign_text = _signboard.get_node("Rows/Writing") as RichTextLabel
 
 	_speaker = Label.new()
 	_speaker.add_theme_font_size_override("font_size", 20)

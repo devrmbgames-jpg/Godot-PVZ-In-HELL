@@ -3,6 +3,34 @@ extends RefCounted
 class_name CustomerPresentation
 
 
+#region World sign projection
+## Supplies only derived text to the actor-owned sign; no role/outcome transition occurs.
+static func project_sign(request: NpcSignTextRequest, body: E_DistrictNpc) -> void:
+	var visit: CustomerVisit = CustomerFlowQueries.visit_for(body)
+	if visit != null and not visit.finished:
+		var number: int = registered_number(visit)
+		request.text = (
+			String(TranslationServer.translate("ЗАКАЗ №%03d\nУПАКОВКУ НЕ ВСКРЫВАТЬ.")) % number
+			if number >= 0
+			else String(TranslationServer.translate("НОМЕРА НЕТ.\nПРОСКАНИРУЙТЕ ПОСЫЛКИ."))
+		)
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	if cycle == null or cycle.phase not in [C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
+		return
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var job: NpcHomeDelivery = HomeDeliveryQueries.personal_for(
+		identity.npc_id,
+		visit.visit_id if visit != null else &"",
+	)
+	if job != null:
+		var delivery: String = String(TranslationServer.translate("ДОСТАВИТЬ ДОМОЙ. +%d\n%s"))
+		request.text += "\n" + delivery % [
+			job.bonus,
+			NpcPopulationQueries.place_name(job.address_id),
+		]
+#endregion
+
+
 #region Представление получателя и заказа
 ## Читает имя постоянной личности, иначе использует правила старого визита.
 static func customer_name(visit: CustomerVisit) -> String:
@@ -43,6 +71,8 @@ static func request_text(visit: CustomerVisit) -> String:
 static func uses_quick_visit(visit: CustomerVisit) -> bool:
 	var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
 	if person != null:
+		if person.profile.presentation_cues.has("npc/angel/sign_dialogue"):
+			return true
 		return (
 			visit.definition != null
 			and visit.definition.introduction == DEF_Customer.Introduction.ANNOUNCE_ORDER

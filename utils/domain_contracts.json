@@ -3072,7 +3072,8 @@
         "content/systems/gameplay/s_customer_departure.gd",
         "content/systems/gameplay/s_customer_greeting.gd",
         "content/systems/gameplay/s_customer_inspection.gd",
-        "content/systems/gameplay/s_customer_waiting.gd"
+        "content/systems/gameplay/s_customer_waiting.gd",
+        "content/services/customers/customer_presentation.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -3295,18 +3296,24 @@
         "begin",
         "close_for",
         "end",
-        "participant"
+        "participant",
+        "uses_signboard",
+        "valid_participants"
       ],
       "sources": [
         "content/services/customers/customer_flow_service.gd",
         "content/services/npc/npc_delivery_scenario_service.gd",
-        "content/services/npc/npc_service_role.gd"
+        "content/services/npc/npc_service_role.gd",
+        "content/definitions/interaction/def_customer_action.gd",
+        "content/services/customers/customer_dialogue_service.gd"
       ],
       "method_rights": {
         "end": "request",
         "participant": "request",
         "close_for": "request",
-        "begin": "request"
+        "begin": "request",
+        "uses_signboard": "query",
+        "valid_participants": "query"
       },
       "public_instance_methods": []
     },
@@ -19736,6 +19743,38 @@
       "method_rights": {},
       "public_instance_methods": [],
       "purpose": "Selected-Entity diagnostics read existing owners on explicit refresh and return detached values; no gameplay mutation or scheduling."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcSignTextRequest",
+      "path": "content/domains/npc/contracts/npc_sign_text_request.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/customers/customer_presentation.gd"
+      ]
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcSignboard",
+      "path": "content/domains/npc/presentation/npc_signboard.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/scenes/npc_customer_composition.gd"
+      ]
     }
   ],
   "legacy_decomposition": []
