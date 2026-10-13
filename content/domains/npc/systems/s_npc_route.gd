@@ -54,6 +54,9 @@ func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> v
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
 	assert(route != null, "NPC brain must compose route state before native registration")
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	if not awareness.hazard_distress:
+		route.rejected_refuge_points.clear()
 
 	# Inactive/direct-follow intent releases derived navigation without inventing a failed trip.
 	if not intent.movement_active or intent.move_uses_entity or not intent.navigation_enabled:
@@ -87,6 +90,8 @@ func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> v
 		route.elapsed = 0.0
 		var map: RID = actor.navigation_agent.get_navigation_map()
 		var iteration: int = NavigationServer3D.map_get_iteration_id(map) if map.is_valid() else 0
+		if route.navigation_map != map or route.map_iteration != iteration:
+			route.rejected_refuge_points.clear()
 		needs_plan = (
 			needs_plan or route.points.is_empty()
 			or route.navigation_map != map or route.map_iteration != iteration

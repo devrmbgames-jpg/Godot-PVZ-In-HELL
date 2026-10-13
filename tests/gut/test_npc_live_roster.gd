@@ -118,6 +118,9 @@ func test_all_live_archetypes_restore_as_native_bodies_without_reroll_or_health_
 		saved_people[person.npc_id] = SaveDataCodec.encode(person) as Dictionary
 		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 		(body.get_component(C_Health) as C_Health).current = 37.0
+		(body.get_component(C_NpcRoute) as C_NpcRoute).rejected_refuge_points.append(
+			Vector3(999, 0, 999),
+		)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_eq(snapshot.version, 19)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
@@ -133,9 +136,20 @@ func test_all_live_archetypes_restore_as_native_bodies_without_reroll_or_health_
 		assert_eq((body.get_component(C_Health) as C_Health).current, 37.0)
 		assert_eq((body.get_component(C_NpcVeil) as C_NpcVeil).form, C_NpcVeil.Form.VISIBLE)
 		assert_false((body.get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze).observed)
+		assert_true(
+			(body.get_component(C_NpcRoute) as C_NpcRoute).rejected_refuge_points.is_empty(),
+		)
 		assert_not_null(body.get_node_or_null("Brain") as BTPlayer)
+		(body.get_component(C_NpcRoute) as C_NpcRoute).rejected_refuge_points.append(
+			Vector3(999, 0, 999),
+		)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(_world.query.with_all([C_NpcIdentity]).execute().size(), 12)
+	for npc_id: StringName in identities:
+		var body: E_DistrictNpc = NpcPopulationQueries.body_for(npc_id)
+		assert_true(
+			(body.get_component(C_NpcRoute) as C_NpcRoute).rejected_refuge_points.is_empty(),
+		)
 
 
 func test_previous_schema_rejects_before_live_roster_mutation() -> void:

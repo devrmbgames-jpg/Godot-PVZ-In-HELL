@@ -12,7 +12,7 @@ body retain cursor/control/transform authority. Linked acceptance: [R26.5](r26_5
 
 ### Validation
 
-RV-001/P1 ACCEPTED, source `1b37fcb468e1c0c7d996d1d4df3d7940c933a807`,
+RV-001/P1 FIXED `19a080981bcec44fb2be2c8725892129db6f200a`, source `1b37fcb468e1c0c7d996d1d4df3d7940c933a807`,
 `S_NpcRoute._progress_route`: retained goal8.8, current goal9.08, actor8.65,
 arrival0.3, waypoint threshold0.5. Native NavigationAgent finishes the retained endpoint;
 intent reports blocked/not arrived. Route progression neither queues nor updates the goal.
@@ -27,14 +27,20 @@ proof does not establish the complete week failure's cause or waive its survival
 
 ### Current
 
-Scoped repair invalidates a blocked stale goal through the existing due-step owner/queue.
-Run focused native reproduction plus route-budget/stable-goal/lifecycle regressions,
-parser/formatter/static checks, commit and collect immutable-SHA review. Then run the
-unchanged production district week because production route logic changed.
+Reviewed repair invalidates a blocked stale goal through the existing due-step owner/queue.
+Focused native/static acceptance and review passed; unchanged week remains FAIL4/required6.
+Further production diagnosis is owned by R26.5 and
+[connected refuge candidates](npc_hazard_escape_connected_candidates.md); this scoped repair remains FIXED.
 
 ### Owner QA / blockers
 
-Repair SHA/review pending; focused native acceptance PASS. Required week NOT_RUN after repair.
+Immutable review PASS, no findings,34s: BASE
+`1b37fcb468e1c0c7d996d1d4df3d7940c933a807` -> TARGET
+`19a080981bcec44fb2be2c8725892129db6f200a`; architecture/style PASS, reviewer validation NOT_RUN.
+Focused native acceptance PASS. Unchanged week `tests/artifacts/district-20261013-094309939.log`
+FAIL4/required6, with shutdown retention preserved; no other runtime errors.
+Bounded readonly probe0946017147200frames confirms the same floor-fire deaths on days2/3/4;
+full week NOT_RUN in probe. Near-retained-endpoint and empty-route states still need causal proof.
 Rendered QA NOT_RUN.
 Required full-week acceptance remains open.
 

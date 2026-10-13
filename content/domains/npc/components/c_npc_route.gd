@@ -19,6 +19,9 @@ var reachable: bool = true
 var elapsed: float = 0.0
 ## Текущая цель ожидает своей очереди планирования.
 var pending: bool = false
+## Bounded failed refuge projections; planning publishes them, route lifecycle clears invalidation.
+## Derived navigation feedback only; never serialized or used as a second movement goal owner.
+var rejected_refuge_points: PackedVector3Array = PackedVector3Array()
 ## Время ожидания без доступного безопасного маршрута.
 var blocked_seconds: float = 0.0
 ## Признак начального измерения физического продвижения по текущей цели.
@@ -40,6 +43,7 @@ func reset_transient_state() -> void:
 	reachable = true
 	elapsed = 0.0
 	pending = false
+	rejected_refuge_points.clear()
 	blocked_seconds = 0.0
 	progress_initialized = false
 	progress_position = Vector3.ZERO

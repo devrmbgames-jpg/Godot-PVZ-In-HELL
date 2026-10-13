@@ -64,7 +64,8 @@ Native live-roster GUT10/798 and MCP resource inspection PASS at
 Initial full regression1252 FAIL; isolated fixture/test repairs293/5690 PASS, repair review PASS `5a861f1a83cef7c53a962326eda42420de1238cd`.
 Read-only diagnostics `1b37fcb468e1c0c7d996d1d4df3d7940c933a807` GUT21/202 and
 collected immutable review PASS against `5a861f1a83cef7c53a962326eda42420de1238cd`.
-Native finished-stale-goal defect is isolated in [route convergence](npc_route_goal_convergence.md);
+Native stale-goal repair `19a080981bcec44fb2be2c8725892129db6f200a` and review PASS;
+connected-candidate failure owns [its task](npc_hazard_escape_connected_candidates.md), native131/1842 PASS;
 week acceptance and required owner QA remain unfinished; details/triage in R26.5.
 Existing user worktree edits were preserved.
 
@@ -73,6 +74,7 @@ Existing user worktree edits were preserved.
 Collect all-ten cross-archetype acceptance and review with explicit role and save contracts.
 Preserve unchanged mandatory full-week survival6 acceptance; new roster week085722945 FAIL4/required6.
 Full integration/owner QA remain open; do not change balance solely to force this gate.
+Diagnostic [QA export/checklist](../qa_tasks/r26_acceptance.md) is ready; rendered permission pending.
 
 ### Validation
 

@@ -5,15 +5,19 @@ const FIRE_SCENE: PackedScene = preload("res://content/domains/hazards/entities/
 
 var _map: RID = RID()
 var _region: RID = RID()
+var _island: RID = RID()
 
 
 func after_each() -> void:
+	if _island.is_valid():
+		NavigationServer3D.free_rid(_island)
 	if _region.is_valid():
 		NavigationServer3D.free_rid(_region)
 	if _map.is_valid():
 		NavigationServer3D.free_rid(_map)
 	_region = RID()
 	_map = RID()
+	_island = RID()
 	super.after_each()
 
 
@@ -203,3 +207,63 @@ func test_finished_stale_endpoint_replans_to_the_current_movement_goal() -> void
 	assert_false(route.pending, "The same blocked observation does not requeue an unchanged goal")
 	assert_false(_district.pending_routes.has(person.npc_id))
 	assert_eq(route.points, stable)
+
+
+## A projected safe island cannot mask a reachable safe exit on the actor's connected region.
+func test_failed_disconnected_refuge_yields_to_a_connected_safe_candidate() -> void:
+	var actor: E_DistrictNpc = await _bounded_map()
+	var mesh: NavigationMesh = NavigationMesh.new()
+	mesh.vertices = PackedVector3Array([
+		Vector3(11, 0, -3), Vector3(11, 0, 3), Vector3(14, 0, 3), Vector3(14, 0, -3),
+	])
+	mesh.add_polygon(PackedInt32Array([0, 1, 2, 3]))
+	_island = NavigationServer3D.region_create()
+	NavigationServer3D.region_set_map(_island, _map)
+	NavigationServer3D.region_set_navigation_mesh(_island, mesh)
+	for frame: int in 120:
+		await get_tree().physics_frame
+		if NavigationServer3D.map_get_closest_point_owner(_map, Vector3(12, 0, 0)) == _island:
+			break
+	assert_eq(NavigationServer3D.map_get_closest_point_owner(_map, Vector3(12, 0, 0)), _island)
+	_fire(Vector3(7, 0, 0), 5.0)
+	var person: NpcRecord = _district.people[0]
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.hazard_distress = NpcRouteSolver.danger_here(actor)
+	assert_true(awareness.hazard_distress)
+	var first: Vector3 = NpcRouteSolver.refuge(actor)
+	assert_eq(NavigationServer3D.map_get_closest_point_owner(_map, first), _island)
+	NpcIntentService.move_to(actor, first, NpcDecisionService.ARRIVAL_DISTANCE)
+	NpcAiFixture.route(actor, person, 0.2)
+	NpcAiFixture.plan_routes(_district)
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	assert_false(route.reachable, "The native map cannot connect the first safe island")
+	assert_true(route.rejected_refuge_points.has(first))
+	var alternative: Vector3 = NpcRouteSolver.refuge(actor)
+	assert_eq(
+		NavigationServer3D.map_get_closest_point_owner(_map, alternative), _region,
+		"Actual failed planning must select a different safe candidate on the connected region",
+	)
+	NpcIntentService.move_to(actor, alternative, NpcDecisionService.ARRIVAL_DISTANCE)
+	NpcAiFixture.route(actor, person, 0.2)
+	await get_tree().physics_frame
+	NpcAiFixture.plan_routes(_district)
+	assert_true(route.reachable)
+	assert_false(route.points.is_empty())
+	if not route.points.is_empty():
+		assert_gt(
+			route.points[route.points.size() - 1].distance_to(Vector3(7, 0, 0)),
+			5.0 + actor.navigation_agent.radius + NpcDecisionService.ARRIVAL_DISTANCE,
+		)
+	awareness.hazard_distress = false
+	NpcAiFixture.route(actor, person, 0.2)
+	assert_true(route.rejected_refuge_points.is_empty(), "Leaving danger retires derived feedback")
+	awareness.hazard_distress = true
+	NpcIntentService.move_to(actor, first, NpcDecisionService.ARRIVAL_DISTANCE)
+	NpcAiFixture.route(actor, person, 0.2)
+	await get_tree().physics_frame
+	NpcAiFixture.plan_routes(_district)
+	assert_true(route.rejected_refuge_points.has(first))
+	actor.navigation_agent.set_navigation_map(actor.get_world_3d().navigation_map)
+	assert_ne(actor.navigation_agent.get_navigation_map(), _map)
+	NpcAiFixture.route(actor, person, _district.definition.route_interval)
+	assert_true(route.rejected_refuge_points.is_empty(), "Native map handoff retires old failures")

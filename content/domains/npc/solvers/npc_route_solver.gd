@@ -6,6 +6,8 @@ class_name NpcRouteSolver
 const ENDPOINT_TOLERANCE: float = 1.0
 ## One millimetre absorbs native float32 boundary rounding for floor contact, without body height.
 const FLOOR_HEIGHT_MARGIN: float = 0.001
+## Bounded point projections and retained failed candidates; actual paths use the fair queue.
+const REFUGE_DIRECTION_COUNT: int = 8
 
 static var _query_world: World = null
 static var _hazard_query: QueryBuilder = null
@@ -174,8 +176,10 @@ static func danger_here(actor: E_DistrictNpc) -> bool:
 
 ## Chooses a projected safe endpoint; the fair route-planning System still owns actual paths.
 static func refuge(actor: E_DistrictNpc) -> Vector3:
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	var definition: DEF_District = NpcPopulationQueries.current().definition
 	var margin: float = maxf(
-		NpcPopulationQueries.current().definition.local_detour_margin,
+		definition.local_detour_margin,
 		NpcDecisionService.ARRIVAL_DISTANCE + FLOOR_HEIGHT_MARGIN * 2.0,
 	)
 	var hazards: Array[NpcRouteContext.Hazard] = _hazards(actor)
@@ -205,14 +209,21 @@ static func refuge(actor: E_DistrictNpc) -> Vector3:
 		if not has_map:
 			continue
 		# Point projections do not build paths or consume the planning queue's budget.
-		for direction: int in 8:
+		for direction: int in REFUGE_DIRECTION_COUNT:
 			var candidate: Vector3 = center + outward.normalized().rotated(
 				Vector3.UP,
-				TAU * float(direction) / 8.0,
+				TAU * float(direction) / float(REFUGE_DIRECTION_COUNT),
 			) * (hazard.radius + margin)
 			var projected: Vector3 = NavigationServer3D.map_get_closest_point(map, candidate)
 			projected.y = actor.global_position.y
 			if not _safe_refuge_point(projected, hazards):
+				continue
+			var rejected: bool = false
+			for failed: Vector3 in route.rejected_refuge_points:
+				if projected.distance_to(failed) <= definition.waypoint_distance:
+					rejected = true
+					break
+			if rejected:
 				continue
 			# Preserve the direct exit when projection leaves its endpoint within arrival tolerance.
 			if (

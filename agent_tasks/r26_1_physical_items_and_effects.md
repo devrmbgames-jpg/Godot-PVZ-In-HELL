@@ -26,7 +26,8 @@ Other tagged unclean actors react only toward visible recognized instigators; fa
 Brain reconstruction clears transient blood bindings/rejections; HP and durable memories keep their existing owners.
 Blood review fixes passed native regressions and targeted review; navigation failures identify request/action/goal.
 Perception stops after a social fact retires/resets its receiver. Final native 15-item physical smoke passed.
-Next: modular NPC archetypes/receiver composition; retain open integration and owner acceptance.
+Archetype receiver composition now passes production live-roster GUT10/798 in R26.5;
+mandatory district-week and [owner acceptance](../qa_tasks/r26_acceptance.md) remain open.
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
@@ -90,7 +91,8 @@ consecutive immutable SHA ranges; reviewer VALIDATION NOT_RUN, serial/token comp
   Targeted review ARCHITECTURE/STYLE PASS,no findings,6s.
 - MCP native authored saves throughout. Loaded global script reload error43 remains NOT_PASS;
   fresh parser/GUT are actual independent PASS. No rendered gameplay or clean editor visual QA claimed.
-- NOT_RUN: archetype receiver composition and full owner acceptance.
+- PASS: archetype receiver composition, live GUT10/798 at roster/route checkpoints in R26.5.
+- NOT_RUN: [full owner acceptance](../qa_tasks/r26_acceptance.md).
 
 ### Owner QA / blockers
 

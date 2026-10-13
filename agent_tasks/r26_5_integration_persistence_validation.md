@@ -26,20 +26,22 @@ parser225451860 four files and230043030 final helper/test; formatter/strict arch
 Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
 at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRED. Inventory PASS.
 Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
-FAIL: unchanged production district week `district-20261013-085722945.log`, survival4/required6,
-no other runtime errors. Previous legacy weeks FAIL5/required6; acceptance is not waived.
+FAIL: unchanged reviewed route week `district-20261013-094309939.log`, survival4/required6;
+previous production085722945 FAIL4 and legacy weeks FAIL5. Shutdown retention preserved; no other runtime errors.
 Full affected batch `.artifacts/r26_roster_regressions-20261013.log` FAIL: 57 suites,
 1232/1252 tests, 17719/17793 assertions, one lifecycle suite failed to parse. Scope pinned by
 `.artifacts/r26_roster_regression_paths-20261013.txt`. Only failed/omitted suites are rerun
-after repair in fresh processes; collected current totals below. Export/owner QA NOT_RUN.
+after repair in fresh processes; current totals below. QA export/menu/level120frames PASS:
+`.export/windows/20261012-234718Z-19a08098-r26-reviewed-week-fail-qa`; dirty=true, full SHA in manifest.
 Fresh failed/omitted/live suites PASS: 293 tests/5690 assertions, logs date20261012 under
 `.artifacts/godot_agent/`: blood23175732114/195, queue23205106551/340, snapshot23184298816/205,
 stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
 Readonly mortality probe091100283 confirms floor-fire deaths npc4/day2, npc3/day3, npc1/day4;
-7200frames, full week NOT_RUN. Native stale-endpoint reproduction/repair owns
-[route convergence](npc_route_goal_convergence.md); no tuning or acceptance change.
+Post-repair probes094601714/0951282017200frames repeat deaths; full week NOT_RUN.
+[Route convergence](npc_route_goal_convergence.md) reviewed FIXED;
+[disconnected refuge candidates](npc_hazard_escape_connected_candidates.md) native131/1842 PASS, review pending.
 
 ### Review / triage
 
@@ -72,11 +74,10 @@ architecture/style PASS, reviewer validation NOT_RUN.
 
 ### Owner QA / blockers
 
-Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
-Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
+Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance;
+explicitly deferred polish requires an owner decision. No rendered gameplay has run.
 
 ## Persistence
-
 Persist durable physical item state/Health supported by existing snapshot rules, player karma,
 soul-deal/progression, NPC archetype/variation seed/name/selected traits/dialogue and personal memories.
 Exclude live Node/Object references, BT instances/Blackboards, physics inboxes, per-frame perception,
@@ -193,7 +194,6 @@ No per-frame verbose logging or duplicated gameplay authority.
 
 Do not run rendered gameplay automatically.
 ## Owner QA
-
 Manual owner checks cover scythe AOE/thrown-knife feel, barrel/flask physics and hazard
 readability; Angel look/freeze; Night Hunter light/music/shadows; Creepy stalking;
 Vampire visibility/cloud escape; final prose and balance of aggression, probabilities,

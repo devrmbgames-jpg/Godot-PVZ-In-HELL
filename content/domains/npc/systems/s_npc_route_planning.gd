@@ -81,6 +81,12 @@ func _process_pending(district: C_District) -> void:
 		route.map_iteration = NavigationServer3D.map_get_iteration_id(map)
 		route.point_index = 1 if route.points.size() > 1 else 0
 		route.reachable = not route.points.is_empty()
+		var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+		if not route.reachable and awareness.hazard_distress:
+			if not route.rejected_refuge_points.has(route.goal):
+				if route.rejected_refuge_points.size() >= NpcRouteSolver.REFUGE_DIRECTION_COUNT:
+					route.rejected_refuge_points.remove_at(0)
+				route.rejected_refuge_points.append(route.goal)
 		route.elapsed = 0.0
 		route.pending = false
 		district.route_plans_this_frame += 1
