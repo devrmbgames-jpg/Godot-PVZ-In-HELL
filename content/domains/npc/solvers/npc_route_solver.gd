@@ -209,7 +209,8 @@ static func refuge(actor: E_DistrictNpc) -> Vector3:
 		if not has_map:
 			continue
 		# Point projections do not build paths or consume the planning queue's budget.
-		for direction: int in REFUGE_DIRECTION_COUNT:
+		for step: int in REFUGE_DIRECTION_COUNT:
+			var direction: int = (step + route.refuge_direction_offset) % REFUGE_DIRECTION_COUNT
 			var candidate: Vector3 = center + outward.normalized().rotated(
 				Vector3.UP,
 				TAU * float(direction) / float(REFUGE_DIRECTION_COUNT),
@@ -225,6 +226,9 @@ static func refuge(actor: E_DistrictNpc) -> Vector3:
 					break
 			if rejected:
 				continue
+			# Keep trying other directions when a moving source shifts a failed projection.
+			if route.refuge_direction_offset > 0:
+				return projected
 			# Preserve the direct exit when projection leaves its endpoint within arrival tolerance.
 			if (
 				direction == 0

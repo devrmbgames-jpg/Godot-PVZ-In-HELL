@@ -26,8 +26,8 @@ parser225451860 four files and230043030 final helper/test; formatter/strict arch
 Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
 at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRED. Inventory PASS.
 Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
-FAIL: unchanged reviewed route week `district-20261013-094309939.log`, survival4/required6;
-previous production085722945 FAIL4 and legacy weeks FAIL5. Shutdown retention preserved; no other runtime errors.
+FAIL: unchanged reviewed repair week `district-20261013-100916663.log`, survival5/required6;
+prior094309939/085722945 FAIL4, legacy FAIL5. Latest native night/snapshot/restore checks pass; no other runtime errors.
 Full affected batch `.artifacts/r26_roster_regressions-20261013.log` FAIL: 57 suites,
 1232/1252 tests, 17719/17793 assertions, one lifecycle suite failed to parse. Scope pinned by
 `.artifacts/r26_roster_regression_paths-20261013.txt`. Only failed/omitted suites are rerun
@@ -42,7 +42,7 @@ Readonly mortality probe091100283 confirms floor-fire deaths npc4/day2, npc3/day
 Post-repair probes094601714/0951282017200frames repeat deaths; full week NOT_RUN.
 [Route convergence](npc_route_goal_convergence.md) reviewed FIXED;
 [Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): native131/1842,
-repair103/1549 and targeted immutable review PASS; latest unchanged district week running.
+map repair103/1549/review PASS; moving-source repair139/1904 PASS, immutable review pending.
 
 ### Review / triage
 

@@ -225,7 +225,7 @@ func test_failed_disconnected_refuge_yields_to_a_connected_safe_candidate() -> v
 		if NavigationServer3D.map_get_closest_point_owner(_map, Vector3(12, 0, 0)) == _island:
 			break
 	assert_eq(NavigationServer3D.map_get_closest_point_owner(_map, Vector3(12, 0, 0)), _island)
-	_fire(Vector3(7, 0, 0), 5.0)
+	var effect: Entity = _fire(Vector3(7, 0, 0), 5.0)
 	var person: NpcRecord = _district.people[0]
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.hazard_distress = NpcRouteSolver.danger_here(actor)
@@ -238,10 +238,17 @@ func test_failed_disconnected_refuge_yields_to_a_connected_safe_candidate() -> v
 	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
 	assert_false(route.reachable, "The native map cannot connect the first safe island")
 	assert_true(route.rejected_refuge_points.has(first))
+	assert_eq(route.refuge_direction_offset, 1)
 	var alternative: Vector3 = NpcRouteSolver.refuge(actor)
 	assert_eq(
 		NavigationServer3D.map_get_closest_point_owner(_map, alternative), _region,
 		"Actual failed planning must select a different safe candidate on the connected region",
+	)
+	(effect as Node as Node3D).global_position = Vector3(7, 0.1, 0.6)
+	alternative = NpcRouteSolver.refuge(actor)
+	assert_eq(
+		NavigationServer3D.map_get_closest_point_owner(_map, alternative), _region,
+		"A moving hazard must not restart candidate selection on the same disconnected island",
 	)
 	NpcIntentService.move_to(actor, alternative, NpcDecisionService.ARRIVAL_DISTANCE)
 	NpcAiFixture.route(actor, person, 0.2)
@@ -251,18 +258,21 @@ func test_failed_disconnected_refuge_yields_to_a_connected_safe_candidate() -> v
 	assert_false(route.points.is_empty())
 	if not route.points.is_empty():
 		assert_gt(
-			route.points[route.points.size() - 1].distance_to(Vector3(7, 0, 0)),
+			route.points[route.points.size() - 1].distance_to(Vector3(7, 0, 0.6)),
 			5.0 + actor.navigation_agent.radius + NpcDecisionService.ARRIVAL_DISTANCE,
 		)
 	awareness.hazard_distress = false
 	NpcAiFixture.route(actor, person, 0.2)
 	assert_true(route.rejected_refuge_points.is_empty(), "Leaving danger retires derived feedback")
+	assert_eq(route.refuge_direction_offset, 0)
+	(effect as Node as Node3D).global_position = Vector3(7, 0.1, 0)
 	awareness.hazard_distress = true
 	NpcIntentService.move_to(actor, first, NpcDecisionService.ARRIVAL_DISTANCE)
 	NpcAiFixture.route(actor, person, 0.2)
 	await get_tree().physics_frame
 	NpcAiFixture.plan_routes(_district)
 	assert_true(route.rejected_refuge_points.has(first))
+	route.refuge_direction_offset = NpcRouteSolver.REFUGE_DIRECTION_COUNT - 1
 	actor.navigation_agent.set_navigation_map(actor.get_world_3d().navigation_map)
 	assert_ne(actor.navigation_agent.get_navigation_map(), _map)
 	NpcIntentService.move_to(actor, first + Vector3.FORWARD, NpcDecisionService.ARRIVAL_DISTANCE)
@@ -271,6 +281,8 @@ func test_failed_disconnected_refuge_yields_to_a_connected_safe_candidate() -> v
 	await get_tree().physics_frame
 	NpcAiFixture.plan_routes(_district)
 	assert_eq(route.navigation_map, actor.navigation_agent.get_navigation_map())
+	assert_false(route.reachable, "The new empty map records its own failed plan")
+	assert_eq(route.refuge_direction_offset, 1, "New map starts a fresh candidate cycle")
 	assert_false(
 		route.rejected_refuge_points.has(first),
 		"Planning on a new native map retires feedback before publishing map identity",

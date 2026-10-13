@@ -22,6 +22,9 @@ var pending: bool = false
 ## Bounded failed refuge projections; planning publishes them, route lifecycle clears invalidation.
 ## Derived navigation feedback only; never serialized or used as a second movement goal owner.
 var rejected_refuge_points: PackedVector3Array = PackedVector3Array()
+## Bounded direction cursor after actual failed escape planning; never serialized.
+## Planning advances it; danger exit, map invalidation and reconstruction reset it.
+var refuge_direction_offset: int = 0
 ## Время ожидания без доступного безопасного маршрута.
 var blocked_seconds: float = 0.0
 ## Признак начального измерения физического продвижения по текущей цели.
@@ -44,6 +47,7 @@ func reset_transient_state() -> void:
 	elapsed = 0.0
 	pending = false
 	rejected_refuge_points.clear()
+	refuge_direction_offset = 0
 	blocked_seconds = 0.0
 	progress_initialized = false
 	progress_position = Vector3.ZERO

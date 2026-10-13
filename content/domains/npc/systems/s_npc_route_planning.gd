@@ -79,6 +79,7 @@ func _process_pending(district: C_District) -> void:
 		# A changed goal can plan before route progression polls the native map revision.
 		if route.navigation_map != map or route.map_iteration != iteration:
 			route.rejected_refuge_points.clear()
+			route.refuge_direction_offset = 0
 		route.goal = intent.move_position
 		route.points = NpcRouteSolver.plan(actor, person, actor.global_position, route.goal, map)
 		route.navigation_map = map
@@ -87,6 +88,9 @@ func _process_pending(district: C_District) -> void:
 		route.reachable = not route.points.is_empty()
 		var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 		if not route.reachable and awareness.hazard_distress:
+			route.refuge_direction_offset = (
+				(route.refuge_direction_offset + 1) % NpcRouteSolver.REFUGE_DIRECTION_COUNT
+			)
 			if not route.rejected_refuge_points.has(route.goal):
 				if route.rejected_refuge_points.size() >= NpcRouteSolver.REFUGE_DIRECTION_COUNT:
 					route.rejected_refuge_points.remove_at(0)

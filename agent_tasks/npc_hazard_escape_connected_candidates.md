@@ -17,8 +17,11 @@ point selection skips it; route lifecycle clears feedback after danger/map inval
 native reconstruction clears the transient field. No new goal/physics authority or tuning.
 Initial implementation `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea` passed the relevant batch.
 Collected review found RV-002 map invalidation ordering; native reproduction confirms it.
-Planner now retires old feedback before publishing a changed map/revision. Targeted repair
-review and affected regressions PASS; unchanged production district week running.
+Map retirement repair and targeted review PASS; unchanged production week FAIL5/required6.
+Native moving-source reproduction reveals RV-003: shifted island projection escapes exact-point
+rejections. A bounded transient direction cursor now advances after actual failed planning,
+preserving the ordinary first-choice behavior; danger/map/reconstruction reset both feedback fields.
+Full affected verification and immutable review precede the next unchanged week.
 
 ### Validation
 
@@ -54,10 +57,26 @@ formatter2files/strict architecture/structure/diff checks PASS.
 First targeted re-review PASS: BASE `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea`
 -> TARGET `c02213ef77d055b725cb221adf0b7cf48e89b77a`, same existing reviewer,11s.
 RV-002 RESOLVED, no material findings; architecture/style PASS, reviewer validation NOT_RUN.
+RV-003/P1 ACCEPTED, source `c02213ef77d055b725cb221adf0b7cf48e89b77a`,
+`NpcRouteSolver.refuge`: moving source shifts the failed island projection outside waypoint
+tolerance and repeatedly restarts first-choice selection instead of progressing to alternatives.
+Full readonly probe `tests/artifacts/district_survival_probe-20261013-101155950.log`
+FAIL5/6: floor-fire deaths npc4/day2, npc3/day3, npc1/day4; npc3 empty route while
+safe candidates2..6 have complete native paths. No other runtime errors.
+Native moving-source0.6m regression GUT20261013-001554655 FAIL13/14 tests126/129:
+island reselected and two route assertions fail, setup passes. Final cursor repair batch
+PASS139tests/1904assertions, logs date20261013: endpoint00184336414/134,
+performance00174188921/145, scheduling00175815949/291, Veil00182653015/127,
+fire00183567611/77, blood00184180210/122, live00185096310/846,
+participation0019051879/162. Parser0019183716files, formatter6files,
+strict architecture/structure/persistence PASS. Native map retirement and fresh/reused
+all-twelve reconstruction verify both feedback fields. Immutable review pending commit.
 
 ### Owner QA / blockers
 
-Required unchanged week previously FAIL4/required6; scoped repair must not waive it.
+Unchanged week on reviewed repair `tests/artifacts/district-20261013-100916663.log`
+FAIL5/required6 (previously4); native night/snapshot/restore checks pass, no other runtime errors.
+Readonly full-week probe101155950 also FAIL5/6; scoped repair must not waive required survival.
 Rendered permission pending; [owner QA](../qa_tasks/r26_acceptance.md) NOT_RUN.
 
 ## Acceptance
