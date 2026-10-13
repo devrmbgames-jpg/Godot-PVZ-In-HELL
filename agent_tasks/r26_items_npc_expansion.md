@@ -76,7 +76,7 @@ Collect all-ten cross-archetype acceptance and review with explicit role and sav
 Preserve unchanged mandatory full-week survival6 acceptance; latest105104090 FAIL5/required6,
 cursor/cache diagnostic confirms actual reachable escape; isolated floor-damage2 also FAIL5/6,
 original4 restored; successful-goal retention repair/native120/899 and review PASS.
-Full integration/owner QA remain open; pending authored floor balance clarification, radius10m retained.
+Full integration/owner QA remain open; unsafe retained endpoint has native proof/repair in route convergence.
 Diagnostic [QA export/checklist](../qa_tasks/r26_acceptance.md) is ready; rendered permission pending.
 
 ### Validation

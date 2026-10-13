@@ -250,6 +250,11 @@ static func refuge(actor: E_DistrictNpc) -> Vector3:
 	return best if is_finite(best_distance) else fallback
 
 
+## Tests current effective hazards at an escape endpoint, including body and arrival clearance.
+static func refuge_is_safe(actor: E_DistrictNpc, point: Vector3) -> bool:
+	return _safe_refuge_point(point, _hazards(actor))
+
+
 static func _safe_refuge_point(point: Vector3, hazards: Array[NpcRouteContext.Hazard]) -> bool:
 	for hazard: NpcRouteContext.Hazard in hazards:
 		if absf(point.y - hazard.center.y) > hazard.half_height + FLOOR_HEIGHT_MARGIN:

@@ -35,7 +35,7 @@ Fresh failed/omitted/live suites PASS: 293 tests/5690 assertions, logs date20261
 stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
-[Route convergence](npc_route_goal_convergence.md) reviewed FIXED;
+[Route convergence](npc_route_goal_convergence.md): RV-001 reviewed FIXED; RV-002 unsafe endpoint retirement native121/918/parser/static PASS, review pending.
 [Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): native131/1842,
 map repair103/1549/review PASS; moving-source139/1904/review PASS; retained-goal120/899/review PASS, unchanged week FAIL5/6.
 Latest bounded probe1055116147200frames PASS: retained safe goal, reachable movement/no combat;
@@ -75,8 +75,8 @@ architecture/style PASS, reviewer validation NOT_RUN.
 ### Owner QA / blockers
 
 Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance;
-Deferred polish requires owner input; no rendered gameplay has run. Pending balance clarification:
-keep authored radius10m; tune damage/cadence/lifetime or retain4HP/0.5s/60s. No tuning accepted.
+Deferred polish requires owner input; no rendered gameplay has run. Balance clarification pending;
+new endpoint-retirement defect now has native proof; radius10m/4HP/0.5s/60s unchanged.
 
 ## Persistence
 Persist durable physical item state/Health supported by existing snapshot rules, player karma,

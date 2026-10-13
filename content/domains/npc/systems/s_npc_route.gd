@@ -78,8 +78,13 @@ func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> v
 		intent.navigation_blocked and not intent.arrived
 		and not route.goal.is_equal_approx(intent.move_position)
 	)
+	# Moving danger can invalidate a retained endpoint before native arrival reports blockage.
+	var unsafe_refuge: bool = (
+		awareness.hazard_distress and not route.goal.is_equal_approx(intent.move_position)
+		and not NpcRouteSolver.refuge_is_safe(actor, route.goal)
+	)
 	var new_goal: bool = (
-		stale_endpoint
+		stale_endpoint or unsafe_refuge
 		or route.goal.distance_to(intent.move_position) > district.definition.waypoint_distance
 	)
 	if new_goal:

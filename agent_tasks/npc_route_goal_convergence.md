@@ -1,12 +1,12 @@
-# NPC route goal convergence after a native endpoint finishes
+# NPC route goal convergence after endpoint completion or moving danger
 Status: **IN_PROGRESS**
 
 ## Task state
 
 ### Goal
 
-Repair `S_NpcRoute` retaining a completed route when the movement goal shifts below
-`DEF_District.waypoint_distance` but remains outside actual intent arrival tolerance.
+Repair `S_NpcRoute` retaining a completed or newly unsafe escape endpoint when the movement
+goal shifts below `DEF_District.waypoint_distance` but remains outside actual arrival tolerance.
 `S_NpcRoutePlanning` keeps the fair queue/frame budget; `S_NpcIntent` and the physical
 body retain cursor/control/transform authority. Linked acceptance: [R26.5](r26_5_integration_persistence_validation.md).
 
@@ -24,13 +24,31 @@ Veil23410082415/127; fire23410998611/77; blood23411610210/122; live23412423310/7
 Parser2339533562files, formatter/strict architecture/structure PASS.
 Production mortality probe091100283 shows a comparable near-goal state, but this isolated
 proof does not establish the complete week failure's cause or waive its survival criterion.
+RV-002/P1 ACCEPTED, source `2da4a456d66a137e5316af2ba87355fa2cc94a08`
+(production code identical to reviewed `a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`):
+`S_NpcRoute._progress_route` retains a newly unsafe escape endpoint until native stopping
+because the replacement is only0.32m away, below waypoint0.5. Distinct from RV-001's
+already-finished endpoint; no duplicate connected-candidate finding is created.
+Readonly `.artifacts/r26_motion_burst-20261013.log`3000frames, native exit0, full week NOT_RUN:
+NPC4 has full desired/avoidance1.9197m/s; frames1827/1852/1877 show blocked/not-arrived,
+zero controller and braking at the old goal while a new refuge0.32m away remains unapplied.
+Native regression GUT20261013-010833652 FAIL14/15 tests152/156assertions:
+old goal(8,0,3.9), source(8,0,-2)->(8,0,-1.68), replacement(8,0,4.22);
+native route still unfinished, all setup assertions PASS; four queue/goal assertions fail.
+Repair checks effective endpoint safety in the existing due-step owner and queues only a changed
+goal whose retained refuge is unsafe. Still-safe small shifts keep the original tolerance.
+Affected batch PASS121tests/918assertions, logs date20261013 under `.artifacts/godot_agent/`:
+endpoint01093400715/156; performance01104856721/145; scheduling01110479749/291;
+Veil01113217215/127; fire01114130311/77; blood01114743110/122.
+Parser0111555603files, formatter3files/strict architecture/structure PASS.
+Unchanged reconstruction/schema gates remain valid; no fields/reset/save authority changed.
 
 ### Current
 
-Reviewed repair invalidates a blocked stale goal through the existing due-step owner/queue.
-Focused native/static acceptance and review passed; unchanged week remains FAIL4/required6.
-Further production diagnosis is owned by R26.5 and
-[connected refuge candidates](npc_hazard_escape_connected_candidates.md); this scoped repair remains FIXED.
+RV-001 reviewed repair remains FIXED. RV-002 endpoint-safety retirement repair is prepared;
+affected native/static checks PASS; immutable review and new full week remain pending.
+Latest reviewed production week105104090 FAIL5/required6; linked
+[connected refuge candidates](npc_hazard_escape_connected_candidates.md) RV-001..004 remain FIXED.
 
 ### Owner QA / blockers
 

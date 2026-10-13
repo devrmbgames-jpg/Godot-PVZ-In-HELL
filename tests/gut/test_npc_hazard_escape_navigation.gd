@@ -209,6 +209,55 @@ func test_finished_stale_endpoint_replans_to_the_current_movement_goal() -> void
 	assert_eq(route.points, stable)
 
 
+## Moving danger invalidates an escape endpoint before native arrival observes the old target.
+func test_moving_hazard_replans_an_unsafe_endpoint_below_waypoint_distance() -> void:
+	var actor: E_DistrictNpc = await _bounded_map()
+	var effect: Entity = _fire(Vector3(8, 0, -2), 5.0)
+	var person: NpcRecord = _district.people[0]
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.hazard_distress = NpcRouteSolver.danger_here(actor)
+	assert_true(awareness.hazard_distress)
+	var old_goal: Vector3 = NpcRouteSolver.refuge(actor)
+	NpcIntentService.move_to(actor, old_goal, NpcDecisionService.ARRIVAL_DISTANCE)
+	NpcAiFixture.route(actor, person, 0.2)
+	NpcAiFixture.plan_routes(_district)
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
+	assert_true(route.reachable)
+	assert_false(route.points.is_empty())
+	actor.navigation_agent.avoidance_enabled = false
+	var owner: S_NpcIntent = S_NpcIntent.new()
+	owner.group = "moving_hazard_fixture"
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	_world.remove_system(owner)
+	assert_false(intent.arrived)
+	assert_false(intent.navigation_blocked, "The old native route has not finished")
+	(effect as Node as Node3D).global_position += Vector3.BACK * 0.32
+	var new_goal: Vector3 = NpcRouteSolver.refuge(actor)
+	assert_almost_eq(old_goal.distance_to(new_goal), 0.32, 0.001)
+	assert_lt(old_goal.distance_to(new_goal), _district.definition.waypoint_distance)
+	assert_lt(
+		old_goal.distance_to(Vector3(8, 0, -1.68)),
+		5.0 + actor.navigation_agent.radius + NpcDecisionService.ARRIVAL_DISTANCE,
+	)
+	NpcIntentService.move_to(actor, new_goal, NpcDecisionService.ARRIVAL_DISTANCE)
+	NpcAiFixture.route(actor, person, 0.2)
+	assert_true(route.pending, "A newly unsafe escape endpoint must replan before native stopping")
+	assert_true(_district.pending_routes.has(person.npc_id))
+	await get_tree().physics_frame
+	NpcAiFixture.plan_routes(_district)
+	assert_false(route.pending)
+	assert_true(route.reachable)
+	assert_almost_eq(route.goal, new_goal, Vector3.ONE * 0.001)
+	assert_almost_eq(route.points[route.points.size() - 1], new_goal, Vector3.ONE * 0.001)
+	var stable: PackedVector3Array = route.points.duplicate()
+	NpcIntentService.move_to(actor, new_goal + Vector3.BACK * 0.05, intent.arrival_distance)
+	NpcAiFixture.route(actor, person, 0.2)
+	assert_false(route.pending, "A still-safe endpoint retains ordinary small-goal tolerance")
+	assert_eq(route.points, stable)
+
+
 ## A projected safe island cannot mask a reachable safe exit on the actor's connected region.
 func test_failed_disconnected_refuge_yields_to_a_connected_safe_candidate() -> void:
 	var actor: E_DistrictNpc = await _bounded_map()
