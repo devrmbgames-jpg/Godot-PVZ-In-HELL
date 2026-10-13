@@ -30,15 +30,15 @@ Each supporting task owns implementation/review evidence; R26.5 owns final integ
 Current connected district write/restore native PASS, exits0/0; reviewed test checkpoint
 `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`. RV-004/005 FIXED, full evidence and historical FAIL
 owned by [district integration](district_release_validation.md).
-Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days,
+Final linked production week `tests/artifacts/district-20261013-162731685.log` **PASS**, wrapper exit0: all seven days,
 unchanged survival requirement >=6/8 original residents, night/snapshot/restore/navigation/identity pass.
-Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
-BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
-Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
+Code checkpoint `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`; exact review BASE
+`fc68226b6e051ea15f14e5d42deb9fbb1d86bd44` -> TARGET `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4` PASS, no findings.
+Owner removed the whole wide floor effect and reduced contact radius25% to1.6875m; see [R26.5](r26_5_integration_persistence_validation.md). Exact-SHA review and native week/connected roundtrip PASS.
 Scoped repair code/reviews remain valid ancestors; prior failed weeks below are historical evidence.
-Recorded findings remain FIXED; current connected automated/review gates are closed.
+Recorded findings remain FIXED; owner-change automated/review gates pass.
 Rendered gameplay/visual and final balance QA NOT_RUN; these remain in the original R26 tasks.
-Windows QA export `.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa` and headless menu/level120frames PASS.
+Windows QA export `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only` and headless menu/level120frames PASS.
 Build contains preserved user working-tree changes (dirty=true); it is not a clean immutable checkout.
 Final subjective acceptance remains open; no rendered gameplay or capture has run.
 

@@ -3,13 +3,13 @@
 Status: **PENDING_OWNER_QA**
 
 Owning task: [district integration](../agent_tasks/district_release_validation.md).
-Current runnable build: [PVZInHell.exe](../.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa/PVZInHell.exe).
-Manifest: `.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa/build_info.json`; `.export/LATEST.cmd` points to this build.
-Compiled gameplay checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366` plus preserved
+Current runnable build: [PVZInHell.exe](../.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only/PVZInHell.exe).
+Manifest: `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only/build_info.json`; `.export/LATEST.cmd` points to this build.
+Compiled gameplay checkpoint `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4` plus preserved
 user changes (dirty=true); export/headless menu/level120frames PASS. It is not an immutable checkout.
 External test-only connected checkpoint `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`: native write/restore
 PASS, exits0/0; exact-SHA targeted review ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN.
-The binary was not re-exported for the fixture repair; gameplay/resources did not change.
+The new binary includes owner-requested wide-fire removal and contact radius1.6875m; gameplay review PASS.
 Write wrapper FAIL only known shutdown retention; rendered/subjective owner QA NOT_RUN.
 All-ten profiles/default ambient0.15/authored light timeout60s remain the manual QA scope.
 Use a separate QA save profile; headless checks do not prove feel, readability or visual routes.

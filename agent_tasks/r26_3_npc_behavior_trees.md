@@ -19,11 +19,11 @@ Conditional Veil/cloud escape, gaze/light/toy/blood behavior, feeding floor and 
 retain their reviewed owners. Canonical RV-001..006 are FIXED; schedule/escape/route defects
 are separately completed with native regressions and immutable reviews:
 [canonical schedule](completed/npc_schedule_canonical_order.md), [wounded escape](completed/npc_hazard_escape_low_health.md).
-Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days, unchanged >=6/8 residents, night/snapshot/restore/navigation/identity pass.
-Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
-BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
-Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
-Scoped repairs/reviews remain valid ancestors; prior FAIL evidence is historical. No accepted findings or required automated gates remain open; rendered gameplay/visual and final balance QA NOT_RUN.
+Final linked production week `tests/artifacts/district-20261013-162731685.log` **PASS**, wrapper exit0: all seven days, unchanged >=6/8 residents, night/snapshot/restore/navigation/identity pass.
+Code checkpoint `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`; exact review BASE
+`fc68226b6e051ea15f14e5d42deb9fbb1d86bd44` -> TARGET `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4` PASS, no findings.
+Owner removed the whole wide floor effect and reduced contact radius25% to1.6875m; see [R26.5](r26_5_integration_persistence_validation.md). Exact-SHA review and native week/connected roundtrip PASS.
+Scoped repairs/reviews remain valid ancestors; prior FAIL evidence is historical. Owner-change review/integration gates pass; rendered gameplay/visual and final balance QA NOT_RUN.
 
 ### Validation
 

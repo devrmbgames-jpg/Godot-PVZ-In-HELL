@@ -18,7 +18,7 @@ Status: **OWNER_QA**
 
 ### Current
 
-Connected all-ten production-roster gate restored and reviewed. Latest test checkpoint
+Connected all-ten production-roster gate restored and reviewed. Reviewed connected-fixture checkpoint
 `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`; BASE `ca6ed1425d617b504b6afaa39759e65e0b9fc5c7`.
 Targeted repair cycle1: ARCHITECTURE/STYLE PASS, no findings; reviewer VALIDATION NOT_RUN.
 RV-001..005 are FIXED; source reviews with FAIL remain recorded below. Native write/restore
@@ -35,11 +35,11 @@ authored DEF is restored before each Night. Native safe-home wait/dialogue close
 actual inspection own outcomes; player withdraws indoors during inspection. Home pose remains
 fixture input; actual walking/default ambient0.15/authored light timeout60s require owner QA.
 
-Production gameplay checkpoint remains `4c60e3dc784352c2fb95ca617cebbafa9a834366`;
-default production week112524520 PASS (unchanged >=6/8), see [R26.5](r26_5_integration_persistence_validation.md).
-Runnable QA build `.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa/`; export/menu/level120frames PASS,
-dirty worktree recorded. Test-only repair does not require re-export; manifest distinguishes
-compiled gameplay from external connected-test evidence. Historical build20261011 remains prior evidence.
+Production gameplay checkpoint is `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`;
+default production week162731685 PASS (unchanged >=6/8), see [R26.5](r26_5_integration_persistence_validation.md).
+Runnable QA build `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only/`; export/menu/level120frames PASS,
+dirty worktree recorded. Owner-requested wide-fire removal/contact reduction is included in the new export;
+compiled gameplay and external connected-fixture evidence are distinguished in the manifest. Historical build20261011 remains prior evidence.
 Next: required [owner acceptance](../qa_tasks/district_release_validation.md); no automated/review blocker remains.
 
 ### Validation
@@ -52,15 +52,15 @@ Current native checks on preserved dirty worktree (not immutable runtime checkou
 - Parser2/2, zero failures, native exit0: `parsefiles-20261013-030947898`;
   wrapper FAIL only known shutdown3RID/293Resource/VariantPools retention.
 - Full connected native write/restore PASS, exits0/0:
-  `tests/artifacts/district_release-write-20261013-130958158.log` and
-  `tests/artifacts/district_release-restore-20261013-131145156.log` (actual exit in adjacent `.result.json`).
-  Write wrapper FAIL only shutdown35RID/414ObjectDB/325Resource/VariantPools; restore ran
+  `tests/artifacts/district_release-write-20261013-162956129.log` and
+  `tests/artifacts/district_release-restore-20261013-163149620.log` (actual exit in adjacent `.result.json`).
+  Write wrapper FAIL only shutdown35RID/418ObjectDB/327Resource/VariantPools; restore ran
   separately in a fresh process. All original outcome/timeout/replay gates retained.
 - Inspection12/163 and district delivery22/166 PASS, wrappers PASS on source fixture checkpoint:
   `gut-20261013-025047741` / `gut-20261013-025105226`; logic unchanged by async-loop repair.
 - Incremental formatter/lint2files, strict architecture0findings, project structure,
   staged agent-change gate (0 eligible gameplay files) and scoped `git diff --check` PASS.
-- Latest exact-SHA targeted review: PASS, UTC03:10:34..03:11:23, 49s; reviewer validation NOT_RUN.
+- Connected-fixture targeted review: PASS, UTC03:10:34..03:11:23, 49s; reviewer validation NOT_RUN.
   MCP session inspection returned no live editor; native headless checks ran independently.
   Shutdown-only retention is KNOWN_ENGINE_LIMITATION / DEFERRED. Rendered QA NOT_RUN.
 

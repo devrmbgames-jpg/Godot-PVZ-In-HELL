@@ -9,52 +9,52 @@ Parent: [R26](r26_items_npc_expansion.md).
 Integrate physical items, modular NPC archetypes, LimboAI behavior and dialogue into the existing district/parcel/save systems without regressing current gameplay.
 
 ### Current
-Native ResourceSaver now binds all ten canonical archetypes and two explicit visitor presets.
-Twelve stable NPC slots, eight residents/four visitors, slot-eight merchant, recipients and participation
-schedules preserved. Legacy fixtures isolate regressions; live acceptance/smoke use production data.
-Schema advances from 18 to 19 because saved profile paths/meaning change; no conversion or alias.
-Roster checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` and repair `5a861f1a83cef7c53a962326eda42420de1238cd` have collected review PASS; automated integration is PASS.
-Wide floor pressure now uses1HP/0.5s; radius10m/TTL60s and torso aura4HP unchanged.
-Final production week112524520 PASS (unchanged >=6/8); reviewed code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`.
-Recorded R26 defects remain FIXED. Connected write/restore PASS, exits0/0; RV-004/005 FIXED and reviewed at `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`.
-[District integration](district_release_validation.md) owns full evidence/source review FAIL; required owner QA remains open.
+All ten canonical archetypes/two visitor presets remain bound; twelve stable slots,
+eight residents/four visitors, merchant and participation preserved. Schema19 unchanged:
+owned fire effects were transient and excluded by WorldSnapshotService._persistent.
+Owner decision2026-10-13 supersedes10m floor-fire acceptance: completely remove the wide
+effect/producer/definition/prefab and reduce contact radius25%, 2.25 ->1.6875m.
+Parcel opening/ignition, immunity, contact4HP/0.5s/TTL60s, native follow/retirement preserved.
+Reviewed code `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`, BASE `fc68226b6e051ea15f14e5d42deb9fbb1d86bd44`:
+ARCHITECTURE/STYLE PASS, no findings; reviewer VALIDATION NOT_RUN. No accepted findings remain.
+Current native week and connected write/fresh restore PASS; unchanged survival >=6/8.
+Runnable QA `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only`: export/headless menu/level120frames PASS,
+dirty=true preserves user work. Required owner gameplay/visual/tone/balance QA remains open.
+[District fixture](district_release_validation.md) RV-004/005 remain FIXED; same fixture gates pass on new gameplay.
 
 ### Validation
-Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
-at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRED. Inventory PASS.
+Current owner-change: GUT72tests/490assertions PASS: presence11/68 (`gut-20261013-062550024`),
+opening10/83 (`062418878`), queue51/339 (`062427053`); parser4/0failures `parsefiles-20261013-062556161` PASS.
+Initial presence FAIL10/11 (wrong sleep-margin assertion) is fixed. ResourceSaver062052041 saved/exit0, but bootstrap ECS compile errors mean validation FAIL.
+Import062528749 exit0 settled UID fallback warnings; fresh parser/presence clean. Import wrapper FAIL only shutdown retention.
+Formatter4files, agent-change2gameplayfiles, strict architecture0findings, structure/persistence inventory PASS.
+Final week `tests/artifacts/district-20261013-162731685.log` PASS/wrapper0; connected `tests/artifacts/district_release-write-20261013-162956129.log` and
+`tests/artifacts/district_release-restore-20261013-163149620.log` native PASS/exits0/0. Write wrapper FAIL only shutdown35RID/418ObjectDB/327Resource/VariantPools DEFERRED.
+Review UTC06:27:21..06:29:36 (135s) PASS. Export/startups PASS; no rendered playtest or visual proof.
+Golden schema19 `gut-20261012-225647766` 5/364 PASS; runner FAIL only shutdown Resource/RID/VariantPools DEFERRED. Inventory PASS.
 Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
 Historical FAIL: unchanged reviewed endpoint-safety week `district-20261013-111311881.log`, survival5/required6;
 prior094309939/085722945 FAIL4, legacy FAIL5. Night/snapshot/restore pass; shutdown retention DEFERRED, no other runtime errors.
-Full affected batch `.artifacts/r26_roster_regressions-20261013.log` FAIL: 57 suites,
-1232/1252 tests, 17719/17793 assertions, one lifecycle suite failed to parse. Scope pinned by
-`.artifacts/r26_roster_regression_paths-20261013.txt`. Only failed/omitted suites are rerun
-after repair in fresh processes; current totals below. QA export/menu/level120frames PASS:
-`.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa`; dirty=true, full reviewed SHA in manifest.
-Fresh failed/omitted/live suites PASS: 293 tests/5690 assertions, logs date20261012 under
-`.artifacts/godot_agent/`: blood23175732114/195, queue23205106551/340, snapshot23184298816/205,
+Historical batch `.artifacts/r26_roster_regressions-20261013.log` FAIL:57suites,1232/1252tests,17719/17793assertions, lifecycle parse failure; scope `.artifacts/r26_roster_regression_paths-20261013.txt`.
+Prior QA export/menu/level120frames PASS: `.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa`, dirty=true/full reviewed SHA in manifest.
+Fresh failed/omitted/live suites PASS293/5690; logs20261012 `.artifacts/godot_agent/`: blood23175732114/195, queue23205106551/340, snapshot23184298816/205,
 stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
 [Route convergence](completed/npc_route_goal_convergence.md): RV-001/002 reviewed FIXED; latest unsafe endpoint retirement native121/918/parser/static/review PASS; pre-tuning week FAIL5/6, final week112524520 PASS.
 [Disconnected refuge candidates](completed/npc_hazard_escape_connected_candidates.md): RV-001..004 FIXED; latest120/899/parser/static/review PASS.
-Isolated floor-damage2 control `.artifacts/r26_floor_asset_comparison-20261013-103745981.log`
-FAIL5/6, actual tick_damage2/cadence0.5 verified; fire-presence00391791111/77 PASS; original asset restored byte for byte.
-Floor1 control `.artifacts/r26_floor_counterplay_candidate-20261013-111752457.log`: native PASS7/6;
-actual radius10/tick1/0.5 and applied damage1 verified, torso4 unchanged; native exit0.
-Shutdown4ObjectDB/2Resource retention DEFERRED; both experiments restored exact original bytes.
-Native ResourceSaver authoring012124213 exit0/UID PASS; runner FAIL only shutdown RID/Resource retention DEFERRED.
-Final fire-presence01223947511/77, structure/persistence inventory PASS; schema/path/UID unchanged.
-Ordinary production `tests/artifacts/district-20261013-112524520.log` PASS, wrapper exit0;
-full7days, unchanged survival >=6/8, night/snapshot/restore/navigation/identity PASS.
+Historical floor2 control `.artifacts/r26_floor_asset_comparison-20261013-103745981.log` FAIL5/6, tick2/0.5 verified; fire00391791111/77 PASS; bytes restored exactly.
+Floor1 control `.artifacts/r26_floor_counterplay_candidate-20261013-111752457.log`: native PASS7/6,
+radius10/tick1/0.5 and applied damage1 verified, torso4 unchanged, exit0; original bytes restored.
+Shutdown4ObjectDB/2Resource retention DEFERRED; controls predate complete floor removal.
+ResourceSaver012124213 exit0/UID PASS (runner FAIL shutdown RID/Resource DEFERRED); fire01223947511/77/structure/inventory PASS, schema/path/UID unchanged.
+Prior production `tests/artifacts/district-20261013-112524520.log` PASS/wrapper0:7days,unchanged >=6/8,night/snapshot/restore/navigation/identity PASS.
 Export shutdown422ObjectDB/152Resource/VariantPools and1startup Resource retention DEFERRED; logs preserved.
-No rendered playtest or visual QA ran.
 
 ### Review / triage
 
-Roster review PASS: exact BASE
-`25e54edea6bf38d28d3d4548d79a38155ed29a89` -> TARGET
-`81f22ee6e09a3466237ac67564554052fc4a2634`; no findings, elapsed108s;
-architecture/style PASS, reviewer validation NOT_RUN. Original week FAIL remains recorded above.
+Roster review BASE `25e54edea6bf38d28d3d4548d79a38155ed29a89` -> TARGET `81f22ee6e09a3466237ac67564554052fc4a2634`:
+architecture/style PASS, no findings,108s; reviewer validation NOT_RUN. Original week FAIL remains above.
 RV-001/P2: night smoke mutated world_seed after native population/merchant publication at BASE above.
 FIXED `81f22ee6e09a3466237ac67564554052fc4a2634`, detached clock recipe before registration;
 fresh-process night write/restore and collected review PASS. No reroll/default/validator weakening.
@@ -67,21 +67,21 @@ RV-003/P2 FIXED: lifecycle test retained Array[DEF_NpcProfile] after profiles be
 Array[DEF_NpcArchetype]; repair19/166 PASS. RV-004/P2 FIXED: catalog/home-dialogue tests
 assumed canonical visitors had resident participation; live schedule parity retains coverage,
 private-home scenarios now use isolated resident copies, shared authored data unchanged.
-RV-005/P2 FIXED: fire queue asserted one effect after authored floor effect was added;
-now both effects bind the emitter and retire on death, queue51/340 and inherited stage PASS.
+RV-005/P2 FIXED: historical floor addition required two emitter-bound effects retiring on death (queue51/340/stage PASS);
+owner removal now requires one contact effect, reviewed `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`, queue51/339 PASS.
 RV-006/P2 FIXED: pride test's fixed child index points to the newer feeding subtree.
 Resource-identity hypothesis was disproven by fresh path assertions232240604; actual typed toy
 subtree lookup now checks relative safety/blood/feeding/combat order and real native execution.
 RV-002..006 FIXED `5a861f1a83cef7c53a962326eda42420de1238cd`; targeted review PASS, no findings.
 BASE `81f22ee6e09a3466237ac67564554052fc4a2634` -> repair TARGET above; elapsed55s,
 architecture/style PASS, reviewer validation NOT_RUN.
-Floor-pressure review PASS, no findings,20s: BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979`
+Historical floor-pressure review PASS, no findings,20s: BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979`
 -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366`, same reviewer;
 architecture/style PASS, reviewer validation NOT_RUN. Final ordinary production week PASS above.
 
 ### Owner QA / blockers
 
-Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance; deferred polish requires owner input. Floor1 is working tuning after native counterplay proof; no rendered gameplay has run.
+Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance; deferred polish requires owner input. Wide-fire tuning is superseded by explicit owner removal; no rendered gameplay has run.
 
 ## Persistence
 Persist durable physical item state/Health supported by existing snapshot rules, player karma,
@@ -173,7 +173,7 @@ No per-frame verbose logging or duplicated gameplay authority.
 ### Behavior
 - Angel freezes under actual observation, moves unobserved; aggressive form is faster but still freezes.
 - Night Hunter attacks in dark/flees bright light; Shy reacts to sustained gaze; Brute perceives real toys.
-- Fire Elemental maintains authored fire/floor hazard without duplicate spawn storm;
+- Fire Elemental maintains only contact aura radius1.6875m, no wide floor effect or duplicate spawn storm;
   Creepy approaches from behind without teleporting.
 - Vampire prioritizes blood zone, calms, stops before ordinary lethal finish, and can escape as cloud;
 - BT resources are composed from real conditions/actions/composites/decorators/subtrees rather than one generic dispatcher action.

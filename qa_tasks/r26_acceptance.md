@@ -5,17 +5,14 @@ Status: **PENDING_OWNER_QA**
 Автоматическая проверка и статус реализации: [R26.5](../agent_tasks/r26_5_integration_persistence_validation.md).
 Этот checklist владеет только ручной приёмкой. Headless GUT/smoke не подтверждают визуальную
 читаемость, качество реплик или ощущение управления. Rendered gameplay агентом не запускался.
-Windows QA сборка: [.export/LATEST.cmd](../.export/LATEST.cmd), каталог
-`.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa`.
-Полный code SHA `4c60e3dc784352c2fb95ca617cebbafa9a834366`, review BASE
-`f9888f3c87fb7715d5ab8bdf07b5ef55382c5979`; immutable review PASS, замечаний нет.
-Export/menu/level startup120frames PASS. Сборка включает сохранённые пользовательские
-working-tree edits (`dirty=true`). Финальная production-неделя112524520 PASS: все7дней,
-неизменённый порог >=6/8 исходных жителей, ночь/snapshot/restore/navigation/identity PASS.
-Включены reviewed исправления escape/cache/движущейся опасности/конечных точек.
-Рабочий баланс floor fire1HP/0,5с; радиус10м/TTL60с, torso aura4HP/0,5с сохранены.
-Окончательный баланс остаётся пунктом ручной приёмки. Shutdown-only Resource/RID retention
-DEFERRED по решению владельца; исходные export/startup логи сохранены.
+Windows QA build: [.export/LATEST.cmd](../.export/LATEST.cmd), directory `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only`.
+Full code SHA `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`, review BASE `fc68226b6e051ea15f14e5d42deb9fbb1d86bd44`;
+ARCHITECTURE/STYLE PASS, no findings; reviewer VALIDATION NOT_RUN.
+Export/headless menu/level120frames PASS. Preserved user working-tree edits are recorded (`dirty=true`).
+Current production week162731685 PASS, all7days, unchanged survival >=6/8; connected write/restore PASS/exits0/0.
+Owner change2026-10-13: wide floor fire completely removed; contact radius2.25 ->1.6875m (-25%).
+Contact4HP/0.5s/TTL60s and parcel ignition remain. Full mechanic redesign is future owner work.
+Final subjective acceptance remains open; shutdown-only retention DEFERRED, logs preserved.
 
 ## Предметы и физика
 
@@ -42,8 +39,7 @@ DEFERRED по решению владельца; исходные export/startup
   на устойчивый настоящий взгляд, а короткое случайное наблюдение не выглядит как постоянный триггер.
 - [ ] Ночной охотник: тёмный участок провоцирует охоту, настоящий яркий свет вызывает отход.
   Музыка/тени помогают прочитать поведение; переходы не оставляют бесконечный звук/эффект.
-- [ ] Огненный элементаль: огненная аура и тонкая опасность у пола читаются; уход с пола
-  даёт понятный способ избежать floor effect. После смерти/ухода нет зависших owner effects.
+- [ ] Огненный элементаль: только контактная аура радиусом1,6875м; большой области у пола нет. После смерти/ухода нет зависших owner effects. Открытие посылок/воспламенение проверять отдельно.
 - [ ] Жуткий: скрытно подходит сзади без телепорта; замеченный игроком меняет поведение.
   Укрытие и прерывание наблюдения не выглядят как знание скрытой текущей позиции игрока.
 - [ ] Бугай: настоящая игрушка в руках/осмотре и признанная сила вызывают различимые реакции;
