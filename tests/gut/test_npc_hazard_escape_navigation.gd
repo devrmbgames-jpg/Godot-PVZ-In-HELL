@@ -261,6 +261,21 @@ func test_failed_disconnected_refuge_yields_to_a_connected_safe_candidate() -> v
 			route.points[route.points.size() - 1].distance_to(Vector3(7, 0, 0.6)),
 			5.0 + actor.navigation_agent.radius + NpcDecisionService.ARRIVAL_DISTANCE,
 		)
+		var retained_goal: Vector3 = route.goal
+		actor.place_at(actor.global_position.move_toward(retained_goal, 0.75))
+		assert_almost_eq(
+			NpcRouteSolver.refuge(actor), retained_goal, Vector3.ONE * 0.001,
+			"A successful safe escape retains its world goal while the actor advances",
+		)
+		(effect as Node as Node3D).global_position = retained_goal + Vector3.UP * 0.1
+		var moved_goal: Vector3 = NpcRouteSolver.refuge(actor)
+		assert_false(moved_goal.is_equal_approx(retained_goal))
+		assert_gt(
+			moved_goal.distance_to(retained_goal),
+			5.0 + actor.navigation_agent.radius + NpcDecisionService.ARRIVAL_DISTANCE,
+			"A moving hazard invalidates the retained endpoint when it becomes unsafe",
+		)
+	actor.place_at(Vector3(8, 0, 0))
 	awareness.hazard_distress = false
 	NpcAiFixture.route(actor, person, 0.2)
 	assert_true(route.rejected_refuge_points.is_empty(), "Leaving danger retires derived feedback")

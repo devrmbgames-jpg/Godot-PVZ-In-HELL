@@ -57,8 +57,10 @@ Keep unchanged full week survival6 mandatory; do not waive R26.5/owner QA or cla
 ### Review triage
 
 Canonical source/fix SHAs below are ancestors of current code HEAD
-`5670d3566328a3e831921f2a845276de6a981ee1`; prior light/feeding/blood/UI reviews added no findings.
-Full-SHA ancestry audit: 26 previous checkpoints PASS. RV-001..005 retain FIXED.
+`526780a07441cb30b2812d9bfe209583096744cc`; prior light/feeding/blood/UI reviews added no findings.
+Full-SHA audit:26 earlier checkpoints PASS; audited baseline
+`5670d3566328a3e831921f2a845276de6a981ee1` and both feedback repairs remain ancestors
+of current code HEAD. RV-001..005 retain FIXED; latest [review/gates](r26_5_integration_persistence_validation.md).
 
 RV-006 P1 FLEE_EXIT continuation, Main reproduction/source
 `a2b1d764b1b316b27df979a8d72917d6deab8ed8`, NpcDecisionService.flee:

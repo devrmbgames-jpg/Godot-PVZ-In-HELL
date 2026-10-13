@@ -21,7 +21,12 @@ Map retirement repair and targeted review PASS; unchanged production week FAIL5/
 Native moving-source reproduction reveals RV-003: shifted island projection escapes exact-point
 rejections. A bounded transient direction cursor now advances after actual failed planning,
 preserving the ordinary first-choice behavior; danger/map/reconstruction reset both feedback fields.
-Full affected verification and immutable review precede the next unchanged week.
+Full affected verification and immutable review PASS; latest unchanged week FAIL5/required6.
+Readonly cursor/cache probe confirms NPC3 cursor2, two failed points and a reachable moving
+route before death; NPC1/4 also have reachable moving routes. Native RV-004 then proves
+successful retry-goal drift while the actor advances. Solver now retains that already-planned
+world goal only while map/revision and safety remain valid. Moving danger invalidation is covered.
+Remaining mortality belongs to R26.5; required survival remains unwaived.
 
 ### Validation
 
@@ -57,7 +62,8 @@ formatter2files/strict architecture/structure/diff checks PASS.
 First targeted re-review PASS: BASE `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea`
 -> TARGET `c02213ef77d055b725cb221adf0b7cf48e89b77a`, same existing reviewer,11s.
 RV-002 RESOLVED, no material findings; architecture/style PASS, reviewer validation NOT_RUN.
-RV-003/P1 ACCEPTED, source `c02213ef77d055b725cb221adf0b7cf48e89b77a`,
+RV-003/P1 FIXED `526780a07441cb30b2812d9bfe209583096744cc`, source
+`c02213ef77d055b725cb221adf0b7cf48e89b77a`,
 `NpcRouteSolver.refuge`: moving source shifts the failed island projection outside waypoint
 tolerance and repeatedly restarts first-choice selection instead of progressing to alternatives.
 Full readonly probe `tests/artifacts/district_survival_probe-20261013-101155950.log`
@@ -70,13 +76,33 @@ performance00174188921/145, scheduling00175815949/291, Veil00182653015/127,
 fire00183567611/77, blood00184180210/122, live00185096310/846,
 participation0019051879/162. Parser0019183716files, formatter6files,
 strict architecture/structure/persistence PASS. Native map retirement and fresh/reused
-all-twelve reconstruction verify both feedback fields. Immutable review pending commit.
+all-twelve reconstruction verify both feedback fields. Immutable review PASS, no findings:
+BASE `c02213ef77d055b725cb221adf0b7cf48e89b77a` -> TARGET
+`526780a07441cb30b2812d9bfe209583096744cc`, same reviewer,100s.
+Architecture/style PASS; reviewer validation NOT_RUN. RV-003 resolved; latest full week FAIL5/6.
+RV-004/P1 ACCEPTED, source `526780a07441cb30b2812d9bfe209583096744cc`,
+`NpcRouteSolver.refuge`: retry direction rotates relative to the advancing actor even after
+native planning succeeded; safe goal(8.43096,0,-5.123841) moves to(6.308368,0,-5.259321)
+after actor advances0.75m, despite unchanged hazard/map. Native GUT20261013-004359199
+FAIL13/14 tests134/135 assertions, only new retained-goal assertion fails; actual route setup PASS.
+Repair retains the existing successful goal for retries, rejects it when a moving hazard covers
+it or native map/revision changes, without new state/path queries/intent writes.
+Current affected batch PASS120tests/899assertions, logs date20261013:
+endpoint00453355414/137; performance00472147421/145; scheduling00473768549/291;
+Veil00480606215/127; fire00481520311/77; blood00482130710/122. Parser0048294713files
+and formatter3files/strict architecture/structure PASS. Unchanged lifecycle suites retained
+from cursor checkpoint: live10/846 and participation9/162 PASS; no lifecycle/schema write changed.
+Immutable review and new production week pending coherent commit.
 
 ### Owner QA / blockers
 
-Unchanged week on reviewed repair `tests/artifacts/district-20261013-100916663.log`
-FAIL5/required6 (previously4); native night/snapshot/restore checks pass, no other runtime errors.
+Unchanged week on reviewed cursor repair `tests/artifacts/district-20261013-102211390.log`
+FAIL5/required6 (prior map repair also5, initial4); night/snapshot/restore pass, no other runtime errors.
 Readonly full-week probe101155950 also FAIL5/6; scoped repair must not waive required survival.
+Post-cursor bounded probe `district_survival_probe-20261013-102505182.log`7200frames
+native runtime PASS (full week NOT_RUN): NPC3's cursor/cache selects a connected native path;
+all three original deaths still occur while earlier critical samples show physical movement.
+Two extra diagnostic fields compile/run natively; formatter1file PASS, no gameplay mutation.
 Rendered permission pending; [owner QA](../qa_tasks/r26_acceptance.md) NOT_RUN.
 
 ## Acceptance

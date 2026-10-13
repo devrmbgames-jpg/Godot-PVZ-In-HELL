@@ -184,7 +184,15 @@ static func refuge(actor: E_DistrictNpc) -> Vector3:
 	)
 	var hazards: Array[NpcRouteContext.Hazard] = _hazards(actor)
 	var map: RID = actor.navigation_agent.get_navigation_map()
-	var has_map: bool = map.is_valid() and NavigationServer3D.map_get_iteration_id(map) > 0
+	var iteration: int = NavigationServer3D.map_get_iteration_id(map) if map.is_valid() else 0
+	var has_map: bool = iteration > 0
+	# A successful retry must converge to its safe world point, rather than rotate with the actor.
+	if (
+		route.refuge_direction_offset > 0 and route.reachable and not route.points.is_empty()
+		and has_map and route.navigation_map == map and route.map_iteration == iteration
+		and _safe_refuge_point(route.goal, hazards)
+	):
+		return route.goal
 	var fallback: Vector3 = actor.global_position
 	var has_fallback: bool = false
 	var best: Vector3 = actor.global_position

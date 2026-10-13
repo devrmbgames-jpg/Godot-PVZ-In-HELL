@@ -65,21 +65,24 @@ Initial full regression1252 FAIL; isolated fixture/test repairs293/5690 PASS, re
 Read-only diagnostics `1b37fcb468e1c0c7d996d1d4df3d7940c933a807` GUT21/202 and
 collected immutable review PASS against `5a861f1a83cef7c53a962326eda42420de1238cd`.
 Native stale-goal repair `19a080981bcec44fb2be2c8725892129db6f200a` and review PASS;
-connected-candidate failure owns [its task](npc_hazard_escape_connected_candidates.md), native131/1842 PASS;
+Connected-candidate [repair](npc_hazard_escape_connected_candidates.md)
+`526780a07441cb30b2812d9bfe209583096744cc`: native139/1904 and immutable review PASS;
 week acceptance and required owner QA remain unfinished; details/triage in R26.5.
 Existing user worktree edits were preserved.
 
 ### Next
 
 Collect all-ten cross-archetype acceptance and review with explicit role and save contracts.
-Preserve unchanged mandatory full-week survival6 acceptance; new roster week085722945 FAIL4/required6.
+Preserve unchanged mandatory full-week survival6 acceptance; latest102211390 FAIL5/required6,
+cursor/cache diagnostic confirms actual reachable escape; isolated floor-damage2 also FAIL5/6,
+original4 restored; successful-goal retention repair/native120/899 now awaits review.
 Full integration/owner QA remain open; do not change balance solely to force this gate.
 Diagnostic [QA export/checklist](../qa_tasks/r26_acceptance.md) is ready; rendered permission pending.
 
 ### Validation
 
 Initial R26.1 semantic damage batch has focused parser/GUT evidence in its owning task.
-Full item and NPC acceptance remains NOT_RUN. Milestones use
+Full owner item/NPC acceptance remains NOT_RUN; automated evidence and week FAIL belong to R26.5. Milestones use
 [validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and immutable-SHA
 [review-orchestration](../.agents/skills/review-orchestration/SKILL.md) before DONE.
 

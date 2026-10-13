@@ -35,6 +35,8 @@ class SurvivalTrace extends Observer:
 				stage,
 				"-health npc=",
 				identity.npc_id,
+				" source=", _actor_key(result.request.source),
+				" amount=", result.applied_amount,
 				" velocity=",
 				actor.linear_velocity,
 				" source_position=",
@@ -49,6 +51,8 @@ class SurvivalTrace extends Observer:
 				decision.active_behavior,
 				" distress=",
 				awareness.hazard_distress,
+				" fleeing=", awareness.fleeing,
+				" combat_target=", _actor_key(CombatQueries.target_for(actor)),
 				" moving=",
 				intent.movement_active,
 				" goal=",
@@ -104,6 +108,8 @@ class SurvivalTrace extends Observer:
 		print(
 			"Survival probe navigation npc=", actor.id,
 			" route_goal=", route.goal,
+			" refuge_cursor=", route.refuge_direction_offset,
+			" rejected_refuges=", route.rejected_refuge_points,
 			" cursor=", route.point_index,
 			" intent_arrived=", intent.arrived,
 			" intent_blocked=", intent.navigation_blocked,
@@ -119,6 +125,10 @@ class SurvivalTrace extends Observer:
 		var definition: DEF_ToxicArea = state.definition as DEF_ToxicArea
 		if definition == null:
 			return
+		print(
+			"Survival probe hazard key=", definition.key,
+			" tick_damage=", definition.damage_per_tick, " tick_seconds=", definition.tick_seconds,
+		)
 		var center: Vector3 = (source as Node as Node3D).global_position
 		center.y = actor.global_position.y
 		var outward: Vector3 = actor.global_position - center

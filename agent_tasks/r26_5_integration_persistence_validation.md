@@ -9,7 +9,6 @@ Parent: [R26](r26_items_npc_expansion.md).
 Integrate physical items, modular NPC archetypes, LimboAI behavior and dialogue into the existing district/parcel/save systems without regressing current gameplay.
 
 ### Current
-Live roster integration started from full BASE `25e54edea6bf38d28d3d4548d79a38155ed29a89`.
 Native ResourceSaver now binds all ten canonical archetypes and two explicit visitor presets.
 Twelve stable NPC slots, eight residents/four visitors, slot-eight merchant, recipients and
 participation schedules preserved. Legacy fixtures isolate regressions; live acceptance and smoke
@@ -26,23 +25,24 @@ parser225451860 four files and230043030 final helper/test; formatter/strict arch
 Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
 at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRED. Inventory PASS.
 Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
-FAIL: unchanged reviewed repair week `district-20261013-100916663.log`, survival5/required6;
+FAIL: unchanged reviewed cursor week `district-20261013-102211390.log`, survival5/required6;
 prior094309939/085722945 FAIL4, legacy FAIL5. Latest native night/snapshot/restore checks pass; no other runtime errors.
 Full affected batch `.artifacts/r26_roster_regressions-20261013.log` FAIL: 57 suites,
 1232/1252 tests, 17719/17793 assertions, one lifecycle suite failed to parse. Scope pinned by
 `.artifacts/r26_roster_regression_paths-20261013.txt`. Only failed/omitted suites are rerun
 after repair in fresh processes; current totals below. QA export/menu/level120frames PASS:
-`.export/windows/20261012-234718Z-19a08098-r26-reviewed-week-fail-qa`; dirty=true, full SHA in manifest.
+`.export/windows/20261013-002240Z-526780a0-r26-reviewed-refuge-qa`; dirty=true, full reviewed SHA in manifest.
 Fresh failed/omitted/live suites PASS: 293 tests/5690 assertions, logs date20261012 under
 `.artifacts/godot_agent/`: blood23175732114/195, queue23205106551/340, snapshot23184298816/205,
 stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
-Readonly mortality probe091100283 confirms floor-fire deaths npc4/day2, npc3/day3, npc1/day4;
-Post-repair probes094601714/0951282017200frames repeat deaths; full week NOT_RUN.
 [Route convergence](npc_route_goal_convergence.md) reviewed FIXED;
 [Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): native131/1842,
-map repair103/1549/review PASS; moving-source repair139/1904 PASS, immutable review pending.
+map repair103/1549/review PASS; moving-source repair139/1904/review PASS; retained-goal RV-004 repair pending.
+Probe1041555227200frames: reachable movement/no combat (return hypothesis refuted); shutdown retention KNOWN_ENGINE_LIMITATION/DEFERRED, full week NOT_RUN.
+Isolated floor-damage2 control `.artifacts/r26_floor_asset_comparison-20261013-103745981.log`
+FAIL5/6, actual tick_damage2/cadence0.5 verified; fire-presence00391791111/77 PASS; original asset restored byte for byte.
 
 ### Review / triage
 
@@ -185,6 +185,7 @@ No per-frame verbose logging or duplicated gameplay authority.
 - No resource loads in hot BT ticks or per-frame debug spam.
 
 ## Validation sequence
+
 1. Incremental formatter, agent-change, strict architecture/domain and structure validators.
 2. Actual Godot parser through `utils/godot_agent.ps1`, independent of MCP availability.
 3. Focused GUT by subsystem and dialogue import/parser, using current project skills.
@@ -192,7 +193,6 @@ No per-frame verbose logging or duplicated gameplay authority.
 5. One bounded connected district headless smoke; immutable-SHA review and finding triage.
 6. Runnable Windows QA export under `.export/` at the completed large gameplay milestone.
 
-Do not run rendered gameplay automatically.
 ## Owner QA
 Manual owner checks cover scythe AOE/thrown-knife feel, barrel/flask physics and hazard
 readability; Angel look/freeze; Night Hunter light/music/shadows; Creepy stalking;

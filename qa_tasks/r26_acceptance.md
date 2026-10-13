@@ -6,11 +6,11 @@ Status: **PENDING_OWNER_QA**
 Этот checklist владеет только ручной приёмкой. Headless GUT/smoke не подтверждают визуальную
 читаемость, качество реплик или ощущение управления. Rendered gameplay агентом не запускался.
 Диагностическая Windows сборка: [.export/LATEST.cmd](../.export/LATEST.cmd), каталог
-`.export/windows/20261012-234718Z-19a08098-r26-reviewed-week-fail-qa`.
-Полный SHA `19a080981bcec44fb2be2c8725892129db6f200a`, review BASE
-`1b37fcb468e1c0c7d996d1d4df3d7940c933a807`; export/menu/level startup PASS.
+`.export/windows/20261013-002240Z-526780a0-r26-reviewed-refuge-qa`.
+Полный SHA `526780a07441cb30b2812d9bfe209583096744cc`, review BASE
+`c02213ef77d055b725cb221adf0b7cf48e89b77a`; export/menu/level startup PASS.
 Сборка включает сохранённые пользовательские working-tree edits (`dirty=true`),
-недельный тест FAIL4/required6. Последующий navigation-cache repair в неё ещё не входит.
+Недельный тест FAIL5/required6; reviewed navigation-cache и moving-source repair включены.
 
 ## Предметы и физика
 
