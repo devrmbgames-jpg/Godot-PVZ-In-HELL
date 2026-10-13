@@ -15,11 +15,11 @@ schedules preserved. Legacy fixtures isolate regressions; live acceptance/smoke 
 Schema advances from 18 to 19 because saved profile paths/meaning change; no conversion or alias.
 Roster checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` and repair
 `5a861f1a83cef7c53a962326eda42420de1238cd` have collected review PASS; integration remains open.
+Wide floor pressure now uses1HP/0.5s; radius10m/TTL60s and torso aura4HP unchanged.
+Measured counterplay candidate native week PASS7/6; production week/immutable review pending.
 
 ### Validation
 PASS: clean native visitor reference/UID finalization, `.artifacts/r26_roster_finalize-uid-20261013.log`.
-PASS: production live-roster GUT `gut-20261012-225635220` 10 tests/798 assertions;
-parser225451860 four files and230043030 final helper/test; formatter/strict architecture/structure/index.
 Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
 at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRED. Inventory PASS.
 Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
@@ -36,12 +36,14 @@ stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
 [Route convergence](npc_route_goal_convergence.md): RV-001/002 reviewed FIXED; latest unsafe endpoint retirement native121/918/parser/static/review PASS, week FAIL5/6.
-[Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): native131/1842,
-map repair103/1549/review PASS; moving-source139/1904/review PASS; retained-goal120/899/review PASS, unchanged week FAIL5/6.
-Latest bounded probe1055116147200frames PASS: retained safe goal, reachable movement/no combat;
-deaths4/day1,3/day3,1/day4 remain; full week NOT_RUN. Prior104155522 shutdown retention DEFERRED.
+[Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): RV-001..004 FIXED; latest120/899/parser/static/review PASS.
 Isolated floor-damage2 control `.artifacts/r26_floor_asset_comparison-20261013-103745981.log`
 FAIL5/6, actual tick_damage2/cadence0.5 verified; fire-presence00391791111/77 PASS; original asset restored byte for byte.
+Floor1 control `.artifacts/r26_floor_counterplay_candidate-20261013-111752457.log`: native PASS7/6;
+actual radius10/tick1/0.5 and applied damage1 verified, torso4 unchanged; native exit0.
+Shutdown4ObjectDB/2Resource retention DEFERRED; both experiments restored exact original bytes.
+Native ResourceSaver authoring012124213 exit0/UID PASS; runner FAIL only shutdown RID/Resource retention DEFERRED.
+Final fire-presence01223947511/77, structure/persistence inventory PASS; schema/path/UID unchanged.
 
 ### Review / triage
 
@@ -54,11 +56,10 @@ RV-001/P2: night smoke mutated world_seed after native population/merchant publi
 FIXED `81f22ee6e09a3466237ac67564554052fc4a2634`, detached clock recipe before registration;
 fresh-process night write/restore and collected review PASS. No reroll/default/validator weakening.
 RV-002/P1 FIXED: new legacy DEF_District fixture resides under tests/, rejected by the
-existing closed GameplayResourcePaths definition roots during snapshot decode at target81f above.
-Production live-roster/native restore passes. Native move into NPC definitions root preserves
-exact bytes/UID and changes three test/helper literals; snapshot16/205 PASS. Fix/review PASS at repair SHA below.
-MCP move refused before mutation at discovery limit10000; editor clean/quit, native move log
-`.artifacts/r26_legacy_fixture_move-20261013.log` PASS. Whitelist/production district unchanged.
+closed GameplayResourcePaths roots during snapshot decode at81f. Native move into NPC definitions
+preserves bytes/UID; three test/helper literals change, snapshot16/205 PASS. Fix/review below.
+MCP move refused pre-mutation at limit10000; native `.artifacts/r26_legacy_fixture_move-20261013.log` PASS;
+editor clean/quit, whitelist/production district unchanged; live-roster/native restore passes.
 RV-003/P2 FIXED: lifecycle test retained Array[DEF_NpcProfile] after profiles became typed
 Array[DEF_NpcArchetype]; repair19/166 PASS. RV-004/P2 FIXED: catalog/home-dialogue tests
 assumed canonical visitors had resident participation; live schedule parity retains coverage,
@@ -75,8 +76,8 @@ architecture/style PASS, reviewer validation NOT_RUN.
 ### Owner QA / blockers
 
 Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance;
-Deferred polish requires owner input; no rendered gameplay has run. Balance clarification pending;
-new endpoint-retirement defect now has native proof; radius10m/4HP/0.5s/60s unchanged.
+Deferred polish requires owner input; no rendered gameplay has run. Floor1 is a working authoring
+choice for wide-area pressure after native counterplay proof; final balance remains owner QA.
 
 ## Persistence
 Persist durable physical item state/Health supported by existing snapshot rules, player karma,

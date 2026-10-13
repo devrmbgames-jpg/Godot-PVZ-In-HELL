@@ -70,15 +70,16 @@ Connected-candidate [repair](npc_hazard_escape_connected_candidates.md)
 week acceptance and required owner QA remain unfinished; details/triage in R26.5.
 Unsafe endpoint retirement `78e9b826470dce320bf9999f495ed0c05ab8c8f5`: native121/918
 and immutable review PASS; unchanged full week111311881 FAIL5/6.
+Measured floor1HP/0.5s candidate native PASS7/6; authored radius10m/TTL60s and torso aura4HP
+preserved. Native ResourceSaver/UID and fire-presence11/77 PASS; production week/review pending.
 Existing user worktree edits were preserved.
 
 ### Next
 
 Collect all-ten cross-archetype acceptance and review with explicit role and save contracts.
 Preserve unchanged mandatory full-week survival6 acceptance; latest111311881 FAIL5/required6,
-cursor/cache diagnostic confirms actual reachable escape; isolated floor-damage2 also FAIL5/6,
-original4 restored; successful-goal retention repair/native120/899 and review PASS.
-Full integration/owner QA remain open; endpoint native repair/review PASS, production week FAIL5/6.
+original4 and isolated2 FAIL5/6; measured floor1 candidate native PASS7/6.
+Collect floor-pressure immutable review and ordinary production week; keep final balance in owner QA.
 Diagnostic [QA export/checklist](../qa_tasks/r26_acceptance.md) is ready; rendered permission pending.
 
 ### Validation
