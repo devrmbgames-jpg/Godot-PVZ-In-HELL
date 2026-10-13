@@ -32,6 +32,10 @@ reused, no second reviewer. Next: complete owner dialogue/tone/modal acceptance;
 
 ### Validation
 
+Post-R27 native suites cover both variants of all ten archetypes; current totals/manifest
+owned by [R26.5](r26_5_integration_persistence_validation.md). Rendered tone/presentation QA remains open.
+
+
 Vampire checkpoint `14cadff37461590c14454aabfdbca1fb4af11e94`: native GUT190739486
 **39/1069**, Chain common-context regression190855067 **39/945**, parser1907427702/2 PASS.
 Both roles and variants preserve percentage from offer, actual acceptance-time HP, limits/Strength,
@@ -43,7 +47,8 @@ strict architecture/dependencies, project/persistence/staged/diff PASS. Full20 l
 Earlier variant checks/reviews remain in their task snapshots. Latest Creepy
 `ad79c0eab6a00772dd578a3a7d25053166db70ef` GUT36/1009, parser3files, immutable review
 PASS on BASE `23fa3d44d9024d4becb59477921be1d288d7bee9`, no material findings.
-Global hot reload43 remains NOT_PASS; actual layouts/restart and fresh CLI checks independently verify saves. Full 20-variant acceptance and rendered/tone/modal owner QA NOT_RUN.
+Global hot reload43 remains NOT_PASS; native path diagnostics and CLI independently verify saves.
+All20 variants have native branch coverage; rendered/tone/modal owner QA remains NOT_RUN.
 
 ### Review triage
 
@@ -102,98 +107,26 @@ Names and prose are placeholders; structure and gameplay hooks are the important
 
 ## Required dialogue intent by archetype
 
-### Скромник
-Two variants must:
-- dislike direct staring;
-- become increasingly uncomfortable/threatening if player keeps staring;
-- optionally mention clothing/interests/orders;
-- support existing lie/convince/etc response-tag analytics/debug prefix conventions where applicable.
+| Archetype | Required shared intent and variant distinction |
+| --- | --- |
+| Скромник | Dislikes staring, escalating discomfort/threats; clothing/interests/orders and lie/convince tags. A withdrawn/polite fear, B resentful/irritable avoidance. |
+| Плачущий ангел | A terse warnings/instructions, B cryptic/religious signs. Owner R27 supersedes dialog presentation: real3D board/Label3D in front of NPC, no normal spoken/modal dialogue. |
+| Ночной охотник | Darkness/light hints, restrained safe/light tone versus perceived predatory threat; weapon/clothing flavor. Dialogue never toggles aggression directly. |
+| Карга | Both have distinct deception/ambiguous answers and a riddle path, reagent/artifact flavor and grudge-compatible replies. |
+| Бугай | Threatening/bragging strength/respect choices, weapon flavor; evasive/embarrassed rare toy topic. Actual witnessed toy attack remains perception gameplay. |
+| Огненный элементаль | Distinct fire/reagent obsession and heat/explosive-opening flavor; dialogue never rolls explosions. |
+| Потерянный | Two neutral ordinary resident/customer templates; unrestricted topics/orders suitable for future variants. |
+| Цепной дьявол | Both offer soul sale: A contractual/legalistic, B mocking/tempting. Refusal/cancel never commits a deal. |
+| Жуткий | Unsettling questions and recognition of proximity/being noticed; A quieter/creepy, B invasive/playful horror. No teleport/stalking authority in dialogue. |
+| Вампир | Distinct blood/hunger tones; asks explicit consent and shows cost before confirmation. Refusal never damages HP. |
 
-Variant A: withdrawn/polite fear.
-Variant B: resentful/irritable avoidance.
-
-### Плачущий ангел
-No normal spoken conversation.
-
-Implement two **sign/board communication variants** using the dialogue pipeline or a narrow presentation adapter:
-- Variant A: terse warning/instruction signs.
-- Variant B: cryptic/religious signs.
-
-It must remain mechanically a dialogue interaction where useful, but presentation is written/sign-based, not spoken lips/dialogue.
-
-### Ночной охотник
-Two variants:
-- warn or hint about darkness/light;
-- peaceful restrained tone while safe/light;
-- threatening predatory tone where current perceived state allows;
-- weapon/clothing order flavor.
-
-A dialogue line must not directly toggle aggression; AI state derives from actual light/perception.
-
-### Карга
-Two variants:
-- deception/ambiguous answers;
-- at least one riddle interaction path each;
-- different lie/riddle style;
-- reagent/artifact order flavor;
-- grudge-compatible responses.
-
-### Бугай
-Two variants:
-- constant threatening/bragging tone;
-- strength/respect choices;
-- weapon order flavor;
-- rare toy topic must be evasive/embarrassed, but the **actual witnessed toy attack trigger is perception gameplay**, not dialogue.
-
-### Огненный элементаль
-Two variants:
-- fire/reagent obsession;
-- comments around heat/explosive parcel opening;
-- distinct personality tones despite same mechanical archetype.
-
-Do not roll explosion chance from dialogue.
-
-### Потерянный
-Two broad neutral variants:
-- ordinary resident/customer;
-- can discuss/order anything;
-- serve as baseline dialogue templates for future generic NPCs.
-
-### Цепной дьявол
-Two variants must include soul-sale offer.
-
-Accepted soul deal calls a narrow gameplay service that:
-- +1 Strength;
-- -10 max Health;
-- increments the persistent total accepted-deal count before death;
-- third total accepted deal causes death for now; refusal never resets the count (owner clarification 2026-10-12).
-
-Variant A: contractual/legalistic.
-Variant B: mocking/tempting.
-
-Decline/cancel paths must not accidentally apply the deal.
-
-Soul/blood acceptance submits one typed operation with a stable confirmation key and an
-observable committed result. Reopening a line, retrying a callback or restoring a save
-must not apply it again. Max-Health/Strength changes use a declared authoritative transaction;
-HP damage/healing and death still follow the common combat/lifecycle boundary.
-
-### Жуткий
-Two variants:
-- unsettling questions;
-- acknowledge unexpected proximity/being noticed;
-- one more quiet/creepy, one more invasive/playful-horror;
-- no teleport/stalking authority in dialogue.
-
-### Вампир
-Two variants:
-- may ask permission to drink blood;
-- accepted amount is authored/randomized within **5–40% of current HP** through a gameplay service;
-- dialogue communicates the consequence before confirmation;
-- refusal does not apply damage;
-- blood/hunger flavor differs strongly between variants.
-
-Vampire blood request uses current HP, not max HP, and must not bypass the common damage contract.
+Accepted soul deal uses the owning service: +1 Strength, -10 max Health and durable accepted-deal
+count increment before death. Third total accepted deal kills; refusal never resets the count
+(owner clarification2026-10-12). Vampire consent costs authored/randomized5–40% of current HP,
+never max HP, through the common damage contract.
+Soul/blood acceptance is one typed transaction with stable confirmation key and committed result;
+reopening, callback retries or restore cannot replay it. Max-Health/Strength have their declared
+transaction owner; HP/healing/death retain common combat/lifecycle ownership.
 
 ## Shared dialogue requirements
 

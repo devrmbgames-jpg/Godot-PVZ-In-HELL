@@ -25,7 +25,8 @@ Restore never rerolls; targeted production roster GUT10/798 PASS, final automate
 Category ordering now commits real catalog payloads with the existing receiving batch/parcel IDs.
 Weighted available categories feed deterministic per-person decisions; missing categories fall back.
 Contents and the terminal/archive arrival projection retain the choice through retry/restore.
-Native MCP adds all 15 physical catalog items while preserving all eight authored case paths.
+Native MCP adds all15 requested physical items while preserving all eight authored case paths;
+the additional toy fixture brings the current physical catalog to16.
 Category checkpoint review PASS. R26.5 final integration checks and immutable review PASS; next is owner QA.
 Night presentation has native authored spatial audio/Decal views and typed immutable tuning;
 its focused lifecycle checks, independent checkpoint review and district smoke pass in R26.3.
@@ -45,6 +46,9 @@ Final production week112524520 PASS (>=6/8) and reviewed floor-pressure checkpoi
 Required gameplay/visual acceptance and final tuning remain owner QA.
 
 ### Validation
+
+Post-R27 native catalog4/934, variation6/360, roster10/846 PASS; [final integration/build/audit](r26_5_integration_persistence_validation.md).
+
 
 Foundation/catalog/integration/category implementation and independent reviews PASS at
 `473e1569425d9c6bcd809828c3c8422e6280b66f`,
@@ -92,24 +96,10 @@ runtime Components/Relationships retain live state/bindings without a second ide
 
 Do not mutate shared profile Resources at runtime.
 
-Persist on `NpcRecord` (or a dedicated persistent nested contract):
-- archetype key/reference;
-- stable variation seed;
-- selected name;
-- selected dialogue variant;
-- selected optional trait keys;
-- any rolled personality/tuning modifiers that must survive reload.
-
-A save/load of the same person must reproduce the same name/traits/dialogue variant.
-
-Replacement/new NPC may roll a new seed and therefore a different valid combination.
-
-Trait selection must:
-- include all mandatory archetype traits;
-- choose only compatible optional traits;
-- be deterministic from the stored seed;
-- have explicit bounded counts/weights;
-- never reroll every scene load.
+`NpcRecord` persists archetype key/reference, variation seed, chosen name/dialogue/optional traits
+and rolled personality/tuning modifiers. Save/load reproduces them; a replacement/new NPC may
+roll a new valid combination. Trait selection includes mandatory traits, compatible optional
+traits and explicit bounded counts/weights, deterministically from the stored seed, never per load.
 
 Derive choices through `DecisionRandomRules` from the durable world seed, stable NPC ID
 and a named creation decision. Commit selected values once. No independent global RNG,

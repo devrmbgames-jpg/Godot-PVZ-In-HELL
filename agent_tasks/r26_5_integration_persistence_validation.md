@@ -18,11 +18,19 @@ Parcel opening/ignition, immunity, contact4HP/0.5s/TTL60s, native follow/retirem
 Reviewed code `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`, BASE `fc68226b6e051ea15f14e5d42deb9fbb1d86bd44`:
 ARCHITECTURE/STYLE PASS, no findings; reviewer VALIDATION NOT_RUN. No accepted findings remain.
 Current native week and connected write/fresh restore PASS; unchanged survival >=6/8.
-Runnable QA `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only`: export/headless menu/level120frames PASS,
+Runnable QA `.export/windows/20261013-194958Z-f20e59e7-r26-r27-integrated`: export/headless menu/level120frames PASS,
 dirty=true preserves user work. Required owner gameplay/visual/tone/balance QA remains open.
 [District fixture](district_release_validation.md) RV-004/005 remain FIXED; same fixture gates pass on new gameplay.
 
 ### Validation
+
+Post-R27 checkpoint `f20e59e7e668f3dc164c8f49129f36195d93e933`:16scripts GUT388/11029 PASS,
+angel37/701 reused; `.artifacts/r26-final-native-checks.json`. Full55-SHA ancestry/status audit
+PASS (`.artifacts/r26-checkpoint-audit.json`). Week `district-20261014-053843158.log` native PASS,
+unchanged >=6/8; connected write054256206/restore054446891 PASS/exits0/0; R27.5 owns full logs.
+Wrappers FAIL only shutdown retention/DEFERRED. Both QA builds headless startup PASS;
+ordinary export has no LimboAI DLL-copy error.
+
 Current owner-change: GUT72tests/490assertions PASS: presence11/68 (`gut-20261013-062550024`),
 opening10/83 (`062418878`), queue51/339 (`062427053`); parser4/0failures `parsefiles-20261013-062556161` PASS.
 Initial presence FAIL10/11 (wrong sleep-margin assertion) is fixed. ResourceSaver062052041 saved/exit0, but bootstrap ECS compile errors mean validation FAIL.
@@ -67,12 +75,14 @@ RV-003/P2 FIXED: lifecycle test retained Array[DEF_NpcProfile] after profiles be
 Array[DEF_NpcArchetype]; repair19/166 PASS. RV-004/P2 FIXED: catalog/home-dialogue tests
 assumed canonical visitors had resident participation; live schedule parity retains coverage,
 private-home scenarios now use isolated resident copies, shared authored data unchanged.
-RV-005/P2 FIXED: historical floor addition required two emitter-bound effects retiring on death (queue51/340/stage PASS);
-owner removal now requires one contact effect, reviewed `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`, queue51/339 PASS.
+RV-005/P2 OBSOLETE `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`: owner removed the complete floor effect.
+Its original two-emitter defect was fixed at `5a861f1a83cef7c53a962326eda42420de1238cd`
+(queue51/340/stage PASS); the current one-contact-effect contract is reviewed, queue51/339 PASS.
 RV-006/P2 FIXED: pride test's fixed child index points to the newer feeding subtree.
 Resource-identity hypothesis was disproven by fresh path assertions232240604; actual typed toy
 subtree lookup now checks relative safety/blood/feeding/combat order and real native execution.
-RV-002..006 FIXED `5a861f1a83cef7c53a962326eda42420de1238cd`; targeted review PASS, no findings.
+RV-002/003/004/006 FIXED `5a861f1a83cef7c53a962326eda42420de1238cd`; RV-005 obsolete as above.
+Original targeted repair review PASS, no findings.
 BASE `81f22ee6e09a3466237ac67564554052fc4a2634` -> repair TARGET above; elapsed55s,
 architecture/style PASS, reviewer validation NOT_RUN.
 Historical floor-pressure review PASS, no findings,20s: BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979`
@@ -84,21 +94,13 @@ architecture/style PASS, reviewer validation NOT_RUN. Final ordinary production 
 Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance; deferred polish requires owner input. Wide-fire tuning is superseded by explicit owner removal; no rendered gameplay has run.
 
 ## Persistence
-Persist durable physical item state/Health supported by existing snapshot rules, player karma,
-soul-deal/progression, NPC archetype/variation seed/name/selected traits/dialogue and personal memories.
-Exclude live Node/Object references, BT instances/Blackboards, physics inboxes, per-frame perception,
-route caches and reconstructible hazard interest.
-
-Restore authoritative data first, then rebuild derived BT/perception/presentation state.
-
-Extend domain `SAVE_FIELDS` and the closed `SaveDataCodec` whitelist/preflight, with the
-existing passive restore/readiness boundary. Persist links by stable endpoint keys and
-rebuild Relationships before gameplay resumes; no default spawn/damage reactions during restore.
-
-Preserve raw/scriptless placements: stable `raw_actor/placed/<UUID>` groups and
-`RawPhysicsSnapshot` presence/pose restored from native authored recipes. Grab-proxies stay
-transient; no serialized NodePath/instance identity or second item model. Check agreement
-with `TruckCargoReceipt.raw_actor_id`; pending runtime disposal without a recipe rejects.
+Persist durable item state/Health, karma, soul/progression, NPC identity/variation and memories
+through domain `SAVE_FIELDS`/closed codec. Exclude live Objects, BT/Blackboards, physics inboxes,
+perception/route caches and derived hazard interests. Restore authority before derived state,
+rebuild Relationships from stable keys before readiness and suppress ordinary spawn/damage reactions.
+Raw/scriptless actors keep `raw_actor/placed/<UUID>` and native `RawPhysicsSnapshot` recipes,
+matching `TruckCargoReceipt.raw_actor_id`. Grab-proxies/NodePaths/instance IDs are transient;
+pending disposal without a native recipe rejects. No second item model.
 
 ## Existing-system integration
 ### Parcel/customer flow
@@ -190,11 +192,9 @@ No per-frame verbose logging or duplicated gameplay authority.
 ## Validation sequence
 
 1. Incremental formatter, agent-change, strict architecture/domain and structure validators.
-2. Actual Godot parser through `utils/godot_agent.ps1`, independent of MCP availability.
-3. Focused GUT by subsystem and dialogue import/parser, using current project skills.
-4. Fresh-process current-format roundtrip, passive restore and incompatible-slot protection.
-5. One bounded connected district headless smoke; immutable-SHA review and finding triage.
-6. Runnable Windows QA export under `.export/` at the completed large gameplay milestone.
+2. Actual Godot parser via `utils/godot_agent.ps1`, focused subsystem GUT and dialogue import; MCP-independent.
+3. Fresh-process roundtrip/passive restore/incompatible-slot protection, connected district smoke and exact-SHA review/triage.
+4. Runnable Windows QA export under `.export/` at the completed large gameplay milestone.
 
 ## Owner QA
 Manual checks cover scythe/knife feel, barrel/flask physics and hazard readability; Angel freeze, Night Hunter light/music/shadows, Creepy stalking, Vampire visibility/cloud, prose and aggression/probability/order/karma balance.

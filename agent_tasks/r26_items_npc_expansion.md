@@ -21,6 +21,13 @@ This root task owns overall status/current/next. Each supporting task owns its o
 
 ### Current
 
+Post-R27 audit2026-10-14 at `f20e59e7e668f3dc164c8f49129f36195d93e933`:
+all55 full checkpoint/review/fix SHAs are ancestors; no REVIEW_PENDING or accepted unresolved defect.
+Current findings remain FIXED, except R26.5 RV-005 OBSOLETE after explicit floor-effect removal.
+Final item/archetype/variation/live-roster/dialogue GUT16scripts/388tests/11029assertions PASS;
+unchanged angel gate reused37/701. Both variants of all ten archetypes have native coverage.
+Manifest `.artifacts/r26-final-native-checks.json`; detailed final integration owned by R26.5.
+
 R26.1 physical catalog/framework, R26.2 persistent modular identity/category orders,
 R26.3 native archetype behavior and R26.4 all20 dialogue/sign variants are implemented.
 R26.5 binds all ten archetypes and two visitor presets; twelve stable slots, eight residents,
@@ -38,19 +45,20 @@ Owner removed the whole wide floor effect and reduced contact radius25% to1.6875
 Scoped repair code/reviews remain valid ancestors; prior failed weeks below are historical evidence.
 Recorded findings remain FIXED; owner-change automated/review gates pass.
 Rendered gameplay/visual and final balance QA NOT_RUN; these remain in the original R26 tasks.
-Windows QA export `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only` and headless menu/level120frames PASS.
+Current ordinary Windows QA `.export/windows/20261013-194958Z-f20e59e7-r26-r27-integrated`,
+`.export/LATEST.cmd`, headless menu+level120frames PASS. R27 rooms build: `.export/TEST_LEVEL.cmd`.
 Build contains preserved user working-tree changes (dirty=true); it is not a clean immutable checkout.
 Final subjective acceptance remains open; no rendered gameplay or capture has run.
 
 ### Next
 
-Owner instruction2026-10-14: finish remaining R26 tasks after [R27](r27_qa_followup.md).
-Owner resumed2026-10-14. After R27, reconcile open acceptance and
-review findings with the post-R27 HEAD before implementing and verifying the remaining scope.
+Owner instruction2026-10-14 to finish R26 after [R27](r27_qa_followup.md) is implemented for
+all automated/review/build work. The post-R27 audit found no remaining implementation defect.
 
 Complete [owner QA](../qa_tasks/r26_acceptance.md): item feel/physics readability, all-ten NPC
 behavior/presentation, dialogue, save/load, diagnostics and final balance/assets.
-Automated/review gates pass; rendered permission and required owner acceptance remain pending.
+Native/review gates pass; R27's editor-only generator heuristic is reviewed compliant/REJECTED,
+with raw validator FAIL preserved in its owning task. Rendered permission/owner acceptance remain pending.
 Keep R26 active until automated and required owner acceptance close or the owner explicitly defers manual scope.
 
 ### Validation

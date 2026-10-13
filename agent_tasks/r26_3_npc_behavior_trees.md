@@ -48,7 +48,7 @@ final automated live/week integration PASS in R26.5, owner QA remains open.
 
 ### Next
 
-Complete the original R26 gameplay/visual checklist and final balance; no automated blocker remains.
+Post-R27 native integration PASS in R26.5; complete original R26 gameplay/visual QA and balance.
 Do not claim headless tests establish presentation, dialogue tone or combat feel.
 
 ### Review triage

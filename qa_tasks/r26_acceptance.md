@@ -5,11 +5,15 @@ Status: **PENDING_OWNER_QA**
 Автоматическая проверка и статус реализации: [R26.5](../agent_tasks/r26_5_integration_persistence_validation.md).
 Этот checklist владеет только ручной приёмкой. Headless GUT/smoke не подтверждают визуальную
 читаемость, качество реплик или ощущение управления. Rendered gameplay агентом не запускался.
-Windows QA build: [.export/LATEST.cmd](../.export/LATEST.cmd), directory `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only`.
-Full code SHA `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`, review BASE `fc68226b6e051ea15f14e5d42deb9fbb1d86bd44`;
+Windows QA build: [.export/LATEST.cmd](../.export/LATEST.cmd), directory `.export/windows/20261013-194958Z-f20e59e7-r26-r27-integrated`.
+Test hall/all16 items/10 reset-on-entry rooms: [.export/TEST_LEVEL.cmd](../.export/TEST_LEVEL.cmd).
+Full build SHA `f20e59e7e668f3dc164c8f49129f36195d93e933`; latest gameplay review TARGET
+`25f6de748304171b935dba4084f8de78088f9906`, BASE `5c1028cf43b39f40f19aec47aa1442686a87944e`;
 ARCHITECTURE/STYLE PASS, no findings; reviewer VALIDATION NOT_RUN.
 Export/headless menu/level120frames PASS. Preserved user working-tree edits are recorded (`dirty=true`).
-Current production week162731685 PASS, all7days, unchanged survival >=6/8; connected write/restore PASS/exits0/0.
+Current production week053843158 native PASS, all7days, unchanged survival >=6/8;
+connected write054256206/fresh restore054446891 native PASS/exits0/0. Wrappers FAIL only shutdown retention DEFERRED.
+Final native R26 GUT388/11029 PASS, unchanged angel37/701 reused; rendered QA remains NOT_RUN.
 Owner change2026-10-13: wide floor fire completely removed; contact radius2.25 ->1.6875m (-25%).
 Contact4HP/0.5s/TTL60s and parcel ignition remain. Full mechanic redesign is future owner work.
 Final subjective acceptance remains open; shutdown-only retention DEFERRED, logs preserved.

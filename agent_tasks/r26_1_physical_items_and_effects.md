@@ -14,10 +14,13 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 ### Current
 
 Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, dev; reviewed checkpoint
-`f24a0f3e628f9eb975af33416b9981066d0fd902`. All 15 items have native MCP-authored bodies.
+`f24a0f3e628f9eb975af33416b9981066d0fd902`. All 15 requested items have native MCP-authored bodies.
+The current physical catalog includes the additional toy fixture:16 real pickups are accessible
+in the reviewed [R27 test hall](r27_test_lab_and_npc_rooms.md), with stable authored IDs.
 PHYSICAL commerce materializes bodies; inventory categories stay separate from capabilities.
 Shared sweep, contact episodes and break factory preserve attribution, lifetime and source veto.
-Combat-owned C_Karma persists with strict authored thresholds; schema 13 rejects schema 12 before mutation.
+Combat-owned C_Karma persists with strict authored thresholds; initial schema13/12 work is historical.
+Current schema19 rejects older formats before mutation; R26.5 owns the current save contract.
 Artifacts use native volumes, typed receiver tags/karma and DamageRequest HEAL/DAMAGE; restore restarts transient clocks.
 Blood payloads use typed non-damaging native zones with larger barrel radius/TTL and passive reconstruction.
 NPC perception now binds R_NpcBloodZone through LOS/FOV/light; spawn facts immediately calm perceived vampires.
@@ -32,6 +35,10 @@ final mandatory production week112524520 PASS (>=6/8) in R26.5;
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
+
+Post-R27 native payload12/527, receiver7/104, karma4/40, inventory17/135 PASS;
+final manifest/evidence owned by [R26.5](r26_5_integration_persistence_validation.md).
+
 
 Native logs: `.artifacts/godot_agent/`; names below use `{kind}-20261011-{stamp}.stdout.log`.
 All accepted batches passed formatter, parser and relevant strict/static gates. Reviews use
@@ -102,73 +109,24 @@ Required owner acceptance remains open; explicitly deferred polish gets a QA che
 
 ## Required shared design
 
-### Physical base
-
-Prefer a shared project-owned physical-item scene/entity derived from the existing `E_GrabbableBody` contract, or extend the existing inventory pickup path where appropriate.
-
-Use editable `.tscn` and direct Entity Traits with typed `.tres` tuning through the existing
-compiler. Keep inventory/combat/hazard implementations in their current vertical domains.
-Use [scene-authoring](../.agents/skills/godot-scene-authoring/SKILL.md),
-[physics](../.agents/skills/godot-physics-4.7/SKILL.md) and
-[combat](../.agents/skills/first-person-combat/SKILL.md) when implementing their contracts.
-
-Every world item must:
-- retain native rigid-body physics when free;
-- use `R_HeldBy` + `GrabService` for physical holding/carrying where that capability is authored;
-- preserve physical velocity/impact behavior on release/throw;
-- route impact through the existing impact capture pipeline;
-- never write HP directly.
-
-Inventory ownership uses `R_OwnedBy` / `InventoryService`; physical holding uses `R_HeldBy`.
-Current `InventoryService.can_transfer` rejects `C_Grabbable`, packages and furniture.
-`E_InventoryPickup` may hide/freeze an owned body; `InventoryService.grant` may instead
-create a virtual stack, and `InventoryDropService.drop` creates a native physical pickup.
-Preserve quantity, ownership and failure behavior across that boundary. Do not require
-every owned stack to retain the same body or add `C_Grabbable` to stack pickups by default.
-If a requested item needs both hand slots and stack transfer, declare and validate that
-contract change explicitly, including grip cleanup and rejection without item loss.
-Large items remain physical and normally do not collapse into a stack.
-
-### Capabilities, not item-specific dispatch
-
-Represent reusable capabilities through typed definitions/components rather than `if item_id == ...`.
-
-Required reusable concepts: handheld, large, melee/large-AOE melee, throwable,
-explosive/breakable payload, hazard producer, contact damage, valuable, stackable and Health/destructible.
-
-Reuse `C_MeleeWeapon`, `DEF_MeleeAttack`, `C_Health`, impact profiles, `HazardSpawnService`, inventory contracts and existing grab/throw behavior where possible.
-
-### Item categories
-
-Commerce and NPC preference tags support WEAPON, CLOTHING, ARTIFACT, REAGENT, TOY
-and VALUABLE. An item may belong to several categories.
-
-Do not equate gameplay capability with shopping category.
-
-### Damage/effect types
-
-Existing damage types must remain compatible. Add only the missing semantic types required by this feature:
-- ACID
-- HOLY
-- UNHOLY
-
-Keep FIRE, TOXIC, IMPACT, EXPLOSION, MELEE, etc. on the existing `DamageRequest` path.
-Preserve existing serialized enum meanings/values; version any incompatible field interpretation.
-
-Holy/unholy behavior must be data-driven by receiver tags/karma rules, not by checking scene names.
-
-If no karma contract exists, introduce a minimal persistent player karma component/state and authored low/high thresholds. Exact thresholds are tuning data, not hard-coded gameplay constants.
-
-Declare one Component owner and its explicit mutation boundary before adding karma;
-dialogue/receiver tags must not create another mutable player-stat authority.
-
-Introduce reusable receiver tags/capabilities sufficient to express:
-- affected by holy damage;
-- affected/healed by unholy effect;
-- vampire;
-- other unholy/unclean creature.
-
-Do not infer these from class names.
+Use editable `.tscn`, direct Entity Traits and typed `.tres` through the existing compiler;
+inventory/combat/hazard implementations keep their vertical owners. Use the parent
+[R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve) and scene/physics/combat skills.
+`E_GrabbableBody`/existing pickups retain native free-body transform, velocity and impact capture;
+physical holding uses `R_HeldBy`/`GrabService`, never direct HP writes.
+Inventory uses `R_OwnedBy`/`InventoryService`; transfer rejects `C_Grabbable`, packages and furniture.
+`E_InventoryPickup` may hide/freeze owned bodies; granted virtual stacks drop as real pickups
+through `InventoryDropService`. Preserve quantities, grip cleanup and rejection without loss;
+do not require stacks to retain the same body or add hand capability implicitly. Large items stay physical.
+Reusable capabilities: handheld/large, melee/large-AOE, throwable, breakable/explosive payload,
+hazard producer, contact damage, valuable, stackable and Health/destructible. Reuse `C_MeleeWeapon`,
+`DEF_MeleeAttack`, `C_Health`, impact profiles, hazard factory and existing grab/throw execution.
+Commerce categories WEAPON/CLOTHING/ARTIFACT/REAGENT/TOY/VALUABLE may overlap; they are not capabilities.
+ACID/HOLY/UNHOLY extend existing FIRE/TOXIC/IMPACT/EXPLOSION/MELEE `DamageRequest` semantics.
+Preserve serialized enum meanings; incompatible changes require schema versioning.
+Typed receiver tags express holy vulnerability, unholy damage/healing, vampire and unclean species;
+never infer these from scene/class names. Persistent player karma has one Component/mutation owner
+and authored low/high thresholds; dialogue and receiver tags cannot become another stat authority.
 
 ## Requested items
 
