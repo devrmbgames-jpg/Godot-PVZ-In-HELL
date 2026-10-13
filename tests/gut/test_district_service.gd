@@ -253,8 +253,8 @@ func test_committed_social_reaction_without_role_preserves_visit_history() -> vo
 
 
 #region Прерывание роли общим NPC AI
-## Прибытие бегущего NPC к проходу завершает его клиентскую роль до отключения тела.
-func test_native_flee_exit_releases_customer_role_before_departure() -> void:
+## Native departure releases execution before disabling the body but retains the collection plan.
+func test_native_flee_exit_releases_execution_and_preserves_collection_plan() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	var visit: CustomerVisit = _case(person, "flee-exit")
@@ -265,8 +265,11 @@ func test_native_flee_exit_releases_customer_role_before_departure() -> void:
 
 	assert_true(NpcDecisionService.flee(body, person, awareness))
 
-	assert_true(visit.finished)
+	assert_false(visit.finished)
+	assert_false(visit.started)
+	assert_eq(visit.deferred_day, 0)
 	assert_false(body.has_component(C_CustomerAgent))
 	assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(CustomerFlowQueries.actionable_remaining(CustomerFlowQueries.current(), 1), 1)
 #endregion

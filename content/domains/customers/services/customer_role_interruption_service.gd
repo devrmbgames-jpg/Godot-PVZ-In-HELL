@@ -1,10 +1,10 @@
 extends RefCounted
-## Owns the composed interruption transaction across service role and optional home delivery.
+## Composes live role cleanup while retaining unresolved counter plans and home-delivery ownership.
 class_name CustomerRoleInterruptionService
 
 
 #region Explicit role interruption
-## Прерывает нерешённый визит, освобождая коробку и стойку без выдуманного результата.
+## Releases interrupted execution; an unresolved counter order keeps its same-day visit plan.
 static func suspend(body: E_DistrictNpc) -> void:
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null:
@@ -15,7 +15,7 @@ static func suspend(body: E_DistrictNpc) -> void:
 	if visit == null:
 		NpcServiceRole.release(body, agent.visit_id)
 		return
-	if visit.actual in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
+	if visit.actual != CustomerVisit.Actual.NOT_RESOLVED or (home == null and visit.finished):
 		if home != null:
 			NpcHomeDeliveryService.complete(home)
 		else:
@@ -24,12 +24,11 @@ static func suspend(body: E_DistrictNpc) -> void:
 
 	CustomerInspectionService.end(body)
 	HomeMeetingBindings.release_meeting(body)
-	NpcServiceRole.release(body, visit.visit_id)
+	visit.started = false
 	if home == null:
-		var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
-		var reason: String = decision.active_behavior if decision != null else "опасность"
-		NpcServiceRole.defer_visit(body, visit, "Приход прерван: " + reason)
+		# Live role cleanup is not a missed collection: no deferred day, outcome or payment.
+		visit.finished = false
 	else:
-		visit.started = false
 		visit.finished = true
+	NpcServiceRole.release(body, visit.visit_id)
 #endregion

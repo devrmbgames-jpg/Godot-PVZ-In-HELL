@@ -1,5 +1,5 @@
 extends Observer
-## Клиентский владелец освобождает роль по синхронному запросу общего NPC AI.
+## Distinguishes a called service approach failure from temporary waiting/emergency interruption.
 class_name O_CustomerNpcInterruption
 
 
@@ -19,13 +19,24 @@ func each(_event: Variant, subject: Entity, payload: Variant = null) -> void:
 
 	match request.kind:
 		NpcRoleInterruptionRequest.Kind.FLEE_EXIT:
-			if visit != null:
-				NpcServiceRole.finish_appearance(body, visit)
+			CustomerRoleInterruptionService.suspend(body)
 		NpcRoleInterruptionRequest.Kind.ROUTE_BLOCKED:
 			if HomeMeetingQueries.meeting_for(body) != null:
 				CustomerRoleInterruptionService.suspend(body)
 			elif visit != null:
-				NpcServiceRole.defer_visit(body, visit, "Путь к ПВЗ недоступен")
+				var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+				var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+				# Only the called recipient's actual approach can fail the collection trip.
+				# Waiting-route and emergency movement timeouts leave the order due today.
+				if (
+					agent.phase == C_CustomerAgent.Phase.APPROACHING
+					and decision.intent_owner == C_NpcDecision.Owner.SERVICE
+					and not body.get_relationships(Relationship.new(
+						R_NpcServiceAt.new(),
+						CustomerFlowQueries.counter(),
+					)).is_empty()
+				):
+					NpcServiceRole.defer_visit(body, visit, "Путь к ПВЗ недоступен")
 		NpcRoleInterruptionRequest.Kind.EMERGENCY:
 			CustomerRoleInterruptionService.suspend(body)
 #endregion

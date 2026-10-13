@@ -71,10 +71,10 @@ func _night_session() -> Entity:
 	if not session.has_component(C_Autosave):
 		session.add_component(C_Autosave.new())
 	(session.get_component(C_Autosave) as C_Autosave).path = SAVE_PATH
-	# Полный снимок хранит авторские определения, а не настройки одиночного теста.
-	_district.definition = (
-		load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
-	)
+	# Restore the authored definition that actually constructed this fixture's retained roster.
+	_district.definition = load(_district_definition_path()) as DEF_District
+	for person: NpcRecord in _district.people:
+		assert_true(_district.definition.profiles.has(person.profile))
 	for visit: CustomerVisit in CustomerFlowQueries.current().visits:
 		visit.definition = (
 			(

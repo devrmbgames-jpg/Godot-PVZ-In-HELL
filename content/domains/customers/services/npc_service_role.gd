@@ -6,7 +6,7 @@ const QUEUE_SPACING: float = 1.3
 
 
 #region Планирование обслуживания
-## Подготавливает до двух следующих получателей рядом с текущим; утро допускает прогулку.
+## Prepares two next recipients; temporary avoidance preserves their scheduled same-day plan.
 static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 	if cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY]:
 		return false
@@ -32,7 +32,7 @@ static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 			CombatQueries.target_for(body) != null
 			or (awareness != null and (awareness.fleeing or awareness.hazard_distress))
 		):
-			defer_visit(body, visit, "Получатель покинул очередь из-за опасности")
+			# Temporary avoidance delays preparation; the scheduled same-day order remains due.
 			continue
 		if begin(body, person, visit, cycle.day_index):
 			return true
