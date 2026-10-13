@@ -71,14 +71,18 @@ func _process_pending(district: C_District) -> void:
 			continue
 
 		var map: RID = actor.navigation_agent.get_navigation_map()
-		if not map.is_valid() or NavigationServer3D.map_get_iteration_id(map) == 0:
+		var iteration: int = NavigationServer3D.map_get_iteration_id(map) if map.is_valid() else 0
+		if iteration == 0:
 			district.pending_routes.append(npc_id)
 			continue
 
+		# A changed goal can plan before route progression polls the native map revision.
+		if route.navigation_map != map or route.map_iteration != iteration:
+			route.rejected_refuge_points.clear()
 		route.goal = intent.move_position
 		route.points = NpcRouteSolver.plan(actor, person, actor.global_position, route.goal, map)
 		route.navigation_map = map
-		route.map_iteration = NavigationServer3D.map_get_iteration_id(map)
+		route.map_iteration = iteration
 		route.point_index = 1 if route.points.size() > 1 else 0
 		route.reachable = not route.points.is_empty()
 		var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness

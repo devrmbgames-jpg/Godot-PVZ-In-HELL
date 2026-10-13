@@ -41,7 +41,8 @@ live23173643310/798. Parser2318103918files and final formatter/static gates PASS
 Readonly mortality probe091100283 confirms floor-fire deaths npc4/day2, npc3/day3, npc1/day4;
 Post-repair probes094601714/0951282017200frames repeat deaths; full week NOT_RUN.
 [Route convergence](npc_route_goal_convergence.md) reviewed FIXED;
-[disconnected refuge candidates](npc_hazard_escape_connected_candidates.md) native131/1842 PASS, review pending.
+[disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): initial131/1842 PASS;
+review accepted map-invalidation RV-002, native repair103/1549 PASS; targeted review pending.
 
 ### Review / triage
 

@@ -265,5 +265,13 @@ func test_failed_disconnected_refuge_yields_to_a_connected_safe_candidate() -> v
 	assert_true(route.rejected_refuge_points.has(first))
 	actor.navigation_agent.set_navigation_map(actor.get_world_3d().navigation_map)
 	assert_ne(actor.navigation_agent.get_navigation_map(), _map)
-	NpcAiFixture.route(actor, person, _district.definition.route_interval)
-	assert_true(route.rejected_refuge_points.is_empty(), "Native map handoff retires old failures")
+	NpcIntentService.move_to(actor, first + Vector3.FORWARD, NpcDecisionService.ARRIVAL_DISTANCE)
+	NpcAiFixture.route(actor, person, 0.2)
+	assert_true(route.pending, "Changed goal queues before the map polling interval")
+	await get_tree().physics_frame
+	NpcAiFixture.plan_routes(_district)
+	assert_eq(route.navigation_map, actor.navigation_agent.get_navigation_map())
+	assert_false(
+		route.rejected_refuge_points.has(first),
+		"Planning on a new native map retires feedback before publishing map identity",
+	)

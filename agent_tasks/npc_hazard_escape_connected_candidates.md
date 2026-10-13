@@ -15,12 +15,15 @@ Linked mandatory survival acceptance: [R26.5](r26_5_integration_persistence_vali
 Main repairs bounded derived `C_NpcRoute` feedback: planning records a failed refuge;
 point selection skips it; route lifecycle clears feedback after danger/map invalidation;
 native reconstruction clears the transient field. No new goal/physics authority or tuning.
-Focused reproduction plus full relevant route/cache/lifecycle batch PASS. Commit and collect
-immutable review, then run the unchanged production district week.
+Initial implementation `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea` passed the relevant batch.
+Collected review found RV-002 map invalidation ordering; native reproduction confirms it.
+Planner now retires old feedback before publishing a changed map/revision. Collect targeted
+repair review and affected regressions, then run the unchanged production district week.
 
 ### Validation
 
-RV-001/P1 ACCEPTED, source `19a080981bcec44fb2be2c8725892129db6f200a`,
+RV-001/P1 FIXED `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea`, source
+`19a080981bcec44fb2be2c8725892129db6f200a`,
 `NpcRouteSolver.refuge`/`S_NpcRoutePlanning`: failed projected island is selected again,
 even when other safe candidates have complete native paths.
 Readonly production probe `tests/artifacts/district_survival_probe-20261013-095128201.log`
@@ -35,7 +38,19 @@ Veil23585543315/127; fire23590457311/77; blood23591069810/122; live23591884710/8
 participation2359330749/162. Native hazard-exit/map-handoff feedback retirement and
 fresh/reused all-twelve body reconstruction verified. Parser2358322816files and actual
 probe compilation/runtime PASS; formatter7files/strict architecture/structure/persistence PASS.
-Fix SHA/immutable review pending coherent commit.
+Initial review BASE `19a080981bcec44fb2be2c8725892129db6f200a` -> TARGET
+`32ddcee3f696eb9d48e320091e9b8ed6f0c414ea`: architecture FAIL (R1), style PASS,
+reviewer validation NOT_RUN, approximately51s. Same reviewer; no duplicate review.
+RV-002/P1 ACCEPTED, source TARGET above, `S_NpcRoutePlanning._process_pending`:
+short delta + changed goal publishes new map before interval invalidation, retaining old
+failures. Distinct cache-lifetime defect; main confirmed against current HEAD.
+Native new-map + changed-goal + delta0.2 reproduction: GUT20261013-000541454
+FAIL13/14 tests128/129 assertions, only old-feedback retirement fails; native planning passes.
+After repair relevant batch PASS103tests/1549assertions, logs date20261013:
+endpoint00061437214/129, performance00064827521/145, scheduling00070452749/291,
+live00073288110/822, participation0007470959/162. Parser0008012742files PASS;
+formatter2files/strict architecture/structure/diff checks PASS.
+Repair SHA and first targeted immutable re-review pending coherent commit.
 
 ### Owner QA / blockers
 
