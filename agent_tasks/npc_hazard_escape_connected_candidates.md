@@ -17,8 +17,8 @@ point selection skips it; route lifecycle clears feedback after danger/map inval
 native reconstruction clears the transient field. No new goal/physics authority or tuning.
 Initial implementation `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea` passed the relevant batch.
 Collected review found RV-002 map invalidation ordering; native reproduction confirms it.
-Planner now retires old feedback before publishing a changed map/revision. Collect targeted
-repair review and affected regressions, then run the unchanged production district week.
+Planner now retires old feedback before publishing a changed map/revision. Targeted repair
+review and affected regressions PASS; unchanged production district week running.
 
 ### Validation
 
@@ -41,7 +41,8 @@ probe compilation/runtime PASS; formatter7files/strict architecture/structure/pe
 Initial review BASE `19a080981bcec44fb2be2c8725892129db6f200a` -> TARGET
 `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea`: architecture FAIL (R1), style PASS,
 reviewer validation NOT_RUN, approximately51s. Same reviewer; no duplicate review.
-RV-002/P1 ACCEPTED, source TARGET above, `S_NpcRoutePlanning._process_pending`:
+RV-002/P1 FIXED `c02213ef77d055b725cb221adf0b7cf48e89b77a`, source TARGET above,
+`S_NpcRoutePlanning._process_pending`:
 short delta + changed goal publishes new map before interval invalidation, retaining old
 failures. Distinct cache-lifetime defect; main confirmed against current HEAD.
 Native new-map + changed-goal + delta0.2 reproduction: GUT20261013-000541454
@@ -50,7 +51,9 @@ After repair relevant batch PASS103tests/1549assertions, logs date20261013:
 endpoint00061437214/129, performance00064827521/145, scheduling00070452749/291,
 live00073288110/822, participation0007470959/162. Parser0008012742files PASS;
 formatter2files/strict architecture/structure/diff checks PASS.
-Repair SHA and first targeted immutable re-review pending coherent commit.
+First targeted re-review PASS: BASE `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea`
+-> TARGET `c02213ef77d055b725cb221adf0b7cf48e89b77a`, same existing reviewer,11s.
+RV-002 RESOLVED, no material findings; architecture/style PASS, reviewer validation NOT_RUN.
 
 ### Owner QA / blockers
 

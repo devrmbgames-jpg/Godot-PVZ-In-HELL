@@ -41,8 +41,8 @@ live23173643310/798. Parser2318103918files and final formatter/static gates PASS
 Readonly mortality probe091100283 confirms floor-fire deaths npc4/day2, npc3/day3, npc1/day4;
 Post-repair probes094601714/0951282017200frames repeat deaths; full week NOT_RUN.
 [Route convergence](npc_route_goal_convergence.md) reviewed FIXED;
-[disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): initial131/1842 PASS;
-review accepted map-invalidation RV-002, native repair103/1549 PASS; targeted review pending.
+[Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): native131/1842,
+repair103/1549 and targeted immutable review PASS; latest unchanged district week running.
 
 ### Review / triage
 
@@ -185,7 +185,6 @@ No per-frame verbose logging or duplicated gameplay authority.
 - No resource loads in hot BT ticks or per-frame debug spam.
 
 ## Validation sequence
-
 1. Incremental formatter, agent-change, strict architecture/domain and structure validators.
 2. Actual Godot parser through `utils/godot_agent.ps1`, independent of MCP availability.
 3. Focused GUT by subsystem and dialogue import/parser, using current project skills.

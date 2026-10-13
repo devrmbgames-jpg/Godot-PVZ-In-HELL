@@ -5,7 +5,12 @@ Status: **PENDING_OWNER_QA**
 Автоматическая проверка и статус реализации: [R26.5](../agent_tasks/r26_5_integration_persistence_validation.md).
 Этот checklist владеет только ручной приёмкой. Headless GUT/smoke не подтверждают визуальную
 читаемость, качество реплик или ощущение управления. Rendered gameplay агентом не запускался.
-Windows QA export ещё не создан для текущего checkpoint; путь будет указан после проверки сборки.
+Диагностическая Windows сборка: [.export/LATEST.cmd](../.export/LATEST.cmd), каталог
+`.export/windows/20261012-234718Z-19a08098-r26-reviewed-week-fail-qa`.
+Полный SHA `19a080981bcec44fb2be2c8725892129db6f200a`, review BASE
+`1b37fcb468e1c0c7d996d1d4df3d7940c933a807`; export/menu/level startup PASS.
+Сборка включает сохранённые пользовательские working-tree edits (`dirty=true`),
+недельный тест FAIL4/required6. Последующий navigation-cache repair в неё ещё не входит.
 
 ## Предметы и физика
 
