@@ -349,7 +349,15 @@ func _gaze_constrained(actor: Entity) -> bool:
 
 func _urgent(actor: Entity) -> bool:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
-	return CombatQueries.target_for(actor) != null or (awareness != null and awareness.fleeing)
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	return (
+		CombatQueries.target_for(actor) != null
+		or (awareness != null and (awareness.fleeing or awareness.hazard_distress))
+		or (
+			decision != null
+			and decision.intent_owner in [C_NpcDecision.Owner.EMERGENCY, C_NpcDecision.Owner.COMBAT]
+		)
+	)
 
 
 func _encounter(actor: Entity) -> Relationship:

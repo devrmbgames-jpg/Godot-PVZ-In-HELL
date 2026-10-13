@@ -202,3 +202,50 @@ func test_moving_angel_yields_in_head_on_encounter() -> void:
 	assert_eq(NpcPopulationQueries.person_for(&"angel").memories.size(), 0)
 
 #endregion
+
+
+#region Emergency branch takes precedence over mutual threats
+func test_native_hazard_escape_passes_aggressive_opponent_without_traffic_threats() -> void:
+	var left: E_DistrictNpc = _resident(&"a", AGGRESSIVE, Vector3(-0.7, 0.02, 0.0))
+	var right: E_DistrictNpc = _resident(&"b", AGGRESSIVE, Vector3(0.7, 0.02, 0.0))
+	var packed: PackedScene = load("res://content/domains/hazards/entities/npc_fire_aura.tscn")
+	var hazard: Entity = packed.instantiate() as Entity
+	var definition: DEF_ToxicArea = DEF_ToxicArea.new()
+	definition.radius = 4.0
+	definition.floor_height = 0.2
+	definition.damage_per_tick = 1.0
+	definition.damage_type = DamageRequest.Type.FIRE
+	var state: C_Hazard = C_Hazard.new()
+	state.definition = definition
+	_world.add_entity(hazard, [state])
+	(hazard as Node as Node3D).global_position = Vector3(-4.0, 0.1, 0.0)
+	await _wait_frames(SETTLE_FRAMES)
+	var awareness: C_NpcAwareness = left.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.hazard_distress = NpcRouteSolver.danger_here(left)
+	assert_true(awareness.hazard_distress)
+	assert_false(awareness.fleeing)
+	assert_null(CombatQueries.target_for(left))
+	NpcBrainService.bind_engine(left)
+	var runner: BTPlayer = left.get_node("Brain") as BTPlayer
+	runner.behavior_tree = load("res://content/domains/npc/ai/trees/bt_npc_emergency.tres")
+	assert_true(NpcBrainService.update_tree(left, 1.0 / 60.0))
+	var decision: C_NpcDecision = left.get_component(C_NpcDecision) as C_NpcDecision
+	assert_eq(decision.intent_owner, C_NpcDecision.Owner.EMERGENCY)
+	var intent: C_NpcIntent = left.get_component(C_NpcIntent) as C_NpcIntent
+	var escape_goal: Vector3 = intent.move_position
+	var escape_generation: int = intent.movement_generation
+	assert_gt(escape_goal.x, left.global_position.x, "Actual native escape meets the other capsule")
+	NpcIntentService.move_to(right, Vector3(-4.0, 0.0, 0.0), 0.25)
+	var nearest: float = INF
+	for frame: int in ROUTE_FRAMES:
+		await get_tree().physics_frame
+		nearest = minf(nearest, _separation(left, right))
+		if intent.arrived and (right.get_component(C_NpcIntent) as C_NpcIntent).arrived:
+			break
+	assert_gt(nearest, CONTACT_DISTANCE)
+	assert_lt(left.global_position.distance_to(escape_goal), 0.6)
+	assert_lt(right.global_position.distance_to(Vector3(-4.0, 0.0, 0.0)), 0.4)
+	assert_eq(intent.movement_generation, escape_generation)
+	assert_eq(NpcPopulationQueries.person_for(&"a").memories.size(), 0)
+	assert_eq(NpcPopulationQueries.person_for(&"b").memories.size(), 0)
+#endregion

@@ -39,7 +39,9 @@ Review PASS from base `136cfa18cbc5d6e9e0f20d5c8e58347ecdd2bf31`; no material fi
 Reviewer architecture/style PASS, validation NOT_RUN;400s, UTC08:51:49?08:58:29.
 MCP includes bounded native path diagnostics for new project-owned scripts.
 Physical passing/spacing now passes native physics, social/freeze and production-week gates.
-REVIEW_PENDING for its next immutable checkpoint; ten reset-on-entry rooms remain pending.
+REVIEW_PENDING: base `2636f85dd143841f8586827ba3ee996056b9456a`,
+target `7e67e938e154c071203c5efcd27c8b539c66aa4b`: RV-001 accepted emergency-priority bug.
+Native focused repair passes; fix checkpoint/targeted re-review pending. Ten rooms IN_PROGRESS.
 Main is sole writer; reuse existing read-only reviewer on immutable checkpoints.
 Independent [home-night fixture mismatch](completed/r27_home_night_fixture_identity.md)
 is repaired, tested, reviewed and archived; original FAIL evidence remains in its task.
