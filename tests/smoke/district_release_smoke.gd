@@ -567,8 +567,13 @@ func _serve_counter(day_index: int, require_light_timeout: bool) -> void:
 			_stage_light_recipients()
 		_observe_light_waits(day_index)
 		for candidate: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
+			# The captured query survives awaited handoffs; later roles may already be released.
+			if not EntityAvailability.contains(candidate, ECS.world):
+				continue
 			var body: E_DistrictNpc = candidate as E_DistrictNpc
 			var agent: C_CustomerAgent = candidate.get_component(C_CustomerAgent) as C_CustomerAgent
+			if agent == null:
+				continue
 			var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 			if (
 				body == null or candidate.has_component(C_Death)
@@ -587,13 +592,7 @@ func _serve_counter(day_index: int, require_light_timeout: bool) -> void:
 			await _give_box(body, visit, false, require_light_timeout)
 			if _failed:
 				return
-			_panel.open_for(_player)
-			_panel.call("_refresh", true)
-			var row: UI_TerminalButtonPackage = _row(visit.package_id)
-			_check(row != null, "issued parcel has real terminal settlement action")
-			if row != null:
-				(row.get_node("%ButtonOK") as Button).pressed.emit()
-			_panel.close_panel()
+			_report_counter_delivery(visit)
 		for visit: CustomerVisit in _flow.visits:
 			if _is_observed_light_timeout(visit, day_index):
 				light_deferred = true
@@ -635,6 +634,16 @@ func _serve_counter(day_index: int, require_light_timeout: bool) -> void:
 		"actual customers permit FINISH_SHIFT: "
 		+ "; ".join(DayPhaseService.finish_blockers(_cycle)),
 	)
+
+
+func _report_counter_delivery(visit: CustomerVisit) -> void:
+	_panel.open_for(_player)
+	_panel.call("_refresh", true)
+	var row: UI_TerminalButtonPackage = _row(visit.package_id)
+	_check(row != null, "issued parcel has real terminal settlement action")
+	if row != null:
+		(row.get_node("%ButtonOK") as Button).pressed.emit()
+	_panel.close_panel()
 #endregion
 
 
