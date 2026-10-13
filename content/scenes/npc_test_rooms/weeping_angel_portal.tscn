@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://ckbvo8welunj2"]
+
+[ext_resource type="Script" uid="uid://cl6glf45pcrns" path="res://addons/gecs/ecs/entity.gd" id="1_65cum"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_u0mf1"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="3_0n4hj"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="4_h6ivn"]
+[ext_resource type="Script" uid="uid://bvu271dti4nal" path="res://content/scenes/npc_test_rooms/def_test_room_action.gd" id="5_2k32i"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="6_ga060"]
+
+[sub_resource type="Resource" id="Resource_npqir"]
+script = ExtResource("3_0n4hj")
+
+[sub_resource type="Resource" id="Resource_j2ygk"]
+script = ExtResource("5_2k32i")
+room_key = &"weeping_angel"
+action_id = &"enter_test_room"
+slot = 0
+caption = "Войти: Плачущий ангел"
+
+[sub_resource type="Resource" id="Resource_pgxp4"]
+script = ExtResource("6_ga060")
+actions = Array[ExtResource("4_h6ivn")]([SubResource("Resource_j2ygk")])
+reserved_slots = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_m01vg"]
+size = Vector3(1.8, 2, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4dcdo"]
+albedo_color = Color(0.18, 0.3, 0.42, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_s32qg"]
+material = SubResource("StandardMaterial3D_4dcdo")
+size = Vector3(1.8, 2, 0.2)
+
+[node name="TestRoomPortal" type="StaticBody3D" unique_id=54277016]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_65cum")
+component_resources = Array[ExtResource("2_u0mf1")]([SubResource("Resource_npqir"), SubResource("Resource_pgxp4")])
+metadata/persistent_local_id = &"qa_portal_weeping_angel"
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1812175170]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_m01vg")
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=1434922691]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("BoxMesh_s32qg")
+
+[node name="Label" type="Label3D" parent="." unique_id=756374257]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.13)
+pixel_size = 0.003
+billboard = 1
+text = "Плачущий ангел
+Вход сбрасывает комнату"

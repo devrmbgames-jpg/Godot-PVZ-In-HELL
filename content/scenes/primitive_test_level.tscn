@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bpliadtgfwbe7"]
 
 [ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
-[ext_resource type="PackedScene" path="res://content/domains/motion/entities/character_body_player.tscn" id="13_da1x8"]
+[ext_resource type="PackedScene" uid="uid://b0pc5w4y4qidn" path="res://content/domains/motion/entities/character_body_player.tscn" id="13_da1x8"]
 [ext_resource type="Script" uid="uid://cg5pggkojxvba" path="res://content/domains/packages/components/c_package_state.gd" id="16_3nqfa"]
 [ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/domains/packages/components/c_package_marks.gd" id="19_oxwml"]
 [ext_resource type="PackedScene" uid="uid://ddgl127toocsh" path="res://content/domains/packages/entities/package_debris_stub.tscn" id="20_yfsfw"]
@@ -45,6 +45,33 @@
 [ext_resource type="Script" uid="uid://b4mppsv72drxx" path="res://content/domains/commerce/contracts/pending_delivery.gd" id="86_tla0k"]
 [ext_resource type="Script" uid="uid://vocpbv1orkxs" path="res://content/domains/commerce/contracts/purchase_receipt.gd" id="87_toeq2"]
 [ext_resource type="Script" uid="uid://d12bthrxw322h" path="res://content/domains/quests/contracts/refusal_quest_record.gd" id="89_f5udp"]
+[ext_resource type="PackedScene" uid="uid://0rsgscmkvmxv" path="res://content/domains/combat/entities/axe.tscn" id="106_6s21i"]
+[ext_resource type="PackedScene" uid="uid://dak1fi20myyrf" path="res://content/scenes/npc_test_rooms/night_hunter_portal.tscn" id="106_ohc32"]
+[ext_resource type="PackedScene" uid="uid://qnknmij5v75g" path="res://content/domains/combat/entities/scythe.tscn" id="107_7qbm0"]
+[ext_resource type="PackedScene" uid="uid://c5h16n1y32s2q" path="res://content/scenes/npc_test_rooms/fire_elemental_portal.tscn" id="107_651re"]
+[ext_resource type="PackedScene" uid="uid://di1dwx1fajnob" path="res://content/scenes/npc_test_rooms/shy_portal.tscn" id="108_kv05b"]
+[ext_resource type="PackedScene" uid="uid://mlffc7qwdu0u" path="res://content/domains/combat/entities/throwing_knife.tscn" id="108_movbe"]
+[ext_resource type="PackedScene" uid="uid://tow36n8i5i1d" path="res://content/domains/inventory/entities/bones_pickup.tscn" id="109_8id5m"]
+[ext_resource type="PackedScene" uid="uid://cbvrwq4u5eea7" path="res://content/scenes/npc_test_rooms/creepy_portal.tscn" id="109_g2ryl"]
+[ext_resource type="PackedScene" uid="uid://cdgp0t58l5dtq" path="res://content/domains/hazards/entities/reagent_flask.tscn" id="110_7pdaa"]
+[ext_resource type="PackedScene" uid="uid://bdonp0a1ttkeu" path="res://content/scenes/npc_test_rooms/brute_portal.tscn" id="110_jin1s"]
+[ext_resource type="PackedScene" uid="uid://s4l4j6pleyrm" path="res://content/scenes/npc_test_rooms/hag_portal.tscn" id="111_tla0k"]
+[ext_resource type="PackedScene" uid="uid://5506ypans5ss" path="res://content/domains/hazards/entities/fire_flask.tscn" id="111_u62m5"]
+[ext_resource type="PackedScene" uid="uid://ckbvo8welunj2" path="res://content/scenes/npc_test_rooms/weeping_angel_portal.tscn" id="112_toeq2"]
+[ext_resource type="PackedScene" uid="uid://pvddel44o7w3" path="res://content/domains/hazards/entities/toxin_flask.tscn" id="112_vx2q0"]
+[ext_resource type="PackedScene" uid="uid://cpd3gnado1vot" path="res://content/scenes/npc_test_rooms/lost_portal.tscn" id="113_f5udp"]
+[ext_resource type="PackedScene" uid="uid://csvbrnxj46qq7" path="res://content/domains/hazards/entities/fire_barrel.tscn" id="113_tres0"]
+[ext_resource type="PackedScene" uid="uid://d5i1ajsexpwv" path="res://content/scenes/npc_test_rooms/chain_devil_portal.tscn" id="114_0baqr"]
+[ext_resource type="PackedScene" uid="uid://5xgyiy6ae0wi" path="res://content/domains/hazards/entities/acid_barrel.tscn" id="114_56nb2"]
+[ext_resource type="PackedScene" uid="uid://fbd3spngokwx" path="res://content/domains/inventory/entities/slave_collar.tscn" id="115_6p1hp"]
+[ext_resource type="PackedScene" uid="uid://bn5ehwsogce65" path="res://content/scenes/npc_test_rooms/vampire_portal.tscn" id="115_e5ghr"]
+[ext_resource type="PackedScene" uid="uid://bu03vohivg571" path="res://content/domains/combat/entities/spiked_chains.tscn" id="116_w6vcc"]
+[ext_resource type="PackedScene" uid="uid://cy1r7ryy66wpm" path="res://content/domains/combat/entities/holy_artifact.tscn" id="117_3hljd"]
+[ext_resource type="PackedScene" uid="uid://h22jotgmitgj" path="res://content/domains/combat/entities/unholy_artifact.tscn" id="118_5ss1o"]
+[ext_resource type="PackedScene" uid="uid://u63us43ppw03" path="res://content/scenes/npc_test_rooms/warehouse_light_zone.tscn" id="118_q5fi0"]
+[ext_resource type="PackedScene" uid="uid://ds8bdbwae6jsf" path="res://content/domains/hazards/entities/blood_flask.tscn" id="119_p5i8f"]
+[ext_resource type="PackedScene" uid="uid://iadwbuvh021f" path="res://content/domains/hazards/entities/blood_barrel.tscn" id="120_a1uic"]
+[ext_resource type="PackedScene" uid="uid://bi3r588q8r6wq" path="res://content/domains/interaction/entities/toy_block.tscn" id="121_xjbpj"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/physical_slot.tscn" id="155_5h1gn"]
 [ext_resource type="PackedScene" path="res://content/domains/interaction/entities/anchorable_test_box.tscn" id="AnchorTest_scene"]
 [ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/domains/persistence/components/c_autosave.gd" id="Autosave_state"]
@@ -155,29 +182,29 @@ script = ExtResource("Sleep_interactable")
 [sub_resource type="Resource" id="Package_grabbable"]
 script = ExtResource("48_uqafv")
 
-[sub_resource type="Resource" id="Resource_0baqr"]
+[sub_resource type="Resource" id="Resource_3vbfu"]
 resource_local_to_scene = true
 script = ExtResource("16_3nqfa")
 
-[sub_resource type="Resource" id="Resource_e5ghr"]
+[sub_resource type="Resource" id="Resource_o4agj"]
 resource_local_to_scene = true
 script = ExtResource("31_8uaqh")
 definition = ExtResource("30_4agnb")
 
-[sub_resource type="Resource" id="Resource_q5fi0"]
+[sub_resource type="Resource" id="Resource_hhpj4"]
 resource_local_to_scene = true
 script = ExtResource("19_oxwml")
 
-[sub_resource type="Resource" id="Resource_3vbfu"]
+[sub_resource type="Resource" id="Resource_qm0ej"]
 resource_local_to_scene = true
 script = ExtResource("21_b28xq")
 debris_scene = ExtResource("20_yfsfw")
 
-[sub_resource type="Resource" id="Resource_o4agj"]
+[sub_resource type="Resource" id="Resource_dm0pt"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 
-[sub_resource type="Resource" id="Resource_hhpj4"]
+[sub_resource type="Resource" id="Resource_6s21i"]
 resource_local_to_scene = true
 script = ExtResource("24_yuvpa")
 
@@ -190,55 +217,55 @@ caption = "Вскрыть посылку"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("OpenAction")])
 
-[sub_resource type="Resource" id="Resource_qm0ej"]
-resource_local_to_scene = true
-script = ExtResource("16_3nqfa")
-
-[sub_resource type="Resource" id="Resource_dm0pt"]
-resource_local_to_scene = true
-script = ExtResource("31_8uaqh")
-definition = ExtResource("30_4agnb")
-
-[sub_resource type="Resource" id="Resource_6s21i"]
-resource_local_to_scene = true
-script = ExtResource("19_oxwml")
-
 [sub_resource type="Resource" id="Resource_7qbm0"]
 resource_local_to_scene = true
-script = ExtResource("21_b28xq")
-debris_scene = ExtResource("20_yfsfw")
+script = ExtResource("16_3nqfa")
 
 [sub_resource type="Resource" id="Resource_movbe"]
 resource_local_to_scene = true
-script = ExtResource("ImpactReceiver")
-
-[sub_resource type="Resource" id="Resource_8id5m"]
-resource_local_to_scene = true
-script = ExtResource("24_yuvpa")
-
-[sub_resource type="Resource" id="Resource_7pdaa"]
-resource_local_to_scene = true
-script = ExtResource("16_3nqfa")
-
-[sub_resource type="Resource" id="Resource_u62m5"]
-resource_local_to_scene = true
 script = ExtResource("31_8uaqh")
 definition = ExtResource("30_4agnb")
 
-[sub_resource type="Resource" id="Resource_vx2q0"]
+[sub_resource type="Resource" id="Resource_8id5m"]
 resource_local_to_scene = true
 script = ExtResource("19_oxwml")
 
-[sub_resource type="Resource" id="Resource_tres0"]
+[sub_resource type="Resource" id="Resource_7pdaa"]
 resource_local_to_scene = true
 script = ExtResource("21_b28xq")
 debris_scene = ExtResource("20_yfsfw")
 
-[sub_resource type="Resource" id="Resource_56nb2"]
+[sub_resource type="Resource" id="Resource_u62m5"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 
+[sub_resource type="Resource" id="Resource_vx2q0"]
+resource_local_to_scene = true
+script = ExtResource("24_yuvpa")
+
+[sub_resource type="Resource" id="Resource_tres0"]
+resource_local_to_scene = true
+script = ExtResource("16_3nqfa")
+
+[sub_resource type="Resource" id="Resource_56nb2"]
+resource_local_to_scene = true
+script = ExtResource("31_8uaqh")
+definition = ExtResource("30_4agnb")
+
 [sub_resource type="Resource" id="Resource_6p1hp"]
+resource_local_to_scene = true
+script = ExtResource("19_oxwml")
+
+[sub_resource type="Resource" id="Resource_w6vcc"]
+resource_local_to_scene = true
+script = ExtResource("21_b28xq")
+debris_scene = ExtResource("20_yfsfw")
+
+[sub_resource type="Resource" id="Resource_3hljd"]
+resource_local_to_scene = true
+script = ExtResource("ImpactReceiver")
+
+[sub_resource type="Resource" id="Resource_5ss1o"]
 resource_local_to_scene = true
 script = ExtResource("24_yuvpa")
 
@@ -290,7 +317,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("32_mc3p1")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_w6vcc"]
+[sub_resource type="Resource" id="Resource_p5i8f"]
 resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
@@ -319,16 +346,16 @@ script = ExtResource("Inventory_state")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="Resource" id="Resource_3hljd"]
+[sub_resource type="Resource" id="Resource_xjbpj"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[sub_resource type="Resource" id="Resource_5ss1o"]
+[sub_resource type="Resource" id="Resource_mtfgp"]
 resource_local_to_scene = true
 script = ExtResource("Player_stamina")
 
-[sub_resource type="Resource" id="Resource_p5i8f"]
+[sub_resource type="Resource" id="Resource_w1axo"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 
@@ -352,17 +379,17 @@ script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_xjbpj"]
+[sub_resource type="Resource" id="Resource_1ugu1"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(1, 0.13787842, 0.0234375, 1)
 
-[sub_resource type="Resource" id="Resource_mtfgp"]
+[sub_resource type="Resource" id="Resource_h6vlr"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(0.96875, 0, 1, 1)
 
-[sub_resource type="Resource" id="Resource_w1axo"]
+[sub_resource type="Resource" id="Resource_jld44"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
 
@@ -408,7 +435,7 @@ caption = "Лечь спать"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Sleep_transition")])
 
-[sub_resource type="Resource" id="Resource_1ugu1"]
+[sub_resource type="Resource" id="Resource_rb5a5"]
 resource_local_to_scene = true
 script = ExtResource("63_3w6s4")
 
@@ -663,19 +690,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -4)
 [node name="UnpackSmallShelf" parent="Entityes/Props" unique_id=692066870 instance=ExtResource("Unpack_small_shelf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, -18)
 package_id = "test-unpack-small_shelf"
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_0baqr"), SubResource("Resource_e5ghr"), SubResource("Resource_q5fi0"), SubResource("Resource_3vbfu"), SubResource("Resource_o4agj"), SubResource("Resource_hhpj4"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_3vbfu"), SubResource("Resource_o4agj"), SubResource("Resource_hhpj4"), SubResource("Resource_qm0ej"), SubResource("Resource_dm0pt"), SubResource("Resource_6s21i"), SubResource("Actions")])
 metadata/persistent_local_id = &"placed_entityes_props_unpacksmallshelf"
 
 [node name="UnpackMedkits" parent="Entityes/Props" unique_id=1714952279 instance=ExtResource("Unpack_medkits")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.5, -18)
 package_id = "test-unpack-medkits"
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_qm0ej"), SubResource("Resource_dm0pt"), SubResource("Resource_6s21i"), SubResource("Resource_7qbm0"), SubResource("Resource_movbe"), SubResource("Resource_8id5m"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_7qbm0"), SubResource("Resource_movbe"), SubResource("Resource_8id5m"), SubResource("Resource_7pdaa"), SubResource("Resource_u62m5"), SubResource("Resource_vx2q0"), SubResource("Actions")])
 metadata/persistent_local_id = &"placed_entityes_props_unpackmedkits"
 
 [node name="UnpackBread" parent="Entityes/Props" unique_id=31810332 instance=ExtResource("Unpack_bread")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -18)
 package_id = "test-unpack-bread"
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_7pdaa"), SubResource("Resource_u62m5"), SubResource("Resource_vx2q0"), SubResource("Resource_tres0"), SubResource("Resource_56nb2"), SubResource("Resource_6p1hp"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_tres0"), SubResource("Resource_56nb2"), SubResource("Resource_6p1hp"), SubResource("Resource_w6vcc"), SubResource("Resource_3hljd"), SubResource("Resource_5ss1o"), SubResource("Actions")])
 metadata/persistent_local_id = &"placed_entityes_props_unpackbread"
 
 [node name="Doors" type="Node3D" parent="Entityes" unique_id=1963552121]
@@ -724,11 +751,10 @@ metadata/persistent_local_id = &"placed_entityes_carryplacement2"
 
 [node name="Player" parent="Entityes" unique_id=1984383607 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 2)
-ancestor_entity_bindings = PackedStringArray()
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_w6vcc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_3hljd"), SubResource("Resource_5ss1o")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_p5i8f"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_xjbpj"), SubResource("Resource_mtfgp")])
 metadata/persistent_local_id = &"placed_entityes_player"
 
-[node name="HeadX" parent="Entityes/Player/HeadY" index="0"]
+[node name="HeadX" parent="Entityes/Player/HeadY" parent_id_path=PackedInt32Array(1984383607, 1109415379) index="0" unique_id=1292554231]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Entityes/Player/HeadY/HeadX/HeadRoot" parent_id_path=PackedInt32Array(1984383607, 406904122) index="7" unique_id=1966760816]
@@ -737,16 +763,13 @@ current = true
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1984383607, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3
 
-[node name="BeltSlotLeft" parent="Entityes/Player" index="5"]
+[node name="BeltSlotLeft" parent="Entityes/Player" index="5" unique_id=314038497]
 transform = Transform3D(0.41083163, -0.9117112, 0, 0, -4.371139e-08, 1, -0.91171116, -0.4108317, 0, -0.25, 0.7946805, -0.1371026)
 metadata/persistent_local_id = &"placed_entityes_player_beltslotleft"
 
-[node name="BeltSlotRight" parent="Entityes/Player" index="6"]
+[node name="BeltSlotRight" parent="Entityes/Player" index="6" unique_id=164328443]
 transform = Transform3D(0.21199018, 0.9772718, 2.9802322e-08, 1.3716061e-08, -5.0772293e-08, 1, 0.9772718, -0.21199018, 0, 0.25, 0.7946805, -0.1371026)
 metadata/persistent_local_id = &"placed_entityes_player_beltslotright"
-
-[node name="Ground" parent="Entityes/Player" index="7"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
 
 [node name="DeliveryCounter" parent="Entityes" unique_id=1882730702 instance=ExtResource("Delivery_counter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
@@ -784,19 +807,19 @@ metadata/persistent_local_id = &"placed_entityes_scanner"
 [node name="Marker" parent="Entityes" unique_id=209695656 instance=ExtResource("Marker_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.25, 2)
 ancestor_entity_bindings = PackedStringArray()
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_p5i8f"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w1axo"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
 metadata/persistent_local_id = &"placed_entityes_marker"
 
 [node name="Marker2" parent="Entityes" unique_id=198176841 instance=ExtResource("Marker_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.25, 2)
 ancestor_entity_bindings = PackedStringArray()
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_xjbpj"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_1ugu1"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
 metadata/persistent_local_id = &"placed_entityes_marker2"
 
 [node name="Marker3" parent="Entityes" unique_id=1269267650 instance=ExtResource("Marker_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.25, 2)
 ancestor_entity_bindings = PackedStringArray()
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_mtfgp"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_h6vlr"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Resource_a1uic")])
 metadata/persistent_local_id = &"placed_entityes_marker3"
 
 [node name="Hammer" parent="Entityes" unique_id=2136699545 instance=ExtResource("Hammer_scene")]
@@ -848,7 +871,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -14)
 package_parent = NodePath("..")
 truck_parking = NodePath("../../TruckParking")
 ancestor_entity_bindings = PackedStringArray()
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w1axo")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_jld44")])
 metadata/persistent_local_id = &"placed_entityes_receivingzone"
 
 [node name="FloorMark" parent="Entityes/ReceivingZone" index="0" unique_id=682019643]
@@ -993,7 +1016,7 @@ metadata/persistent_local_id = &"placed_entityes_utilityblade"
 [node name="PushCart" parent="Entityes" unique_id=1786068694 instance=ExtResource("Push_cart")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.833, 4)
 ancestor_entity_bindings = PackedStringArray()
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_1ugu1"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_rb5a5"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 metadata/persistent_local_id = &"placed_entityes_pushcart"
 
 [node name="InspectionBooth1" parent="Entityes" unique_id=1694178656 instance=ExtResource("InspectionBooth")]
@@ -1003,6 +1026,200 @@ metadata/persistent_local_id = &"placed_entityes_inspectionbooth1"
 [node name="InspectionBooth2" parent="Entityes" unique_id=2051600392 instance=ExtResource("InspectionBooth")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -16)
 metadata/persistent_local_id = &"placed_entityes_inspectionbooth2"
+
+[node name="ItemCatalog" type="Node3D" parent="Entityes" unique_id=1263604963]
+
+[node name="Item_axe" parent="Entityes/ItemCatalog" unique_id=601650986 instance=ExtResource("106_6s21i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0.53499997, -24)
+metadata/persistent_local_id = &"qa_item_axe"
+
+[node name="Label_axe" type="Label3D" parent="Entityes/ItemCatalog" unique_id=759934427]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 1.8, -23.4)
+pixel_size = 0.004
+billboard = 1
+text = "Топор"
+
+[node name="Item_scythe" parent="Entityes/ItemCatalog" unique_id=109120207 instance=ExtResource("107_7qbm0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.86, -24)
+metadata/persistent_local_id = &"qa_item_scythe"
+
+[node name="Label_scythe" type="Label3D" parent="Entityes/ItemCatalog" unique_id=482114518]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 1.8, -23.4)
+pixel_size = 0.004
+billboard = 1
+text = "Коса"
+
+[node name="Item_throwing_knife" parent="Entityes/ItemCatalog" unique_id=1905209940 instance=ExtResource("108_movbe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.135, -24)
+metadata/persistent_local_id = &"qa_item_throwing_knife"
+
+[node name="Label_throwing_knife" type="Label3D" parent="Entityes/ItemCatalog" unique_id=215675918]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 1.8, -23.4)
+pixel_size = 0.004
+billboard = 1
+text = "Метательный нож"
+
+[node name="Item_bones" parent="Entityes/ItemCatalog" unique_id=1141256732 instance=ExtResource("109_8id5m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.14, -24)
+metadata/persistent_local_id = &"qa_item_bones"
+
+[node name="Label_bones" type="Label3D" parent="Entityes/ItemCatalog" unique_id=391078519]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.8, -23.4)
+pixel_size = 0.004
+billboard = 1
+text = "Кости"
+
+[node name="Item_reagent_flask" parent="Entityes/ItemCatalog" unique_id=178280060 instance=ExtResource("110_7pdaa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0.19000001, -20)
+metadata/persistent_local_id = &"qa_item_reagent_flask"
+
+[node name="Label_reagent_flask" type="Label3D" parent="Entityes/ItemCatalog" unique_id=1199721922]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 1.8, -19.4)
+pixel_size = 0.004
+billboard = 1
+text = "Колба с взрывным реагентом"
+
+[node name="Item_fire_flask" parent="Entityes/ItemCatalog" unique_id=1654410028 instance=ExtResource("111_u62m5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.19000001, -20)
+metadata/persistent_local_id = &"qa_item_fire_flask"
+
+[node name="Label_fire_flask" type="Label3D" parent="Entityes/ItemCatalog" unique_id=1260390804]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 1.8, -19.4)
+pixel_size = 0.004
+billboard = 1
+text = "Алхимический огонь"
+
+[node name="Item_toxin_flask" parent="Entityes/ItemCatalog" unique_id=1814135107 instance=ExtResource("112_vx2q0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.19000001, -20)
+metadata/persistent_local_id = &"qa_item_toxin_flask"
+
+[node name="Label_toxin_flask" type="Label3D" parent="Entityes/ItemCatalog" unique_id=1647715371]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 1.8, -19.4)
+pixel_size = 0.004
+billboard = 1
+text = "Колба с токсинами"
+
+[node name="Item_fire_barrel" parent="Entityes/ItemCatalog" unique_id=173225210 instance=ExtResource("113_tres0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.54, -20)
+metadata/persistent_local_id = &"qa_item_fire_barrel"
+
+[node name="Label_fire_barrel" type="Label3D" parent="Entityes/ItemCatalog" unique_id=590765173]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.8, -19.4)
+pixel_size = 0.004
+billboard = 1
+text = "Бочка с алхимическим раствором"
+
+[node name="Item_acid_barrel" parent="Entityes/ItemCatalog" unique_id=2043977558 instance=ExtResource("114_56nb2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0.54, -16)
+metadata/persistent_local_id = &"qa_item_acid_barrel"
+
+[node name="Label_acid_barrel" type="Label3D" parent="Entityes/ItemCatalog" unique_id=1674546969]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 1.8, -15.4)
+pixel_size = 0.004
+billboard = 1
+text = "Бочка с кислотой"
+
+[node name="Item_slave_collar" parent="Entityes/ItemCatalog" unique_id=903270576 instance=ExtResource("115_6p1hp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.08, -16)
+metadata/persistent_local_id = &"qa_item_slave_collar"
+
+[node name="Label_slave_collar" type="Label3D" parent="Entityes/ItemCatalog" unique_id=1714303190]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 1.8, -15.4)
+pixel_size = 0.004
+billboard = 1
+text = "Ошейник для раба"
+
+[node name="Item_spiked_chains" parent="Entityes/ItemCatalog" unique_id=1384680910 instance=ExtResource("116_w6vcc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.22000001, -16)
+metadata/persistent_local_id = &"qa_item_spiked_chains"
+
+[node name="Label_spiked_chains" type="Label3D" parent="Entityes/ItemCatalog" unique_id=219929547]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 1.8, -15.4)
+pixel_size = 0.004
+billboard = 1
+text = "Цепи с шипами"
+
+[node name="Item_holy_artifact" parent="Entityes/ItemCatalog" unique_id=1917407653 instance=ExtResource("117_3hljd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.29, -16)
+metadata/persistent_local_id = &"qa_item_holy_artifact"
+
+[node name="Label_holy_artifact" type="Label3D" parent="Entityes/ItemCatalog" unique_id=924424196]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.8, -15.4)
+pixel_size = 0.004
+billboard = 1
+text = "Святой артефакт"
+
+[node name="Item_unholy_artifact" parent="Entityes/ItemCatalog" unique_id=1018473315 instance=ExtResource("118_5ss1o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0.22000001, -12)
+metadata/persistent_local_id = &"qa_item_unholy_artifact"
+
+[node name="Label_unholy_artifact" type="Label3D" parent="Entityes/ItemCatalog" unique_id=1669187796]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 1.8, -11.4)
+pixel_size = 0.004
+billboard = 1
+text = "Нечистый артефакт"
+
+[node name="Item_blood_flask" parent="Entityes/ItemCatalog" unique_id=224760420 instance=ExtResource("119_p5i8f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.19000001, -12)
+metadata/persistent_local_id = &"qa_item_blood_flask"
+
+[node name="Label_blood_flask" type="Label3D" parent="Entityes/ItemCatalog" unique_id=1337630089]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 1.8, -11.4)
+pixel_size = 0.004
+billboard = 1
+text = "Колба крови"
+
+[node name="Item_blood_barrel" parent="Entityes/ItemCatalog" unique_id=574475134 instance=ExtResource("120_a1uic")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.54, -12)
+metadata/persistent_local_id = &"qa_item_blood_barrel"
+
+[node name="Label_blood_barrel" type="Label3D" parent="Entityes/ItemCatalog" unique_id=794333867]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 1.8, -11.4)
+pixel_size = 0.004
+billboard = 1
+text = "Бочка крови"
+
+[node name="Item_toy_block" parent="Entityes/ItemCatalog" unique_id=1935923643 instance=ExtResource("121_xjbpj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.19, -12)
+metadata/persistent_local_id = &"qa_item_toy_block"
+
+[node name="Label_toy_block" type="Label3D" parent="Entityes/ItemCatalog" unique_id=1964804948]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.8, -11.4)
+pixel_size = 0.004
+billboard = 1
+text = "Игрушечный кубик"
+
+[node name="NpcRoomPortals" type="Node3D" parent="Entityes" unique_id=2056122490]
+
+[node name="Portal_night_hunter" parent="Entityes/NpcRoomPortals" unique_id=1697135184 instance=ExtResource("106_ohc32")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 27)
+
+[node name="Portal_fire_elemental" parent="Entityes/NpcRoomPortals" unique_id=1225652234 instance=ExtResource("107_651re")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, 27)
+
+[node name="Portal_shy" parent="Entityes/NpcRoomPortals" unique_id=947381766 instance=ExtResource("108_kv05b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 27)
+
+[node name="Portal_creepy" parent="Entityes/NpcRoomPortals" unique_id=53492426 instance=ExtResource("109_g2ryl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 27)
+
+[node name="Portal_brute" parent="Entityes/NpcRoomPortals" unique_id=668609432 instance=ExtResource("110_jin1s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 27)
+
+[node name="Portal_hag" parent="Entityes/NpcRoomPortals" unique_id=642355694 instance=ExtResource("111_tla0k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 27)
+
+[node name="Portal_weeping_angel" parent="Entityes/NpcRoomPortals" unique_id=54277016 instance=ExtResource("112_toeq2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 27)
+
+[node name="Portal_lost" parent="Entityes/NpcRoomPortals" unique_id=194488303 instance=ExtResource("113_f5udp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 27)
+
+[node name="Portal_chain_devil" parent="Entityes/NpcRoomPortals" unique_id=1749455202 instance=ExtResource("114_0baqr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, 27)
+
+[node name="Portal_vampire" parent="Entityes/NpcRoomPortals" unique_id=1569791559 instance=ExtResource("115_e5ghr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 27)
 
 [node name="InteractionHud" parent="." unique_id=1298875023 node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
@@ -1101,6 +1318,8 @@ font_size = 28
 
 [node name="TruckParking" type="Marker3D" parent="." unique_id=550885970]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0.35, -14)
+
+[node name="WarehouseLightZone" parent="." unique_id=448867284 instance=ExtResource("118_q5fi0")]
 
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]

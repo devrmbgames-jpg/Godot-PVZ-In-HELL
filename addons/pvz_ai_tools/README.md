@@ -232,6 +232,25 @@ Focused tests: `res://tests/gut/test_pvz_player_soul_trade_authoring_tool.gd`
 compare every packed node/property, refusal guards, and fresh ledgers for standalone
 and main-level player instances. Headless checks do not provide visual acceptance.
 
+## Native isolated NPC test-room authoring
+
+`pvz_npc_test_room_authoring` creates one of the ten canonical rooms, its typed
+preset and solid portal prefab from the saved, open primitive test hall. Example:
+`custom_manage(op="invoke", params={"tool_name":"pvz_npc_test_room_authoring",
+"params":{"room_key":"brute","source_fingerprint":"<saved hall SHA-256>"}})`.
+Unknown keys, gameplay calls, dirty source, changed fingerprint and existing
+destinations refuse before writing. Native packing preserves editable prefabs;
+temporary Nodes are freed. Creation has no undo and reports created paths for cleanup.
+
+`pvz_test_hall_identity_authoring` fills the standard metadata-property tool gap.
+Invoke with `source_fingerprint` only, while the saved primitive hall is open.
+It preflights every canonical physical pickup and existing ID before assigning
+missing `qa_item_<key>` IDs in one native scene-owned undo action. Save with
+`scene_save` afterwards. Different IDs and replaced prefabs refuse the whole set.
+Both tools register through the companion revision refresh and unregister with
+the plugin source on exit; no Nodes or requests are retained. Focused coverage:
+`tests/gut/test_pvz_npc_test_room_authoring.gd`.
+
 ## Diagnostics for new project scripts
 
 `pvz_gdscript_path_diagnostics` compiles one through eight existing project-owned

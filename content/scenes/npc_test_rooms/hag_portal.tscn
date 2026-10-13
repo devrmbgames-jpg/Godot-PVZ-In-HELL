@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://s4l4j6pleyrm"]
+
+[ext_resource type="Script" uid="uid://cl6glf45pcrns" path="res://addons/gecs/ecs/entity.gd" id="1_0sphe"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_hffnd"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="3_oes0v"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="4_244k7"]
+[ext_resource type="Script" uid="uid://bvu271dti4nal" path="res://content/scenes/npc_test_rooms/def_test_room_action.gd" id="5_xkmmx"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="6_k8uke"]
+
+[sub_resource type="Resource" id="Resource_qw873"]
+script = ExtResource("3_oes0v")
+
+[sub_resource type="Resource" id="Resource_j5qaw"]
+script = ExtResource("5_xkmmx")
+room_key = &"hag"
+action_id = &"enter_test_room"
+slot = 0
+caption = "Войти: Карга"
+
+[sub_resource type="Resource" id="Resource_7n752"]
+script = ExtResource("6_k8uke")
+actions = Array[ExtResource("4_244k7")]([SubResource("Resource_j5qaw")])
+reserved_slots = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_040xn"]
+size = Vector3(1.8, 2, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ax40o"]
+albedo_color = Color(0.18, 0.3, 0.42, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_04fry"]
+material = SubResource("StandardMaterial3D_ax40o")
+size = Vector3(1.8, 2, 0.2)
+
+[node name="TestRoomPortal" type="StaticBody3D" unique_id=642355694]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_0sphe")
+component_resources = Array[ExtResource("2_hffnd")]([SubResource("Resource_qw873"), SubResource("Resource_7n752")])
+metadata/persistent_local_id = &"qa_portal_hag"
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1426657359]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_040xn")
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=591630913]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("BoxMesh_04fry")
+
+[node name="Label" type="Label3D" parent="." unique_id=1712802325]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.13)
+pixel_size = 0.003
+billboard = 1
+text = "Карга
+Вход сбрасывает комнату"

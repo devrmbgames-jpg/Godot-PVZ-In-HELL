@@ -44,6 +44,10 @@ Final subjective acceptance remains open; no rendered gameplay or capture has ru
 
 ### Next
 
+Owner instruction2026-10-14: finish remaining R26 tasks after [R27](r27_qa_followup.md).
+Owner resumed2026-10-14. After R27, reconcile open acceptance and
+review findings with the post-R27 HEAD before implementing and verifying the remaining scope.
+
 Complete [owner QA](../qa_tasks/r26_acceptance.md): item feel/physics readability, all-ten NPC
 behavior/presentation, dialogue, save/load, diagnostics and final balance/assets.
 Automated/review gates pass; rendered permission and required owner acceptance remain pending.

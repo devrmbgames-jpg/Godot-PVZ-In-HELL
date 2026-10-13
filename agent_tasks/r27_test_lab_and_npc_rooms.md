@@ -1,6 +1,6 @@
 # R27.5 — полный тестовый зал и10 изолированных NPC-комнат
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -23,11 +23,32 @@ Parent: [R27](r27_qa_followup.md).
 Source `d0568a32b4f80ab02a9ab8ab0d84babe341a91be`;
 authored `content/scenes/primitive_test_level.tscn` and R26 catalog own the starting surface.
 Live MCP editor connected; author scenes/resources through native editor operations.
-No dynamic gameplay .gd/.tscn generation. Implementation/testing/review NOT_RUN.
+No runtime gameplay .gd/.tscn generation. Native editor-only companion authoring created
+ten rooms/presets/portal prefabs; standard MCP placed16 catalog items and10 hall portals.
+Native MCP authored controlled light zones and installed the required district roster Trait.
+Source hall was saved after native undo authoring of16 mandatory stable item IDs.
+Owner resumed2026-10-14. Implementation is ready for milestone gates and immutable review.
+Rooms use fresh native sessions without gameplay save slots or per-room progress caches.
+Editor-only preset snapshots preserve original archetype rules; typed inline room tuning remains editable.
+Companion guards reject gameplay, stale fingerprints, unsaved source and existing destinations.
 
 ### Validation
 
-NOT_RUN for this milestone; require native scene transitions, reset and daily supply coverage.
+PASS: real native transitions/reset/cleanup496 checks,10 rooms/20 entries:
+`.artifacts/npc-room-transitions-20261014-052713065.log`, process exit0.
+PASS: bootstrap plus three physical daily supplies, single recipient and two registered cases/day:
+GUT2/600, `.artifacts/godot_agent/gut-20261013-193043024.stdout.log`.
+PASS: existing game-slot/session regression GUT6/43, `gut-20261013-193503385`.
+PASS: MCP native bounded diagnostics; identity authoring is an unchanged no-op with all16 IDs;
+room authoring refuses existing destinations. Native editor ownership remains clean.
+PASS: changed-file formatter/lint, strict architecture, project structure and persistence baseline.
+Historical transition FAIL (missing IDs/null scene) is repaired; current probe aborts on bootstrap
+failure, bounds arrival and reports only actually completed rooms/entries.
+PASS: companion guard/identity/preset/packing GUT6/240 (`gut-20261013-193714165`);
+final native parser9 (`parsefiles-20261013-193822836`). Relevant final R27 GUT suite PASS.
+Incremental staged architecture gate FAIL: one REVIEW heuristic for editor-only native
+ResourceSaver scene creation. No runtime generation; exact-SHA review must triage it explicitly.
+Production week, Windows export and immutable-SHA review still pending.
 
 ### Owner QA / blockers
 
@@ -35,4 +56,5 @@ Owner gameplay/visual acceptance of the expanded lab and all ten rooms remains o
 
 ### Next
 
-Inspect existing test room/session transition and author minimal isolated template/ten typed presets.
+Collect final gates, commit/review exact SHA and export Windows test-level QA;
+preserve all unrelated user edits. Required visual/gameplay acceptance remains owner QA.

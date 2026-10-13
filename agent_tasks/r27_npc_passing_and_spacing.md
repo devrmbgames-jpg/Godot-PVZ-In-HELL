@@ -1,6 +1,6 @@
 # R27.2 — NPC обходят соседей и соблюдают личную дистанцию
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -28,7 +28,7 @@ Aggressive pairs wait, show mutual barks and append existing durable pair-specif
 subsequent social reactions derive bounded aggression from those memories, without a second cache.
 Observed angels remain solid/silent; mobile angels supply their own detour/RVO yielding.
 Participation/reset/death retire transient encounter state; queued operations revalidate live state.
-REVIEW_PENDING: base `2636f85dd143841f8586827ba3ee996056b9456a`,
+Original broad review: base `2636f85dd143841f8586827ba3ee996056b9456a`,
 target `7e67e938e154c071203c5efcd27c8b539c66aa4b`; review completed: architecture FAIL for RV-001, style PASS, validation NOT_RUN.
 UTC2026-10-13 09:42:35?09:51:07,512s; no other material findings.
 
@@ -52,11 +52,14 @@ Write wrapper reports only known shutdown retention: KNOWN_ENGINE_LIMITATION/DEF
 
 RV-001/P1: S_NpcIntent::_urgent omitted native EMERGENCY/hazard distress and could stop
 aggressive hazard escape for threats. Verified reviewed/current source and authored native BT.
-ACCEPTED, repair implemented: EMERGENCY/COMBAT ownership and sensed hazard distress exempt
+FIXED at `5c1028cf43b39f40f19aec47aa1442686a87944e`; repair: EMERGENCY/COMBAT ownership and sensed hazard distress exempt
 both traffic waiting and deferred threat commit; no changed movement goal or body authority.
 PASS: actual hazard/authored emergency BT encounter1/14 (`.artifacts/traffic-native-emergency.log`),
 parser2 (`parsefiles-20261013-095159119`), MCP2/error0, focused formatter/lint and strict architecture.
-Fix SHA and targeted re-review pending; original week gates remain above.
+Targeted review PASS: base `7e67e938e154c071203c5efcd27c8b539c66aa4b`,
+target `5c1028cf43b39f40f19aec47aa1442686a87944e`; no material findings.
+Architecture/style PASS, validation NOT_RUN; UTC09:53:02?09:53:48,46s.
+Original broad review records the historical failure; current repair is reviewed PASS.
 
 ### Owner QA / blockers
 
@@ -64,4 +67,4 @@ Owner gameplay acceptance of movement and threat behavior remains open.
 
 ### Next
 
-Collect exact-SHA review; then continue the independent ten-room test lab milestone.
+Owner movement/feel acceptance remains open; continue the independent ten-room test lab milestone.

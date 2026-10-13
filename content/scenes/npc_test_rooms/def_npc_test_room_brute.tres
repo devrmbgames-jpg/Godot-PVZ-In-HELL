@@ -1,0 +1,243 @@
+[gd_resource type="Resource" script_class="DEF_NpcTestRoom" format=3 uid="uid://dgama1tgf1gec"]
+
+[ext_resource type="Script" uid="uid://3jqx0cuvmvqq" path="res://content/domains/npc/definitions/def_district_place.gd" id="1_4fehy"]
+[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="2_4410x"]
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="3_nxjr3"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="4_nfegf"]
+[ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="5_7l8r0"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_5.tres" id="6_3jjsm"]
+[ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="7_bvj5b"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_4.tres" id="8_rut1o"]
+[ext_resource type="Resource" uid="uid://bue18fdtfmpq6" path="res://content/domains/npc/definitions/def_npc_strength_pride.tres" id="9_jv818"]
+[ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="10_3efp4"]
+[ext_resource type="Script" uid="uid://hvheqqr7idk0" path="res://content/domains/npc/definitions/def_district.gd" id="11_2q53l"]
+[ext_resource type="PackedScene" uid="uid://ceby1m7bivr66" path="res://content/domains/customers/entities/customer.tscn" id="12_aou14"]
+[ext_resource type="Script" uid="uid://c1wdbe15l5tk3" path="res://content/domains/customers/definitions/def_customer_event.gd" id="13_p4rux"]
+[ext_resource type="Script" uid="uid://cag2l6cxrwiii" path="res://content/domains/customers/definitions/def_customer_dialogue_reaction.gd" id="14_g88hl"]
+[ext_resource type="Script" uid="uid://vyx4wrt4eqv7" path="res://content/domains/customers/definitions/def_customer.gd" id="15_uohmt"]
+[ext_resource type="Script" uid="uid://bfp6pc2vc71rw" path="res://content/domains/customers/definitions/def_customer_schedule.gd" id="16_5gj6h"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="17_unhs4"]
+[ext_resource type="Resource" uid="uid://d4k38ln3m18ia" path="res://content/domains/inventory/definitions/def_item_axe.tres" id="18_woeoy"]
+[ext_resource type="Resource" uid="uid://cc8oaxlimyxr2" path="res://content/domains/inventory/definitions/def_item_scythe.tres" id="19_lnqgf"]
+[ext_resource type="Resource" uid="uid://cx1n4uytruadx" path="res://content/domains/inventory/definitions/def_item_throwing_knife.tres" id="20_w6mrq"]
+[ext_resource type="Resource" uid="uid://bhmjsqk8birom" path="res://content/domains/inventory/definitions/def_item_bones.tres" id="21_tq43f"]
+[ext_resource type="Resource" uid="uid://25ug0x3v3oso" path="res://content/domains/inventory/definitions/def_item_reagent_flask.tres" id="22_wnyr8"]
+[ext_resource type="Resource" uid="uid://ccn1cx5xe2k76" path="res://content/domains/inventory/definitions/def_item_fire_flask.tres" id="23_jm001"]
+[ext_resource type="Resource" uid="uid://d7huk3r0sxfk" path="res://content/domains/inventory/definitions/def_item_toxin_flask.tres" id="24_vein0"]
+[ext_resource type="Resource" uid="uid://bift6tvdjcwmp" path="res://content/domains/inventory/definitions/def_item_fire_barrel.tres" id="25_2ry5b"]
+[ext_resource type="Resource" uid="uid://cjy1tvnkoghrr" path="res://content/domains/inventory/definitions/def_item_acid_barrel.tres" id="26_f0fcj"]
+[ext_resource type="Resource" uid="uid://bq3twhbbggcst" path="res://content/domains/inventory/definitions/def_item_slave_collar.tres" id="27_10fqt"]
+[ext_resource type="Resource" uid="uid://6rhfab5j220x" path="res://content/domains/inventory/definitions/def_item_spiked_chains.tres" id="28_1nxku"]
+[ext_resource type="Resource" uid="uid://dn17564yr1p17" path="res://content/domains/inventory/definitions/def_item_holy_artifact.tres" id="29_aygpe"]
+[ext_resource type="Resource" uid="uid://cyphvbd2o5mf3" path="res://content/domains/inventory/definitions/def_item_unholy_artifact.tres" id="30_ffibt"]
+[ext_resource type="Resource" uid="uid://cdrxyvq5qi52m" path="res://content/domains/inventory/definitions/def_item_blood_flask.tres" id="31_hqy82"]
+[ext_resource type="Resource" uid="uid://b44jiwbnhykfs" path="res://content/domains/inventory/definitions/def_item_blood_barrel.tres" id="32_aer3j"]
+[ext_resource type="Resource" uid="uid://cvgyjdxiqmply" path="res://content/domains/inventory/definitions/def_item_toy_block.tres" id="33_ngbo7"]
+[ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/domains/packages/definitions/def_package.gd" id="34_fnkla"]
+[ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="35_vcw0g"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_books.tscn" id="36_eew6y"]
+[ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_area.tscn" id="37_ajale"]
+[ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_residue.tscn" id="38_jsy8l"]
+[ext_resource type="Resource" uid="uid://ssekqccb7qe5" path="res://content/domains/combat/definitions/def_impact_fragile.tres" id="39_domg1"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_bottles.tscn" id="40_f2g15"]
+[ext_resource type="Script" uid="uid://ccyyq1ami2lgi" path="res://content/domains/packages/definitions/def_delivery.gd" id="41_m32ig"]
+[ext_resource type="Script" uid="uid://cpuijcgsvxexs" path="res://content/scenes/npc_test_rooms/def_npc_test_room.gd" id="42_8bq6u"]
+
+[sub_resource type="Resource" id="Resource_3fm2q"]
+script = ExtResource("1_4fehy")
+display_name = "Дом посетителя"
+kind = 0
+position = Vector3(-12, 0, 6)
+neighbours = PackedStringArray()
+key = &"home"
+
+[sub_resource type="Resource" id="Resource_bhtrf"]
+script = ExtResource("1_4fehy")
+display_name = "Вход"
+kind = 1
+position = Vector3(-10, 0, -2)
+neighbours = PackedStringArray()
+key = &"portal"
+
+[sub_resource type="Resource" id="Resource_hrkk5"]
+script = ExtResource("1_4fehy")
+display_name = "Прогулка"
+position = Vector3(-6, 0, 4)
+neighbours = PackedStringArray()
+key = &"walk"
+
+[sub_resource type="Resource" id="Resource_uhvbg"]
+script = ExtResource("1_4fehy")
+display_name = "Место ожидания"
+kind = 3
+position = Vector3(-6, 0, 8)
+neighbours = PackedStringArray()
+key = &"shop"
+
+[sub_resource type="Resource" id="Resource_u1tyv"]
+script = ExtResource("1_4fehy")
+display_name = "Тень"
+kind = 5
+position = Vector3(-10, 0, 4)
+neighbours = PackedStringArray()
+key = &"shade"
+
+[sub_resource type="Resource" id="Resource_tpbao"]
+script = ExtResource("5_7l8r0")
+rule = ExtResource("6_3jjsm")
+
+[sub_resource type="Resource" id="Resource_yl7km"]
+script = ExtResource("10_3efp4")
+weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
+morning = 1
+day = 0
+key = &"schedule/brute"
+
+[sub_resource type="Resource" id="Resource_n25yr"]
+script = ExtResource("2_4410x")
+name_variants = PackedStringArray("Гром", "Бран")
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/brute/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/brute/variant_b.dialogue")
+optional_traits = Array[ExtResource("5_7l8r0")]([SubResource("Resource_tpbao")])
+maximum_optional_traits = 1
+item_category_weights = Dictionary[int, float]({
+1: 10.0,
+16: 1.0
+})
+presentation_cues = PackedStringArray()
+display_name = "Бугай"
+recipient_key = &"customer_05"
+personality = 1
+schedule = SubResource("Resource_yl7km")
+rules = Array[ExtResource("7_bvj5b")]([ExtResource("8_rut1o"), ExtResource("9_jv818")])
+interests = PackedStringArray()
+preferred_activities = PackedInt32Array(0, 1, 2, 3)
+body_color = Color(0.5882353, 0.39607844, 0.29803923, 1)
+key = &"archetype/brute"
+
+[sub_resource type="Resource" id="Resource_3nvou"]
+script = ExtResource("11_2q53l")
+replacement_names = PackedStringArray("Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник")
+shade_route = PackedStringArray()
+shade_refuge = &"shade"
+profiles = Array[ExtResource("2_4410x")]([SubResource("Resource_n25yr")])
+places = Array[ExtResource("1_4fehy")]([SubResource("Resource_3fm2q"), SubResource("Resource_bhtrf"), SubResource("Resource_hrkk5"), SubResource("Resource_uhvbg"), SubResource("Resource_u1tyv")])
+resident_count = 1
+visitor_count = 0
+maximum_conflict_initiators = 0
+key = &"qa_room/brute"
+
+[sub_resource type="Resource" id="ReactionHonest"]
+script = ExtResource("14_g88hl")
+intent = 1
+satisfaction_delta = 5
+complaint_probability_delta = -0.2
+aggression_probability_delta = -0.1
+followup_probability_delta = 0.1
+
+[sub_resource type="Resource" id="ReactionLie"]
+script = ExtResource("14_g88hl")
+intent = 2
+satisfaction_delta = -20
+complaint_probability_delta = 0.2
+aggression_probability_delta = 0.1
+followup_probability_delta = 0.05
+
+[sub_resource type="Resource" id="ReactionPersuade"]
+script = ExtResource("14_g88hl")
+intent = 3
+satisfaction_delta = -5
+complaint_probability_delta = -0.55
+aggression_probability_delta = -0.05
+followup_probability_delta = 0.2
+
+[sub_resource type="Resource" id="ReactionThreat"]
+script = ExtResource("14_g88hl")
+intent = 4
+satisfaction_delta = -40
+complaint_probability_delta = 0.15
+aggression_probability_delta = 0.55
+followup_probability_delta = -0.25
+
+[sub_resource type="Resource" id="ReactionFlirt"]
+script = ExtResource("14_g88hl")
+intent = 5
+satisfaction_delta = 5
+complaint_probability_delta = -0.15
+aggression_probability_delta = -0.05
+followup_probability_delta = 0.05
+
+[sub_resource type="Resource" id="ReactionJoke"]
+script = ExtResource("14_g88hl")
+intent = 6
+satisfaction_delta = -5
+
+[sub_resource type="Resource" id="Ordinary"]
+script = ExtResource("15_uohmt")
+display_name = "Покупатель книг"
+introduction = 1
+dialogue_reactions = Array[ExtResource("14_g88hl")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
+private_inspection = true
+inspection_keep_probability = 0.75
+key = &"ordinary"
+
+[sub_resource type="Resource" id="Resource_kn6wb"]
+script = ExtResource("13_p4rux")
+package_key = &"qa_parcel_1"
+customer = SubResource("Ordinary")
+
+[sub_resource type="Resource" id="Resource_jjin0"]
+script = ExtResource("13_p4rux")
+package_key = &"qa_parcel_2"
+customer = SubResource("Ordinary")
+
+[sub_resource type="Resource" id="Resource_bo8lw"]
+script = ExtResource("34_fnkla")
+unpack_scene = ExtResource("36_eew6y")
+unpack_offset = Vector3(0, 0, 0)
+description = "Книги"
+comment = "Обычный заказ"
+recipient_id = &"customer_05"
+scene_variants = Array[String](["res://content/domains/packages/entities/package_b.tscn", "res://content/domains/packages/entities/package_a.tscn"])
+key = &"qa_parcel_1"
+
+[sub_resource type="Resource" id="Resource_m7pog"]
+script = ExtResource("34_fnkla")
+unpack_scene = ExtResource("40_f2g15")
+unpack_offset = Vector3(0, 0, 0)
+activate_contents_hazard = true
+description = "Бутылки с реагентами"
+comment = "Хранить вертикально. Не вскрывать."
+recipient_id = &"customer_05"
+tags = 10
+history_hazard_class = 3
+mass_kg = 30.0
+throw_velocity = 6.0
+maximum_health = 60.0
+damaged_health_ratio = 0.85
+scene_variants = Array[String](["res://content/domains/packages/entities/package_big.tscn"])
+impact_profile = ExtResource("39_domg1")
+hazard_on_damaged = ExtResource("37_ajale")
+hazard_on_destroyed = ExtResource("38_jsy8l")
+key = &"qa_parcel_2"
+
+[sub_resource type="Resource" id="Resource_5cjua"]
+script = ExtResource("41_m32ig")
+packages = Array[ExtResource("34_fnkla")]([SubResource("Resource_bo8lw"), SubResource("Resource_m7pog")])
+order_catalog = Array[ExtResource("17_unhs4")]([ExtResource("18_woeoy"), ExtResource("19_lnqgf"), ExtResource("20_w6mrq"), ExtResource("21_tq43f"), ExtResource("22_wnyr8"), ExtResource("23_jm001"), ExtResource("24_vein0"), ExtResource("25_2ry5b"), ExtResource("26_f0fcj"), ExtResource("27_10fqt"), ExtResource("28_1nxku"), ExtResource("29_aygpe"), ExtResource("30_ffibt"), ExtResource("31_hqy82"), ExtResource("32_aer3j"), ExtResource("33_ngbo7")])
+maximum_batch_packages = 2
+key = &"qa_supply/brute"
+
+[sub_resource type="Resource" id="Resource_iu7uj"]
+script = ExtResource("16_5gj6h")
+supply = SubResource("Resource_5cjua")
+events = Array[ExtResource("13_p4rux")]([SubResource("Resource_kn6wb"), SubResource("Resource_jjin0")])
+customer_scene = ExtResource("12_aou14")
+arrival_interval_seconds = 1.0
+key = &"qa_schedule/brute"
+
+[resource]
+script = ExtResource("42_8bq6u")
+room_key = &"brute"
+display_name = "Громила"
+district = SubResource("Resource_3nvou")
+schedule = SubResource("Resource_iu7uj")

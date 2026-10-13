@@ -1,0 +1,1377 @@
+[gd_scene format=3 uid="uid://iis5tddn0w11"]
+
+[ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_w448p"]
+[ext_resource type="Script" uid="uid://3jqx0cuvmvqq" path="res://content/domains/npc/definitions/def_district_place.gd" id="2_m3jsl"]
+[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="3_6eove"]
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="4_m6ssu"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="5_3tnn4"]
+[ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="6_5kuv1"]
+[ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="7_o0pyv"]
+[ext_resource type="Resource" uid="uid://bk8ehknm3fxnj" path="res://content/domains/npc/definitions/def_npc_trait_observation_freeze.tres" id="8_5blym"]
+[ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="9_pmp3m"]
+[ext_resource type="Script" uid="uid://hvheqqr7idk0" path="res://content/domains/npc/definitions/def_district.gd" id="10_owe24"]
+[ext_resource type="PackedScene" uid="uid://ceby1m7bivr66" path="res://content/domains/customers/entities/customer.tscn" id="11_lbcfh"]
+[ext_resource type="Script" uid="uid://c1wdbe15l5tk3" path="res://content/domains/customers/definitions/def_customer_event.gd" id="12_ma8re"]
+[ext_resource type="Script" uid="uid://cag2l6cxrwiii" path="res://content/domains/customers/definitions/def_customer_dialogue_reaction.gd" id="13_5rx0s"]
+[ext_resource type="Script" uid="uid://vyx4wrt4eqv7" path="res://content/domains/customers/definitions/def_customer.gd" id="14_ps2nb"]
+[ext_resource type="Script" uid="uid://bfp6pc2vc71rw" path="res://content/domains/customers/definitions/def_customer_schedule.gd" id="15_c7nrr"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="16_rq3ir"]
+[ext_resource type="Resource" uid="uid://d4k38ln3m18ia" path="res://content/domains/inventory/definitions/def_item_axe.tres" id="17_nu44j"]
+[ext_resource type="Resource" uid="uid://cc8oaxlimyxr2" path="res://content/domains/inventory/definitions/def_item_scythe.tres" id="18_g0t5a"]
+[ext_resource type="Resource" uid="uid://cx1n4uytruadx" path="res://content/domains/inventory/definitions/def_item_throwing_knife.tres" id="19_ixmwd"]
+[ext_resource type="Resource" uid="uid://bhmjsqk8birom" path="res://content/domains/inventory/definitions/def_item_bones.tres" id="20_083cj"]
+[ext_resource type="Resource" uid="uid://25ug0x3v3oso" path="res://content/domains/inventory/definitions/def_item_reagent_flask.tres" id="21_bwm0k"]
+[ext_resource type="Resource" uid="uid://ccn1cx5xe2k76" path="res://content/domains/inventory/definitions/def_item_fire_flask.tres" id="22_bir05"]
+[ext_resource type="Resource" uid="uid://d7huk3r0sxfk" path="res://content/domains/inventory/definitions/def_item_toxin_flask.tres" id="23_613q6"]
+[ext_resource type="Resource" uid="uid://bift6tvdjcwmp" path="res://content/domains/inventory/definitions/def_item_fire_barrel.tres" id="24_7l8qs"]
+[ext_resource type="Resource" uid="uid://cjy1tvnkoghrr" path="res://content/domains/inventory/definitions/def_item_acid_barrel.tres" id="25_uxhbm"]
+[ext_resource type="Resource" uid="uid://bq3twhbbggcst" path="res://content/domains/inventory/definitions/def_item_slave_collar.tres" id="26_22pos"]
+[ext_resource type="Resource" uid="uid://6rhfab5j220x" path="res://content/domains/inventory/definitions/def_item_spiked_chains.tres" id="27_janah"]
+[ext_resource type="Resource" uid="uid://dn17564yr1p17" path="res://content/domains/inventory/definitions/def_item_holy_artifact.tres" id="28_nyi6s"]
+[ext_resource type="Resource" uid="uid://cyphvbd2o5mf3" path="res://content/domains/inventory/definitions/def_item_unholy_artifact.tres" id="29_6cty4"]
+[ext_resource type="Resource" uid="uid://cdrxyvq5qi52m" path="res://content/domains/inventory/definitions/def_item_blood_flask.tres" id="30_0rw3g"]
+[ext_resource type="Resource" uid="uid://b44jiwbnhykfs" path="res://content/domains/inventory/definitions/def_item_blood_barrel.tres" id="31_btalj"]
+[ext_resource type="Resource" uid="uid://cvgyjdxiqmply" path="res://content/domains/inventory/definitions/def_item_toy_block.tres" id="32_hfdjv"]
+[ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/domains/packages/definitions/def_package.gd" id="33_4lcm3"]
+[ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="34_ku5cq"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_books.tscn" id="35_e34j5"]
+[ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_area.tscn" id="36_ot416"]
+[ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_residue.tscn" id="37_1i5uw"]
+[ext_resource type="Resource" uid="uid://ssekqccb7qe5" path="res://content/domains/combat/definitions/def_impact_fragile.tres" id="38_xi4qn"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_bottles.tscn" id="39_diqd0"]
+[ext_resource type="Script" uid="uid://ccyyq1ami2lgi" path="res://content/domains/packages/definitions/def_delivery.gd" id="40_s4k5e"]
+[ext_resource type="Script" uid="uid://cpuijcgsvxexs" path="res://content/scenes/npc_test_rooms/def_npc_test_room.gd" id="41_75txq"]
+[ext_resource type="Script" uid="uid://7ah3t80yjit4" path="res://content/domains/interaction/presentation/circuit_light_view.gd" id="42_panii"]
+[ext_resource type="NavigationMesh" uid="uid://cyo2cb52cr63c" path="res://content/domains/npc/authoring/navigation/navmesh_primitive_test.tres" id="43_dxxuj"]
+[ext_resource type="PackedScene" uid="uid://d3vj5iyw4p75d" path="res://content/scenes/game_world.tscn" id="44_wosm4"]
+[ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="46_xpoon"]
+[ext_resource type="PackedScene" uid="uid://b0pc5w4y4qidn" path="res://content/domains/motion/entities/character_body_player.tscn" id="48_hka2p"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="50_3ryqb"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="54_axnrn"]
+[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/domains/motion/components/c_character_body.gd" id="55_rbmls"]
+[ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/domains/interaction/components/c_player_input_controller.gd" id="56_k237p"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="57_llo77"]
+[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/domains/motion/components/c_look.gd" id="58_k2pde"]
+[ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/domains/motion/components/c_jump.gd" id="59_eemti"]
+[ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/domains/motion/components/c_crouch.gd" id="60_po35e"]
+[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/domains/interaction/components/c_controller.gd" id="61_xdpp2"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="62_bdnv1"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="63_ksjyb"]
+[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/domains/interaction/components/c_interactor.gd" id="64_y014y"]
+[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/domains/interaction/components/c_grab_control.gd" id="65_tpkla"]
+[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/domains/interaction/components/c_carry_load.gd" id="66_76ro8"]
+[ext_resource type="Resource" path="res://content/domains/motion/definitions/def_attr_strength.tres" id="67_3vreu"]
+[ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/domains/motion/components/c_strength.gd" id="68_y0mg1"]
+[ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/domains/interaction/components/c_push_control.gd" id="69_jj6uc"]
+[ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/domains/combat/components/c_combat.gd" id="70_830io"]
+[ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/domains/needs/definitions/def_hunger_default.tres" id="71_fgkbc"]
+[ext_resource type="Script" uid="uid://ok26p4khdh4e" path="res://content/domains/needs/components/c_hunger.gd" id="72_4c8yp"]
+[ext_resource type="Script" uid="uid://t8kbpaposqpt" path="res://content/domains/inventory/components/c_inventory.gd" id="73_opyww"]
+[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/domains/combat/components/c_living.gd" id="74_ry18b"]
+[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/domains/combat/definitions/def_impact_living.tres" id="75_yt4iy"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="76_nukgb"]
+[ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/domains/motion/components/c_stamina.gd" id="77_axbdw"]
+[ext_resource type="Animation" uid="uid://dq32wuwki06li" path="res://resources/Animation Library[Standard]/anims/A_TPose.res" id="79_3f0tn"]
+[ext_resource type="Animation" uid="uid://dgf7no85gfnxm" path="res://resources/Animation Library[Standard]/anims/Crouch_Fwd.res" id="80_ioy4j"]
+[ext_resource type="Animation" uid="uid://c6pqtl5jveskh" path="res://resources/Animation Library[Standard]/anims/Crouch_Idle.res" id="81_acity"]
+[ext_resource type="Animation" uid="uid://7cxmgtpd02u8" path="res://resources/Animation Library[Standard]/anims/Dance.res" id="82_q2rvg"]
+[ext_resource type="Animation" uid="uid://bpn3ih7hx827i" path="res://resources/Animation Library[Standard]/anims/Death01.res" id="83_5lu8h"]
+[ext_resource type="Animation" uid="uid://cl3c40e3axdne" path="res://resources/Animation Library[Standard]/anims/Driving.res" id="84_2skmr"]
+[ext_resource type="Animation" uid="uid://b7rt40hhu7wfq" path="res://resources/Animation Library[Standard]/anims/Fixing_Kneeling.res" id="85_h3du7"]
+[ext_resource type="Animation" uid="uid://twf5xne4ldac" path="res://resources/Animation Library[Standard]/anims/Hit_Chest.res" id="86_rri45"]
+[ext_resource type="Animation" uid="uid://3485ejtf73u1" path="res://resources/Animation Library[Standard]/anims/Hit_Head.res" id="87_avcq8"]
+[ext_resource type="Animation" uid="uid://e8i5ameop6kx" path="res://resources/Animation Library[Standard]/anims/Idle.res" id="88_a2bli"]
+[ext_resource type="Animation" uid="uid://kltasiwfsb44" path="res://resources/Animation Library[Standard]/anims/Idle_Talking.res" id="89_ghgbq"]
+[ext_resource type="Animation" uid="uid://b8bnt4qdnmjjw" path="res://resources/Animation Library[Standard]/anims/Idle_Torch.res" id="90_widk0"]
+[ext_resource type="Animation" uid="uid://cd5jmms3jhacp" path="res://resources/Animation Library[Standard]/anims/Interact.res" id="91_eq538"]
+[ext_resource type="Animation" uid="uid://dtnun6q7wooy5" path="res://resources/Animation Library[Standard]/anims/Jog_Fwd.res" id="92_17ljc"]
+[ext_resource type="Animation" uid="uid://c3ro4eotx5o2w" path="res://resources/Animation Library[Standard]/anims/Jump.res" id="93_5yl26"]
+[ext_resource type="Animation" uid="uid://cemk0r1pddec5" path="res://resources/Animation Library[Standard]/anims/Jump_Land.res" id="94_4da2w"]
+[ext_resource type="Animation" uid="uid://ctyr300y6ym64" path="res://resources/Animation Library[Standard]/anims/Jump_Start.res" id="95_jbewf"]
+[ext_resource type="Animation" uid="uid://clpjc35m5h83i" path="res://resources/Animation Library[Standard]/anims/PickUp_Table.res" id="96_evtry"]
+[ext_resource type="Animation" uid="uid://cqlcrvjm3rqve" path="res://resources/Animation Library[Standard]/anims/Pistol_Aim_Down.res" id="97_cadee"]
+[ext_resource type="Animation" uid="uid://lcsrg4p3kl3i" path="res://resources/Animation Library[Standard]/anims/Pistol_Aim_Neutral.res" id="98_k6ajh"]
+[ext_resource type="Animation" uid="uid://biscwdxx5l7u7" path="res://resources/Animation Library[Standard]/anims/Pistol_Aim_Up.res" id="99_mgpww"]
+[ext_resource type="Animation" uid="uid://g6on3pm1h4pj" path="res://resources/Animation Library[Standard]/anims/Pistol_Idle.res" id="100_gxof2"]
+[ext_resource type="Animation" uid="uid://dw0wycqqutsg2" path="res://resources/Animation Library[Standard]/anims/Pistol_Reload.res" id="101_hxqf2"]
+[ext_resource type="Animation" uid="uid://b8mc4g6u5dkdp" path="res://resources/Animation Library[Standard]/anims/Pistol_Shoot.res" id="102_tm7vv"]
+[ext_resource type="Animation" uid="uid://dbdpmsq4fji1r" path="res://resources/Animation Library[Standard]/anims/Punch_Cross.res" id="103_bw8rt"]
+[ext_resource type="Animation" uid="uid://rvgy2wfyftrp" path="res://resources/Animation Library[Standard]/anims/Punch_Enter.res" id="104_iu16y"]
+[ext_resource type="Animation" uid="uid://cx2hqf3i6f6wd" path="res://resources/Animation Library[Standard]/anims/Punch_Jab.res" id="105_mc5rc"]
+[ext_resource type="Animation" uid="uid://bp4ir0tdq2ywe" path="res://resources/Animation Library[Standard]/anims/Push.res" id="106_lf4tp"]
+[ext_resource type="Animation" uid="uid://ca6k4737edqki" path="res://resources/Animation Library[Standard]/anims/Roll.res" id="107_qv0uf"]
+[ext_resource type="Animation" uid="uid://btbkay0eh2svj" path="res://resources/Animation Library[Standard]/anims/Roll_RM.res" id="108_wt1qs"]
+[ext_resource type="Animation" uid="uid://ywhommmdtke4" path="res://resources/Animation Library[Standard]/anims/Sitting_Enter.res" id="109_6tkib"]
+[ext_resource type="Animation" uid="uid://dgmh0kdvbobwk" path="res://resources/Animation Library[Standard]/anims/Sitting_Exit.res" id="110_q8c6e"]
+[ext_resource type="Animation" uid="uid://crulfh8k67sey" path="res://resources/Animation Library[Standard]/anims/Sitting_Idle.res" id="111_d71vq"]
+[ext_resource type="Animation" uid="uid://ctkfdbtf636jn" path="res://resources/Animation Library[Standard]/anims/Sitting_Talking.res" id="112_ymu3w"]
+[ext_resource type="Animation" uid="uid://h1atnw0hutb" path="res://resources/Animation Library[Standard]/anims/Spell_Simple_Enter.res" id="113_n53h3"]
+[ext_resource type="Animation" uid="uid://cuby3d58jicf2" path="res://resources/Animation Library[Standard]/anims/Spell_Simple_Exit.res" id="114_kkcdo"]
+[ext_resource type="Animation" uid="uid://bnv7tmhq6jk8w" path="res://resources/Animation Library[Standard]/anims/Spell_Simple_Idle.res" id="115_uln7y"]
+[ext_resource type="Animation" uid="uid://dsthr47q5orj4" path="res://resources/Animation Library[Standard]/anims/Spell_Simple_Shoot.res" id="116_gfccu"]
+[ext_resource type="Animation" uid="uid://bqqjwar2f2g57" path="res://resources/Animation Library[Standard]/anims/Sprint.res" id="117_7jfhs"]
+[ext_resource type="Animation" uid="uid://c12sh1nnaaydq" path="res://resources/Animation Library[Standard]/anims/Swim_Fwd.res" id="118_sw0f0"]
+[ext_resource type="Animation" uid="uid://bou8iwjk2ksgg" path="res://resources/Animation Library[Standard]/anims/Swim_Idle.res" id="119_eqtd4"]
+[ext_resource type="Animation" uid="uid://bffqw3ch4ctfv" path="res://resources/Animation Library[Standard]/anims/Sword_Attack.res" id="120_jtqm7"]
+[ext_resource type="Animation" uid="uid://cnm5w4empfd22" path="res://resources/Animation Library[Standard]/anims/Sword_Attack_RM.res" id="121_lqa3l"]
+[ext_resource type="Animation" uid="uid://cqxen7dfsrq04" path="res://resources/Animation Library[Standard]/anims/Sword_Idle.res" id="122_xe6u7"]
+[ext_resource type="Animation" uid="uid://cj27e1xhw8jtt" path="res://resources/Animation Library[Standard]/anims/Walk.res" id="123_slc3r"]
+[ext_resource type="Animation" uid="uid://dqbhc4r0xxhmt" path="res://resources/Animation Library[Standard]/anims/Walk_Formal.res" id="124_mi7c3"]
+[ext_resource type="Script" uid="uid://csvp0p0lyp4jw" path="res://content/domains/interaction/components/c_physical_slot.gd" id="127_24562"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="128_va5qi"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="129_vxat7"]
+[ext_resource type="Script" uid="uid://c64xnxsa3pkq3" path="res://content/domains/interaction/definitions/def_physical_slot_action.gd" id="130_p6gct"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="131_jgwdj"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/delivery_counter.tscn" id="133_vjdqy"]
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_session_district_roster.tres" id="135_1i8u5"]
+[ext_resource type="Script" uid="uid://r6s8n3j1mfow" path="res://content/domains/customers/components/c_delivery_counter.gd" id="135_p6dw4"]
+[ext_resource type="Script" uid="uid://du12ic3haj0u8" path="res://content/domains/customers/definitions/def_delivery_action.gd" id="136_qpcfo"]
+[ext_resource type="PackedScene" uid="uid://cxcaew8qdooi6" path="res://content/domains/packages/entities/terminal.tscn" id="137_pvhix"]
+[ext_resource type="Script" uid="uid://e4rnao1j28i3" path="res://content/domains/packages/definitions/def_terminal_action.gd" id="139_cta0m"]
+[ext_resource type="PackedScene" uid="uid://bxvltfdywwg6h" path="res://content/domains/packages/entities/scanner.tscn" id="140_1d7wq"]
+[ext_resource type="Script" uid="uid://qs041oq2ktu" path="res://content/domains/packages/components/c_scanner.gd" id="142_xdq0t"]
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/domains/interaction/components/c_grabbable.gd" id="143_0l6k3"]
+[ext_resource type="Script" uid="uid://l86pj0y5txcq" path="res://content/domains/packages/definitions/def_scan_action.gd" id="144_xvfjo"]
+[ext_resource type="PackedScene" uid="uid://cpbp0t8jkh0ak" path="res://content/domains/packages/entities/receiving_zone.tscn" id="145_e42d0"]
+[ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/domains/packages/components/c_receiving.gd" id="147_7wpvt"]
+[ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/domains/time/entities/e_day_session.gd" id="148_sdsrc"]
+[ext_resource type="Resource" uid="uid://b1io7l5w1odxr" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="149_lqnix"]
+[ext_resource type="Resource" uid="uid://b6ivyyl82mbpq" path="res://content/shared/authoring/et_boundary_trace.tres" id="150_6sqky"]
+[ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/domains/time/components/c_day_cycle.gd" id="151_yu154"]
+[ext_resource type="Script" uid="uid://bjw3cnt57gt0j" path="res://content/domains/packages/contracts/package_registration_record.gd" id="152_g3ok4"]
+[ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/domains/packages/components/c_package_ledger.gd" id="153_us7db"]
+[ext_resource type="Script" uid="uid://beak7vlgbw1xn" path="res://content/domains/commerce/contracts/daily_money_result.gd" id="154_ola8r"]
+[ext_resource type="Script" uid="uid://cel5d7cs0026u" path="res://content/domains/commerce/contracts/money_operation.gd" id="155_auh3v"]
+[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_economy_default.tres" id="156_lcn2l"]
+[ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/domains/commerce/components/c_wallet.gd" id="157_xel5h"]
+[ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/domains/customers/components/c_customer_flow.gd" id="158_tsgav"]
+[ext_resource type="Script" uid="uid://6wrc7la1nb8v" path="res://content/domains/customers/contracts/customer_visit.gd" id="159_vepa7"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_food.tres" id="160_i7elk"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_med.tres" id="161_h7emn"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_bubble_wrap.tres" id="162_5qlx4"]
+[ext_resource type="Script" uid="uid://b4mppsv72drxx" path="res://content/domains/commerce/contracts/pending_delivery.gd" id="163_t1qid"]
+[ext_resource type="Script" uid="uid://vocpbv1orkxs" path="res://content/domains/commerce/contracts/purchase_receipt.gd" id="164_elutf"]
+[ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/domains/commerce/components/c_commerce.gd" id="165_6cmsa"]
+[ext_resource type="Script" uid="uid://d12bthrxw322h" path="res://content/domains/quests/contracts/refusal_quest_record.gd" id="166_hb32y"]
+[ext_resource type="Script" uid="uid://dmxtpoip5hrcv" path="res://content/domains/quests/components/c_quest_session.gd" id="167_x5t60"]
+[ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/domains/persistence/components/c_autosave.gd" id="168_6sta2"]
+[ext_resource type="Script" uid="uid://bbpvm5g08vknq" path="res://content/domains/customers/contracts/npc_home_delivery.gd" id="169_4tdta"]
+[ext_resource type="PackedScene" uid="uid://u63us43ppw03" path="res://content/scenes/npc_test_rooms/warehouse_light_zone.tscn" id="170_26otv"]
+[ext_resource type="Script" uid="uid://b227fscex8vpu" path="res://content/domains/npc/contracts/npc_record.gd" id="170_jfhsx"]
+[ext_resource type="Script" uid="uid://dcq6eusakildd" path="res://content/domains/npc/components/c_district.gd" id="171_1yggs"]
+[ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/domains/time/entities/day_phase_station.tscn" id="172_4e2qa"]
+[ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/domains/time/definitions/def_day_phase_action.gd" id="174_5v3kn"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/light_switch.tscn" id="175_qwfrt"]
+[ext_resource type="Script" uid="uid://cl6glf45pcrns" path="res://addons/gecs/ecs/entity.gd" id="176_u78om"]
+[ext_resource type="Script" uid="uid://kaetl4hlsxel" path="res://content/domains/interaction/components/c_light_circuit.gd" id="177_4crcn"]
+[ext_resource type="Script" uid="uid://ba0tf5sxgsx7c" path="res://content/domains/interaction/definitions/def_light_switch_action.gd" id="178_vgavu"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/inspection_booth.tscn" id="179_nm0hy"]
+[ext_resource type="Script" uid="uid://cop611lrwm4tq" path="res://content/domains/customers/components/c_inspection_booth.gd" id="180_qit2c"]
+[ext_resource type="Script" uid="uid://bvu271dti4nal" path="res://content/scenes/npc_test_rooms/def_test_room_action.gd" id="181_2erlh"]
+[ext_resource type="PackedScene" uid="uid://dx3ysmmpho68c" path="res://content/ui/interaction_hud.tscn" id="182_mu2e3"]
+[ext_resource type="PackedScene" path="res://content/ui/inventory_panel.tscn" id="184_lktlh"]
+
+[sub_resource type="Resource" id="Resource_ks31a"]
+script = ExtResource("2_m3jsl")
+display_name = "Дом посетителя"
+kind = 0
+position = Vector3(-12, 0, 6)
+neighbours = PackedStringArray()
+key = &"home"
+
+[sub_resource type="Resource" id="Resource_gj75x"]
+script = ExtResource("2_m3jsl")
+display_name = "Вход"
+kind = 1
+position = Vector3(-10, 0, -2)
+neighbours = PackedStringArray()
+key = &"portal"
+
+[sub_resource type="Resource" id="Resource_5vo30"]
+script = ExtResource("2_m3jsl")
+display_name = "Прогулка"
+position = Vector3(-6, 0, 4)
+neighbours = PackedStringArray()
+key = &"walk"
+
+[sub_resource type="Resource" id="Resource_lbduy"]
+script = ExtResource("2_m3jsl")
+display_name = "Место ожидания"
+kind = 3
+position = Vector3(-6, 0, 8)
+neighbours = PackedStringArray()
+key = &"shop"
+
+[sub_resource type="Resource" id="Resource_4xl8e"]
+script = ExtResource("2_m3jsl")
+display_name = "Тень"
+kind = 5
+position = Vector3(-10, 0, 4)
+neighbours = PackedStringArray()
+key = &"shade"
+
+[sub_resource type="Resource" id="Resource_yyksv"]
+script = ExtResource("9_pmp3m")
+weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
+day = 0
+evening = 1
+key = &"schedule/weeping_angel"
+
+[sub_resource type="Resource" id="Resource_gwu37"]
+script = ExtResource("3_6eove")
+name_variants = PackedStringArray("Сераф", "Азариэль")
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_b.dialogue")
+maximum_optional_traits = 0
+aggressive_speed_multiplier = 4.0
+item_category_weights = Dictionary[int, float]({
+4: 10.0
+})
+receiver_traits = 1
+damage_multipliers = Dictionary[int, float]({
+0: 0.0,
+1: 0.0,
+2: 0.0,
+3: 0.0,
+4: 0.0,
+5: 0.0,
+6: 0.0,
+7: 0.0,
+8: 0.0,
+9: 1.0,
+10: 0.0
+})
+presentation_cues = PackedStringArray("npc/angel/sign_dialogue")
+display_name = "Плачущий ангел"
+recipient_key = &"customer_07"
+schedule = SubResource("Resource_yyksv")
+rules = Array[ExtResource("7_o0pyv")]([ExtResource("8_5blym")])
+interests = PackedStringArray()
+preferred_activities = PackedInt32Array(0, 1, 2, 3)
+body_color = Color(0.7882353, 0.78039217, 0.7411765, 1)
+key = &"archetype/weeping_angel"
+
+[sub_resource type="Resource" id="Resource_vnx8m"]
+script = ExtResource("10_owe24")
+replacement_names = PackedStringArray("Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник")
+shade_route = PackedStringArray()
+shade_refuge = &"shade"
+profiles = Array[ExtResource("3_6eove")]([SubResource("Resource_gwu37")])
+places = Array[ExtResource("2_m3jsl")]([SubResource("Resource_ks31a"), SubResource("Resource_gj75x"), SubResource("Resource_5vo30"), SubResource("Resource_lbduy"), SubResource("Resource_4xl8e")])
+resident_count = 1
+visitor_count = 0
+maximum_conflict_initiators = 0
+key = &"qa_room/weeping_angel"
+
+[sub_resource type="Resource" id="ReactionHonest"]
+script = ExtResource("13_5rx0s")
+intent = 1
+satisfaction_delta = 5
+complaint_probability_delta = -0.2
+aggression_probability_delta = -0.1
+followup_probability_delta = 0.1
+
+[sub_resource type="Resource" id="ReactionLie"]
+script = ExtResource("13_5rx0s")
+intent = 2
+satisfaction_delta = -20
+complaint_probability_delta = 0.2
+aggression_probability_delta = 0.1
+followup_probability_delta = 0.05
+
+[sub_resource type="Resource" id="ReactionPersuade"]
+script = ExtResource("13_5rx0s")
+intent = 3
+satisfaction_delta = -5
+complaint_probability_delta = -0.55
+aggression_probability_delta = -0.05
+followup_probability_delta = 0.2
+
+[sub_resource type="Resource" id="ReactionThreat"]
+script = ExtResource("13_5rx0s")
+intent = 4
+satisfaction_delta = -40
+complaint_probability_delta = 0.15
+aggression_probability_delta = 0.55
+followup_probability_delta = -0.25
+
+[sub_resource type="Resource" id="ReactionFlirt"]
+script = ExtResource("13_5rx0s")
+intent = 5
+satisfaction_delta = 5
+complaint_probability_delta = -0.15
+aggression_probability_delta = -0.05
+followup_probability_delta = 0.05
+
+[sub_resource type="Resource" id="ReactionJoke"]
+script = ExtResource("13_5rx0s")
+intent = 6
+satisfaction_delta = -5
+
+[sub_resource type="Resource" id="Ordinary"]
+script = ExtResource("14_ps2nb")
+display_name = "Покупатель книг"
+introduction = 1
+dialogue_reactions = Array[ExtResource("13_5rx0s")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
+private_inspection = true
+inspection_keep_probability = 0.75
+key = &"ordinary"
+
+[sub_resource type="Resource" id="Resource_sxmgk"]
+script = ExtResource("12_ma8re")
+package_key = &"qa_parcel_1"
+customer = SubResource("Ordinary")
+
+[sub_resource type="Resource" id="Resource_oexpd"]
+script = ExtResource("12_ma8re")
+package_key = &"qa_parcel_2"
+customer = SubResource("Ordinary")
+
+[sub_resource type="Resource" id="Resource_1tld5"]
+script = ExtResource("33_4lcm3")
+unpack_scene = ExtResource("35_e34j5")
+unpack_offset = Vector3(0, 0, 0)
+description = "Книги"
+comment = "Обычный заказ"
+recipient_id = &"customer_07"
+scene_variants = Array[String](["res://content/domains/packages/entities/package_b.tscn", "res://content/domains/packages/entities/package_a.tscn"])
+key = &"qa_parcel_1"
+
+[sub_resource type="Resource" id="Resource_n26ba"]
+script = ExtResource("33_4lcm3")
+unpack_scene = ExtResource("39_diqd0")
+unpack_offset = Vector3(0, 0, 0)
+activate_contents_hazard = true
+description = "Бутылки с реагентами"
+comment = "Хранить вертикально. Не вскрывать."
+recipient_id = &"customer_07"
+tags = 10
+history_hazard_class = 3
+mass_kg = 30.0
+throw_velocity = 6.0
+maximum_health = 60.0
+damaged_health_ratio = 0.85
+scene_variants = Array[String](["res://content/domains/packages/entities/package_big.tscn"])
+impact_profile = ExtResource("38_xi4qn")
+hazard_on_damaged = ExtResource("36_ot416")
+hazard_on_destroyed = ExtResource("37_1i5uw")
+key = &"qa_parcel_2"
+
+[sub_resource type="Resource" id="Resource_htxy5"]
+script = ExtResource("40_s4k5e")
+packages = Array[ExtResource("33_4lcm3")]([SubResource("Resource_1tld5"), SubResource("Resource_n26ba")])
+order_catalog = Array[ExtResource("16_rq3ir")]([ExtResource("17_nu44j"), ExtResource("18_g0t5a"), ExtResource("19_ixmwd"), ExtResource("20_083cj"), ExtResource("21_bwm0k"), ExtResource("22_bir05"), ExtResource("23_613q6"), ExtResource("24_7l8qs"), ExtResource("25_uxhbm"), ExtResource("26_22pos"), ExtResource("27_janah"), ExtResource("28_nyi6s"), ExtResource("29_6cty4"), ExtResource("30_0rw3g"), ExtResource("31_btalj"), ExtResource("32_hfdjv")])
+maximum_batch_packages = 2
+key = &"qa_supply/weeping_angel"
+
+[sub_resource type="Resource" id="Resource_cb77c"]
+script = ExtResource("15_c7nrr")
+supply = SubResource("Resource_htxy5")
+events = Array[ExtResource("12_ma8re")]([SubResource("Resource_sxmgk"), SubResource("Resource_oexpd")])
+customer_scene = ExtResource("11_lbcfh")
+arrival_interval_seconds = 1.0
+key = &"qa_schedule/weeping_angel"
+
+[sub_resource type="Resource" id="Resource_a2dpn"]
+script = ExtResource("41_75txq")
+room_key = &"weeping_angel"
+display_name = "Плачущий ангел"
+district = SubResource("Resource_vnx8m")
+schedule = SubResource("Resource_cb77c")
+
+[sub_resource type="Environment" id="TestEnvironment"]
+background_mode = 1
+background_color = Color(0.18, 0.22, 0.28, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.6, 0.65, 0.75, 1)
+ambient_light_energy = 0.65
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.25, 0.29, 0.33, 1)
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+material = SubResource("FloorMaterial")
+size = Vector3(80, 0.5, 64)
+
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(80, 0.5, 64)
+
+[sub_resource type="BoxMesh" id="BarrierMesh"]
+size = Vector3(80, 1.5, 0.5)
+
+[sub_resource type="BoxShape3D" id="BarrierShape"]
+size = Vector3(80, 1.5, 0.5)
+
+[sub_resource type="BoxMesh" id="SideBarrierMesh"]
+size = Vector3(0.5, 1.5, 64)
+
+[sub_resource type="BoxShape3D" id="SideBarrierShape"]
+size = Vector3(0.5, 1.5, 64)
+
+[sub_resource type="BoxMesh" id="PedestalMesh"]
+size = Vector3(1.2, 1, 1.2)
+
+[sub_resource type="BoxShape3D" id="PedestalShape"]
+size = Vector3(1.2, 1, 1.2)
+
+[sub_resource type="BoxMesh" id="ClueWallMesh"]
+size = Vector3(2.5, 2.8, 0.3)
+
+[sub_resource type="BoxShape3D" id="ClueWallShape"]
+size = Vector3(2.5, 2.8, 0.3)
+
+[sub_resource type="Resource" id="Resource_bghjr"]
+script = ExtResource("55_rbmls")
+
+[sub_resource type="Resource" id="Resource_lqn1g"]
+script = ExtResource("56_k237p")
+metadata/_custom_type_script = "uid://iq4pnvam7fq5"
+
+[sub_resource type="Resource" id="Resource_mn5t4"]
+script = ExtResource("57_llo77")
+max_speed = 5.0
+ground_acceleration = 70.0
+ground_deceleration = 80.0
+ground_lateral_friction = 90.0
+air_acceleration = 5.0
+floor_snap_distance = 0.12
+metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
+
+[sub_resource type="Resource" id="Resource_lf6x7"]
+script = ExtResource("58_k2pde")
+direct_input = true
+look_acceleration = 9999.0
+motion_alignment_acceleration = 260.0
+metadata/_custom_type_script = "uid://cfqxt4h2ae432"
+
+[sub_resource type="Resource" id="Resource_o5mei"]
+script = ExtResource("59_eemti")
+jump_force = 350.0
+metadata/_custom_type_script = "uid://2wyyc10rw1bb"
+
+[sub_resource type="Resource" id="Resource_rthl4"]
+script = ExtResource("60_po35e")
+camera_height_standing = 0.0
+camera_height_crouching = -0.7
+metadata/_custom_type_script = "uid://cg8i3jfsnahs3"
+
+[sub_resource type="Resource" id="Resource_wo3yc"]
+script = ExtResource("61_xdpp2")
+metadata/_custom_type_script = "uid://c772oxgdtatqf"
+
+[sub_resource type="Resource" id="Resource_2vn7f"]
+script = ExtResource("63_ksjyb")
+definition = ExtResource("62_bdnv1")
+metadata/_custom_type_script = "uid://ckrs5mll5pka1"
+
+[sub_resource type="Resource" id="Grab_interactor"]
+script = ExtResource("64_y014y")
+collision_mask = 31
+
+[sub_resource type="Resource" id="Resource_kaens"]
+resource_local_to_scene = true
+script = ExtResource("65_tpkla")
+
+[sub_resource type="Resource" id="Grab_carry_load"]
+script = ExtResource("66_76ro8")
+
+[sub_resource type="Resource" id="Strength"]
+script = ExtResource("68_y0mg1")
+definition = ExtResource("67_3vreu")
+base = 1.0
+value = 1.0
+
+[sub_resource type="Resource" id="Push_control"]
+script = ExtResource("69_jj6uc")
+
+[sub_resource type="Resource" id="Player_combat"]
+script = ExtResource("70_830io")
+
+[sub_resource type="Resource" id="Hunger_state"]
+script = ExtResource("72_4c8yp")
+policy = ExtResource("71_fgkbc")
+
+[sub_resource type="Resource" id="Inventory_state"]
+script = ExtResource("73_opyww")
+
+[sub_resource type="Resource" id="Living"]
+script = ExtResource("74_ry18b")
+
+[sub_resource type="Resource" id="Resource_morv4"]
+resource_local_to_scene = true
+script = ExtResource("76_nukgb")
+profile = ExtResource("75_yt4iy")
+
+[sub_resource type="Resource" id="Resource_5ysm7"]
+resource_local_to_scene = true
+script = ExtResource("77_axbdw")
+
+[sub_resource type="CapsuleShape3D" id="CylinderShape3D_bghjr"]
+radius = 0.18896484
+height = 1.5362549
+
+[sub_resource type="CapsuleShape3D" id="CylinderShape3D_lqn1g"]
+radius = 0.18798828
+height = 0.7059326
+
+[sub_resource type="Skin" id="Skin_xkfho"]
+resource_name = "Skin"
+bind_count = 53
+bind/0/name = &"root"
+bind/0/bone = -1
+bind/0/pose = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+bind/1/name = &"DEF-hips"
+bind/1/bone = -1
+bind/1/pose = Transform3D(1, 0, 0, 0, 0.96832824, 0.2496809, 0, -0.24968101, 0.96832824, 0, -0.8751575, 0.27739584)
+bind/2/name = &"DEF-spine.001"
+bind/2/bone = -1
+bind/2/pose = Transform3D(1, 0, 0, 0, 0.99246293, 0.12254617, 0, -0.12254626, 0.9924629, 0, -1.0406706, 0.1442173)
+bind/3/name = &"DEF-spine.002"
+bind/3/bone = -1
+bind/3/pose = Transform3D(1, 0, 0, 0, 0.99949276, -0.031853575, 0, 0.03185351, 0.99949265, 0, -1.1730174, -0.03698345)
+bind/4/name = &"DEF-spine.003"
+bind/4/bone = -1
+bind/4/pose = Transform3D(1, 0, 0, 0, 0.9994755, -0.03239048, 0, 0.03239041, 0.9994753, 0, -1.3142691, -0.037689455)
+bind/5/name = &"DEF-neck"
+bind/5/bone = -1
+bind/5/pose = Transform3D(1, 0, 0, 0, 0.981998, 0.18889222, 0, -0.1888923, 0.98199785, 0, -1.4588368, 0.29130718)
+bind/6/name = &"DEF-head"
+bind/6/bone = -1
+bind/6/pose = Transform3D(1, 0, 0, 0, 0.9994714, 0.032516982, 0, -0.032517042, 0.99947125, 0, -1.5680366, 0.045912206)
+bind/7/name = &"DEF-shoulder.L"
+bind/7/bone = -1
+bind/7/pose = Transform3D(0.50731283, -5.1632043e-05, 0.8617619, 0.8617617, -0.00060913095, -0.5073127, 0.0005511011, 1, -0.00026453572, -0.07099198, 0.02090905, -1.4578915)
+bind/8/name = &"DEF-upper_arm.L"
+bind/8/bone = -1
+bind/8/pose = Transform3D(-7.2906465e-07, -1.0000002, -4.0869058e-05, 0.99985325, -3.0271224e-08, -0.017125737, 0.01712572, -4.0894927e-05, 0.9998533, 1.4407979, -0.19299181, 0.06216297)
+bind/9/name = &"DEF-forearm.L"
+bind/9/bone = -1
+bind/9/pose = Transform3D(2.8089135e-09, -1.0000002, -1.6290998e-07, 0.99985135, -1.890306e-09, 0.017238848, -0.017238861, -1.8224635e-07, 0.9998514, 1.4408004, -0.46502224, 0.07812838)
+bind/10/name = &"DEF-hand.L"
+bind/10/bone = -1
+bind/10/pose = Transform3D(-9.3895086e-14, -1.0000002, 6.7154446e-07, 0.9999999, -1.5572227e-09, 1.2293457e-07, -1.3783573e-07, 6.522028e-07, 1, 1.4408002, -0.7389, 0.06539921)
+bind/11/name = &"DEF-f_index.01.L"
+bind/11/bone = -1
+bind/11/pose = Transform3D(5.4008364e-10, 7.259324e-06, -1.0000001, 1.0000001, -1.5573206e-09, -1.4361106e-08, -8.962221e-14, -1.0000002, -7.2399803e-06, -0.03451048, -0.8588002, 1.4388001)
+bind/12/name = &"DEF-f_index.02.L"
+bind/12/bone = -1
+bind/12/pose = Transform3D(-5.4860564e-17, 7.2399807e-06, -1.0000001, 1.0000001, -1.557227e-09, -1.490119e-08, 6.380138e-21, -1.0000002, -7.220637e-06, -0.03451045, -0.89950013, 1.4388001)
+bind/13/name = &"DEF-f_index.03.L"
+bind/13/bone = -1
+bind/13/pose = Transform3D(3.262531e-24, 7.2399807e-06, -1.0000001, 1.0000002, -1.5572271e-09, -1.490119e-08, -7.8423636e-28, -1.0000002, -7.220637e-06, -0.034510445, -0.9343002, 1.4388001)
+bind/14/name = &"DEF-f_middle.01.L"
+bind/14/bone = -1
+bind/14/pose = Transform3D(-0.04722852, 7.2598123e-06, -0.99888414, 0.9988841, -5.143819e-09, -0.047228545, -3.4384527e-07, -1.0000002, -7.2318126e-06, -0.019503169, -0.862383, 1.4412003)
+bind/15/name = &"DEF-f_middle.02.L"
+bind/15/bone = -1
+bind/15/pose = Transform3D(-0.044204563, 7.2399803e-06, -0.99902254, 0.9990225, -3.2900411e-09, -0.044204593, -3.19164e-07, -1.0000002, -7.2131015e-06, -0.022241784, -0.9046671, 1.4412003)
+bind/16/name = &"DEF-f_middle.03.L"
+bind/16/bone = -1
+bind/16/pose = Transform3D(-0.046461556, 7.2399803e-06, -0.9989201, 0.99891996, -3.2451914e-09, -0.046461586, -3.3545953e-07, -1.0000002, -7.212355e-06, -0.020121131, -0.938648, 1.4412001)
+bind/17/name = &"DEF-f_pinky.01.L"
+bind/17/bone = -1
+bind/17/pose = Transform3D(-0.06701319, 7.2603257e-06, -0.9977521, 0.99775195, -6.772268e-09, -0.067013204, -4.854696e-07, -1.0000002, -7.2236435e-06, -0.04923838, -0.8518136, 1.4392)
+bind/18/name = &"DEF-f_pinky.02.L"
+bind/18/bone = -1
+bind/18/pose = Transform3D(-0.06867788, 7.239979e-06, -0.99763876, 0.99763864, -6.4392216e-09, -0.068677895, -4.958256e-07, -1.0000001, -7.202535e-06, -0.047749758, -0.892185, 1.4392)
+bind/19/name = &"DEF-f_pinky.03.L"
+bind/19/bone = -1
+bind/19/pose = Transform3D(-0.06746166, 7.2399794e-06, -0.99772173, 0.9977217, -6.464176e-09, -0.06746168, -4.8704567e-07, -1.0000001, -7.2031426e-06, -0.04887106, -0.91979146, 1.4391999)
+bind/20/name = &"DEF-f_ring.01.L"
+bind/20/bone = -1
+bind/20/pose = Transform3D(-0.035600655, 7.259235e-06, -0.9993661, 0.99936616, -3.895566e-09, -0.035600677, -2.5930285e-07, -1.0000002, -7.235336e-06, -0.051912837, -0.8603932, 1.4408998)
+bind/21/name = &"DEF-f_ring.02.L"
+bind/21/bone = -1
+bind/21/pose = Transform3D(-0.03557629, 7.2399803e-06, -0.999367, 0.99936706, -2.3402442e-09, -0.035576314, -2.5688666e-07, -1.0000002, -7.216155e-06, -0.05193474, -0.899717, 1.4408998)
+bind/22/name = &"DEF-f_ring.03.L"
+bind/22/bone = -1
+bind/22/pose = Transform3D(-0.037708987, 7.2399807e-06, -0.9992888, 0.9992889, -2.2991182e-09, -0.03770901, -2.7228603e-07, -1.0000002, -7.2155863e-06, -0.04994853, -0.9307453, 1.4408998)
+bind/23/name = &"DEF-thumb.01.L"
+bind/23/bone = -1
+bind/23/pose = Transform3D(0.489806, 0.87183124, -0.0006915776, 0.79479676, -0.44620106, 0.4113421, 0.35831234, -0.20202757, -0.91148067, -1.6115681, 0.036820427, -0.017048929)
+bind/24/name = &"DEF-thumb.02.L"
+bind/24/bone = -1
+bind/24/pose = Transform3D(0.48993528, 0.87175846, -0.0007872133, 0.7946525, -0.4462298, 0.41158956, 0.35845545, -0.2022779, -0.9113689, -1.6115711, -0.006050274, -0.016811777)
+bind/25/name = &"DEF-thumb.03.L"
+bind/25/bone = -1
+bind/25/pose = Transform3D(0.48902613, 0.87226856, -0.0010801405, 0.7953543, -0.44539642, 0.41113675, 0.35814053, -0.20191577, -0.91157305, -1.6115086, -0.05686205, -0.017044822)
+bind/26/name = &"DEF-shoulder.R"
+bind/26/bone = -1
+bind/26/pose = Transform3D(0.50731283, 5.1632043e-05, -0.8617619, -0.8617617, -0.00060913095, -0.5073127, -0.0005511011, 1, -0.00026453572, 0.07099198, 0.02090905, -1.4578915)
+bind/27/name = &"DEF-upper_arm.R"
+bind/27/bone = -1
+bind/27/pose = Transform3D(-7.312239e-07, 1.0000002, 4.098825e-05, -0.9998533, -4.8421672e-08, -0.017125739, -0.017125752, -4.0987456e-05, 0.9998533, -1.4407979, -0.1929918, 0.06216309)
+bind/28/name = &"DEF-forearm.R"
+bind/28/bone = -1
+bind/28/pose = Transform3D(4.8638324e-09, 1.0000002, 2.8210155e-07, -0.99985135, -1.8996895e-08, 0.017238874, 0.017238861, -2.7416607e-07, 0.99985135, -1.4408003, -0.46502218, 0.07812852)
+bind/29/name = &"DEF-hand.R"
+bind/29/bone = -1
+bind/29/pose = Transform3D(-1.08994126e-13, 1.0000002, -7.907537e-07, -1, -1.9131592e-08, 1.5273692e-07, 1.3783574e-07, 7.984027e-07, 1, -1.4408002, -0.73889995, 0.065399006)
+bind/30/name = &"DEF-f_index.01.R"
+bind/30/bone = -1
+bind/30/pose = Transform3D(5.4009774e-10, -7.2323323e-06, 1, -1.0000001, -1.913171e-08, 1.5441277e-08, 1.0465674e-13, -1.0000002, -7.2399794e-06, 0.034510437, -0.85879993, 1.4388)
+bind/31/name = &"DEF-f_index.02.R"
+bind/31/bone = -1
+bind/31/pose = Transform3D(7.5691214e-19, -7.2399803e-06, 1, -1.0000001, -1.9131601e-08, 1.4901179e-08, -1.3558017e-20, -1.0000002, -7.2476273e-06, 0.03451045, -0.8995, 1.4388)
+bind/32/name = &"DEF-f_index.03.R"
+bind/32/bone = -1
+bind/32/pose = Transform3D(-4.6460958e-26, -7.2399803e-06, 1, -1.0000001, -1.9131601e-08, 1.490118e-08, 1.6159244e-27, -1.0000002, -7.2476273e-06, 0.034510452, -0.93430007, 1.4388001)
+bind/33/name = &"DEF-f_middle.01.R"
+bind/33/bone = -1
+bind/33/pose = Transform3D(-0.047228523, -7.233273e-06, 0.99888414, -0.9988842, -2.0263208e-08, -0.04722851, 3.4202702e-07, -1.0000002, -7.2319026e-06, 0.019503146, -0.86238295, 1.4412001)
+bind/34/name = &"DEF-f_middle.02.R"
+bind/34/bone = -1
+bind/34/pose = Transform3D(-0.044204563, -7.23998e-06, 0.99902254, -0.9990226, -2.0149493e-08, -0.04420455, 3.203396e-07, -1.0000002, -7.2396697e-06, 0.022241794, -0.904667, 1.4412001)
+bind/35/name = &"DEF-f_middle.03.R"
+bind/35/bone = -1
+bind/35/pose = Transform3D(-0.046461556, -7.2399803e-06, 0.9989201, -0.9989202, -2.0164672e-08, -0.04646155, 3.366933e-07, -1.0000002, -7.238882e-06, 0.020121148, -0.93864805, 1.4412001)
+bind/36/name = &"DEF-f_pinky.01.R"
+bind/36/bone = -1
+bind/36/pose = Transform3D(-0.0670132, -7.234108e-06, 0.997752, -0.997752, -2.6147065e-08, -0.067013174, 4.860115e-07, -1.0000002, -7.223681e-06, 0.049238347, -0.85181355, 1.4392)
+bind/37/name = &"DEF-f_pinky.02.R"
+bind/37/bone = -1
+bind/37/pose = Transform3D(-0.06867788, -7.239979e-06, 0.9976388, -0.99763894, -2.5319826e-08, -0.068677865, 4.9762895e-07, -1.0000002, -7.2287326e-06, 0.047749788, -0.8921851, 1.4392)
+bind/38/name = &"DEF-f_pinky.03.R"
+bind/38/bone = -1
+bind/38/pose = Transform3D(-0.06746166, -7.2399803e-06, 0.9977218, -0.9977219, -2.5312776e-08, -0.06746165, 4.888188e-07, -1.0000002, -7.229366e-06, 0.04887109, -0.9197916, 1.4391999)
+bind/39/name = &"DEF-f_ring.01.R"
+bind/39/bone = -1
+bind/39/pose = Transform3D(-0.035600655, -7.2331036e-06, 0.9993661, -0.9993663, -1.8684297e-08, -0.035600647, 2.560981e-07, -1.0000002, -7.2354464e-06, 0.051912807, -0.86039317, 1.4408997)
+bind/40/name = &"DEF-f_ring.02.R"
+bind/40/bone = -1
+bind/40/pose = Transform3D(-0.035576288, -7.2399803e-06, 0.999367, -0.9993672, -2.0335031e-08, -0.03557628, 2.578162e-07, -1.0000002, -7.242267e-06, 0.051934756, -0.8997169, 1.4408998)
+bind/41/name = &"DEF-f_ring.03.R"
+bind/41/bone = -1
+bind/41/pose = Transform3D(-0.037708983, -7.239981e-06, 0.9992888, -0.99928904, -2.0349669e-08, -0.037708975, 2.7326993e-07, -1.0000002, -7.241658e-06, 0.049948543, -0.93074524, 1.4408998)
+bind/42/name = &"DEF-thumb.01.R"
+bind/42/bone = -1
+bind/42/pose = Transform3D(0.4898062, -0.87183124, 0.00069166726, -0.7947968, -0.44620118, 0.4113422, -0.35831234, -0.20202778, -0.9114807, 1.6115682, 0.036820646, -0.017048618)
+bind/43/name = &"DEF-thumb.02.R"
+bind/43/bone = -1
+bind/43/pose = Transform3D(0.4899353, -0.87175864, 0.00078721356, -0.79465264, -0.44622982, 0.41158956, -0.35845545, -0.20227791, -0.9113691, 1.6115712, -0.006050367, -0.016811714)
+bind/44/name = &"DEF-thumb.03.R"
+bind/44/bone = -1
+bind/44/pose = Transform3D(0.4890261, -0.8722687, 0.0010799618, -0.79535437, -0.44539636, 0.41113672, -0.35814062, -0.20191564, -0.91157305, 1.6115086, -0.056862105, -0.01704501)
+bind/45/name = &"DEF-thigh.L"
+bind/45/bone = -1
+bind/45/pose = Transform3D(1, 0, 0, 0, -0.99997556, -0.006994428, 0, 0.006994577, -0.99997574, -0.088999994, 0.932087, -0.00511971)
+bind/46/name = &"DEF-shin.L"
+bind/46/bone = -1
+bind/46/pose = Transform3D(1, 2.1027217e-05, -0.0002616788, 0, -0.9967872, -0.08009677, -0.0002625222, 0.0800969, -0.99678737, -0.08901155, 0.52997935, -0.0439677)
+bind/47/name = &"DEF-foot.L"
+bind/47/bone = -1
+bind/47/pose = Transform3D(0.9999995, -0.0008905557, -0.00052895444, 2.910384e-11, -0.5106722, 0.85977566, -0.0010358003, -0.859775, -0.510672, -0.08892653, 0.08373673, 0.07096884)
+bind/48/name = &"DEF-toe.L"
+bind/48/bone = -1
+bind/48/pose = Transform3D(-1.0000001, -4.086179e-08, 1.2177759e-15, 4.8780424e-15, -1.1920928e-07, 0.9999998, -4.0919996e-08, 1.0000001, -2.980232e-08, 0.08900002, -0.11319996, -0.015200022)
+bind/49/name = &"DEF-thigh.R"
+bind/49/bone = -1
+bind/49/pose = Transform3D(1, 0, 0, 0, -0.99997556, -0.006994428, 0, 0.006994577, -0.99997574, 0.088999994, 0.932087, -0.00511971)
+bind/50/name = &"DEF-shin.R"
+bind/50/bone = -1
+bind/50/pose = Transform3D(1, 2.1027217e-05, -0.0002616788, 0, -0.9967872, -0.08009677, -0.0002625222, 0.0800969, -0.99678737, 0.08898846, 0.5299793, -0.04401443)
+bind/51/name = &"DEF-foot.R"
+bind/51/bone = -1
+bind/51/pose = Transform3D(0.9999995, -0.0008905557, -0.00052895444, 2.910384e-11, -0.5106722, 0.85977566, -0.0010358003, -0.859775, -0.510672, 0.08907337, 0.08373673, 0.070784464)
+bind/52/name = &"DEF-toe.R"
+bind/52/bone = -1
+bind/52/pose = Transform3D(-1.0000001, -4.086179e-08, 1.2177759e-15, 4.8780424e-15, -1.1920928e-07, 0.9999998, -4.0919996e-08, 1.0000001, -2.980232e-08, -0.08900002, -0.11319996, -0.015200029)
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_1cx0m"]
+_data = {
+&"A_TPose": ExtResource("79_3f0tn"),
+&"Crouch_Fwd": ExtResource("80_ioy4j"),
+&"Crouch_Idle": ExtResource("81_acity"),
+&"Dance": ExtResource("82_q2rvg"),
+&"Death01": ExtResource("83_5lu8h"),
+&"Driving": ExtResource("84_2skmr"),
+&"Fixing_Kneeling": ExtResource("85_h3du7"),
+&"Hit_Chest": ExtResource("86_rri45"),
+&"Hit_Head": ExtResource("87_avcq8"),
+&"Idle": ExtResource("88_a2bli"),
+&"Idle_Talking": ExtResource("89_ghgbq"),
+&"Idle_Torch": ExtResource("90_widk0"),
+&"Interact": ExtResource("91_eq538"),
+&"Jog_Fwd": ExtResource("92_17ljc"),
+&"Jump": ExtResource("93_5yl26"),
+&"Jump_Land": ExtResource("94_4da2w"),
+&"Jump_Start": ExtResource("95_jbewf"),
+&"PickUp_Table": ExtResource("96_evtry"),
+&"Pistol_Aim_Down": ExtResource("97_cadee"),
+&"Pistol_Aim_Neutral": ExtResource("98_k6ajh"),
+&"Pistol_Aim_Up": ExtResource("99_mgpww"),
+&"Pistol_Idle": ExtResource("100_gxof2"),
+&"Pistol_Reload": ExtResource("101_hxqf2"),
+&"Pistol_Shoot": ExtResource("102_tm7vv"),
+&"Punch_Cross": ExtResource("103_bw8rt"),
+&"Punch_Enter": ExtResource("104_iu16y"),
+&"Punch_Jab": ExtResource("105_mc5rc"),
+&"Push": ExtResource("106_lf4tp"),
+&"Roll": ExtResource("107_qv0uf"),
+&"Roll_RM": ExtResource("108_wt1qs"),
+&"Sitting_Enter": ExtResource("109_6tkib"),
+&"Sitting_Exit": ExtResource("110_q8c6e"),
+&"Sitting_Idle": ExtResource("111_d71vq"),
+&"Sitting_Talking": ExtResource("112_ymu3w"),
+&"Spell_Simple_Enter": ExtResource("113_n53h3"),
+&"Spell_Simple_Exit": ExtResource("114_kkcdo"),
+&"Spell_Simple_Idle": ExtResource("115_uln7y"),
+&"Spell_Simple_Shoot": ExtResource("116_gfccu"),
+&"Sprint": ExtResource("117_7jfhs"),
+&"Swim_Fwd": ExtResource("118_sw0f0"),
+&"Swim_Idle": ExtResource("119_eqtd4"),
+&"Sword_Attack": ExtResource("120_jtqm7"),
+&"Sword_Attack_RM": ExtResource("121_lqa3l"),
+&"Sword_Idle": ExtResource("122_xe6u7"),
+&"Walk": ExtResource("123_slc3r"),
+&"Walk_Formal": ExtResource("124_mi7c3")
+}
+
+[sub_resource type="Resource" id="Slot"]
+script = ExtResource("127_24562")
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("128_va5qi")
+
+[sub_resource type="Resource" id="StorePrimary"]
+script = ExtResource("130_p6gct")
+action_id = &"store_primary"
+slot = 0
+caption = "В слот · основная рука"
+
+[sub_resource type="Resource" id="StoreSecondary"]
+script = ExtResource("130_p6gct")
+secondary_hand = true
+action_id = &"store_secondary"
+caption = "В слот · вторая рука"
+
+[sub_resource type="Resource" id="TakePrimary"]
+script = ExtResource("130_p6gct")
+take = true
+action_id = &"take_primary"
+slot = 0
+caption = "Из слота · основная рука"
+
+[sub_resource type="Resource" id="TakeSecondary"]
+script = ExtResource("130_p6gct")
+secondary_hand = true
+take = true
+action_id = &"take_secondary"
+caption = "Из слота · вторая рука"
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("131_jgwdj")
+actions = Array[ExtResource("129_vxat7")]([SubResource("StorePrimary"), SubResource("StoreSecondary"), SubResource("TakePrimary"), SubResource("TakeSecondary")])
+
+[sub_resource type="Resource" id="Counter"]
+script = ExtResource("135_p6dw4")
+
+[sub_resource type="Resource" id="Resource_x5es6"]
+script = ExtResource("128_va5qi")
+
+[sub_resource type="Resource" id="Action"]
+script = ExtResource("136_qpcfo")
+action_id = &"confirm_delivery"
+caption = "Подтвердить выдачу"
+
+[sub_resource type="Resource" id="Resource_762lf"]
+script = ExtResource("131_jgwdj")
+actions = Array[ExtResource("129_vxat7")]([SubResource("Action")])
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.25, 0.5, 0.3, 1)
+
+[sub_resource type="BoxMesh" id="Mesh"]
+material = SubResource("Material")
+size = Vector3(1.8, 0.9, 1)
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(1.8, 0.9, 1)
+
+[sub_resource type="BoxShape3D" id="AreaShape"]
+size = Vector3(1.7, 1.1, 0.9)
+
+[sub_resource type="Resource" id="Terminal_interactable"]
+script = ExtResource("128_va5qi")
+
+[sub_resource type="Resource" id="Terminal_action"]
+script = ExtResource("139_cta0m")
+action_id = &"open_terminal"
+caption = "Открыть реестр"
+
+[sub_resource type="Resource" id="Terminal_actions"]
+script = ExtResource("131_jgwdj")
+actions = Array[ExtResource("129_vxat7")]([SubResource("Terminal_action")])
+
+[sub_resource type="Resource" id="Scanner_state"]
+script = ExtResource("142_xdq0t")
+
+[sub_resource type="Resource" id="Scanner_interactable"]
+script = ExtResource("128_va5qi")
+
+[sub_resource type="Resource" id="Scanner_grabbable"]
+script = ExtResource("143_0l6k3")
+allowed_hand_slots = 6
+manual_rotation_enabled = false
+reset_rotation_on_pickup = true
+
+[sub_resource type="Resource" id="Scanner_action"]
+script = ExtResource("144_xvfjo")
+action_id = &"scan_package"
+slot = 2
+caption = "Сканировать"
+
+[sub_resource type="Resource" id="Scanner_actions"]
+script = ExtResource("131_jgwdj")
+actions = Array[ExtResource("129_vxat7")]([SubResource("Scanner_action")])
+reserved_slots = 4
+
+[sub_resource type="Resource" id="Resource_d15rj"]
+resource_local_to_scene = true
+script = ExtResource("147_7wpvt")
+
+[sub_resource type="PlaneMesh" id="ReceivingMark"]
+size = Vector2(12, 8)
+
+[sub_resource type="Resource" id="Resource_jvp2r"]
+resource_local_to_scene = true
+script = ExtResource("151_yu154")
+
+[sub_resource type="Resource" id="Resource_kgfw7"]
+resource_local_to_scene = true
+script = ExtResource("153_us7db")
+
+[sub_resource type="Resource" id="Resource_v0vxc"]
+resource_local_to_scene = true
+script = ExtResource("157_xel5h")
+
+[sub_resource type="Resource" id="Resource_tumv2"]
+resource_local_to_scene = true
+script = ExtResource("158_tsgav")
+schedule = SubResource("Resource_cb77c")
+
+[sub_resource type="Resource" id="Resource_iy17b"]
+script = ExtResource("165_6cmsa")
+
+[sub_resource type="Resource" id="Resource_befjn"]
+script = ExtResource("167_x5t60")
+
+[sub_resource type="Resource" id="Resource_5ho8h"]
+script = ExtResource("168_6sta2")
+
+[sub_resource type="Resource" id="Resource_kmt17"]
+script = ExtResource("171_1yggs")
+definition = SubResource("Resource_vnx8m")
+
+[sub_resource type="Resource" id="DayStation_interactable"]
+script = ExtResource("128_va5qi")
+
+[sub_resource type="Resource" id="DayStation_start_shift"]
+script = ExtResource("174_5v3kn")
+action_id = &"phase_0"
+caption = "Начать смену"
+
+[sub_resource type="Resource" id="DayStation_finish_shift"]
+script = ExtResource("174_5v3kn")
+transition = 1
+action_id = &"phase_1"
+caption = "Завершить смену"
+
+[sub_resource type="Resource" id="DayStation_actions"]
+script = ExtResource("131_jgwdj")
+actions = Array[ExtResource("129_vxat7")]([SubResource("DayStation_start_shift"), SubResource("DayStation_finish_shift")])
+
+[sub_resource type="Resource" id="Sleep_interactable"]
+script = ExtResource("128_va5qi")
+
+[sub_resource type="Resource" id="Sleep_transition"]
+script = ExtResource("174_5v3kn")
+transition = 2
+action_id = &"phase_2"
+caption = "Лечь спать"
+
+[sub_resource type="Resource" id="Sleep_station_actions"]
+script = ExtResource("131_jgwdj")
+actions = Array[ExtResource("129_vxat7")]([SubResource("Sleep_transition")])
+
+[sub_resource type="Resource" id="Resource_ctart"]
+script = ExtResource("128_va5qi")
+
+[sub_resource type="Resource" id="Circuit"]
+script = ExtResource("177_4crcn")
+
+[sub_resource type="Resource" id="Resource_hkgh3"]
+script = ExtResource("178_vgavu")
+action_id = &"light_toggle"
+slot = 0
+caption = "Переключить свет"
+
+[sub_resource type="Resource" id="Resource_o0816"]
+script = ExtResource("131_jgwdj")
+actions = Array[ExtResource("129_vxat7")]([SubResource("Resource_hkgh3")])
+reserved_slots = 1
+
+[sub_resource type="Resource" id="Booth"]
+script = ExtResource("180_qit2c")
+
+[sub_resource type="Resource" id="Resource_pqcyk"]
+script = ExtResource("128_va5qi")
+
+[sub_resource type="Resource" id="Resource_hqo0i"]
+script = ExtResource("181_2erlh")
+action_id = &"enter_test_room"
+slot = 0
+caption = "Вернуться в тестовый зал"
+
+[sub_resource type="Resource" id="Resource_4lnt3"]
+script = ExtResource("131_jgwdj")
+actions = Array[ExtResource("129_vxat7")]([SubResource("Resource_hqo0i")])
+reserved_slots = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ee6fj"]
+size = Vector3(1.8, 2, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3gfyn"]
+albedo_color = Color(0.18, 0.3, 0.42, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_fwg4v"]
+material = SubResource("StandardMaterial3D_3gfyn")
+size = Vector3(1.8, 2, 0.2)
+
+[node name="NpcTestRoom" type="Node3D" unique_id=908237235 node_paths=PackedStringArray("world")]
+script = ExtResource("1_w448p")
+world = NodePath("World")
+autosave_path = ""
+metadata/persistent_world_id = &"qa_room_weeping_angel"
+metadata/npc_test_room = SubResource("Resource_a2dpn")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=119974121]
+environment = SubResource("TestEnvironment")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1723424282 groups=["warehouse_lights"]]
+transform = Transform3D(0.90630776, 0.38302225, -0.17860618, 0, 0.42261824, 0.9063078, 0.42261827, -0.8213938, 0.3830222, 0, 0, 0)
+light_energy = 0.8
+
+[node name="CircuitLightView" type="Node" parent="Sun" unique_id=1562880299]
+script = ExtResource("42_panii")
+
+[node name="WarehouseNavigation" type="NavigationRegion3D" parent="." unique_id=326151108]
+navigation_mesh = ExtResource("43_dxxuj")
+
+[node name="World" parent="." unique_id=1234745941 instance=ExtResource("44_wosm4")]
+
+[node name="PVZ" type="Node3D" parent="." unique_id=497721173]
+
+[node name="Floor" type="StaticBody3D" parent="PVZ" unique_id=856997558]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Floor" unique_id=1966945764]
+mesh = SubResource("FloorMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Floor" unique_id=2017612694]
+shape = SubResource("FloorShape")
+
+[node name="Boundary31N" type="StaticBody3D" parent="PVZ" unique_id=625522836]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, -31.5)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Boundary31N" unique_id=710308537]
+mesh = SubResource("BarrierMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Boundary31N" unique_id=1358563501]
+shape = SubResource("BarrierShape")
+
+[node name="Boundary31S" type="StaticBody3D" parent="PVZ" unique_id=81441531]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 31.5)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Boundary31S" unique_id=1867696047]
+mesh = SubResource("BarrierMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Boundary31S" unique_id=959567584]
+shape = SubResource("BarrierShape")
+
+[node name="BoundaryW" type="StaticBody3D" parent="PVZ" unique_id=1264604647]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.5, 0.75, 0)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/BoundaryW" unique_id=215633834]
+mesh = SubResource("SideBarrierMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/BoundaryW" unique_id=1528913886]
+shape = SubResource("SideBarrierShape")
+
+[node name="BoundaryE" type="StaticBody3D" parent="PVZ" unique_id=22167552]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.5, 0.75, 0)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/BoundaryE" unique_id=715383756]
+mesh = SubResource("SideBarrierMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/BoundaryE" unique_id=402367061]
+shape = SubResource("SideBarrierShape")
+
+[node name="Pedestal1" type="StaticBody3D" parent="PVZ" unique_id=283324125]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 2)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal1" unique_id=1560531169]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal1" unique_id=2146513552]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal2" type="StaticBody3D" parent="PVZ" unique_id=133407206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 2)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal2" unique_id=1679685654]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal2" unique_id=1731067087]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal3" type="StaticBody3D" parent="PVZ" unique_id=1661263929]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 2)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal3" unique_id=1446470127]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal3" unique_id=1166992170]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal4" type="StaticBody3D" parent="PVZ" unique_id=394676862]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 6)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal4" unique_id=70671298]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal4" unique_id=394713326]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal5" type="StaticBody3D" parent="PVZ" unique_id=321767965]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 6)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal5" unique_id=362923363]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal5" unique_id=1840820277]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal6" type="StaticBody3D" parent="PVZ" unique_id=998216302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 6)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal6" unique_id=43028872]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal6" unique_id=1208352246]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal7" type="StaticBody3D" parent="PVZ" unique_id=204726553]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, -8)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal7" unique_id=1734956583]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal7" unique_id=868459753]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal8" type="StaticBody3D" parent="PVZ" unique_id=1604387271]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, -8)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal8" unique_id=698805385]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal8" unique_id=553383757]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal9" type="StaticBody3D" parent="PVZ" unique_id=189341852]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.5, -8)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal9" unique_id=1325952569]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal9" unique_id=626353387]
+shape = SubResource("PedestalShape")
+
+[node name="Pedestal10" type="StaticBody3D" parent="PVZ" unique_id=1255361135]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, -8)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal10" unique_id=1002436749]
+mesh = SubResource("PedestalMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal10" unique_id=1473698001]
+shape = SubResource("PedestalShape")
+
+[node name="ClueWall0" type="StaticBody3D" parent="PVZ" unique_id=779632046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall0" unique_id=1878300465]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall0" unique_id=1066012807]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall0" unique_id=1946967524 instance=ExtResource("46_xpoon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.21)
+
+[node name="ClueWall1" type="StaticBody3D" parent="PVZ" unique_id=1044907425]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall1" unique_id=1029923252]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall1" unique_id=1031832273]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall1" unique_id=2023736177 instance=ExtResource("46_xpoon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.21)
+
+[node name="ClueWall2" type="StaticBody3D" parent="PVZ" unique_id=499319563]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall2" unique_id=1708144423]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall2" unique_id=1867419219]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall2" unique_id=1361620083 instance=ExtResource("46_xpoon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.21)
+
+[node name="Entityes" type="Node3D" parent="." unique_id=40433183]
+
+[node name="Player" parent="Entityes" unique_id=1984383607 instance=ExtResource("48_hka2p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 2)
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_kaens"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_morv4"), SubResource("Resource_5ysm7")])
+metadata/persistent_local_id = &"placed_entityes_player"
+
+[node name="HeadX" parent="Entityes/Player/HeadY" parent_id_path=PackedInt32Array(1984383607, 1109415379) index="0" unique_id=1292554231]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Entityes/Player/HeadY/HeadX/HeadRoot" parent_id_path=PackedInt32Array(1984383607, 406904122) index="7" unique_id=1966760816]
+current = true
+
+[node name="ColNormal" parent="Entityes/Player" index="2" unique_id=1584379138]
+shape = SubResource("CylinderShape3D_bghjr")
+
+[node name="ColCrouch" parent="Entityes/Player" index="3" unique_id=1145188552]
+shape = SubResource("CylinderShape3D_lqn1g")
+
+[node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1984383607, 217031396, 2065414162) index="0" unique_id=1494109615]
+cast_shadow = 3
+skin = SubResource("Skin_xkfho")
+
+[node name="AnimationPlayer" parent="Entityes/Player/AnimationLibrary_Godot_Standard" parent_id_path=PackedInt32Array(1984383607, 217031396) index="1" unique_id=1771309942]
+libraries/ = SubResource("AnimationLibrary_1cx0m")
+
+[node name="BeltSlotLeft" parent="Entityes/Player" index="5" unique_id=314038497]
+transform = Transform3D(0.41083163, -0.9117112, 0, 0, -4.371139e-08, 1, -0.91171116, -0.4108317, 0, -0.25, 0.7946805, -0.1371026)
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Slot"), SubResource("Interactable"), SubResource("Actions")])
+metadata/persistent_local_id = &"placed_entityes_player_beltslotleft"
+
+[node name="BeltSlotRight" parent="Entityes/Player" index="6" unique_id=164328443]
+transform = Transform3D(0.21199018, 0.9772718, 2.9802322e-08, 1.3716061e-08, -5.0772293e-08, 1, 0.9772718, -0.21199018, 0, 0.25, 0.7946805, -0.1371026)
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Slot"), SubResource("Interactable"), SubResource("Actions")])
+metadata/persistent_local_id = &"placed_entityes_player_beltslotright"
+
+[node name="DeliveryCounter" parent="Entityes" unique_id=1882730702 instance=ExtResource("133_vjdqy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Counter"), SubResource("Resource_x5es6"), SubResource("Resource_762lf")])
+metadata/persistent_local_id = &"placed_entityes_deliverycounter"
+
+[node name="Desk" parent="Entityes/DeliveryCounter" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("Mesh")
+
+[node name="Collision" parent="Entityes/DeliveryCounter" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("Shape")
+
+[node name="DeliveryArea" parent="Entityes/DeliveryCounter" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
+
+[node name="Shape" parent="Entityes/DeliveryCounter/DeliveryArea" index="0"]
+shape = SubResource("AreaShape")
+
+[node name="Sign" parent="Entityes/DeliveryCounter" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+
+[node name="Entry" parent="Entityes/DeliveryCounter" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+
+[node name="Waiting" parent="Entityes/DeliveryCounter" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2)
+
+[node name="Terminal" parent="Entityes" unique_id=1432962550 instance=ExtResource("137_pvhix")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -8)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Terminal_interactable"), SubResource("Terminal_actions")])
+metadata/persistent_local_id = &"placed_entityes_terminal"
+
+[node name="Scanner" parent="Entityes" unique_id=1987353002 instance=ExtResource("140_1d7wq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.45, -8)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Scanner_state"), SubResource("Scanner_interactable"), SubResource("Scanner_grabbable"), SubResource("Scanner_actions")])
+metadata/persistent_local_id = &"placed_entityes_scanner"
+
+[node name="ReceivingZone" parent="Entityes" unique_id=440386287 node_paths=PackedStringArray("package_parent", "truck_parking") instance=ExtResource("145_e42d0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -14)
+supply = SubResource("Resource_htxy5")
+package_parent = NodePath("..")
+truck_parking = NodePath("../../TruckParking")
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_d15rj")])
+metadata/persistent_local_id = &"placed_entityes_receivingzone"
+
+[node name="FloorMark" parent="Entityes/ReceivingZone" index="0" unique_id=682019643]
+mesh = SubResource("ReceivingMark")
+
+[node name="Slot1" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="0" unique_id=153205906]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, -3)
+
+[node name="Slot2" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="1" unique_id=1601492699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.05, -3)
+
+[node name="Slot3" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="2" unique_id=1759284491]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.05, -3)
+
+[node name="Slot4" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="3" unique_id=1718410226]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.05, -3)
+
+[node name="Slot5" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="4" unique_id=153389248]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.05, -3)
+
+[node name="Slot6" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="5" unique_id=702580]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.05, -3)
+
+[node name="Slot7" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="6" unique_id=154580604]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, -1)
+
+[node name="Slot8" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="7" unique_id=1818810028]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.05, -1)
+
+[node name="Slot9" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="8" unique_id=1606620070]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.05, -1)
+
+[node name="Slot10" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="9" unique_id=1176995406]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.05, -1)
+
+[node name="Slot11" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="10" unique_id=826225327]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.05, -1)
+
+[node name="Slot12" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="11" unique_id=1928542681]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.05, -1)
+
+[node name="Slot13" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="12" unique_id=2086103321]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, 1)
+
+[node name="Slot14" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="13" unique_id=1779538169]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.05, 1)
+
+[node name="Slot15" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="14" unique_id=1608515330]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.05, 1)
+
+[node name="Slot16" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="15" unique_id=1822749899]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.05, 1)
+
+[node name="Slot17" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="16" unique_id=738583060]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.05, 1)
+
+[node name="Slot18" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="17" unique_id=1183501698]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.05, 1)
+
+[node name="Slot19" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="18" unique_id=411835542]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.05, 3)
+
+[node name="Slot20" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="19" unique_id=1560613620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.05, 3)
+
+[node name="Slot21" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="20" unique_id=1773828003]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.05, 3)
+
+[node name="Slot22" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="21" unique_id=1622926717]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.05, 3)
+
+[node name="Slot23" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="22" unique_id=958306623]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.05, 3)
+
+[node name="Slot24" parent="Entityes/ReceivingZone/SpawnPoints" parent_id_path=PackedInt32Array(440386287, 1654610343) index="23" unique_id=222368150]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.05, 3)
+
+[node name="DaySession" type="Node" parent="Entityes" unique_id=1910329940]
+script = ExtResource("148_sdsrc")
+traits = Array[ExtResource("50_3ryqb")]([ExtResource("135_1i8u5"), ExtResource("149_lqnix"), ExtResource("150_6sqky")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_jvp2r"), SubResource("Resource_kgfw7"), SubResource("Resource_v0vxc"), SubResource("Resource_tumv2"), SubResource("Resource_iy17b"), SubResource("Resource_befjn"), SubResource("Resource_5ho8h"), SubResource("Resource_kmt17")])
+metadata/persistent_local_id = &"placed_entityes_daysession"
+
+[node name="ShiftConsole" parent="Entityes" unique_id=1653098296 instance=ExtResource("172_4e2qa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("DayStation_interactable"), SubResource("DayStation_actions")])
+metadata/persistent_local_id = &"placed_entityes_shiftconsole"
+
+[node name="SleepPoint" parent="Entityes" unique_id=421133776 instance=ExtResource("172_4e2qa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
+sleep_station = true
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Sleep_interactable"), SubResource("Sleep_station_actions")])
+metadata/persistent_local_id = &"placed_entityes_sleeppoint"
+
+[node name="LightSwitch" parent="Entityes" unique_id=572012194 instance=ExtResource("175_qwfrt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1.3, -8)
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_ctart"), SubResource("Circuit"), SubResource("Resource_o0816")])
+metadata/persistent_local_id = &"placed_entityes_lightswitch"
+
+[node name="InspectionBooth1" parent="Entityes" unique_id=1694178656 instance=ExtResource("179_nm0hy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -16)
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Booth")])
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth1"
+
+[node name="InspectionBooth2" parent="Entityes" unique_id=2051600392 instance=ExtResource("179_nm0hy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -16)
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Booth")])
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth2"
+
+[node name="ReturnPortal" type="StaticBody3D" parent="Entityes" unique_id=378244440]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -12)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("176_u78om")
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_pqcyk"), SubResource("Resource_4lnt3")])
+metadata/persistent_local_id = &"qa_portal_"
+
+[node name="Collision" type="CollisionShape3D" parent="Entityes/ReturnPortal" unique_id=340461512]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_ee6fj")
+
+[node name="Visual" type="MeshInstance3D" parent="Entityes/ReturnPortal" unique_id=509134146]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("BoxMesh_fwg4v")
+
+[node name="Label" type="Label3D" parent="Entityes/ReturnPortal" unique_id=1804160362]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.13)
+pixel_size = 0.003
+billboard = 1
+text = "Вернуться в тестовый зал"
+
+[node name="InteractionHud" parent="." unique_id=1298875023 node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("182_mu2e3")]
+player = NodePath("../Entityes/Player")
+damage_feedback = NodePath("../World/Systems/GamePlay/O_DamageFeedback")
+
+[node name="InventoryPanel" parent="." unique_id=701062857 node_paths=PackedStringArray("player") instance=ExtResource("184_lktlh")]
+player = NodePath("../Entityes/Player")
+
+[node name="TruckParking" type="Marker3D" parent="." unique_id=550885970]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0.35, -14)
+
+[node name="District" type="Node3D" parent="." unique_id=1380008467]
+
+[node name="RoomLabel" type="Label3D" parent="." unique_id=1847627176]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -10)
+billboard = 1
+text = "Плачущий ангел
+Две посылки в день. Каждый вход начинает новый тест."
+font_size = 40
+
+[node name="WarehouseLightZone" parent="." unique_id=448867284 instance=ExtResource("170_26otv")]
+
+[editable path="Entityes/Player"]
+[editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]
+[editable path="Entityes/DeliveryCounter"]
+[editable path="Entityes/ReceivingZone"]

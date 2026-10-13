@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://cbvrwq4u5eea7"]
+
+[ext_resource type="Script" uid="uid://cl6glf45pcrns" path="res://addons/gecs/ecs/entity.gd" id="1_lobs4"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_ngqj5"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="3_e28v7"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="4_1cnqg"]
+[ext_resource type="Script" uid="uid://bvu271dti4nal" path="res://content/scenes/npc_test_rooms/def_test_room_action.gd" id="5_oslu7"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="6_i6qpn"]
+
+[sub_resource type="Resource" id="Resource_xy5ve"]
+script = ExtResource("3_e28v7")
+
+[sub_resource type="Resource" id="Resource_dls82"]
+script = ExtResource("5_oslu7")
+room_key = &"creepy"
+action_id = &"enter_test_room"
+slot = 0
+caption = "Войти: Жуткий"
+
+[sub_resource type="Resource" id="Resource_6oh8b"]
+script = ExtResource("6_i6qpn")
+actions = Array[ExtResource("4_1cnqg")]([SubResource("Resource_dls82")])
+reserved_slots = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_caooe"]
+size = Vector3(1.8, 2, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rho2y"]
+albedo_color = Color(0.18, 0.3, 0.42, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_q2hj0"]
+material = SubResource("StandardMaterial3D_rho2y")
+size = Vector3(1.8, 2, 0.2)
+
+[node name="TestRoomPortal" type="StaticBody3D" unique_id=53492426]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_lobs4")
+component_resources = Array[ExtResource("2_ngqj5")]([SubResource("Resource_xy5ve"), SubResource("Resource_6oh8b")])
+metadata/persistent_local_id = &"qa_portal_creepy"
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1125805571]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_caooe")
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=206558834]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("BoxMesh_q2hj0")
+
+[node name="Label" type="Label3D" parent="." unique_id=632307608]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.13)
+pixel_size = 0.003
+billboard = 1
+text = "Жуткий
+Вход сбрасывает комнату"

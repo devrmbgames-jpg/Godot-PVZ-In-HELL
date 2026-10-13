@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://bdonp0a1ttkeu"]
+
+[ext_resource type="Script" uid="uid://cl6glf45pcrns" path="res://addons/gecs/ecs/entity.gd" id="1_bywjw"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_rbfrk"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="3_g85mv"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="4_v5mib"]
+[ext_resource type="Script" uid="uid://bvu271dti4nal" path="res://content/scenes/npc_test_rooms/def_test_room_action.gd" id="5_rq0fp"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="6_0l8qb"]
+
+[sub_resource type="Resource" id="Resource_us6u3"]
+script = ExtResource("3_g85mv")
+
+[sub_resource type="Resource" id="Resource_s2p4m"]
+script = ExtResource("5_rq0fp")
+room_key = &"brute"
+action_id = &"enter_test_room"
+slot = 0
+caption = "Войти: Громила"
+
+[sub_resource type="Resource" id="Resource_71e62"]
+script = ExtResource("6_0l8qb")
+actions = Array[ExtResource("4_v5mib")]([SubResource("Resource_s2p4m")])
+reserved_slots = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t0dr3"]
+size = Vector3(1.8, 2, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bo07w"]
+albedo_color = Color(0.18, 0.3, 0.42, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0xx08"]
+material = SubResource("StandardMaterial3D_bo07w")
+size = Vector3(1.8, 2, 0.2)
+
+[node name="TestRoomPortal" type="StaticBody3D" unique_id=668609432]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_bywjw")
+component_resources = Array[ExtResource("2_rbfrk")]([SubResource("Resource_us6u3"), SubResource("Resource_71e62")])
+metadata/persistent_local_id = &"qa_portal_brute"
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=856672049]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_t0dr3")
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=812012672]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("BoxMesh_0xx08")
+
+[node name="Label" type="Label3D" parent="." unique_id=78603445]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.13)
+pixel_size = 0.003
+billboard = 1
+text = "Громила
+Вход сбрасывает комнату"

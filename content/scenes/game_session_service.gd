@@ -8,6 +8,19 @@ const TEST_LEVEL: String = "res://content/scenes/primitive_test_level.tscn"
 const MANUAL_SAVE: String = "user://manual_save.pvzh"
 const TEST_MANUAL_SAVE: String = "user://primitive_manual_save.pvzh"
 const TEST_AUTOSAVE: String = "user://primitive_test_level.pvzh"
+const TEST_ROOM_DIRECTORY: String = "res://content/scenes/npc_test_rooms"
+const TEST_ROOM_KEYS: Array[StringName] = [
+	&"night_hunter",
+	&"fire_elemental",
+	&"shy",
+	&"creepy",
+	&"brute",
+	&"hag",
+	&"weeping_angel",
+	&"lost",
+	&"chain_devil",
+	&"vampire",
+]
 
 static var _pending_level: String = ""
 static var _pending_snapshot: Dictionary = { }
@@ -21,11 +34,15 @@ static func level_path() -> String:
 
 ## Возвращает отдельный ручной слот для основного/тестового уровня.
 static func manual_path(level: String) -> String:
+	if is_test_room(level):
+		return ""
 	return TEST_MANUAL_SAVE if level == TEST_LEVEL else MANUAL_SAVE
 
 
 ## Возвращает отдельный автоматический слот для основного/тестового уровня.
 static func autosave_path(level: String) -> String:
+	if is_test_room(level):
+		return ""
 	return TEST_AUTOSAVE if level == TEST_LEVEL else AutosaveStore.DEFAULT_PATH
 
 #endregion
@@ -173,6 +190,51 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 #endregion
 
 
+#region Isolated QA room transitions
+## Resolves only the ten authored destinations; the empty key means a fresh test hall.
+static func test_room_path(room_key: StringName) -> String:
+	if room_key == &"":
+		return TEST_LEVEL
+	if room_key not in TEST_ROOM_KEYS:
+		return ""
+	return TEST_ROOM_DIRECTORY.path_join(String(room_key) + ".tscn")
+
+
+## Identifies a bounded QA destination without granting general scene-file access.
+static func is_test_room(level: String) -> bool:
+	for room_key: StringName in TEST_ROOM_KEYS:
+		if level == test_room_path(room_key):
+			return true
+	return false
+
+
+## Defers scene removal until the current World transaction and input dispatch have completed.
+static func request_test_room(root: Node, room_key: StringName) -> Error:
+	if root == null:
+		return ERR_UNAUTHORIZED
+	if root.scene_file_path != TEST_LEVEL and not is_test_room(root.scene_file_path):
+		return ERR_UNAUTHORIZED
+	var destination: String = test_room_path(room_key)
+	if destination.is_empty() or not ResourceLoader.exists(destination, "PackedScene"):
+		return ERR_CANT_OPEN
+	_enter_test_room.call_deferred(weakref(root), destination)
+	return OK
+
+
+static func _enter_test_room(source_reference: WeakRef, destination: String) -> void:
+	var source: Node = source_reference.get_ref() as Node
+	if source == null or not source.is_inside_tree():
+		return
+	var tree: SceneTree = source.get_tree()
+	if tree.current_scene != source:
+		return
+	# An empty handoff always initializes a new room; no progress cache or gameplay save writes.
+	var error: Error = start_game(tree, destination)
+	if error != OK:
+		push_error("QA scene transition failed: %s" % error_string(error))
+#endregion
+
+
 #region Передача снимка и смена сцены
 ## Returns a detached startup candidate without consuming the one-shot scene handoff.
 static func startup_snapshot(root: Node, path: String) -> Dictionary:
@@ -183,8 +245,10 @@ static func startup_snapshot(root: Node, path: String) -> Dictionary:
 
 ## Предварительная проверка происходит до закрытия текущей сцены. Новый старт не удаляет слоты.
 static func start_game(tree: SceneTree, level: String, saved: GameSaveResult = null) -> Error:
-	if level not in [MAIN_LEVEL, TEST_LEVEL]:
+	if level not in [MAIN_LEVEL, TEST_LEVEL] and not is_test_room(level):
 		return ERR_INVALID_PARAMETER
+	if is_test_room(level) and saved != null:
+		return ERR_INVALID_DATA
 
 	var packed: PackedScene = load(level) as PackedScene
 	if packed == null:

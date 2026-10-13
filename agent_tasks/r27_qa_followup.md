@@ -16,10 +16,13 @@ Parent acceptance: [R26](r26_items_npc_expansion.md), [QA checklist](../qa_tasks
 
 Visit commitment implementation, native regressions and exact-SHA review pass after RV-001 repair
 at `1c225a959f7e408cb90d42a43a5ee7bef39df1ab`; owner acceptance remains open.
-MCP editor connected: Godot4.7.1, ready/stopped; saved main_menu is editor-owned.
+MCP editor connected: Godot4.7.1, ready/stopped; saved primitive test hall is editor-owned.
 Unrelated dirty user resources/settings/addon edits must be preserved.
 
 ### Milestones / Next
+
+Owner instruction2026-10-14: after completing R27, finish the remaining
+[R26 tasks](r26_items_npc_expansion.md). Work resumed by the owner's subsequent instruction.
 
 1. [Сохранение плана визита](r27_service_visit_commitment.md): не переносить визит
    из-за взаимного избегания/ожидания; blocked route cancels only called recipient's approach.
@@ -39,12 +42,34 @@ Review PASS from base `136cfa18cbc5d6e9e0f20d5c8e58347ecdd2bf31`; no material fi
 Reviewer architecture/style PASS, validation NOT_RUN;400s, UTC08:51:49?08:58:29.
 MCP includes bounded native path diagnostics for new project-owned scripts.
 Physical passing/spacing now passes native physics, social/freeze and production-week gates.
-REVIEW_PENDING: base `2636f85dd143841f8586827ba3ee996056b9456a`,
-target `7e67e938e154c071203c5efcd27c8b539c66aa4b`: RV-001 accepted emergency-priority bug.
-Native focused repair passes; fix checkpoint/targeted re-review pending. Ten rooms IN_PROGRESS.
+Passing checkpoint `7e67e938e154c071203c5efcd27c8b539c66aa4b`: RV-001 emergency-priority bug
+FIXED/tested/reviewed at `5c1028cf43b39f40f19aec47aa1442686a87944e`; targeted review PASS46s.
+Current accepted findings resolved; ten rooms IN_PROGRESS.
 Main is sole writer; reuse existing read-only reviewer on immutable checkpoints.
 Independent [home-night fixture mismatch](completed/r27_home_night_fixture_identity.md)
 is repaired, tested, reviewed and archived; original FAIL evidence remains in its task.
+
+### Current resume checkpoint
+
+Owner resumed work2026-10-14. Complete R27, then the remaining R26 tasks.
+Committed HEAD `5c1028cf43b39f40f19aec47aa1442686a87944e`.
+Last targeted review: base `7e67e938e154c071203c5efcd27c8b539c66aa4b`,
+target `5c1028cf43b39f40f19aec47aa1442686a87944e`, PASS/no material findings,
+UTC09:53:02?09:53:48,46s. Sole reviewer is terminal; no second reviewer running.
+All accepted R27 findings are FIXED in their owning task records; owner QA remains open.
+Previous reviewer handle is no longer live; the next review must pin a new immutable target.
+R27.5 has native MCP-authored ten rooms/presets/portals, all16 physical catalog
+items and controlled light zones. Editor hall was saved after assigning16 explicit item IDs.
+Real portal transitions/reset/cleanup PASS496 checks across10 rooms/20 entries, exit0;
+`.artifacts/npc-room-transitions-20261014-052713065.log`.
+Room bootstrap/three daily physical supplies and same-recipient registered cases GUT2/600 PASS
+(`gut-20261013-193043024`); game-session GUT6/43 PASS (`gut-20261013-193503385`).
+Current R27.5 code/scene changes remain uncommitted; final native gates/review/export pending.
+Preserve unrelated user edits, including .codex/config.toml, resource/settings/addon changes.
+Next: collect final native hall/room/authoring/session and R27 regressions,
+formatter/parser/MCP/static gates, coherent commit and immutable-SHA review, then QA export.
+After R27, reconcile remaining R26 acceptance against the resulting HEAD and finish its open scope;
+preserve required owner QA as pending until actual acceptance.
 
 ### Validation / completion
 

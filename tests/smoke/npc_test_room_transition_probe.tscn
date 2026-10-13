@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b3s1eltdv3yhb"]
+
+[ext_resource type="Script" uid="uid://dnft32gfljj2g" path="res://tests/smoke/npc_test_room_transition_probe.gd" id="1_8auao"]
+
+[node name="NpcTestRoomTransitionProbe" type="Node" unique_id=1191483987]
+script = ExtResource("1_8auao")

@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://dak1fi20myyrf"]
+
+[ext_resource type="Script" uid="uid://cl6glf45pcrns" path="res://addons/gecs/ecs/entity.gd" id="1_7t520"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_ty0w4"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="3_pn16n"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="4_887mf"]
+[ext_resource type="Script" uid="uid://bvu271dti4nal" path="res://content/scenes/npc_test_rooms/def_test_room_action.gd" id="5_coh07"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="6_oi620"]
+
+[sub_resource type="Resource" id="Resource_u1mlw"]
+script = ExtResource("3_pn16n")
+
+[sub_resource type="Resource" id="Resource_6ggt6"]
+script = ExtResource("5_coh07")
+room_key = &"night_hunter"
+action_id = &"enter_test_room"
+slot = 0
+caption = "Войти: Ночной охотник"
+
+[sub_resource type="Resource" id="Resource_arbbu"]
+script = ExtResource("6_oi620")
+actions = Array[ExtResource("4_887mf")]([SubResource("Resource_6ggt6")])
+reserved_slots = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nsko6"]
+size = Vector3(1.8, 2, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mbrtf"]
+albedo_color = Color(0.18, 0.3, 0.42, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lrwei"]
+material = SubResource("StandardMaterial3D_mbrtf")
+size = Vector3(1.8, 2, 0.2)
+
+[node name="TestRoomPortal" type="StaticBody3D" unique_id=1697135184]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_7t520")
+component_resources = Array[ExtResource("2_ty0w4")]([SubResource("Resource_u1mlw"), SubResource("Resource_arbbu")])
+metadata/persistent_local_id = &"qa_portal_night_hunter"
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=2131294397]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_nsko6")
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=973922479]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("BoxMesh_lrwei")
+
+[node name="Label" type="Label3D" parent="." unique_id=607602433]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.13)
+pixel_size = 0.003
+billboard = 1
+text = "Ночной охотник
+Вход сбрасывает комнату"

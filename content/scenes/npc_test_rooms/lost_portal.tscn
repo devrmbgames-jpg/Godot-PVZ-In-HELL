@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://cpd3gnado1vot"]
+
+[ext_resource type="Script" uid="uid://cl6glf45pcrns" path="res://addons/gecs/ecs/entity.gd" id="1_ioj7v"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_4v3f0"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="3_ptspd"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="4_hq87d"]
+[ext_resource type="Script" uid="uid://bvu271dti4nal" path="res://content/scenes/npc_test_rooms/def_test_room_action.gd" id="5_40bby"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="6_axhb1"]
+
+[sub_resource type="Resource" id="Resource_oiq0m"]
+script = ExtResource("3_ptspd")
+
+[sub_resource type="Resource" id="Resource_pd5ar"]
+script = ExtResource("5_40bby")
+room_key = &"lost"
+action_id = &"enter_test_room"
+slot = 0
+caption = "Войти: Заблудший"
+
+[sub_resource type="Resource" id="Resource_pf3pm"]
+script = ExtResource("6_axhb1")
+actions = Array[ExtResource("4_hq87d")]([SubResource("Resource_pd5ar")])
+reserved_slots = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sxj3r"]
+size = Vector3(1.8, 2, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tr0f0"]
+albedo_color = Color(0.18, 0.3, 0.42, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_82wqt"]
+material = SubResource("StandardMaterial3D_tr0f0")
+size = Vector3(1.8, 2, 0.2)
+
+[node name="TestRoomPortal" type="StaticBody3D" unique_id=194488303]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_ioj7v")
+component_resources = Array[ExtResource("2_4v3f0")]([SubResource("Resource_oiq0m"), SubResource("Resource_pf3pm")])
+metadata/persistent_local_id = &"qa_portal_lost"
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1761538404]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_sxj3r")
+
+[node name="Visual" type="MeshInstance3D" parent="." unique_id=252033722]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("BoxMesh_82wqt")
+
+[node name="Label" type="Label3D" parent="." unique_id=1543530646]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -0.13)
+pixel_size = 0.003
+billboard = 1
+text = "Заблудший
+Вход сбрасывает комнату"

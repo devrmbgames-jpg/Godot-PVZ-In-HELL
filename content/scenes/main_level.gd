@@ -93,7 +93,7 @@ func _ready() -> void:
 	if session != null:
 		var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave
 		save.path = autosave_path
-		if not autosave_path.is_empty():
+		if not autosave_path.is_empty() or GameSessionService.is_test_room(scene_file_path):
 			GameSessionService.restore_startup(self, save)
 		if save.construction_failed:
 			set_physics_process(false)

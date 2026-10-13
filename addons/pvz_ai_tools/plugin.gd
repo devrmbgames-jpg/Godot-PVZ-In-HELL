@@ -5,7 +5,7 @@ extends EditorPlugin
 const SOURCE_CFG: String = "res://addons/pvz_ai_tools/plugin.cfg"
 const HANDLER_PATH: String = "res://addons/pvz_ai_tools/gecs_tools.gd"
 const RETRY_SECONDS: float = 1.0
-const REGISTRATION_REVISION: int = 1
+const REGISTRATION_REVISION: int = 3
 const DebuggerBridgeScript := preload("res://addons/pvz_ai_tools/debugger_bridge.gd")
 
 var _registry: McpToolRegistry = null
@@ -180,6 +180,8 @@ func _register_tools() -> void:
 		_gdscript_style_spec(),
 		_style_script_validation_spec(),
 		_owned_script_diagnostics_spec(),
+		_npc_test_room_authoring_spec(),
+		_test_hall_identity_authoring_spec(),
 		_translation_sources_spec(),
 		_behavior_tree_authoring_spec(),
 		_npc_archetype_cache_spec(),
@@ -492,4 +494,53 @@ func _player_soul_trade_spec() -> McpCustomToolSpec:
 	spec.deferred = false
 	return spec
 
+#endregion
+
+
+#region Fixed native QA authoring extension
+func _npc_test_room_authoring_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_npc_test_room_authoring"
+	spec.description = "Create one canonical NPC room from the fingerprinted native hall."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {
+			"room_key": { "type": "string", "enum": GameSessionService.TEST_ROOM_KEYS },
+			"source_fingerprint": { "type": "string" },
+		},
+		"required": ["room_key", "source_fingerprint"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/npc_test_room_authoring_tool.gd"
+	spec.method = &"author"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = false
+	spec.timeout_ms = 7000
+	return spec
+#endregion
+
+
+#region Fixed native hall identity extension
+func _test_hall_identity_authoring_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_test_hall_identity_authoring"
+	spec.description = "Author missing canonical physical catalog IDs in one native undo action."
+	spec.params_schema = {
+		"type": "object",
+		"properties": { "source_fingerprint": { "type": "string" } },
+		"required": ["source_fingerprint"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/npc_test_room_authoring_tool.gd"
+	spec.method = &"author_hall_identities"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = true
+	spec.deferred = false
+	spec.timeout_ms = 7000
+	return spec
 #endregion
