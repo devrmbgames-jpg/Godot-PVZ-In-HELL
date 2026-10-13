@@ -1,5 +1,5 @@
 # R26.1 — Physical item framework and requested catalog
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -27,7 +27,8 @@ Brain reconstruction clears transient blood bindings/rejections; HP and durable 
 Blood review fixes passed native regressions and targeted review; navigation failures identify request/action/goal.
 Perception stops after a social fact retires/resets its receiver. Final native 15-item physical smoke passed.
 Archetype receiver composition now passes production live-roster GUT10/798 in R26.5;
-mandatory district-week and [owner acceptance](../qa_tasks/r26_acceptance.md) remain open.
+final mandatory production week112524520 PASS (>=6/8) in R26.5;
+[owner acceptance](../qa_tasks/r26_acceptance.md) remains open.
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation

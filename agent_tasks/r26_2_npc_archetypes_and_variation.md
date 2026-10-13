@@ -1,5 +1,5 @@
 # R26.2 — NPC archetypes, composable traits and persistent variation
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -21,12 +21,12 @@ two explicit visitor presets to the production district, preserving twelve ident
 eight resident/four visitor roles, merchant slot eight, recipients and participation schedules.
 Live binding `81f22ee6e09a3466237ac67564554052fc4a2634` review PASS in R26.5;
 schema19 deliberately rejects schema18 before mutation.
-Restore never rerolls; targeted production roster GUT10/798 PASS, broader acceptance pending.
+Restore never rerolls; targeted production roster GUT10/798 PASS, final automated integration PASS in R26.5; owner acceptance pending.
 Category ordering now commits real catalog payloads with the existing receiving batch/parcel IDs.
 Weighted available categories feed deterministic per-person decisions; missing categories fall back.
 Contents and the terminal/archive arrival projection retain the choice through retry/restore.
 Native MCP adds all 15 physical catalog items while preserving all eight authored case paths.
-Category checkpoint review PASS. Next: collect R26.5 integration checks and immutable review.
+Category checkpoint review PASS. R26.5 final integration checks and immutable review PASS; next is owner QA.
 Night presentation has native authored spatial audio/Decal views and typed immutable tuning;
 its focused lifecycle checks, independent checkpoint review and district smoke pass in R26.3.
 Vampire now has reusable typed wounded feeding/floor data and native BT:
@@ -40,8 +40,9 @@ parser7files/scoped gates/headless week PASS in R26.3. Typed cloud/visibility an
 presentation are implemented at `588b59c1771d95b4ffba278988ddef0a364013a7`;
 GUT136/2406 and parser/static gates PASS; review against
 `a2b1d764b1b316b27df979a8d72917d6deab8ed8` PASS (95s, no findings).
-Final week smoke FAIL survival5/required6; comparable previous-SHA week PASS, diagnosis in R26.3.
-Mandatory integration acceptance remains open; current live-binding evidence belongs to R26.5.
+Historical cloud-checkpoint week FAIL5/required6; comparable previous-SHA week PASS, evidence in R26.3.
+Final production week112524520 PASS (>=6/8) and reviewed floor-pressure checkpoint in R26.5.
+Required gameplay/visual acceptance and final tuning remain owner QA.
 
 ### Validation
 

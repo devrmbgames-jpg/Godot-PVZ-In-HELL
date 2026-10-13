@@ -1,5 +1,5 @@
 # NPC hazard escape — navigable safe endpoints
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 ## Task state
 
@@ -8,9 +8,18 @@ Status: **IN_PROGRESS**
 Repair `NpcRouteSolver.refuge` selecting a radial goal outside the connected navmesh,
 whose projected route endpoint can remain inside a harmful volume. Keep actual path
 planning in `S_NpcRoutePlanning`, movement in existing intent/body owners, and damage intact.
-Linked mandatory district-week acceptance: [R26.3](r26_3_npc_behavior_trees.md).
+Linked mandatory district-week acceptance: [R26.3](../r26_3_npc_behavior_trees.md).
 
 ### Current
+
+Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days,
+unchanged survival requirement >=6/8 original residents, night/snapshot/restore/navigation/identity pass.
+Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
+BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
+Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
+Scoped repair code/reviews remain valid ancestors; prior failed weeks below are historical evidence.
+No accepted findings or required automated gates remain open in this scoped task.
+Rendered gameplay/visual and final balance QA NOT_RUN; these remain in the original R26 tasks.
 
 Repair `7de8659ea150953b7b317ff6e5e8e6a9cc328e26` tests point projections around harmful volumes,
 requires the destination to clear all overlapping hazards plus arrival tolerance,
@@ -42,9 +51,9 @@ Final parser2116383133files and repair2119054912files PASS. Mandatory week on
 `63279cf2a0f5b1f9a70bea13ee40759dc19db067` FAIL5/required6:
 `tests/artifacts/district-20261013-071658349.log`. Default margin0.5 uses the same
 calculation after the minimum-margin repair. The independently fixed endpoint defect
-does not resolve the full survival failure; mandatory acceptance remains open.
+does not resolve the full survival failure; that historical week remained FAIL before the final integration fix.
 
-Current district smoke `tests/artifacts/district-20261013-063246721.log` FAIL5/required6;
+Historical district smoke `tests/artifacts/district-20261013-063246721.log` FAIL5/required6;
 comparable source week PASS at
 `.artifacts/cloud_baseline_588b59c1/tests/artifacts/district-20261013-064942431.log`.
 Mortality probe065415654 confirms three original deaths from elemental floor fire.
@@ -53,8 +62,9 @@ waypoint still inside the moving fire volume. Both preserve the original accepta
 
 ### Owner QA / blockers
 
-Required headless week acceptance FAIL; immutable review PASS. No rendered QA is claimed;
-the full R26 owner gameplay/visual acceptance remains with its original tasks.
+Scoped implementation, native verification, immutable reviews and final linked district week PASS.
+No scoped blocker remains. Required R26 gameplay/visual acceptance and final floor balance
+remain [owner QA](../../qa_tasks/r26_acceptance.md); no rendered QA is claimed.
 
 ## Acceptance
 
@@ -66,5 +76,4 @@ the full R26 owner gameplay/visual acceptance remains with its original tasks.
 
 ## Next
 
-Continue the original R26 causal diagnosis; linked week acceptance remains FAIL. R26 stays open
-until its actual smoke passes; this task does not establish cloud causality or waive R26.5.
+Scoped task completed and archived. Original R26 owner-QA gates remain open.

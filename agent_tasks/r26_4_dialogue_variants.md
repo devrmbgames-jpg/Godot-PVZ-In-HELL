@@ -1,5 +1,5 @@
 # R26.4 — Two dialogue variants per NPC archetype
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -22,13 +22,13 @@ explicit acceptance/refusal, durable closure/replay and actual street/service pa
 All ten archetypes now enter the production roster in R26.5 migration
 `81f22ee6e09a3466237ac67564554052fc4a2634`; immutable review PASS, no findings.
 Real selected dialogue paths/variations and native reconstruction pass live-roster GUT10/798.
-Full mandatory behavior, immutable review and owner acceptance remain open.
+Final automated integration/week and immutable review PASS in R26.5; owner acceptance remains open.
 
 ### Next
 
 Vampire review collected on BASE `a407762ef018ab70715119cd432c63071d62d928` ->
 TARGET `14cadff37461590c14454aabfdbca1fb4af11e94` **PASS** (50s, no material findings); same terminal reviewer
-reused, no second reviewer. Next: collect R26.5 full integration and owner acceptance.
+reused, no second reviewer. Next: complete owner dialogue/tone/modal acceptance; R26.5 automated integration is PASS.
 
 ### Validation
 

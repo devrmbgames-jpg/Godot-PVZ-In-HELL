@@ -5,15 +5,17 @@ Status: **PENDING_OWNER_QA**
 Автоматическая проверка и статус реализации: [R26.5](../agent_tasks/r26_5_integration_persistence_validation.md).
 Этот checklist владеет только ручной приёмкой. Headless GUT/smoke не подтверждают визуальную
 читаемость, качество реплик или ощущение управления. Rendered gameplay агентом не запускался.
-Диагностическая Windows сборка: [.export/LATEST.cmd](../.export/LATEST.cmd), каталог
-`.export/windows/20261013-005901Z-a030253a-r26-reviewed-retained-goal-qa`.
-Полный SHA `a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`, review BASE
-`526780a07441cb30b2812d9bfe209583096744cc`; export/menu/level startup PASS.
-Сборка включает сохранённые пользовательские working-tree edits (`dirty=true`),
-Недельный тест105104090 FAIL5/required6; reviewed navigation-cache, moving-source
-и repair сохранения успешной безопасной цели включены. Баланс огня исходный4HP/0,5с/60с.
-Последующий reviewed repair небезопасной конечной точки `78e9b826470dce320bf9999f495ed0c05ab8c8f5`
-пока в эту сборку не входит; его production-неделя111311881 также FAIL5/required6.
+Windows QA сборка: [.export/LATEST.cmd](../.export/LATEST.cmd), каталог
+`.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa`.
+Полный code SHA `4c60e3dc784352c2fb95ca617cebbafa9a834366`, review BASE
+`f9888f3c87fb7715d5ab8bdf07b5ef55382c5979`; immutable review PASS, замечаний нет.
+Export/menu/level startup120frames PASS. Сборка включает сохранённые пользовательские
+working-tree edits (`dirty=true`). Финальная production-неделя112524520 PASS: все7дней,
+неизменённый порог >=6/8 исходных жителей, ночь/snapshot/restore/navigation/identity PASS.
+Включены reviewed исправления escape/cache/движущейся опасности/конечных точек.
+Рабочий баланс floor fire1HP/0,5с; радиус10м/TTL60с, torso aura4HP/0,5с сохранены.
+Окончательный баланс остаётся пунктом ручной приёмки. Shutdown-only Resource/RID retention
+DEFERRED по решению владельца; исходные export/startup логи сохранены.
 
 ## Предметы и физика
 
@@ -67,4 +69,4 @@ Status: **PENDING_OWNER_QA**
   Конкретные замечания записать рядом с пунктом; отдельно назвать разрешённую отсрочку polish.
 
 Результат владельца: **NOT_RUN**. Непроверенные пункты остаются открытыми; автоматические
-ошибки и обязательная недельная survival acceptance продолжают принадлежать `agent_tasks`.
+замечания сохраняются в `agent_tasks`; обязательная автоматическая недельная acceptance уже PASS.

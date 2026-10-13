@@ -1,5 +1,5 @@
 # R26.3 — LimboAI Behavior Trees for NPC archetypes
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -14,25 +14,21 @@ Extend visible tree selection; a leaf dispatching an entire decision tree remain
 
 ### Current
 
-Conditional escape `588b59c1771d95b4ffba278988ddef0a364013a7` adds typed reusable Veil,
-native cloud hazard/confirmed-threat flight and optional invisibility after lost sight.
-Authored VeilPresence changes appearance only; physical movement/collision/damage remain intact.
-Task tokens protect replacement forms; reset, profile, death and participation clean synchronously.
-Review **PASS**: BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8`
--> TARGET `588b59c1771d95b4ffba278988ddef0a364013a7`, same reviewer, no findings (95s).
-Architecture/style PASS; reviewer runtime NOT_RUN. Final smoke FAIL survival5/required6;
-Comparable BASE week PASS; mortality traces prove floor-fire deaths. Endpoint repair is reviewed,
-but final week071658349 still FAIL5/required6; original causal diagnosis remains open.
-Reset-call ablation080407835 still FAIL5. First-tick traces prove a separate deterministic
-schedule defect: equal seed/index select different StringName candidate orders before movement.
-Explicit text-order repair and regression are in [their task](npc_schedule_canonical_order.md);
-focused GUT12/167 and parser PASS; unchanged week082044400 still FAIL5. Repair review PASS24s
-on `f8e5ea5c0d6935c1187232826cbd53efd0f4a411` -> `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c`.
-Low-health exit rejection FIXED `5670d3566328a3e831921f2a845276de6a981ee1`;
-[native89/627 and immutable review PASS24s](npc_hazard_escape_low_health.md). Full week083125987 FAIL5.
+All ten canonical archetypes are bound to the production roster and use native authored BTs.
+Conditional Veil/cloud escape, gaze/light/toy/blood behavior, feeding floor and role lifetimes
+retain their reviewed owners. Canonical RV-001..006 are FIXED; schedule/escape/route defects
+are separately completed with native regressions and immutable reviews:
+[canonical schedule](completed/npc_schedule_canonical_order.md), [wounded escape](completed/npc_hazard_escape_low_health.md).
+Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days, unchanged >=6/8 residents, night/snapshot/restore/navigation/identity pass.
+Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
+BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
+Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
+Scoped repairs/reviews remain valid ancestors; prior FAIL evidence is historical. No accepted findings or required automated gates remain open; rendered gameplay/visual and final balance QA NOT_RUN.
 
 ### Validation
 
+Cloud review PASS,95s, no findings: BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8`
+-> TARGET `588b59c1771d95b4ffba278988ddef0a364013a7`; architecture/style PASS, reviewer runtime NOT_RUN.
 Cloud batch GUT **136/2406 PASS**, `.artifacts/godot_agent/`, date20261012:
 Veil20324494715/127; participation2025201979/162; sight2026361738/27;
 native lifecycle20313622251/346; feeding20323005711/95; light20324240812/159;
@@ -47,17 +43,18 @@ old scene073431612, reverted decision073919530, actor074843088, zero-clock075712
 All six corresponding native parsers PASS. Reset-call ablation080407835 FAIL5.
 Bounded179sample traces (full week NOT_RUN) isolate the first goal difference at equal clock16666;
 allocation-dependent schedule ordering is proven; detailed evidence is in the linked task.
-Shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED; mandatory/live/owner QA remains open.
+Shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED. Those failures remain historical;
+final automated live/week integration PASS in R26.5, owner QA remains open.
 
 ### Next
 
-Continue cross-archetype acceptance and all-ten live roster binding with explicit role/save contracts.
-Keep unchanged full week survival6 mandatory; do not waive R26.5/owner QA or claim mortality resolved.
+Complete the original R26 gameplay/visual checklist and final balance; no automated blocker remains.
+Do not claim headless tests establish presentation, dialogue tone or combat feel.
 
 ### Review triage
 
 Canonical source/fix SHAs below are ancestors of current code HEAD
-`78e9b826470dce320bf9999f495ed0c05ab8c8f5`; prior light/feeding/blood/UI reviews added no findings.
+`4c60e3dc784352c2fb95ca617cebbafa9a834366`; prior light/feeding/blood/UI reviews added no findings.
 Full-SHA audit:26 earlier checkpoints PASS; audited baseline
 `5670d3566328a3e831921f2a845276de6a981ee1` and both feedback repairs remain ancestors
 of current code HEAD. RV-001..005 retain FIXED; latest [review/gates](r26_5_integration_persistence_validation.md).

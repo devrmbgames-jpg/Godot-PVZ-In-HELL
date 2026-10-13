@@ -1,5 +1,5 @@
 # R26 — Physical items and modular NPC archetypes
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -21,73 +21,38 @@ This root task owns overall status/current/next. Each supporting task owns its o
 
 ### Current
 
-R26.1 physical catalog/framework and R26.2 persistent modular identity/category orders are
-implemented at the checkpoints recorded in their owning tasks; full integration remains open.
-R26.3 native safety/freeze/shy/night/hag/brute/fire/chain milestones passed scoped native
-checks and independent reviews. Creepy now uses hidden native paths, actual camera/LOS,
-terminal-reader reach and durable actor-specific notice at
-`3e88b56983a775cc78c225353251ff6a98d33b87` (schema17).
-Recovery review BASE `6f96be1e39eb94b4a4c307c8bce2d3b9a30a14f3` -> that TARGET accepted only
-RV-005 in R26.3. Repair `23fa3d44d9024d4becb59477921be1d288d7bee9` passed GUT14/111 and
-independent targeted review; suspension now breaks continuous exposure, preserving memory.
-R26.4 now has **20/20** native variants (lost/shy/night/angel/hag/brute/fire/chain/creepy/vampire).
-Creepy `ad79c0eab6a00772dd578a3a7d25053166db70ef` passed native GUT36/1009, parser3/3
-and static checks; independent review **PASS**, no findings, on exact
-`23fa3d44d9024d4becb59477921be1d288d7bee9..ad79c0eab6a00772dd578a3a7d25053166db70ef`.
-Blood consent core `a407762ef018ab70715119cd432c63071d62d928` now has native typed
-5..40% current-HP transactions, personal durable keys/receipts, refusals/cooldowns and
-schema18 passive restore. GUT87/1069 and parser14files passed; independent immutable review
-BASE `ac0ee0dd55b99bc9324b31a6a5c8a757eb065960` -> that TARGET **PASS (125s, no material findings)**.
-Vampire UI/dialogues `14cadff37461590c14454aabfdbca1fb4af11e94` passed native GUT78/2014,
-parser2/2 and scoped gates; independent review **PASS** (50s, no material findings) on exact preceding code SHA.
-Vampire native wounded feeding and ordinary damage floor
-`3961328cdc94dc93d56fa7336373af993128e0da` passed GUT123/1830, parser16files,
-static gates and bounded headless week. Review BASE `80eb932ff485fd714e8b111ea370629de3ec3f2f`
--> that TARGET PASS (91s, no findings), same reviewer; details in R26.3.
-Typed local light comfort `38b7f2a59ef3c344b03aafaf11e7f7911d60622c` now adjusts optional
-position without emergency flight; authored routes and native cooldown preserve higher priorities.
-GUT65/1851, parser7files, scoped gates and headless week PASS; independent review BASE
-`8608f987f2a2a8965597829be98c2d6a7a8e94df` -> that TARGET PASS (210s, no findings).
-Conditional cloud/visibility and authored appearance are implemented at
-`588b59c1771d95b4ffba278988ddef0a364013a7`, GUT136/2406 and parser/static gates PASS.
-Review BASE `a2b1d764b1b316b27df979a8d72917d6deab8ed8` -> that TARGET PASS (95s, no findings);
-same reviewer reused. Final week smoke FAIL survival5/required6; comparable BASE week PASS.
-R26.3 owns mortality diagnosis/RV-006; integration acceptance remains open.
-Independent schedule ordering `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c` and low-health
-escape `5670d3566328a3e831921f2a845276de6a981ee1` are fixed with native regressions
-and collected immutable reviews PASS. Latest unchanged week083125987 still FAIL5/required6.
-R26.5 live binding now connects all ten archetypes and two explicit visitor presets while
-preserving twelve identity slots and participation; schema19 is intentional incompatibility.
-Native live-roster GUT10/798 and MCP resource inspection PASS at
-`81f22ee6e09a3466237ac67564554052fc4a2634`; collected review PASS against
-`25e54edea6bf38d28d3d4548d79a38155ed29a89`, no findings,108s.
-Initial full regression1252 FAIL; isolated fixture/test repairs293/5690 PASS, repair review PASS `5a861f1a83cef7c53a962326eda42420de1238cd`.
-Read-only diagnostics `1b37fcb468e1c0c7d996d1d4df3d7940c933a807` GUT21/202 and
-collected immutable review PASS against `5a861f1a83cef7c53a962326eda42420de1238cd`.
-Native stale-goal repair `19a080981bcec44fb2be2c8725892129db6f200a` and review PASS;
-Connected-candidate [repair](npc_hazard_escape_connected_candidates.md)
-`a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`: current native120/899 and immutable review PASS;
-week acceptance and required owner QA remain unfinished; details/triage in R26.5.
-Unsafe endpoint retirement `78e9b826470dce320bf9999f495ed0c05ab8c8f5`: native121/918
-and immutable review PASS; unchanged full week111311881 FAIL5/6.
-Measured floor1HP/0.5s candidate native PASS7/6; authored radius10m/TTL60s and torso aura4HP
-preserved. Native ResourceSaver/UID and fire-presence11/77 PASS; production week/review pending.
-Existing user worktree edits were preserved.
+R26.1 physical catalog/framework, R26.2 persistent modular identity/category orders,
+R26.3 native archetype behavior and R26.4 all20 dialogue/sign variants are implemented.
+R26.5 binds all ten archetypes and two visitor presets; twelve stable slots, eight residents,
+four visitors, merchant, recipients and participation are preserved. Current save schema19
+intentionally rejects schema18; restored identity/traits/dialogue are not rerolled.
+Each supporting task owns its implementation/review evidence; R26.5 owns final integration.
+Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days,
+unchanged survival requirement >=6/8 original residents, night/snapshot/restore/navigation/identity pass.
+Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
+BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
+Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
+Scoped repair code/reviews remain valid ancestors; prior failed weeks below are historical evidence.
+No accepted findings or required automated gates remain open in this scoped task.
+Rendered gameplay/visual and final balance QA NOT_RUN; these remain in the original R26 tasks.
+Windows QA export `.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa` and headless menu/level120frames PASS.
+Build contains preserved user working-tree changes (dirty=true); it is not a clean immutable checkout.
+Final subjective acceptance remains open; no rendered gameplay or capture has run.
 
 ### Next
 
-Collect all-ten cross-archetype acceptance and review with explicit role and save contracts.
-Preserve unchanged mandatory full-week survival6 acceptance; latest111311881 FAIL5/required6,
-original4 and isolated2 FAIL5/6; measured floor1 candidate native PASS7/6.
-Collect floor-pressure immutable review and ordinary production week; keep final balance in owner QA.
-Diagnostic [QA export/checklist](../qa_tasks/r26_acceptance.md) is ready; rendered permission pending.
+Complete [owner QA](../qa_tasks/r26_acceptance.md): item feel/physics readability, all-ten NPC
+behavior/presentation, dialogue, save/load, diagnostics and final balance/assets.
+Rendered-playtest permission remains pending; no automated implementation gate is pending.
+Keep R26 OWNER_QA until acceptance closes or the owner explicitly defers remaining manual scope.
 
 ### Validation
 
-Initial R26.1 semantic damage batch has focused parser/GUT evidence in its owning task.
-Full owner item/NPC acceptance remains NOT_RUN; automated evidence and week FAIL belong to R26.5. Milestones use
-[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and immutable-SHA
-[review-orchestration](../.agents/skills/review-orchestration/SKILL.md) before DONE.
+Automated implementation/review gates PASS; final district week retains its >=6 survival criterion.
+R26.5 preserves original failed batches/weeks, fresh repair evidence and exact immutable review SHAs.
+Full owner item/NPC acceptance NOT_RUN. Checkpoint completion uses
+[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and
+[review-orchestration](../.agents/skills/review-orchestration/SKILL.md).
 
 ### Owner QA / blockers
 
@@ -162,6 +127,8 @@ Use:
 Shared traits must be reusable across archetypes so future NPCs can combine unexpected behavior without adding a new monolithic class.
 
 ## Milestones
+
+Implementation and automated gates PASS for all five; unchecked milestones retain required owner QA.
 
 - [ ] R26.1 — shared physical-item/capability/effect framework and the requested item catalog.
 - [ ] R26.2 — NPC archetype data, persistent variation, tags, order preferences and placeholder identities.

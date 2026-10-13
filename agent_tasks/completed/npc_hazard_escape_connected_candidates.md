@@ -1,5 +1,5 @@
 # NPC hazard escape — connected candidates after native path failure
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 ## Task state
 
@@ -8,30 +8,31 @@ Status: **IN_PROGRESS**
 Use actual failed route feedback to skip disconnected refuge projections while keeping
 path building in the fair `S_NpcRoutePlanning` queue. The projection itself may be safe
 on a separate navmesh region; a reachable alternative must remain available.
-Linked mandatory survival acceptance: [R26.5](r26_5_integration_persistence_validation.md).
+Linked mandatory survival acceptance: [R26.5](../r26_5_integration_persistence_validation.md).
 
 ### Current
 
-Main repairs bounded derived `C_NpcRoute` feedback: planning records a failed refuge;
-point selection skips it; route lifecycle clears feedback after danger/map invalidation;
-native reconstruction clears the transient field. No new goal/physics authority or tuning.
-Initial implementation `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea` passed the relevant batch.
-Collected review found RV-002 map invalidation ordering; native reproduction confirms it.
-Map retirement repair and targeted review PASS; unchanged production week FAIL5/required6.
-Native moving-source reproduction reveals RV-003: shifted island projection escapes exact-point
-rejections. A bounded transient direction cursor now advances after actual failed planning,
-preserving the ordinary first-choice behavior; danger/map/reconstruction reset both feedback fields.
-Full affected verification and immutable review PASS; latest unchanged week FAIL5/required6.
-Readonly cursor/cache probe confirms NPC3 cursor2, two failed points and a reachable moving
-route before death; NPC1/4 also have reachable moving routes. Native RV-004 then proves
-successful retry-goal drift while the actor advances. Solver now retains that already-planned
-world goal only while map/revision and safety remain valid. Moving danger invalidation is covered.
-Latest bounded probe1055116147200frames PASS: NPC3 cursor1, retained goal and reachable physical
-movement; NPC1/4 also move on reachable routes, without combat. Deaths remain4/day1,3/day3,1/day4.
-Full week105104090 FAIL5/6. Remaining mortality belongs to R26.5; required survival remains unwaived.
+RV-001..004 FIXED with native before/after regressions and collected immutable reviews.
+Failed-refuge feedback is bounded, retired on danger/map/reconstruction, and successful
+retry goals remain stable while native map/revision and hazard safety stay valid.
+Path construction retains the existing fair queue; no alternate movement/physics authority.
+Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days,
+unchanged survival requirement >=6/8 original residents, night/snapshot/restore/navigation/identity pass.
+Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
+BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
+Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
+Scoped repair code/reviews remain valid ancestors; prior failed weeks below are historical evidence.
+No accepted findings or required automated gates remain open in this scoped task.
+Rendered gameplay/visual and final balance QA NOT_RUN; these remain in the original R26 tasks.
 
 ### Validation
 
+Post-cursor bounded `district_survival_probe-20261013-102505182.log`7200frames native PASS
+(full week NOT_RUN): NPC3 selects a connected path; earlier critical samples show physical
+movement but the three original deaths still occur. Post-retained-goal bounded probe105511614
+also PASS7200frames (week NOT_RUN): NPC3 cursor1, retained reachable goal; NPC1/4 move without
+combat. Historical week105104090 FAIL5/6; earlier101155950 FAIL5/6 and initial4/6.
+Diagnostic fields compile/run natively; scoped formatter PASS, no gameplay mutation.
 RV-001/P1 FIXED `32ddcee3f696eb9d48e320091e9b8ed6f0c414ea`, source
 `19a080981bcec44fb2be2c8725892129db6f200a`,
 `NpcRouteSolver.refuge`/`S_NpcRoutePlanning`: failed projected island is selected again,
@@ -101,14 +102,9 @@ Architecture/style PASS; reviewer validation NOT_RUN. RV-004 resolved; unchanged
 
 ### Owner QA / blockers
 
-Unchanged week on reviewed retained-goal repair `tests/artifacts/district-20261013-105104090.log`
-FAIL5/required6 (prior map repair also5, initial4); night/snapshot/restore pass, no other runtime errors.
-Readonly full-week probe101155950 also FAIL5/6; scoped repair must not waive required survival.
-Post-cursor bounded probe `district_survival_probe-20261013-102505182.log`7200frames
-native runtime PASS (full week NOT_RUN): NPC3's cursor/cache selects a connected native path;
-all three original deaths still occur while earlier critical samples show physical movement.
-Two extra diagnostic fields compile/run natively; formatter1file PASS, no gameplay mutation.
-Rendered permission pending; [owner QA](../qa_tasks/r26_acceptance.md) NOT_RUN.
+Scoped implementation, native verification, immutable reviews and final linked district week PASS.
+No scoped blocker remains. Required R26 gameplay/visual acceptance and final floor balance
+remain [owner QA](../../qa_tasks/r26_acceptance.md); no rendered QA is claimed.
 
 ## Acceptance
 

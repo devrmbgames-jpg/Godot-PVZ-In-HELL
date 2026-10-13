@@ -1,7 +1,7 @@
 # NPC hazard escape — wounded actors retain a viable exit
-Status: **IN_PROGRESS**
+Status: **DONE**
 
-Linked mandatory acceptance: [R26.3](r26_3_npc_behavior_trees.md).
+Linked mandatory acceptance: [R26.3](../r26_3_npc_behavior_trees.md).
 Related independent endpoint defect: [native safe endpoints](npc_hazard_escape_navigation.md).
 
 ## Task state
@@ -16,6 +16,15 @@ unchanged district week and immutable repair review.
 
 ### Current
 
+Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days,
+unchanged survival requirement >=6/8 original residents, night/snapshot/restore/navigation/identity pass.
+Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
+BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
+Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
+Scoped repair code/reviews remain valid ancestors; prior failed weeks below are historical evidence.
+No accepted findings or required automated gates remain open in this scoped task.
+Rendered gameplay/visual and final balance QA NOT_RUN; these remain in the original R26 tasks.
+
 BASE `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c` ->
 TARGET `5670d3566328a3e831921f2a845276de6a981ee1`.
 `NpcRouteSolver.acceptable` accepts finite exposure for active hazard distress; ordinary
@@ -28,7 +37,7 @@ reviewer runtime NOT_RUN. Previous collected reviews remain unchanged.
 RV-001 P1, Main, source `c21ac06cc4e71d339e47c2dbe7e3b737fe82d49c`,
 `NpcRouteSolver.acceptable/plan`: **FIXED**
 `5670d3566328a3e831921f2a845276de6a981ee1`, native12/95 and immutable review PASS.
-Current bounded mortality probe shows npc/3 hp16 then12, active emergency exit intent,
+Before-fix bounded mortality probe shows npc/3 hp16 then12, active emergency exit intent,
 zero velocity and empty/unreachable route inside floor fire, followed by death on day3.
 The native bounded-map regression reproduces rejection of a connected exit at hp0.5.
 Ordinary travel still rejects the same exposure when hazard distress is false.
@@ -52,9 +61,10 @@ The independent exit rejection is fixed; it does not by itself resolve cumulativ
 
 ### Next
 
-Continue R26's declared all-ten roster/integration work while retaining the unchanged
-mandatory full-week gate. This task remains active until that linked acceptance actually passes.
+Scoped task completed and archived. Continue only the original R26 owner-QA gates.
 
 ### Owner QA / blockers
 
-Required full week FAIL; immutable review is collected. No rendered gameplay or visual QA ran.
+Scoped implementation, native verification, immutable reviews and final linked district week PASS.
+No scoped blocker remains. Required R26 gameplay/visual acceptance and final floor balance
+remain [owner QA](../../qa_tasks/r26_acceptance.md); no rendered QA is claimed.

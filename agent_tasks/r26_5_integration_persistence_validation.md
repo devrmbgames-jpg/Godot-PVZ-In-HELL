@@ -1,5 +1,5 @@
 # R26.5 — Integration, persistence and acceptance for R26
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -13,30 +13,29 @@ Native ResourceSaver now binds all ten canonical archetypes and two explicit vis
 Twelve stable NPC slots, eight residents/four visitors, slot-eight merchant, recipients and participation
 schedules preserved. Legacy fixtures isolate regressions; live acceptance/smoke use production data.
 Schema advances from 18 to 19 because saved profile paths/meaning change; no conversion or alias.
-Roster checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` and repair
-`5a861f1a83cef7c53a962326eda42420de1238cd` have collected review PASS; integration remains open.
+Roster checkpoint `81f22ee6e09a3466237ac67564554052fc4a2634` and repair `5a861f1a83cef7c53a962326eda42420de1238cd` have collected review PASS; automated integration is PASS.
 Wide floor pressure now uses1HP/0.5s; radius10m/TTL60s and torso aura4HP unchanged.
-Measured counterplay candidate native week PASS7/6; production week/immutable review pending.
+Final production week112524520 PASS (unchanged >=6/8); reviewed code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`.
+All accepted defects FIXED; only required owner gameplay/visual and final balance QA remain open.
 
 ### Validation
-PASS: clean native visitor reference/UID finalization, `.artifacts/r26_roster_finalize-uid-20261013.log`.
 Golden schema19 capture `gut-20261012-225647766` 5/364 assertions PASS; runner FAIL solely
 at shutdown Resource/RID/VariantPools retention, KNOWN_ENGINE_LIMITATION/DEFERRED. Inventory PASS.
 Fresh-process night write090418708 and restore090443023 PASS after creation-seed fixture repair.
-FAIL: unchanged reviewed endpoint-safety week `district-20261013-111311881.log`, survival5/required6;
+Historical FAIL: unchanged reviewed endpoint-safety week `district-20261013-111311881.log`, survival5/required6;
 prior094309939/085722945 FAIL4, legacy FAIL5. Night/snapshot/restore pass; shutdown retention DEFERRED, no other runtime errors.
 Full affected batch `.artifacts/r26_roster_regressions-20261013.log` FAIL: 57 suites,
 1232/1252 tests, 17719/17793 assertions, one lifecycle suite failed to parse. Scope pinned by
 `.artifacts/r26_roster_regression_paths-20261013.txt`. Only failed/omitted suites are rerun
 after repair in fresh processes; current totals below. QA export/menu/level120frames PASS:
-`.export/windows/20261013-005901Z-a030253a-r26-reviewed-retained-goal-qa`; dirty=true, full reviewed SHA in manifest.
+`.export/windows/20261013-012719Z-4c60e3dc-r26-reviewed-pressure-qa`; dirty=true, full reviewed SHA in manifest.
 Fresh failed/omitted/live suites PASS: 293 tests/5690 assertions, logs date20261012 under
 `.artifacts/godot_agent/`: blood23175732114/195, queue23205106551/340, snapshot23184298816/205,
 stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
-[Route convergence](npc_route_goal_convergence.md): RV-001/002 reviewed FIXED; latest unsafe endpoint retirement native121/918/parser/static/review PASS, week FAIL5/6.
-[Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): RV-001..004 FIXED; latest120/899/parser/static/review PASS.
+[Route convergence](completed/npc_route_goal_convergence.md): RV-001/002 reviewed FIXED; latest unsafe endpoint retirement native121/918/parser/static/review PASS; pre-tuning week FAIL5/6, final week112524520 PASS.
+[Disconnected refuge candidates](completed/npc_hazard_escape_connected_candidates.md): RV-001..004 FIXED; latest120/899/parser/static/review PASS.
 Isolated floor-damage2 control `.artifacts/r26_floor_asset_comparison-20261013-103745981.log`
 FAIL5/6, actual tick_damage2/cadence0.5 verified; fire-presence00391791111/77 PASS; original asset restored byte for byte.
 Floor1 control `.artifacts/r26_floor_counterplay_candidate-20261013-111752457.log`: native PASS7/6;
@@ -44,15 +43,18 @@ actual radius10/tick1/0.5 and applied damage1 verified, torso4 unchanged; native
 Shutdown4ObjectDB/2Resource retention DEFERRED; both experiments restored exact original bytes.
 Native ResourceSaver authoring012124213 exit0/UID PASS; runner FAIL only shutdown RID/Resource retention DEFERRED.
 Final fire-presence01223947511/77, structure/persistence inventory PASS; schema/path/UID unchanged.
+Ordinary production `tests/artifacts/district-20261013-112524520.log` PASS, wrapper exit0;
+full7days, unchanged survival >=6/8, night/snapshot/restore/navigation/identity PASS.
+Export shutdown422ObjectDB/152Resource/VariantPools and1startup Resource retention DEFERRED; logs preserved.
+No rendered playtest or visual QA ran.
 
 ### Review / triage
 
-PASS: existing terminal reviewer reused after live-status check, exact BASE
+Roster review PASS: exact BASE
 `25e54edea6bf38d28d3d4548d79a38155ed29a89` -> TARGET
 `81f22ee6e09a3466237ac67564554052fc4a2634`; no findings, elapsed108s;
-architecture/style PASS, reviewer validation NOT_RUN. Required week FAIL remains unresolved.
-RV-001/P2: night smoke mutated world_seed after native population/merchant publication at BASE
-`25e54edea6bf38d28d3d4548d79a38155ed29a89`, violating the committed variation seed contract.
+architecture/style PASS, reviewer validation NOT_RUN. Original week FAIL remains recorded above.
+RV-001/P2: night smoke mutated world_seed after native population/merchant publication at BASE above.
 FIXED `81f22ee6e09a3466237ac67564554052fc4a2634`, detached clock recipe before registration;
 fresh-process night write/restore and collected review PASS. No reroll/default/validator weakening.
 RV-002/P1 FIXED: new legacy DEF_District fixture resides under tests/, rejected by the
@@ -72,12 +74,13 @@ subtree lookup now checks relative safety/blood/feeding/combat order and real na
 RV-002..006 FIXED `5a861f1a83cef7c53a962326eda42420de1238cd`; targeted review PASS, no findings.
 BASE `81f22ee6e09a3466237ac67564554052fc4a2634` -> repair TARGET above; elapsed55s,
 architecture/style PASS, reviewer validation NOT_RUN.
+Floor-pressure review PASS, no findings,20s: BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979`
+-> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366`, same reviewer;
+architecture/style PASS, reviewer validation NOT_RUN. Final ordinary production week PASS above.
 
 ### Owner QA / blockers
 
-Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance;
-Deferred polish requires owner input; no rendered gameplay has run. Floor1 is a working authoring
-choice for wide-area pressure after native counterplay proof; final balance remains owner QA.
+Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance; deferred polish requires owner input. Floor1 is working tuning after native counterplay proof; no rendered gameplay has run.
 
 ## Persistence
 Persist durable physical item state/Health supported by existing snapshot rules, player karma,
@@ -125,13 +128,11 @@ NPCs should use receiver/archetype/trait data when deciding conflicts:
 Expose narrow events/state for Night Hunter music/shadows, Vampire invisibility/cloud escape,
 Angel signs and elemental aura VFX.
 
-Gameplay logic is independent of renderer/audio completion; use placeholders for missing final assets.
 
 ## Schema and new-game construction
 Current `AutosaveStore.SCHEMA_VERSION` is 19 in this migration. When serialized fields/paths/meaning change,
 advance the actual supported version, guards, golden fixture and save-visible inventory.
-Unsupported old/newer/invalid saves reject before live mutation, preserve original bytes
-and remain protected from later autosave. No conversion, previous-format aliases or load defaults.
+Unsupported saves reject before mutation and retain bytes/protection; no conversion/aliases/load defaults.
 Initialize new-game records deterministically from existing authored profiles without mutating
 shared Resources. Use [save-systems](../.agents/skills/save-systems/SKILL.md).
 
@@ -195,7 +196,4 @@ No per-frame verbose logging or duplicated gameplay authority.
 6. Runnable Windows QA export under `.export/` at the completed large gameplay milestone.
 
 ## Owner QA
-Manual owner checks cover scythe AOE/thrown-knife feel, barrel/flask physics and hazard
-readability; Angel look/freeze; Night Hunter light/music/shadows; Creepy stalking;
-Vampire visibility/cloud escape; final prose and balance of aggression, probabilities,
-order weights and karma thresholds.
+Manual checks cover scythe/knife feel, barrel/flask physics and hazard readability; Angel freeze, Night Hunter light/music/shadows, Creepy stalking, Vampire visibility/cloud, prose and aggression/probability/order/karma balance.

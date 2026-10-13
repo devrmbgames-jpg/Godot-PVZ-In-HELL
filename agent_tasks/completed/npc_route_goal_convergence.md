@@ -1,5 +1,5 @@
 # NPC route goal convergence after endpoint completion or moving danger
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 ## Task state
 
@@ -8,10 +8,15 @@ Status: **IN_PROGRESS**
 Repair `S_NpcRoute` retaining a completed or newly unsafe escape endpoint when the movement
 goal shifts below `DEF_District.waypoint_distance` but remains outside actual arrival tolerance.
 `S_NpcRoutePlanning` keeps the fair queue/frame budget; `S_NpcIntent` and the physical
-body retain cursor/control/transform authority. Linked acceptance: [R26.5](r26_5_integration_persistence_validation.md).
+body retain cursor/control/transform authority. Linked acceptance: [R26.5](../r26_5_integration_persistence_validation.md).
 
 ### Validation
 
+RV-001 immutable review PASS, no findings,34s: BASE
+`1b37fcb468e1c0c7d996d1d4df3d7940c933a807` -> TARGET
+`19a080981bcec44fb2be2c8725892129db6f200a`; architecture/style PASS, reviewer validation NOT_RUN.
+Historical RV-001 week094309939 FAIL4/6; endpoint-safety week111311881 FAIL5/6,
+night/snapshot/restore PASS; shutdown4ObjectDB/2Resource retention DEFERRED.
 RV-001/P1 FIXED `19a080981bcec44fb2be2c8725892129db6f200a`, source `1b37fcb468e1c0c7d996d1d4df3d7940c933a807`,
 `S_NpcRoute._progress_route`: retained goal8.8, current goal9.08, actor8.65,
 arrival0.3, waypoint threshold0.5. Native NavigationAgent finishes the retained endpoint;
@@ -46,25 +51,28 @@ Unchanged reconstruction/schema gates remain valid; no fields/reset/save authori
 
 ### Current
 
+Final linked production week `tests/artifacts/district-20261013-112524520.log` **PASS**, wrapper exit0: all seven days,
+unchanged survival requirement >=6/8 original residents, night/snapshot/restore/navigation/identity pass.
+Code checkpoint `4c60e3dc784352c2fb95ca617cebbafa9a834366`; exact floor-pressure review
+BASE `f9888f3c87fb7715d5ab8bdf07b5ef55382c5979` -> TARGET `4c60e3dc784352c2fb95ca617cebbafa9a834366` PASS, no findings.
+Wide floor tuning1HP/0.5s is owned by R26.5; radius10m/TTL60s and torso aura4HP unchanged.
+Scoped repair code/reviews remain valid ancestors; prior failed weeks below are historical evidence.
+No accepted findings or required automated gates remain open in this scoped task.
+Rendered gameplay/visual and final balance QA NOT_RUN; these remain in the original R26 tasks.
+
 RV-001 reviewed repair remains FIXED. RV-002 endpoint-safety retirement repair committed;
-affected native/static checks PASS; collected immutable review PASS, unchanged full week FAIL5/6.
+affected native/static checks PASS; collected immutable review PASS, historical unchanged full week FAIL5/6.
 Review BASE `2da4a456d66a137e5316af2ba87355fa2cc94a08` -> TARGET
 `78e9b826470dce320bf9999f495ed0c05ab8c8f5`, same reviewer,25s, no findings.
 Architecture/style PASS; reviewer validation NOT_RUN. RV-002 resolved, no pending accepted finding.
-Latest reviewed production week111311881 FAIL5/required6; linked
+Historical reviewed production week111311881 FAIL5/required6; linked
 [connected refuge candidates](npc_hazard_escape_connected_candidates.md) RV-001..004 remain FIXED.
 
 ### Owner QA / blockers
 
-Immutable review PASS, no findings,34s: BASE
-`1b37fcb468e1c0c7d996d1d4df3d7940c933a807` -> TARGET
-`19a080981bcec44fb2be2c8725892129db6f200a`; architecture/style PASS, reviewer validation NOT_RUN.
-Focused native acceptance PASS. Latest unchanged week `tests/artifacts/district-20261013-111311881.log`
-FAIL5/required6; night/snapshot/restore pass. Shutdown4ObjectDB/2Resource retention is
-KNOWN_ENGINE_LIMITATION/DEFERRED; no other runtime errors. Prior RV-001 week094309939 FAIL4/6.
-Both scoped endpoint defects now have native before/after proof and collected review; mortality remains open.
-Rendered QA NOT_RUN.
-Required full-week acceptance remains open.
+Scoped implementation, native verification, immutable reviews and final linked district week PASS.
+No scoped blocker remains. Required R26 gameplay/visual acceptance and final floor balance
+remain [owner QA](../../qa_tasks/r26_acceptance.md); no rendered QA is claimed.
 
 ## Acceptance
 
