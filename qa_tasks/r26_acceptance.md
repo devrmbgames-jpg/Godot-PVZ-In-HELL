@@ -6,11 +6,12 @@ Status: **PENDING_OWNER_QA**
 Этот checklist владеет только ручной приёмкой. Headless GUT/smoke не подтверждают визуальную
 читаемость, качество реплик или ощущение управления. Rendered gameplay агентом не запускался.
 Диагностическая Windows сборка: [.export/LATEST.cmd](../.export/LATEST.cmd), каталог
-`.export/windows/20261013-002240Z-526780a0-r26-reviewed-refuge-qa`.
-Полный SHA `526780a07441cb30b2812d9bfe209583096744cc`, review BASE
-`c02213ef77d055b725cb221adf0b7cf48e89b77a`; export/menu/level startup PASS.
+`.export/windows/20261013-005901Z-a030253a-r26-reviewed-retained-goal-qa`.
+Полный SHA `a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`, review BASE
+`526780a07441cb30b2812d9bfe209583096744cc`; export/menu/level startup PASS.
 Сборка включает сохранённые пользовательские working-tree edits (`dirty=true`),
-Недельный тест FAIL5/required6; reviewed navigation-cache и moving-source repair включены.
+Недельный тест105104090 FAIL5/required6; reviewed navigation-cache, moving-source
+и repair сохранения успешной безопасной цели включены. Баланс огня исходный4HP/0,5с/60с.
 
 ## Предметы и физика
 

@@ -26,7 +26,9 @@ Readonly cursor/cache probe confirms NPC3 cursor2, two failed points and a reach
 route before death; NPC1/4 also have reachable moving routes. Native RV-004 then proves
 successful retry-goal drift while the actor advances. Solver now retains that already-planned
 world goal only while map/revision and safety remain valid. Moving danger invalidation is covered.
-Remaining mortality belongs to R26.5; required survival remains unwaived.
+Latest bounded probe1055116147200frames PASS: NPC3 cursor1, retained goal and reachable physical
+movement; NPC1/4 also move on reachable routes, without combat. Deaths remain4/day1,3/day3,1/day4.
+Full week105104090 FAIL5/6. Remaining mortality belongs to R26.5; required survival remains unwaived.
 
 ### Validation
 
@@ -80,7 +82,8 @@ all-twelve reconstruction verify both feedback fields. Immutable review PASS, no
 BASE `c02213ef77d055b725cb221adf0b7cf48e89b77a` -> TARGET
 `526780a07441cb30b2812d9bfe209583096744cc`, same reviewer,100s.
 Architecture/style PASS; reviewer validation NOT_RUN. RV-003 resolved; latest full week FAIL5/6.
-RV-004/P1 ACCEPTED, source `526780a07441cb30b2812d9bfe209583096744cc`,
+RV-004/P1 FIXED `a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`, source
+`526780a07441cb30b2812d9bfe209583096744cc`,
 `NpcRouteSolver.refuge`: retry direction rotates relative to the advancing actor even after
 native planning succeeded; safe goal(8.43096,0,-5.123841) moves to(6.308368,0,-5.259321)
 after actor advances0.75m, despite unchanged hazard/map. Native GUT20261013-004359199
@@ -92,11 +95,13 @@ endpoint00453355414/137; performance00472147421/145; scheduling00473768549/291;
 Veil00480606215/127; fire00481520311/77; blood00482130710/122. Parser0048294713files
 and formatter3files/strict architecture/structure PASS. Unchanged lifecycle suites retained
 from cursor checkpoint: live10/846 and participation9/162 PASS; no lifecycle/schema write changed.
-Immutable review and new production week pending coherent commit.
+Targeted review PASS, no findings: BASE `526780a07441cb30b2812d9bfe209583096744cc`
+-> TARGET `a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`, same reviewer,35s.
+Architecture/style PASS; reviewer validation NOT_RUN. RV-004 resolved; unchanged full week FAIL5/6.
 
 ### Owner QA / blockers
 
-Unchanged week on reviewed cursor repair `tests/artifacts/district-20261013-102211390.log`
+Unchanged week on reviewed retained-goal repair `tests/artifacts/district-20261013-105104090.log`
 FAIL5/required6 (prior map repair also5, initial4); night/snapshot/restore pass, no other runtime errors.
 Readonly full-week probe101155950 also FAIL5/6; scoped repair must not waive required survival.
 Post-cursor bounded probe `district_survival_probe-20261013-102505182.log`7200frames

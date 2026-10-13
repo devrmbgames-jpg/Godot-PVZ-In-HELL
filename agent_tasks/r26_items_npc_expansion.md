@@ -66,17 +66,17 @@ Read-only diagnostics `1b37fcb468e1c0c7d996d1d4df3d7940c933a807` GUT21/202 and
 collected immutable review PASS against `5a861f1a83cef7c53a962326eda42420de1238cd`.
 Native stale-goal repair `19a080981bcec44fb2be2c8725892129db6f200a` and review PASS;
 Connected-candidate [repair](npc_hazard_escape_connected_candidates.md)
-`526780a07441cb30b2812d9bfe209583096744cc`: native139/1904 and immutable review PASS;
+`a030253a2ffcb7bf2cc4b4e758629c6dc45225e3`: current native120/899 and immutable review PASS;
 week acceptance and required owner QA remain unfinished; details/triage in R26.5.
 Existing user worktree edits were preserved.
 
 ### Next
 
 Collect all-ten cross-archetype acceptance and review with explicit role and save contracts.
-Preserve unchanged mandatory full-week survival6 acceptance; latest102211390 FAIL5/required6,
+Preserve unchanged mandatory full-week survival6 acceptance; latest105104090 FAIL5/required6,
 cursor/cache diagnostic confirms actual reachable escape; isolated floor-damage2 also FAIL5/6,
-original4 restored; successful-goal retention repair/native120/899 now awaits review.
-Full integration/owner QA remain open; do not change balance solely to force this gate.
+original4 restored; successful-goal retention repair/native120/899 and review PASS.
+Full integration/owner QA remain open; pending authored floor balance clarification, radius10m retained.
 Diagnostic [QA export/checklist](../qa_tasks/r26_acceptance.md) is ready; rendered permission pending.
 
 ### Validation
