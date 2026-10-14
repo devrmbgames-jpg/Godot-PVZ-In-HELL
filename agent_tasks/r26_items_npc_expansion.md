@@ -58,7 +58,8 @@ all automated/review/build work. The post-R27 audit found no remaining implement
 Complete [owner QA](../qa_tasks/r26_acceptance.md): item feel/physics readability, all-ten NPC
 behavior/presentation, dialogue, save/load, diagnostics and final balance/assets.
 Native/review gates pass; R27's editor-only generator heuristic is reviewed compliant/REJECTED,
-with raw validator FAIL preserved in its owning task. Rendered permission/owner acceptance remain pending.
+with raw validator FAIL preserved in its owning task. Owner decision2026-10-14: the owner
+will test both builds personally; manual criteria remain OWNER_QA, with no agent rendered playtests.
 Keep R26 active until automated and required owner acceptance close or the owner explicitly defers manual scope.
 
 ### Validation

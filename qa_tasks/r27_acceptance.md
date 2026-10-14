@@ -2,6 +2,8 @@
 
 Status: **PENDING_OWNER_QA**
 
+Решение владельца2026-10-14: сборки проверяет владелец; ручные пункты остаются в OWNER_QA.
+
 Реализация и автоматические evidence: [R27](../agent_tasks/r27_qa_followup.md).
 Тестовая сборка после завершения milestone: [.export/TEST_LEVEL.cmd](../.export/TEST_LEVEL.cmd).
 Build `.export/windows/20261013-194408Z-25f6de74-r27-isolated-npc-rooms`, full code SHA

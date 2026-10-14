@@ -88,4 +88,5 @@ User-reported QA proves defects, not approval to launch a new rendered playtest.
 ### Owner QA / blockers
 
 Required final gameplay/readability acceptance remains open after implementation.
+Owner decision2026-10-14: the owner tests the builds personally; manual criteria remain OWNER_QA.
 Known shutdown-only retention remains KNOWN_ENGINE_LIMITATION / DEFERRED.
