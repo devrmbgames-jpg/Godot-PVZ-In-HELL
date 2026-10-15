@@ -84,7 +84,8 @@ static func can_pickup_body(
 
 ## Проверяет и занимает выбранный слот одной транзакцией; replace разрешает заменить его предмет.
 ## True требует lifecycle cache после add_relationship.
-## При MANUAL Observer buffer false может оставить связь, ещё ожидающую применения на flush.
+## O_GrabLifecycle применяет grip синхронно; при MANUAL false может оставить отклонённую связь
+## до её удаления на flush, а не до завершения pickup.
 static func try_pickup(
 	holder: Entity,
 	target: Entity,

@@ -10,7 +10,7 @@
 
 `C_Grabbable.allowed_hand_slots=0` означает Carry-only; флаги Right=2 и Left=4 задают разрешённые руки. Scanner разрешает обе. `C_GrabControl.held_carry/held_right/held_left` — только производные индексы. `GrabQueries.held_in_slot()` проверяет relation; агрегатный `held_object()` выбирает первый слот и не определяет вместимость.
 
-`GrabService.try_pickup(holder, target, slot, replace)` проверяет slot/body/ownership/LOS перед освобождением заменяемого предмета. Relationship добавляется на command boundary, а `O_GrabLifecycle` применяет её эффекты. Возвращаемый bool проверяет lifecycle cache: при MANUAL буфере false может оставить ещё ожидающую применения связь. `GrabReleaseService.release` сохраняет инерцию; `GrabService.throw` сначала вычисляет Strength/mass mobility текущего Carry, затем освобождает связь и добавляет импульс `direction × mass × throw_velocity × mobility`.
+`GrabService.try_pickup(holder, target, slot, replace)` проверяет slot/body/ownership/LOS перед освобождением заменяемого предмета. При добавлении Relationship `O_GrabLifecycle` синхронно применяет её эффекты. Возвращаемый bool проверяет lifecycle cache: при MANUAL буфере false может оставить отклонённую связь до её удаления на flush; этот flush не завершает pickup. `GrabReleaseService.release` сохраняет инерцию; `GrabService.throw` сначала вычисляет Strength/mass mobility текущего Carry, затем освобождает связь и добавляет импульс `direction × mass × throw_velocity × mobility`.
 
 ## Физика Grab
 
