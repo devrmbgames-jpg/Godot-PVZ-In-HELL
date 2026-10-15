@@ -4,7 +4,9 @@ class_name HealthMutationService
 
 
 #region Common Health calculation
-## Resolves one validated request against its captured World; the caller publishes the result.
+## Synchronously validates/resolves one request against the caller's World and live C_Health.
+## Mutates health and fills result before return; rejection fills reason without changing HP.
+## O_Damage owns queued timing and terminal publication; this operation does not emit the result.
 static func apply(
 	request: DamageRequest,
 	health: C_Health,

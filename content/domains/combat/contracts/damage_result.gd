@@ -1,5 +1,6 @@
 extends RefCounted
-## Результат обработки здоровья с запросом и атрибуцией для дальнейшего жизненного цикла.
+## Terminal результат O_Damage после его CommandBuffer resolution; исходный запрос не равен эффекту.
+## HealthMutationService заполняет расчёт; O_Damage публикует EVENT для последующих реакций.
 class_name DamageResult
 
 ## Мировое событие с типизированным результатом здоровья.
@@ -17,14 +18,15 @@ var request: DamageRequest = null
 ## Отклонение, блокировка, применение или переход к истощению здоровья.
 var outcome: Outcome = Outcome.REJECTED
 
-## Здоровье до принятого расчёта; отклонённый запрос может оставить 0.
+## HP до принятого расчёта; при раннем REJECTED остаётся default 0, не показание живой цели.
 var previous_value: float = 0.0
-## Здоровье после принятого расчёта.
+## HP после принятого расчёта; при раннем REJECTED default 0 не означает смерть.
 var current_value: float = 0.0
-## Абсолютное фактическое изменение здоровья, включая полезное лечение.
+## Неотрицательная фактическая величина изменения HP, включая полезное лечение.
+## Нулевой результат не подтверждает расход лечебного предмета.
 var applied_amount: float = 0.0
 
-## Мировая поза цели до последующих реакций жизненного цикла и удаления.
+## Global pose цели, снятая O_Damage до lifecycle реакций; default IDENTITY, если цели уже нет.
 var world_pose: Transform3D = Transform3D.IDENTITY
 ## Machine-readable terminal reason from the sole damage handler.
 var reason: StringName = &"target_unavailable"

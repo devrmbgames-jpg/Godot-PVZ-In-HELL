@@ -5,6 +5,9 @@ class_name DamageRequestService
 
 #region Submission
 ## Dispatches a snapshot; true means accepted, completion is exclusively DamageResult.EVENT.
+## Requires a registered target with C_Health at dispatch; amount/operation validity is resolved
+## later by O_Damage/HealthMutationService. No handler completion or nonzero effect is promised.
+## Entity references remain borrowed; attribution IDs and combat context are captured separately.
 static func submit(request: DamageRequest) -> bool:
 	if request == null:
 		BoundaryTrace.record(
@@ -124,7 +127,8 @@ class DamageRequestBuilder:
 		return self
 
 
-	## Отправляет через общую проверку и снимок, затем освобождает запрос; построитель одноразовый.
+	## Возвращает dispatch acceptance, не результат HP; request освобождается и при отказе.
+	## После вызова построитель исчерпан; завершение accepted запроса — DamageResult.EVENT.
 	func submit() -> bool:
 		var submitted: bool = DamageRequestService.submit(request)
 		request = null

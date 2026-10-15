@@ -1,15 +1,17 @@
 extends Component
-## Вместимость и защита операций инвентаря; сами предметы связаны через R_OwnedBy.
+## Вместимость и transient guards владельца; inventory операции пишут locks/correlation sequence.
+## Сами стеки и их количество находятся в C_InventoryItem, владение — в R_OwnedBy.
 class_name C_Inventory
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
 const SAVE_FIELDS: Array[String] = ["maximum_stacks"]
 
-## Максимум отдельных стеков; совместимые предметы сначала объединяются.
+## Авторский положительный лимит отдельных стеков; перенос сначала объединяет совместимые стеки.
 @export_range(1, 32) var maximum_stacks: int = 8
-## Блокировка владельца до завершения эффекта использования.
+## InventoryService удерживает до завершения use; лечение ждёт DamageResult или lifecycle cancel.
+## Transient guard, не сохраняется и не означает, что эффект уже применён.
 var use_in_progress: bool = false
-## Защита владельца на время синхронного переноса стека.
+## InventoryService/InventoryDropService удерживают при синхронном переносе/drop против reentry.
 var transfer_in_progress: bool = false
-## Последовательность для устойчивого ID запросов использования.
+## InventoryService увеличивает runtime sequence для use correlation; не durable history ID.
 var use_sequence: int = 0

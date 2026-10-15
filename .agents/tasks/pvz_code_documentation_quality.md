@@ -96,22 +96,26 @@ Native `Script` metadata для всех 947 first-party paths: **1109 declared 
 
 Evidence: disposable `.artifacts/doc01_native_inventory.gd` → `.artifacts/doc01_native_declarations.json`, logs `.artifacts/godot_agent/doc01-native-inventory.stdout.log` / `.stderr.log`: 947 scripts, failed 0, native exit 0, stderr пустой. Нет script.new/instance creation, authored scene/resource writes или runtime ticks. Первоначальный probe с неправильным Variant cast отброшен; итоговый запуск имеет явный type guard. Контрольные случаи C_DayCycle (13 собственных полей вместо inherited parent), E_Door (inherited exports/methods/signals отдельно), EntityBuildPlan (2 inner classes) и MaterialGeneratorController проверены вручную. Эти числа не являются «процентом качества».
 
-M1, первый code batch: уточнены 8 scripts — C_DayCycle, DayTransitionRequest, DayPhaseService, S_DayPhase, GameTimeRules, C_CustomerFlow, CustomerFlowService и WalletService. Комментарии различают accepted запрос и committed факт, gameplay seconds/ticks, writers поля/кеша, WeakRef receipt lifetime и синхронный commit кошелька. Это завершённый batch, но M1/M2/M3 и полный pass 947 scripts остаются открыты.
+Inventory record review: **PASS**, base `77328491ce8d3ebc183888165f135925f83c2f73` → target `71dd93cb6c4fffe3fd6f15b30580212bdf2b3427`, no material findings; reviewer эмпирические counts не воспроизводил, только immutable claims/methodology review.
 
-Batch base: `8d38ada79fe25d4cc03290ca99996788bb3d93b5`; target `e81cf30fb763435a16c33ea88f695b5b4ea7e767`. Read-only reviewer по этим точным SHA: **PASS**, material findings нет; main triage завершён, исправления не требуются. ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN (проверки выполнял main).
+M1, проверенный первый code batch: C_DayCycle, DayTransitionRequest, DayPhaseService, S_DayPhase, GameTimeRules, C_CustomerFlow, CustomerFlowService и WalletService. Accepted запрос / committed факт, gameplay seconds/ticks, writers/кеш, WeakRef receipt lifetime и sync wallet commit уточнены. Base `8d38ada79fe25d4cc03290ca99996788bb3d93b5` → target `e81cf30fb763435a16c33ea88f695b5b4ea7e767`, read-only review **PASS**, material findings нет, triage завершён. Parser log `parsechanged-20261015-172123537`, nonbehavior 8/0, formatter/MCP/static PASS.
+
+Текущий второй batch: DamageRequest, DamageResult, DamageRequestService, HealthMutationService, C_Inventory, C_InventoryItem, R_OwnedBy, InventoryService. Уточнены dispatch/completion, HP/range constraints, snapshot attribution, transient use correlation, synchronous transfer/drop guards и delayed healing consumption. Обработаны 16 уникальных scripts в двух code batches; полный M1/M2/M3 и quality pass остальных файлов не завершены.
+
+Current batch base: `71dd93cb6c4fffe3fd6f15b30580212bdf2b3427`; target/review **REVIEW_PENDING** после commit. Существующие public symbols/defaults/exports/SAVE_FIELDS не меняются.
 
 Проверки batch:
 
-- PASS: `verify_gdscript_nonbehavior_changes.py --base 8d38ada79fe25d4cc03290ca99996788bb3d93b5 --mode comments` — 8 scripts, 0 отличий executable source/strings/indentation.
-- PASS: GDQuest incremental format/lint — 8 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-172123537.stdout.log` / `.stderr.log`.
-- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 8 paths checked, diagnostics empty, no instantiation. Native `script_patch` дал fallback reload 43, поэтому не принят за PASS; независимая path compile и CLI parser проверили файл успешно. Editor log просмотрен.
+- PASS: `verify_gdscript_nonbehavior_changes.py --base 71dd93cb6c4fffe3fd6f15b30580212bdf2b3427 --mode comments` — 8 scripts, 0 отличий executable source/strings/indentation.
+- PASS: GDQuest incremental format/lint — 8 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-173513516.stdout.log` / `.stderr.log`.
+- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 8 текущих paths checked, diagnostics empty, no instantiation.
 - PASS: incremental agent validator, strict architecture (0 lexical findings), project structure, scoped whitespace.
 - Full GUT/gameplay/visual: **NOT_RUN**, для comment-only batch не нужны; visual budget 0/8.
 
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Продолжить M1: остальные critical boundaries (damage, inventory, physics, composition, persistence), сопоставляя декларации и смысл локальных комментариев. Inventory/declaration counts сняты, смысловой pass всех оставшихся scripts открыт. Существующий `utils/verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation при сравнении; для собственных addons его текущий CLI skip нужно учитывать и проверять их тем же scanner явно. Остальные first-party файлы остаются открытым scope M2; финальный M3 — на совместном результате зависимостей.
+Собрать immutable review текущего batch и triage. Продолжить M1: physics, composition, persistence и оставшиеся critical lifetime/outcome owners; сопоставлять декларации со смыслом локальных комментариев. Inventory/declaration counts сняты, остальные first-party файлы остаются открытым scope M2. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; для собственных addons CLI skip нужно учитывать и проверять их тем же scanner явно. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.

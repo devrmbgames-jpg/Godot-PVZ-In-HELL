@@ -1,5 +1,6 @@
 extends RefCounted
-## Запрос урона/лечения; повреждающий источник отделён от вызвавшего действие участника.
+## Caller-owned запрос урона/лечения/SACRIFICE; submit копирует поля в отдельный queued snapshot.
+## Entity references не владеют lifetime; O_Damage повторно проверяет цель, результат несёт IDs.
 class_name DamageRequest
 
 const EVENT := &"damage_requested"
@@ -31,13 +32,14 @@ var instigator: Entity = null
 var source: Entity = null
 ## Конкретный получатель с Health; null не становится широковещательным запросом.
 var target: Entity = null
-## Положительная конечная сумма в единицах здоровья до сопротивления.
+## Конечные HP до сопротивления: > 0 для DAMAGE/HEAL; SACRIFICE допускает 0.
 var amount: float = 0.0
-## Урон или лечение; лечение не использует сопротивление урону.
+## Выбранная операция; HEAL и добровольный SACRIFICE не используют attack resistance/source veto.
 var operation: Operation = Operation.DAMAGE
-## Permanent maximum-Health delta for SACRIFICE only; ordinary damage/healing requires zero.
+## SACRIFICE-only finite nonpositive maximum-HP delta; base and resulting limit must stay > 0.
+## Ordinary DAMAGE/HEAL requires zero; HealthMutationService validates at resolution.
 var maximum_health_delta: float = 0.0
-## DAMAGE-only lower HP bound as a fraction of the resolution-time maximum; zero disables it.
+## DAMAGE-only lower HP bound in [0, 1] of the resolution-time maximum; zero disables it.
 ## Already lower HP is never raised by this damage request.
 var minimum_health_fraction: float = 0.0
 ## Тип урона для сопротивления и представления.

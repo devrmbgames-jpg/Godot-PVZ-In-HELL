@@ -74,6 +74,8 @@ static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -
 
 
 ## Проверяет ожидаемого владельца, резервирование, блокировки и вместимость без переноса.
+## expected_owner=null разрешает только свободный стек; перенос принадлежащего стека требует
+## его точного владельца. false не меняет состояние; destination должен быть доступен для операции.
 static func can_transfer(item: Entity, destination: Entity, expected_owner: Entity = null) -> bool:
 	if CustomerInspectionQueries.owner_for(item) != null:
 		return false
@@ -114,6 +116,7 @@ static func can_transfer(item: Entity, destination: Entity, expected_owner: Enti
 
 
 ## Синхронно объединяет совместимые стеки и меняет R_OwnedBy; отказ не расходует предметы.
+## true означает завершённый перенос всего количества; исходный item может быть удалён при merge.
 static func transfer(item: Entity, destination: Entity, expected_owner: Entity = null) -> bool:
 	if not can_transfer(item, destination, expected_owner):
 		return false
@@ -205,8 +208,9 @@ static func use_reason(owner: Entity, item: Entity, target: Entity = null) -> St
 	return ""
 
 
-## Применяет еду/защиту синхронно, лечение ожидает DamageResult; количество расходуется после
-## успеха.
+## Еда/защита: bool отражает синхронный эффект и расход. Лечение: true — только dispatch accepted,
+## use_in_progress/pending_use_id удерживаются до matching DamageResult либо lifecycle cancel.
+## O_InventoryEffect передаёт receipt в healing_result; расход только при applied_amount > 0.
 static func use(owner: Entity, item: Entity, target: Entity = null) -> bool:
 	if not use_reason(owner, item, target).is_empty():
 		return false
