@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](../district_service_update.md).
+Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](district_service_update.md).
 
 Зависимости: [Доставка — постоянные предложения и ежедневный выбор](district_delivery_offer_records.md).
 

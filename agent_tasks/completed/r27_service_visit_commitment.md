@@ -1,6 +1,6 @@
 # R27.1 — план визита сохраняется до вызова к стойке
 
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -15,6 +15,10 @@ Parent: [R27](r27_qa_followup.md).
 - Native regression must retain six planned visits through avoidance and prove the front-only route gate.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Source `d0568a32b4f80ab02a9ab8ab0d84babe341a91be`:
 NpcServiceRole.enqueue_next defers a not-yet-started visit for fear/combat;
@@ -51,8 +55,8 @@ native denied-home emergency test verifies role/meeting/inspection release and n
 
 ### Owner QA / blockers
 
-Owner gameplay acceptance remains open; no rendered playtest was run by the agent.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
 
 ### Next
 
-Owner verifies planned recipients persist through temporary avoidance; continue other R27 scopes.
+Задача закрыта и архивирована. Возобновление этой реализации не требуется; обнаруженные впоследствии дефекты оформляются отдельными задачами.

@@ -3,8 +3,8 @@
 Status: **PLANNED**
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
-Related: [R27.5](r27_test_lab_and_npc_rooms.md),
-[R26.1](r26_1_physical_items_and_effects.md).
+Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
+[R26.1](completed/r26_1_physical_items_and_effects.md).
 
 ## Goal / acceptance
 

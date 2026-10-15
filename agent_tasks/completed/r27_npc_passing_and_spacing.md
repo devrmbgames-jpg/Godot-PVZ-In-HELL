@@ -1,6 +1,6 @@
 # R27.2 — NPC обходят соседей и соблюдают личную дистанцию
 
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -17,6 +17,10 @@ Parent: [R27](r27_qa_followup.md).
 - Focused native steering/collision/social/freeze regressions; actual visual feel remains owner QA.
 
 ### Current / owners
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Base `2636f85dd143841f8586827ba3ee996056b9456a`.
 S_NpcIntent owns native local steering, encounter clocks and deferred exact live bindings.
@@ -63,8 +67,8 @@ Original broad review records the historical failure; current repair is reviewed
 
 ### Owner QA / blockers
 
-Owner gameplay acceptance of movement and threat behavior remains open.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
 
 ### Next
 
-Owner movement/feel acceptance remains open; continue the independent ten-room test lab milestone.
+Задача закрыта и архивирована. Возобновление этой реализации не требуется; обнаруженные впоследствии дефекты оформляются отдельными задачами.

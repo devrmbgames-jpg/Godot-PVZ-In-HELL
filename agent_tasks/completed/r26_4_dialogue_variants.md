@@ -1,5 +1,5 @@
 # R26.4 — Two dialogue variants per NPC archetype
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -12,6 +12,10 @@ Create **two independent dialogue variants for every requested NPC archetype** u
 The owner will later copy these resources and add more variants. Therefore paths/data must make adding a third/fourth variant trivial without changing code.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 All ten native archetype catalogs expose **20/20** variants. Committed personal selection survives
 codec/save; visit overrides retain priority. Every variant preserves role cues, scan guards,
@@ -26,6 +30,9 @@ Final automated integration/week and immutable review PASS in R26.5; owner accep
 
 ### Next
 
+Задача закрыта и архивирована. Возобновление этой реализации не требуется; обнаруженные впоследствии дефекты оформляются отдельными задачами.
+
+Последняя техническая контрольная точка из прежнего Next (до приёмки владельцем):
 Vampire review collected on BASE `a407762ef018ab70715119cd432c63071d62d928` ->
 TARGET `14cadff37461590c14454aabfdbca1fb4af11e94` **PASS** (50s, no material findings); same terminal reviewer
 reused, no second reviewer. Next: complete owner dialogue/tone/modal acceptance; R26.5 automated integration is PASS.
@@ -62,8 +69,7 @@ ARCHITECTURE/STYLE PASS, no remaining findings (5 s); runtime VALIDATION NOT_RUN
 
 ### Owner QA / blockers
 
-Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
-Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
 
 ## Authoring structure
 
@@ -79,8 +85,8 @@ Extend the existing NPC dialogue owner at `content/domains/npc/dialogue/` and it
 service/context adapters. The archetype definition exposes available dialogue variants.
 `NpcRecord` stores the selected variant for persistent identity.
 
-Use [dialogue-systems](../.agents/skills/dialogue-systems/SKILL.md) and
-[Dialogue Manager v4.1](../.agents/skills/dialogue-manager-v4.1/SKILL.md) for resource APIs,
+Use [dialogue-systems](../../.agents/skills/dialogue-systems/SKILL.md) and
+[Dialogue Manager v4.1](../../.agents/skills/dialogue-manager-v4.1/SKILL.md) for resource APIs,
 cues/mutations and response tags. Stable communication UI is an editable `.tscn`; use
 editor/MCP for open assets. Existing `content/ui/` adapters retain their ownership.
 

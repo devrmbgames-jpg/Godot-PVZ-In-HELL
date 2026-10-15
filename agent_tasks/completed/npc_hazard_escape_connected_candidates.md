@@ -8,7 +8,7 @@ Status: **DONE**
 Use actual failed route feedback to skip disconnected refuge projections while keeping
 path building in the fair `S_NpcRoutePlanning` queue. The projection itself may be safe
 on a separate navmesh region; a reachable alternative must remain available.
-Linked mandatory survival acceptance: [R26.5](../r26_5_integration_persistence_validation.md).
+Linked mandatory survival acceptance: [R26.5](r26_5_integration_persistence_validation.md).
 
 ### Current
 

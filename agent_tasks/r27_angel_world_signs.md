@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Parent: [R27](r27_qa_followup.md).
+Parent: [R27](completed/r27_qa_followup.md).
 
 ## Task state
 

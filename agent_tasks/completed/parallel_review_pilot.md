@@ -25,8 +25,8 @@ checkpoints без вмешательства GitHub CI и без одновре
 ### Current
 
 Implementation policy применена к task-41 и последующим районным checkpoints.
-Source review/triage также записаны в [обратном грузе](../district_truck_returns_resale.md),
-[snapshot](../district_save_schema_3.md) и [итоговой интеграции](../district_release_validation.md).
+Source review/triage также записаны в [обратном грузе](district_truck_returns_resale.md),
+[snapshot](district_save_schema_3.md) и [итоговой интеграции](district_release_validation.md).
 Это примеры применения workflow, не измерение сравнительной эффективности.
 2026-10-13 тот же освободившийся reviewer последовательно проверил три immutable пары
 ниже. Main ожидал результат, без параллельной реализации/тестов. Второй reviewer не запускался.

@@ -1,5 +1,5 @@
 # R26.1 — Physical item framework and requested catalog
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -12,6 +12,10 @@ Create the requested physical item catalog on top of the existing Jolt/GECS game
 **All world items are real `RigidBody3D` objects.** Do not replace thrown/held items with fake transform-driven props while they are in the world.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Baseline: `44a2a6df367c928dc72dbdd5b1bb316cd7daf8da`, dev; reviewed checkpoint
 `f24a0f3e628f9eb975af33416b9981066d0fd902`. All 15 requested items have native MCP-authored bodies.
@@ -31,7 +35,7 @@ Blood review fixes passed native regressions and targeted review; navigation fai
 Perception stops after a social fact retires/resets its receiver. Final native 15-item physical smoke passed.
 Archetype receiver composition now passes production live-roster GUT10/798 in R26.5;
 final mandatory production week112524520 PASS (>=6/8) in R26.5;
-[owner acceptance](../qa_tasks/r26_acceptance.md) remains open.
+[owner acceptance](../../qa_tasks/r26_acceptance.md) remains open.
 Preserve [R26 contracts](r26_items_npc_expansion.md#existing-contracts-to-preserve).
 
 ### Validation
@@ -100,12 +104,11 @@ consecutive immutable SHA ranges; reviewer VALIDATION NOT_RUN, serial/token comp
 - MCP native authored saves throughout. Loaded global script reload error43 remains NOT_PASS;
   fresh parser/GUT are actual independent PASS. No rendered gameplay or clean editor visual QA claimed.
 - PASS: archetype receiver composition, live GUT10/798 at roster/route checkpoints in R26.5.
-- NOT_RUN: [full owner acceptance](../qa_tasks/r26_acceptance.md).
+- NOT_RUN: [full owner acceptance](../../qa_tasks/r26_acceptance.md).
 
 ### Owner QA / blockers
 
-Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
-Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
 
 ## Required shared design
 

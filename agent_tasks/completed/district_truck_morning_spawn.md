@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Утренняя машина](../district_morning_truck.md). Порядок выполнения: [общая задача](../district_service_update.md).
+Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
 Зависимости: [Мебель — выдача заказа следующим утром](district_furniture_arrival.md).
 

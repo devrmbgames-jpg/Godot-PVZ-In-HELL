@@ -8,7 +8,7 @@ Status: **DONE**
 Repair `NpcRouteSolver.refuge` selecting a radial goal outside the connected navmesh,
 whose projected route endpoint can remain inside a harmful volume. Keep actual path
 planning in `S_NpcRoutePlanning`, movement in existing intent/body owners, and damage intact.
-Linked mandatory district-week acceptance: [R26.3](../r26_3_npc_behavior_trees.md).
+Linked mandatory district-week acceptance: [R26.3](r26_3_npc_behavior_trees.md).
 
 ### Current
 

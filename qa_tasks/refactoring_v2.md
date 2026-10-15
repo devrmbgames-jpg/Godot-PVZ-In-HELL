@@ -1,6 +1,9 @@
 # Refactoring v2 — owner QA
 
-Status: **OWNER_QA** — remaining subjective gameplay acceptance.
+Status: **ACCEPTED** — решение владельца 2026-10-15.
+
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
+Пункты ниже закрыты общей приёмкой владельца, а не отчётом о поштучном прогоне. Прежние пометки ожидания ручной QA относятся к контрольной точке до этого решения.
 
 Owner accepted the current Inspector / Direct Traits and Gameplay Debugger interfaces
 on 2026-10-10. That acceptance is preserved. Agent performed no rendered playtest or

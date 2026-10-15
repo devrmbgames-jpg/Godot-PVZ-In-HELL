@@ -3,8 +3,8 @@
 Status: **PLANNED**
 
 Created: 2026-10-15. Автор: запрос владельца.
-Related: [R26.2](r26_2_npc_archetypes_and_variation.md),
-[R26.3](r26_3_npc_behavior_trees.md), [R27.5](r27_test_lab_and_npc_rooms.md).
+Related: [R26.2](completed/r26_2_npc_archetypes_and_variation.md),
+[R26.3](completed/r26_3_npc_behavior_trees.md), [R27.5](completed/r27_test_lab_and_npc_rooms.md).
 
 ## Goal / acceptance
 

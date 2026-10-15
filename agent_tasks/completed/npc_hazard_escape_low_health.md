@@ -1,7 +1,7 @@
 # NPC hazard escape — wounded actors retain a viable exit
 Status: **DONE**
 
-Linked mandatory acceptance: [R26.3](../r26_3_npc_behavior_trees.md).
+Linked mandatory acceptance: [R26.3](r26_3_npc_behavior_trees.md).
 Related independent endpoint defect: [native safe endpoints](npc_hazard_escape_navigation.md).
 
 ## Task state

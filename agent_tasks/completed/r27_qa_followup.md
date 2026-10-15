@@ -1,9 +1,9 @@
 # R27 — исправления по ручной QA и изолированные тестовые комнаты
 
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Source QA: owner report2026-10-13, HEAD `d0568a32b4f80ab02a9ab8ab0d84babe341a91be`.
-Parent acceptance: [R26](r26_items_npc_expansion.md), [QA checklist](../qa_tasks/r26_acceptance.md).
+Parent acceptance: [R26](r26_items_npc_expansion.md), [QA checklist](../../qa_tasks/r26_acceptance.md).
 
 ## Task state
 
@@ -14,12 +14,18 @@ Parent acceptance: [R26](r26_items_npc_expansion.md), [QA checklist](../qa_tasks
 
 ### Current
 
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
+
 Visit commitment implementation, native regressions and exact-SHA review pass after RV-001 repair
 at `1c225a959f7e408cb90d42a43a5ee7bef39df1ab`; owner acceptance remains open.
 MCP editor connected: Godot4.7.1, ready/stopped; saved primitive test hall is editor-owned.
 Unrelated dirty user resources/settings/addon edits must be preserved.
 
-### Milestones / Next
+### Milestones / accepted scope
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
 
 Owner instruction2026-10-14: after completing R27, finish the remaining
 [R26 tasks](r26_items_npc_expansion.md). Work resumed by the owner's subsequent instruction.
@@ -28,7 +34,7 @@ Owner instruction2026-10-14: after completing R27, finish the remaining
    из-за взаимного избегания/ожидания; blocked route cancels only called recipient's approach.
 2. [Обход и дистанция](r27_npc_passing_and_spacing.md): дверной проход,1.5m от агрессивных,
    взаимные угрозы/рост агрессии и исключения наблюдаемого/движущегося ангела.
-3. [3D-таблички ангела](r27_angel_world_signs.md): реальные мировые таблички/Label3D вместо диалога.
+3. [3D-таблички ангела](../r27_angel_world_signs.md): реальные мировые таблички/Label3D вместо диалога.
 4. [Вечерняя доставка](r27_evening_delivery_contract.md): ждать у своего входа; терминальный
    offer доступен только до дня личного забора.
 5. [Тестовая локация/10 комнат](r27_test_lab_and_npc_rooms.md): все новые предметы/механики,
@@ -46,10 +52,12 @@ Passing checkpoint `7e67e938e154c071203c5efcd27c8b539c66aa4b`: RV-001 emergency-
 FIXED/tested/reviewed at `5c1028cf43b39f40f19aec47aa1442686a87944e`; targeted review PASS46s.
 Current accepted findings resolved; all five milestones implemented/tested/reviewed.
 Main is sole writer; reuse existing read-only reviewer on immutable checkpoints.
-Independent [home-night fixture mismatch](completed/r27_home_night_fixture_identity.md)
+Independent [home-night fixture mismatch](r27_home_night_fixture_identity.md)
 is repaired, tested, reviewed and archived; original FAIL evidence remains in its task.
 
-### Current resume checkpoint
+### Implementation checkpoint before owner acceptance
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Owner resumed work2026-10-14. Complete R27, then the remaining R26 tasks.
 Committed HEAD `5c1028cf43b39f40f19aec47aa1442686a87944e`.
@@ -75,7 +83,7 @@ KNOWN_ENGINE_LIMITATION/DEFERRED. Full evidence owned by R27.5.
 Windows test-level export/menu+level startup PASS; `.export/TEST_LEVEL.cmd`.
 Preserve unrelated user edits, including .codex/config.toml, resource/settings/addon changes.
 Next: remaining R26 acceptance against the reviewed R27 HEAD. Required
-[R27 owner QA](../qa_tasks/r27_acceptance.md) remains pending until actual acceptance.
+[R27 owner QA](../../qa_tasks/r27_acceptance.md) remains pending until actual acceptance.
 
 ### Validation / completion
 
@@ -87,6 +95,6 @@ User-reported QA proves defects, not approval to launch a new rendered playtest.
 
 ### Owner QA / blockers
 
-Required final gameplay/readability acceptance remains open after implementation.
-Owner decision2026-10-14: the owner tests the builds personally; manual criteria remain OWNER_QA.
-Known shutdown-only retention remains KNOWN_ENGINE_LIMITATION / DEFERRED.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
+
+Shutdown-only retention остаётся KNOWN_ENGINE_LIMITATION / DEFERRED; прежние технические evidence сохранены.

@@ -1,7 +1,7 @@
 # Canonical NPC schedule choice ordering
 Status: **DONE**
 
-Parent/dependency: [R26.3](../r26_3_npc_behavior_trees.md).
+Parent/dependency: [R26.3](r26_3_npc_behavior_trees.md).
 
 ## Task state
 

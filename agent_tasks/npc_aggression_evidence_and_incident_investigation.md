@@ -3,7 +3,7 @@
 Status: **PLANNED**
 
 Created: 2026-10-15. Основание: запрос владельца на планирование системы агрессии.
-Related: [R26.2](r26_2_npc_archetypes_and_variation.md), [R26.3](r26_3_npc_behavior_trees.md),
+Related: [R26.2](completed/r26_2_npc_archetypes_and_variation.md), [R26.3](completed/r26_3_npc_behavior_trees.md),
 [выдача и чужие посылки](automatic_parcel_handover_and_wrong_recipient_reactions.md),
 [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 

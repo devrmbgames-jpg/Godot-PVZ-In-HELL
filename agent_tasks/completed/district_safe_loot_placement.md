@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Лут и торговля](district_loot_commerce.md). Порядок выполнения: [общая задача](../district_service_update.md).
+Родительский этап: [Лут и торговля](district_loot_commerce.md). Порядок выполнения: [общая задача](district_service_update.md).
 
 Зависимости: [Доставка — вручение, оплата и вечерние обязательства](district_delivery_completion.md).
 

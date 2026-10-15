@@ -2,8 +2,8 @@
 
 Status: **DONE**
 
-Found while validating [visit commitment](../r27_service_visit_commitment.md);
-independent fixture owner, linked by [R27](../r27_qa_followup.md).
+Found while validating [visit commitment](r27_service_visit_commitment.md);
+independent fixture owner, linked by [R27](r27_qa_followup.md).
 
 ## Task state
 

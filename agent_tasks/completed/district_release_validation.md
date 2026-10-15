@@ -1,13 +1,13 @@
 # Район — итоговая интеграция и Windows QA
 
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
 Зависимости: автоматическая приёмка и review/triage [gate](district_truck_shift_gate.md),
 [обратного груза](district_truck_returns_resale.md), [snapshot](district_save_schema_3.md),
-[инструментов](completed/district_bin_cleanup.md) и
-[контракта navigation validator](completed/warehouse_navigation_validation_contract.md).
+[инструментов](district_bin_cleanup.md) и
+[контракта navigation validator](warehouse_navigation_validation_contract.md).
 Их открытая owner QA не блокирует подготовку автоматической приёмки и сборки.
 
 ## Task state
@@ -17,6 +17,10 @@ Status: **OWNER_QA**
 Завершить связную автоматическую приёмку всех этапов и подготовить runnable Windows QA-сборку с отдельными ручными пунктами.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Connected all-ten production-roster gate restored and reviewed. Reviewed connected-fixture checkpoint
 `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`; BASE `ca6ed1425d617b504b6afaa39759e65e0b9fc5c7`.
@@ -40,7 +44,7 @@ default production week162731685 PASS (unchanged >=6/8), see [R26.5](r26_5_integ
 Runnable QA build `.export/windows/20261013-063204Z-2c18343d-r26-contact-fire-only/`; export/menu/level120frames PASS,
 dirty worktree recorded. Owner-requested wide-fire removal/contact reduction is included in the new export;
 compiled gameplay and external connected-fixture evidence are distinguished in the manifest. Historical build20261011 remains prior evidence.
-Next: required [owner acceptance](../qa_tasks/district_release_validation.md); no automated/review blocker remains.
+Next: required [owner acceptance](../../qa_tasks/district_release_validation.md); no automated/review blocker remains.
 
 ### Validation
 
@@ -98,17 +102,16 @@ Historical acceptance before R26 (2026-10-12, preserved dirty worktree):
 
 ### Owner QA / blockers
 
-Connected native gate and exact-SHA review pass; required owner acceptance remains open.
-Rendered gameplay, визуальная съёмка и субъективная приёмка владельца не выполняются автоматически.
-Подготовлен [связный чеклист итоговой сборки](../qa_tasks/district_release_validation.md),
-PENDING_OWNER_QA; runnable build подготовлен, см. точный manifest выше.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
+
+Связанные чеклисты: [связный чеклист итоговой сборки](../../qa_tasks/district_release_validation.md)
 
 ## Границы и владельцы
 
 - Существующие профильные тесты, `tests/smoke/`, штатные validation/export инструменты и `.export/`.
 - Четыре родительские задачи, корневая задача и новый чеклист `qa_tasks/`.
 
-Применять по области: [gut-testing](../.agents/skills/gut-testing/SKILL.md), [godot-ai-mcp](../.agents/skills/godot-ai-mcp/SKILL.md).
+Применять по области: [gut-testing](../../.agents/skills/gut-testing/SKILL.md), [godot-ai-mcp](../../.agents/skills/godot-ai-mcp/SKILL.md).
 
 ## Работы
 
@@ -122,7 +125,7 @@ PENDING_OWNER_QA; runnable build подготовлен, см. точный mani
   Обязательная owner acceptance оставляет задачу активной до решения владельца;
   чеклист не отменяет её. DONE/архивирование — после всех required gates и review/triage;
   явно отложенные subjective polish пункты можно передать в `qa_tasks/`.
-- [ ] Обязательная owner acceptance, включая authored 60-секундное ожидание света.
+- [x] Обязательная owner acceptance, включая authored 60-секундное ожидание света.
 
 ## Review findings
 
@@ -180,7 +183,7 @@ ARCHITECTURE/STYLE PASS; reviewer VALIDATION NOT_RUN. Main выполнил пр
   suspended first handoff and preserves unresolved order/declaration/payment semantics.
   Full connected write/restore and targeted repair cycle1 review PASS; no ACCEPTED findings remain.
 
-Пункты относятся к [connected smoke](../tests/smoke/district_release_smoke.gd).
+Пункты относятся к [connected smoke](../../tests/smoke/district_release_smoke.gd).
 Открытые ACCEPTED P2 блокируют DONE; engine shutdown deferral их не отменяет.
 
 ## Критерии завершения

@@ -2,9 +2,9 @@
 
 Status: **DONE**
 
-Родительский этап: [Утренняя машина](../district_morning_truck.md). Порядок выполнения: [общая задача](../district_service_update.md).
+Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
-Зависимости: [Сохранение — согласованный снимок и повтор ночной записи](../district_save_schema_3.md).
+Зависимости: [Сохранение — согласованный снимок и повтор ночной записи](district_save_schema_3.md).
 
 ## Task state
 
@@ -38,7 +38,7 @@ MCP settings_set меняет PackedStringArray на JSON Array, поэтому 
 
 RV-001 закрыт: snapshots перенесены под `.tmp`, настоящий scanner и сохранённая настройка
 проверены в новом headless процессе. Fix checkpoint и targeted re-review завершены.
-Следующий этап — [итоговая интеграция](../district_release_validation.md).
+Следующий этап — [итоговая интеграция](district_release_validation.md).
 
 ### Validation
 

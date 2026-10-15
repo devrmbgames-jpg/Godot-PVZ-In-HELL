@@ -1,5 +1,5 @@
 # R26.5 — Integration, persistence and acceptance for R26
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -9,6 +9,11 @@ Parent: [R26](r26_items_npc_expansion.md).
 Integrate physical items, modular NPC archetypes, LimboAI behavior and dialogue into the existing district/parcel/save systems without regressing current gameplay.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
+
 All ten canonical archetypes/two visitor presets remain bound; twelve stable slots,
 eight residents/four visitors, merchant and participation preserved. Schema19 unchanged:
 owned fire effects were transient and excluded by WorldSnapshotService._persistent.
@@ -49,8 +54,8 @@ Fresh failed/omitted/live suites PASS293/5690; logs20261012 `.artifacts/godot_ag
 stage23212246359/427, catalog2319336434/934, chain23193673739/945, participation2320030779/162,
 pride23244302917/263, vampire23203847139/1069, soul23210681116/186, lifecycle23172017619/166,
 live23173643310/798. Parser2318103918files and final formatter/static gates PASS.
-[Route convergence](completed/npc_route_goal_convergence.md): RV-001/002 reviewed FIXED; latest unsafe endpoint retirement native121/918/parser/static/review PASS; pre-tuning week FAIL5/6, final week112524520 PASS.
-[Disconnected refuge candidates](completed/npc_hazard_escape_connected_candidates.md): RV-001..004 FIXED; latest120/899/parser/static/review PASS.
+[Route convergence](npc_route_goal_convergence.md): RV-001/002 reviewed FIXED; latest unsafe endpoint retirement native121/918/parser/static/review PASS; pre-tuning week FAIL5/6, final week112524520 PASS.
+[Disconnected refuge candidates](npc_hazard_escape_connected_candidates.md): RV-001..004 FIXED; latest120/899/parser/static/review PASS.
 Historical floor2 control `.artifacts/r26_floor_asset_comparison-20261013-103745981.log` FAIL5/6, tick2/0.5 verified; fire00391791111/77 PASS; bytes restored exactly.
 Floor1 control `.artifacts/r26_floor_counterplay_candidate-20261013-111752457.log`: native PASS7/6,
 radius10/tick1/0.5 and applied damage1 verified, torso4 unchanged, exit0; original bytes restored.
@@ -91,7 +96,9 @@ architecture/style PASS, reviewer validation NOT_RUN. Final ordinary production 
 
 ### Owner QA / blockers
 
-Required [owner QA](../qa_tasks/r26_acceptance.md) remains open for gameplay/dialogue/assets/balance; deferred polish requires owner input. Wide-fire tuning is superseded by explicit owner removal; no rendered gameplay has run.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
+
+Связанные чеклисты: [owner QA](../../qa_tasks/r26_acceptance.md)
 
 ## Persistence
 Persist durable item state/Health, karma, soul/progression, NPC identity/variation and memories
@@ -137,7 +144,7 @@ Current `AutosaveStore.SCHEMA_VERSION` is 19 in this migration. When serialized 
 advance the actual supported version, guards, golden fixture and save-visible inventory.
 Unsupported saves reject before mutation and retain bytes/protection; no conversion/aliases/load defaults.
 Initialize new-game records deterministically from existing authored profiles without mutating
-shared Resources. Use [save-systems](../.agents/skills/save-systems/SKILL.md).
+shared Resources. Use [save-systems](../../.agents/skills/save-systems/SKILL.md).
 
 ## Debugging support
 
@@ -197,4 +204,7 @@ No per-frame verbose logging or duplicated gameplay authority.
 4. Runnable Windows QA export under `.export/` at the completed large gameplay milestone.
 
 ## Owner QA
+
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
+
 Manual checks cover scythe/knife feel, barrel/flask physics and hazard readability; Angel freeze, Night Hunter light/music/shadows, Creepy stalking, Vampire visibility/cloud, prose and aggression/probability/order/karma balance.

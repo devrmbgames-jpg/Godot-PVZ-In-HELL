@@ -1,5 +1,5 @@
 # R26.3 — LimboAI Behavior Trees for NPC archetypes
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -8,17 +8,21 @@ Parent: [R26](r26_items_npc_expansion.md).
 ### Goal
 
 Implement the requested NPC behaviors as **real Behavior Trees** using LimboAI v1.8.1.
-Follow [limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md) and [game-ai](../.agents/skills/game-ai/SKILL.md).
+Follow [limboai-v1.8](../../.agents/skills/limboai-v1.8/SKILL.md) and [game-ai](../../.agents/skills/game-ai/SKILL.md).
 `bt_npc_action.gd` is a narrow lifecycle base; `NpcDecisionService` exposes explicit operations.
 Extend visible tree selection; a leaf dispatching an entire decision tree remains prohibited.
 
 ### Current
 
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
+
 All ten canonical archetypes are bound to the production roster and use native authored BTs.
 Conditional Veil/cloud escape, gaze/light/toy/blood behavior, feeding floor and role lifetimes
 retain their reviewed owners. Canonical RV-001..006 are FIXED; schedule/escape/route defects
 are separately completed with native regressions and immutable reviews:
-[canonical schedule](completed/npc_schedule_canonical_order.md), [wounded escape](completed/npc_hazard_escape_low_health.md).
+[canonical schedule](npc_schedule_canonical_order.md), [wounded escape](npc_hazard_escape_low_health.md).
 Final linked production week `tests/artifacts/district-20261013-162731685.log` **PASS**, wrapper exit0: all seven days, unchanged >=6/8 residents, night/snapshot/restore/navigation/identity pass.
 Code checkpoint `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4`; exact review BASE
 `fc68226b6e051ea15f14e5d42deb9fbb1d86bd44` -> TARGET `2c18343d39d0a3ee774c9f80c33ff16d7e6d70c4` PASS, no findings.
@@ -48,8 +52,7 @@ final automated live/week integration PASS in R26.5, owner QA remains open.
 
 ### Next
 
-Post-R27 native integration PASS in R26.5; complete original R26 gameplay/visual QA and balance.
-Do not claim headless tests establish presentation, dialogue tone or combat feel.
+Задача закрыта и архивирована. Возобновление этой реализации не требуется; обнаруженные впоследствии дефекты оформляются отдельными задачами.
 
 ### Review triage
 
@@ -89,8 +92,7 @@ Repair revalidates world, participation and Component identity; live continuatio
 
 ### Owner QA / blockers
 
-Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
-Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
 
 ## Mandatory BT pattern
 

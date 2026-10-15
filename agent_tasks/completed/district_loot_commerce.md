@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Общая задача: [обслуживание района](../district_service_update.md). Зависимость: [этап 2 — терминал и доставки](district_terminal_delivery.md). Следующий этап выбирается только в общей задаче.
+Общая задача: [обслуживание района](district_service_update.md). Зависимость: [этап 2 — терминал и доставки](district_terminal_delivery.md). Следующий этап выбирается только в общей задаче.
 
 ## Task state
 

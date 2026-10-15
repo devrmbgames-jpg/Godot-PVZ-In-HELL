@@ -1,5 +1,5 @@
 # Godot Agent Tooling — editor ownership and independent CLI validation
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 ## Task state
 
@@ -32,7 +32,7 @@ and project-owned Godot AI MCP extensions.
 - `docs/godot_agent_tooling.md` contains commands and acceptance scenarios.
   Этот tooling checkpoint не изменял vendored Godot AI / GECS или `project.godot`.
   Позднейший bounded translation-source companion и native settings cleanup принадлежат
-  [задаче инструментов района](completed/district_bin_cleanup.md), включая закрытый RV-001.
+  [задаче инструментов района](district_bin_cleanup.md), включая закрытый RV-001.
 
 ### Validation
 
@@ -52,6 +52,10 @@ and project-owned Godot AI MCP extensions.
   by the live LimboAI DLL. Its failed process alone was stopped; owner editor preserved.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Baseline: `c8b84b801d674a293d4519e266e2f656883617dd`, `dev`.
 The baseline runner had a truncated regex and duplicated tail (10 PowerShell parse errors).
@@ -79,12 +83,10 @@ Local acceptance is complete at reviewed source
   Existing cyclic-authoring fixture diagnostics are not a clean-log claim.
 
 Next: owner editor/modal and subjective acceptance in
-[the tooling QA checklist](../qa_tasks/godot_agent_tooling.md).
+[the tooling QA checklist](../../qa_tasks/godot_agent_tooling.md).
 
 ### Owner QA / blockers
 
-Automated and live MCP local acceptance passed; subjective editor/modal
-behavior remains OWNER_QA. No rendered playtest or forced recovery was run.
-Unrelated Godot 4.7.1
-shutdown-only retained-resource diagnostics remain under the existing
-known-engine-limitation policy; do not launch a leak investigation here.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
+
+Shutdown-only retention остаётся KNOWN_ENGINE_LIMITATION / DEFERRED; прежние технические evidence сохранены.

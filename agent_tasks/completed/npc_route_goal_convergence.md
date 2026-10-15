@@ -8,7 +8,7 @@ Status: **DONE**
 Repair `S_NpcRoute` retaining a completed or newly unsafe escape endpoint when the movement
 goal shifts below `DEF_District.waypoint_distance` but remains outside actual arrival tolerance.
 `S_NpcRoutePlanning` keeps the fair queue/frame budget; `S_NpcIntent` and the physical
-body retain cursor/control/transform authority. Linked acceptance: [R26.5](../r26_5_integration_persistence_validation.md).
+body retain cursor/control/transform authority. Linked acceptance: [R26.5](r26_5_integration_persistence_validation.md).
 
 ### Validation
 

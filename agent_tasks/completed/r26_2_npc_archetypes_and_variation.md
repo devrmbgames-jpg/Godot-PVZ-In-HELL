@@ -1,5 +1,5 @@
 # R26.2 — NPC archetypes, composable traits and persistent variation
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R26](r26_items_npc_expansion.md).
 
@@ -11,6 +11,10 @@ Implement **base archetype + mandatory/compatible optional traits + persistent p
 so later combinations can be authored without central NPC-type code changes.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Live initial/replacement population now commits deterministic NpcVariation before publication.
 NpcRecord references immutable DEF_NpcArchetype; its name and mandatory/selected optional traits
@@ -70,8 +74,7 @@ KNOWN_ENGINE_LIMITATION/DEFERRED. Global MCP reload43 NOT_PASS; fresh native CLI
 
 ### Owner QA / blockers
 
-Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
-Required owner acceptance remains open; explicitly deferred polish gets a QA checklist.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
 
 ## Required data model
 

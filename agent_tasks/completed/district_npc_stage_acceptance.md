@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [NPC и Behavior Trees](district_npc_behavior.md). Порядок выполнения: [общая задача](../district_service_update.md).
+Родительский этап: [NPC и Behavior Trees](district_npc_behavior.md). Порядок выполнения: [общая задача](district_service_update.md).
 
 Зависимости: [NPC — завершить lifecycle деревьев LimboAI](district_npc_bt_finalize.md).
 

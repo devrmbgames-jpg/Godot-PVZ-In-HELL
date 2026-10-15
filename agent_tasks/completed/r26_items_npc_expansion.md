@@ -1,5 +1,5 @@
 # R26 — Physical items and modular NPC archetypes
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 ## Task state
 
@@ -20,6 +20,10 @@ This root task owns overall status/current/next. Each supporting task owns its o
 - [R26.5 — integration and persistence](r26_5_integration_persistence_validation.md)
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Post-R27 audit2026-10-14 at `f20e59e7e668f3dc164c8f49129f36195d93e933`:
 all55 full checkpoint/review/fix SHAs are ancestors; no REVIEW_PENDING or accepted unresolved defect.
@@ -52,28 +56,19 @@ Final subjective acceptance remains open; no rendered gameplay or capture has ru
 
 ### Next
 
-Owner instruction2026-10-14 to finish R26 after [R27](r27_qa_followup.md) is implemented for
-all automated/review/build work. The post-R27 audit found no remaining implementation defect.
-
-Complete [owner QA](../qa_tasks/r26_acceptance.md): item feel/physics readability, all-ten NPC
-behavior/presentation, dialogue, save/load, diagnostics and final balance/assets.
-Native/review gates pass; R27's editor-only generator heuristic is reviewed compliant/REJECTED,
-with raw validator FAIL preserved in its owning task. Owner decision2026-10-14: the owner
-will test both builds personally; manual criteria remain OWNER_QA, with no agent rendered playtests.
-Keep R26 active until automated and required owner acceptance close or the owner explicitly defers manual scope.
+Задача закрыта и архивирована. Возобновление этой реализации не требуется; обнаруженные впоследствии дефекты оформляются отдельными задачами.
 
 ### Validation
 
 Recorded implementation/review gates and final production week PASS; current connected integration/review PASS.
 R26.5 preserves original failed batches/weeks, fresh repair evidence and exact immutable review SHAs.
 Full owner item/NPC acceptance NOT_RUN. Checkpoint completion uses
-[validation-workflow](../.agents/skills/validation-workflow/SKILL.md) and
-[review-orchestration](../.agents/skills/review-orchestration/SKILL.md).
+[validation-workflow](../../.agents/skills/validation-workflow/SKILL.md) and
+[review-orchestration](../../.agents/skills/review-orchestration/SKILL.md).
 
 ### Owner QA / blockers
 
-Final assets, prose, names, balance, music/shadows and feel require owner QA.
-Keep mandatory owner acceptance open; explicitly deferred polish may have a separate checklist.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
 
 ## Existing contracts to preserve
 
@@ -98,8 +93,8 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
   presets. Behavioral `DEF_NpcTrait` data is distinct from Entity capability Traits.
 - New gameplay lives in `content/domains/<owner>/<role>/`; use Shared only for genuine
   cross-domain contracts. Preserve stable IDs, exported bindings and mandatory references.
-- Implementation uses [gdscript-style](../.agents/skills/gdscript-style/SKILL.md) for project
-  scripts and [gecs-v8](../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
+- Implementation uses [gdscript-style](../../.agents/skills/gdscript-style/SKILL.md) for project
+  scripts and [gecs-v8](../../.agents/skills/gecs-v8/SKILL.md) for pinned ECS APIs.
 - Use GameClock/DecisionRandomRules for gameplay cadence and persistent decision seeds;
   native physics delta retains its existing authority.
 - Current save schema is `AutosaveStore.SCHEMA_VERSION = 19`; version incompatible
@@ -146,11 +141,11 @@ Shared traits must be reusable across archetypes so future NPCs can combine unex
 
 Implementation and automated gates PASS for all five; unchecked milestones retain required owner QA.
 
-- [ ] R26.1 — shared physical-item/capability/effect framework and the requested item catalog.
-- [ ] R26.2 — NPC archetype data, persistent variation, tags, order preferences and placeholder identities.
-- [ ] R26.3 — real LimboAI BT decomposition and all archetype-specific behavior.
-- [ ] R26.4 — two dialogue variants per archetype and special communication modes.
-- [ ] R26.5 — persistence, integration, focused regressions, headless acceptance and owner QA checklist.
+- [x] R26.1 — shared physical-item/capability/effect framework and the requested item catalog.
+- [x] R26.2 — NPC archetype data, persistent variation, tags, order preferences and placeholder identities.
+- [x] R26.3 — real LimboAI BT decomposition and all archetype-specific behavior.
+- [x] R26.4 — two dialogue variants per archetype and special communication modes.
+- [x] R26.5 — persistence, integration, focused regressions, headless acceptance and owner QA checklist.
 
 ## Completion criteria
 

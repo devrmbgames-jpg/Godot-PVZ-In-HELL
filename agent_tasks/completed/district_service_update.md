@@ -1,6 +1,6 @@
 # Обслуживание района — NPC, терминал, предметы и утренняя машина
 
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 ## Task state
 
@@ -11,6 +11,10 @@ Status: **OWNER_QA**
 Этот файл владеет общим статусом, порядком этапов и следующим действием. Файлы этапов сохраняют принятые требования и статус этапа целиком. Каждая небольшая задача ниже владеет собственными Status/Current/Validation; её статус не дублируется в отдельной очереди. Существующие завершённые задачи не переоткрывать и не переписывать.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Current connected all-ten gate native write/restore PASS, exits0/0; exact-SHA
 review PASS on test checkpoint `1f37ddd1c3136c2b6094ed8c7131a3e9d2ce8dee`. RV-004/005 FIXED;
@@ -29,7 +33,7 @@ Gate разгрузки и [обратный груз](district_truck_returns_re
 independent review/triage в [своей задаче](district_save_schema_3.md), статус OWNER_QA.
 Собственные вспомогательные snapshots вынесены из `.bin` без удаления evidence.
 Scanner repair RV-001, проверки и targeted re-review закрыты в
-[задаче инструментов](completed/district_bin_cleanup.md).
+[задаче инструментов](district_bin_cleanup.md).
 Итоговая [интеграция и Windows QA](district_release_validation.md) завершена по автоматическим
 gates/review: native write/restore PASS, runnable export/headless startup PASS;
 wrapper shutdown-only diagnostics DEFERRED. Следующее действие в этой задаче —
@@ -39,20 +43,20 @@ wrapper shutdown-only diagnostics DEFERRED. Следующее действие 
 
 Исторические проверки этапов; в аудите задач 2026-10-10 игровые проверки не повторялись:
 
-- [NPC, этап 1](completed/district_npc_stage_acceptance.md): 78/78 GUT, parser 4/4,
+- [NPC, этап 1](district_npc_stage_acceptance.md): 78/78 GUT, parser 4/4,
   6 деревьев/113 листов и усиленный smoke второго дня PASS.
-- [Доставка, этап 2](completed/district_delivery_completion.md): 160/160 GUT,
+- [Доставка, этап 2](district_delivery_completion.md): 160/160 GUT,
   поздняя регрессия 26/26, parser 12/12, write/restore smoke PASS/PASS.
-- [Мебель, этап 3](completed/district_furniture_arrival.md): 83/83 GUT,
+- [Мебель, этап 3](district_furniture_arrival.md): 83/83 GUT,
   parser 9/9, write/restore smoke и Windows QA export PASS.
-- [Появление машины](completed/district_truck_morning_spawn.md): 97/97 GUT,
+- [Появление машины](district_truck_morning_spawn.md): 97/97 GUT,
   parser 13/13 и write/restore smoke PASS/PASS; не итоговая приёмка этапа 4.
-- [Поздняя миграция receiving](completed/refactoring_v2/23_hazards_receiving_loot.md):
+- [Поздняя миграция receiving](refactoring_v2/23_hazards_receiving_loot.md):
   профильный GUT 105/105 и truck-shift smoke PASS; подробнее и ограничения — в записи этапа.
 
 Команды/логи промежуточных результатов принадлежат их owning tasks. Старые сообщения
 о 30 ошибках R26 относятся к прежнему состоянию до исправления метаданных в
-[архитектурной инфраструктуре](completed/refactoring_v2/03_architecture_validation.md).
+[архитектурной инфраструктуре](refactoring_v2/03_architecture_validation.md).
 Они не являются текущим блокером или текущим PASS структуры.
 Итог этапа 4 требует актуальных проверок, review/triage и runnable Windows QA-сборки.
 Актуальная приёмка gate: [owning task](district_truck_shift_gate.md) — GUT 26/26 + 13/13,
@@ -60,23 +64,17 @@ parser 6/6 и headless smoke PASS; independent source review без material fin
 
 ### Owner QA / blockers
 
-Визуальная приёмка ещё не выполнена. Уже готовы чеклисты
-[NPC](../qa_tasks/district_npc_stage_acceptance.md),
-[терминала/доставок](../qa_tasks/district_terminal_delivery_actions.md),
-[покупки мебели](../qa_tasks/district_trader_purchase.md),
-[стоянки/разгрузки](../qa_tasks/district_truck_shift_gate.md),
-[обратного груза](../qa_tasks/district_truck_returns_resale.md) и
-[сохранений](../qa_tasks/district_save_snapshot.md). Дополнять существующие owning
-checklists в итоговой интеграции; обязательную owner acceptance не считать выполненной.
-Автоматически rendered gameplay не запускать.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
+
+Связанные чеклисты: [NPC](../../qa_tasks/district_npc_stage_acceptance.md), [терминала/доставок](../../qa_tasks/district_terminal_delivery_actions.md), [покупки мебели](../../qa_tasks/district_trader_purchase.md), [стоянки/разгрузки](../../qa_tasks/district_truck_shift_gate.md), [обратного груза](../../qa_tasks/district_truck_returns_resale.md), [сохранений](../../qa_tasks/district_save_snapshot.md)
 
 ## Этапы и зависимости
 
 | Этап | Задача | Статус | Зависимость |
 |---|---|---|---|
-| 1 | [NPC и Behavior Trees](completed/district_npc_behavior.md) | DONE | Нет |
-| 2 | [Терминал и доставка](completed/district_terminal_delivery.md) | DONE | Этап 1 |
-| 3 | [Лут и торговля](completed/district_loot_commerce.md) | DONE | Этап 2 |
+| 1 | [NPC и Behavior Trees](district_npc_behavior.md) | DONE | Нет |
+| 2 | [Терминал и доставка](district_terminal_delivery.md) | DONE | Этап 1 |
+| 3 | [Лут и торговля](district_loot_commerce.md) | DONE | Этап 2 |
 | 4 | [Утренняя машина и интеграция](district_morning_truck.md) | IN_PROGRESS | Этапы 2 и 3 |
 
 Каждый этап завершать самостоятельным проверяемым результатом и отдельным связным коммитом. Работать крупными пакетами связанных чтений, изменений и проверок; не запускать полный набор проверок после каждой мелкой правки.
@@ -87,23 +85,23 @@ checklists в итоговой интеграции; обязательную ow
 
 | Порядок | Задача | Ограниченный результат |
 |---|---|---|
-| 1 | [Очередь NPC](completed/district_npc_queue_finish.md) | Причина падающего smoke, два подготовленных клиента и свободный проход до 10 с |
-| 2 | [Lifecycle BT](completed/district_npc_bt_finalize.md) | Прерывания, узкие действия и освобождение связей |
-| 3 | [Приёмка NPC](completed/district_npc_stage_acceptance.md) | Свет, реакции, второй день и закрытие этапа 1 |
-| 4 | [Поступление и ручная потеря](completed/district_package_receipts_loss.md) | История без коробки/номера; просрочка отдельно от LOST |
-| 5 | [Заметки и жалобы](completed/district_terminal_notes_complaints.md) | Стабильный текст заметки и известные причины штрафов |
-| 6 | [Записи предложений](completed/district_delivery_offer_records.md) | Ежедневный выбор, источники и постоянные обязательства |
-| 7 | [Доставка в терминале](completed/district_terminal_delivery_actions.md) | Уведомления, принятие/отказ и границы знаний |
-| 8 | [Личная доставка](completed/district_personal_delivery_dialogue.md) | Редкое предложение, однократный торг и ловушка |
-| 9 | [Выполнение доставки](completed/district_delivery_completion.md) | Настоящая коробка, оплата, сон и закрытие этапа 2 |
-| 10 | [Безопасный лут](completed/district_safe_loot_placement.md) | Не более 16 позиций и сохранённый ожидающий остаток |
-| 11 | [Покупка у торговца](completed/district_trader_purchase.md) | Торговые фазы и попап только крупной мебели |
-| 12 | [Утренняя мебель](completed/district_furniture_arrival.md) | Один предмет на авторской площадке и закрытие этапа 3 |
-| 13 | [Появление машины](completed/district_truck_morning_spawn.md) | Стоянка, дверь, маркеры груза и одна входящая партия |
+| 1 | [Очередь NPC](district_npc_queue_finish.md) | Причина падающего smoke, два подготовленных клиента и свободный проход до 10 с |
+| 2 | [Lifecycle BT](district_npc_bt_finalize.md) | Прерывания, узкие действия и освобождение связей |
+| 3 | [Приёмка NPC](district_npc_stage_acceptance.md) | Свет, реакции, второй день и закрытие этапа 1 |
+| 4 | [Поступление и ручная потеря](district_package_receipts_loss.md) | История без коробки/номера; просрочка отдельно от LOST |
+| 5 | [Заметки и жалобы](district_terminal_notes_complaints.md) | Стабильный текст заметки и известные причины штрафов |
+| 6 | [Записи предложений](district_delivery_offer_records.md) | Ежедневный выбор, источники и постоянные обязательства |
+| 7 | [Доставка в терминале](district_terminal_delivery_actions.md) | Уведомления, принятие/отказ и границы знаний |
+| 8 | [Личная доставка](district_personal_delivery_dialogue.md) | Редкое предложение, однократный торг и ловушка |
+| 9 | [Выполнение доставки](district_delivery_completion.md) | Настоящая коробка, оплата, сон и закрытие этапа 2 |
+| 10 | [Безопасный лут](district_safe_loot_placement.md) | Не более 16 позиций и сохранённый ожидающий остаток |
+| 11 | [Покупка у торговца](district_trader_purchase.md) | Торговые фазы и попап только крупной мебели |
+| 12 | [Утренняя мебель](district_furniture_arrival.md) | Один предмет на авторской площадке и закрытие этапа 3 |
+| 13 | [Появление машины](district_truck_morning_spawn.md) | Стоянка, дверь, маркеры груза и одна входящая партия |
 | 14 | [Разгрузка и смена](district_truck_shift_gate.md) | Общие причины запрета, ручной LOST и безопасный диспавн |
 | 15 | [Обратный груз](district_truck_returns_resale.md) | Возвраты, продажа 10%, утилизация и однократные операции |
 | 16 | [Согласованный снимок и версия](district_save_schema_3.md) | Общий снимок и повтор ночной записи без дубликатов |
-| 17 | [Очистка собственных инструментов](completed/district_bin_cleanup.md) | Правильные каталоги; движок и чужие файлы сохранены |
+| 17 | [Очистка собственных инструментов](district_bin_cleanup.md) | Правильные каталоги; движок и чужие файлы сохранены |
 | 18 | [Итоговая интеграция](district_release_validation.md) | Многодневный smoke, Windows QA и ручной чеклист |
 
 ## Правило продолжения
@@ -124,17 +122,17 @@ checklists в итоговой интеграции; обязательную ow
 - Освещённость задаётся ручными зонами и состоянием цепей света. Не возвращать сканирование источников света, сэмплирование освещённости маршрутов и многократное перепланирование.
 - Точки прогулки, порядок их обхода, стоянка машины, грузовые места и площадка доставки мебели настраиваются явно в сценах через экспортируемые ссылки на узлы. Координаты не зашивать в сервисах.
 - GECS Components владеют состоянием, Relationships — живыми связями. Физические тела владеют transform/velocity; Systems — scheduled поведением, Observers — discrete reactions, Services — явными синхронными операциями. Blackboard не является второй базой постоянного состояния.
-- Проектный GDScript остаётся статически типизированным и читаемым, по [gdscript-style](../.agents/skills/gdscript-style/SKILL.md).
+- Проектный GDScript остаётся статически типизированным и читаемым, по [gdscript-style](../../.agents/skills/gdscript-style/SKILL.md).
 - Правила регистрации, выдачи, осмотра, отказов и жалоб сохраняются, кроме явно согласованных изменений ниже.
 - В `.bin` сохранять движок, шаблоны экспорта и используемые сторонние инструменты,
   включая pinned `gdscript-formatter`. Перенос собственных инструментов выполнить по
-  [задаче очистки](completed/district_bin_cleanup.md); неизвестные файлы и deferred evidence сохранять.
+  [задаче очистки](district_bin_cleanup.md); неизвестные файлы и deferred evidence сохранять.
 
 ## Зафиксированные решения
 
 ### NPC
 
-Деревья строить по [skill limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md): выбор, последовательности и прерывание видны в иерархии; условия наблюдают, узкие действия выполняют одну операцию. Скрытого диспетчера поведения в задаче или сервисе быть не должно.
+Деревья строить по [skill limboai-v1.8](../../.agents/skills/limboai-v1.8/SKILL.md): выбор, последовательности и прерывание видны в иерархии; условия наблюдают, узкие действия выполняют одну операцию. Скрытого диспетчера поведения в задаче или сервисе быть не должно.
 
 Одновременно обслуживается один получатель; следующие два разных NPC гуляют поблизости по авторским маршрутам. Цель — до 10 секунд ожидания подготовленного следующего клиента при свободном проходе. При недоступности визита он корректно переносится и освобождает связи; стартовый предел безрезультатного прибытия/ожидания света — 60 секунд после подхода к ПВЗ, редактируемый в ресурсе.
 

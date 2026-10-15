@@ -1,6 +1,6 @@
 # R27.5 — полный тестовый зал и10 изолированных NPC-комнат
 
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -19,6 +19,10 @@ Parent: [R27](r27_qa_followup.md).
 - Do not overwrite gameplay saves; use isolated test-room save/session contract.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Owner parcel-content finding2026-10-15 is repaired; implementation checks/review/export complete.
 Owner confirmed separate room catalogs; Creepy and Lost keep the general catalog.
@@ -165,14 +169,10 @@ scene-first editor-tooling exception. Raw heuristic FAIL remains recorded, not r
 
 ### Owner QA / blockers
 
-Owner gameplay/visual acceptance of the expanded lab and all ten rooms remains open:
-[R27 checklist](../qa_tasks/r27_acceptance.md).
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
+
+Связанные чеклисты: [R27 checklist](../../qa_tasks/r27_acceptance.md)
 
 ### Next
 
-Owner QA of the updated Windows test build using the expanded [R27 checklist](../qa_tasks/r27_acceptance.md):
-finish a shift and sleep through two mornings with renewed supplies; also verify visible usable NPCs
-in all phases, truck/terminal/exit access, pedestal pickup/labels and weapon animation feel.
-Implementation checks/review/export complete; owner QA of themed supplies and prior lab criteria.
-Preserve all unrelated user edits.
-Required visual/gameplay acceptance remains open; do not archive this task before it closes.
+Задача закрыта и архивирована. Возобновление этой реализации не требуется; обнаруженные впоследствии дефекты оформляются отдельными задачами.

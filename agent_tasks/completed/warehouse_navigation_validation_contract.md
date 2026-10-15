@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Found during [district integration](../district_release_validation.md); its required connected
+Found during [district integration](district_release_validation.md); its required connected
 smoke remains open. This independent validator defect does not waive district acceptance.
 
 ## Task state

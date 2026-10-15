@@ -71,7 +71,7 @@ Owner explicitly accepted both current Inspector/Direct Traits and Gameplay Debu
   Deferred native navigation fixes New/Make Unique/local settings; live companion regression
   PASS nine assertions, Inspector restored and no authored-content changes. Fresh MCP and
   headless parser diagnostics clean. This repair belongs to the Direct Traits task.
-- Mandatory CLI runner repaired/verified under [tooling integration](../../godot_agent_tooling_integration.md).
+- Mandatory CLI runner repaired/verified under [tooling integration](../godot_agent_tooling_integration.md).
 - PASS: night_persistence write + fresh-process restore and district_package_receipts smoke,
   16000-frame budget. Logs: `tests/artifacts/night_persistence-write-20261010-170547281.log`,
   `night_persistence-restore-20261010-170601469.log`,

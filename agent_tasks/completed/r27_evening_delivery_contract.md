@@ -1,6 +1,6 @@
 # R27.4 — ожидание частной доставки вечером и срок terminal offer
 
-Status: **OWNER_QA**
+Status: **DONE** — принято владельцем 2026-10-15.
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -17,6 +17,10 @@ Parent: [R27](r27_qa_followup.md).
 - Native regression covers both acceptance paths, phase placement, boundary days and restore.
 
 ### Current
+
+**Завершено: владелец принял результат 2026-10-15.** Новые замечания и запланированные доработки сохраняют собственный незавершённый статус.
+
+Техническая контрольная точка до ручной приёмки; прежние пометки ожидания OWNER_QA ниже закрыты решением владельца:
 
 Source `d0568a32b4f80ab02a9ab8ab0d84babe341a91be`;
 NpcHomeDeliveryService/HomeDeliveryQueries own obligations, NPC schedule owns evening goal,
@@ -47,8 +51,8 @@ ARCHITECTURE/STYLE PASS; reviewer validation NOT_RUN. No accepted findings remai
 
 ### Owner QA / blockers
 
-Owner gameplay acceptance of evening waiting and terminal timing remains open.
+Принято владельцем 2026-10-15 по сообщению «Закрой все задачи где OWNER_QA». Ранее реализованный объём закрыт общей приёмкой; новые замечания остаются отдельными задачами. Поштучный прогон всех сценариев и новая визуальная QA агентом не заявляются.
 
 ### Next
 
-Owner checks evening entrance waiting and terminal collection-day timing; continue other R27 scopes.
+Задача закрыта и архивирована. Возобновление этой реализации не требуется; обнаруженные впоследствии дефекты оформляются отдельными задачами.
