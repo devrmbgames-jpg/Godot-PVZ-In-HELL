@@ -3,9 +3,9 @@ extends RefCounted
 ## persisted state.
 class_name KinematicMotionSample
 
-## Physical velocity before slide, consumed by the independent contact-impact contribution.
+## World velocity in m/s before slide; consumed by the independent contact-impact contribution.
 var incoming_velocity: Vector3
-## Desired controlled velocity, consumed by the independent walking-push contribution.
+## World desired velocity in m/s; consumed by the independent walking-push contribution.
 var desired_velocity: Vector3
 
 

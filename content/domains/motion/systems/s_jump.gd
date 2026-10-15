@@ -9,6 +9,7 @@ func query() -> QueryBuilder:
 
 
 ## После фронта ввода на опоре ставит импульс в Н·с; удержание кнопки не повторяет прыжок.
+## Проход Physics отмечает приём; фактический импульс исполняет следующий native motion callback.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var jumps: Array = components[0]
 	var controllers: Array = components[1]

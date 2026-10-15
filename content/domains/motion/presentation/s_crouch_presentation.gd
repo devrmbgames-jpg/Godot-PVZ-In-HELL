@@ -15,6 +15,7 @@ func query() -> QueryBuilder:
 
 
 ## За шаг в секундах приближает высоту головы и поясных креплений к высоте текущей позы.
+## Authored Physics group получает native physics delta независимо от gameplay clock.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var crouches: Array = components[0]
 

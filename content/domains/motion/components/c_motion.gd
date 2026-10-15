@@ -58,11 +58,11 @@ var sprint_multiplier: float = 1.0
 ## Physical solvers and navigation read it without replacing the authored/personal max_speed.
 var control_speed_multiplier: float = 1.0
 
-## Последний физический снимок наличия подходящей опоры.
+## Native solvers обновляют опору в callback; S_Jump сбрасывает флаг при приёме прыжка.
 var is_on_floor: bool = false
-## RID физической опоры, отдельно от владения и живых Entity-связей.
+## RID последней опоры, не Entity-связь; у CharacterBody пуст, если ground_ray её не нашёл.
 var floor_body_rid: RID = RID()
-## Мировая точка контакта с опорой в метрах.
+## Мировая точка последнего найденного контакта в метрах; после потери опоры может устареть.
 var floor_contact_position: Vector3 = Vector3.ZERO
 
 ## Мировая нормаль подходящей опоры.
@@ -71,13 +71,13 @@ var floor_normal: Vector3 = Vector3.UP
 ## Мировая скорость опоры в м/с.
 var floor_velocity: Vector3 = Vector3.ZERO
 
-## Производный коэффициент трения/управляемости опоры.
+## CharacterMotionSolver обновляет из материала опоры; кинематическая ветвь его не использует.
 var floor_friction: float = 1.0
 
-## Одноразовые мировые игровые импульсы в Н·с:
-## explosion, knockback, jump pad и т.д.
+## Игровые producers накапливают мировые импульсы в Н·с, в том числе S_Jump.
+## Native motion solver применяет накопленное один раз и обнуляет поле.
 var pending_impulse: Vector3 = Vector3.ZERO
-## Явный вертикальный игровой импульс блокирует прилипание до снижения.
+## CharacterMotionSolver блокирует snap после импульса вверх до неположительной скорости Y.
 var floor_snap_blocked: bool = false
 
 #endregion

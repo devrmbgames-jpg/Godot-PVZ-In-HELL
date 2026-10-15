@@ -3,8 +3,8 @@ extends RefCounted
 class_name KinematicPushSolver
 
 
-## Передаёт ограниченный импульс уникальным лёгким телам из slide-контактов; desired в м/с, delta в
-## секундах.
+## После move_and_slide передаёт импульс уникальным лёгким свободным телам из контактов.
+## desired — мировая скорость в м/с, delta — физические секунды; применяет импульс синхронно.
 static func push_contacts(
 	actor: Entity,
 	body: CharacterBody3D,

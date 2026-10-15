@@ -36,6 +36,8 @@ func _notification(what: int) -> void:
 #region Бег и выносливость
 ## Рассчитывает ёмкость, запрос/истощение и множитель; расходует выносливость только при реальном
 ## беге.
+## Authored Input group получает gameplay delta; при delta <= 0 состояние не продвигается.
+## Первый проход заполняет неинициализированный запас; восстановленный запас лишь ограничивается.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if delta <= 0.0:
 		return

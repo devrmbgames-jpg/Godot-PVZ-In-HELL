@@ -8,6 +8,7 @@ const ANGLE_EPSILON: float = 0.001
 #region Физический вход
 ## Применяет прямой ввод или ограниченный поворот головы/корпуса; вызывается только из физического
 ## callback.
+## state заимствован на время вызова; шаг поворота использует физический state.step.
 static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectBodyState3D) -> void:
 	var grab_control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 	if grab_control != null and grab_control.rotation_active:

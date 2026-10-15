@@ -20,16 +20,19 @@ class_name C_CharacterBody
 @export var slot_look_down_degrees: float = 55.0
 ## Максимальная высота проверяемого шага в метрах.
 @export var step_height: float = 0.2
-## Обычное движение сдвигает свободные лёгкие тела; тяжёлая мебель требует отдельного действия.
+## Базовый предел массы в кг; KinematicPushSolver умножает его на текущую Strength.
 @export_range(0.0, 100.0, 0.5, "or_greater") var walk_push_maximum_mass: float = 15.0
-## Сила обычного толкания лёгкого свободного тела в ньютонах.
+## Базовая сила толкания в Н; KinematicPushSolver умножает её на текущую Strength.
 @export_range(0.0, 1000.0, 1.0, "or_greater") var walk_push_force: float = 180.0
 ## Предел обычного толкания вдоль движения в м/с.
 @export_range(0.0, 10.0, 0.1, "or_greater") var walk_push_maximum_speed: float = 3.0
 
-## Плоская скорость внешних игровых импульсов в м/с, отдельно от управляемого движения.
+## Мировая плоская скорость внешних импульсов в м/с, не полная скорость body.
+## KinematicCharacterSolver затухает её; KinematicImpactCapture проецирует по контактам.
 var impulse_velocity: Vector3 = Vector3.ZERO
-## Отложенная скорость отскока в м/с; забирается только физическим callback тела.
+## Мировая скорость отскока в м/с: KinematicImpactCapture накапливает,
+## KinematicCharacterSolver забирает и обнуляет при следующем шаге тела.
 var pending_rebound_velocity: Vector3 = Vector3.ZERO
-## Производный кеш физических контактов для разделений, отдельно от владения и сеанса.
+## KinematicImpactCapture заменяет кеш после slide при наличии C_ImpactInbox.
+## Ключ — instance ID, WeakRef не удерживает body; прошлый кеш нужен для separations.
 var contact_bodies: Dictionary[int, WeakRef] = { }

@@ -116,20 +116,24 @@ RV-002 (R1 четвёртого batch), P2, **FIXED** (`1ce357a96936cc255c1162cb
 
 Проверенный пятый batch — полный source pass **needs 7/7, quests 10/10, challenges 28/28 — PASS**. Прочитаны все 45 scripts и необходимые writers/callers; 26 scripts получили уточнения owners, gameplay units, transient/cache versus durable history, Relationship cleanup и outcome/reward timing. Reviewer сверил changed claims и representative unchanged HungerRules, RefusalQuestValidator, condition Systems и lifecycle/consequence Observers; material findings нет, triage завершён.
 
-Current implementation base: `1c51aa2b457bfdf5c3f0a452d4ead33005b655e4` → target `2bc9d1119d76c2e8c0e596caa6337b06d85a4960`; read-only review **PASS**, новых findings нет. Всего изменены 78 уникальных scripts. Полностью проверены с review шесть групп inventory/time/commerce/needs/quests/challenges (92 scripts); остальные группы открыты. М1/М2/М3 целиком не завершены.
+Пятый checkpoint: base `1c51aa2b457bfdf5c3f0a452d4ead33005b655e4` → target `2bc9d1119d76c2e8c0e596caa6337b06d85a4960`; read-only review **PASS**, новых findings нет. Nonbehavior/format/native parser/MCP — 26 paths PASS, parser log `parsechanged-20261015-175908161`.
+
+Текущий шестой batch — полный source pass **motion 22/22**. Прочитаны все scripts, authored Physics/Input groups и writers контактных данных из combat. Уточнены 13 scripts: приём прыжка versus применение импульса, gameplay versus physics delta, восстановление stamina, накопление/потребление импульсов, контактные кеши и неиспользуемое legacy look_direction. Поведение и authoring не менялись. До review motion **REVIEW_PENDING**, не DONE.
+
+Current implementation base: `057ce606964138d081792826a137d769e951a28c`; target/review после commit **REVIEW_PENDING**. Всего изменён 91 уникальный script; шесть полных групп (92 scripts) имеют review PASS, motion ждёт review; остальные группы открыты. М1/М2/М3 целиком не завершены.
 
 Проверки batch:
 
-- PASS: `verify_gdscript_nonbehavior_changes.py --base 1c51aa2b457bfdf5c3f0a452d4ead33005b655e4 --mode comments` — 26 scripts, 0 отличий executable source/strings/indentation.
-- PASS: GDQuest incremental format/lint — 26 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-175908161.stdout.log` / `.stderr.log`.
-- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 26 paths checked, diagnostics empty, no instantiation. Prior batch parser evidence `parsechanged-20261015-174249722` (11 paths) и `parsechanged-20261015-175111601` (25 paths), format/nonbehavior/MCP PASS относятся к своим immutable checkpoints.
+- PASS: `verify_gdscript_nonbehavior_changes.py --base 057ce606964138d081792826a137d769e951a28c --mode comments` — 13 scripts, 0 отличий executable source/strings/indentation; GDQuest incremental format/lint — 13 scripts.
+- Native parser **PASS**: 13 files, 0 failures, process exit 0; `ParseChanged` wrapper **FAIL** из-за shutdown-only retention (67 ObjectDB / 45 resources). Классификация **KNOWN_ENGINE_LIMITATION / DEFERRED** по AGENTS; logs `.artifacts/godot_agent/parsechanged-20261015-180622967.stdout.log` / `.stderr.log` сохранены. Не выдаётся за PASS обёртки.
+- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 13 paths checked, diagnostics empty, no instantiation. Native script_patch C_Jump вернул generic reload 43; этот ответ не PASS, последующие независимые MCP compile и CLI parser этого path — PASS. Prior parser evidence `parsechanged-20261015-174249722` (11 paths) и `parsechanged-20261015-175111601` (25 paths) относится к своим checkpoints.
 - PASS: incremental agent validator, strict architecture (0 lexical findings), project structure, scoped whitespace.
 - Full GUT/gameplay/visual: **NOT_RUN**, для comment-only batch не нужны; visual budget 0/8.
 
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Продолжить полный source pass motion/shared/scenes; очередной checkpoint — motion. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
+Получить immutable review motion и выполнить triage; пока оно идёт — только независимое чтение shared/scenes. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.

@@ -8,12 +8,9 @@ const FLOOR_QUERY_MARGIN: float = 0.05
 
 
 #region Физический вход
-## Исполняет импульсы, снимок опоры, прилипание и управление внутри callback тела.
-##
-## Вызывается непосредственно из:
-##
-##     из E_RigidBodyCharacter._integrate_forces().
-##
+## E_RigidBodyCharacter передаёт заимствованный state лишь на время _integrate_forces.
+## Потребляет pending_impulse и обновляет опору даже без Controller/при запрете управления.
+## Ускорение и snap используют физический state.step, а не gameplay clock.
 static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var body: RigidBody3D = entity as Node as RigidBody3D
 
