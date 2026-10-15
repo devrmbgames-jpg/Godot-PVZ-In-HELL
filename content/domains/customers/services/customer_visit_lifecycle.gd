@@ -5,6 +5,7 @@ class_name CustomerVisitLifecycle
 
 #region Visit closure and followups
 ## Закрывает приход однократно и планирует допустимый повтор, сохраняя заказ и личность.
+## Finished — завершение появления, не settlement/actual; сначала жалоба, затем случайный follow-up.
 static func finish(visit: CustomerVisit, day: int) -> void:
 	if visit.finished:
 		return

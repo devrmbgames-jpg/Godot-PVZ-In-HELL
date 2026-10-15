@@ -2,6 +2,8 @@ extends Observer
 ## Prepares visits only for explicit bootstrap/day/registration facts and planning commands.
 class_name O_CustomerPlanning
 
+# Handler удерживает receipts до исполнения/реконструкции;
+# flow хранит только WeakRef для coalescing.
 var _pending_requests: Array[CustomerPlanningRequest] = []
 
 

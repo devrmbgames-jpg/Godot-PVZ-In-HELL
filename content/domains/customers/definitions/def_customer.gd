@@ -1,6 +1,7 @@
 extends GameDefinition
 ## Политика обслуживания заказа; постоянная личность и её природа задаются отдельно в
 ## DEF_NpcProfile.
+## Длительности фаз — GamePlay-секунды; дни follow-up/жалобы относятся к C_DayCycle.
 class_name DEF_Customer
 
 enum DialogueMode {

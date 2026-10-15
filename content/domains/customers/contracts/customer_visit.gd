@@ -1,5 +1,7 @@
 extends Resource
 ## Постоянный журнал заказа без ссылок на Entity; назначение живой коробки хранит R_AssignedTo.
+## Planner/lifecycle фиксируют появления, CustomerOutcomeService — actual/declaration/расчёты;
+## профиль и initial rolls выбираются при создании заказа, а не повторном открытии UI.
 class_name CustomerVisit
 
 enum Actual {

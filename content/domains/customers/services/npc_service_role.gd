@@ -6,7 +6,8 @@ const QUEUE_SPACING: float = 1.3
 
 
 #region Планирование обслуживания
-## Prepares two next recipients; temporary avoidance preserves their scheduled same-day plan.
+## Adds at most one role per call, bounded by prepared_customer_count + 1 ready participants.
+## Temporary avoidance preserves the same-day plan; waiting for darkness leaves ready capacity.
 static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 	if cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY]:
 		return false
@@ -181,7 +182,7 @@ static func claim_counter(body: E_DistrictNpc) -> void:
 	)
 
 
-## Выбирает следующую явную точку прогулки, а не строит маршрут перебором.
+## Выбирает авторскую мировую точку, обновляя route_index и при достижении — waiting_point.
 static func waiting_destination(body: E_DistrictNpc) -> Vector3:
 	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
 	if station == null:
@@ -319,6 +320,7 @@ static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void
 
 
 ## Снимает роль и только её живые связи с коробкой и стойкой.
+## Не закрывает visit и не снимает home/inspection bindings; вызывающий владеет их cleanup.
 static func release(body: Entity, visit_id: StringName) -> void:
 	_restore_walk_speed(body, body.get_component(C_CustomerAgent) as C_CustomerAgent)
 	var district: C_District = NpcPopulationQueries.current()

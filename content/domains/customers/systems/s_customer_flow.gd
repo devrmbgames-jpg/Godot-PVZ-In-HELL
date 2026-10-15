@@ -14,7 +14,7 @@ func query() -> QueryBuilder:
 	return q.with_all([C_CustomerFlow, C_DayCycle])
 
 
-## Queues the complete arrival step at this System's concrete buffer boundary.
+## Queues cooldown/history work; S_CustomerArrivals selects appearances after phase commits.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for session: Entity in entities:
 		var captured_flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow

@@ -50,6 +50,7 @@ static func accept(body: E_DistrictNpc) -> bool:
 
 #region Встреча и общая выдача
 ## Вызывает отсутствующего получателя у своей двери или направляет видимого NPC домой.
+## True — существующая/начатая встреча; не подтверждение handoff и не ожидание прибытия NPC.
 static func knock(player: Entity, door: Entity) -> bool:
 	if (
 		not GrabQueries.holder_available(player) or player.has_component(C_Death)
@@ -117,6 +118,7 @@ static func knock(player: Entity, door: Entity) -> bool:
 
 
 ## Фиксирует обычную оплату и доплату с раздельными ключами однократного начисления.
+## False допускает уже committed обычную оплату при pending доплате; retry не начисляет её снова.
 static func complete(job: NpcHomeDelivery) -> bool:
 	if job == null:
 		return false

@@ -5,6 +5,7 @@ class_name CustomerParcelAssignment
 
 #region Live parcel assignment
 ## Резервирует нужную коробку через R_AssignedTo, не меняя её физического положения.
+## Любой существующий R_AssignedTo оставляет без замены; при первом доступе дополняет history_id.
 static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	if parcel == null:

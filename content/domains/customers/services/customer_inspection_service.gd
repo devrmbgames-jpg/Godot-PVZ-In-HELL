@@ -5,6 +5,7 @@ class_name CustomerInspectionService
 
 #region Резервы осмотра
 ## Крепит коробку к слоту клиента и резервирует кабинку либо дверь домашней встречи.
+## True — начало осмотра, не actual outcome; immediate opening может исполнить callbacks до return.
 static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity) -> bool:
 	if (
 		visit == null or visit.definition == null or visit.finished
@@ -172,7 +173,7 @@ static func _pride_rule(customer: Entity) -> DEF_NpcStrengthPride:
 	return pride.rule if pride != null else null
 
 
-## Запрашивает возвращение с осмотра; момент перехода определяет дерево.
+## Немедленно переводит в RETURNING_FROM_BOOTH и сбрасывает часы; caller выбирает момент запроса.
 static func return_to_service(
 	customer: E_NpcCharacter,
 	visit: CustomerVisit,

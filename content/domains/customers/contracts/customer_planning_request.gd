@@ -30,9 +30,9 @@ var generation: int = 0
 var cycle: C_DayCycle
 ## Optional wallet; unpaid penalties remain retryable through outcome settlement.
 var wallet: C_Wallet
-## Terminal receipt, false while the handler's CommandBuffer remains pending.
+## Terminal receipt for success or rejection; false while handler work remains pending.
 var completed: bool = false
 ## Changed visit count for reconciliation/reactivation.
 var affected_visits: int = 0
-## Empty on completion; a queued runtime command may reject a stale session/day.
+## Empty on successful completion; nonempty with completed=true records a terminal rejection.
 var rejection_reason: StringName = &""

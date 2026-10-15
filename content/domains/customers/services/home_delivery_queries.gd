@@ -16,6 +16,7 @@ const _STATUS_TEXT: PackedStringArray = [
 
 #region Чтение состояния
 ## Возвращает постоянную запись, включая завершённое обязательство.
+## Возвращается общий Resource журнала, не копия; изменять его могут только владельцы операций.
 static func find(job_id: StringName) -> NpcHomeDelivery:
 	var district: C_District = NpcPopulationQueries.current()
 	if district != null:

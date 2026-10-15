@@ -9,6 +9,7 @@ const PERCENT_SCALE: int = 100
 
 #region Ежедневный выбор
 ## Готовит выбор для явного утра, включая ночную подготовку до изменения DayCycle.
+## considered/claimed сохраняют однократный выбор; повтор не перебрасывает уже рассмотренный визит.
 static func prepare_day(day_index: int) -> void:
 	var district: C_District = NpcPopulationQueries.current()
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
@@ -161,6 +162,7 @@ static func assign_personal(
 
 
 ## Принимает предложение без общего лимита обязательств; повтор не меняет визит и деньги.
+## True фиксирует обещание/следующий приход, а не передачу коробки или начисление доплаты.
 static func accept(job_id: StringName) -> bool:
 	var job: NpcHomeDelivery = HomeDeliveryQueries.find(job_id)
 	if job == null:

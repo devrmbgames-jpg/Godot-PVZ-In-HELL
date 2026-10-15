@@ -2,6 +2,7 @@ extends RefCounted
 ## Читает визиты и условия обслуживания без изменения состояния потока.
 class_name CustomerFlowQueries
 
+# Кеш слабо ссылается на найденные Nodes, сбрасывается при смене World и проверяет регистрацию.
 static var _lookup_world: World = null
 static var _flow_reference: WeakRef = null
 static var _counter_reference: WeakRef = null
@@ -57,6 +58,7 @@ static func _prepare_lookup() -> void:
 
 ## Читает зарегистрированных клиентов сразу: query-кеш GECS обновляется только в конце пакета
 ## команд.
+## Может вернуть отключённое тело; callers отдельно проверяют пригодность для своей операции.
 static func customer_for(visit_id: StringName) -> E_NpcCharacter:
 	if not is_instance_valid(ECS.world):
 		return null

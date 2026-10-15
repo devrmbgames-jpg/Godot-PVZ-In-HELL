@@ -1,5 +1,6 @@
 extends RefCounted
-## Рассчитывает результаты и деньги по данным визита, без живых Node и представления.
+## Фиксирует журнал исходов/жалоб и запрашивает WalletService; представлением не управляет.
+## Расчёт выданной коробки дополнительно ждёт завершения challenge живого появления.
 class_name CustomerOutcomeService
 
 const SATISFACTION_SCALE: int = 100
@@ -38,6 +39,7 @@ static func check(
 
 
 ## Однократно записывает реальное принятие или отказ и состояние предложенной коробки.
+## True — запись actual, включая CUSTOMER_REFUSED; не подтверждение ухода коробки или оплаты.
 static func receive(
 	visit: CustomerVisit,
 	check_result: PackageDeliveryCheck,
@@ -261,6 +263,7 @@ static func settle_registration_overdue(visit: CustomerVisit, wallet: C_Wallet, 
 
 
 ## Применяет выплату или штраф через идемпотентную операцию WalletService и записывает итог.
+## Void может оставить расчёт pending: проверять settlement_committed, а просрочку — отдельно.
 static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 	# A delivered receipt cannot settle until its active challenge consequences commit.
 	if (
@@ -391,6 +394,7 @@ static func create_complaint(
 
 
 ## Разрешает созревшую жалобу по фактам; ignore_delay допускает досрочный разбор.
+## Ignore_delay не обходит Wallet rejection: outcome остаётся PENDING для повторной попытки.
 static func resolve_complaint(
 	visit: CustomerVisit,
 	wallet: C_Wallet,

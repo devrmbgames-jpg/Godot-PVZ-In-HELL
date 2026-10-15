@@ -1,5 +1,5 @@
 extends RefCounted
-## Читает состояние обслуживания для отладки; визиты и таймеры принадлежат игровым сервисам.
+## Форматирует debug text; журналом владеют domain операции, часами — System/Observer роли.
 class_name CustomerDebugPresentation
 
 const HEALTH_SEGMENTS: int = 10

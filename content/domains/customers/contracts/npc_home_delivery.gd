@@ -1,5 +1,7 @@
 extends Resource
 ## Постоянное предложение и обязательство доставки настоящей коробки.
+## NpcDeliveryOfferService фиксирует предложение/согласие/торг;
+## NpcHomeDeliveryService — итог и доплату.
 class_name NpcHomeDelivery
 
 ## REFUSED — отказ получателя у двери; DECLINED — отказ игрока от предложения.

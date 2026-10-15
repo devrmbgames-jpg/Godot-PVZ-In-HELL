@@ -22,6 +22,7 @@ static func owner_for(item: Entity) -> E_NpcCharacter:
 
 
 ## Возвращает снимок предметов, связанных с клиентом через R_InspectionCargo.
+## Копируется список, не Entities; дальнейшие synchronous callbacks могут удалить его участников.
 static func cargo(customer: Entity) -> Array[Entity]:
 	if not is_instance_valid(ECS.world):
 		return []

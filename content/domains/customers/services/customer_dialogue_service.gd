@@ -41,6 +41,7 @@ static func can_start(actor: Entity, customer: E_NpcCharacter) -> bool:
 
 
 ## Запрашивает native UI через явную синхронную границу после gameplay eligibility.
+## Возвращает opened на момент возврата emit_event; при отложенном consumer это ещё false.
 static func request_open(actor: Entity, customer: E_NpcCharacter) -> bool:
 	if not can_start(actor, customer):
 		return false
@@ -62,6 +63,7 @@ static func mark_opened(customer: E_NpcCharacter, captured_agent: C_CustomerAgen
 
 #region Игровой lifecycle разговора
 ## Переводит тот же действующий визит в диалог и запрашивает живую связь у NPC owner.
+## Фаза меняется до NpcDialogueService.begin; последующий отказ связи её не откатывает.
 static func begin(actor: Entity, customer: E_NpcCharacter, visit_id: StringName) -> bool:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(visit_id)

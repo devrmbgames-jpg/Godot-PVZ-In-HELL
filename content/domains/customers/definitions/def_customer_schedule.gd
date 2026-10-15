@@ -8,7 +8,7 @@ class_name DEF_CustomerSchedule
 @export var events: Array[DEF_CustomerEvent] = []
 ## Общая сцена старого клиента; постоянное тело жителя создаёт население района.
 @export var customer_scene: PackedScene = null
-## Пауза до следующего получателя после завершения визита или смерти, в секундах.
+## Пауза isolated flow в GamePlay-секундах; district использует DEF_District.service_transfer_pause.
 @export_range(0.0, 600.0, 1.0, "or_greater") var arrival_interval_seconds: float = 30.0
 
 

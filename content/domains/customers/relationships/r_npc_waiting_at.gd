@@ -4,5 +4,5 @@ class_name R_NpcWaitingAt
 
 ## ID заказа, для которого получатель ждёт у ПВЗ.
 @export var visit_id: StringName = &""
-## Номер маршрута ожидания; -1 означает первого клиента у входа.
+## Производный индекс очереди минус один; NpcServiceRole обновляет при выборе waiting_destination.
 @export var route_index: int = -1

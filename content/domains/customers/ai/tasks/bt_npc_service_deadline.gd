@@ -2,9 +2,9 @@
 extends "res://content/domains/customers/ai/tasks/bt_customer_condition.gd"
 ## Сравнивает часы роли с авторским параметром клиента.
 
-## Имя существующего параметра DEF_Customer, содержащего длительность в секундах.
+## Имя параметра DEF_Customer в GamePlay-секундах; сравнение читает часы роли, не delta BT.
 @export var seconds_property: StringName = &"patience_seconds"
-## Нижняя граница времени для безопасного завершения ухода.
+## Нижняя граница длительности в тех же GamePlay-секундах, например для ухода.
 @export var minimum_seconds: float = 0.0
 
 

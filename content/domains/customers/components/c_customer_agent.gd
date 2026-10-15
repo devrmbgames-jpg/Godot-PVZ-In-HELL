@@ -1,5 +1,7 @@
 extends Component
 ## Временное исполнение конкретного визита на теле; постоянные факты хранятся в CustomerVisit.
+## Isolated часы ведёт S_CustomerClock; district — O_CustomerServiceClock по NpcDecisionReady.
+## Переходы/одноразовые guards меняют явные service операции и владельцы scheduled фаз.
 class_name C_CustomerAgent
 
 enum Phase {
@@ -23,7 +25,7 @@ enum Phase {
 var visit_id: StringName = &""
 ## Текущая фаза физического визита, включая очередь и частный осмотр.
 var phase: Phase = Phase.APPROACHING
-## Время в текущей фазе, в секундах; переход обслуживания сбрасывает таймер.
+## GamePlay-секунды текущей фазы; enter_service_phase тоже сбрасывает, включая повтор той же фазы.
 var elapsed: float = 0.0
 ## Номер уже объявлен в этом физическом визите; временная защита от повторной реплики.
 var order_announced: bool = false
@@ -37,12 +39,12 @@ var inspection_force_refusal: bool = false
 
 ## Индекс следующего авторского маркера прогулки ожидающего получателя.
 var waiting_point: int = 0
-## Накопленное ожидание у входа после достижения близкой точки, в секундах.
+## Накопленные due-step секунды возле входа; O_CustomerServiceClock пишет только для district.
 var entrance_wait_elapsed: float = 0.0
 ## Предупреждение и мерцание уже запущены в этом физическом визите.
 var light_warning_started: bool = false
 
-## Скорость личности до ускоренного подхода; отрицательное значение означает отсутствие C_Motion.
+## Прежняя max_speed в м/с; NpcServiceRole восстанавливает, -1 означает отсутствие сохранения.
 var original_walk_speed: float = -1.0
 
 ## Derived isolated-step phase snapshot; S_CustomerGreeting writes it, never persisted.

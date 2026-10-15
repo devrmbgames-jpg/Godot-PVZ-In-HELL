@@ -214,6 +214,7 @@ static func greet(customer: E_NpcCharacter) -> void:
 
 
 ## Проверяет коробку на стойке и применяет общую выдачу или начало осмотра.
+## READY включает начатый осмотр и отказ получателя; actual и settlement читать отдельно.
 static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck.Result:
 	var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer()
 	if customer == null:
@@ -319,6 +320,7 @@ static func try_automatic_handoff(customer: E_NpcCharacter, visit: CustomerVisit
 
 
 ## Проверяет передачу из рук с теми же правилами назначения и принятия.
+## READY освобождает хват до решения; отказанная коробка ставится у NPC, осмотр завершается позже.
 static func confirm_direct_delivery(
 	actor: Entity,
 	customer: E_NpcCharacter,
@@ -459,6 +461,7 @@ static func _place_refused_parcel(
 
 #region Заявления и реакции
 ## Фиксирует заявление в журнале и инициирует расчёт; физическую выдачу не подменяет.
+## True не гарантирует оплату: settlement_committed может ждать Wallet/challenge boundary.
 static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration) -> bool:
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(visit_id)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -490,7 +493,7 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 	return true
 
 
-## Явно переносит визит из диалога, гарантируя повторный приход без отказа в выдаче.
+## Назначает повтор на следующий день без отказа в выдаче; реактивация ещё требует регистрации.
 static func defer_until_next_day(visit_id: StringName) -> bool:
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(visit_id)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -653,6 +656,7 @@ static func _transition(agent: C_CustomerAgent, phase: C_CustomerAgent.Phase) ->
 
 
 ## Вводит фазу диалога или примерки, сохраняя ограничение по терпению.
+## Каждый разрешённый вызов обнуляет elapsed, в том числе повтор с той же phase.
 static func enter_service_phase(customer: E_NpcCharacter, phase: C_CustomerAgent.Phase) -> bool:
 	if (
 		phase != C_CustomerAgent.Phase.DIALOGUE and phase != C_CustomerAgent.Phase.OPTIONAL_FITTING

@@ -58,7 +58,7 @@ func _dispatch(
 	)
 
 	if NpcPopulationQueries.current() != null:
-		# District queue selection remains the bounded migration scope of task 16.
+		# Native district roles share the same session gates; isolated scenes construct appearances.
 		NpcServiceRole.enqueue_next(flow, cycle)
 	else:
 		var visit: CustomerVisit = CustomerFlowQueries.next_arrival(flow, cycle)

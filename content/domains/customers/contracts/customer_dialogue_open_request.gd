@@ -11,7 +11,7 @@ var actor_reference: WeakRef
 var actor_id: String
 ## Та же клиентская роль, которая разрешила запрос.
 var agent: C_CustomerAgent
-## Результат единственного синхронного UI consumer.
+## UI consumer пишет при обработке; false до доставки не является terminal rejection receipt.
 var opened: bool = false
 
 
