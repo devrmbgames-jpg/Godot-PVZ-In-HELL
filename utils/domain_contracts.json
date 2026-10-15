@@ -5128,7 +5128,8 @@
         "enter_service_phase",
         "greet",
         "start_visit",
-        "voluntary_refuse"
+        "voluntary_refuse",
+        "reconcile_session"
       ],
       "sources": [
         "content/debug/debug_customer_service.gd",
@@ -5139,7 +5140,8 @@
         "content/debug/developer_console_diagnostics.gd",
         "content/dialogue/customer_dialogue_context.gd",
         "content/presentation/global/meta_presentation.gd",
-        "content/ui/terminal_panel.gd"
+        "content/ui/terminal_panel.gd",
+        "content/scenes/game_world.gd"
       ],
       "method_rights": {
         "declare": "request",
@@ -5149,7 +5151,8 @@
         "enter_service_phase": "request",
         "start_visit": "request",
         "voluntary_refuse": "request",
-        "greet": "request"
+        "greet": "request",
+        "reconcile_session": "request"
       },
       "public_instance_methods": []
     },
@@ -7018,19 +7021,22 @@
       "public_methods": [
         "initialize",
         "restore_participation",
-        "prepare_morning"
+        "prepare_morning",
+        "reconcile_calendar"
       ],
       "sources": [
         "content/debug/debug_world_service.gd",
         "content/dialogue/customer_dialogue_context.gd",
         "content/dialogue/npc_dialogue_context.gd",
         "content/dialogue/npc_street_dialogue_context.gd",
-        "content/scenes/main_level.gd"
+        "content/scenes/main_level.gd",
+        "content/scenes/game_world.gd"
       ],
       "method_rights": {
         "initialize": "request",
         "restore_participation": "request",
-        "prepare_morning": "request"
+        "prepare_morning": "request",
+        "reconcile_calendar": "request"
       },
       "public_instance_methods": []
     },
@@ -13881,11 +13887,16 @@
         "read",
         "request"
       ],
-      "public_methods": [],
-      "sources": [
-        "content/services/persistence/night_reset_service.gd"
+      "public_methods": [
+        "reconcile_session"
       ],
-      "method_rights": {},
+      "sources": [
+        "content/services/persistence/night_reset_service.gd",
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "method_rights": {
+        "reconcile_session": "request"
+      },
       "public_instance_methods": []
     },
     {
@@ -15240,7 +15251,8 @@
       ],
       "public_methods": [
         "prepare_morning",
-        "restore_participation"
+        "restore_participation",
+        "reconcile_calendar"
       ],
       "sources": [
         "content/services/persistence/world_snapshot_service.gd",
@@ -15248,7 +15260,8 @@
       ],
       "method_rights": {
         "prepare_morning": "request",
-        "restore_participation": "request"
+        "restore_participation": "request",
+        "reconcile_calendar": "request"
       },
       "public_instance_methods": []
     },
@@ -19775,6 +19788,81 @@
       "sources": [
         "content/scenes/npc_customer_composition.gd"
       ]
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "WorldReconstructionStarted",
+      "path": "content/shared/contracts/world_reconstruction_started.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/observers/gameplay/o_customer_planning.gd"
+      ],
+      "purpose": "PVZ-CAL01: retire queued reconciliation receipts and invalidate transient context before reconstruction clears buffers."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "WorldReconstructionStarted",
+      "path": "content/shared/contracts/world_reconstruction_started.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/observers/gameplay/o_district_lifecycle.gd"
+      ],
+      "purpose": "PVZ-CAL01: retire queued reconciliation receipts and invalidate transient context before reconstruction clears buffers."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "CommandBufferBarrier",
+      "path": "content/shared/services/command_buffer_barrier.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "drain_pending"
+      ],
+      "method_rights": {
+        "drain_pending": "request"
+      },
+      "public_instance_methods": [],
+      "sources": [
+        "content/scenes/game_world.gd"
+      ],
+      "purpose": "PVZ-CAL01: drain existing command buffers to terminal readiness/capture without running scheduled work; moved from NightSaveService to preserve an acyclic implementation graph."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "shared",
+      "symbol": "CommandBufferBarrier",
+      "path": "content/shared/services/command_buffer_barrier.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "drain_pending"
+      ],
+      "method_rights": {
+        "drain_pending": "request"
+      },
+      "public_instance_methods": [],
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd",
+        "content/systems/persistence/s_night_save.gd"
+      ],
+      "purpose": "PVZ-CAL01: drain existing command buffers to terminal readiness/capture without running scheduled work; moved from NightSaveService to preserve an acyclic implementation graph."
     }
   ],
   "legacy_decomposition": []

@@ -2,6 +2,8 @@ extends Observer
 ## Prepares visits only for explicit bootstrap/day/registration facts and planning commands.
 class_name O_CustomerPlanning
 
+var _pending_requests: Array[CustomerPlanningRequest] = []
+
 
 #region Reactive boundaries
 ## Declares the sole planning command handler and the committed day/registration consumers.
@@ -9,6 +11,7 @@ func sub_observers() -> Array[Array]:
 	return [
 		[q.with_all([C_CustomerFlow, C_DayCycle]).on_event(DayPhaseChanged.EVENT), _on_day],
 		[q.on_event(CustomerPlanningRequest.EVENT), _on_request],
+		[q.on_event(WorldReconstructionStarted.EVENT), _on_reconstruction],
 		[q.on_event(PackageScanResult.EVENT), _on_registered],
 		[q.on_event(DistrictMorningPrepared.EVENT), _on_district_prepared],
 	]
@@ -27,7 +30,21 @@ func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 func _on_request(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var request: CustomerPlanningRequest = payload as CustomerPlanningRequest
 	assert(request != null)
+	_pending_requests.append(request)
 	cmd.add_custom(_execute_request.bind(request, weakref(session) if session != null else null))
+
+
+func _on_reconstruction(_event: Variant, _session: Entity, _payload: Variant = null) -> void:
+	# This synchronous retirement runs before persistence clears every CommandBuffer.
+	for request: CustomerPlanningRequest in _pending_requests:
+		if not request.completed:
+			request.rejection_reason = &"reconstruction_started"
+			request.completed = true
+	_pending_requests.clear()
+	for session: Entity in _world.query.with_all([C_CustomerFlow]).execute():
+		var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+		flow.planning_generation += 1
+		flow.planning_request = null
 
 
 func _on_registered(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
@@ -69,6 +86,10 @@ func _prepare_session(
 	if flow.planning_day == cycle.day_index and flow.planning_phase == int(cycle.phase):
 		return
 
+	_prepare_current(flow, cycle)
+
+
+func _prepare_current(flow: C_CustomerFlow, cycle: C_DayCycle) -> void:
 	var wallet: C_Wallet = WalletService.current()
 	var payment: int = (
 		wallet.policy.delivery_payment if wallet != null and wallet.policy != null else 0
@@ -84,6 +105,9 @@ func _prepare_session(
 
 
 func _execute_request(request: CustomerPlanningRequest, session_reference: WeakRef) -> void:
+	_pending_requests.erase(request)
+	if request.completed:
+		return
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = (
 		session_reference.get_ref() as Entity if session_reference != null else null
@@ -97,13 +121,22 @@ func _execute_request(request: CustomerPlanningRequest, session_reference: WeakR
 	# Runtime commands retain their owning session across the buffer boundary.
 	# Null is reserved for isolated data fixtures, which deliberately have no Entity owner.
 	if session != null:
-		if not EntityAvailability.contains(session, _world):
+		if ECS.world != _world or not EntityAvailability.contains(session, _world):
 			request.rejection_reason = &"session_unavailable"
 			request.completed = true
 			return
 		var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 		if (
 			session.get_component(C_CustomerFlow) != request.flow
+			or cycle == null
+			or (
+				request.kind == CustomerPlanningRequest.Kind.RECONCILE_SESSION
+				and (
+					cycle != request.cycle or cycle.day_index != request.day_index
+					or cycle.phase != request.phase
+					or request.flow.planning_generation != request.generation
+				)
+			)
 			or (
 				request.kind == CustomerPlanningRequest.Kind.PLAN_DAY
 				and cycle.day_index != request.day_index
@@ -113,7 +146,18 @@ func _execute_request(request: CustomerPlanningRequest, session_reference: WeakR
 			request.completed = true
 			return
 
+	if request.kind == CustomerPlanningRequest.Kind.RECONCILE_SESSION and session == null:
+		request.rejection_reason = &"session_unavailable"
+		request.completed = true
+		return
+
 	match request.kind:
+		CustomerPlanningRequest.Kind.RECONCILE_SESSION:
+			if (
+				request.flow.planning_day != request.day_index
+				or request.flow.planning_phase != int(request.phase)
+			):
+				_prepare_current(request.flow, request.cycle)
 		CustomerPlanningRequest.Kind.PLAN_DAY:
 			_plan_day(request.flow, request.day_index, request.payment)
 		CustomerPlanningRequest.Kind.RECONCILE_MORNING:
@@ -125,6 +169,8 @@ func _execute_request(request: CustomerPlanningRequest, session_reference: WeakR
 		CustomerPlanningRequest.Kind.REACTIVATE_FOLLOWUPS:
 			request.affected_visits = _reactivate(request.flow, request.day_index)
 	request.completed = true
+	if request.kind == CustomerPlanningRequest.Kind.RECONCILE_SESSION:
+		_world.emit_event(CustomerPlanningRequest.RECONCILED, session, request)
 #endregion
 
 

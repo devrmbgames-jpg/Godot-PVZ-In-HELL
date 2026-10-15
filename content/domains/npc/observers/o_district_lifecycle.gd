@@ -23,6 +23,8 @@ func sub_observers() -> Array[Array]:
 
 	return [
 		[calendar_changes, _on_day],
+		[q.on_event(DistrictCalendarReconcileRequest.EVENT), _on_reconcile],
+		[q.on_event(WorldReconstructionStarted.EVENT), _on_reconstruction],
 		[body_deaths, _on_death],
 		[morning_requests, _on_morning],
 		[phase_requests, _on_plan],
@@ -35,7 +37,49 @@ func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	assert(fact != null)
 	var captured_district: C_District = session.get_component(C_District) as C_District
 	var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
-	cmd.add_custom(_reconcile_day.bind(weakref(session), fact, captured_district, captured_cycle))
+	cmd.add_custom(_reconcile_day.bind(
+		weakref(session), fact.day_index, fact.phase, captured_district, captured_cycle
+	))
+
+
+func _on_reconcile(_event: Variant, session: Entity, payload: Variant = null) -> void:
+	var request: DistrictCalendarReconcileRequest = payload as DistrictCalendarReconcileRequest
+	assert(request != null)
+	cmd.add_custom(_execute_reconcile.bind(weakref(session), request))
+
+
+func _execute_reconcile(
+	session_reference: WeakRef, request: DistrictCalendarReconcileRequest
+) -> void:
+	if request.completed:
+		return
+	var session: Entity = session_reference.get_ref() as Entity
+	if ECS.world != _world or not EntityAvailability.contains(session, _world):
+		request.rejection_reason = &"session_unavailable"
+	elif (
+		session.get_component(C_District) != request.district
+		or session.get_component(C_DayCycle) != request.cycle
+		or request.cycle.day_index != request.day_index or request.cycle.phase != request.phase
+	):
+		request.rejection_reason = &"stale_context"
+	else:
+		_reconcile_day(
+			session_reference, request.day_index, request.phase, request.district, request.cycle
+		)
+	request.completed = true
+
+
+func _on_reconstruction(_event: Variant, _session: Entity, _payload: Variant = null) -> void:
+	for session: Entity in _world.query.with_all([C_District]).execute():
+		var district: C_District = session.get_component(C_District) as C_District
+		var request: DistrictCalendarReconcileRequest = (
+			district.lifecycle_request.get_ref() as DistrictCalendarReconcileRequest
+			if district.lifecycle_request != null else null
+		)
+		if request != null and not request.completed:
+			request.rejection_reason = &"reconstruction_started"
+			request.completed = true
+		district.lifecycle_request = null
 
 
 func _on_death(_event: Variant, body: Entity, _payload: Variant = null) -> void:
@@ -64,7 +108,8 @@ func _on_completion(_event: Variant, body: Entity, payload: Variant = null) -> v
 #region Calendar and death reconciliation
 func _reconcile_day(
 	session_reference: WeakRef,
-	fact: DayPhaseChanged,
+	day_index: int,
+	phase: C_DayCycle.Phase,
 	captured_district: C_District,
 	captured_cycle: C_DayCycle,
 ) -> void:
@@ -79,13 +124,13 @@ func _reconcile_day(
 		return
 
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
-	if cycle.day_index != fact.day_index or cycle.phase != fact.phase:
+	if cycle.day_index != day_index or cycle.phase != phase:
 		return
 	var district: C_District = session.get_component(C_District) as C_District
-	if district.lifecycle_day == fact.day_index and district.lifecycle_phase == int(fact.phase):
+	if district.lifecycle_day == day_index and district.lifecycle_phase == int(phase):
 		return
-	if district.definition != null and fact.phase != C_DayCycle.Phase.NIGHT:
-		var phase_key: StringName = StringName("%d/%d" % [fact.day_index, fact.phase])
+	if district.definition != null and phase != C_DayCycle.Phase.NIGHT:
+		var phase_key: StringName = StringName("%d/%d" % [day_index, phase])
 		if district.conflict_phase != phase_key:
 			district.conflict_phase = phase_key
 			district.ambient_conflicts = 0
@@ -95,12 +140,12 @@ func _reconcile_day(
 			if body == null or person.death_day != 0:
 				continue
 			if body.has_component(C_Death):
-				DistrictPopulationService.mark_dead(person, body, fact.day_index)
+				DistrictPopulationService.mark_dead(person, body, day_index)
 			elif not body.has_active_role():
-				_plan_phase(district, person, body, fact.day_index, fact.phase)
+				_plan_phase(district, person, body, day_index, phase)
 
-	district.lifecycle_day = fact.day_index
-	district.lifecycle_phase = int(fact.phase)
+	district.lifecycle_day = day_index
+	district.lifecycle_phase = int(phase)
 
 
 func _reconcile_death(entity_reference: WeakRef) -> void:

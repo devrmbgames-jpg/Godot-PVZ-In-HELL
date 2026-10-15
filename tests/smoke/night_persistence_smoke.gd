@@ -197,7 +197,7 @@ func _verify_restored(level: Node3D, actor: Entity) -> void:
 		MetaPresentation.debug_text().contains("Восстановлено утро 2"),
 		"startup published restored readiness",
 	)
-	_verify_domains(level, AutosaveStore.read(SAVE_PATH))
+	_verify_domains(level, AutosaveStore.read(SAVE_PATH), true)
 
 
 ## The restored session reaches the authored replacement morning and retries the same transaction.
@@ -252,7 +252,7 @@ func _retry_due_replacement(level: Node3D) -> void:
 		WorldSnapshotService.restore(snapshot, level),
 		"replacement world reloads without duplicates",
 	)
-	_verify_domains(level, snapshot)
+	_verify_domains(level, snapshot, true)
 	_check(
 		NpcPopulationQueries.current().people.size() == population + 1,
 		"reloading the replacement does not create another resident",
@@ -400,7 +400,7 @@ func _prepare_domains(level: Node3D, actor: Entity) -> void:
 	DistrictPopulationService.set_placement(retained, retained_body, NpcRecord.Placement.OUTSIDE)
 
 
-func _verify_domains(level: Node3D, snapshot: Dictionary) -> void:
+func _verify_domains(level: Node3D, snapshot: Dictionary, after_ready: bool = false) -> void:
 	var domains: Array[Script] = [
 		C_PackageLedger,
 		C_CustomerFlow,
@@ -422,8 +422,13 @@ func _verify_domains(level: Node3D, snapshot: Dictionary) -> void:
 			if not saved.has(key):
 				continue
 			var actual: Dictionary = SaveDataCodec.component_data(owner.get_component(domain))
+			var expected: Array = saved[key].components as Array
+			if after_ready:
+				expected = _expected_ready_components(
+					expected, domain, int(snapshot.morning_day)
+				)
 			_check(
-				(saved[key].components as Array).has(actual),
+				expected.has(actual),
 				"full durable aggregate matches stored " + domain.resource_path,
 			)
 	var zone: Entity = level.get_node("Entityes/ReceivingZone") as Entity
@@ -473,6 +478,45 @@ func _verify_domains(level: Node3D, snapshot: Dictionary) -> void:
 		if person.death_day == 1:
 			deaths += 1
 	_check(deaths == 2, "dead permanent identities survive replacement and restart")
+#endregion
+
+
+#region Ready reconciliation expectations
+## The file stores Night preparation; ready now commits Morning reconciliation before any tick.
+## Keep exact comparison of every durable field, allowing only these evidenced phase-entry changes.
+func _expected_ready_components(rows: Array, domain: Script, morning_day: int) -> Array:
+	var expected: Array = rows.duplicate(true)
+	for row: Dictionary in expected:
+		if String(row.type) != domain.resource_path:
+			continue
+		var fields: Dictionary = row.fields as Dictionary
+		if domain == C_District:
+			_check(
+				fields.conflict_phase == StringName("%d/0" % [morning_day - 1]),
+				"Night retains its original conflict phase",
+			)
+			fields.conflict_phase = StringName("%d/%d" % [morning_day, C_DayCycle.Phase.MORNING])
+		elif domain == C_CustomerFlow:
+			_check(
+				fields.planned_through_day == morning_day - 1,
+				"Night retains the delivered-day watermark",
+			)
+			fields.planned_through_day = morning_day
+			for visit: Dictionary in fields.visits:
+				var visit_fields: Dictionary = visit.fields as Dictionary
+				if visit_fields.complaint == null:
+					continue
+				var complaint_fields: Dictionary = visit_fields.complaint.fields as Dictionary
+				if complaint_fields.outcome != CustomerComplaint.Outcome.PENDING:
+					continue
+				_check(visit_fields.customer_dead, "fixture complaint belongs to a dead claimant")
+				_check(
+					complaint_fields.resolve_day <= morning_day,
+					"pending fixture complaint is due at ready",
+				)
+				complaint_fields.outcome = CustomerComplaint.Outcome.NO_LIVING_CLAIMANT
+				complaint_fields.resolved_day = morning_day
+	return expected
 #endregion
 
 

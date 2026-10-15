@@ -43,7 +43,7 @@ func _advance(
 
 	# Bootstrap/load and missed authored transitions reconcile once, never each frame.
 	if flow.planning_day != cycle.day_index or flow.planning_phase != int(cycle.phase):
-		_world.emit_event(DayPhaseChanged.EVENT, session, DayPhaseChanged.from_cycle(cycle))
+		CustomerFlowService.reconcile_session(_world, session)
 		if flow.planning_day != cycle.day_index or flow.planning_phase != int(cycle.phase):
 			return
 	if cycle.phase == C_DayCycle.Phase.MORNING:

@@ -85,7 +85,7 @@ func _advance(
 
 	if state.preparation == null:
 		state.preparation = DistrictPopulationService.prepare_morning(night_day + 1)
-	if not NightSaveService.drain_pending(_world):
+	if not CommandBufferBarrier.drain_pending(_world):
 		_retry(state, ERR_BUSY)
 		return
 	if not state.preparation.completed or not state.preparation.succeeded:

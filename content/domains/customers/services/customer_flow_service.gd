@@ -5,6 +5,30 @@ class_name CustomerFlowService
 
 
 #region Планирование и сверка заказов
+## Submits one explicit current-context preparation; consumers must wait for the Observer flush.
+## Ready/restore call this once; S_CustomerFlow only recovers missing/late capability state.
+static func reconcile_session(world: World, session: Entity) -> CustomerPlanningRequest:
+	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	var pending: CustomerPlanningRequest = (
+		flow.planning_request.get_ref() as CustomerPlanningRequest
+		if flow.planning_request != null else null
+	)
+	if flow.planning_day == cycle.day_index and flow.planning_phase == int(cycle.phase):
+		return pending
+	if pending != null and not pending.completed:
+		return pending
+
+	var request: CustomerPlanningRequest = CustomerPlanningRequest.new()
+	request.kind = CustomerPlanningRequest.Kind.RECONCILE_SESSION
+	request.flow = flow
+	request.cycle = cycle
+	request.day_index = cycle.day_index
+	request.phase = cycle.phase
+	request.generation = flow.planning_generation
+	flow.planning_request = weakref(request)
+	world.emit_event(CustomerPlanningRequest.EVENT, session, request)
+	return request
 
 
 ## Фиксирует визит для реально привезённой коробки, без повторного заказа при повторе команды.

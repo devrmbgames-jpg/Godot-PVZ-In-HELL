@@ -50,8 +50,16 @@ dependency enforcement with task 33. There is no global dispatcher or wildcard s
 
 O_CustomerPlanning is the sole handler of CustomerPlanningRequest (discrete planning/reconciliation).
 A completion receipt is pending until its actual buffer flush; stale runtime session/day may reject
-with rejection_reason. DayPhaseChanged is an immutable committed phase snapshot, also used to bootstrap
-the authored/restored current phase. PackageScanResult.EVENT follows actual registered state and
+with rejection_reason. Only S_DayPhase publishes DayPhaseChanged after a committed calendar transition.
+Ready and successful in-place restore explicitly submit CustomerPlanningRequest.RECONCILE_SESSION;
+S_CustomerFlow recovers missing or late capability state without inventing a calendar fact.
+The request captures Component identities, day/phase and reconstruction generation. A pending receipt
+coalesces subsequent recovery attempts until the real Observer flush; stale owners reject terminally.
+WorldReconstructionStarted retires receipts before buffers are cleared. Startup restore defers this
+preparation until GameWorld.finish_startup resumes reactions. Ready/restore flush queued preparation
+and dependent outcomes before returning. CustomerPlanningRequest.RECONCILED is the successful
+preparation result used by outcomes; it does not notify foreign calendar subscribers.
+PackageScanResult.EVENT follows actual registered state and
 releases due followups in the same day. S_CustomerFlow owns recurring arrival timing/history; S_CustomerArrivals projects the count
 and submits one selected materialization after terminal phase commits. No second planning path.
 
@@ -96,6 +104,9 @@ invalidates preparation cache and reaches this owner through the next bootstrap 
 ## District lifecycle requests (task 14)
 
 O_DistrictLifecycle consumes committed DayPhaseChanged snapshots and body death matches.
+DistrictCalendarReconcileRequest separately prepares authored/restored district state; its transient
+pending receipt coalesces S_District recovery and is canceled at reconstruction. District bootstrap
+does not publish a calendar transition or trigger Customers/commerce calendar consumers.
 S_District only bootstraps missing/restored calendar state before customer/day/AI consumers.
 NpcPhasePlanRequest and NpcScheduleCompletionRequest have one handler and pending/terminal
 receipts. The queued boundary revalidates retained body registration, aggregate record identity,

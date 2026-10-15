@@ -339,10 +339,11 @@ func test_restore_rebuilds_customer_planning_cache_without_serializing_it() -> v
 	flow.planning_day = 2
 	flow.planning_phase = int(C_DayCycle.Phase.DAY)
 	flow.arrival_cooldown_seconds = 17.0
+	CustomerFlowFixture.install()
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
-	assert_eq(flow.planning_day, 0)
-	assert_eq(flow.planning_phase, -1)
+	assert_eq(flow.planning_day, 2)
+	assert_eq(flow.planning_phase, int(C_DayCycle.Phase.MORNING))
 	assert_eq(flow.arrival_cooldown_seconds, 0.0)
 
 	CustomerFlowFixture.advance(flow, DayPhaseQueries.current(), 0.0)
@@ -1228,4 +1229,22 @@ func test_fresh_anchored_furniture_publishes_complete_physical_snapshot_once() -
 		publications[0].get_component(C_PlayerAnchored) as C_PlayerAnchored
 	)
 	assert_same(retained.snapshot, observed_snapshots[0], "Fresh restore never replaces the marker")
+#endregion
+
+
+#region Restore reconciliation completion boundary
+## A reverse-order MANUAL consumer must finish before restore returns to snapshot readers.
+func test_restore_drains_preparation_results_even_when_outcomes_were_registered_first() -> void:
+	var outcomes: O_CustomerOutcomes = O_CustomerOutcomes.new()
+	outcomes.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(outcomes)
+	var planning: O_CustomerPlanning = O_CustomerPlanning.new()
+	planning.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(planning)
+	var flow: C_CustomerFlow = _session.get_component(C_CustomerFlow) as C_CustomerFlow
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_false(planning.has_pending_commands())
+	assert_false(outcomes.has_pending_commands())
+	assert_eq(flow.planning_day, 2)
 #endregion

@@ -80,6 +80,19 @@ func finish_startup() -> void:
 	_startup_activity.clear()
 	_restoring = false
 	_starting = false
+	for session: Entity in query.with_all([C_District, C_DayCycle]).execute():
+		DistrictPopulationService.reconcile_calendar(self, session)
+	for session: Entity in query.with_all([C_CustomerFlow, C_DayCycle]).execute():
+		CustomerFlowService.reconcile_session(self, session)
+	# Flush is the completion boundary for preparation and its dependent outcome reactions.
+	if not CommandBufferBarrier.drain_pending(self):
+		var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
+		issue.code = &"unsettled_startup_reconciliation"
+		issue.message = "Startup reconciliation did not reach a terminal buffer boundary"
+		issue.instance_path = String(get_path())
+		issue.source = "global ready"
+		_composition_issues.append(issue)
+		push_error(issue.message)
 
 
 ## Reports accepted global readiness after defaults, startup spawns and restored links are complete.

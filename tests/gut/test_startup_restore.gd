@@ -147,3 +147,55 @@ func test_diagnostics_trait_isolates_history_from_other_instances_and_authoring(
 	for actor: Entity in actors:
 		actor.free()
 #endregion
+
+
+#region Calendar bootstrap semantics
+## Observes request timing while acting as an unrelated consumer of calendar facts.
+class CalendarBootstrapSpy extends Observer:
+	## Calendar transitions received during construction/readiness.
+	var facts: int = 0
+	## Explicit Customers bootstrap submissions.
+	var requests: int = 0
+	## A request must never enter passive/default construction.
+	var requests_after_ready: bool = true
+
+	func sub_observers() -> Array[Array]:
+		return [
+			[q.on_event(DayPhaseChanged.EVENT), _on_fact],
+			[q.on_event(CustomerPlanningRequest.EVENT), _on_request],
+		]
+
+	func _on_fact(_event: Variant, _session: Entity, _payload: Variant = null) -> void:
+		facts += 1
+
+	func _on_request(_event: Variant, _session: Entity, _payload: Variant = null) -> void:
+		requests += 1
+		requests_after_ready = requests_after_ready and (_world as GameWorld).composition_ready()
+
+
+## Fresh and saved real levels are prepared at ready, with no invented calendar transition.
+func test_fresh_and_restored_startup_prepare_customers_after_ready_without_calendar_facts() -> void:
+	var packed: PackedScene = _main_scene()
+	for restored: bool in [false, true]:
+		_level = packed.instantiate() as Node3D
+		_level.set("autosave_path", SAVE_PATH if restored else "")
+		var spy: CalendarBootstrapSpy = CalendarBootstrapSpy.new()
+		_level.get_node("World/Systems/GamePlay").add_child(spy)
+		spy.owner = _level
+		add_child(_level)
+		_level.set_physics_process(false)
+		var flow: C_CustomerFlow = CustomerFlowQueries.current()
+		var cycle: C_DayCycle = DayPhaseQueries.current()
+		assert_eq(flow.planning_day, cycle.day_index)
+		assert_eq(flow.planning_phase, int(cycle.phase))
+		assert_eq(spy.facts, 0)
+		assert_eq(spy.requests, 1)
+		assert_true(spy.requests_after_ready)
+		if not restored:
+			assert_eq(AutosaveStore.write(
+				WorldSnapshotService.capture(_level, 2), SAVE_PATH
+			), OK)
+		_level.free()
+		_level = null
+		await get_tree().process_frame
+#endregion

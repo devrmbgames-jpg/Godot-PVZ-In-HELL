@@ -23,6 +23,9 @@ func sub_observers() -> Array[Array]:
 		[social_reactions, _on_social_reaction],
 		[outcomes, _on_change],
 		[calendar_changes, _on_day],
+		[q.with_all([C_CustomerFlow, C_DayCycle]).on_event(
+			CustomerPlanningRequest.RECONCILED
+		), _on_reconciled],
 		[closed_sessions, _on_closed],
 	]
 
@@ -50,7 +53,23 @@ func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	assert(fact != null)
 	var captured_flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
-	cmd.add_custom(_reconcile_day.bind(weakref(session), fact, captured_flow, captured_cycle))
+	cmd.add_custom(_reconcile_day.bind(
+		weakref(session), fact.day_index, fact.phase, captured_flow, captured_cycle
+	))
+
+
+func _on_reconciled(_event: Variant, session: Entity, payload: Variant = null) -> void:
+	var request: CustomerPlanningRequest = payload as CustomerPlanningRequest
+	assert(request != null and request.completed and request.rejection_reason.is_empty())
+	cmd.add_custom(_reconcile_prepared.bind(weakref(session), request))
+
+
+func _reconcile_prepared(session_reference: WeakRef, request: CustomerPlanningRequest) -> void:
+	if request.flow.planning_generation != request.generation:
+		return
+	_reconcile_day(
+		session_reference, request.day_index, request.phase, request.flow, request.cycle
+	)
 
 
 func _on_closed(_event: Variant, subject: Entity, payload: Variant = null) -> void:
@@ -106,7 +125,8 @@ func _reconcile_visit(
 
 func _reconcile_day(
 	session_reference: WeakRef,
-	fact: DayPhaseChanged,
+	day_index: int,
+	phase: C_DayCycle.Phase,
 	captured_flow: C_CustomerFlow,
 	captured_cycle: C_DayCycle,
 ) -> void:
@@ -121,7 +141,7 @@ func _reconcile_day(
 		return
 
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
-	if cycle.day_index != fact.day_index or cycle.phase != fact.phase:
+	if cycle.day_index != day_index or cycle.phase != phase:
 		return
 	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var wallet: C_Wallet = WalletService.current()

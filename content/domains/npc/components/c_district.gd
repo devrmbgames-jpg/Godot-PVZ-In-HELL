@@ -65,6 +65,8 @@ var player_step_elapsed: float = 0.0
 var lifecycle_day: int = 0
 ## Derived lifecycle phase snapshot; excluded from persistence and gameplay authority.
 var lifecycle_phase: int = -1
+## Weak pending bootstrap receipt; coalesces recovery without owning a second calendar.
+var lifecycle_request: WeakRef = null
 ## Порядок появления на обслуживании, независимый от порядка архетипов GECS.
 @export var next_service_order: int = 1
 ## Номер новой личности, возрастающий на протяжении сессии.

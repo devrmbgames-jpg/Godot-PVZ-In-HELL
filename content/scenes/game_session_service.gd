@@ -296,7 +296,7 @@ static func restore_startup(root: Node, state: C_Autosave) -> void:
 			var automatic: Dictionary = AutosaveStore.read(state.path)
 			if not WorldSnapshotService.can_restore(automatic, root):
 				state.rejected_path = state.path
-		if WorldSnapshotService.restore(snapshot, root):
+		if WorldSnapshotService.restore(snapshot, root, true):
 			state.last_saved_morning = int(snapshot.morning_day)
 			state.startup_status = "Восстановлено утро %d" % state.last_saved_morning
 		else:

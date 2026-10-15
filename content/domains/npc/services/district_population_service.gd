@@ -30,6 +30,31 @@ class PopulationBuild extends RefCounted:
 		bodies.clear()
 
 
+#region Calendar reconciliation
+## Submits current district state once; callers observe completion only after the Observer flush.
+static func reconcile_calendar(world: World, session: Entity) -> DistrictCalendarReconcileRequest:
+	var district: C_District = session.get_component(C_District) as C_District
+	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	var pending: DistrictCalendarReconcileRequest = (
+		district.lifecycle_request.get_ref() as DistrictCalendarReconcileRequest
+		if district.lifecycle_request != null else null
+	)
+	if district.lifecycle_day == cycle.day_index and district.lifecycle_phase == int(cycle.phase):
+		return pending
+	if pending != null and not pending.completed:
+		return pending
+
+	var request: DistrictCalendarReconcileRequest = DistrictCalendarReconcileRequest.new()
+	request.district = district
+	request.cycle = cycle
+	request.day_index = cycle.day_index
+	request.phase = cycle.phase
+	district.lifecycle_request = weakref(request)
+	world.emit_event(DistrictCalendarReconcileRequest.EVENT, session, request)
+	return request
+#endregion
+
+
 #region Восстановление состояния движка
 ## Clears transient engine/AI participation before restore or explicit morning preparation.
 static func reset_brain(body: E_DistrictNpc) -> void:

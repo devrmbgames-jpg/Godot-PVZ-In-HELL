@@ -20,5 +20,10 @@ var planning_day: int = 0
 ## Last consumed committed phase; -1 requests preparation after materialization/load.
 var planning_phase: int = -1
 
+## Restore invalidates queued preparation even when day/phase and Component identity are unchanged.
+var planning_generation: int = 0
+## One outstanding reconciliation receipt; submission coalesces until its handler finishes.
+var planning_request: WeakRef = null
+
 ## Производный кеш авторских точек клиентской очереди; живые места резервируют отношения.
 var service_routes: NpcServiceRoutes = null

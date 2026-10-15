@@ -390,7 +390,10 @@ static func can_restore(snapshot: Dictionary, root: Node) -> bool:
 
 #region Восстановление мира
 ## После полной проверки восстанавливает данные, позы и связи, затем отключение и участие района.
-static func restore(snapshot: Dictionary, root: Node) -> bool:
+## Startup passes defer_reconciliation until global readiness; in-place restore reconciles here.
+static func restore(
+	snapshot: Dictionary, root: Node, defer_reconciliation: bool = false
+) -> bool:
 	if not can_restore(snapshot, root):
 		return false
 
@@ -664,6 +667,14 @@ static func restore(snapshot: Dictionary, root: Node) -> bool:
 	SnapshotRestoreBoundary.finish(ECS.world, activity)
 	for actor: Entity in entities.values():
 		EntityCompositionService.publish_ready(actor)
+	var world: World = ECS.world
+	if not defer_reconciliation:
+		for session: Entity in world.query.with_all([C_District, C_DayCycle]).execute():
+			DistrictPopulationService.reconcile_calendar(world, session)
+		for session: Entity in world.query.with_all([C_CustomerFlow, C_DayCycle]).execute():
+			CustomerFlowService.reconcile_session(world, session)
+		# Flush is the completion boundary for preparation and its dependent outcome reactions.
+		return CommandBufferBarrier.drain_pending(world)
 	return true
 
 #endregion

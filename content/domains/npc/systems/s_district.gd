@@ -14,7 +14,7 @@ func query() -> QueryBuilder:
 	return q.with_all([C_District, C_DayCycle])
 
 
-## Publishes only a missing calendar snapshot, never a recurring population/service dispatcher.
+## Requests only missing district reconciliation; receipt coalescing prevents duplicate enqueue.
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for session: Entity in entities:
 		var captured_district: C_District = session.get_component(C_District) as C_District
@@ -40,5 +40,5 @@ func _ensure_calendar(
 	var district: C_District = session.get_component(C_District) as C_District
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	if district.lifecycle_day != cycle.day_index or district.lifecycle_phase != int(cycle.phase):
-		_world.emit_event(DayPhaseChanged.EVENT, session, DayPhaseChanged.from_cycle(cycle))
+		DistrictPopulationService.reconcile_calendar(_world, session)
 #endregion

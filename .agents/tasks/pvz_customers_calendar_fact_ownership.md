@@ -1,10 +1,12 @@
 # PVZ-CAL01 — Customers не публикует чужой календарный факт
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 Priority: **P2** (локальный идентификатор задачи для выбранного замечания аудита)
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 
-## Goal
+## Task state
+
+### Goal
 
 Убрать использование DayPhaseChanged как скрытой команды восстановления Customers. Реальный календарный факт публикует владелец календарного перехода; инициализация/сверка планирования имеет отдельный явный путь.
 
@@ -38,13 +40,11 @@ Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 - [ ] Работают стандартный PER_CALLBACK и действительно отложенный flush; нет синхронного ожидания очереди, бесконечной рекурсии и выдачи enqueue за completion.
 - [ ] Arrival cooldown/history и подготовка утра перед Night capture сохраняют прежнюю семантику.
 
-## Validation
+### Validation
 
 Расширить ближайшие существующие GUT для CustomerPlanning/CustomerFlow/DayPhase; новый небольшой suite нужен только если подходящего нет. После связного изменения выполнить focused native GUT, parser изменённых файлов и один startup → phase transition → Night/restore non-visual сценарий на milestone.
 
 Запустить formatter, structure/domain dependency и strict architecture gates по validation-workflow; проверить production producers DayPhaseChanged. Не запрещать тестовым fixtures публиковать моделируемые факты. Сохранить точный producer contract в тесте, а не только lint по имени метода.
-
-## Task state
 
 ### Current
 ТЗ подготовлено; исходный риск подтверждён чтением кода. Реализация/engine regressions/review исправления: **NOT_RUN**.
@@ -52,8 +52,20 @@ Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 ### Next
 Инвентаризировать publishers/subscribers и текущие startup/restore точки; выбрать минимальный явный reconcile request и его flush/receipt contract.
 
+### Owner QA / blockers
+
+Gameplay/visual QA: **NOT_RUN**, 0/8 ????????; ????????? ???????????, rendered playtests ?? ???????????. MCP editor ?????????, ??????/diagnostics ?????????: loaded production scripts ?????????? fallback reload code 43; native CLI parser PASS, live reload cleanliness ?? ??????????. Full project structure: **FAIL** ? 81 ?????????????? ????????? task metadata ?? BASE_SHA; introduced = 0 (????????? `.artifacts/calendar_task_metadata_baseline.txt`). ????? ???????????? ????? record ???????? 78 task-metadata findings, ?????? structure findings ? 0. Baseline ???????????? ???????? ? [TASK-META01](task_metadata_structure_gate.md); full structure ?? PASS.
+
 ### Dependencies
 Выполнить перед [PVZ-A02: кошелёк](pvz_a02_wallet_day_events.md). ConfigFile migration может выполняться независимо, но перед общей приёмкой повторно проверить startup/Night интеграцию. Итоговые контракты сверяются в задачах [PVZ-A03](pvz_a03_persistence_documentation.md) и [документирования кода](pvz_code_documentation_quality.md).
 
 ### Completion / exclusions
 Не включать NPC neighbour optimization, threat-clock decomposition и новый gameplay. Следовать [AGENTS.md](../../AGENTS.md) и [task lifecycle](../skills/task-lifecycle/SKILL.md); GitHub Actions/gh и неразрешённые visual playtests не запускать. Проверять связные этапы, не каждую мелкую правку. Полные base/target/review/fix SHA и текущие PASS/FAIL/NOT_RUN хранить здесь; не более одного child agent одновременно. DONE только после необходимых проверок/review; затем перенести исходный файл в `completed/` с исправлением ссылок.
+
+## Checkpoint validation evidence
+
+- **PASS**: native ParseChanged; GDQuest incremental formatter/lint, agent smells, strict architecture ? strict domain dependencies.
+- **PASS**: CustomerPlanning 16/16 (82 assertions), DistrictLifecycle 19/19 (167), CustomerOutcomes 7/7 (63); WorldSnapshot 36/36 (449), StartupRestore 5/5 (32); ????? 83 native GUT ?????, 793 assertions.
+- **PASS**: Night two-process write/retry/restore smoke, ??????? replacement Morning 3: `tests/artifacts/night_persistence-write-20261016-012743611.log` ? `tests/artifacts/night_persistence-restore-20261016-012757823.log`.
+- ?????? failing smoke/fixture ???????? ???????? ?????? ???? ?????? ????? ready boundary; ????????? ?????? ???????? ??? ?????????? durable-????? ?? ?????????.
+- `WorldReconstructionStarted` ????????? ?????????? receipts ?? ??????? ???????; stale Component/World/day/phase/generation ? freed owner ??????? GUT.

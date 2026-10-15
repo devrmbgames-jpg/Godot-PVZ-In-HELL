@@ -1,5 +1,5 @@
 extends RefCounted
-## Committed day/phase snapshot; bootstrap may publish the already-authored current phase.
+## Committed calendar transition published only by S_DayPhase after mutation.
 class_name DayPhaseChanged
 
 ## Explicit phase fact channel, separate from transition requests.
