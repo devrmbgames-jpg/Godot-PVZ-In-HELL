@@ -1,8 +1,9 @@
 # PERSIST-DORM01 — Retained dormant body after snapshot restore
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 Priority: **P1**
 BASE_SHA: `495cf8f6d9fb0ea3dc0fbc62b5cef32f18971103`
+TARGET_SHA: `e3337db2d7d634ed6ceb5c57d4212f347249b9cb`
 
 ## Task state
 
@@ -20,17 +21,17 @@ Root cause: explicit bootstrap/restore reconciliation reused the calendar-fact p
 Added MANUAL-command regressions for saved dormancy with both completion states and for a genuinely missing plan. The original golden retained-body regression passes unchanged. Architecture and obligation docs describe the explicit reconstruction boundary.
 
 ### Next
-Commit the verified coherent checkpoint and run one immutable read-only reviewer. Collect triage and resolve accepted P0/P1/P2 before DONE. Only independent work while review runs.
+Implementation, verification and review are complete. Continue PVZ-A03 documentation against the supported binary format; ConfigFile migration remains owner-deferred.
 
 ### Validation
 PASS: DistrictLifecycle 21/21, 196 assertions (`.artifacts/godot_agent/gut-20261015-165456155.stdout.log`). PASS: native current-format persistence baseline 5/5, 365 assertions, engine exit 0 (`gut-20261015-165515554.stdout.log`), including the original failure and health/inventory/retained identity checks. The wrapper reports FAIL on that suite solely for unchanged shutdown Resource/RID/allocator retention diagnostics; logs are preserved and classified KNOWN_ENGINE_LIMITATION / DEFERRED per AGENTS.md, not hidden or relabelled as wrapper PASS.
 
 PASS: WorldSnapshot 37/37, 464 assertions (`gut-20261015-165613749.stdout.log`), StartupRestore 5/5, 38 assertions (`gut-20261015-165627095.stdout.log`). Across these four focused suites: 68 tests, 1,063 assertions; the baseline wrapper limitation is reported separately above.
 
-PASS: two-process Night write/retry/fresh Morning restore, including replacement Morning 3: `tests/artifacts/night_persistence-write-20261016-025645380.log` and `night_persistence-restore-20261016-025658540.log`. PASS: formatter/lint, agent smells, strict architecture, full project structure and native ParseChanged (`.artifacts/godot_agent/parsechanged-20261015-165712971.stdout.log`). Immutable review REVIEW_PENDING. Gameplay/visual NOT_RUN, 0/8.
+PASS: two-process Night write/retry/fresh Morning restore, including replacement Morning 3: `tests/artifacts/night_persistence-write-20261016-025645380.log` and `night_persistence-restore-20261016-025658540.log`. PASS: formatter/lint, agent smells, strict architecture, full project structure and native ParseChanged (`.artifacts/godot_agent/parsechanged-20261015-165712971.stdout.log`). Immutable review PASS: `/root/review_cal01` inspected the exact BASE_SHA/TARGET_SHA above read-only; architecture/style PASS, no material findings. Main triage: no accepted P0/P1/P2 remain. Reviewer validation NOT_RUN; executed native checks are listed separately. Gameplay/visual NOT_RUN, 0/8.
 
 ### Dependencies / exclusions
-Independent of deferred [PVZ-B01](pvz_b01_configfile_save_storage.md) format migration. Follow GECS, typed GDScript, native scene ownership and task lifecycle. No economy redesign, NPC performance work, random-seed changes or broad golden regeneration.
+Independent of deferred [PVZ-B01](../pvz_b01_configfile_save_storage.md) format migration. Follow GECS, typed GDScript, native scene ownership and task lifecycle. No economy redesign, NPC performance work, random-seed changes or broad golden regeneration.
 
 ### Owner QA / blockers
 No owner decision currently required. Preserve unrelated user task/design edits and addon changes.
