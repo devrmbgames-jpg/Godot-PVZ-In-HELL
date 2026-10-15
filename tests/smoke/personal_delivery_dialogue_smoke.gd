@@ -170,7 +170,7 @@ func _ambush(job: NpcHomeDelivery, player: Entity) -> void:
 	(player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD
 	await get_tree().physics_frame
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-	awareness.player_visible = NpcPerceptionService.can_see(body, player, person.profile)
+	awareness.player_visible = NpcPerceptionService.can_see(body, player, person)
 	_check(awareness.player_visible, "physical sight recognizes player at home")
 	(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase = C_CustomerAgent \
 			.Phase \
