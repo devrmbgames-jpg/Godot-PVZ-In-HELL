@@ -194,6 +194,28 @@ func test_named_save_roundtrip_is_isolated_and_rejects_invalid_phase_and_path() 
 	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY)
 
 
+## Structural validity alone must not overwrite a restorable slot with incompatible prefab roles.
+func test_debug_save_preserves_slot_when_prefab_cannot_restore_owned_item() -> void:
+	assert_true(DebugGameplayService.save_slot(_slot, true).success)
+	var path: String = DebugGameplayService.slot_path(_slot)
+	var previous: PackedByteArray = FileAccess.get_file_as_bytes(path)
+	assert_true(_run("inventory_give", ["food", "1"]).contains("OK inventory_give"))
+	var item: Entity = InventoryService.items(_actor)[0]
+	# Model scene-role drift: inventory data now points to a package prefab without saved identity.
+	item.scene_file_path = "res://content/domains/packages/entities/package.tscn"
+	var snapshot: Dictionary = WorldSnapshotService.capture(self, _cycle.day_index)
+	assert_true(WorldSnapshotService.valid(snapshot, self))
+	assert_false(WorldSnapshotService.can_restore(snapshot, self))
+	var entity_count: int = _world.entities.size()
+
+	var result: DebugServiceResult = DebugGameplayService.save_slot(_slot, true)
+
+	assert_false(result.success, "A structurally valid but unrestorable snapshot must reject")
+	assert_true(FileAccess.get_file_as_bytes(path) == previous, "Slot bytes unchanged")
+	assert_eq(_world.entities.size(), entity_count)
+	assert_same(InventoryService.owner_for(item), _actor)
+
+
 ## Создание визита сохраняет авторское представление и состояние до прихода без повторного заказа.
 func test_live_visit_option_preserves_accounting_default_and_authored_introduction() -> void:
 	var parcel: Entity = Entity.new()

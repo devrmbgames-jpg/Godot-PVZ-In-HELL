@@ -460,7 +460,8 @@ static func save_slot(slot: String, writing: bool) -> DebugServiceResult:
 	var root: Node = ECS.world.get_parent()
 	if writing:
 		var data: Dictionary = WorldSnapshotService.capture(root, cycle.day_index)
-		if not WorldSnapshotService.valid(data, root):
+		# Reject incompatible prefab capabilities before touching the existing isolated slot.
+		if not WorldSnapshotService.can_restore(data, root):
 			return failure("Snapshot is incompatible; slot not overwritten")
 		var directory_error: Error = DirAccess.make_dir_recursive_absolute(SLOT_DIRECTORY)
 		if directory_error != OK:
