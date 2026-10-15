@@ -50,8 +50,8 @@ This heading retains incoming historical links; the rules below describe the imp
 
 | Authority | Saved or reconstructed state |
 | --- | --- |
-| Domain Components and records | Explicit `SAVE_FIELDS`, operation histories/counters, district roster, placement/death, memories, obligations, quest facts and immutable variant references. |
-| Physical body | Supported pose, health, inventory/action state and native geometry through the explicit snapshot boundary. A retained dormant root remains the same actor's body. |
+| Domain Components and records | Explicit `SAVE_FIELDS`, health, inventory/action state, operation histories/counters, district roster, placement/death, memories, obligations, quest facts and immutable variant references. |
+| Physical body | Supported pose and native physical state/geometry through the explicit snapshot synchronization boundary. A retained dormant root remains the same actor's body. |
 | Relationships | Durable owned/stored/cargo links serialize stable endpoint keys and local pose; required endpoints must exist before binding. Disabled living district bodies can own items. |
 | Derived state | World lookup, participation, LimboAI/Blackboard, perception/navigation, monitor membership and presentation caches are rebuilt from authoritative owners. |
 

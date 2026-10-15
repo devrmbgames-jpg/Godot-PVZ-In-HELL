@@ -45,11 +45,13 @@ Dependencies: [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-CAL01](complet
 
 ### Current / next
 
-Спецификация и архитектурные persistence bullets переписаны; после structure gate — commit и read-only review по точным BASE_SHA/TARGET_SHA. Пока review pending, допустима только независимая работа.
+Документационный checkpoint создан; первый review выявил одну неточную authority строку. Исправлено в тексте, нужен scoped fix commit и targeted re-review RV-001. Пока review pending, допустима только независимая работа.
 
 ### Review / triage
 
-**NOT_RUN**. Base: `9e7e889b7466a74e96511dd914835fc77d4b1795`; target ещё не создан. Нет принятых findings.
+Initial review: **FAIL**, base `9e7e889b7466a74e96511dd914835fc77d4b1795`, target `45e71fe4010f147ff18a21818c0c2162afcbf20f`; reviewer read-only, tests/MCP не запускал.
+
+- RV-001 (R1), P2, **ACCEPTED**: Physical body authority row ошибочно включала health/inventory/action state; `SaveDataCodec`/Components являются их владельцами. Текст исправлен: эти значения перенесены в domain Components row, body row ограничена pose/native physical state/geometry. Runtime не меняется. Fix SHA / targeted re-review: **PENDING**, repair cycle 1/2.
 
 ### Completion
 
@@ -57,4 +59,4 @@ DONE только после всего scope, релевантных прове
 
 ### Owner QA / blockers
 
-Нет runtime/owner QA для docs-only scope. Review ещё не выполнен; это блокирует DONE.
+Нет runtime/owner QA для docs-only scope. RV-001 targeted re-review ещё pending; DONE запрещён до его результата.
