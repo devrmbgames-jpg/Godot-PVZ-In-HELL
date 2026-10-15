@@ -45,12 +45,12 @@ Scope — все действующие first-party production/tool `.gd`, оп�
 ## Acceptance
 
 - [x] Все действующие first-party scripts в scope учтены; exclusions определены tracked inventory и явным ownership, не общим legacy allowlist.
-- [ ] У каждого скрипта есть полезное описание; exports/signals/public mutable fields задокументированы без пустых шаблонов и пересказа имени.
-- [ ] У каждого нетривиального публичного boundary понятны owner, preconditions, mutation, return/rejection и момент завершения; async/reentrant boundaries не маскируются под синхронные.
-- [ ] Derived cache, authoritative state, immutable authoring и terminal history различаются; units, time domain и lifetime constraints указаны там, где они влияют на корректность использования.
-- [ ] Комментарии соответствуют фактическому коду после PVZ-A01/A02/B01/CAL01, а persistence explanations — актуальному документу PVZ-A03.
-- [ ] Между base/target нет скрытого изменения runtime semantics, публичных symbols и сохранённых/авторских контрактов в documentation-only batches.
-- [ ] Зафиксированы проверенный scope и фактические counts; нет выдуманного «100% качества» по наличию ## или проценту comment lines.
+- [x] У каждого скрипта есть полезное описание; exports/signals/public mutable fields задокументированы без пустых шаблонов и пересказа имени.
+- [x] У каждого нетривиального публичного boundary понятны owner, preconditions, mutation, return/rejection и момент завершения; async/reentrant boundaries не маскируются под синхронные.
+- [x] Derived cache, authoritative state, immutable authoring и terminal history различаются; units, time domain и lifetime constraints указаны там, где они влияют на корректность использования.
+- [x] Комментарии соответствуют фактическому коду после PVZ-A01/A02/B01/CAL01, а persistence explanations — актуальному документу PVZ-A03.
+- [x] Между base/target нет скрытого изменения runtime semantics, публичных symbols и сохранённых/авторских контрактов в documentation-only batches.
+- [x] Зафиксированы проверенный scope и фактические counts; нет выдуманного «100% качества» по наличию ## или проценту comment lines.
 - [ ] Завершающий reviewer проверил критические public APIs и репрезентативные файлы каждой обработанной группы; оставшиеся проблемы устранены либо задача остаётся незавершённой.
 
 ### Validation
@@ -166,14 +166,20 @@ Interaction RV-004 (R1), P2, **FIXED**: O_GrabLifecycle применяет grip 
 
 ### Next
 
-Девятнадцатый batch: полный source pass **npc225/225**, уточнены30 scripts и `docs/living_district.md`: GamePlay cadence, фактические writers, TTL versus delivery, policy risk speed, inline/pending receipts, borrowed cache и partial synchronous operations. Base `69f7ea10cdd0c2df161639edcf4e35a8f8ddcbe1`; review **REVIEW_PENDING**, batch не DONE. Format/nonbehavior30/0 PASS; native ParseChanged30/0, exit0/stderr пустой, log `parsechanged-20261015-230934052`; final C_District parser `parsefiles-20261015-231153746` PASS. Live MCP30 checked/empty, scripts_instantiated=0; final C_District checked/empty. Agent validator30, strict architecture0 findings, structure/whitespace PASS. GUT/gameplay/visual NOT_RUN, comment-only, budget0/8. Git union362 уникальных doc scripts; review PASS пока у21 полной группы (722 scripts).
+Девятнадцатый batch: полный source pass **npc225/225 — PASS**, уточнены30 scripts и `docs/living_district.md`: GamePlay cadence, фактические writers, TTL versus delivery, policy risk speed, inline/pending receipts, borrowed cache и partial synchronous operations. Base `69f7ea10cdd0c2df161639edcf4e35a8f8ddcbe1` → target `53bb62abb42228286a7a518ad219e0dc331f667c`; read-only review **PASS**, material findings нет, triage завершён. Format/nonbehavior30/0 PASS; native ParseChanged30/0, exit0/stderr пустой, log `parsechanged-20261015-230934052`; final C_District parser `parsefiles-20261015-231153746` PASS. Live MCP30 checked/empty, scripts_instantiated=0; final C_District checked/empty. Agent validator30, strict architecture0 findings, structure/whitespace PASS. GUT/gameplay/visual NOT_RUN, comment-only, budget0/8. Git union362 уникальных doc scripts; review PASS у22 полных групп (947 scripts), M1/M2 завершены.
 
-Завершить NPC review/triage; независимо сверить M3 inventory и новые файлы на текущем HEAD. Все947 исходных scripts прочитаны, но финальные semantic/structural acceptance ещё не закрыты. [QA-SAVE01](completed/debug_save_slot_full_preflight.md), [QA-HP01](completed/debug_health_receipt_before_dispatch.md), [QA-CMP01](completed/debug_complaint_pending_message.md) и [QA-GLTF01](completed/gltf_import_variant_node_cleanup.md) завершены, review PASS. Console GUT11/11; GLTF validator18/18, orphan growth+500→0 за50 циклов, shutdown-only wrapper retention KNOWN_ENGINE_LIMITATION/DEFERRED. Behavior fixes не входят в comment-only count. PVZH1 storage остаётся по owner fallback; ConfigFile migration не возобновляется.
+M3 на `53bb62abb42228286a7a518ad219e0dc331f667c`: tracked1604 = production/tool947 + tests237 + external420; production paths совпали с inventory, добавлен только QA-GLTF01 validator среди tests. Native947/0, exit0/stderr пустой; final metadata полностью совпала с исходной (1109 exports,1874 public fields,28 signals,1647 distinct own public methods,11 inner classes/9 owners,499 script bases). Log `.artifacts/godot_agent/doc01-final-native-inventory.stdout.log`, metadata `.artifacts/doc01_final_native_declarations.json`; без instances/ticks/asset writes. Final incremental formatter относительно полного baseline `6aac58da7f03943aa62614ee3dbb1ad317747748` — все362 doc paths PASS. Сравнение23 doc commits с immutable parents —369 script checks/0 executable/string/indentation differences, включая13 owned-addon paths; отдельные11 implementation commits не выдаются за comment-only. Evidence `.artifacts/doc01_final_nonbehavior.json`.
+
+M3 structural markers:947 headers и1902 native public field/signal declarations сверены;5 lexical false candidates разрешены по BlastHit class scope и multiline receiver_traits export, unresolved0. Это не процент смыслового качества: смысл проверен полным ручным source pass и domain reviews.10 затронутых DOC01 Markdown документов,39 local-link targets существуют; профильные clocks/ownership/storage explanations сверены с финальным кодом. Новые QA fixtures/helpers документированы по собственному контракту. GUT/gameplay/visual для comment-only M3 NOT_RUN; прежние runtime gates не заменяются. Финальный M3 review **REVIEW_PENDING**, DOC01 не DONE.
+
+Завершить final M3 review/triage, затем перенести этот же файл в completed и исправить входящие/относительные ссылки. [QA-SAVE01](completed/debug_save_slot_full_preflight.md), [QA-HP01](completed/debug_health_receipt_before_dispatch.md), [QA-CMP01](completed/debug_complaint_pending_message.md) и [QA-GLTF01](completed/gltf_import_variant_node_cleanup.md) завершены, review PASS. Console GUT11/11; GLTF validator18/18, orphan growth+500→0 за50 циклов, shutdown-only wrapper retention KNOWN_ENGINE_LIMITATION/DEFERRED. Behavior fixes не входят в comment-only count. PVZH1 storage остаётся по owner fallback; ConfigFile migration не возобновляется.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.
 
 ### Owner QA / blockers
+
+DOC01 не требует новой gameplay/visual приёмки: runtime не менялся. A01 OWNER_QA и B01 DEFERRED сохраняют собственные статусы; DOC01 их не закрывает. Неразрешённых принятых findings нет; до final M3 review задача IN_PROGRESS.
 
 ### Completion
 Следовать [AGENTS.md](../../AGENTS.md) и task-lifecycle: GitHub Actions/gh, внешние addon edits и неразрешённые visual tests запрещены; не более одного child agent одновременно. Хранить здесь полные base/target/review/fix SHA, краткие фактические counts, PASS/FAIL/NOT_RUN и текущие unresolved findings; без отдельной очереди/истории. После полного scope, проверок и review — DONE и перенос этого же файла в `completed/` с исправлением ссылок.
