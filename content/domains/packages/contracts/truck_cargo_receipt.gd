@@ -1,5 +1,6 @@
 extends Resource
 ## Сохранённый результат предмета обратного груза; живых ссылок на Entity не содержит.
+## TruckCargoService пишет receipt до удаления; повтор завершает оставшийся remove/settlement.
 class_name TruckCargoReceipt
 
 enum Kind {
@@ -20,7 +21,8 @@ enum Kind {
 @export var kind: Kind = Kind.DISPOSAL
 ## Зафиксированная цена в целых денежных единицах; после удаления не пересчитывается.
 @export var amount: int = 0
-## Физический предмет уже удалён через World; повтор не удаляет иной предмет.
+## Guard ставится перед native removal, чтобы callbacks видели принятый шаг удаления.
+## После возврата из removal повтор этот предмет не удаляет; освобождение Node возможно позже.
 @export var removed: bool = false
-## Расчёт после удаления завершён, включая нулевую выручку.
+## TruckCargoService завершил расчёт после удаления, включая нулевую выручку.
 @export var settled: bool = false

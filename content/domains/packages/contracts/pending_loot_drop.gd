@@ -1,5 +1,6 @@
 extends Resource
 ## Зафиксированный предмет ожидающей партии; содержит устойчивые ID и данные без живых Node.
+## LootDropService создаёт manifest один раз; retry читает его без перевыбора сцены/состава.
 class_name PendingLootDrop
 
 #region Постоянные данные
@@ -9,7 +10,7 @@ class_name PendingLootDrop
 @export var drop_id: String = ""
 ## Путь заранее выбранного физического prefab.
 @export var scene_path: String = ""
-## Мировая точка выпадения, сохраняющаяся после удаления источника.
+## Мировая точка выпадения в метрах, сохраняющаяся после удаления источника.
 @export var origin: Vector3 = Vector3.ZERO
 ## Исходная точка источника; кандидат не должен появиться по другую сторону стены.
 @export var anchor: Vector3 = Vector3.ZERO
@@ -23,7 +24,7 @@ class_name PendingLootDrop
 @export var airborne: bool = false
 ## Исключать отключаемое мёртвое тело из физической проверки.
 @export var ignore_source: bool = false
-## Исходная скорость выброса; применяется только при первом реальном размещении.
+## Мировая скорость выброса в м/с; применяется только при первом реальном размещении.
 @export var velocity: Vector3 = Vector3.ZERO
 ## Активировать штатный emitter извлечённого предмета после размещения.
 @export var activate_hazard: bool = false

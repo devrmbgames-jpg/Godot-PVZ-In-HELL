@@ -22,6 +22,7 @@ static func can_apply(target: Entity, tier: ImpactResult.Severity) -> bool:
 
 
 ## Создаёт или повышает C_ImpactProtection; не меняет Health и состояние коробки.
+## Синхронный true означает применённый tier; false включает уже равный/более высокий уровень.
 static func apply(target: Entity, tier: ImpactResult.Severity) -> bool:
 	if not can_apply(target, tier):
 		return false

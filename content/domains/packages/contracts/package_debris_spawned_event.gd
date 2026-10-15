@@ -1,5 +1,5 @@
 extends RefCounted
-## Событие после замены уничтоженной коробки авторской сущностью обломков.
+## Обломки зарегистрированы; O_PackageDestruction удаляет исходную коробку после emit_event.
 class_name PackageDebrisSpawnedEvent
 
 ## Канал World с записью завершённого создания обломков.

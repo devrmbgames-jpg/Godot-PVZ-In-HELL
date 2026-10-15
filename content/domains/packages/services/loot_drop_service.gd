@@ -19,6 +19,8 @@ static func current() -> C_LootDrops:
 
 
 ## Проверяет всю партию до изменения источника и превращает авторские стеки в отдельные предметы.
+## Возвращает новые unparented Nodes; caller передаёт их в enqueue либо освобождает.
+## При отказе освобождает всю подготовленную часть; пустой вход тоже возвращает [].
 static func prepare(scenes: Array[PackedScene], require_inventory: bool = false) -> Array[Entity]:
 	var items: Array[Entity] = []
 	for scene: PackedScene in scenes:
@@ -53,6 +55,9 @@ static func prepare(scenes: Array[PackedScene], require_inventory: bool = false)
 
 
 ## Записывает manifest до регистрации тел; возвращает только действительно размещённые предметы.
+## Забирает все подготовленные items: регистрирует либо освобождает.
+## Duplicate batch тоже освобождает переданные Nodes.
+## Требует валидный placement и prepared RigidBody items; ожидающий остаток сохраняется как data.
 static func enqueue(
 	queue: C_LootDrops,
 	batch_id: String,
@@ -93,6 +98,7 @@ static func enqueue(
 
 
 ## Получатель забрал вскрытый заказ: ожидающее содержимое не выпадает после успешного осмотра.
+## Удаляет только pending записи; уже размещённые тела и committed_batches не меняет.
 static func accept_contents(package: Entity) -> void:
 	var identity: C_Package = package.get_component(C_Package) as C_Package
 	var session: Entity = ECS.world.query.with_all([C_LootDrops]).execute_one()
@@ -128,6 +134,7 @@ static func _single_item(item: Entity, require_inventory: bool) -> bool:
 #region Explicit recorded placement and registration
 ## Attempts one recorded placement and returns only the actual registered item; no retry clock or
 ## traversal.
+## Caller owns pending removal/requeue; this operation updates reservations, not queue membership.
 static func place_pending(queue: C_LootDrops, record: PendingLootDrop) -> Entity:
 	var item: Entity = _instantiate(record)
 	if item == null:

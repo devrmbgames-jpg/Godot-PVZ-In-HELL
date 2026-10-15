@@ -7,6 +7,7 @@ const BLOCKED_RETRY_SECONDS: float = 0.25
 
 #region Ежедневная поставка
 ## Фиксирует ограниченную партию дня; непривезённый остаток не копится между утрами.
+## Даже пустая партия отмечает last_started_day; повтор того же/раннего дня ничего не меняет.
 static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_index: int) -> void:
 	if supply == null or receiving.last_started_day >= day_index:
 		return
@@ -136,7 +137,8 @@ static func _has_recipient(definition: DEF_Package) -> bool:
 
 
 #region Физическая доставка
-## Создаёт одну коробку из зафиксированной партии, сохраняя возможность повтора при занятой зоне.
+## Пробует не более одной позиции партии; существующий package/history пропускается без нового тела.
+## Занятая зона сохраняет текущую позицию для retry; delivered_counts отражает пройденные позиции.
 static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int) -> void:
 	if not is_instance_valid(zone) or zone.supply == null:
 		return

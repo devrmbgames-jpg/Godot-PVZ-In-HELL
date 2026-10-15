@@ -4,6 +4,7 @@ extends E_TraitedEntity
 class_name E_ReceivingZoneBody
 
 ## Уведомляет о завершённом учёте обратного груза до окончания утра.
+## Сигнал испускается после cargo commit; закрытие/удаление машины ещё не завершено.
 signal cargo_commit_requested(truck: E_MorningTruck, batch_id: String)
 
 ## Авторский ассортимент, лимиты партии и повторов размещения.
@@ -32,6 +33,8 @@ func get_truck() -> E_MorningTruck:
 
 
 ## Создаёт одну машину на стоянке; поза задаётся до входа тела в SceneTree.
+## Возвращает borrowed Node без регистрации Entity.
+## is_ready_for_loading ждёт следующий physics frame.
 func ensure_truck() -> E_MorningTruck:
 	if get_truck() != null:
 		return _truck

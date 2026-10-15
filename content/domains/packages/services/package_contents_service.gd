@@ -27,6 +27,8 @@ static func has_catalog_order(package: Entity) -> bool:
 ## Фиксирует состав открытой целой коробки один раз; возвращает только безопасно размещённые тела.
 ## captured_actor_id preserves committed attribution when the optional live initiator is
 ## unavailable.
+## Пустой массив означает отказ либо ни одного размещённого тела; committed остаток живёт в очереди.
+## released/масса фиксируются до enqueue, поэтому успешное извлечение не требует свободных позиций.
 static func release(
 	package: Entity,
 	actor: Entity = null,

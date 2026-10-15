@@ -2,7 +2,7 @@ extends RefCounted
 ## Результат сканирования и регистрации для интерфейса; сам состояние мира не изменяет.
 class_name PackageScanResult
 
-## Committed registration notification; rejected scans do not publish this fact.
+## New registration fact; neither rejected nor ALREADY_REGISTERED scans publish it again.
 const EVENT: StringName = &"package_registered"
 
 enum Outcome {

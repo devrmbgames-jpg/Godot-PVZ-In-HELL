@@ -9,7 +9,8 @@ func query() -> QueryBuilder:
 	return q.with_all([C_Package, C_PackageDestruction]).on_event(PackageLifecycleEvent.EVENT)
 
 
-## На Destroyed сохраняет положение и скорости, затем откладывает замену коробки обломками.
+## На Destroyed сохраняет мировую позу/скорости и ставит command замены экземпляра.
+## PER_CALLBACK может выполнить его inline; WeakRef и identities Components проверяются заново.
 func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
 	if event == null or event.kind != PackageLifecycleEvent.Kind.DESTROYED:

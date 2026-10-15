@@ -9,7 +9,8 @@ func query() -> QueryBuilder:
 	return q.with_all([C_PackageState]).on_event(DamageResult.EVENT)
 
 
-## При реальном положительном уроне откладывает переход состояния, не пересчитывая Health.
+## При положительном уроне ставит переход состояния; Health не пересчитывает.
+## Command проверяет WeakRef и captured Component; native PER_CALLBACK может исполнить его inline.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result == null or result.request.operation != DamageRequest.Operation.DAMAGE:

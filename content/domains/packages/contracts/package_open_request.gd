@@ -5,9 +5,9 @@ class_name PackageOpenRequest
 ## Канал World с запросом намеренного вскрытия.
 const EVENT: StringName = &"package_open_requested"
 
-## Живая сущность инициатора вскрытия.
+## Заимствованный live actor; O_PackageOpening повторно проверяет доступ при исполнении.
 var actor: Entity = null
-## Физическая коробка, которую требуется открыть.
+## Заимствованная физическая коробка; запись запроса не удерживает lifetime Node.
 var package: Entity = null
-## Receipt shared with the caller; the Observer is its only terminal-state writer.
+## Shared receipt: PackageOpening initializes it; O_PackageOpening resolves a dispatched command.
 var resolution: PackageOpenResult = null

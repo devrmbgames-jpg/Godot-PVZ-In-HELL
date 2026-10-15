@@ -7,6 +7,9 @@ const PERCENT_BASE: int = 100
 
 #region Транзакция до окончания утра
 ## Фиксирует состав, удаляет груз и только затем завершает его финансовый расчёт.
+## Требует живые zone/C_Receiving/cycle; ReceivingShiftService владеет общим gate отправления.
+## false после начала исполнения не откатывает удаление: receipts сохраняют оставшийся расчёт.
+## Повтор использует ту же партию и wallet operation IDs; COMMITTED/DUPLICATE завершают оплату.
 static func commit(zone: E_ReceivingZoneBody, cycle: C_DayCycle) -> bool:
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
 	if receiving.cargo_commit_in_progress or receiving.batch_id.is_empty():

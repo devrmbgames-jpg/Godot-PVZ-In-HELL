@@ -16,6 +16,7 @@ class Status extends RefCounted:
 
 #region Одна проверка текущего состояния
 ## Собирает текущие запреты; zone_filter ограничивает сводку вывески одной зоной.
+## Это derived snapshot без резерва; commit_departure повторяет gate перед изменениями.
 static func status(cycle: C_DayCycle, zone_filter: E_ReceivingZoneBody = null) -> Status:
 	var shift_status: Status = Status.new()
 	if cycle == null or not is_instance_valid(ECS.world):
@@ -115,6 +116,9 @@ static func player_bodies() -> Array[PhysicsBody3D]:
 
 #region Граница отправления
 ## Вызывается из CommandBuffer до смены MORNING; живой обратный груз ещё доступен обработчику.
+## true завершает cargo accounting и запрашивает закрытие машин; Node lifetime заканчивается позже.
+## false может оставить уже committed зоны.
+## Durable batch/receipt guards позволяют повторить остаток.
 static func commit_departure(cycle: C_DayCycle) -> bool:
 	if (
 		cycle == null or cycle.phase != C_DayCycle.Phase.MORNING

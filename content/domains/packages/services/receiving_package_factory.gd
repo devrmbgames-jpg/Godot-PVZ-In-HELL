@@ -15,6 +15,7 @@ static func exists(package_id: String) -> bool:
 
 ## Создаёт незарегистрированный экземпляр с собственными ID и параметрами переноски; размещение
 ## выполняется отдельно.
+## Успешный результат — новый unparented Node caller; при отказе собственный instance освобождается.
 static func create(
 	zone: E_ReceivingZone,
 	definition: DEF_Package,
@@ -60,6 +61,7 @@ static func create(
 
 ## Sets detached scene identity/Profile inputs and physical mass before compiler validation.
 ## The common compiler validates required carry data and derives its Profile defaults.
+## Requires a fresh unregistered parcel and non-null definition; does not install live Components.
 static func configure_recipe(
 	parcel: E_Package,
 	definition: DEF_Package,
@@ -80,6 +82,9 @@ static func configure_recipe(
 #region Проверка и размещение
 ## Проверяет свободную авторскую точку, добавляет коробку в сцену и World; false оставляет её
 ## неразмещённой.
+## Требует fresh unparented parcel; при false caller всё ещё владеет им.
+## Даже при false локальная поза могла измениться.
+## true включает registration/readiness и резерв позиции; native callbacks могут исполниться inline.
 static func try_place(
 	zone: E_ReceivingZone,
 	parcel: E_Package,

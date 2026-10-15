@@ -5,6 +5,7 @@ class_name TerminalQueries
 
 #region Actual terminal reader
 ## Queries only physical interaction targets; unrelated modal panels do not count.
+## Requires the current gameplay ECS.world; native panel owners respond during signal emission.
 static func reading(player: Entity) -> bool:
 	var targets: QueryBuilder = ECS.world.query.with_all([C_Interactable, C_InteractionActionSet])
 	for target: Entity in targets.enabled().execute():

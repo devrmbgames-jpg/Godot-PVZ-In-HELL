@@ -48,6 +48,8 @@ static func scan(actor: Entity, scanner: Entity, target: Entity) -> PackageScanR
 
 ## Синхронно регистрирует коробку для доверенных игровых и отладочных вызовов.
 ## Проверки удержания сканера и дистанции выполняются в scan().
+## REGISTERED фиксирует номер/state до события.
+## ALREADY_REGISTERED возвращает прежний номер без события.
 static func register_package(target: Entity) -> PackageScanResult:
 	var scan_receipt: PackageScanResult = PackageScanResult.new()
 	if not EntityAvailability.contains(target, ECS.world):

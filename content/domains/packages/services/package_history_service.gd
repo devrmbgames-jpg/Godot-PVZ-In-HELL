@@ -9,6 +9,7 @@ const LARGE_MAX_METERS: float = 1.50
 
 #region Постоянный ID истории
 ## Читает постоянную запись по package_id, включая поступление без номера выдачи.
+## Возвращает саму запись журнала для синхронной работы owner, не detached snapshot.
 static func record_for(
 	package_id: String,
 	registry: C_PackageLedger = null,
@@ -35,6 +36,7 @@ static func update_note(history_id: String, text: String) -> bool:
 
 
 ## Однократно записывает реальное поступление; сканирование и номер выдачи не назначает.
+## Возвращает существующую запись без её переписывания либо создаёт новую в текущем ledger.
 static func record_arrival(parcel: Entity, day_index: int) -> PackageRegistrationRecord:
 	if not EntityAvailability.contains(parcel, ECS.world) or day_index < 1:
 		return null
@@ -65,6 +67,7 @@ static func record_arrival(parcel: Entity, day_index: int) -> PackageRegistratio
 
 ## Сохраняет допустимый существующий ID либо выделяет новый для дня; ошибка возвращает пустую
 ## строку.
+## Новый ID расходует дневной sequence и пишет C_Package.history_id, не регистрационный номер.
 static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	if not is_instance_valid(parcel) or day_index < 1:
 		return ""

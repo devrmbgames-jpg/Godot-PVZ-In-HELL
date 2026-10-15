@@ -4,7 +4,8 @@ class_name C_PackageMarks
 
 ## Упорядоченные локальные штрихи, независимые от регистрации и размещения на полке.
 var strokes: Array[PackageMarkStroke] = []
-## Общее число точек; записывается только PackageMarkService.
+## Производное число точек: PackageMarkService обновляет при рисовании/очистке.
+## WorldSnapshotService пересчитывает при load.
 var point_count: int = 0
-## Версия чернил для обновления представления; меняется через PackageMarkService.
+## Revision для перестройки mesh; увеличивают PackageMarkService и явное восстановление чернил.
 var revision: int = 0

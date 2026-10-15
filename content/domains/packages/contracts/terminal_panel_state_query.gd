@@ -1,5 +1,6 @@
 extends RefCounted
 ## One synchronous panel-owner response; reader identity is retained only weakly.
+## The panel must record its response before the native signal emit returns to the query caller.
 class_name TerminalPanelStateQuery
 
 var _open: bool = false

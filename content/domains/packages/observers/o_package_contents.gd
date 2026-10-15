@@ -8,7 +8,8 @@ func query() -> QueryBuilder:
 	return q.with_all([C_PackageContents]).on_event(PackageLifecycleEvent.EVENT)
 
 
-## На событие Opened откладывает реальное извлечение и привязку содержимого к осмотру.
+## На Opened ставит release command; PER_CALLBACK допускает исполнение в том же emit_event.
+## Captured contents защищает от замены Component, потеря optional actor не отменяет release.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
 	if (

@@ -1,5 +1,8 @@
 extends Resource
 ## Постоянная запись поступления; номер выдачи появляется только после сканирования.
+## PackageHistoryService создаёт arrival projection.
+## PackageRegistrationService меняет номер/active/departure.
+## Примечание и read_event_ids отдельно изменяются history/notice services, не физической коробкой.
 class_name PackageRegistrationRecord
 
 ## Complete arrival projection; missing fields cannot erase selected contents on restore.

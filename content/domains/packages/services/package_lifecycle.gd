@@ -3,7 +3,10 @@ extends RefCounted
 class_name PackageLifecycle
 
 
-## Публикует событие только после фиксации перехода состояния коробки.
+## Caller обязан сначала зафиксировать переход.
+## publish сам C_PackageState не меняет и не проверяет.
+## Синхронный dispatch допускает inline PER_CALLBACK effects.
+## Оставшиеся commands требуют flush owner.
 static func publish(
 	package: Entity,
 	kind: PackageLifecycleEvent.Kind,

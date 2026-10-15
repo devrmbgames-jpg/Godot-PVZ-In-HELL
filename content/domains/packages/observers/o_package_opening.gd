@@ -9,7 +9,7 @@ func query() -> QueryBuilder:
 	return q.with_all([C_Package, C_PackageState]).on_event(PackageOpenRequest.EVENT)
 
 
-## Откладывает повторную проверку доступа и фиксацию Opened через CommandBuffer.
+## Ставит command повторной проверки доступа и Opened; PER_CALLBACK может исполнить его inline.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var request: PackageOpenRequest = payload as PackageOpenRequest
 	if request != null and request.package == entity and request.resolution != null:

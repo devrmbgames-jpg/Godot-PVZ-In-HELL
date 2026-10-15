@@ -71,6 +71,8 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 
 
 ## Returns a receipt; only COMMITTED confirms opening, PENDING means queued acceptance.
+## Native PER_CALLBACK may resolve it inline; a missing/delayed Observer can leave it PENDING.
+## Initial access denial returns REJECTED without a resolved event; inspect the returned receipt.
 static func request_open(actor: Entity, package: Entity) -> PackageOpenResult:
 	var resolution: PackageOpenResult = PackageOpenResult.new()
 	resolution.correlation_id = BoundaryTrace.next_id(&"package.open")

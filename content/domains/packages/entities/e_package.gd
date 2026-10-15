@@ -4,6 +4,7 @@ extends E_GrabbableBody
 class_name E_Package
 
 ## Авторский постоянный ID; поставка и загрузка могут задать его до регистрации сущности в World.
+## После compilation авторитетным runtime ключом владеет C_Package, это construction input.
 @export var package_id: String = ""
 ## Авторское определение, из которого инициализируется постоянная запись посылки.
 @export var package_definition: DEF_Package = null

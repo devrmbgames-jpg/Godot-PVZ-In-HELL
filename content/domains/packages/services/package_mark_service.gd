@@ -8,7 +8,8 @@ const MAX_SAMPLE_GAP: float = 0.12
 
 
 #region Изменение чернил
-## При допустимой коробке добавляет локальную точку штриха с ограничением частоты и числа точек.
+## Добавляет точку из world_point/world_normal; шаг сэмплов ограничен расстоянием, не временем.
+## Синхронно пишет C_Marker/C_PackageMarks; mesh перестроится при чтении нового revision.
 static func append_sample(
 	marker: C_Marker,
 	parcel: Entity,
@@ -62,6 +63,7 @@ static func append_sample(
 
 
 ## Удаляет чернила коробки и повышает revision для обновления представления.
+## При пустом/отсутствующем Component ничего не меняет, включая revision.
 static func clear_marks(parcel: Entity) -> void:
 	if not is_instance_valid(parcel):
 		return

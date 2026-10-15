@@ -1,5 +1,7 @@
 extends Component
 ## Прогресс реальной утренней поставки; повторные попытки не создают дополнительные партии.
+## ReceivingDeliveryService ведёт manifest/позицию, TruckCargoService — cargo receipts;
+## S_Receiving ведёт retry clock, restore отдельно инвалидирует transient context.
 class_name C_Receiving
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
@@ -39,7 +41,7 @@ var pending: Array[ReceivingBatch] = []
 var delivered_counts: Dictionary[int, int] = { }
 ## Последняя попытка размещения заблокирована; используется для сообщения игроку.
 var blocked: bool = false
-## Остаток временной паузы перед повтором размещения, в секундах.
+## Остаток паузы перед повтором размещения, в gameplay-секундах.
 var retry_remaining: float = 0.0
 ## Номер последнего физического кадра создания; запрещает две коробки в одном кадре.
 var last_spawn_tick: int = -1

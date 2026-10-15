@@ -69,6 +69,7 @@ static func present(
 
 #region Постоянное чтение
 ## Записывает ключи показанных событий один раз; номер выдачи не служит ключом истории.
+## true означает добавленные IDs; false — отсутствие записи либо отсутствие новых непустых IDs.
 static func mark_read(history_id: String, event_ids: PackedStringArray) -> bool:
 	var registry: C_PackageLedger = PackageQueries.ledger()
 	if registry == null or history_id.is_empty():

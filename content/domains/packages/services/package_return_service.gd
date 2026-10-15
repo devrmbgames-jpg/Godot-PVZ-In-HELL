@@ -74,6 +74,8 @@ static func return_held(actor: Entity) -> bool:
 
 
 ## Возвращает конкретную коробку; адаптер удержания и машина используют один расчёт.
+## true включает номер/disposition и removal из World.
+## Физическое освобождение Node может быть позже.
 static func return_package(parcel: Entity) -> bool:
 	if not can_return(parcel):
 		return false

@@ -1,5 +1,6 @@
 extends Component
-## Складской журнал; выделение номеров и переходы записей принадлежат сервису регистрации.
+## PackageHistoryService пишет поступления/примечания; PackageRegistrationService — номера/уход.
+## TerminalPackageNoticeService пишет прочтение событий; codec восстанавливает журнал.
 class_name C_PackageLedger
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.

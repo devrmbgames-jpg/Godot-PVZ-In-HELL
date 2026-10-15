@@ -1,5 +1,6 @@
 extends RefCounted
-## Command receipt: PENDING is acceptance, terminal state is written only by O_PackageOpening.
+## PackageOpening initializes rejection/dispatch; O_PackageOpening resolves dispatched commands.
+## COMMITTED confirms opening, not completion of downstream contents/hazard reactions.
 class_name PackageOpenResult
 
 const EVENT: StringName = &"package_open_resolved"

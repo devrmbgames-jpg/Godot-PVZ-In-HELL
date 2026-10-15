@@ -14,6 +14,7 @@ class_name E_MorningTruck
 )
 
 ## Предельная длительность закрытия вне кузова; сбой/зацикливание анимации не удерживает машину.
+## Native physics секунды; присутствие игрока сбрасывает отсчёт, а не расходует общий timeout.
 @export_range(0.1, 10.0, 0.1) var departure_timeout_seconds: float = 2.0
 
 var _created_frame: int = -1
@@ -84,6 +85,7 @@ func is_departing() -> bool:
 
 
 ## Начинает один lifecycle; игроки наблюдаются слабыми ссылками без удержания узлов.
+## Только принимает отправление: native callback ждёт выхода игроков/дверь и вызывает queue_free.
 func request_departure(players: Array[PhysicsBody3D]) -> void:
 	if _departing or is_queued_for_deletion():
 		return

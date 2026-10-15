@@ -5,6 +5,7 @@ class_name PackageQueries
 
 #region Чтение состояния
 ## Находит живую коробку по постоянному package_id, отдельно от номера регистрации.
+## Возвращает первый native query match, не копию; caller отдельно проверяет lifecycle/access.
 static func find_live_package(package_id: String) -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null

@@ -1,5 +1,6 @@
 extends Component
 ## Сессионная очередь неразмещённого лута и журнал однократно подготовленных партий.
+## LootDropService фиксирует manifest/первое размещение; S_LootDrops повторяет оставшиеся записи.
 class_name C_LootDrops
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
@@ -14,7 +15,7 @@ const SAVE_FIELDS: Array[String] = ["placement", "pending", "committed_batches"]
 var pending: Array[PendingLootDrop] = []
 ## Зафиксированные партии, включая полностью размещённые или употреблённые предметы.
 var committed_batches: Dictionary[String, bool] = { }
-## Временная пауза между повторами; после загрузки начинается заново.
+## Пауза между повторами в gameplay-секундах; после загрузки начинается заново.
 var retry_remaining: float = 0.0
 ## One deferred retry is outstanding for this aggregate; transient, never persisted.
 var retry_queued: bool = false

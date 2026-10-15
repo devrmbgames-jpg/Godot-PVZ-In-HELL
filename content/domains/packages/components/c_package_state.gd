@@ -1,5 +1,7 @@
 extends Component
 ## Независимые регистрация, вскрытие и состояние; HP принадлежит C_Health.
+## Регистрацию пишут domain services, opening — O_PackageOpening, damage — damage/leak owners.
+## Codec восстанавливает сохранённые факты без повторного исполнения переходов.
 class_name C_PackageState
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.

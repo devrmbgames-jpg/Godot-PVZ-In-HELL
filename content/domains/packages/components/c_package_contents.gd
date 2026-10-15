@@ -1,5 +1,6 @@
 extends Component
 ## Признак однократного извлечения; созданные предметы владеют своим состоянием и физикой.
+## PackageContentsService фиксирует released до регистрации тел; остаток хранится в C_LootDrops.
 class_name C_PackageContents
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.

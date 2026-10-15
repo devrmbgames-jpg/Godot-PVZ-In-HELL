@@ -14,12 +14,13 @@ func deps() -> Dictionary[int, Array]:
 	return { Runs.After: [S_DayPhase] }
 
 
-## Выбирает только сессию с ожидающим лутом и циклом дня.
+## Выбирает сессионную очередь и цикл дня; наличие pending проверяет process.
 func query() -> QueryBuilder:
 	return q.with_all([C_LootDrops, C_DayCycle]).iterate([C_LootDrops, C_DayCycle])
 
 
 ## Во время сна не создаёт предметы; в остальных фазах повтор ограничен настройкой очереди.
+## GamePlay delta измеряется gameplay-секундами; queued retry сохраняет точный контекст очереди.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0:
 		return

@@ -13,6 +13,7 @@ func query() -> QueryBuilder:
 
 ## Накапливает непрерывные секунды опасного наклона; безопасное положение или пустая коробка
 ## сбрасывает таймер.
+## Authored GamePlay group получает gameplay delta; triggered отмечает приём command, не leaking.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var conditions: Array = components[0]
 	var tilts: Array = components[1]

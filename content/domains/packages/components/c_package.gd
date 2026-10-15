@@ -1,5 +1,7 @@
 extends C_ActorIdentityReference
 ## Постоянная идентичность поставки и признак инициализации, независимые от состояния коробки.
+## Factory задаёт исходные поля; PackageHistoryService выделяет history_id.
+## Codec восстанавливает сохранённые значения.
 class_name C_Package
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.

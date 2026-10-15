@@ -14,7 +14,8 @@ func query() -> QueryBuilder:
 	return q.with_all([C_Receiving]).iterate([C_Receiving])
 
 
-## Утром уменьшает паузу повторов в секундах и откладывает доставку через CommandBuffer.
+## Утром уменьшает gameplay-паузу повторов и ставит доставку через CommandBuffer.
+## Исполнение проверяет zone/Component identity, day/phase, batch и restore revision.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0:
 		return
