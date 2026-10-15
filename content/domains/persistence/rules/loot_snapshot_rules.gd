@@ -8,6 +8,7 @@ const MAX_PENDING: int = 4096
 #region Предварительная проверка очереди
 ## Единственная очередь принадлежит сессии; ожидающий ID не имеет уже созданного физического
 ## экземпляра.
+## Входные records и decoded Components уже прошли структурный gate WorldSnapshotService.valid.
 static func valid(
 	records: Dictionary[String, Dictionary],
 	components: Dictionary[String, Dictionary],

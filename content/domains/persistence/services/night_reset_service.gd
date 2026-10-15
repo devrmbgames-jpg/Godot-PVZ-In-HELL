@@ -5,6 +5,8 @@ class_name NightResetService
 
 #region Ночное завершение действий
 ## Освобождает ввод, живые действия, роли обслуживания и временные эффекты перед снимком утра.
+## Явная Night boundary обнуляет скорости оставшихся RigidBody, не выполняя scheduled tick.
+## Зависимые commands ещё должен дренировать S_NightSave перед capture; rollback не предусмотрен.
 static func reset() -> void:
 	if not is_instance_valid(ECS.world):
 		return

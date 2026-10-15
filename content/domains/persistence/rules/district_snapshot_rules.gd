@@ -5,6 +5,8 @@ class_name DistrictSnapshotRules
 
 #region Проверка постоянного района
 ## Проверяет личности, размещение, адреса, профили, память и вечерние обязательства.
+## Вход — уже декодированные Components и структурно проверенные records; morning_day >= 1.
+## Читает snapshot, не пересоздаёт жителей и не продвигает календарь/обязательства.
 static func valid(
 	records: Dictionary[String, Dictionary],
 	components: Dictionary[String, Dictionary],

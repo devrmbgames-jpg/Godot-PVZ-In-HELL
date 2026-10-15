@@ -5,6 +5,8 @@ class_name ReceivingSnapshotRules
 
 #region Pending recipe preflight
 ## Verifies every retained key/scene pair and the authored zone's selected delivery definition.
+## Receives decoded state; loads allowed assets and instantiates/frees detached parcel probes.
+## Supply-profile matching applies when actor is E_ReceivingZone; no World/queue mutation occurs.
 static func valid(receiving: C_Receiving, actor: Entity) -> bool:
 	var receipt_ids: Dictionary[String, bool] = { }
 	for receipt: TruckCargoReceipt in receiving.cargo_receipts:

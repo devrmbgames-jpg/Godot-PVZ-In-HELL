@@ -1,5 +1,6 @@
 extends RefCounted
 ## Результат меню сохранений; snapshot содержит только проверенные сериализуемые данные.
+## GameSessionService заполняет receipt синхронно; это не подтверждение ready новой сцены.
 class_name GameSaveResult
 
 ## Операция успешно записала или нашла проверенный совместимый слот.
@@ -8,5 +9,6 @@ var success: bool = false
 var message: String = ""
 ## Путь записанного или выбранного слота, если он установлен.
 var path: String = ""
-## Проверенные данные выбранного слота для передачи новой сцене; Entity-ссылок нет.
+## saved_game заполняет данные выбранного слота; save_game оставляет пустой Dictionary.
+## Для передачи новой сцене; Entity-ссылок нет.
 var snapshot: Dictionary = { }

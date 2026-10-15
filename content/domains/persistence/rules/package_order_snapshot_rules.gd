@@ -5,6 +5,7 @@ class_name PackageOrderSnapshotRules
 
 #region Committed order preflight
 ## Selected items require contents capability and must agree with existing ledger projections.
+## Reads already decoded snapshot Components; neither reconstructs parcels nor commits fulfillment.
 static func valid(components: Dictionary[String, Dictionary]) -> bool:
 	var arrivals: Dictionary[String, PackageRegistrationRecord] = { }
 	for key: String in components:

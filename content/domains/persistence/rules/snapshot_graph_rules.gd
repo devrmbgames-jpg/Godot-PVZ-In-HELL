@@ -4,6 +4,7 @@ class_name SnapshotGraphRules
 
 
 ## Проверяет типы и вместимость сохранённых ролей, включая инвентарь отсутствующего живого NPC.
+## Требует структурно проверенные records/links и полный decoded Component map по тем же ключам.
 static func valid(
 	records: Dictionary[String, Dictionary],
 	components: Dictionary[String, Dictionary],
@@ -63,6 +64,7 @@ static func valid(
 
 
 ## Проверяет типы prefab и авторские политики слотов на заготовках/переиспользуемых сущностях.
+## Требует проверенные saved records и полный Entity map; читает recipes без регистрации/overlay.
 static func valid_entities(records: Array, entities: Dictionary[String, Entity]) -> bool:
 	for record: Dictionary in records:
 		var entity: Entity = entities[String(record.key)]

@@ -1,10 +1,13 @@
 extends RefCounted
-## Explicit save composition: command quiescence and validated startup restore.
+## Startup slot policy and restore status; scheduled Night capture/retries belong to S_NightSave.
 class_name NightSaveService
 
 
 #region Восстановление при запуске
 ## Восстанавливает совместимый слот или сообщает причину отказа без удаления файла.
+## false также означает отсутствие слота.
+## При construction_failed уровень должен покинуть незавершённый World.
+## Успех использует deferred reconciliation: level ещё обязан завершить global startup.
 static func restore_startup(root: Node, state: C_Autosave) -> bool:
 	var snapshot: Dictionary = AutosaveStore.read(state.path)
 	if snapshot.is_empty():

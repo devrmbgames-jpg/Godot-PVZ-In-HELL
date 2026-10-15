@@ -41,6 +41,7 @@ static func valid_recipe(ids: Array, actions: C_InteractionActionSet) -> bool:
 
 
 ## Заменяет прогресс только сохранёнными завершёнными действиями без повторного эффекта.
+## Требует valid(ids, entity); пустой список очищает actions существующего Component.
 static func restore(ids: Array, entity: Entity) -> void:
 	var state: C_ProlongedInteraction = (
 		entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
@@ -55,6 +56,7 @@ static func restore(ids: Array, entity: Entity) -> void:
 
 
 ## Builds private completed progress from authored actions without installing Components or effects.
+## Requires valid_recipe; this is not an untrusted ID parser and asserts on a missing NEVER action.
 static func recipe_for(ids: Array, actions: C_InteractionActionSet) -> C_ProlongedInteraction:
 	var state: C_ProlongedInteraction = C_ProlongedInteraction.new()
 	for action_id: StringName in ids:

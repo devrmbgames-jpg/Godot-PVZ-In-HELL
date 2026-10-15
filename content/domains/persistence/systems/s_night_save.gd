@@ -23,6 +23,7 @@ func query() -> QueryBuilder:
 
 
 ## Advances retry time and queues one step for the exact calendar/component context.
+## delta is raw Storage seconds; gameplay clock freeze does not postpone operational retries.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0:
 		return
@@ -51,6 +52,8 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 
 
 #region Captured preparation and storage boundaries
+# Queued steps borrow captured Components; WeakRef/revision/identity reject stale restore contexts.
+# Execution rechecks the Night day before resetting, preparing or touching the retained snapshot.
 func _advance(
 	reference: WeakRef,
 	cycle: C_DayCycle,

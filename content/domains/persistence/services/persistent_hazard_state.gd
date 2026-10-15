@@ -5,6 +5,7 @@ class_name PersistentHazardState
 
 
 ## Снимает ключи источника, инициатора и следования вместо живых ссылок.
+## Отсутствующий hazard даёт {}; недоступный origin/instigator кодируется пустым ключом.
 static func capture(entity: Entity, root: Node) -> Dictionary:
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	if hazard == null:
@@ -53,6 +54,7 @@ static func valid(hazard_references: Dictionary, records: Dictionary[String, Dic
 
 
 ## Восстанавливает атрибуцию и R_HazardFollow, затем запрашивает геометрию без повторного взрыва.
+## Требует valid и полный entities map; вызывается внутри подавления restore-реакций.
 static func restore(
 	hazard_references: Dictionary,
 	entity: Entity,

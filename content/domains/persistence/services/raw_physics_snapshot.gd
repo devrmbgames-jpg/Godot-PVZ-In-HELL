@@ -1,5 +1,6 @@
 extends RefCounted
 ## Presence/pose snapshot for explicitly identified native physics placements.
+## Native body authority is overridden only at the explicit prevalidated reconstruction boundary.
 class_name RawPhysicsSnapshot
 
 
@@ -30,6 +31,7 @@ static func capture(root: Node) -> Dictionary:
 
 
 ## Prevalidates every ID, pose and native recipe without changing the live level.
+## Catalog validation instantiates/frees detached native prefab probes; no World registration.
 static func valid(records: Variant, root: Node) -> bool:
 	if not records is Array:
 		return false
@@ -60,6 +62,7 @@ static func valid(records: Variant, root: Node) -> bool:
 
 
 ## Rejects a removed journal entry paired with a restored body, or a pending missing body.
+## Requires structurally validated records and decoded Components from the full snapshot preflight.
 static func valid_receipts(records: Array, components: Dictionary[String, Dictionary]) -> bool:
 	var presence: Dictionary[String, bool] = { }
 	for record: Dictionary in records:
@@ -85,6 +88,8 @@ static func valid_receipts(records: Array, components: Dictionary[String, Dictio
 
 
 ## Applies an already prevalidated snapshot inside the world's reconstruction boundary.
+## Recreates/removes bodies and releases old hand bindings.
+## Restores world pose/flags and zeroes velocity.
 static func restore(records: Array, root: Node) -> void:
 	var catalog: Dictionary = _catalog(root)
 	for record: Dictionary in records:
