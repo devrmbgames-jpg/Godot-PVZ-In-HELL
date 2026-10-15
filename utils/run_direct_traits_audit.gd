@@ -1,5 +1,5 @@
 extends SceneTree
-## Loads offline evidence after project autoload registration.
+## Runs the detached composition audit after autoload registration; one CLI output JSON path.
 
 
 func _initialize() -> void:

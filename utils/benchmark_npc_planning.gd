@@ -1,6 +1,8 @@
 extends Node
 ## Headless CPU-benchmark авторского уровня: отдельно маршрут, 809 оценок света и работа групп ECS
 ## по фазам.
+## Запускает реальный уровень с autosave_path=""; время CPU — wall clock в миллисекундах.
+## Scheduled samples вызывают physics tick с фиксированным delta 1/60 s.
 
 const SAMPLE_COUNT: int = 12
 const LIGHT_SAMPLES: int = 809

@@ -17,6 +17,7 @@ const WAREHOUSE_MARKERS: PackedStringArray = [
 #region Покрытие авторских точек
 ## Асинхронно возвращает нарушения покрытия/маршрутов; временные RID освобождаются, авторская сетка
 ## не меняется.
+## level/region должны жить в SceneTree до возврата; district берётся из текущего ECS.world.
 static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]:
 	var errors: Array[String] = []
 	var mesh: NavigationMesh = region.navigation_mesh

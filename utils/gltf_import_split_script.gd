@@ -1,6 +1,7 @@
 @tool
 extends EditorScenePostImport
 ## Синхронный post-import GLTF: внешние меши/анимации и три варианта сцен рядом с источником.
+## Возвращает исходный scene; ошибки отдельных файлов дают warning без общего rollback.
 
 
 # Главная функция, вызываемая Godot после импорта сцены
@@ -63,7 +64,7 @@ func _extract_and_save_meshes(
 			var mesh_path: String = mesh_dir.path_join(mesh_name + ".res")
 
 			# Сохраняем меш как внешний ресурс
-			# FLAG_COMPRESS даёт меньший размер на диске и быстрее загрузку
+			# FLAG_COMPRESS включает сжатие сохраняемого ресурса.
 			var err: int = ResourceSaver.save(mi.mesh, mesh_path, ResourceSaver.FLAG_COMPRESS)
 			if err != OK:
 				push_warning("[GLTF Auto Processor] Failed to save mesh: " + mesh_path)
@@ -200,7 +201,7 @@ func _create_variant_scenes(
 		animation_map,
 	)
 
-	# Static — оборачиваем в StaticBody3D с триместными коллизиями
+	# Static — оборачиваем в StaticBody3D с треугольными коллизиями.
 	_save_variant(
 		original,
 		scene_dir.path_join(base_name + "_static.tscn"),
@@ -366,7 +367,7 @@ func _add_collisions(node: Node, body_root: Node, body_class: String) -> void:
 				# Для динамических тел — выпуклая форма (быстрее, стабильнее)
 				shape = mi.mesh.create_convex_shape()
 			else:
-				# Для статики — точная триместная форма
+				# Для статики — треугольная форма.
 				shape = mi.mesh.create_trimesh_shape()
 
 			if shape != null:

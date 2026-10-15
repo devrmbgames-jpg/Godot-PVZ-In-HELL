@@ -1,6 +1,7 @@
 extends SceneTree
 ## Offline native authoring: bind canonical archetypes and preserve district participation roles.
 ## Run with the live project editor verified closed; project types load after autoload registration.
+## Source fingerprints select bind/finalize; saves are sequential, without batch rollback.
 
 const PLAN_PATH: String = "res://.artifacts/r26_roster_binding_plan.json"
 const DISTRICT_PATH: String = "res://content/domains/npc/definitions/def_district_default.tres"

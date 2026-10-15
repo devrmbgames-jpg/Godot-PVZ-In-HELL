@@ -2,9 +2,11 @@
 extends Node3D
 ## Редакторское объединение одинаковых mesh/material по пространственным ячейкам; меняет авторскую
 ## сцену.
+## Группирует по мировым ячейкам и active material поверхности 0, без Undo.
+## Во время await исходные узлы должны жить; повторный запуск ждать до завершения.
 class_name ToolMultiMeshGenerator
 
-## Переносит найденные CollisionShape3D в создаваемое общее StaticBody.
+## Копирует формы найденных CollisionShape3D в создаваемое общее StaticBody.
 @export var gen_collision := false
 ## После генерации удаляет исходные дочерние узлы, собранные обходом.
 @export var remove_old := false

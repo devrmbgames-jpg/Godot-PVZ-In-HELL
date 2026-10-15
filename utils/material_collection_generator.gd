@@ -2,6 +2,7 @@
 extends EditorScript
 
 ## Генерирует StandardMaterial3D из наборов BMP-текстур.
+## Перезаписывает одноимённые материалы и roughness .res; общей транзакции/Undo нет.
 ##
 ## Ожидаемая структура:
 ## Шаблон: collection/<category>/<number>/*_<map_name>.bmp

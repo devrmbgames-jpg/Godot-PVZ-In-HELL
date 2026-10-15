@@ -1,11 +1,11 @@
 extends RefCounted
-## Offline before/after composition evidence and representative construction timing.
+## Current detached composition reports and representative construction CPU timings.
 
 const _BOX_PATH: String = "res://content/domains/interaction/entities/box.tscn"
 
 
 #region Detached comparison and timing
-## Writes reproducible detached plans and construction timings to the requested output file.
+## Requires one CLI output path; writes current reports and three 500-build timings in usec.
 func run() -> void:
 	var arguments: PackedStringArray = OS.get_cmdline_user_args()
 	var preview: GDScript = load(
