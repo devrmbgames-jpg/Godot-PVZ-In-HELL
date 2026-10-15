@@ -1,9 +1,10 @@
 # Посылки — автоматическая регистрация при поступлении на выгрузку
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 BASE_SHA: `764486919409df4bf053d04efed2346c71799b4f`
+TARGET_SHA: `76bd92013fd8792a683967dfbf02752f002e58b9`
 
-Связанный этап: [утренняя машина](completed/district_morning_truck.md).
+Связанный этап: [утренняя машина](district_morning_truck.md).
 Требование повторно указано владельцем 2026-10-15. Выполнение авторизовано текущей командой `/goal` о задачах `.agents/tasks`; прежняя пометка об ожидании команды относилась к исходному baseline `6aac58da7f03943aa62614ee3dbb1ad317747748`.
 
 ## Task state
@@ -34,7 +35,8 @@ BASE_SHA: `764486919409df4bf053d04efed2346c71799b4f`
 
 ### Current
 
-Implementation подготовлен; до commit/review задача не DONE. Receiving после успешного native
+Implementation завершён и прошёл независимое read-only review по указанным BASE_SHA/TARGET_SHA.
+Замечаний P0/P1/P2 нет; triage завершён без требуемых исправлений. Receiving после успешного native
 placement вызывает единственный allocator PackageRegistrationService с отложенной публикацией,
 фиксирует manifest/last_spawn_tick и создаёт visit перед регистрационным фактом. Callback может
 повторно вызвать доставку или изменить pending без повторного появления текущей коробки.
@@ -56,8 +58,8 @@ persistence/architecture/receiving docs и ручные чеклисты отр�
 
 ### Next
 
-Зафиксировать implementation checkpoint и запустить immutable-SHA review. Triage/fix принятых
-P0/P1/P2 до DONE; во время review только независимые задачи.
+Обязательные implementation, verification и review gates завершены. Дополнительные ручные
+сценарии остаются в профильных QA checklists с фактическим статусом NOT_RUN.
 
 ### Validation
 
@@ -75,8 +77,12 @@ P0/P1/P2 до DONE; во время review только независимые �
   Предыдущий FAIL был stale legacy-content icon assumption; fixture исправлен по текущему catalog
   manifest, gameplay для этого не менялся. Captures/rendered QA не запускались.
 - Ручная игровая/визуальная приёмка: **NOT_RUN**,0/8; визуальное качество не заявляется.
+- PASS: независимый reviewer проверил immutable diff BASE_SHA → TARGET_SHA; material findings
+  отсутствуют, architecture/style PASS. Reviewer не запускал проверки (VALIDATION NOT_RUN);
+  результаты локальных проверок выше принадлежат Main.
 
 ### Owner QA / blockers
 
-Implementation review **REVIEW_PENDING**; задача не DONE. Новые ручные сценарии отмечены NOT_RUN
-в профильных QA checklists, прежнее общее ACCEPTED не переносится на новый контракт.
+Implementation review **PASS**, triage завершён; незакрытых обязательных blockers нет. Новые ручные
+сценарии отмечены NOT_RUN в профильных QA checklists, прежнее общее ACCEPTED не переносится на
+новый контракт. Acceptance этой задачи требует обновить чеклисты, а не объявить их ручное прохождение.
