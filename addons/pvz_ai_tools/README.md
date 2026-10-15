@@ -266,6 +266,21 @@ The disk save is not undoable. Example:
 Registration refreshes with the companion revision; plugin exit unregisters the
 tool with its source. No Nodes or requests are retained between calls.
 
+`pvz_npc_test_room_supply` authors an isolated room's native order catalog, including
+its external preset, receiving zone and customer-flow recipe. It fills the same
+scripted nested Resource editing gap. Pass `room_key`, saved `scene_fingerprint`,
+`preset_fingerprint` and `item_paths` (1–128 unique orderable definitions).
+It rejects gameplay, dirty scenes, changed fingerprints, missing recipes, duplicate
+item keys and supplies outside the canonical room/preset graphs before changing them.
+Properties use scene-owned UndoRedo; the external preset save is not undoable.
+Save the edited room with `scene_save` afterwards. Example:
+`custom_manage(op="invoke", params={"tool_name":"pvz_npc_test_room_supply",
+"params":{"room_key":"vampire","scene_fingerprint":"<scene SHA-256>",
+"preset_fingerprint":"<preset SHA-256>","item_paths":[
+"res://content/domains/inventory/definitions/def_item_blood_flask.tres"]}})`.
+Registration uses the companion revision refresh and source teardown. No resources
+or requests are retained. Tests: `tests/gut/test_pvz_npc_test_room_authoring.gd`.
+
 ## Diagnostics for new project scripts
 
 `pvz_gdscript_path_diagnostics` compiles one through eight existing project-owned

@@ -21,19 +21,7 @@
 [ext_resource type="Resource" uid="uid://d4k38ln3m18ia" path="res://content/domains/inventory/definitions/def_item_axe.tres" id="19_lwed1"]
 [ext_resource type="Resource" uid="uid://cc8oaxlimyxr2" path="res://content/domains/inventory/definitions/def_item_scythe.tres" id="20_fiqc0"]
 [ext_resource type="Resource" uid="uid://cx1n4uytruadx" path="res://content/domains/inventory/definitions/def_item_throwing_knife.tres" id="21_bloic"]
-[ext_resource type="Resource" uid="uid://bhmjsqk8birom" path="res://content/domains/inventory/definitions/def_item_bones.tres" id="22_hochf"]
-[ext_resource type="Resource" uid="uid://25ug0x3v3oso" path="res://content/domains/inventory/definitions/def_item_reagent_flask.tres" id="23_8inqf"]
-[ext_resource type="Resource" uid="uid://ccn1cx5xe2k76" path="res://content/domains/inventory/definitions/def_item_fire_flask.tres" id="24_1ql72"]
-[ext_resource type="Resource" uid="uid://d7huk3r0sxfk" path="res://content/domains/inventory/definitions/def_item_toxin_flask.tres" id="25_lykgx"]
-[ext_resource type="Resource" uid="uid://bift6tvdjcwmp" path="res://content/domains/inventory/definitions/def_item_fire_barrel.tres" id="26_yiff1"]
-[ext_resource type="Resource" uid="uid://cjy1tvnkoghrr" path="res://content/domains/inventory/definitions/def_item_acid_barrel.tres" id="27_mh6bt"]
-[ext_resource type="Resource" uid="uid://bq3twhbbggcst" path="res://content/domains/inventory/definitions/def_item_slave_collar.tres" id="28_dmuus"]
-[ext_resource type="Resource" uid="uid://6rhfab5j220x" path="res://content/domains/inventory/definitions/def_item_spiked_chains.tres" id="29_bfh22"]
-[ext_resource type="Resource" uid="uid://dn17564yr1p17" path="res://content/domains/inventory/definitions/def_item_holy_artifact.tres" id="30_fapri"]
-[ext_resource type="Resource" uid="uid://cyphvbd2o5mf3" path="res://content/domains/inventory/definitions/def_item_unholy_artifact.tres" id="31_gssgv"]
-[ext_resource type="Resource" uid="uid://cdrxyvq5qi52m" path="res://content/domains/inventory/definitions/def_item_blood_flask.tres" id="32_dvr3r"]
-[ext_resource type="Resource" uid="uid://b44jiwbnhykfs" path="res://content/domains/inventory/definitions/def_item_blood_barrel.tres" id="33_ugtrr"]
-[ext_resource type="Resource" uid="uid://cvgyjdxiqmply" path="res://content/domains/inventory/definitions/def_item_toy_block.tres" id="34_ki0jw"]
+[ext_resource type="Resource" uid="uid://dj2ypo2l583ac" path="res://content/domains/inventory/definitions/def_item_work_clothes.tres" id="22_3cv03"]
 [ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/domains/packages/definitions/def_package.gd" id="35_68hql"]
 [ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="36_gpbbc"]
 [ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_books.tscn" id="37_cqvdn"]
@@ -353,7 +341,7 @@ key = &"qa_parcel_2"
 [sub_resource type="Resource" id="Resource_q26g6"]
 script = ExtResource("42_twduq")
 packages = Array[ExtResource("35_68hql")]([SubResource("Resource_fm771"), SubResource("Resource_bhx4w")])
-order_catalog = Array[ExtResource("18_kqgy8")]([ExtResource("19_lwed1"), ExtResource("20_fiqc0"), ExtResource("21_bloic"), ExtResource("22_hochf"), ExtResource("23_8inqf"), ExtResource("24_1ql72"), ExtResource("25_lykgx"), ExtResource("26_yiff1"), ExtResource("27_mh6bt"), ExtResource("28_dmuus"), ExtResource("29_bfh22"), ExtResource("30_fapri"), ExtResource("31_gssgv"), ExtResource("32_dvr3r"), ExtResource("33_ugtrr"), ExtResource("34_ki0jw")])
+order_catalog = Array[ExtResource("18_kqgy8")]([ExtResource("19_lwed1"), ExtResource("20_fiqc0"), ExtResource("21_bloic"), ExtResource("22_3cv03")])
 maximum_batch_packages = 2
 key = &"qa_supply/night_hunter"
 

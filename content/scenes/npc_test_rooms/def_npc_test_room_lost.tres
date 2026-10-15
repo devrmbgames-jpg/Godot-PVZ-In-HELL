@@ -31,6 +31,7 @@
 [ext_resource type="Resource" uid="uid://b44jiwbnhykfs" path="res://content/domains/inventory/definitions/def_item_blood_barrel.tres" id="29_hkgcf"]
 [ext_resource type="Resource" uid="uid://cvgyjdxiqmply" path="res://content/domains/inventory/definitions/def_item_toy_block.tres" id="30_5l03o"]
 [ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/domains/packages/definitions/def_package.gd" id="31_j07f5"]
+[ext_resource type="Resource" uid="uid://dj2ypo2l583ac" path="res://content/domains/inventory/definitions/def_item_work_clothes.tres" id="31_qoh4k"]
 [ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="32_xe4tf"]
 [ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_books.tscn" id="33_mgypc"]
 [ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_area.tscn" id="34_jnb62"]
@@ -209,7 +210,7 @@ key = &"qa_parcel_2"
 [sub_resource type="Resource" id="Resource_ftogs"]
 script = ExtResource("38_hutfk")
 packages = Array[ExtResource("31_j07f5")]([SubResource("Resource_w2l2w"), SubResource("Resource_43bvg")])
-order_catalog = Array[ExtResource("14_r7ojd")]([ExtResource("15_e0syf"), ExtResource("16_888pv"), ExtResource("17_hfvyp"), ExtResource("18_kikv4"), ExtResource("19_antjj"), ExtResource("20_yvf1m"), ExtResource("21_q31gk"), ExtResource("22_t7c8y"), ExtResource("23_k5y5y"), ExtResource("24_bndfs"), ExtResource("25_ae8vk"), ExtResource("26_qbjjx"), ExtResource("27_ruxyr"), ExtResource("28_oswbd"), ExtResource("29_hkgcf"), ExtResource("30_5l03o")])
+order_catalog = Array[ExtResource("14_r7ojd")]([ExtResource("23_k5y5y"), ExtResource("15_e0syf"), ExtResource("29_hkgcf"), ExtResource("28_oswbd"), ExtResource("18_kikv4"), ExtResource("22_t7c8y"), ExtResource("20_yvf1m"), ExtResource("26_qbjjx"), ExtResource("19_antjj"), ExtResource("16_888pv"), ExtResource("24_bndfs"), ExtResource("25_ae8vk"), ExtResource("17_hfvyp"), ExtResource("21_q31gk"), ExtResource("30_5l03o"), ExtResource("27_ruxyr"), ExtResource("31_qoh4k")])
 maximum_batch_packages = 2
 key = &"qa_supply/lost"
 

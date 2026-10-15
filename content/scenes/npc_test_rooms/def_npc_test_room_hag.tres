@@ -19,22 +19,15 @@
 [ext_resource type="Script" uid="uid://vyx4wrt4eqv7" path="res://content/domains/customers/definitions/def_customer.gd" id="17_blrro"]
 [ext_resource type="Script" uid="uid://bfp6pc2vc71rw" path="res://content/domains/customers/definitions/def_customer_schedule.gd" id="18_anwmx"]
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="19_nbj6q"]
-[ext_resource type="Resource" uid="uid://d4k38ln3m18ia" path="res://content/domains/inventory/definitions/def_item_axe.tres" id="20_05bqi"]
-[ext_resource type="Resource" uid="uid://cc8oaxlimyxr2" path="res://content/domains/inventory/definitions/def_item_scythe.tres" id="21_vypct"]
-[ext_resource type="Resource" uid="uid://cx1n4uytruadx" path="res://content/domains/inventory/definitions/def_item_throwing_knife.tres" id="22_sdfyn"]
-[ext_resource type="Resource" uid="uid://bhmjsqk8birom" path="res://content/domains/inventory/definitions/def_item_bones.tres" id="23_6jw5e"]
 [ext_resource type="Resource" uid="uid://25ug0x3v3oso" path="res://content/domains/inventory/definitions/def_item_reagent_flask.tres" id="24_d6bm3"]
 [ext_resource type="Resource" uid="uid://ccn1cx5xe2k76" path="res://content/domains/inventory/definitions/def_item_fire_flask.tres" id="25_ia7ac"]
 [ext_resource type="Resource" uid="uid://d7huk3r0sxfk" path="res://content/domains/inventory/definitions/def_item_toxin_flask.tres" id="26_035w3"]
 [ext_resource type="Resource" uid="uid://bift6tvdjcwmp" path="res://content/domains/inventory/definitions/def_item_fire_barrel.tres" id="27_if0c8"]
 [ext_resource type="Resource" uid="uid://cjy1tvnkoghrr" path="res://content/domains/inventory/definitions/def_item_acid_barrel.tres" id="28_y6w47"]
-[ext_resource type="Resource" uid="uid://bq3twhbbggcst" path="res://content/domains/inventory/definitions/def_item_slave_collar.tres" id="29_lxkka"]
-[ext_resource type="Resource" uid="uid://6rhfab5j220x" path="res://content/domains/inventory/definitions/def_item_spiked_chains.tres" id="30_67wwv"]
 [ext_resource type="Resource" uid="uid://dn17564yr1p17" path="res://content/domains/inventory/definitions/def_item_holy_artifact.tres" id="31_peh1l"]
 [ext_resource type="Resource" uid="uid://cyphvbd2o5mf3" path="res://content/domains/inventory/definitions/def_item_unholy_artifact.tres" id="32_uy7an"]
 [ext_resource type="Resource" uid="uid://cdrxyvq5qi52m" path="res://content/domains/inventory/definitions/def_item_blood_flask.tres" id="33_peqai"]
 [ext_resource type="Resource" uid="uid://b44jiwbnhykfs" path="res://content/domains/inventory/definitions/def_item_blood_barrel.tres" id="34_t6s8b"]
-[ext_resource type="Resource" uid="uid://cvgyjdxiqmply" path="res://content/domains/inventory/definitions/def_item_toy_block.tres" id="35_fuxy1"]
 [ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/domains/packages/definitions/def_package.gd" id="36_saoax"]
 [ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="37_sgrgp"]
 [ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_books.tscn" id="38_2nkov"]
@@ -227,7 +220,7 @@ key = &"qa_parcel_2"
 [sub_resource type="Resource" id="Resource_e3m22"]
 script = ExtResource("43_uq7nd")
 packages = Array[ExtResource("36_saoax")]([SubResource("Resource_smowe"), SubResource("Resource_ttjl5")])
-order_catalog = Array[ExtResource("19_nbj6q")]([ExtResource("20_05bqi"), ExtResource("21_vypct"), ExtResource("22_sdfyn"), ExtResource("23_6jw5e"), ExtResource("24_d6bm3"), ExtResource("25_ia7ac"), ExtResource("26_035w3"), ExtResource("27_if0c8"), ExtResource("28_y6w47"), ExtResource("29_lxkka"), ExtResource("30_67wwv"), ExtResource("31_peh1l"), ExtResource("32_uy7an"), ExtResource("33_peqai"), ExtResource("34_t6s8b"), ExtResource("35_fuxy1")])
+order_catalog = Array[ExtResource("19_nbj6q")]([ExtResource("28_y6w47"), ExtResource("34_t6s8b"), ExtResource("33_peqai"), ExtResource("27_if0c8"), ExtResource("25_ia7ac"), ExtResource("31_peh1l"), ExtResource("24_d6bm3"), ExtResource("26_035w3"), ExtResource("32_uy7an")])
 maximum_batch_packages = 2
 key = &"qa_supply/hag"
 

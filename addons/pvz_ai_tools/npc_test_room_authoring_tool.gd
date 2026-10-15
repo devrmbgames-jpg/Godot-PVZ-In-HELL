@@ -167,6 +167,91 @@ func author_room_attendance(params: Dictionary, _ctx: McpCallContext) -> Diction
 	return { "data": { "ok": true, "room_key": key, "undoable": false, "save_scene": expected } }
 
 
+## Replaces only isolated room catalogs; scripted nested Resources need a native editor owner.
+func author_room_supply(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
+	if not Engine.is_editor_hint():
+		return _refusal("Supply authoring requires the native editor.")
+	var key: StringName = StringName(params.get("room_key", ""))
+	var expected: String = GameSessionService.test_room_path(key)
+	var root: Node = EditorInterface.get_edited_scene_root()
+	if (
+		key not in GameSessionService.TEST_ROOM_KEYS
+		or root == null or root.scene_file_path != expected
+	):
+		return _refusal("Open the requested canonical NPC room.")
+	if EditorInterface.get_unsaved_scenes().has(expected):
+		return _refusal("Save the room before supply authoring.")
+	var preset_path: String = DIRECTORY.path_join("def_npc_test_room_" + String(key) + ".tres")
+	if (
+		params.get("scene_fingerprint", "") != FileAccess.get_sha256(expected)
+		or params.get("preset_fingerprint", "") != FileAccess.get_sha256(preset_path)
+	):
+		return _refusal("The saved room or preset fingerprint changed.")
+	var catalog: Array[DEF_InventoryItem] = catalog_items(
+		PackedStringArray(params.get("item_paths", [])),
+	)
+	if catalog.is_empty():
+		return _refusal("Expected unique orderable item definitions.")
+	var preset: DEF_NpcTestRoom = root.get_meta("npc_test_room", null) as DEF_NpcTestRoom
+	var external: DEF_NpcTestRoom = load(preset_path) as DEF_NpcTestRoom
+	var session: Entity = root.get_node_or_null("Entityes/DaySession") as Entity
+	var zone: E_ReceivingZone = root.get_node_or_null("Entityes/ReceivingZone") as E_ReceivingZone
+	if (
+		preset == null or external == null or session == null or zone == null
+		or preset.schedule == null or external.schedule == null
+	):
+		return _refusal("Missing native room preset, receiving zone or session.")
+	var supplies: Array[DEF_Delivery] = [
+		preset.schedule.supply, external.schedule.supply, zone.supply,
+	]
+	for recipe: Component in session.component_resources:
+		if recipe is C_CustomerFlow:
+			var flow: C_CustomerFlow = recipe as C_CustomerFlow
+			if flow.schedule == null:
+				return _refusal("Missing native customer schedule.")
+			supplies.append(flow.schedule.supply)
+	if supplies.size() != 4:
+		return _refusal("Expected exactly one native customer flow recipe.")
+	for supply: DEF_Delivery in supplies:
+		if (
+			supply == null or supply.key != StringName("qa_supply/" + String(key))
+			or supply.resource_path.get_slice("::", 0) not in [expected, preset_path]
+		):
+			return _refusal("The isolated supply ownership contract changed.")
+	var manager: EditorUndoRedoManager = EditorInterface.get_editor_undo_redo()
+	manager.create_action("Author isolated NPC order catalog", UndoRedo.MERGE_DISABLE, root)
+	var changed: Array[DEF_Delivery] = []
+	for supply: DEF_Delivery in supplies:
+		if changed.has(supply):
+			continue
+		changed.append(supply)
+		manager.add_do_property(supply, &"order_catalog", catalog.duplicate())
+		manager.add_undo_property(supply, &"order_catalog", supply.order_catalog)
+	manager.commit_action()
+	EditorInterface.mark_scene_as_unsaved()
+	var saved: Error = ResourceSaver.save(external, preset_path)
+	if saved != OK:
+		return _refusal("Native preset save failed: " + error_string(saved))
+	return { "data": { "ok": true, "room_key": key, "undoable": false, "save_scene": expected } }
+
+
+## Preflights a bounded authored catalog without changing resources or accepting repeated keys.
+static func catalog_items(paths: PackedStringArray) -> Array[DEF_InventoryItem]:
+	var catalog: Array[DEF_InventoryItem] = []
+	if paths.is_empty() or paths.size() > PackageOrderRules.MAX_CATALOG_ITEMS:
+		return catalog
+	var keys: Array[StringName] = []
+	for path: String in paths:
+		if not GameplayResourcePaths.is_definition_path(path) or not ResourceLoader.exists(path):
+			return []
+		var item: DEF_InventoryItem = load(path) as DEF_InventoryItem
+		if not PackageOrderRules.is_orderable(item) or item.key in keys:
+			return []
+		keys.append(item.key)
+		catalog.append(item)
+	return catalog
+
+
 static func _refusal(message: String) -> Dictionary:
 	return { "data": { "ok": false, "error": message } }
 #endregion

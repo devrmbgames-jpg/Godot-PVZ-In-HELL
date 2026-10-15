@@ -14,9 +14,27 @@ func test_native_authoring_refuses_gameplay_process_before_any_writes() -> void:
 	var attendance_refusal: Dictionary = tool.author_room_attendance({ "room_key": "lost" }, null)
 	assert_false(attendance_refusal.data.ok)
 	assert_true(String(attendance_refusal.data.error).contains("native editor"))
+	var supply_refusal: Dictionary = tool.author_room_supply({ "room_key": "lost" }, null)
+	assert_false(supply_refusal.data.ok)
+	assert_true(String(supply_refusal.data.error).contains("native editor"))
 	var metadata_refusal: Dictionary = tool.author_hall_identities({ }, null)
 	assert_false(metadata_refusal.data.ok)
 	assert_true(String(metadata_refusal.data.error).contains("native editor"))
+
+
+## Native resource authoring rejects malformed or ambiguous catalogs before mutations.
+func test_supply_catalog_preflight_rejects_invalid_paths_and_duplicate_items() -> void:
+	var clothing: String = "res://content/domains/inventory/definitions/def_item_work_clothes.tres"
+	var valid: Array[DEF_InventoryItem] = TOOL.catalog_items(PackedStringArray([clothing]))
+	assert_eq(valid.size(), 1)
+	assert_eq(valid[0].categories, DEF_InventoryItem.Category.CLOTHING)
+	assert_true(TOOL.catalog_items(PackedStringArray()).is_empty())
+	assert_true(TOOL.catalog_items(PackedStringArray([clothing, clothing])).is_empty())
+	assert_true(TOOL.catalog_items(PackedStringArray(["res://project.godot"])).is_empty())
+	assert_true(TOOL.catalog_items(PackedStringArray([clothing + ".missing"])).is_empty())
+	var excessive: PackedStringArray = []
+	excessive.resize(PackageOrderRules.MAX_CATALOG_ITEMS + 1)
+	assert_true(TOOL.catalog_items(excessive).is_empty())
 
 
 func test_identity_preflight_is_atomic_and_preserves_existing_authored_metadata() -> void:

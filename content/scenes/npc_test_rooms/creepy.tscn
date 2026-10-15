@@ -34,6 +34,7 @@
 [ext_resource type="Resource" uid="uid://cdrxyvq5qi52m" path="res://content/domains/inventory/definitions/def_item_blood_flask.tres" id="32_wcf1q"]
 [ext_resource type="Resource" uid="uid://b44jiwbnhykfs" path="res://content/domains/inventory/definitions/def_item_blood_barrel.tres" id="33_cvrmc"]
 [ext_resource type="Resource" uid="uid://cvgyjdxiqmply" path="res://content/domains/inventory/definitions/def_item_toy_block.tres" id="34_slgaf"]
+[ext_resource type="Resource" uid="uid://dj2ypo2l583ac" path="res://content/domains/inventory/definitions/def_item_work_clothes.tres" id="35_e4lyc"]
 [ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/domains/packages/definitions/def_package.gd" id="35_ejljy"]
 [ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="36_eysa8"]
 [ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_books.tscn" id="37_73len"]
@@ -351,7 +352,7 @@ key = &"qa_parcel_2"
 [sub_resource type="Resource" id="Resource_aa3xs"]
 script = ExtResource("42_u86e8")
 packages = Array[ExtResource("35_ejljy")]([SubResource("Resource_ld0ir"), SubResource("Resource_nfv3p")])
-order_catalog = Array[ExtResource("18_ul6qx")]([ExtResource("19_gj2uc"), ExtResource("20_v1myb"), ExtResource("21_xcljx"), ExtResource("22_1cc7i"), ExtResource("23_d42l2"), ExtResource("24_dj7bd"), ExtResource("25_o0ela"), ExtResource("26_xv2a8"), ExtResource("27_iialu"), ExtResource("28_afq08"), ExtResource("29_ugdvv"), ExtResource("30_wxntf"), ExtResource("31_ov7fc"), ExtResource("32_wcf1q"), ExtResource("33_cvrmc"), ExtResource("34_slgaf")])
+order_catalog = Array[ExtResource("18_ul6qx")]([ExtResource("27_iialu"), ExtResource("19_gj2uc"), ExtResource("33_cvrmc"), ExtResource("32_wcf1q"), ExtResource("22_1cc7i"), ExtResource("26_xv2a8"), ExtResource("24_dj7bd"), ExtResource("30_wxntf"), ExtResource("23_d42l2"), ExtResource("20_v1myb"), ExtResource("28_afq08"), ExtResource("29_ugdvv"), ExtResource("21_xcljx"), ExtResource("25_o0ela"), ExtResource("34_slgaf"), ExtResource("31_ov7fc"), ExtResource("35_e4lyc")])
 maximum_batch_packages = 2
 key = &"qa_supply/creepy"
 

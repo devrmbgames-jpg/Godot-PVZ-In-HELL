@@ -116,6 +116,67 @@ func test_empty_save_destination_is_rejected() -> void:
 
 
 #region All authored isolated rooms
+## The native supply must commit the resident's supported shopping preferences.
+func test_room_orders_follow_resident_preferences() -> void:
+	for key: StringName in GameSessionService.TEST_ROOM_KEYS:
+		var root: Node3D = _open(key)
+		var person: NpcRecord = NpcPopulationQueries.current().people[0]
+		var zone: E_ReceivingZone = root.get_node("Entityes/ReceivingZone") as E_ReceivingZone
+		var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
+		var preferred_categories: int = 0
+		for category: int in person.profile.item_category_weights:
+			if person.profile.item_category_weights[category] > 0.0:
+				preferred_categories |= category
+		var available_categories: int = 0
+		for item: DEF_InventoryItem in zone.supply.order_catalog:
+			available_categories |= item.categories
+		if not person.profile.item_category_weights.is_empty():
+			assert_ne(preferred_categories & available_categories, 0, String(key))
+		var first_orders: PackedStringArray = []
+		for day: int in range(1, 4):
+			ReceivingDeliveryService.prepare_batch(zone.supply, receiving, day)
+			assert_eq(receiving.pending.size(), 1, String(key))
+			var orders: PackedStringArray = receiving.pending[0].order_item_paths
+			assert_eq(orders.size(), 2, "%s day%d" % [key, day])
+			if day == 1:
+				first_orders = orders.duplicate()
+			for item_path: String in orders:
+				var selected: DEF_InventoryItem = load(item_path) as DEF_InventoryItem
+				assert_not_null(selected, String(key))
+				if selected == null:
+					continue
+				if preferred_categories != 0:
+					assert_ne(
+						selected.categories & preferred_categories, 0,
+						"%s: %s" % [key, selected.key],
+					)
+				if key == &"fire_elemental":
+					assert_true(selected.key in [&"fire_flask", &"fire_barrel"])
+				if key == &"vampire":
+					assert_true(selected.key in [&"blood_flask", &"blood_barrel"])
+		if key in [&"creepy", &"lost"]:
+			var ordinary: DEF_Delivery = load(
+				"res://content/domains/packages/definitions/def_delivery_morning_supply.tres",
+			) as DEF_Delivery
+			for item: DEF_InventoryItem in ordinary.order_catalog:
+				assert_true(item in zone.supply.order_catalog, String(key))
+		root.free()
+		_level = null
+		await get_tree().process_frame
+		root = _open(key)
+		zone = root.get_node("Entityes/ReceivingZone") as E_ReceivingZone
+		receiving = zone.get_component(C_Receiving) as C_Receiving
+		ReceivingDeliveryService.prepare_batch(zone.supply, receiving, 1)
+		assert_eq(receiving.pending[0].order_item_paths, first_orders, "Repeatable fresh room")
+		var preset: DEF_NpcTestRoom = load(
+			"res://content/scenes/npc_test_rooms/def_npc_test_room_%s.tres" % key,
+		) as DEF_NpcTestRoom
+		assert_eq(preset.schedule.supply.order_catalog, zone.supply.order_catalog)
+		root.free()
+		_level = null
+		await get_tree().process_frame
+
+
 ## Registered identities must also participate physically and be visible to the player.
 func test_all_ten_room_npcs_start_visible_with_clear_activation_space() -> void:
 	for key: StringName in GameSessionService.TEST_ROOM_KEYS:
@@ -166,6 +227,26 @@ func test_three_daily_native_supplies_assign_both_registered_cases_to_the_only_r
 				if identity.delivery_day != day:
 					continue
 				todays += 1
+				var contents: C_PackageContents = parcel.get_component(C_PackageContents)
+				assert_not_null(contents.selected_item, "%s day%d: committed contents" % [key, day])
+				var history: PackageRegistrationRecord = PackageHistoryService.record_for(
+					identity.package_id,
+				)
+				assert_same(history.ordered_item, contents.selected_item)
+				if day == 1 and todays == 1:
+					var body: RigidBody3D = parcel as Node as RigidBody3D
+					body.freeze = true
+					body.global_position = Vector3(0, 1, 8)
+					var condition: C_PackageState = parcel.get_component(C_PackageState)
+					condition.opening = C_PackageState.Opening.OPENED
+					var released: Array[Entity] = PackageContentsService.release(parcel)
+					assert_eq(released.size(), 1, "%s: physical unpacking" % key)
+					if released.size() == 1:
+						assert_eq(
+							released[0].scene_file_path, contents.selected_item.world_pickup_scene,
+						)
+						var inventory: C_InventoryItem = released[0].get_component(C_InventoryItem)
+						assert_same(inventory.definition, contents.selected_item)
 				var receipt: PackageScanResult = PackageRegistrationService.register_package(parcel)
 				assert_eq(receipt.outcome, PackageScanResult.Outcome.REGISTERED)
 				var visit: CustomerVisit = CustomerFlowQueries.find_visit(

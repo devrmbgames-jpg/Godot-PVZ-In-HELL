@@ -1,6 +1,6 @@
 # R27.5 — полный тестовый зал и10 изолированных NPC-комнат
 
-Status: **OWNER_QA**
+Status: **IN_PROGRESS**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -20,59 +20,53 @@ Parent: [R27](r27_qa_followup.md).
 
 ### Current
 
-Owner day-cycle finding2026-10-15 is reproduced and repaired; implementation checks and export PASS.
-Real sleep remained in NIGHT with ERR_INVALID_DATA: a room has an empty save path but the
-night owner still required a restorable persistence snapshot and disk write. No-save sessions
-now finish evening obligations, reset actions, prepare the district and drain commands before
-allowing MORNING, without snapshot/I/O. A separate transient preparation stamp does not claim
-a successful file save and is invalidated by restore. Empty storage destinations are rejected.
-Earlier supply tests incremented day_index directly; the new authored-station regression runs
-two real day/sleep cycles in every room, without assigning calendar fields or bypassing gates.
-Base for the day-cycle fix: `e298932551f16333868ee2208cb14f5b9545b4d7`.
-Code/review target: `592774eacbe1301c157f12ad2172f34cb91cc508`.
-Independent immutable review: no material findings; ARCHITECTURE/STYLE PASS,
-reviewer VALIDATION NOT_RUN. Review duration/efficiency NOT_MEASURED.
-Windows test-level export and headless menu/level startup120frames PASS:
-`.export/windows/20261015-051409Z-592774ea-r27-room-night-cycle`,
-launcher `.export/TEST_LEVEL.cmd`; dirty=true preserves unrelated owner edits.
-Actual startup logs are clean. Export-only shutdown retention warnings remain
-KNOWN_ENGINE_LIMITATION/DEFERRED; no clean export-process log is claimed.
+Owner parcel-content finding2026-10-15 is repaired; review/export pending.
+Owner confirmed separate room catalogs; Creepy and Lost keep the general catalog.
+Vampire uses blood flask/barrel; Fire Elemental uses fire flask/barrel; Shy uses working clothes.
+Other rooms expose their existing preferred categories, including clothing where authored.
+The original category-weighted deterministic order owner is unchanged; room catalogs are
+editable native Resource data, not item-ID branches in the runtime order algorithm.
+Clothing was absent from the old16-item catalog, forcing Shy's fallback. Vampire had empty
+weights, allowing knife/acid. Universal identical contents across all10 rooms was not reproduced.
+Existing cloth_sample is now an orderable physical inventory item, preserving its scene path.
+All10 scene/preset catalogs were saved through the live editor; all open scenes remain clean.
+The bounded companion supply tool fills the scripted nested Resource editing gap, checks
+room/preset hashes and ownership, uses scene UndoRedo and discloses non-undoable preset saves.
+Production profiles, their weights and the general delivery catalog are unchanged.
+Review base: `975961dd05294dae545b56ec7949948c2fd253cf`.
 
-Owner follow-up 2026-10-15 is implemented below; required manual acceptance remains open:
-- NPC is absent in the isolated test locations; reproduce and fix native spawning/participation.
-- Move each room's truck away from the exit, allowing for its full cargo footprint.
-- Move the hall truck clear of the displayed items, to the side and reasonably near the terminal.
-- Place the physical test items on authored pedestals using the existing knife display as reference.
-- Add minimal testable animations for the scythe, axe and throwing knife.
-Work is explicitly requested; scene changes use the live editor and preserve unrelated edits.
-Previous PASS below describes the earlier checkpoint, not acceptance of these new findings.
-
-Follow-up implementation is authored and saved through the live Godot Editor:
-- All16 catalog pickups have individual native pedestals; existing actor IDs/paths remain intact.
-- Hall and all ten rooms use parking `(-3, 0.35, -23)`, clear of displays/exits and near the terminal.
-  Native truck compound collision footprint is approximately6m by9.1m.
-- NPC absence reproduced in every room: some copied morning schedules selected OUTSIDE;
-  other activations were blocked by an unused hall pedestal and floor contact at the spawn.
-  Test-only schedules now select STREET in all playable phases; unused room displays are removed
-  and home spawns have5cm floor clearance. Production NPC archetypes/schedules are untouched.
-- Scythe/axe/throwing-knife scenes have native `strike`/`RESET` clips for visual meshes,
-  driven by the existing authoritative strike clock; rigid transforms/colliders are not animated.
-- Project-owned native attendance authoring fills the standard MCP nested Resource editing gap.
-  It guards canonical room/preset hashes, dirty editor state and production-resource boundaries.
-
-Prior lab follow-up review base: `3b31e1c5b6d928187da8dfa7e7568354c05ababb`.
-Prior code/review target: `91ee388ab6e6cd64175866a22ddf537ec8240c79`.
-Independent immutable review PASS/no material findings; ARCHITECTURE/STYLE PASS,
-reviewer VALIDATION NOT_RUN. Review duration/efficiency NOT_MEASURED.
-Prior Windows test-level export and headless menu/level startup120frames PASS:
-`.export/windows/20261015-045017Z-91ee388a-r27-lab-presence-pedestals-animations`,
-launcher `.export/TEST_LEVEL.cmd`. The build preserves unrelated user edits (`dirty=true`).
-Native startup logs are clean; export-process logs retain the live-editor LimboAI DLL-copy
-errors and shutdown-only dummy RID retention, so no clean export-process log is claimed.
+Earlier repaired lab scope remains awaiting owner visual/gameplay acceptance:
+- All16 catalog pickups have individual native pedestals; actor IDs/paths are preserved.
+- Hall and ten rooms use parking `(-3, 0.35, -23)`, allowing the truck's6m by9.1m footprint.
+- Test-only schedules keep NPCs on STREET in playable phases; unused displays were removed
+  and home spawns have5cm floor clearance. Production schedules remain untouched.
+- Scythe/axe/throwing knife have native visual-mesh strike/RESET clips driven by the strike clock.
+- No-save rooms complete mandatory evening settlement/reset/morning preparation/command draining
+  before MORNING; transient preparation is separate from disk-save success and reset by restore.
+Previous verified Windows build: `.export/windows/20261015-051409Z-592774ea-r27-room-night-cycle`.
+It predates the current assortment fix. Rendered owner QA remains open.
 
 ### Validation
 
-Current follow-up evidence2026-10-15:
+Current assortment evidence2026-10-15:
+- Authored room catalogs, three daily native batches, repeat-entry determinism, actual physical
+  unpacking/history and prior20 real sleep cycles: GUT6/1354 PASS,
+  `.artifacts/godot_agent/gut-20261015-053159417.stdout.log`.
+- Native authoring guards/catalog preflight/preset packing: GUT7/293 PASS,
+  `.artifacts/godot_agent/gut-20261015-053227200.stdout.log`.
+- Actual package contents and hazards: GUT14/244 PASS,
+  `.artifacts/godot_agent/gut-20261015-053228673.stdout.log`.
+- General category-weighted order selection: GUT7/201 PASS,
+  `.artifacts/godot_agent/gut-20261015-053257010.stdout.log`.
+- Formatter, strict architecture, structure, native parser/MCP four-script diagnostics PASS;
+  `.artifacts/godot_agent/parsechanged-20261015-053234904.stdout.log`.
+  One temporary plugin reload parse error during registration edit was resolved; final diagnostics
+  are checked/empty. The editor-only authoring heuristic remains raw REVIEW/FAIL for review.
+- Baseline test reproduced Shy's unavailable category and fallback; raw FAIL retained:
+  `.artifacts/godot_agent/gut-20261015-052506260.stdout.log`. Initial assertions requiring
+  preferences for neutral profiles were corrected to the actual category fallback contract.
+
+Prior follow-up evidence2026-10-15:
 - Room bootstrap/supply/participation plus20 real sleep cycles across10 rooms: GUT5/971 PASS,
   `.artifacts/godot_agent/gut-20261015-050930020.stdout.log`.
   The new cycle test first reproduced stuck NIGHT/error30; raw FAIL remains in
@@ -139,7 +133,9 @@ has no script/runtime errors. This log is preserved and is not called a clean ex
 
 ### Review triage
 
-Current day-cycle review BASE `e298932551f16333868ee2208cb14f5b9545b4d7` ->
+Current assortment review/export: pending immutable code checkpoint.
+
+Prior day-cycle review BASE `e298932551f16333868ee2208cb14f5b9545b4d7` ->
 TARGET `592774eacbe1301c157f12ad2172f34cb91cc508`: no material findings.
 Confirmed settlement/reset/preparation/drain gates, configured-path failure handling,
 transient preparation ownership, restore invalidation and unchanged closed save schema.
@@ -166,5 +162,6 @@ Owner gameplay/visual acceptance of the expanded lab and all ten rooms remains o
 Owner QA of the updated Windows test build using the expanded [R27 checklist](../qa_tasks/r27_acceptance.md):
 finish a shift and sleep through two mornings with renewed supplies; also verify visible usable NPCs
 in all phases, truck/terminal/exit access, pedestal pickup/labels and weapon animation feel.
-Implementation checks/review/export are complete. Preserve all unrelated user edits.
+Complete assortment review/export, then owner QA of themed supplies and prior lab criteria.
+Preserve all unrelated user edits.
 Required visual/gameplay acceptance remains open; do not archive this task before it closes.

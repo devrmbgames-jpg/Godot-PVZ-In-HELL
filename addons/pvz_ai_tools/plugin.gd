@@ -5,7 +5,7 @@ extends EditorPlugin
 const SOURCE_CFG: String = "res://addons/pvz_ai_tools/plugin.cfg"
 const HANDLER_PATH: String = "res://addons/pvz_ai_tools/gecs_tools.gd"
 const RETRY_SECONDS: float = 1.0
-const REGISTRATION_REVISION: int = 4
+const REGISTRATION_REVISION: int = 5
 const DebuggerBridgeScript := preload("res://addons/pvz_ai_tools/debugger_bridge.gd")
 
 var _registry: McpToolRegistry = null
@@ -182,6 +182,7 @@ func _register_tools() -> void:
 		_owned_script_diagnostics_spec(),
 		_npc_test_room_authoring_spec(),
 		_npc_test_room_attendance_spec(),
+		_npc_test_room_supply_spec(),
 		_test_hall_identity_authoring_spec(),
 		_translation_sources_spec(),
 		_behavior_tree_authoring_spec(),
@@ -521,6 +522,21 @@ func _npc_test_room_attendance_spec() -> McpCustomToolSpec:
 	spec.requires_writable = true
 	spec.undoable = false
 	spec.deferred = false
+	return spec
+
+
+## Updates native room/preset catalogs without writing production supply resources.
+func _npc_test_room_supply_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = _npc_test_room_attendance_spec()
+	spec.name = "pvz_npc_test_room_supply"
+	spec.description = "Author one fingerprinted isolated test room's orderable item catalog."
+	spec.params_schema = spec.params_schema.duplicate(true)
+	spec.params_schema.properties["item_paths"] = {
+		"type": "array", "minItems": 1, "maxItems": PackageOrderRules.MAX_CATALOG_ITEMS,
+		"uniqueItems": true, "items": { "type": "string" },
+	}
+	spec.params_schema.required.append("item_paths")
+	spec.method = &"author_room_supply"
 	return spec
 
 
