@@ -8,6 +8,7 @@ func query() -> QueryBuilder:
 	return q.with_all([C_Hazard, C_BloodArea]).on_event(HazardSpawnResult.EVENT)
 
 
+## Планирует геометрию; WeakRef и identity двух Components отсекают устаревший spawn fact.
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	var blood: C_BloodArea = entity.get_component(C_BloodArea) as C_BloodArea

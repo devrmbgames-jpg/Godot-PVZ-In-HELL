@@ -31,6 +31,7 @@ static func emit_scene(
 
 
 ## Фиксирует fired/sequence до отправки; отказ submit возвращает прежние значения.
+## True не ждёт spawn fact; отказ фабрики после принятия не откатывает fired/sequence.
 static func activate(
 	origin: Entity,
 	instigator: Entity = null,

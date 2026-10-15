@@ -3,7 +3,7 @@ extends RefCounted
 class_name HazardProfileRules
 
 
-## Проверяет конечный TTL и поддерживаемые параметры токсичной зоны/взрыва без изменения данных.
+## Проверяет TTL и числовые параметры blood/toxic/explosion; прочим профилям проверяет лишь TTL.
 static func valid(definition: DEF_Hazard) -> bool:
 	if definition == null or not _positive(definition.lifetime_seconds):
 		return false

@@ -16,6 +16,7 @@ func query() -> QueryBuilder:
 
 
 ## Фиксирует resolved до callback и ставит однократный расчёт в CommandBuffer.
+## Flush проверяет captured Components; отброшенная устаревшая операция не повторяет взрыв.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var hazards: Array = components[0]
 	var explosions: Array = components[1]

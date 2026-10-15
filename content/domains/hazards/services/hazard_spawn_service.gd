@@ -8,6 +8,8 @@ class_name HazardSpawnService
 
 ## Принимает запрос независимо от дальнейшего срока источника; prefab окончательно проверяет
 ## фабрика.
+## True означает dispatch снимка: создание подтверждает HazardSpawnResult, отказ — BoundaryTrace.
+## Definition/scene разделяются как immutable Resources; живые Node-ссылки не удерживают lifetime.
 static func submit(request: HazardSpawnRequest) -> bool:
 	if request == null or not is_instance_valid(ECS.world):
 		return false

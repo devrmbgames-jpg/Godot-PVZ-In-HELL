@@ -5,6 +5,7 @@ class_name ExplosionResolver
 
 #region Однократный радиальный расчёт
 ## Вызывается на границе CommandBuffer после фиксации защиты однократного эффекта.
+## Импульс исполняется отдельно от HP; C_NoDamage обрабатывает damage owner, не этот расчёт.
 static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 	if not EntityAvailability.contains(entity, world):
 		return
@@ -131,7 +132,7 @@ static func _collect_hit(
 class BlastHit extends RefCounted:
 	## Физическое тело для импульса и исключения из луча.
 	var body: PhysicsBody3D = null
-	## Ближайший владелец Health, если collider связан с Entity.
+	## Ближайшая Entity collider; наличие C_Health проверяется отдельно при отправке урона.
 	var target: Entity = null
 	## Мировая представительная точка ближайшей формы.
 	var point: Vector3 = Vector3.ZERO

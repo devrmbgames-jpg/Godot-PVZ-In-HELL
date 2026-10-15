@@ -16,6 +16,7 @@ func query() -> QueryBuilder:
 
 
 ## Объединяет истёкшие интервалы в один запрос на цель через CommandBuffer.
+## GamePlay delta обрезается остатком TTL; первый тик требует полного tick_seconds.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var hazards: Array = components[0]
 	var toxins: Array = components[1]
@@ -55,6 +56,7 @@ func _apply_tick(
 		return
 
 	var seen: Dictionary[int, bool] = { }
+	# Overlaps принадлежат последнему physics sync; несколько тел одной Entity дают один запрос.
 	for body: Node3D in effect.get_area().get_overlapping_bodies():
 		var target: Entity = HazardTargets.entity_for(body)
 		if target == effect or not EntityAvailability.contains(target, _world):

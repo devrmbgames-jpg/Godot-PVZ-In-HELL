@@ -19,6 +19,7 @@ func query() -> QueryBuilder:
 
 
 ## Captures effect state identity before deferred measurement/damage work.
+## Uses GamePlay delta; charges contact after preparation, clipped by timeout and violation grace.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for entity: Entity in entities:
 		var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard

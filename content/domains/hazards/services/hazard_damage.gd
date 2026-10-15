@@ -4,6 +4,7 @@ class_name HazardDamage
 
 
 ## Отправляет эффект как источник; постоянная атрибуция сохраняется после удаления инициатора.
+## Не возвращает итог HP: принятие/сопротивление и DamageResult принадлежат общему damage owner.
 static func submit(
 	effect: Entity,
 	hazard: C_Hazard,

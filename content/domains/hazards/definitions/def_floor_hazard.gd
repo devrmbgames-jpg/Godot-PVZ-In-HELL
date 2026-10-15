@@ -6,7 +6,7 @@ class_name DEF_FloorHazard
 @export var size: Vector2 = Vector2(4.0, 4.0)
 ## Допуск контакта с плоскостью в метрах.
 @export_range(0.001, 0.2) var contact_tolerance: float = 0.06
-## Интервал урона активного испытания в секундах.
+## Интервал урона активного контакта в GamePlay-секундах, с учётом grace/timeout испытания.
 @export_range(0.05, 10.0) var tick_seconds: float = 2.0
 ## Урон активного интервала до сопротивления.
 @export_range(0.0, 1000.0) var damage_per_tick: float = 6.0

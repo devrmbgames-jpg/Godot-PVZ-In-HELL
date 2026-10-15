@@ -2,6 +2,7 @@ extends Observer
 ## Общая фабрика опасностей; выбирает авторское определение запроса или сцены.
 class_name O_HazardSpawn
 
+# Журнал попыток этого Observer: отказ prefab/удаление эффекта/reset не освобождают request ID.
 var _accepted: Dictionary[String, bool] = { }
 
 

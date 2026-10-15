@@ -10,7 +10,7 @@ const SAVE_FIELDS: Array[String] = ["fired", "sequence"]
 @export var hazard_scene: PackedScene = null
 ## Разрешает только один принятый запрос этого производителя.
 @export var one_shot: bool = true
-## Защита уже принятого запроса; сохраняется вместе с ID производителя.
+## HazardEmitter фиксирует до submit; успех доставки не гарантирует создание prefab.
 var fired: bool = false
-## Сохраняемый счётчик ID принятых запросов производителя.
+## HazardEmitter увеличивает для submit и откатывает при его отказе; счётчик сохраняется.
 var sequence: int = 0

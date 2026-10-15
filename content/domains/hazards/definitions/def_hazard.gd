@@ -11,7 +11,7 @@ enum OwnerLoss {
 	DESPAWN,
 }
 
-## Конечный срок жизни в секундах симуляции; persistent отменяет ночной сброс, а не TTL.
+## Конечный срок в GamePlay-секундах; persistent защищает от обычного reset, а не TTL.
 @export_range(0.05, 3600.0) var lifetime_seconds: float = 40.0
 ## Сохраняет эффект при обычном ночном сбросе; собственный срок всё равно истекает.
 @export var persistent: bool = false

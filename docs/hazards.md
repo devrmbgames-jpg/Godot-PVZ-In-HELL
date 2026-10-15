@@ -11,7 +11,7 @@
 
 `one_shot = true` защищает инициатора от повторного запуска. У повторяемого инициатора каждый запуск увеличивает `sequence`. Фабрика дополнительно запоминает `request_id` на время существования World: повторная доставка того же запроса не создаёт второй эффект, даже после его удаления/reset. Разные объекты не делят cooldown.
 
-Главная сцена уже регистрирует необходимые обработчики. В другой сцене нужны `O_HazardSpawn`, `O_HazardEmitter`, `O_ToxicAreaSetup`, `O_ExplosionSetup`, `O_HazardReset`, `O_Damage` и системы `S_HazardFollow`, `S_ToxicArea`, `S_Explosion`, `S_HazardLifetime`. Системы должны обрабатываться в одной группе на физическом шаге, с обычным GECS flush после каждой системы. `deps()` ставит следование до воздействия, а удаление — после него.
+Главная сцена уже регистрирует необходимые обработчики. В другой сцене нужны `O_HazardSpawn`, `O_HazardEmitter`, `O_ToxicAreaSetup`, `O_ExplosionSetup`, `O_HazardReset`, `O_Damage` и системы `S_HazardFollow`, `S_ToxicArea`, `S_Explosion`, `S_HazardLifetime`. Системы обрабатываются в группе `GamePlay` на физическом callback, с обычным GECS flush после каждой системы. Их delta — секунды шага `GameTime`, а не native physics delta. `deps()` ставит следование до воздействия, а удаление — после него.
 
 ## Прямой запрос без объекта-инициатора
 
@@ -24,7 +24,7 @@ request.world_pose = Transform3D(Basis.IDENTITY, Vector3(2, 1, 3))
 HazardSpawnService.submit(request)
 ```
 
-`submit()` возвращает принятие корректного запроса на канал событий, а не число созданных объектов. Факт создания публикуется как `HazardSpawnResult.EVENT`. Созданный prefab должен иметь нефизический `E_Hazard`/Node3D-корень; его exported `definition` содержит immutable tuning и lifetime. Запрос не содержит тип эффекта, definition или ownership-policy — всё это принадлежит самой сцене. `origin` и `instigator` необязательны. Для атрибуции, переживающей удаление объектов, служат `origin_id` и `instigator_id`.
+`submit()` возвращает принятие запроса на канал событий. Обязательны непустые `request_id`/`origin_id`, scene и конечная world_pose; профиль и prefab окончательно проверяет фабрика/setup. Факт регистрации публикуется как `HazardSpawnResult.EVENT`, после него профильная настройка ещё может удалить некорректный эффект. Prefab должен иметь нефизический `E_Hazard`/Node3D-корень. Его exported `definition` содержит immutable tuning/lifetime/ownership; необязательный `request.definition` заменяет этот профиль целиком. `origin` и `instigator` необязательны. Для атрибуции, переживающей удаление объектов, служат `origin_id` и `instigator_id`. Журнал O_HazardSpawn потребляет ID до попытки создания: отказ фабрики не разрешает повтор с тем же ID. Такой отказ записывается в BoundaryTrace и не откатывает уже принятый emitter fired/sequence.
 
 ## Поведение
 
@@ -59,14 +59,14 @@ Fire parcel ignition uses `def_npc_opening_fire_blast.tres` (FIRE damage, radius
 - Истечение TTL или отключение самого эффекта удаляет регистрацию и узлы; удаление через `World.remove_entity()` также освобождает сцену. У взрыва отсчёт TTL начинается с разрешения, чтобы короткий цепной эффект не исчез до первого хода своей системы.
 - `persistent` исключает эффект из обычного reset, но не отменяет TTL.
 
-Будущий переход ночи может отправить:
+Для явного сброса сценарий может отправить:
 
 ```gdscript
 var reset: HazardResetRequest = HazardResetRequest.new()
 ECS.world.emit_event(HazardResetRequest.EVENT, null, reset)
 ```
 
-`include_persistent = true` удаляет все эффекты. R09 не подключает reset к текущему дню и не реализует сохранение R21. Будущий save должен сохранять остаток TTL, интервал токсина, состояние разрешённого взрыва, идентификаторы/атрибуцию, producer `fired`/`sequence`, follow-policy и журнал уже принятых request ID (либо восстанавливать эквивалентную защиту от повторов).
+`include_persistent = true` удаляет все эффекты. Текущий `NightResetService` отдельно удаляет непостоянные опасности и применяет owner-loss policy к оставшимся. Closed persistence сохраняет поддерживаемые persistent hazards: остаток TTL, часы токсина, resolved, стабильные ID/атрибуцию, follow-policy и producer `fired`/`sequence`. `PersistentHazardState` восстанавливает связи и геометрию без повторного взрыва. Журнал попыток O_HazardSpawn остаётся в памяти экземпляра Observer; это не сохраняемый журнал. Общий контракт Night/save — в [persistence.md](persistence.md).
 
 ## Проверка пользователем
 
@@ -76,4 +76,4 @@ ECS.world.emit_event(HazardResetRequest.EVENT, null, reset)
 
 `hazards_smoke.tscn` создаёт отдельный World: взрывные объекты без `C_Package`, привязанный эффект условного клиента, несколько зон, получателей с/без HP и стену. Проверяет дедупликацию, интервал, eligibility, удаление инициатора, follow-policy, reset, цепную реакцию, LOS, затухание, импульс и запрет исходящего урона. Небольшой отдельный фрагмент проверяет адаптер `Leaking → Destroyed`.
 
-**NOT RUN — проверку Godot/GUT/smoke и визуальную приёмку выполняет пользователь.** Агент проверяет только структуру, форматирование, lint, синтаксис PowerShell и diff. Простые зелёная зона и оранжевая вспышка показывают радиус; их читаемость и силу разбрасывания нужно оценить в игре. Инструкция запуска и расположение журналов: [smoke_runner.md](smoke_runner.md).
+Команда выше — инструкция запуска smoke, а не свидетельство его прохождения. Релевантные non-visual Godot/GUT/validator проверки агент запускает по AGENTS.md; gameplay/визуальная приёмка требует разрешения пользователя. Простые зелёная зона и оранжевая вспышка показывают радиус; их читаемость и силу разбрасывания нужно оценить в игре. Инструкция запуска и расположение журналов: [smoke_runner.md](smoke_runner.md).

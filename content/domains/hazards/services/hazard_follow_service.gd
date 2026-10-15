@@ -17,7 +17,8 @@ static func binding(effect: Entity) -> Relationship:
 	return null
 
 
-## Заменяет связь под защитой восстановления; null снимает её без эффекта потери владельца.
+## Заменяет связь под защитой восстановления; null state/неживой owner только снимает её.
+## Снятие при этой операции не запускает owner-loss effects и сбрасывает pending retirement.
 static func replace(effect: Entity, owner: Entity, follow_state: R_HazardFollow) -> void:
 	if not is_instance_valid(effect):
 		return

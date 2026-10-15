@@ -7,7 +7,7 @@ class_name DEF_ToxicArea
 @export_range(0.1, 100.0) var radius: float = 2.0
 ## Zero preserves a sphere; positive metres select a thin cylinder centered at the effect origin.
 @export_range(0.0, 10.0) var floor_height: float = 0.0
-## Положительный интервал периодического воздействия в секундах.
+## Положительный интервал в GamePlay-секундах; несколько прошедших тиков объединяются.
 @export_range(0.05, 60.0) var tick_seconds: float = 4.0
 ## Урон одного интервала до сопротивления в единицах здоровья.
 @export_range(0.0, 10000.0) var damage_per_tick: float = 5.0
