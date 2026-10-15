@@ -209,6 +209,7 @@ static func is_test_room(level: String) -> bool:
 
 
 ## Defers scene removal until the current World transaction and input dispatch have completed.
+## OK accepts a request, not a completed transition; deferred work drops an expired/stale root.
 static func request_test_room(root: Node, room_key: StringName) -> Error:
 	if root == null:
 		return ERR_UNAUTHORIZED
@@ -244,6 +245,8 @@ static func startup_snapshot(root: Node, path: String) -> Dictionary:
 
 
 ## Предварительная проверка происходит до закрытия текущей сцены. Новый старт не удаляет слоты.
+## OK означает принятую native смену сцены, не завершённый _ready нового уровня.
+## Pending snapshot копируется; новый уровень потребляет одноразовую передачу в restore_startup.
 static func start_game(tree: SceneTree, level: String, saved: GameSaveResult = null) -> Error:
 	if level not in [MAIN_LEVEL, TEST_LEVEL] and not is_test_room(level):
 		return ERR_INVALID_PARAMETER

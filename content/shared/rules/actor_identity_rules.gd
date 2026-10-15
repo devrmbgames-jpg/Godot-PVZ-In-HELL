@@ -4,7 +4,8 @@ class_name ActorIdentityRules
 
 
 #region Stable actor keys
-## Reads generated domain identity, then immutable placed identity, then runtime identity.
+## Uses the highest non-NONE Component identity, including explicit persistent runtime keys.
+## Without one, requires compiled placed identity for authored actors; else returns runtime/ID.
 static func key_for(entity: Entity, root: Node) -> String:
 	var identity: C_ActorIdentityReference = _reference_for(entity, false)
 	if identity != null:

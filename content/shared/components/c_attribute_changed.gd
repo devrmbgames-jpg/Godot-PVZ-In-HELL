@@ -5,7 +5,8 @@ class_name C_AttributeChanged
 
 const DEFAULT_CURRENT: float = -1
 
-## Изменяемое текущее значение отдельно от базового и вычисленного максимума.
+## Текущее значение в единицах наследника; domain writer ограничивает его относительно value.
+## Setter лишь записывает число и уведомляет; собственного clamp к base/value нет.
 @export var current := 100.0:
 	set = _set_current
 

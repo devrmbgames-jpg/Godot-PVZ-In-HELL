@@ -25,6 +25,7 @@ func execute(actor: Entity, _source: Entity, _target: Entity) -> void:
 	GameSessionService.request_test_room(actor.get_tree().current_scene, room_key)
 
 
+## true означает принятый запрос deferred-перехода, не готовность целевой комнаты.
 func complete(actor: Entity, source: Entity, target: Entity) -> bool:
 	if not is_available(actor, source, target):
 		return false

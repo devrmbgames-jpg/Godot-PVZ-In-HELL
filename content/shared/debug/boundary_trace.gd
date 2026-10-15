@@ -17,7 +17,8 @@ static func next_id(operation: StringName) -> StringName:
 	return correlation
 
 
-## Records a committed diagnostic snapshot; an absent optional provider has no gameplay effect.
+## Appends a bounded diagnostic snapshot synchronously; an absent provider makes this a no-op.
+## The caller supplies stage/reason; recording never verifies or commits the gameplay operation.
 static func record(
 	operation: StringName,
 	correlation_id: StringName,

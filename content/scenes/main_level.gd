@@ -149,6 +149,8 @@ func _notification(what: int) -> void:
 
 
 #region Игровые callbacks
+# Clock/Physics/Storage используют native delta; Input/Interaction/GamePlay — шаг GameTime.
+# Так физические callbacks и storage retries не зависят от замороженного gameplay clock.
 func _physics_process(delta: float) -> void:
 	if world == null:
 		return

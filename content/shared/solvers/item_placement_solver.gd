@@ -1,14 +1,15 @@
 extends RefCounted
-## Ограниченная проверка опоры и всех форм тела без перемещения и регистрации prefab.
+## Кеш форм для ограниченной проверки размещения без перемещения и регистрации prefab.
+## После изменения форм/локальных трансформаций caller повторяет prepare.
 class_name ItemPlacementSolver
 
 
 class Result extends RefCounted:
-	## Найдена доступная позиция.
+	## Найдена позиция в текущем physics space; резерв и регистрация остаются за caller.
 	var available: bool = false
-	## Проверенная мировая поза тела.
+	## Проверенная мировая поза тела; применима лишь при available == true.
 	var pose: Transform3D = Transform3D.IDENTITY
-	## Консервативная граница для резерва партии до обновления physics space.
+	## Мировая AABB с margin для резерва партии; применима лишь при available == true.
 	var bounds: AABB = AABB()
 	## Число проверенных авторских позиций для диагностики ограниченного перебора.
 	var attempts: int = 0
@@ -27,6 +28,7 @@ var _bounds: AABB = AABB()
 
 #region Подготовка форм
 ## Снимает активные ограниченные формы, учитывая вложенные трансформации и исключая Area.
+## Полностью заменяет кеш; false запрещает find. Shape resources заимствованы и не меняются.
 func prepare(body: PhysicsBody3D) -> bool:
 	_parts.clear()
 	_collect(body, body, Transform3D.IDENTITY)
@@ -45,6 +47,7 @@ func prepare(body: PhysicsBody3D) -> bool:
 
 
 ## Возвращает границы подготовленной составной формы в указанной позе.
+## Требует успешный prepare; pose задаётся в мировой системе координат.
 func bounds_at(pose: Transform3D) -> AABB:
 	return pose * _bounds
 
@@ -70,6 +73,9 @@ func _collect(root: Node, node: Node, local_pose: Transform3D) -> void:
 
 #region Ограниченное размещение
 ## Проверяет первые 16 смещений; резервы исключают пересечение тел одной партии в том же кадре.
+## space заимствован на время вызова; reservations/excluded только читаются, резерв не добавляется.
+## origin — мировая поза; airborne сохраняет высоту выше пола, но всё равно требует опору.
+## Нефинитный anchor выбирает origin как начало проверки пути; результат не перемещает тело.
 func find(
 	space: PhysicsDirectSpaceState3D,
 	origin: Transform3D,

@@ -6,6 +6,8 @@ class_name EntityRecipeRules
 #region Fresh recipe state
 ## Returns one independent recipe, retaining immutable Definitions/assets and scene Node identities.
 ## Non-export script fields are copied because pinned GECS also preserves their initial values.
+## Scripted records require a no-argument constructor; their aliasing is retained within this copy.
+## Live Component.parent is excluded and established later by native registration.
 static func copy_component(recipe: Component) -> Component:
 	var copied_references: Dictionary[int, RefCounted] = { }
 	return _copy_reference(recipe, copied_references) as Component

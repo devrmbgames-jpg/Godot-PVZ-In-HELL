@@ -1,16 +1,17 @@
 @tool
 extends Component
-## Базовое и вычисленное значение атрибута с опциональными GECS-уведомлениями.
+## Значения атрибута с setter-уведомлениями; вычисления и диапазон задаёт domain writer.
+## Сам Component не применяет модификаторы и не ограничивает записанные числа.
 class_name C_Attribute
 
 ## Ключи уведомлений; наследник задаёт ресурс до начальных setter.
 @export var definition: DEF_Attribute = null
 
-## Базовое значение атрибута
+## Базовое значение в единицах наследника; definition обязателен до вызова setter.
 @export var base := 100.0:
 	set = _set_base
 
-## Вычисленное значение атрибута с учётом модификаторов.
+## Значение, вычисленное domain writer; изменение base само его не пересчитывает.
 @export var value := 100.0:
 	set = _set_value
 
@@ -19,12 +20,14 @@ var _pending_changes: Array[Dictionary] = []
 
 
 #region Atomic attribute notifications
-## Delays setter notifications until every attribute in an explicit transaction is committed.
+## Nestable notification scope for this Component only; setters still write fields immediately.
+## The caller owns cross-field/domain ordering; this operation provides no rollback.
 func begin_transaction() -> void:
 	_transaction_depth += 1
 
 
-## Publishes captured changes only after the outermost transaction has committed its state.
+## Requires a matching begin; the outermost end emits captured changes synchronously in order.
+## Subscribers may reenter; other Components are outside this notification scope.
 func end_transaction() -> void:
 	assert(_transaction_depth > 0)
 	_transaction_depth -= 1

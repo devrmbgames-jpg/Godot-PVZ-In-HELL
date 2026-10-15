@@ -5,6 +5,7 @@ class_name NpcCustomerComposition
 
 #region Native World registration
 ## Binds existing and later actors, including bodies constructed by passive snapshot restore.
+## Repeated install preserves one connection; level startup must already have bound ECS.world.
 static func install(world: World) -> void:
 	if not world.entity_added.is_connected(_on_entity_added):
 		world.entity_added.connect(_on_entity_added)

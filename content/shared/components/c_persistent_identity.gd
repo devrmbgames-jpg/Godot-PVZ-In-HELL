@@ -5,7 +5,8 @@ class_name C_PersistentIdentity
 ## Domain-owned durable field contract consumed by the closed persistence codec.
 const SAVE_FIELDS: Array[String] = ["key"]
 
-## Непустой устойчивый ключ экземпляра; не наследуется новым жителем.
+## Construction boundary задаёт непустой ключ до регистрации; codec восстанавливает тот же ключ.
+## Не зависит от Node path и не наследуется новым жителем.
 @export var key: String = ""
 
 

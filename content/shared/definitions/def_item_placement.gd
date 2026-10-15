@@ -5,7 +5,8 @@ class_name DEF_ItemPlacement
 const MAX_CANDIDATES: int = 16
 
 #region Размещение и бюджет
-## Смещения в мировых координатах от точки выпадения; проверяются первые 16.
+## Смещения в метрах от origin; local_offsets выбирает мировые либо локальные оси.
+## Проверяются первые MAX_CANDIDATES позиций в авторском порядке.
 @export var offsets: PackedVector3Array = PackedVector3Array()
 ## Смещения следуют повороту маркера; выключено для прежнего дропа в мировых осях.
 @export var local_offsets: bool = false
@@ -30,7 +31,7 @@ const MAX_CANDIDATES: int = 16
 @export_range(0.01, 0.1) var clearance: float = 0.03
 ## Дополнительный зазор проверки формы и резервов, в метрах.
 @export_range(0.0, 0.02) var margin: float = 0.01
-## Пауза между повторными попытками очереди, в секундах.
+## Пауза loot-очереди между повторами S_LootDrops, в gameplay-секундах.
 @export_range(0.25, 10.0) var retry_seconds: float = 1.0
 ## Максимум предметов одной партии, проверяемых сразу при выпадении.
 @export_range(1, 16, 1) var initial_budget: int = 8

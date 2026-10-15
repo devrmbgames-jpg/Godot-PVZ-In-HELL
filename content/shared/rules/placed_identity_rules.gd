@@ -97,6 +97,8 @@ static func component_for(actor: Entity) -> C_AuthoredIdentity:
 
 
 ## Derives lookup from immutable authored references; no alias map or mutable identity allocation.
+## Missing compiled data may use valid authoring tokens without installing a Component.
+## Invalid/duplicate tokens return an empty map, which also represents an empty authored set.
 static func resolver(root: Node) -> Dictionary[String, Entity]:
 	var actors: Dictionary[String, Entity] = { }
 	for actor: Entity in authored_actors(root):

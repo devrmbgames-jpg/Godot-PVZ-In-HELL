@@ -1,5 +1,6 @@
 extends RefCounted
 ## Чистая классификация native resource paths по approved domain/shared role roots.
+## Проверяет только строковый prefix; существование, расширение и тип ресурса проверяет caller.
 class_name GameplayResourcePaths
 
 const _OWNERS: Array[String] = [

@@ -4,6 +4,7 @@ class_name EntityAvailability
 
 
 ## true только для зарегистрированной, включённой Entity в дереве, не ожидающей удаления.
+## Готовность composition, принадлежность текущему уровню и domain permissions не проверяет.
 static func contains(candidate: Variant, world: World) -> bool:
 	# Variant позволяет проверить уже освобождённый Object до приведения к Entity.
 	if not is_instance_valid(candidate) or not candidate is Entity:

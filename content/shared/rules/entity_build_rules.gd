@@ -5,6 +5,8 @@ class_name EntityBuildRules
 
 #region Side-effect-free compilation
 ## Compiles optional Traits and scene/code providers without changing their inputs or World.
+## Returns isolated recipes plus diagnostics; plan.valid is not whole-set registration approval.
+## Borrows the synchronous context; does not register, overlay saves or publish readiness.
 static func compile(
 	authored_traits: Array[EntityTrait],
 	scene_recipes: Array[Component],
@@ -105,6 +107,7 @@ static func compile(
 #region Whole-set registration validation
 ## Validates the whole prepared set before any native registration; one rejection aborts every plan.
 ## This gate never assigns IDs, binds ECS.world, replaces registry entries or publishes readiness.
+## Arrays must correspond index-for-index. Rejection adds issues and clears all recipes/bindings.
 static func validate_registration_batch(
 	contexts: Array[EntitySpawnContext],
 	plans: Array[EntityBuildPlan],
@@ -593,7 +596,8 @@ static func _validate_binding_recipes(
 
 
 #region Deterministic provenance and diagnostics
-## Checks unused authored Templates with the same declaration rules as runtime compilation.
+## Checks only null Traits and empty/duplicate Trait IDs in an authored Template.
+## Does not validate enabled recipes, configuration, scene structure or endpoint requirements.
 static func template_issues(
 	template: DEF_EntityTemplate,
 	instance_path: String = "",
