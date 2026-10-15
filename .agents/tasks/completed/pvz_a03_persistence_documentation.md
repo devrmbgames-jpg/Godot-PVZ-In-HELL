@@ -58,7 +58,7 @@ Final review state: **PASS**; ARCHITECTURE/STYLE **PASS**, reviewer VALIDATION *
 
 ### Completion
 
-DONE только после всего scope, релевантных проверок и review/triage; затем перенести этот файл в completed/ и исправить ссылки. [PVZ-DOC01](../pvz_code_documentation_quality.md) использует один текущий persistence-контракт; B01 DEFERRED и A01 OWNER_QA не закрываются этим milestone.
+DONE только после всего scope, релевантных проверок и review/triage; затем перенести этот файл в completed/ и исправить ссылки. [PVZ-DOC01](pvz_code_documentation_quality.md) использует один текущий persistence-контракт; B01 DEFERRED и A01 OWNER_QA не закрываются этим milestone.
 
 ### Owner QA / blockers
 

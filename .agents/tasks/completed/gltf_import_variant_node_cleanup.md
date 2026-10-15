@@ -8,7 +8,7 @@ Baseline: `dev` / `a0b3fc8c75a08e16b1bc935b04c926c5c7b4f9e3`
 
 ### Goal
 
-Проверить и устранить потерю временных Node в gltf_import_split_script._save_variant. Входной import scene принадлежит движку; локальные duplicate/body должны освобождаться на успехе и при отказе pack/save. Контракт файлов, physics transforms и исходный scene не менять. Найдено при [DOC01](../pvz_code_documentation_quality.md).
+Проверить и устранить потерю временных Node в gltf_import_split_script._save_variant. Входной import scene принадлежит движку; локальные duplicate/body должны освобождаться на успехе и при отказе pack/save. Контракт файлов, physics transforms и исходный scene не менять. Найдено при [DOC01](pvz_code_documentation_quality.md).
 
 ### Current
 

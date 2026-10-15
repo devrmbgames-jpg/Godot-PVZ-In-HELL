@@ -10,7 +10,7 @@ Baseline: `dev` / `438fd5f0d4a1d10dafe69d86180ad1c2a1f4e34f`
 
 DebugHealthService должен сохранять значения `hp_before` до DamageRequestService.submit: native PER_CALLBACK вправе изменить здоровье inline до возврата. Scope: scalar diagnostic context `_submit` и focused regression в test_console_gameplay; combat arithmetic, request/result timing и смысл success не меняются.
 
-Дефект найден при [DOC01](../pvz_code_documentation_quality.md); это отдельное исправление поведения.
+Дефект найден при [DOC01](pvz_code_documentation_quality.md); это отдельное исправление поведения.
 
 ### Reproduction
 

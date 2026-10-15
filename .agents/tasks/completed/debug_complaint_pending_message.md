@@ -8,7 +8,7 @@ Baseline: `dev` / `4a671935c936cd472da5d73c0c7235dd6435ba2a`
 
 ### Goal
 
-DebugCustomerService.complaint(resolve_now=true) не должен писать «complaint resolved», если CustomerOutcomeService оставил outcome=PENDING. Сохранить смысл success как принятого создания жалобы и штатный расчёт; уточнить message по фактическому outcome. Дефект выделен при [DOC01](../pvz_code_documentation_quality.md), отдельно от comment-only batch.
+DebugCustomerService.complaint(resolve_now=true) не должен писать «complaint resolved», если CustomerOutcomeService оставил outcome=PENDING. Сохранить смысл success как принятого создания жалобы и штатный расчёт; уточнить message по фактическому outcome. Дефект выделен при [DOC01](pvz_code_documentation_quality.md), отдельно от comment-only batch.
 
 ### Current
 

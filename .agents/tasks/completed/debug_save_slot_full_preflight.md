@@ -10,7 +10,7 @@ Baseline: `dev` / `7b38cc4b1d0914c34eb0d23a1c03c372418e87ba`
 
 DebugGameplayService.save_slot(writing=true) должен отвергать snapshot, который проходит structural valid, но не восстанавливается из текущих prefab/Traits. До полного preflight нельзя заменять существующий изолированный debug-файл. Scope: один write gate в `content/debug/debug_gameplay_service.gd` и regression в `tests/gut/test_console_gameplay.gd`. Формат PVZH1/schema19, обычные слоты и load path не меняются.
 
-Дефект найден при [DOC01](../pvz_code_documentation_quality.md); это отдельное исправление поведения, не comment-only batch. Архитектурный owner остаётся WorldSnapshotService.can_restore; debug adapter не вводит собственную схему/вторую проверку capabilities.
+Дефект найден при [DOC01](pvz_code_documentation_quality.md); это отдельное исправление поведения, не comment-only batch. Архитектурный owner остаётся WorldSnapshotService.can_restore; debug adapter не вводит собственную схему/вторую проверку capabilities.
 
 ### Reproduction
 
