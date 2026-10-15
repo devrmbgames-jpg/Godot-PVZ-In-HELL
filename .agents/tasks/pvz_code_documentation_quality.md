@@ -122,9 +122,9 @@ RV-002 (R1 четвёртого batch), P2, **FIXED** (`1ce357a96936cc255c1162cb
 
 Шестой checkpoint: base `057ce606964138d081792826a137d769e951a28c` → target `da976c51b656157ef7ebe8359e87e1e4c0d78758`; read-only review **PASS**, новых findings нет. Format/nonbehavior/native parser/MCP — 13 paths PASS. `ParseChanged` wrapper FAIL только из-за shutdown retention (67 ObjectDB / 45 resources), **KNOWN_ENGINE_LIMITATION / DEFERRED**; logs `parsechanged-20261015-180622967` сохранены. Script_patch C_Jump generic reload 43 не объявлялся PASS; независимые CLI parser/MCP compile прошли.
 
-Текущий седьмой batch — полный source pass **shared 31/31, scenes 6/6**. Прочитаны все 37 scripts и точечные callers; 18 scripts получили уточнения per-Component notification scope, domain-owned validation, identity priority, compiler/template gate, placement cache/reservation и deferred scene transition. До review shared/scenes **REVIEW_PENDING**, не DONE.
+Проверенный седьмой batch — полный source pass **shared 31/31, scenes 6/6 — PASS**. Прочитаны все 37 scripts и точечные callers; 18 scripts получили уточнения per-Component notification scope, domain-owned validation, identity priority, compiler/template gate, placement cache/reservation и deferred scene transition. Reviewer сверил changed claims и representative unchanged EntityTrait/EntityInitialBinding/EntitySpawnContext/EntityBuildPlan; material findings нет, triage завершён.
 
-Current implementation base: `72eef7fd960e9b4a2b5ece41c6cc333dd103d47a`; target/review после commit **REVIEW_PENDING**. Всего изменены 109 уникальных scripts; семь полных групп (114 scripts) имеют review PASS, shared/scenes ждут review; остальные группы открыты. М1/М2/М3 целиком не завершены.
+Current implementation base: `72eef7fd960e9b4a2b5ece41c6cc333dd103d47a` → target `1caaf26dc2722957fa28110960470977473c17f8`; read-only review **PASS**, новых findings нет. Всего изменены 109 уникальных scripts; девять полных групп (151 script) имеют review PASS, остальные группы открыты. М1/М2/М3 целиком не завершены.
 
 Проверки batch:
 
@@ -137,7 +137,7 @@ Current implementation base: `72eef7fd960e9b4a2b5ece41c6cc333dd103d47a`; target/
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Получить immutable review shared/scenes и triage; пока оно идёт — только независимое чтение persistence (19 scripts). E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
+Подготовить documentation checkpoint persistence (19 scripts прочитаны; правки/review ещё не завершены). PVZH1 storage остаётся по owner fallback; ConfigFile migration не возобновляется. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.
