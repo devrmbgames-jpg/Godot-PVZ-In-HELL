@@ -1,6 +1,6 @@
 # SMOKE-PD01 — Исправить тип perception argument в personal delivery smoke
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 Priority: **P2**
 Baseline: `dev` / `0ac28ff7919729258be27af7e3390e65fafeb4fc`
 
@@ -8,7 +8,7 @@ Baseline: `dev` / `0ac28ff7919729258be27af7e3390e65fafeb4fc`
 
 ### Goal / scope
 
-Восстановить компиляцию [personal_delivery_dialogue_smoke.gd](../../tests/smoke/personal_delivery_dialogue_smoke.gd): передавать существующий NpcRecord в действующий `NpcPerceptionService.can_see`, не его DEF_NpcArchetype. Production perception rules, default saves, сцены и игровой баланс не менять.
+Восстановить компиляцию [personal_delivery_dialogue_smoke.gd](../../../tests/smoke/personal_delivery_dialogue_smoke.gd): передавать существующий NpcRecord в действующий `NpcPerceptionService.can_see`, не его DEF_NpcArchetype. Production perception rules, default saves, сцены и игровой баланс не менять.
 
 ### Evidence
 
@@ -20,11 +20,11 @@ Baseline: `dev` / `0ac28ff7919729258be27af7e3390e65fafeb4fc`
 
 - [x] Smoke использует актуальный typed API; native parser и MCP diagnostics PASS.
 - [x] Relevant local regression выполнен; обе фазы smoke PASS, runtime сбоя не обнаружено.
-- [ ] Formatter/static gates и immutable-SHA reviewer/triage завершены.
+- [x] Formatter/static gates и immutable-SHA reviewer/triage завершены.
 
 ### Current / next
 
-Заменён только аргумент person.profile → person; существующий NpcRecord уже содержит profile и actor-specific traits. После отдельного commit собрать read-only reviewer по точным base/target SHA, triage; до этого DONE запрещён.
+Заменён только аргумент person.profile → person; существующий NpcRecord уже содержит profile и actor-specific traits. Scope завершён, review/triage PASS; перенести этот файл в completed/.
 
 ### Validation / review
 
@@ -34,8 +34,8 @@ Baseline native MCP parse: **FAIL** (подтверждённый дефект).
 - PASS: native ParseFiles; `.artifacts/godot_agent/parsefiles-20261015-172351361.stdout.log` / `.stderr.log`.
 - PASS: реальный smoke write и restore двумя headless процессами, каждый exit 0 и собственный completion marker; `.artifacts/godot_agent/personal-delivery-argument-write.stdout.log` / `.stderr.log` и `personal-delivery-argument-restore.stdout.log` / `.stderr.log`. Только собственный user://personal_delivery_dialogue_smoke.pvzh; restore удаляет его.
 - PASS: incremental formatter/lint, agent validator, project structure; production perception source и scene не меняются.
-- Review: **REVIEW_PENDING**, target после commit. Visual/gameplay feel: **NOT_RUN, 0/8**.
+- Review: **PASS**, base `0ac28ff7919729258be27af7e3390e65fafeb4fc` → target `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`, read-only immutable Git snapshot; material findings нет, triage main завершён. ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN (проверки выполнял main). Visual/gameplay feel: **NOT_RUN, 0/8**.
 
 ### Owner QA / blockers
 
-Для typed smoke adapter fix визуальная приёмка не требуется. Нет внешнего blocker; DONE только после проверок и review.
+Для typed smoke adapter fix визуальная приёмка не требуется. Unresolved findings/blockers нет.
