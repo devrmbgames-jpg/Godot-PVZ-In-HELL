@@ -1,5 +1,6 @@
 extends Node3D
-## Projects authored presence cues; native Tweens own blending and gameplay remains read-only.
+## Projects authored presence cues; native process-clock Tweens own blending, not GameClock.
+## Gameplay remains read-only; suspend cancels presentation at explicit lifecycle boundaries.
 class_name NpcNightPresentation
 
 ## Shared immutable audio/shadow tuning for this authored view.

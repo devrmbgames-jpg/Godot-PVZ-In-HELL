@@ -6,7 +6,7 @@ class_name C_NpcStalking
 @export var rule: DEF_NpcStalking = null
 ## S_NpcStalkingWitness owns whether the actual player camera currently observes this body.
 var observed: bool = false
-## S_NpcStalkingWitness owns uninterrupted exposure duration, in seconds.
+## S_NpcStalkingWitness owns uninterrupted GamePlay seconds, independently of due BT selection.
 var exposure_seconds: float = 0.0
 ## Native approach leaf token; sensing can suppress only that leaf's current movement.
 var approach_task_id: int = 0

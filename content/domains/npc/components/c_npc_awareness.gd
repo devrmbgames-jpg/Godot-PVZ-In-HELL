@@ -1,5 +1,7 @@
 extends Component
-## Состояние восприятия и поиска; живого противника связывают Relationships.
+## Derived восприятие/поиск S_NpcPerception, реакции S_NpcTraits и явных Services/BT leaves.
+## Все накопители — GamePlay seconds; due stages получают общий scheduled_delta S_NpcCadence.
+## Живого противника связывают Relationships; reset очищает этот Component без замены личности.
 class_name C_NpcAwareness
 
 ## Transient rejected navigation targets; cleared on reconstruction and when a zone expires.
@@ -16,13 +18,13 @@ var darkness_combat_suppressed: bool = false
 var target_visible: bool = false
 ## Игрок виден в текущем обновлении зрения.
 var player_visible: bool = false
-## Последняя видимая позиция противника; скрытая текущая позиция не считывается.
+## Последняя видимая мировая позиция противника, в метрах; скрытая текущая позиция не считывается.
 var last_seen_position: Vector3 = Vector3.ZERO
 ## Признак подтверждённой позиции противника в прошлом.
 var has_last_seen: bool = false
 ## Время с последнего подтверждённого наблюдения противника.
 var search_elapsed: float = 0.0
-## Последняя слышимая позиция без предположения о личности источника.
+## Последняя слышимая мировая позиция, в метрах, без предположения о личности источника.
 var heard_position: Vector3 = Vector3.ZERO
 ## Оставшееся время проверки нераспознанного звука.
 var heard_remaining: float = 0.0
@@ -34,19 +36,19 @@ var fleeing: bool = false
 var flee_portal_id: StringName = &""
 ## Длительность видимого отступления игрока из текущего столкновения.
 var retreat_elapsed: float = 0.0
-## Время простоя до следующего свободного занятия.
+## S_NpcDecision накапливает время простоя; лист выбора занятия сбрасывает его после выбора.
 var idle_elapsed: float = 0.0
 ## Последний обработанный номер звука; одно событие не продлевает поиск повторно.
 var last_noise_sequence: int = 0
-## Накопитель времени до следующего звука шагов.
+## S_NpcFootsteps накапливает только время движения выбранного due NPC, сбрасывает при шуме.
 var footstep_elapsed: float = 0.0
 ## Накопленное воздействие каждого правила нечисти.
 var rule_exposure: Dictionary[int, float] = { }
-## Предупреждения, уже показанные в текущей встрече.
+## S_NpcTraits фиксирует предупреждения; планирование новой фазы и reset очищают список.
 var warned_rules: Array[int] = []
-## Последствия, уже применённые в текущей встрече.
+## S_NpcTraits фиксирует реакции; планирование новой фазы и reset очищают список.
 var reacted_rules: Array[int] = []
-## Индекс укрытия, проверяемого во время поиска.
+## bt_npc_search вычисляет индекс укрытия из search_elapsed и авторской длительности поиска.
 var search_index: int = 0
 ## Дискомфорт от света запрашивает укрытие через ветку аварийного отхода.
 var light_distress: bool = false

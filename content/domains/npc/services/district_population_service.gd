@@ -31,7 +31,8 @@ class PopulationBuild extends RefCounted:
 
 
 #region Calendar reconciliation
-## Submits current district state once; callers observe completion only after the Observer flush.
+## Coalesces one reconciliation receipt; O_DistrictLifecycle resolves it inline on PER_CALLBACK
+## or later on the configured command-buffer flush. Already reconciled state may return null.
 static func reconcile_calendar(world: World, session: Entity) -> DistrictCalendarReconcileRequest:
 	var district: C_District = session.get_component(C_District) as C_District
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
@@ -134,7 +135,9 @@ static func restore_participation() -> void:
 
 
 #region Создание населения
-## Validates all address/body recipes before any native registration or roster mutation.
+## Validates detached address/body recipes before native registration and roster mutation.
+## False discards the rejected detached build; true may still have pending morning preparation
+## under a deferred Observer flush policy. This is not a completed-calendar receipt.
 static func initialize() -> bool:
 	var district: C_District = NpcPopulationQueries.current()
 	if district == null or district.definition == null:
@@ -268,7 +271,8 @@ static func _bind_bodies(people: Array[NpcRecord], build: PopulationBuild) -> vo
 
 
 #region Календарь и участие в мире
-## Requests one future morning; the typed receipt distinguishes dispatch from preparation.
+## Requests one future morning; completed/succeeded distinguish dispatch from actual preparation.
+## O_DistrictLifecycle may complete inline or on flush; an already prepared day is a no-op.
 static func prepare_morning(morning_day: int) -> DistrictMorningPreparationRequest:
 	var request: DistrictMorningPreparationRequest = DistrictMorningPreparationRequest.new()
 	request.day_index = morning_day
@@ -290,7 +294,8 @@ static func prepare_morning(morning_day: int) -> DistrictMorningPreparationReque
 	return request
 
 
-## Requests one calendar goal assignment; the lifecycle handler owns phase/placement mutation.
+## Captures one record identity and requests phase/placement work from O_DistrictLifecycle.
+## Read completed/succeeded after inline execution or its configured flush; dispatch is not success.
 static func request_phase(
 	body: E_DistrictNpc,
 	day_index: int,
@@ -309,7 +314,9 @@ static func request_phase(
 	return request
 
 
-## Sole placement operation; restore reconciles native state through the same boundary.
+## Commits placement and native participation synchronously; restore uses the same boundary.
+## activation_position is world metres; default INF keeps the pose. Normal activation checks space,
+## reconcile_native bypasses that check. False after reentrant callbacks does not roll back history.
 static func set_placement(
 	person: NpcRecord,
 	body: E_DistrictNpc,

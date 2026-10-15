@@ -8,9 +8,9 @@ const EVENT: StringName = &"npc_dialogue_open_request"
 var actor_reference: WeakRef
 ## Runtime identity игрока до callback.
 var actor_id: String
-## Тот же профиль тела, который разрешил разговор.
+## Captured C_NpcIdentity instance; consumer отклоняет заменённую capability тела.
 var identity: C_NpcIdentity
-## Результат единственного синхронного UI consumer.
+## UI consumer подтвердил создание/открытие панели; первая async-реплика ещё может ожидаться.
 var opened: bool = false
 
 

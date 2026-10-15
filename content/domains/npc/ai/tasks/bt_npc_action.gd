@@ -1,6 +1,7 @@
 @tool
 extends BTAction
-## Основа листового действия; токен защищает движение новой ветки от старого _exit.
+## Основа листового действия manual BTPlayer; S_NpcDecision передаёт due GamePlay delta.
+## Токен защищает движение новой ветки от старого _exit; сам лист не владеет физикой.
 
 ## Единственный приоритет, с которым действие запрашивает физическое намерение.
 @export var intent_owner: C_NpcDecision.Owner = C_NpcDecision.Owner.IDLE

@@ -7,13 +7,13 @@ const ZONE_GROUP: StringName = &"npc_light_zones"
 
 ## Освещённость внутри зоны, нормированная от 0 до 1.
 @export_range(0.0, 1.0) var exposure: float = 1.0
-## Независимый переключатель источника для будущего переносного света.
+## Независимый authored/runtime переключатель источника, дополнительно к circuit_id.
 @export var enabled: bool = true
 ## Включить у переносного света; неподвижная зона сохраняет геометрию один раз.
 @export var moving_source: bool = false
 ## Необязательный ID выключателя; пустое значение делает зону независимой.
 @export var circuit_id: StringName = &""
-## Необязательные часы существующего визуального света для согласованного мерцания.
+## Необязательный путь к CircuitLightView относительно зоны; читает его process-clock мерцание.
 @export var flicker_view_path: NodePath = NodePath("")
 
 @onready var _volume: CollisionShape3D = $CollisionShape3D
@@ -44,7 +44,8 @@ func _exit_tree() -> void:
 
 
 #region Проверка зоны
-## Проверяет одну авторскую коробчатую или сферическую зону без лучей и поиска ламп.
+## Проверяет мировую точку в метрах по одной Box/Sphere без лучей и без circuit/flicker.
+## Статичная зона кеширует shape/transform в _ready; moving_source переснимает их на каждый вызов.
 func contains_point(world_position: Vector3) -> bool:
 	if not enabled or not is_node_ready() or _volume.disabled:
 		return false

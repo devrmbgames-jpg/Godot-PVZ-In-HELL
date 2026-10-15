@@ -4,7 +4,7 @@ class_name S_NpcRoute
 
 
 #region Scheduling
-## Declares the due-step execution order before native decisions.
+## Advances route state after the native BT step and before fair planning/movement consumption.
 func deps() -> Dictionary[int, Array]:
 	return {
 		Runs.After: [S_NpcDecision],

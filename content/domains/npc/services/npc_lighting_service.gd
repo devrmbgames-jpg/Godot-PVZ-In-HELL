@@ -26,7 +26,8 @@ static func _on_zone_lifecycle(subject: Node) -> void:
 		_zone_revision += 1
 
 
-## Обновляет состав зон только при входе или выходе зоны, а не при каждом измерении.
+## Возвращает borrowed district cache; смена SceneTree/zone membership пересобирает состав.
+## Native enabled/circuit/flicker читаются при измерении; caller не должен редактировать список зон.
 static func context_for(district: C_District) -> NpcLightingContext:
 	_observe_tree(ECS.world.get_tree())
 	if district.lighting_context != null and district.lighting_revision == _zone_revision:

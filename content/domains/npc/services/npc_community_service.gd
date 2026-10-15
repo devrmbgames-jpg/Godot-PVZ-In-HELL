@@ -4,7 +4,8 @@ class_name NpcCommunityService
 
 
 #region Занятия сообщества
-## Расходует одну единицу принадлежащей NPC еды при подходящем голоде.
+## При подходящем голоде запрашивает InventoryService.use для первой принадлежащей еды.
+## True означает найденный предмет и вызов use; результат использования здесь не проверяется.
 static func eat_inventory(actor: E_DistrictNpc) -> bool:
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
 	if (
@@ -26,7 +27,8 @@ static func loot_for(actor: Entity) -> Entity:
 	return item if item != null and _available_loot(item, actor) else null
 
 
-## Резервирует один воспринимаемый свободный предмет; частоту выбора задаёт BT.
+## Сначала освобождает прежний резерв, затем связывает первый воспринимаемый свободный предмет.
+## False оставляет NPC без прежней добычи; частоту выбора задаёт BT.
 static func choose_loot(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 	_clear_loot(actor)
 	for item: Entity in ECS.world.query.with_all([C_InventoryItem]).execute():
@@ -51,7 +53,8 @@ static func choose_loot(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 	return false
 
 
-## Передаёт добычу только после физического приближения; не отменяет чужой резерв.
+## После физического приближения возвращает результат InventoryService.transfer.
+## Собственный резерв освобождается и при отказе transfer; чужой резерв не отменяется.
 static func collect_loot(actor: E_DistrictNpc) -> bool:
 	var loot: Entity = loot_for(actor)
 	if (

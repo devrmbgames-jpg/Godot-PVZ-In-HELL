@@ -1,6 +1,7 @@
 @tool
 extends GameDefinition
-## Авторское правило нечисти, предупреждение и доступная контрмера.
+## Shared immutable правило нечисти; S_NpcTraits накапливает exposure в GamePlay seconds.
+## Typed capabilities могут иметь отдельного владельца и собственную проверку конфигурации.
 class_name DEF_NpcTrait
 
 enum Kind {
@@ -24,7 +25,7 @@ enum Kind {
 @export_range(0.1, 30.0) var warning_seconds: float = 1.5
 ## Дополнительное время воздействия после предупреждения до реакции.
 @export_range(0.1, 60.0) var reaction_seconds: float = 3.0
-## Дальность особенности, включая радиус огненной ауры, в метрах.
+## Дальность legacy правила в метрах; реальную геометрию FIRE_AURA задаёт aura.radius.
 @export_range(0.2, 20.0) var radius: float = 3.0
 ## Порог света для светобоязни и охоты в темноте.
 @export_range(0.0, 1.0) var light_threshold: float = 0.35

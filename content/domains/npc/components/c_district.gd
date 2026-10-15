@@ -1,5 +1,6 @@
 extends Component
-## Сессия района хранит личности, календарные фиксации и заселение.
+## Сессия района хранит личности и durable историю; Services/Observers явно фиксируют изменения.
+## Derived кеши и рабочие очереди принадлежат указанным ниже владельцам и не сохраняются.
 class_name C_District
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
@@ -27,23 +28,23 @@ const SAVE_FIELDS: Array[String] = [
 @export var home_deliveries: Array[NpcHomeDelivery] = []
 ## День последнего выбора предложений; переход фазы не сбрасывает его.
 @export var delivery_offer_day: int = 0
-## Зафиксированное число терминальных предложений на день, от 1 до 3.
+## Число терминальных предложений на день, от 0 до 3; фиксирует NpcDeliveryOfferService.
 @export var terminal_offer_target: int = 0
 ## Уже рассмотренные в этот день визиты, включая не получившие предложения.
 @export var delivery_considered: PackedStringArray = []
 ## Производный слабый кеш тела с проверкой участия в мире; не заменяет отношения.
 var body_references: Dictionary[StringName, WeakRef] = { }
-## Ручные зоны света текущего уровня; не сохраняются.
+## NpcLightingService кеширует зоны текущего уровня; lifecycle revision инвалидирует состав.
 var lighting_context: NpcLightingContext = null
 ## Ревизия регистрации для обновления списка зон света.
 var lighting_revision: int = -1
-## Звуковые события до следующего обновления восприятия; не сохраняются.
+## NpcPerceptionService добавляет шумы; S_NpcNoise старит их в GamePlay seconds после due consumers.
 var noises: Array[NpcNoise] = []
 ## Временная последовательность звуковых событий.
 var next_noise_sequence: int = 1
 ## Временная последовательность запросов ауры; действующие эффекты восстанавливаются после загрузки.
 var next_aura: int = 1
-## Очередь маршрутов из постоянных ID; отменённые заявки пропускаются.
+## S_NpcRoute ставит постоянные ID в очередь; S_NpcRoutePlanning потребляет/повторяет заявки.
 var pending_routes: Array[StringName] = []
 ## Физический кадр последнего сброса лимита планирования.
 var route_planning_frame: int = -1
@@ -59,7 +60,7 @@ var decisions_processed: int = 0
 var decisions_deferred: int = 0
 ## Largest observed due wait in GameClock ticks; diagnostic, excluded from saves.
 var decision_max_wait_ticks: int = 0
-## Накопитель частоты шагов игрока; не сохраняется.
+## GamePlay seconds движения игрока; S_NpcFootsteps накапливает и сбрасывает при публикации шума.
 var player_step_elapsed: float = 0.0
 ## Derived lifecycle reconciliation day; O_DistrictLifecycle writes it, restore invalidates it.
 var lifecycle_day: int = 0

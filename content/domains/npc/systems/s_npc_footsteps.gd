@@ -1,5 +1,5 @@
 extends System
-## Owns player and due-NPC footstep clocks; emits bounded anonymous noise before perception.
+## Owns GamePlay player and due-NPC footstep clocks; emits bounded noise before perception.
 class_name S_NpcFootsteps
 
 ## Existing physical speed threshold below which a body emits no walking noise.

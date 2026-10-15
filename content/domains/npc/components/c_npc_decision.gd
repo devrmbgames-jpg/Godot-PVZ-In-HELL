@@ -1,5 +1,6 @@
 extends Component
-## Временное состояние владельца намерения; не хранит физические transform и ссылки на цели.
+## Состояние арбитража/исполнения; NpcIntentArbiter и explicit Services фиксируют переходы.
+## Физические transform и живые цели остаются у тела и Relationships.
 class_name C_NpcDecision
 
 enum Owner {
@@ -49,11 +50,11 @@ var active_task_id: int = 0
 var tree_updating: bool = false
 ## Название текущего поведения для отладки.
 var active_behavior: String = ""
-## Время ожидания недостижимой цели.
+## Legacy поле без текущего накопителя; watchdog использует C_NpcRoute, не этот счётчик.
 var blocked_elapsed: float = 0.0
 
-## Transient interval captured by cadence, shared through sensing/traits/BT and cleared by route
-## progression.
+## GamePlay seconds captured by S_NpcCadence, shared through sensing/traits/BT.
+## S_NpcRoute clears the interval after progression.
 var scheduled_delta: float = 0.0
 ## Calendar day captured by the cadence owner; queued stages reject superseded steps.
 var scheduled_day: int = 0

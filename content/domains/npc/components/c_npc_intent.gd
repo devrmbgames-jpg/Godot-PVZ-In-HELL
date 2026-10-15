@@ -1,5 +1,6 @@
 extends Component
-## Семантические цели NPC; живые Entity принадлежат R_NpcMoveTarget/R_NpcLookTarget.
+## NpcIntentService пишет цели; S_NpcIntent вычисляет arrival/navigation и Controller для тела.
+## Живые Entity принадлежат R_NpcMoveTarget/R_NpcLookTarget; callback агента пишет avoidance cache.
 class_name C_NpcIntent
 
 enum LookMode {
@@ -20,7 +21,7 @@ enum LookMode {
 @export var look_mode: LookMode = LookMode.MOVEMENT
 ## Мировая точка взгляда без живой Entity-связи.
 @export var look_position: Vector3 = Vector3.ZERO
-## Добавка к позиции живой цели взгляда в мировых осях.
+## Добавка к позиции живой цели взгляда в мировых осях, в метрах.
 @export var look_offset: Vector3 = Vector3.ZERO
 ## Выключение разрешает прямое авторское движение/изолированные физические проверки.
 @export var navigation_enabled: bool = true
@@ -47,7 +48,7 @@ var movement_generation: int = 0
 var navigation_generation: int = -1
 ## Native action token that owned the last sampled navigation result; zero means no action.
 var navigation_task_id: int = 0
-## Производная безопасная скорость асинхронного NavigationAgent, отдельно от физического исполнения.
+## Мировая горизонтальная скорость NavigationAgent в м/с; callback E_NpcCharacter обновляет кеш.
 var avoidance_velocity: Vector3 = Vector3.ZERO
 ## Физический кадр последней безопасной скорости NavigationAgent.
 var avoidance_frame: int = -1

@@ -27,11 +27,11 @@ class_name DEF_District
 	"Нитка",
 	"Дымник",
 ]
-## Интервал проверки риска и повторной попытки пути, а не полного перепланирования.
+## GamePlay seconds между проверками риска/карты в S_NpcRoute, не период полного перепланирования.
 @export_range(0.1, 5.0) var route_interval: float = 0.6
 ## Лимит синхронных планов маршрута за один физический кадр.
 @export_range(1, 16) var route_plans_per_frame: int = 1
-## Максимальное ожидание перед отказом от недостижимого занятия, в секундах.
+## GamePlay seconds без пути/продвижения до watchdog S_NpcRoute; обязательство не телепортируется.
 @export_range(1.0, 120.0) var route_timeout: float = 20.0
 ## Горизонтальное продвижение, сбрасывающее таймер застревания, в метрах.
 @export_range(0.05, 1.0) var route_progress_distance: float = 0.15
@@ -58,7 +58,7 @@ class_name DEF_District
 @export_range(1, 64) var replacement_threshold: int = 2
 ## Количество переходов к утру перед прибытием замены.
 @export_range(1, 30) var replacement_delay_days: int = 2
-## Интервал обновления решений и восприятия, в секундах.
+## GamePlay seconds накопленной cadence; бюджет может отложить due NPC до следующего fair pass.
 @export_range(0.05, 1.0) var decision_interval: float = 0.2
 ## Maximum expensive native sensing/traits/decision updates admitted per cadence pass.
 @export_range(1, 256) var decision_work_units: int = 12
@@ -66,7 +66,7 @@ class_name DEF_District
 @export_range(0, 10) var ambient_conflicts_per_phase: int = 1
 ## Лимит инициаторов нападений при выборе новых местных профилей.
 @export_range(0, 8) var maximum_conflict_initiators: int = 2
-## Пауза до выбора следующего простого занятия, в секундах.
+## GamePlay seconds простоя до выбора следующего свободного занятия.
 @export_range(1.0, 300.0) var activity_seconds: float = 30.0
 ## Явные маршруты ожидания, относительно корня уровня.
 @export var service_routes_path: NodePath = NodePath(
@@ -107,7 +107,7 @@ class_name DEF_District
 
 ## Множитель слышимости через физические препятствия.
 @export_range(0.0, 1.0) var hearing_wall_attenuation: float = 0.25
-## Интервал событий шагов, в секундах.
+## GamePlay seconds движения до шума шагов; player и due NPC имеют отдельные накопители.
 @export_range(0.1, 2.0) var footstep_interval: float = 0.6
 ## Радиус звука ходьбы, в метрах.
 @export_range(0.1, 30.0) var walking_noise_radius: float = 6.0

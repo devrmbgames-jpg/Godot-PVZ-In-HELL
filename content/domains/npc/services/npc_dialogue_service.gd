@@ -1,5 +1,6 @@
 extends RefCounted
-## Уличный разговор начинается игроком; LimboAI останавливается по живой связи собеседников.
+## Явные границы разговора; R_NpcConversation задаёт собеседника, BT выбирает ветку разговора.
+## Native UI и async-реплики принадлежат composition/presentation consumer.
 class_name NpcDialogueService
 
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
@@ -95,7 +96,8 @@ static func participant(body: Entity) -> Entity:
 	return null
 
 
-## Связывает подтверждённых участников; только уличный разговор прекращает прежнее движение.
+## Вызывающий предварительно проверяет участников; здесь отвергается только уже связанный разговор.
+## True синхронно добавляет R_NpcConversation, stop_movement отдельно отменяет прежнее движение.
 static func begin(player: Entity, body: Entity, stop_movement: bool = false) -> bool:
 	if participant(body) != null:
 		return false
@@ -166,6 +168,7 @@ static func can_start(player: Entity, body: E_DistrictNpc) -> bool:
 
 
 ## Публикует запрос native UI; ресурс и контекст создаёт global composition consumer.
+## True подтверждает открытие панели синхронным consumer, не завершение первой async-реплики.
 static func request_open(player: Entity, body: E_DistrictNpc) -> bool:
 	if not can_start(player, body):
 		return false

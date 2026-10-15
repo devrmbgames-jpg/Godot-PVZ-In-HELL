@@ -20,16 +20,16 @@ enum Activity {
 
 ## Свободное занятие после прибытия; не связано с выдачей посылки.
 @export var activity: Activity = Activity.WALK
-## Смещение посетителя от собственного места торговца.
+## Смещение посетителя от мировой позиции места в метрах по мировым осям.
 @export var activity_offset: Vector3 = Vector3.ZERO
-## Авторская точка внимания, например окно ПВЗ; не скрытая цель Entity.
+## Необязательная точка внимания относительно корня уровня; пустой путь не задаёт focus.
 @export var focus_path: NodePath = NodePath("")
 ## Название места для игрока; постоянный ключ служит внутренней связью.
 @export var display_name: String = "Место района"
 
 ## Категория размещения авторской точки.
 @export var kind: Kind = Kind.ACTIVITY
-## Позиция относительно корня блокинга района.
+## Позиция в локальных метрах District; при отсутствии корня используется как мировая.
 @export var position: Vector3 = Vector3.ZERO
 ## Маркер уровня задаёт X/Z; position.y остаётся авторской высотой земли.
 @export var anchor_path: NodePath = NodePath("")

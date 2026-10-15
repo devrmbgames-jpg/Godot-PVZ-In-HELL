@@ -1,10 +1,12 @@
 extends RefCounted
-## Единственный владелец движения района; обычные NPC сохраняют существующий API намерений.
+## Арбитраж права задавать намерения в C_NpcDecision; NpcIntentService пишет данные цели.
+## S_NpcIntent и native body исполняют движение, а не этот синхронный арбитр.
 class_name NpcIntentArbiter
 
 
 #region Владение намерением
-## Получает приоритет на текущий такт решений, не отменяя выполняемую атаку.
+## Меньший Owner имеет больший приоритет; равный Owner может обновить описание в том же такте.
+## True фиксирует intent_owner/behavior и при необходимости отменяет schedule execution, не атаку.
 static func acquire(actor: Entity, owner_kind: C_NpcDecision.Owner, behavior: String) -> bool:
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 	if decision == null:

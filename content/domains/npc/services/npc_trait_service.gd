@@ -16,7 +16,8 @@ static func dark_refuge(_actor: E_DistrictNpc, person: NpcRecord) -> Vector3:
 	return NpcPopulationQueries.position_for(refuge_id)
 
 
-## Materializes one missing authored aura; repeated explicit calls cannot duplicate it.
+## Reuses a live matching aura or submits a missing spawn; void is not a committed-spawn receipt.
+## next_aura is consumed before HazardSpawnService.submit, including a rejected attempt.
 static func ensure_aura(actor: E_DistrictNpc, person: NpcRecord, rule: DEF_NpcTrait) -> void:
 	if rule.aura == null:
 		return

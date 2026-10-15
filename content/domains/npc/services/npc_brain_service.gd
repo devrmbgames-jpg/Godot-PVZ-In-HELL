@@ -48,7 +48,9 @@ static func set_participating(actor: E_DistrictNpc, participating: bool) -> void
 		_abort_tree(actor, runner)
 
 
-## Исполняет один такт BT и безопасно завершает отключение; возвращает факт выбранного действия.
+## S_NpcDecision явно передаёт один due GamePlay delta; операция вызывает manual BTPlayer.update.
+## True означает захваченный intent_owner, не успешный эффект leaf или выполнение обязательства.
+## После синхронных callbacks повторно проверяет World, Component и native runner.
 static func update_tree(actor: E_DistrictNpc, delta: float) -> bool:
 	var runner: BTPlayer = actor.get_node_or_null("Brain") as BTPlayer
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision

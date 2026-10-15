@@ -1,5 +1,5 @@
 extends System
-## Owns persisted AI cadence against the session timestamp and captures one shared native interval.
+## Owns persisted AI cadence against GameClock ticks and captures one shared GamePlay interval.
 class_name S_NpcCadence
 
 

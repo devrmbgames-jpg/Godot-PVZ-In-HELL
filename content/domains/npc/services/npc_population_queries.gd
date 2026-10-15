@@ -34,7 +34,7 @@ static func current() -> C_District:
 	return session.get_component(C_District) as C_District if session != null else null
 
 
-## Находит постоянную личность, включая погибших в истории района.
+## Возвращает borrowed запись C_District.people, включая историю погибших; это не копия для правок.
 static func person_for(npc_id: StringName) -> NpcRecord:
 	var district: C_District = current()
 	if district != null:
@@ -44,7 +44,8 @@ static func person_for(npc_id: StringName) -> NpcRecord:
 	return null
 
 
-## Находит сохранённое тело, в том числе временно отключённое.
+## Возвращает borrowed зарегистрированное тело, в том числе dormant; не гарантирует участие.
+## Проверяет weak cache по World membership/identity, промах ищет по ECS.world.entities.
 static func body_for(npc_id: StringName) -> E_DistrictNpc:
 	if not is_instance_valid(ECS.world):
 		return null

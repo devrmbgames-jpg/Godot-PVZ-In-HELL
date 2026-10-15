@@ -9,7 +9,8 @@ static func destination(place: DEF_DistrictPlace) -> Vector3:
 	return NpcPopulationQueries.position_for(place.key) + place.activity_offset
 
 
-## Фиксированно выбирает доступное предпочитаемое занятие по истечении паузы.
+## Детерминированно выбирает доступное предпочитаемое занятие по activity_sequence.
+## Пауза и инкремент sequence принадлежат вызывающему BT leaf; здесь record не меняется.
 static func choose(actor: E_DistrictNpc, person: NpcRecord) -> DEF_DistrictPlace:
 	var candidates: Array[DEF_DistrictPlace] = []
 	for place: DEF_DistrictPlace in NpcPopulationQueries.current().definition.places:

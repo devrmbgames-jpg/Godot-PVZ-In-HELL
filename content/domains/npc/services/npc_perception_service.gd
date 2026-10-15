@@ -168,7 +168,8 @@ static func action_noise(source: Entity, radius: float) -> void:
 		emit_noise(source, spatial.global_position, radius)
 
 
-## Создаёт звуковое событие без раскрытия личности источника слушателям.
+## Добавляет NpcNoise в district с мировыми position/radius в метрах и TTL=2*decision_interval.
+## S_NpcNoise старит TTL в GamePlay seconds; source borrowed, личности слушателям не раскрывает.
 static func emit_noise(
 	source: Entity,
 	world_position: Vector3,
@@ -190,7 +191,8 @@ static func emit_noise(
 	district.noises.append(noise)
 
 
-## Слышит место через ослабляющие препятствия без связи с невидимым источником.
+## True обновляет heard_position/remaining/investigate_noise слушателя после физического ray/range.
+## remaining задаётся в GamePlay seconds; false не очищает прежний услышанный стимул.
 static func hear(listener: Entity, profile: DEF_NpcProfile, noise: NpcNoise) -> bool:
 	if noise.source == listener:
 		return false
