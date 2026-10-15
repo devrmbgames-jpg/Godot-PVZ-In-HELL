@@ -1,6 +1,6 @@
 # PVZ-B01 — ConfigFile для save/load и согласованный предел размера
 
-Status: **PLANNED**
+Status: **BLOCKED**
 Priority: **P2**
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 Owner decision: запись содержимого сохранения выполняется через **ConfigFile**, не ручной FileAccess.
@@ -66,12 +66,18 @@ Focused native GUT на AutosaveStore/ConfigFile и существующий per
 
 
 ### Current
-Зафиксировано требование владельца использовать ConfigFile. Реализация, native тесты и review исправления: **NOT_RUN**.
+Проверен native API Godot 4.7.1-stable (official) из проекта. Изолированный [probe](../../tests/tools/configfile_native_probe.gd) подтверждает создание RefCounted внутри Dictionary при ConfigFile.load; запрета Objects в аргументах load/parse нет. Это противоречит Native format contract §4 и restore acceptance. Production AutosaveStore и schema 19 не изменены; миграция **NOT_RUN**.
 
 ### Next
-Снять актуальные schema/callers/fixture контракты; доказать native ConfigFile roundtrip допустимого snapshot и согласованный полный размер, затем заменить единственный storage путь.
+Получить решение владельца о совместимых требованиях к parser/формату. До него сохранить текущий storage и продолжать независимые задачи. Post-load whitelist, checksum и собственный parser не устраняют этот blocker в рамках действующего контракта.
 
 ### Owner QA / blockers
+
+- **BLOCKED**: ConfigFile.load создаёт Objects до schema/checksum gate. Probe использует безвредный RefCounted и отдельные user:// файлы, удаляемые после проверки; пользовательские слоты не затрагиваются. Нельзя объявлять безопасность PASS на основании последующего отказа в preflight.
+- **PASS (API evidence only)**: native roundtrip Dictionary с Unicode/escapes/native types, целочисленным значением >2^53; encode → load → encode; размер текста и файла 301 bytes; temp replace существующего файла и readback. Это не проверка всего gameplay snapshot или полного acceptance.
+- **PASS (execution)**: прямой headless `--script res://tests/tools/configfile_native_probe.gd`, exit 0, stderr пустой; `.artifacts/godot_agent/configfile-probe-20261015-160621587.stdout.log`. `object_created_by_load=true`, `decoded_object_class=RefCounted`, native API load/parse имеют только path/data.
+- Первый запуск через OfflineScript включал headless editor; scan был прерван ранним quit, runner **FAIL**, несмотря на exit 0. Логи сохранены: `.artifacts/godot_agent/offlinescript-20261015-160232413.stdout.log` / `.stderr.log`. Повтор без editor не воспроизвёл shutdown errors. Первый запуск не объявляется PASS.
+- Implementation/GUT/integration **NOT_RUN**; gameplay/visual **NOT_RUN**, 0/8. Review probe checkpoint **REVIEW_PENDING** до immutable SHA и triage.
 
 ### Dependencies / completion
 Независима от UI и календарного refactor; после [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md)/[PVZ-A02](completed/pvz_a02_wallet_day_events.md) проверить совместный Night startup/settlement contract. Соблюдать [AGENTS.md](../../AGENTS.md) и [task lifecycle](../skills/task-lifecycle/SKILL.md): без GitHub Actions/gh, неразрешённых visual playtests и сторонних addon edits. Полные base/target/review/fix SHA и реальные PASS/FAIL/NOT_RUN сохранять здесь; не более одного child agent одновременно. Неподтверждённую безопасность native parser/replace отмечать конкретным BLOCKED, не скрывать обходным ручным writer. После обязательных проверок/review — DONE и перенос этого же файла в `completed/` с исправлением ссылок.
