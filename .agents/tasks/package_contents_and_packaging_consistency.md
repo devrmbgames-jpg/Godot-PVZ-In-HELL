@@ -2,6 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `8364a7ed7450c4b5b0da7fafb66c36fc27ab0d6d`
+TARGET_SHA: `d331a86c89547c3bf23be2392adfdc0f31cfc301`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
@@ -29,9 +30,10 @@ M1 реализован: DEF_ItemCargo хранит фазу, unit mass/envelope
 хранит native варианты, внутренние габариты, padding ratio, лимиты количества/массы и явный порог
 bulk/single-large. PackagePackingRules выбирает минимальную подходящую оболочку канонически,
 проверяя поворот единицы, общий объём и массу; не меняет количество и не использует global RNG.
-Новый inventory→packages контракт только read и только для этого Rules. Текущие поставки и
+Packages читает inventory cargo по узкому read-контракту только для этого Rules. Текущие поставки и
 сохранения ещё не изменены. До интеграции M2 исходный дефект не считается исправленным.
-Новые immutable данные не являются вторым runtime authority. M1 review: REVIEW_PENDING.
+Новые immutable данные не являются вторым runtime authority. M1 review PASS; material findings
+отсутствуют, triage завершён без требуемых исправлений. Общая задача остаётся IN_PROGRESS.
 ## Установленная поверхность и гипотеза причины
 
 - [ReceivingDeliveryService](../../content/domains/packages/services/receiving_delivery_service.gd)
@@ -94,7 +96,14 @@ bulk/single-large. PackagePackingRules выбирает минимальную �
 - PASS M1: MCP4 scripts checked/empty, scripts_instantiated=0; native ParseFiles4/0,
   `parsefiles-20261015-235651420`, exit0/stderr empty. Formatter4, role validator3 production,
   strict architecture0 lexical findings и project structure PASS.
-- M1 immutable-SHA review: REVIEW_PENDING. Rendered/visual QA NOT_RUN,0/8.
+- PASS M1 immutable-SHA review по BASE_SHA/TARGET_SHA: no material findings, architecture/style
+  PASS; reviewer validation NOT_RUN, проверки выше выполнены Main.
+- PASS независимый native замер 16 catalog bodies и 4 оболочек: GUT1/1,40 assertions,
+  `gut-20261015-235844827`, stderr empty. Значения PHYSICAL_CATALOG в stdout, fixture
+  `.artifacts/package_physical_inventory_probe.gd`. Не использует M1 Rules или новый data contract.
+  Подтверждено: реальные бочки 0.8×1.0×0.8 м не помещаются в package_big с узкой осью 0.588 м;
+  коса 0.94×1.64×0.13 м требует отдельной длинной native упаковки. Нужны authored варианты.
+- Rendered/visual QA NOT_RUN,0/8.
 
 ## План проверки будущей реализации
 
@@ -117,7 +126,7 @@ bulk/single-large. PackagePackingRules выбирает минимальную �
 
 ### Next
 
-M1: commit и immutable-SHA review, triage принятых P0/P1/P2. Во время review только независимые
-подзадачи. M2: один зафиксированный shipment plan до compiler,
+M1 завершён после review/triage. M2: по native замерам подготовить редактируемые cargo/packing
+профили и совместимые native сцены; один зафиксированный shipment plan до compiler,
 подключить receiving/contents/physics/history/UI и определить save-совместимость; затем профильные
 native регрессии и обязательный owner QA. До закрытия всех acceptance задача не DONE.
