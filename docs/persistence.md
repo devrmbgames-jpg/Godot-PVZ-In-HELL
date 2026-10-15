@@ -1,117 +1,161 @@
 # Persistence / Night contract
 
-Durable implementation source: Git history; remaining manual acceptance is tracked under `.qa/tasks/`.
+A save is a versioned snapshot of authoritative domain data at a safe Morning boundary. It is not a serialized SceneTree. Night autosave prepares the next Morning; manual save captures the current safe Morning. Simulation resumes only after passive reconstruction and explicit reconciliation.
 
-Refactoring v2 Phase 0 policy (owner decision 2026-10-07): old save-file migration/backward compatibility is not required. The following bullets describe the current runtime; task 25 advances schema 3 → 4 for explicit placed identity and safe prepared-Morning reconstruction. Future incompatible format/path/identity changes bump schema and reject old saves; current-format roundtrip, stable IDs, links and safe failure remain mandatory. Tooling does not delete or overwrite user saves automatically.
+The supported version has one source: [AutosaveStore.SCHEMA_VERSION](../content/domains/persistence/services/autosave_store.gd). Incompatible older and newer snapshots are rejected without conversion. The owner permits keeping the existing binary storage if ConfigFile cannot preserve the required values; [PVZ-B01](../.agents/tasks/pvz_b01_configfile_save_storage.md) is deferred. Production uses the PVZH1 format described below.
 
-- Main startup reads one `user://autosave.pvzh` before simulation. Tests supply an isolated `autosave_path`. Missing, invalid checksum or incompatible schema starts a fresh scene and reports the reason in debug UI.
-- Schema **9** includes permanent district people, absent bodies, personal memories, replacement sequence, home-delivery obligations and immutable authored quest variant references. Earlier schemas are deliberately incompatible: startup reports this without migrating or deleting the old file.
-- Sleep enters Night with `night_ready=false`. `S_NightSave` runs in the Storage group after phase, wallet/customer settlement and quest outcomes. Its operational retry seconds remain separate from frozen Night gameplay ticks. It clears transient participation, captures the next Morning, writes/flushes a temporary file and atomically renames it into the slot. Failed writes keep Night and retry the same target day; successful writes permit the existing phase System to advance once.
-- A successful slot already describes the next Morning. Interruption after file replacement but before the live phase transition therefore resumes that Morning. Progress during the day is committed at Sleep.
-- Night first completes delivered home jobs or records failed promises, then clears participation, prepares the next district morning once and captures it. A failed file write retries that prepared morning; bonus operations, promise memory and replacement IDs cannot be generated twice. Physical undelivered boxes are neither marked lost nor moved to storage by this closeout.
-- `SaveDataCodec` accepts explicit component fields and record scripts only. Immutable definitions reload by authored resource path; binary variant payloads contain no runtime Objects. Records preserve financial operation IDs, actual customer outcomes separately from declarations, complaints/combat context, late visit IDs, commerce receipts/orders and quest facts.
-- Package identity is `package/<package_id>`. Paid pickups use `order/<operation_id>`. Authored entities resolve by scene-relative path; all restored entities retain their Entity ID, with a one-time reindex of the derived World registry. Load validates records before world changes, instantiates missing prefabs, clears all old ownership/storage/cargo bindings, restores component/physical state, then reconstructs Relationships and quest bindings. Disabled entities use World lifecycle APIs.
-- NPC identity is `npc/<lifetime sequence>` and survives service visits and temporary absence. `DistrictSnapshotRules` validates unique people/bodies, placement, homes, compatible profiles, personal incidents and delivery-case ownership before mutation. Owned items may reference a disabled living district body. Derived LimboAI players, perception, navigation routes, noises and lighting caches are rebuilt; ongoing attacks, conversations and door/counter reservations do not survive Night. New morning placement retains health, inventory, death and personal memory.
-- Preserve physical transforms, fixed-object snapshots, slot/cart membership and package-local ink. Hand/push/cart driving, dialogue/modal/challenge captures, projectiles, transient hazards and body velocities do not cross Night. Persistent hazards retain their lifetime/tick/resolution state, native geometry, source veto and stable-key follow/attribution links; apply owner-loss policy after reset. Fulfilled emitter guards and committed NEVER action IDs/effects are preserved without replay. Incomplete prolonged progress resets, including DECAY/NEVER. Geometry is restored before final disabled state.
-- `OrderDeliveryService` creates one authored physical pickup per paid order when a receiving slot is free. Blocked space leaves the order pending. Existing order identity reconciles an interrupted delivery; fulfilled records remain after pickup/consumption. No second charge occurs.
+## Owners and entry points
 
-- Morning physical refusal return requires a prior actual refusal, an active registered identity/number and the held parcel at the reachable F return point. Successful commit releases the number and removes the parcel. Actual/declaration, penalties, settlement IDs and complaints remain unchanged.
+| Owner | Responsibility |
+| --- | --- |
+| [AutosaveStore](../content/domains/persistence/services/autosave_store.gd) | Synchronous file read/write and byte integrity; no gameplay validation. |
+| [SaveDataCodec](../content/domains/persistence/services/save_data_codec.gd) | Closed Component fields and record types; native values and immutable Definition references. |
+| [WorldSnapshotService](../content/domains/persistence/services/world_snapshot_service.gd) | Capture, semantic preflight and explicit reconstruction, composing domain snapshot contracts. |
+| [S_NightSave](../content/domains/persistence/systems/s_night_save.gd) / [C_Autosave](../content/domains/persistence/components/c_autosave.gd) | Scheduled Night preparation, immutable prepared snapshot, operational retry state and readiness. |
+| [NightSaveService](../content/domains/persistence/services/night_save_service.gd) | Explicit startup restore and rejected automatic-slot protection. |
+| [GameSessionService](../content/scenes/game_session_service.gd) | Safe manual save, compatible slot selection and one-shot scene handoff. |
+| [GameWorld](../content/scenes/game_world.gd) | Passive composition, readiness publication and explicit startup reconciliation. |
 
-Checks include the existing save/world snapshot regression, district absent-body/item roundtrip, duplicate-person rejection, actual failed Night write followed by retry, and a connected seven-day district save/reload smoke. Night retry preserves replacement identity and promise memory. Owner rendered/gamepad/layout/full-day/balance acceptance remains under `.qa/tasks/`.
+Gameplay domains own their persisted fields and records. They do not import the persistence adapter to schedule themselves. Settings, InputMap, device/prompt revisions and texture caches remain process/UI state.
+
+## File, version and errors
+
+`AutosaveStore.DEFAULT_PATH` is `user://autosave.pvzh`. GameSessionService selects separate manual and test-level slots; isolated QA rooms have no slot. Tests must override paths and clean only their own files.
+
+The file consists of a `PVZH1` line, a SHA-256 hexadecimal digest line, then the native binary `var_to_bytes(snapshot)` payload. The envelope marker and snapshot `version` are separate contracts. `read()` checks file presence/opening, size, marker, payload hash and Dictionary root, then decodes with `bytes_to_var` without enabling Object decoding. The codec's supported snapshot graph contains no live Objects. A readable Dictionary is still untrusted: schema, IDs, resource capabilities and link endpoints require `WorldSnapshotService.can_restore()`.
+
+`write(snapshot, path) -> Error` rejects an empty path or an empty/oversized encoded payload, opens `path + ".tmp"`, writes header/hash/payload, calls `FileAccess.flush()`, checks the file error, closes it and returns the result of `DirAccess.rename_absolute()` into the slot. `OK` means this synchronous operation completed. There is no queued-write receipt, readback validation, backup, unique temporary filename or guaranteed power-loss recovery. Do not promise fsync or generic transactional rollback. Failed writes may leave the temporary file.
+
+`MAX_BYTES` is 64 MiB. **The existing writer limits payload bytes, while the reader limits the whole file.** A payload near the limit can therefore be written and subsequently rejected because of the header overhead. A unified whole-file limit remains deferred with B01; callers must not treat the current checks as identical.
+
+`read()` returns `{}` for missing, unreadable, corrupt or non-Dictionary data. Startup distinguishes a missing slot from a rejected existing file using `FileAccess.file_exists()`. Store read alone neither checks the supported schema nor makes the data safe to apply. Manual and Night capture run semantic preflight before writing.
+
+Changes to persisted identity, type/resource paths, field shape or interpretation bump the supported schema and update guards and current-format fixtures together. Ownership changes can retain the version only when serialized identity, paths, shape and meaning stay identical. No legacy converter or identity aliases are required. Unsupported files are preserved.
 
 ## Refactoring v2 identity contract
 
-Phase 1 records the current schema-2 baseline and the target for task 25; it does not claim that runtime migration has happened. `AutosaveStore.SCHEMA_VERSION` is the supported payload version, separate from the `PVZH1` file envelope. The file contains a SHA-256-checked native Variant dictionary without runtime Objects. The supported schema is now 10; earlier schemas and newer versions are rejected without migration. Quest snapshot preflight validates its Definition, stable operation/target IDs, reward/deadline and terminal receipt before live mutation.
+This heading retains incoming historical links; the rules below describe the implemented runtime.
 
-| Namespace | Current durable meaning | Target/removal rule |
-| --- | --- | --- |
-| `package/<package_id>` | Physical shipment key from `C_Package.package_id`; history and visit references retain that package ID | Allocate once; a registration number is reusable display state, never durable identity. |
-| `npc/<sequence>` | One actor key shared by `NpcRecord.npc_id`, `C_NpcIdentity.npc_id` and `C_PersistentIdentity.key` | Allocate from persisted district sequence once; absence/reactivation/restore does not create another actor. |
-| `order/<delivery_id>` | Physical paid-order identity; `PendingDelivery.delivery_id` corresponds to the producer's operation ID | Receipt, money operation and physical actor have related but distinct contracts; fulfillment/retry cannot charge or spawn twice. |
-| operation/settlement/visit/history IDs | `MoneyOperation`, `PurchaseReceipt`, `CustomerVisit`, `PackageRegistrationRecord`, incident/job records preserve producer-owned IDs | Persist producer counters and terminal records; do not reconstruct identity from display names or current day alone. |
-| `Entity.id` | Saved String instance ID (`entity_id`); World registry is reindexed after overlay | Distinct from domain key and from numeric GECS `ecs_id`. Registry is derived, never a mutable alias authority. |
-| `placed/<world-content-id>/<local-id>` / `authored_id` | Explicit immutable placed identity compiled from level/instance authoring metadata | Resolver derives lookup from `C_AuthoredIdentity`; node rename/reparent does not alter identity or links. No path fallback or legacy alias. |
-| `runtime/<Entity.id>` | Current fallback for other persistent runtime actors | Spawned actors retain their allocated domain/instance key; never reallocate on load. |
-| Definition/content ID and resource path | Shared authored data, including inline `resource.tres::SubresourceId` | Identifies content, not an actor. A subresource suffix is save-visible identity, not incidental formatting. |
+| Namespace | Durable meaning |
+| --- | --- |
+| `placed/<world-content-id>/<local-id>` / `authored_id` | Explicit immutable level/instance identity compiled as `C_AuthoredIdentity`; no NodePath fallback. |
+| `package/<package_id>` | Physical shipment key from `C_Package`; reusable registration numbers are display/allocation state. |
+| `npc/<sequence>` | One lifetime actor shared by the district record, NPC identity and persistent actor key, including temporary absence. |
+| `order/<delivery_id>` | Physical paid-order actor; retry reconciles the existing delivery rather than charging/spawning again. |
+| Operation, settlement, visit and history IDs | Producer-owned counters and terminal records, distinct from actor identity and display names. |
+| `Entity.id` / `runtime/<Entity.id>` | Saved string instance ID and fallback actor key; distinct from numeric GECS `ecs_id` and engine instance IDs. The World registry is rebuilt. |
+| Definition path, including `resource.tres::SubresourceId` | Immutable authored content identity, not actor identity. Inline subresource suffixes are save-visible. |
 
-Implemented placed identity is a unique authored local ID scoped by an explicit world/level content ID, with canonical actor key `placed/<world-content-id>/<local-id>`. IDs are authored tokens; validation rejects empty/invalid tokens and duplicate world-scoped keys before registration. Duplicating an imported subscene preserves its recipe but must receive an explicitly repaired instance ID before registration. Renaming/reparenting a node changes only diagnostic paths. A runtime resolver derives actor lookup from registered identity; it does not maintain mutable identity aliases. Definition/content IDs, actor instance keys, GECS numeric IDs and operation IDs remain separate namespaces.
+[ActorIdentityRules](../content/shared/rules/actor_identity_rules.gd) reads owner-provided identity through `C_ActorIdentityReference`, then compiled placed identity, then runtime identity. It does not copy IDs into a mutable alias map. Authored world/local tokens must be valid and unique before registration. Duplicated placed subscenes need a distinct authored instance ID. Node rename/reparent does not change identity; children of ownerless spawned prefab roots are runtime children.
 
-The authoritative field table distinguishes record-owned identity/history/placement from body-owned health/inventory/action and relationship-owned live bindings. NpcRecord and C_NpcIdentity mirrors reference one actor; a retained dormant physical root is that actor's body, not another NPC. ACTIVE/DORMANT implementation belongs to 45; the baseline proves the present enabled/STREET versus disabled/OUTSIDE equivalent without introducing a new LOD mode.
+| Authority | Saved or reconstructed state |
+| --- | --- |
+| Domain Components and records | Explicit `SAVE_FIELDS`, operation histories/counters, district roster, placement/death, memories, obligations, quest facts and immutable variant references. |
+| Physical body | Supported pose, health, inventory/action state and native geometry through the explicit snapshot boundary. A retained dormant root remains the same actor's body. |
+| Relationships | Durable owned/stored/cargo links serialize stable endpoint keys and local pose; required endpoints must exist before binding. Disabled living district bodies can own items. |
+| Derived state | World lookup, participation, LimboAI/Blackboard, perception/navigation, monitor membership and presentation caches are rebuilt from authoritative owners. |
 
-## Snapshot and restore target
+Capture includes persistent disabled Entities and supported raw physical actors. Raw-body identities and recipe bindings are explicit snapshot data, not scene paths inferred as actor identity. Physical transform/velocity authority remains with Godot bodies outside the synchronization boundary.
 
-Night autosave is a prepared-Morning boundary: finish evening outcomes → reset transient sessions → prepare next Morning once → drain owned pending structural/outcome work at the declared flush points → capture one immutable authoritative snapshot → validate → write/replace. Write retry reuses that snapshot and does not repeat outcomes, preparation, replacement allocation or random decisions. `S_NightSave` owns retry seconds, one preparation request and readiness. `C_Autosave.prepared_snapshot` retains a detached value graph after the bounded command drain; failed I/O retries never re-run preparation or capture. A rejected slot remains protected through later Night and selected-manual startup until explicit replacement/new start or a different path is chosen. Do not expand the checkpoint to arbitrary mid-action/mid-combat state for LOD. Existing manual save is restricted to a safe Morning by `GameSessionService.save_reason`; its slot/UI boundary is preserved, not expanded by this contract.
+Night retains health, inventory, death, personal memory, fixed-object poses, slot/cart membership, package-local ink and supported persistent hazards. Persistent hazards preserve lifetime/tick/resolution state, geometry, source veto and stable-key attribution/follow links; reset applies their owner-loss policy. Fulfilled emitter guards and committed NEVER action IDs/effects remain without replay. Incomplete prolonged progress resets, including DECAY/NEVER. Hand/push/cart driving, ongoing attacks, conversations, reservations, modal/challenge captures, projectiles, transient hazards and body velocities do not cross Night.
 
-Restore target order:
+District roster state and body state retain their separate writers. Explicit startup/restore reconciliation preserves an already planned current day/phase, including completed goals and saved dormant placement; it assigns missing plans. Real calendar transitions and explicit retry requests keep their ordinary planning behavior.
 
-1. Decode, check schema, validate all IDs, resource/subresource paths, recipes and required link endpoints without gameplay effects or live mutation.
-2. Construct a fresh startup World/Entities with authored defaults and validated composition. Construction/setup/Observers remain passive until ready.
-3. Overlay saved authoritative state after defaults, so recipes cannot reset health/inventory/history.
-4. Reconstruct durable owned/stored/cargo and other supported links after all endpoints exist. Reject missing required endpoints; optional loss requires an explicit policy/reason.
-5. Rebuild derived caches, participation and presentation; publish ready, then begin simulation.
+## Safe manual save
 
-Failed preflight leaves the live World and file intact. An unexpected construction failure discards the unfinished startup World and publishes no gameplay effects; this is not a promise of generic transaction rollback. Task 25 implements preflight before live mutation, passive `GameWorld` startup for compatible snapshots, explicit state/recipe/links/cache reconstruction and readiness. Incompatible preflight starts fresh defaults and protects the slot; unexpected validated-startup construction failure abandons the incomplete level. Further template/cache contracts are rechecked in 41/42. WorldSnapshot.valid alone is not proof of prefab capability safety; can_restore also checks prefab/role contracts. Store read alone verifies bytes/checksum, not semantic validity or schema support.
+`GameSessionService.save_reason(root, menu_owner)` requires the active World's level root, an approved main/test entry scene and Morning. Living Customer agents, armed/active challenges, higher-priority interaction captures and held/prolonged/push/cart-driving Relationships reject the save. Only the requesting menu's own modal owner can be excluded from the capture check.
 
-## Save-visible path inventory and change gate
+`save_game(root, menu_owner, path_override)` returns `GameSaveResult` synchronously. It captures the current Morning, adds the approved `level_scene`, runs `can_restore()`, then writes to the selected manual slot or explicit override. Inspect `success` and `message`; a gameplay/preflight rejection does not write the slot. This API does not extend saving to arbitrary combat/action states.
 
-The machine-readable [save-visible inventory](../tests/fixtures/refactoring_v2/save_visible_paths.json) lists all 31 current Component scripts with exact persisted fields, all 14 allowed record scripts, and 47 paths observed in the [captured current-format fixture](../tests/fixtures/refactoring_v2/current_snapshot.variant). These are actual codec envelopes and snapshot values. Task 28 uses this inventory plus the following exhaustive path-bearing surfaces for its source→target map:
+## Clock, Night preparation and commit
 
-| Serialized surface | Current resolver/guard | Migration obligation |
-| --- | --- | --- |
-| `entities[].components[].type` | Exact Script membership in SaveDataCodec's component whitelist | Map every listed script and its field contract; moving a type path is incompatible. |
-| Nested record `type` envelopes | Exact Script membership in the record whitelist | Map all 14 scripts, including records inside C-owned arrays/aggregates. |
-| Nested `definition` envelopes | Prefix `res://content/definitions/`, ResourceLoader existence, GameDefinition type and property type checks | Includes inline `::` IDs; update prefixes for domain definitions before moves. Preserve dependent authored asset references too. |
-| `entities[].scene` | Non-authored prefab requires `res://content/entities/` and a PackedScene | Update domain-prefab guards together with construction validation. |
-| `entities[].authored_id` and placed keys | Exact immutable world/local ID resolves uniquely in the level | Preserve authored tokens across moves/renames; no NodePath identity matching or alias. |
-| ReceivingBatch.package_scenes | ReceivingSnapshotRules validates paired keys/paths, package body capability and zone Definition selection before mutation | Task 28 maps retained choices and preflight guards. Raw package reconstruction uses the same explicit recipe operation as delivery; fixup preserves saved HP and restores impact/liquid configuration. |
-| PendingLootDrop.scene_path / opening_hazard_path | LootSnapshotRules prefixes `res://content/entities/` / `res://content/entities/hazards/`, canonical path and PackedScene checks | Preserve selected scene and optional opening effect; update guards with domain moves. |
-| Optional top-level `level_scene` in manual slot | GameSessionService's explicit MAIN_LEVEL / TEST_LEVEL selection and equality checks | Include entry scenes in the map; no arbitrary scene selected by untrusted data. |
+[main_level.gd](../content/scenes/main_level.gd) processes `Clock` with raw callback seconds, then `Input` and `Interaction` with gameplay tick seconds, `Physics` with raw seconds, `GamePlay` with gameplay seconds, and `Storage` with raw seconds. Night freezes gameplay ticks while operational storage retries continue. See [Game Time](game_time.md) for clock domains.
 
-Relationship endpoint keys, hazard stable-key references, completed-action IDs, ink/anchor data and physical poses contain identity/native values rather than resource paths. Definition-internal scene/schedule/profile/loot/Dialogue references remain authored resource dependencies loaded through the canonical Definition; they are mapped in the resource graph, not copied into another save authority. Binary user-slot location is storage configuration, not actor identity.
+Only `S_DayPhase` publishes committed `DayPhaseChanged` facts. `O_WalletDay` reacts to those facts through the explicit idempotent wallet operation. Customers use `CustomerPlanningRequest.Kind.RECONCILE_SESSION` for bootstrap, with a typed completion receipt and terminal `RECONCILED` notification; reconciliation does not fabricate a calendar transition. Startup/restore explicitly synchronizes the wallet after passive reconstruction. A prepared snapshot can lack the next Morning's daily row; readiness ensures that row once, without repeating completed-day settlement.
 
-Persistence owns the envelope/schema/codec and composes domain snapshot contracts; each domain owns the serialized fields it exposes. Every step that changes persisted identity, type/resource path, field shape or interpretation increments the supported schema, updates all guards/fixtures and proves incompatible/invalid/newer rejection before live mutation with the file preserved. Ownership-only changes retain schema only when serialized identity/path/shape/meaning truly stays identical. No converter, previous-version roundtrip or identity alias is required. Automatically deleting or overwriting an incompatible user file is forbidden, including a later Night autosave after rejected startup. Task 25 protects that rejected slot through `C_Autosave.rejected_path`; safe refusal uses the existing debug/status surface. An explicit New Game or another slot permits replacement; no migration UI or converter is introduced. Replace this current-format fixture when the format changes; do not keep schema-2 compatibility solely for the test.
+`S_NightSave` runs in `Storage`, with dependencies after `S_DayPhase`, `S_CustomerFlow`, `S_RefusalQuest` and `S_LootDrops`. Its queued step captures a WeakRef, exact calendar/autosave Components, Night day and workflow revision. A stale entity, replacement Component, revision, World membership or phase rejects the queued context.
 
-## Phase 1 baseline debt and evidence
+1. Refuse a protected `rejected_path` before evening outcomes/reset/preparation.
+2. Complete delivered home jobs or record failed promises, then reset transient participation. Physical undelivered boxes are not marked lost or moved into storage by this closeout.
+3. Request next-Morning district preparation once and retain its typed receipt. Drain pending command buffers with the bounded `CommandBufferBarrier`, including wallet/outcome reactions, before capture. Pending/failed preparation or a failed drain keeps Night unready.
+4. Capture and preflight the prepared Morning once; retain a detached deep copy in `C_Autosave.prepared_snapshot`.
+5. Write that same value graph. I/O failure schedules another attempt after `max(MIN_RETRY_SECONDS, retry_seconds)` raw seconds. It does not repeat successful preparation, capture, random choices, replacement IDs or payments.
+6. Only successful write sets `last_saved_morning` and `night_ready`. `S_DayPhase` can then advance once. The committed slot already describes the next Morning, including interruption before the live transition.
 
-| Debt | Implementation owner | Removal/acceptance gate |
-| --- | --- | --- |
-| Hidden service steps and System forwarding | Explicit per-symbol migration tasks | Migration closed; architecture validator always rejects findings without allowances. |
-| Horizontal type paths, prefix guards and authored asset dependencies | 25 stable-ID/resource preflight, 28 migration map, 29–32 whole-owner moves | No path aliases; 32/33 strict layout/dependency acceptance and current-format roundtrip. |
-| Explicit placed identity, immutable retry, pending-work drain, raw receiving recipe checks | 25: closed | Schema-4 roundtrip/rejection and passive startup PASS; rechecked after moves in 49. |
-| Rejected startup preserves the incompatible file immediately, but later Night write can overwrite the same path | 25 | Protect rejected slot across subsequent autosave; test startup rejection followed by Night without byte changes. Phase 1 fixture proves immediate preservation only. |
-| CharacterBody cart may be skipped by capture without a persisted capability | 25 and cart owner 21 | Inventory all durable link endpoints; no unresolved cargo target. The fixture explicitly adds C_PersistentIdentity to its cart and does not claim the default scene is already fixed. |
-| Procedural installers/startup effects and participation authority | 41/42/45 | Core composition/LOD acceptance 49; retained-body fixture updated, no duplicate actors. |
+An empty save path still settles/reset/prepares but performs no I/O; it sets `last_prepared_morning` and readiness, not `last_saved_morning`. This is the isolated test-room contract.
 
-The isolated GUT fixture uses `user://gut_refactoring_v2_phase1.pvzh`, cleans only that slot and never opens the default user autosave. It loads the committed native Variant fixture, proves binary codec/store roundtrip, retained ACTIVE/DORMANT-equivalent physical bodies and durable owned/stored/cargo links, and exercises all 31 Component and 14 record script paths through the real codec. Separate tests reject duplicate/unresolved IDs and unsupported schemas before mutation and preserve the incompatible isolated file. Default-record codec coverage does not claim every gameplay outcome combination is tested.
+## Preflight, passive restore and rejected slots
 
-Static gate: `python utils/validate_persistence_baseline.py`; tool fixtures: `python -m unittest discover -s tests/tools -p test_validate_persistence_baseline.py`. Engine gate: headless GUT `-gtest=res://tests/gut/test_refactoring_v2_persistence_baseline.gd -gexit`. Updating the golden fixture is explicit: set `PVZH_UPDATE_BASELINE=1` for that suite, then inspect/regenerate the serialized-path inventory and run again with the variable unset. Normal runs never rewrite authored fixtures or user saves.
+Startup reads a candidate before simulation. `GameSessionService.saved_game()` scans manual/automatic slots by modification time and selects the newest compatible candidate for the approved level; a newer invalid file does not hide an older valid one. The scene handoff is a detached snapshot, not retained Entity references.
 
-## Task 25 implementation boundaries
+1. Check supported version, IDs, closed typed codec, native resource/subresource paths, prefab/role capabilities, recipes and required link endpoints before live mutation. `WorldSnapshotService.valid()` alone is insufficient.
+2. Construct startup composition passively with authored defaults, or enter the explicit replacement boundary for an existing World. The boundary invalidates old queued work and suppresses gameplay Observer dispatch.
+3. Overlay authoritative saved fields, reconstruct missing actors/recipes, clear old ownership/storage/cargo bindings and rebuild durable links after endpoints exist. Restore native geometry and pose before final enabled/disabled state.
+4. Rebuild quest bindings, district participation/body-derived tuning/brain state and raw physical state. Seed monitor membership without synthetic gameplay MATCH facts; the project adapter uses the pinned GECS integration surface without editing the addon.
+5. Publish Entity readiness and reconcile district, Customers and wallet explicitly, then drain pending work. Startup passes `defer_reconciliation=true` to restore and performs this at `GameWorld.finish_startup()`; in-place restore performs it before returning. Simulation is gated by composition readiness.
 
-Entry scenes author `persistent_world_id` on the level root and `persistent_local_id` on every placed Entity, including nested belt/physical slots. `PlacedIdentityRules` validates the complete scene-owner chain before GameWorld registration and compiles `C_AuthoredIdentity` as an immutable origin reference. A generated NPC/package/order actor keeps its domain actor key; `authored_id` identifies its authored prefab origin for reuse, never a second mutable authority or identity alias. Children of ownerless spawned prefab roots are runtime children, not level-placed instances.
+Failed preflight leaves the live World and slot intact. An unexpected reconstruction failure is not a general rollback guarantee: startup marks `construction_failed` and must abandon the incomplete level. It must not resume partially reconstructed gameplay.
 
-Domain Components expose their own `SAVE_FIELDS` contracts; SaveDataCodec composes them without owning gameplay state. SnapshotLinks and ActorIdentityRules are shared value contracts, removing recursive snapshot-helper imports. Gameplay domains import no persistence adapter/autosave API; the Night scheduled owner resides in persistence composition. Settings/InputMap, device/prompt revision and texture caches remain process/UI state outside snapshots.
+`NightSaveService.restore_startup()` records `C_Autosave.rejected_path` for an existing unreadable, unsupported or semantically invalid automatic slot. Later Night attempts on that same path return `ERR_UNAUTHORIZED` before reset/preparation and leave its bytes intact. Loading a compatible manual slot does not authorize overwriting a rejected automatic slot. Explicit New Game or choosing another path permits later replacement; New Game does not immediately delete files. Missing files start fresh without a protected rejected slot. Status/rejection reasons use the existing startup/save UI surfaces.
 
-SnapshotRestoreBoundary suppresses all gameplay Observer dispatch during replacement and invalidates old queued commands. It rebuilds durable bindings, recipe state and monitor membership before restoring activity. The sole GECS integration adapter uses the pinned World's internal monitor index/silent seed helper because v8 exposes no public silent reseed API; it emits no synthetic MATCH facts and does not modify the addon. Actual startup effect-spy regression proves no default-state reaction and verifies new gameplay reacts after readiness. Hazard geometry is rebuilt explicitly without replaying explosion damage or spawn effects.
+## Save-visible paths and checks
 
-Task 29 moved NPC/Customer scripts, definitions and scenes to their vertical domains. Schema 5 records the new native paths; schema 4 is incompatible and is rejected without migration or slot overwrite. The closed decoder permits the migrated NPC/Customer definition and entity roots alongside unmoved owner roots until their own migration. Current-format engine fixture and save-visible path inventory track the actual codec.
+The [codec/path inventory](../tests/fixtures/refactoring_v2/save_visible_paths.json) and [captured current-format fixture](../tests/fixtures/refactoring_v2/current_snapshot.variant) are executable evidence, not independent schema authorities. Their actual counts are validated by tooling rather than duplicated in prose.
 
-Task 30 moved Interaction/Combat/Motion save-visible scripts, definitions and prefab scenes. Schema 6 records these native paths, with closed guards admitting the five migrated owner roots and remaining horizontal roots until their owning migration. Prior schemas reject without conversion or automatic overwrite. Native golden and codec inventory are regenerated and tested against the actual current engine resources.
+| Serialized surface | Current guard |
+| --- | --- |
+| Component and nested record `type` | Exact SaveDataCodec script whitelist and field contract. |
+| Definition envelopes, including `::` suffixes | [GameplayResourcePaths](../content/shared/rules/gameplay_resource_paths.gd) approved domain/shared Definition roots, existence, GameDefinition and property type checks. |
+| Non-authored entity `scene` | Approved domain/shared entity roots, PackedScene and role/capability preflight. |
+| Placed key / `authored_id` | Unique immutable world/local ID in the level; no NodePath alias. |
+| Receiving package choices and pending loot scene/hazard paths | Domain snapshot rules validate retained scene choices, paired IDs and reconstruction capabilities. |
+| Optional manual `level_scene` | GameSessionService's explicit main/test entry-scene selection and equality checks. |
 
-Task 31 completed all concrete domain owner path moves, including Persistence itself. Schema 7 records the native paths; old versions reject without migration or slot overwrite. Explicit closed Definition/entity roots cover approved concrete domains; Shared foundations still await task 32. Runtime validators and their real codec/store-copy fixtures use the migrated Persistence paths.
+Definition-internal scene/schedule/profile/loot/Dialogue dependencies remain authored resources. Moving a native resource or inline ID requires checking this graph as well as snapshot envelopes. Slot paths are storage configuration, not actor identity.
 
-Task 32 completes Shared native script/Definition moves and removes horizontal path-prefix support. Schema 8 records the final paths and rejects earlier formats without conversion or automatic overwrite. Existing Package/NPC/persistent ID values are projected through C_ActorIdentityReference; no mutable identity mirror or alias map is introduced. All actor links retain their existing key selection semantics.
+Relevant checks:
 
-Task 47 versions the GameClock aggregate, monotonic tick/remainder/world-seed state and durable NPC
-cadence fields as schema 9. The native current-format fixture contains nondefault time/seed/sequence
-values and verifies the next decision output after reconstruction. Night advances calendar labels
-without adding elapsed time. Unsupported prior versions remain protected from automatic overwrite;
-no old-save conversion is implemented. See [Game Time and decision seeds](game_time.md).
+- `python utils/validate_persistence_baseline.py` and `python -m unittest discover -s tests/tools -p test_validate_persistence_baseline.py` validate the fixture/inventory contract.
+- [test_refactoring_v2_persistence_baseline.gd](../tests/gut/test_refactoring_v2_persistence_baseline.gd) proves current codec/store roundtrip, nondefault clock/decision state, dormant bodies and durable owned/stored/cargo links in an isolated slot. Default record coverage does not prove every gameplay combination.
+- [test_world_snapshot.gd](../tests/gut/test_world_snapshot.gd), [test_startup_restore.gd](../tests/gut/test_startup_restore.gd) and [test_district_lifecycle.gd](../tests/gut/test_district_lifecycle.gd) cover rejection before mutation, passive readiness, Night retries, rejected-slot protection and planned dormant-state preservation.
+- `utils/run_smoke.ps1 -Name night_persistence` writes and restores in separate headless processes. Headless checks do not establish visual/gamepad/gameplay feel acceptance.
 
-Task 41 adds the stable home key in `C_NpcAddress.SAVE_FIELDS` as schema 10. Physical address
-records no longer lose their semantic identity when reconstructed in a fresh process. Preflight
-rejects empty, duplicate, unknown and non-home IDs before live mutation. A fresh address compiles
-its saved key and reconstructs the label from the immutable district place before publication;
-pose remains owned by the existing explicit snapshot synchronization boundary. No position-based
-identity inference or old-save conversion is introduced. The current native golden and codec
-inventory include the new Component contract; unsupported slots remain preserved.
+Normal tests never rewrite the golden fixture or default user slots. To deliberately update the captured fixture, set `PVZH_UPDATE_BASELINE=1` only for the baseline suite, inspect the result and update the inventory, then rerun with the variable unset. Implementation history belongs in Git and archived task records, not migration TODOs in this contract.
+
+## Executable examples
+
+These are test bodies for the isolated [WorldSnapshot GUT fixture](../tests/gut/test_world_snapshot.gd): it supplies `_root`, `_session`, `_attach_native_catalog()` and `_night_step()`. They are not methods to paste into a live level. An extending fixture must remove only these two example slots and their `.tmp` files in teardown, then await `super.after_each()`.
+
+Safe Morning save, schema/preflight and restore through the current APIs:
+
+```gdscript
+func test_doc_safe_morning_roundtrip() -> void:
+	_attach_native_catalog()
+	var path: String = "user://pvz_doc_roundtrip.pvzh"
+	var saved: GameSaveResult = GameSessionService.save_game(_root, null, path)
+	assert_true(saved.success, saved.message)
+	var snapshot: Dictionary = AutosaveStore.read(path)
+	assert_eq(snapshot.get("version"), AutosaveStore.SCHEMA_VERSION)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+```
+
+Unsupported isolated slot remains byte-identical after a real Night storage step. Direct phase assignment below is fixture setup, not the gameplay transition API:
+
+```gdscript
+func test_doc_rejected_slot_survives_next_night() -> void:
+	var path: String = "user://pvz_doc_rejected.pvzh"
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	snapshot.version = AutosaveStore.SCHEMA_VERSION + 1
+	assert_eq(AutosaveStore.write(snapshot, path), OK)
+	var retained: PackedByteArray = FileAccess.get_file_as_bytes(path)
+	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
+	state.path = path
+	assert_false(NightSaveService.restore_startup(_root, state))
+	assert_eq(state.rejected_path, path)
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.NIGHT
+	_night_step(0.1)
+	assert_eq(state.last_error, ERR_UNAUTHORIZED)
+	assert_eq(state.started_night, 0)
+	assert_eq(FileAccess.get_file_as_bytes(path), retained)
+```
