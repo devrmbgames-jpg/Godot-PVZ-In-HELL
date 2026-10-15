@@ -1,6 +1,6 @@
 # R27.5 — полный тестовый зал и10 изолированных NPC-комнат
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -20,7 +20,7 @@ Parent: [R27](r27_qa_followup.md).
 
 ### Current
 
-Owner day-cycle finding2026-10-15 is reproduced and repaired; review/build gates are pending.
+Owner day-cycle finding2026-10-15 is reproduced and repaired; implementation checks and export PASS.
 Real sleep remained in NIGHT with ERR_INVALID_DATA: a room has an empty save path but the
 night owner still required a restorable persistence snapshot and disk write. No-save sessions
 now finish evening obligations, reset actions, prepare the district and drain commands before
@@ -29,6 +29,14 @@ a successful file save and is invalidated by restore. Empty storage destinations
 Earlier supply tests incremented day_index directly; the new authored-station regression runs
 two real day/sleep cycles in every room, without assigning calendar fields or bypassing gates.
 Base for the day-cycle fix: `e298932551f16333868ee2208cb14f5b9545b4d7`.
+Code/review target: `592774eacbe1301c157f12ad2172f34cb91cc508`.
+Independent immutable review: no material findings; ARCHITECTURE/STYLE PASS,
+reviewer VALIDATION NOT_RUN. Review duration/efficiency NOT_MEASURED.
+Windows test-level export and headless menu/level startup120frames PASS:
+`.export/windows/20261015-051409Z-592774ea-r27-room-night-cycle`,
+launcher `.export/TEST_LEVEL.cmd`; dirty=true preserves unrelated owner edits.
+Actual startup logs are clean. Export-only shutdown retention warnings remain
+KNOWN_ENGINE_LIMITATION/DEFERRED; no clean export-process log is claimed.
 
 Owner follow-up 2026-10-15 is implemented below; required manual acceptance remains open:
 - NPC is absent in the isolated test locations; reproduce and fix native spawning/participation.
@@ -52,11 +60,11 @@ Follow-up implementation is authored and saved through the live Godot Editor:
 - Project-owned native attendance authoring fills the standard MCP nested Resource editing gap.
   It guards canonical room/preset hashes, dirty editor state and production-resource boundaries.
 
-Base for follow-up review: `3b31e1c5b6d928187da8dfa7e7568354c05ababb`.
-Code/review target: `91ee388ab6e6cd64175866a22ddf537ec8240c79`.
+Prior lab follow-up review base: `3b31e1c5b6d928187da8dfa7e7568354c05ababb`.
+Prior code/review target: `91ee388ab6e6cd64175866a22ddf537ec8240c79`.
 Independent immutable review PASS/no material findings; ARCHITECTURE/STYLE PASS,
 reviewer VALIDATION NOT_RUN. Review duration/efficiency NOT_MEASURED.
-Windows test-level export and headless menu/level startup120frames PASS:
+Prior Windows test-level export and headless menu/level startup120frames PASS:
 `.export/windows/20261015-045017Z-91ee388a-r27-lab-presence-pedestals-animations`,
 launcher `.export/TEST_LEVEL.cmd`. The build preserves unrelated user edits (`dirty=true`).
 Native startup logs are clean; export-process logs retain the live-editor LimboAI DLL-copy
@@ -74,7 +82,8 @@ Current follow-up evidence2026-10-15:
 - Delivery outcomes/payment failures/night barriers: GUT32/375 PASS,
   `.artifacts/godot_agent/gut-20261015-051116201.stdout.log`.
 - Day-cycle fix formatter/incremental architecture/strict architecture/structure PASS;
-  fresh-process parser and bounded MCP path diagnostics PASS. Early live-reload fallback
+  fresh-process parser `.artifacts/godot_agent/parsechanged-20261015-051256042.stdout.log`
+  and bounded MCP path diagnostics PASS. Early live-reload fallback
   errors were resolved by native path compilation; no new editor log entries.
 - Actual combat/three new clip cancellation regressions: GUT16/218 PASS,
   `.artifacts/godot_agent/gut-20261015-044410252.stdout.log`.
@@ -85,7 +94,7 @@ Current follow-up evidence2026-10-15:
 - Native compound-shape geometry: all16 items supported and truck footprints clear of
   displays/room exits, loading door within15m of terminal; PASS, exit0,
   `.artifacts/lab-geometry-20261015.log`.
-- Native parser and MCP six-script diagnostics PASS; final CLI parser
+- Prior lab native parser and MCP six-script diagnostics PASS; CLI parser
   `.artifacts/godot_agent/parsechanged-20261015-044738493.stdout.log`.
 - Incremental formatter, strict architecture and project structure PASS.
   `validate_agent_changes.py` reports the existing editor-only authoring heuristic as REVIEW/FAIL;
@@ -130,7 +139,12 @@ has no script/runtime errors. This log is preserved and is not called a clean ex
 
 ### Review triage
 
-Current follow-up review at `91ee388ab6e6cd64175866a22ddf537ec8240c79`: no material findings.
+Current day-cycle review BASE `e298932551f16333868ee2208cb14f5b9545b4d7` ->
+TARGET `592774eacbe1301c157f12ad2172f34cb91cc508`: no material findings.
+Confirmed settlement/reset/preparation/drain gates, configured-path failure handling,
+transient preparation ownership, restore invalidation and unchanged closed save schema.
+
+Prior lab review at `91ee388ab6e6cd64175866a22ddf537ec8240c79`: no material findings.
 RV-001 remains REJECTED after explicit re-evaluation of the native editor-only authoring
 boundary. Current attendance repair confines changes to room/preset Resource graphs,
 uses scene-owned UndoRedo and discloses its non-undoable external preset save.
@@ -150,6 +164,7 @@ Owner gameplay/visual acceptance of the expanded lab and all ten rooms remains o
 ### Next
 
 Owner QA of the updated Windows test build using the expanded [R27 checklist](../qa_tasks/r27_acceptance.md):
-visible usable NPCs in all phases, truck/terminal/exit access, pedestal pickup/labels and weapon animation feel.
-Finish review/export for the day-cycle repair, then owner QA. Preserve all unrelated user edits.
+finish a shift and sleep through two mornings with renewed supplies; also verify visible usable NPCs
+in all phases, truck/terminal/exit access, pedestal pickup/labels and weapon animation feel.
+Implementation checks/review/export are complete. Preserve all unrelated user edits.
 Required visual/gameplay acceptance remains open; do not archive this task before it closes.
