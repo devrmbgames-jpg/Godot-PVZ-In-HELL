@@ -1,0 +1,30 @@
+[gd_resource type="Theme" format=3 uid="uid://d3xwp56ssyt0l"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.055, 0.065, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.25, 0.3, 1)
+
+[resource]
+default_font_size = 14
+Button/font_sizes/font_size = 14
+Label/font_sizes/font_size = 14
+LineEdit/font_sizes/font_size = 14
+Panel/styles/panel = SubResource("StyleBoxFlat_panel")
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel")
+PopupMenu/font_sizes/font_size = 14
+PopupMenu/styles/panel = SubResource("StyleBoxFlat_panel")
+RichTextLabel/font_sizes/bold_font_size = 14
+RichTextLabel/font_sizes/bold_italics_font_size = 14
+RichTextLabel/font_sizes/italics_font_size = 14
+RichTextLabel/font_sizes/mono_font_size = 14
+RichTextLabel/font_sizes/normal_font_size = 14
+Tree/font_sizes/font_size = 14
+Tree/font_sizes/title_button_font_size = 14

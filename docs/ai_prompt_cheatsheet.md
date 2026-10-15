@@ -38,7 +38,7 @@ Plan отвечает за маршрут выполнения. Goal фикси�
 Если работа должна пережить текущий thread/session, укажи или создай один durable task:
 
 ```text
-Продолжай agent_tasks/R35_<name>.md.
+Продолжай .agents/tasks/R35_<name>.md.
 Используй его только как durable checkpoint; текущий execution веди через Plan + Goal.
 ```
 
@@ -78,7 +78,7 @@ Plan отвечает за маршрут выполнения. Goal фикси�
 ### 2. Рефакторинг большой подсистемы
 
 ```text
-Продолжай agent_tasks/refactoring_v2/[номер_задачи].md до acceptance.
+Продолжай .agents/tasks/refactoring_v2/[номер_задачи].md до acceptance.
 Соблюдай GECS ownership, единственного state writer и контракт сцен/UID.
 Раздели работу на отдельные законченные коммиты.
 
@@ -102,7 +102,7 @@ authority/save/GECS ownership/physics/lifecycle.
 ### 4. Возобновление после прерванного Codex сеанса
 
 ```text
-Продолжай agent_tasks/[task].md.
+Продолжай .agents/tasks/[task].md.
 Проверь последний checkpoint и его REVIEW_PENDING на полных SHA.
 Сверь замечания с текущим HEAD, объединяй дубли и восстанови
 статус каждой принятой ошибки. Не запускай второй reviewer,

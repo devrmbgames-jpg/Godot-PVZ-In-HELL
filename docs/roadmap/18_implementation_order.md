@@ -2,7 +2,7 @@
 
 Номера `ТЗ xx` — номера design specifications. Implementation IDs — `Rxx` / `Rxx.x`. Этот документ хранит зависимости и рекомендуемый порядок, но **не live status**.
 
-Текущее выполнение ведётся через Codex Plan + Goal. Если конкретной работе нужен durable cross-session checkpoint, его хранит единственный соответствующий файл в `agent_tasks/`.
+Текущее выполнение ведётся через Codex Plan + Goal. Если конкретной работе нужен durable cross-session checkpoint, его хранит единственный соответствующий файл в `.agents/tasks/`.
 
 ## Foundation
 

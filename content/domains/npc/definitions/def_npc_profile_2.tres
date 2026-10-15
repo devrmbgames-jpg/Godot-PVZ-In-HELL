@@ -4,7 +4,7 @@
 [ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="2_6uwyc"]
 [ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="3_5aw2m"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="7_fnc3m"]
-[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_2.tres" id="Rule"]
+[ext_resource type="Resource" uid="uid://cuhy4qwx18m2a" path="res://content/domains/npc/definitions/def_npc_trait_2.tres" id="Rule"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="RuleScript"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="Schedule"]
 

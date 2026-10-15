@@ -1,6 +1,6 @@
 ---
 name: task-lifecycle
-description: Use when creating, resuming, updating or completing durable agent_tasks/*.md work spanning sessions or milestones.
+description: Use when creating, resuming, updating or completing durable .agents/tasks/*.md work spanning sessions or milestones.
 ---
 
 # Durable task lifecycle
@@ -9,8 +9,8 @@ Use for persistent task state, not for every plan, Fix or quick code change. If 
 
 ## Single source of truth
 
-- Use one owning `agent_tasks/<task>.md` for its goal, acceptance, current status, latest checkpoint, next action, validation evidence and unresolved findings.
-- Do not create a separate queue, CURRENT_WORK file, activity log or task-history source of truth. Git commits document implementation history; `docs/` documents product contracts; `qa_tasks/` owns remaining manual acceptance.
+- Use one owning `.agents/tasks/<task>.md` for its goal, acceptance, current status, latest checkpoint, next action, validation evidence and unresolved findings.
+- Do not create a separate queue, CURRENT_WORK file, activity log or task-history source of truth. Git commits document implementation history; `docs/` documents product contracts; `.qa/tasks/` owns remaining manual acceptance.
 - Keep the file as current state, not a chronological stream. Replace stale Current/Next, old validation summaries and redundant review checkpoints. Preserve *unique* evidence via concise results and links to manifests or reproducible commands.
 - Use **full Git SHAs** for base, target, review and fix checkpoints. Short hashes alone do not identify review evidence reliably.
 - Aim for at most **200 lines** per active task file. Exceptions require indispensable current contracts/evidence, not migrated activity logs or repeated test runs. Do not move the same log to an auxiliary report.
@@ -24,6 +24,6 @@ Use for persistent task state, not for every plan, Fix or quick code change. If 
 
 ## Complete and archive
 
-When all required implementation, review/triage and verification gates pass, move the **existing** task file to `agent_tasks/completed/<original relative path>` in the same completion batch. Preserve original subdirectory layout, final status and concise evidence. Update incoming links and relative links in the moved file; do not leave a duplicate or forwarding file in the active directory.
+When all required implementation, review/triage and verification gates pass, move the **existing** task file to `.agents/tasks/completed/<original relative path>` in the same completion batch. Preserve original subdirectory layout, final status and concise evidence. Update incoming links and relative links in the moved file; do not leave a duplicate or forwarding file in the active directory.
 
 Tasks with blockers, unfinished implementation, REVIEW_PENDING or required owner acceptance remain active under their actual status. Use [review-orchestration](../review-orchestration/SKILL.md) when a committed milestone needs formal triage; use [validation-workflow](../validation-workflow/SKILL.md) for test evidence.

@@ -1,26 +1,28 @@
-[gd_resource type="Resource" script_class="DEF_EntityTemplate" format=3]
+[gd_resource type="Resource" script_class="DEF_EntityTemplate" format=3 uid="uid://bx2v4jljiwe2y"]
 
-[ext_resource type="Script" path="res://content/shared/definitions/def_entity_template.gd" id="Template"]
-[ext_resource type="Script" path="res://content/domains/customers/authoring/et_customer_visit.gd" id="Trait"]
-[ext_resource type="Script" path="res://content/domains/customers/components/c_customer_agent.gd" id="Agent"]
-[ext_resource type="Script" path="res://content/domains/motion/components/c_motion.gd" id="Motion"]
-[ext_resource type="Script" path="res://content/domains/challenges/components/c_challenge.gd" id="Challenge"]
-[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_request.tres" id="Request"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_8sage"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_gymjt"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="5_7j5xv"]
+[ext_resource type="Script" uid="uid://nl83f43oqa4h" path="res://content/domains/customers/components/c_customer_agent.gd" id="Agent"]
+[ext_resource type="Script" uid="uid://dhgwcpds3v85h" path="res://content/domains/challenges/components/c_challenge.gd" id="Challenge"]
 [ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_handoff.tres" id="Handoff"]
-
-[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="ImpactTrait"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="ImpactTrait"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="Motion"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_request.tres" id="Request"]
+[ext_resource type="Script" uid="uid://cdbwrqyj5t310" path="res://content/shared/definitions/def_entity_template.gd" id="Template"]
+[ext_resource type="Script" uid="uid://c2bn2586dmbdm" path="res://content/domains/customers/authoring/et_customer_visit.gd" id="Trait"]
 
 [sub_resource type="Resource" id="Visit"]
 script = ExtResource("Trait")
+request_action = ExtResource("Request")
+handoff_action = ExtResource("Handoff")
 trait_id = &"customer_visit"
 required_components = Array[Script]([ExtResource("Motion"), ExtResource("Challenge")])
 required_root_class = &"RigidBody3D"
-request_action = ExtResource("Request")
-handoff_action = ExtResource("Handoff")
 initial_field_names = Dictionary[Script, PackedStringArray]({
 ExtResource("Agent"): PackedStringArray("visit_id")
 })
 
 [resource]
 script = ExtResource("Template")
-traits = [SubResource("Visit"), ExtResource("ImpactTrait")]
+traits = Array[ExtResource("2_8sage")]([SubResource("Visit"), ExtResource("ImpactTrait")])

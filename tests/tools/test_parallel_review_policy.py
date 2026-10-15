@@ -60,7 +60,7 @@ class ParallelReviewPolicyTests(unittest.TestCase):
         self.assertIn("not PASS", skill)
 
     def test_review_queue_remains_in_owning_task(self) -> None:
-        task_policy = read("agent_tasks/README.md")
+        task_policy = read(".agents/tasks/README.md")
         guide = read("docs/parallel_review_workflow.md")
         self.assertIn("same existing task", task_policy)
         self.assertIn("RV-001", guide)

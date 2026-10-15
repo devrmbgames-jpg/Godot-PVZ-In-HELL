@@ -3,12 +3,10 @@
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_44ytp"]
 [ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="4_v5lxf"]
 [ext_resource type="Script" uid="uid://dcq6eusakildd" path="res://content/domains/npc/components/c_district.gd" id="District"]
+[ext_resource type="Resource" uid="uid://b1io7l5w1odxr" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="Loot"]
 [ext_resource type="Script" uid="uid://cdbwrqyj5t310" path="res://content/shared/definitions/def_entity_template.gd" id="Template"]
+[ext_resource type="Resource" uid="uid://b6ivyyl82mbpq" path="res://content/shared/authoring/et_boundary_trace.tres" id="Trace"]
 [ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
-
-[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="Loot"]
-
-[ext_resource type="Resource" path="res://content/shared/authoring/et_boundary_trace.tres" id="Trace"]
 
 [sub_resource type="Resource" id="Roster"]
 script = ExtResource("Trait")

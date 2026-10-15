@@ -49,7 +49,7 @@ class ProjectStructureValidatorTest(unittest.TestCase):
         self.assertTrue(any("addons/pvz_ai_tools_other/" in error for error in errors))
 
     def test_done_tasks_must_be_archived_including_nested_tasks(self) -> None:
-        for path in ("agent_tasks/finished.md", "agent_tasks/refactoring_v2/finished.md"):
+        for path in (".agents/tasks/finished.md", ".agents/tasks/refactoring_v2/finished.md"):
             self._write(path, "Status: **DONE — PASS**\n")
         errors: list[str] = []
         validator._check_task_archive_contract(errors)
@@ -57,14 +57,14 @@ class ProjectStructureValidatorTest(unittest.TestCase):
         self.assertTrue(all("must move" in error for error in errors))
 
     def test_archive_accepts_done_records_but_rejects_unfinished_work(self) -> None:
-        self._write("agent_tasks/completed/refactoring_v2/finished.md", "Status: **DONE**\n")
-        self._write("agent_tasks/completed/README.md", "# Archive\n")
-        self._write("agent_tasks/active.md", "Status: **IN_PROGRESS**\n")
+        self._write(".agents/tasks/completed/refactoring_v2/finished.md", "Status: **DONE**\n")
+        self._write(".agents/tasks/completed/README.md", "# Archive\n")
+        self._write(".agents/tasks/active.md", "Status: **IN_PROGRESS**\n")
         errors: list[str] = []
         validator._check_task_archive_contract(errors)
         self.assertEqual([], errors)
 
-        self._write("agent_tasks/completed/unfinished.md", "Status: **OWNER_QA**\n")
+        self._write(".agents/tasks/completed/unfinished.md", "Status: **OWNER_QA**\n")
         validator._check_task_archive_contract(errors)
         self.assertEqual(1, len(errors))
         self.assertIn("only DONE", errors[0])

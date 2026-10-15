@@ -1,7 +1,7 @@
-[gd_resource type="BehaviorTree" format=3]
+[gd_resource type="BehaviorTree" format=3 uid="uid://cxx8c2sjiy4o0"]
 
-[ext_resource type="Script" uid="uid://b7qw8a0yb17na" path="res://content/domains/npc/ai/tasks/bt_npc_has_conversation.gd" id="has_conversation"]
 [ext_resource type="Script" uid="uid://be5uu13bhrqtv" path="res://content/domains/npc/ai/tasks/bt_npc_conversation.gd" id="conversation"]
+[ext_resource type="Script" uid="uid://b7qw8a0yb17na" path="res://content/domains/npc/ai/tasks/bt_npc_has_conversation.gd" id="has_conversation"]
 
 [sub_resource type="BTCondition" id="Participants"]
 custom_name = "Участники связаны"

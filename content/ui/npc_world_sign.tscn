@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://c1e0dhg4d4esh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ahbg2"]
+albedo_color = Color(0.94, 0.89, 0.72, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_1du47"]
+size = Vector3(1.15, 0.62, 0.035)
+
+[node name="WorldSign" type="Node3D" unique_id=1022963945]
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=1347833478]
+material_override = SubResource("StandardMaterial3D_ahbg2")
+mesh = SubResource("BoxMesh_1du47")
+
+[node name="Text" type="Label3D" parent="." unique_id=1666553924]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.025)
+pixel_size = 0.002
+modulate = Color(0.09019608, 0.09019608, 0.07450981, 1)
+text = "ЗАКАЗ №001
+АРТЕФАКТ. НЕ ВСКРЫВАТЬ."
+outline_size = 0
+autowrap_mode = 3
+width = 540.0

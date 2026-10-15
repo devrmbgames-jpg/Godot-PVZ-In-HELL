@@ -2,7 +2,7 @@
 
 [ext_resource type="BehaviorTree" uid="uid://ins84eoxxqqw" path="res://content/domains/npc/ai/trees/bt_npc_emergency.tres" id="1_7dna0"]
 [ext_resource type="BehaviorTree" uid="uid://dxtsv5gf1nt3g" path="res://content/domains/npc/ai/trees/bt_npc_combat.tres" id="2_vi3ip"]
-[ext_resource type="BehaviorTree" path="res://content/domains/npc/ai/trees/bt_npc_conversation.tres" id="3_2rk8g"]
+[ext_resource type="BehaviorTree" uid="uid://cxx8c2sjiy4o0" path="res://content/domains/npc/ai/trees/bt_npc_conversation.tres" id="3_2rk8g"]
 [ext_resource type="BehaviorTree" uid="uid://2ocpvakccklm" path="res://content/domains/npc/ai/trees/bt_npc_forced_freeze.tres" id="3_536q0"]
 [ext_resource type="BehaviorTree" uid="uid://bmned3gbmt26r" path="res://content/domains/npc/ai/trees/bt_npc_schedule.tres" id="4_a4eqj"]
 [ext_resource type="BehaviorTree" uid="uid://kc4c4akjxpa7" path="res://content/domains/npc/ai/trees/bt_npc_blood.tres" id="4_wlkqs"]

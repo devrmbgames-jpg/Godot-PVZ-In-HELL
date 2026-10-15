@@ -22,7 +22,7 @@ class RefactoringPreflightTest(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
-        self.task_root = self.root / "agent_tasks/refactoring_v2"
+        self.task_root = self.root / ".agents/tasks/refactoring_v2"
         self.task_root.mkdir(parents=True)
         (self.root / "docs").mkdir()
         (self.root / "docs/project_core_architecture_proposal.md").write_text(
@@ -63,7 +63,7 @@ class RefactoringPreflightTest(unittest.TestCase):
         self.assertEqual([], validate(self.root, require_gate=True))
 
     def test_archived_gate_keeps_links_and_dependency_order(self) -> None:
-        archive = self.root / "agent_tasks/completed/refactoring_v2"
+        archive = self.root / ".agents/tasks/completed/refactoring_v2"
         archive.mkdir(parents=True)
         for name in PREFLIGHT:
             (self.task_root / name).rename(archive / name)
@@ -75,7 +75,7 @@ class RefactoringPreflightTest(unittest.TestCase):
         self.assertEqual([], validate(self.root, require_gate=True))
 
     def test_active_and_archived_duplicate_task_is_rejected(self) -> None:
-        archive = self.root / "agent_tasks/completed/refactoring_v2"
+        archive = self.root / ".agents/tasks/completed/refactoring_v2"
         archive.mkdir(parents=True)
         source = self.task_root / PREFLIGHT[0]
         (archive / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
@@ -123,7 +123,7 @@ class RefactoringPreflightTest(unittest.TestCase):
         self.assertTrue(any("does not match" in error for error in errors))
 
     def test_link_outside_repository_is_rejected(self) -> None:
-        self._append(self.task_root / PREFLIGHT[0], "\n[Outside](../../../outside.md)\n")
+        self._append(self.task_root / PREFLIGHT[0], "\n[Outside](../../../../outside.md)\n")
         self.assertTrue(any("escapes repository" in error for error in validate(self.root)))
 
     def test_missing_final_result(self) -> None:
@@ -196,7 +196,7 @@ class RefactoringPreflightTest(unittest.TestCase):
 
     def test_allowed_planning_scope(self) -> None:
         self.assertEqual([], validate_phase0_paths([
-            "agent_tasks/refactoring_v2/README.md", "docs/project_core_architecture_proposal.md",
+            ".agents/tasks/refactoring_v2/README.md", "docs/project_core_architecture_proposal.md",
             "content/ARCHITECTURE.md", ".agents/skills/save-systems/SKILL.md", "AGENTS.md",
             "utils/validate_refactoring_preflight.py", "tests/tools/test_validate_refactoring_preflight.py",
         ]))
@@ -205,7 +205,7 @@ class RefactoringPreflightTest(unittest.TestCase):
         paths = [
             "content/systems/s_ai.gd", "content/scenes/level.tscn", "addons/gecs/ecs/world.gd",
             ".codex/config.toml", "tests/gut/test_ai.gd", "../docs/architecture.md",
-            "agent_tasks/refactoring_v2/../escape.md",
+            ".agents/tasks/refactoring_v2/../escape.md",
         ]
         self.assertEqual(len(paths), len(validate_phase0_paths(paths)))
 

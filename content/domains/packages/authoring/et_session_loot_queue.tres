@@ -1,8 +1,11 @@
-[gd_resource type="Resource" script_class="EntityTrait" format=3]
+[gd_resource type="Resource" script_class="EntityTrait" format=3 uid="uid://b1io7l5w1odxr"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
-[ext_resource type="Script" path="res://content/domains/packages/components/c_loot_drops.gd" id="Queue"]
-[ext_resource type="Script" path="res://content/domains/time/components/c_day_cycle.gd" id="Day"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_dlqon"]
+[ext_resource type="Resource" path="res://content/shared/definitions/def_item_placement_default.tres" id="2_r6037"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="4_wc82o"]
+[ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/domains/time/components/c_day_cycle.gd" id="Day"]
+[ext_resource type="Script" uid="uid://blfdch7q26j3d" path="res://content/domains/packages/components/c_loot_drops.gd" id="Queue"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
 
 [sub_resource type="Resource" id="Queue"]
 script = ExtResource("Queue")
@@ -10,5 +13,5 @@ script = ExtResource("Queue")
 [resource]
 script = ExtResource("Trait")
 trait_id = &"session_loot_queue"
-required_components = [ExtResource("Day")]
-component_recipes = [SubResource("Queue")]
+component_recipes = Array[ExtResource("1_dlqon")]([SubResource("Queue")])
+required_components = Array[Script]([ExtResource("Day")])

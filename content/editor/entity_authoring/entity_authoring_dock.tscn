@@ -1,89 +1,104 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://ixubjuhj6go"]
 
-[ext_resource type="Script" path="res://content/editor/entity_authoring/entity_authoring_dock.gd" id="1_dock"]
+[ext_resource type="Script" uid="uid://nnxb34lshfdh" path="res://content/editor/entity_authoring/entity_authoring_dock.gd" id="1_dock"]
 
-[node name="EntityAuthoring" type="VBoxContainer"]
+[node name="EntityAuthoring" type="VBoxContainer" unique_id=1513673110]
 custom_minimum_size = Vector2(260, 0)
 size_flags_vertical = 3
 script = ExtResource("1_dock")
 
-[node name="Selection" type="Label" parent="."]
+[node name="Selection" type="Label" parent="." unique_id=1736077761]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Select an Entity or level"
 text_overrun_behavior = 3
 
-[node name="InstanceId" type="Label" parent="."]
+[node name="InstanceId" type="Label" parent="." unique_id=1688985159]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Instance ID: unassigned"
 text_overrun_behavior = 3
 
-[node name="LevelId" type="Label" parent="."]
+[node name="LevelId" type="Label" parent="." unique_id=942975111]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Level ID: unassigned"
 text_overrun_behavior = 3
 
-[node name="TemplateId" type="Label" parent="."]
+[node name="TemplateId" type="Label" parent="." unique_id=2041049091]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Template ID: scene intrinsic"
 text_overrun_behavior = 3
 
-[node name="RepairInstance" type="Button" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=635731425]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1447072581]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=1653347326]
+layout_mode = 2
+
+[node name="RepairInstance" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=772175966]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Create / Repair Instance ID"
 
-[node name="RepairLevel" type="Button" parent="."]
+[node name="RepairLevel" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=821106843]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Create / Repair Level ID"
 
-[node name="Configure" type="Button" parent="."]
+[node name="Configure" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1131278011]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Template / Profiles / Named Bindings"
 text_overrun_behavior = 3
 
-[node name="Validate" type="Button" parent="."]
+[node name="Validate" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1595948682]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Validate Scene Composition"
 
-[node name="Advanced" type="CheckButton" parent="."]
+[node name="Advanced" type="CheckButton" parent="." unique_id=719062786]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Advanced diagnostics"
 
-[node name="Details" type="VSplitContainer" parent="."]
+[node name="Details" type="VSplitContainer" parent="." unique_id=1130376625]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ResourceInspector" type="VBoxContainer" parent="Details"]
+[node name="ResourceInspector" type="VBoxContainer" parent="Details" unique_id=1370823534]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 2.0
 
-[node name="Reports" type="VBoxContainer" parent="Details"]
+[node name="Reports" type="VBoxContainer" parent="Details" unique_id=349401020]
 custom_minimum_size = Vector2(0, 90)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Recipes" type="RichTextLabel" parent="Details/Reports"]
+[node name="Recipes" type="RichTextLabel" parent="Details/Reports" unique_id=838462865]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 2
 selection_enabled = true
 
-[node name="Diagnostics" type="RichTextLabel" parent="Details/Reports"]
+[node name="Diagnostics" type="RichTextLabel" parent="Details/Reports" unique_id=606568812]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 2
 selection_enabled = true

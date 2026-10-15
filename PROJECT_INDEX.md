@@ -12,8 +12,8 @@ Optional routing map. Read only when the task does not already identify the owni
 | Tests | `tests/gut/`, `tests/smoke/` |
 | Tooling | `utils/` |
 | Design / mechanics docs | `docs/README.md` |
-| Durable cross-session tasks | `agent_tasks/` |
-| Manual acceptance | `qa_tasks/` |
+| Durable cross-session tasks | `.agents/tasks/` |
+| Manual acceptance | `.qa/tasks/` |
 
 ## Common gameplay routes
 

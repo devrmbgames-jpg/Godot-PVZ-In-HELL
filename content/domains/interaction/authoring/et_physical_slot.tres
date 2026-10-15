@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="EntityTrait" format=3]
+[gd_resource type="Resource" script_class="EntityTrait" format=3 uid="uid://db8kj6kbyvbbo"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
-[ext_resource type="Script" path="res://content/domains/interaction/components/c_physical_slot.gd" id="Slot"]
-[ext_resource type="Script" path="res://content/shared/contracts/entity_initial_binding.gd" id="Binding"]
-[ext_resource type="Script" path="res://content/domains/interaction/relationships/r_slot_mounted_on.gd" id="Mount"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_h5wr4"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="Binding"]
+[ext_resource type="Script" uid="uid://dx8u10h8yls5e" path="res://content/domains/interaction/relationships/r_slot_mounted_on.gd" id="Mount"]
+[ext_resource type="Script" uid="uid://csvp0p0lyp4jw" path="res://content/domains/interaction/components/c_physical_slot.gd" id="Slot"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
 
 [sub_resource type="Resource" id="Mount"]
 script = ExtResource("Mount")
@@ -17,7 +18,7 @@ optional = true
 [resource]
 script = ExtResource("Trait")
 trait_id = &"physical_slot"
+required_components = Array[Script]([ExtResource("Slot")])
 required_root_class = &"Node3D"
-required_components = [ExtResource("Slot")]
-required_nodes = [NodePath("Anchor"), NodePath("Anchor/StoredRemoteTransform")]
-initial_bindings = [SubResource("Binding")]
+required_nodes = Array[NodePath]([NodePath("Anchor"), NodePath("Anchor/StoredRemoteTransform")])
+initial_bindings = Array[ExtResource("Binding")]([SubResource("Binding")])

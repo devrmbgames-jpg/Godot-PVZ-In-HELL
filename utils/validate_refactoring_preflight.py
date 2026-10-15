@@ -75,7 +75,7 @@ def validate_phase0_paths(paths: list[str]) -> list[str]:
         if not parts or ".." in parts or "\\" in path or PurePosixPath(path).is_absolute():
             errors.append(f"invalid Phase 0 path: {path}")
             continue
-        planning_doc = path.startswith("agent_tasks/refactoring_v2/") and path.endswith(".md")
+        planning_doc = path.startswith(".agents/tasks/refactoring_v2/") and path.endswith(".md")
         skill_doc = path.startswith(".agents/skills/") and path.endswith(".md")
         if path not in SCOPE_FILES and not planning_doc and not skill_doc:
             errors.append(f"outside authorized Phase 0 scope: {path}")
@@ -107,13 +107,13 @@ def validate_git_scope(root: Path, commit: str | None = None) -> list[str]:
 def validate(root: Path = ROOT, require_gate: bool = False) -> list[str]:
     """Return planning errors; this does not validate runtime implementation."""
     errors: list[str] = []
-    task_root = root / "agent_tasks/refactoring_v2"
+    task_root = root / ".agents/tasks/refactoring_v2"
     roadmap_path = task_root / "README.md"
     if not roadmap_path.is_file():
         return ["Refactoring v2 README.md is missing"]
 
     roadmap = roadmap_path.read_text(encoding="utf-8")
-    archive_root = root / "agent_tasks/completed/refactoring_v2"
+    archive_root = root / ".agents/tasks/completed/refactoring_v2"
     document_paths: dict[str, Path] = {}
     for directory in (task_root, archive_root):
         for path in sorted(directory.glob("*.md")):

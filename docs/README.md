@@ -14,9 +14,9 @@
 
 Для исполнения работы:
 - Plan/Goal живут в текущей Codex/VS Code session;
-- `agent_tasks/` используется только для durable cross-session implementation state;
-- выполненные task-файлы переносятся в `agent_tasks/completed/` с сохранением структуры папок;
-- `qa_tasks/` хранит ручные сценарии приёмки;
+- `.agents/tasks/` используется только для durable cross-session implementation state;
+- выполненные task-файлы переносятся в `.agents/tasks/completed/` с сохранением структуры папок;
+- `.qa/tasks/` хранит ручные сценарии приёмки;
 - завершённая implementation history берётся из Git, а не дублируется отдельным журналом.
 
 Основные механические контракты:

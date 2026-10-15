@@ -1,7 +1,9 @@
-[gd_resource type="Resource" script_class="EntityTrait" format=3]
+[gd_resource type="Resource" script_class="EntityTrait" format=3 uid="uid://cxi2q17pyr72l"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
-[ext_resource type="Script" path="res://content/domains/combat/components/c_impact_inbox.gd" id="Inbox"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_lg5gf"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="3_owi80"]
+[ext_resource type="Script" uid="uid://80sjj3pw5u0" path="res://content/domains/combat/components/c_impact_inbox.gd" id="Inbox"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
 
 [sub_resource type="Resource" id="Inbox"]
 script = ExtResource("Inbox")
@@ -9,5 +11,5 @@ script = ExtResource("Inbox")
 [resource]
 script = ExtResource("Trait")
 trait_id = &"physical_impact"
+component_recipes = Array[ExtResource("1_lg5gf")]([SubResource("Inbox")])
 required_root_class = &"PhysicsBody3D"
-component_recipes = [SubResource("Inbox")]

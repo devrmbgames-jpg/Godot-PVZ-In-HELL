@@ -123,6 +123,10 @@ func speaker_name() -> String:
 	var person: NpcRecord = NpcPopulationQueries.person_for(_person_id)
 	return person.display_name if person != null else ""
 
+## Возвращает отображаемое постоянное имя личности.
+func sn() -> String :
+	return speaker_name()
+
 
 ## Интересы принадлежат личности независимо от обслуживания посылок.
 func interests_text() -> String:

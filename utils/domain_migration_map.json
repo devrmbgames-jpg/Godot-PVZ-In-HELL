@@ -14009,7 +14009,7 @@
     "utils/**/*.json",
     "docs/**/*.md",
     "content/**/*.md",
-    "agent_tasks/completed/refactoring_v2/service_inventory_result.md",
+    ".agents/tasks/completed/refactoring_v2/service_inventory_result.md",
     "PROJECT_INDEX.md"
   ],
   "contracts": {

@@ -1,6 +1,6 @@
 # Persistence / Night contract
 
-Durable implementation source: Git history; remaining manual acceptance is tracked under `qa_tasks/`.
+Durable implementation source: Git history; remaining manual acceptance is tracked under `.qa/tasks/`.
 
 Refactoring v2 Phase 0 policy (owner decision 2026-10-07): old save-file migration/backward compatibility is not required. The following bullets describe the current runtime; task 25 advances schema 3 → 4 for explicit placed identity and safe prepared-Morning reconstruction. Future incompatible format/path/identity changes bump schema and reject old saves; current-format roundtrip, stable IDs, links and safe failure remain mandatory. Tooling does not delete or overwrite user saves automatically.
 
@@ -17,7 +17,7 @@ Refactoring v2 Phase 0 policy (owner decision 2026-10-07): old save-file migrati
 
 - Morning physical refusal return requires a prior actual refusal, an active registered identity/number and the held parcel at the reachable F return point. Successful commit releases the number and removes the parcel. Actual/declaration, penalties, settlement IDs and complaints remain unchanged.
 
-Checks include the existing save/world snapshot regression, district absent-body/item roundtrip, duplicate-person rejection, actual failed Night write followed by retry, and a connected seven-day district save/reload smoke. Night retry preserves replacement identity and promise memory. Owner rendered/gamepad/layout/full-day/balance acceptance remains under `qa_tasks/`.
+Checks include the existing save/world snapshot regression, district absent-body/item roundtrip, duplicate-person rejection, actual failed Night write followed by retry, and a connected seven-day district save/reload smoke. Night retry preserves replacement identity and promise memory. Owner rendered/gamepad/layout/full-day/balance acceptance remains under `.qa/tasks/`.
 
 ## Refactoring v2 identity contract
 

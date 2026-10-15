@@ -1,20 +1,14 @@
-[gd_resource type="Resource" format=3]
+[gd_resource type="Resource" script_class="DEF_SmartObject" format=3 uid="uid://dgjvt2m5luylg"]
 
-[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_smart_object.gd" id="Definition"]
-[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_smart_slot.gd" id="Slot"]
-[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_smart_affordance.gd" id="Affordance"]
-[ext_resource type="Script" path="res://content/domains/packages/definitions/def_package_return_action.gd" id="Executor"]
-[ext_resource type="Script" path="res://content/domains/interaction/components/c_grab_control.gd" id="GrabControl"]
-
-[sub_resource type="Resource" id="Slot"]
-script = ExtResource("Slot")
-slot_id = &"return"
-marker = NodePath("ReturnMarker")
+[ext_resource type="Script" uid="uid://co746t2xo50i7" path="res://content/domains/interaction/definitions/def_smart_affordance.gd" id="Affordance"]
+[ext_resource type="Script" uid="uid://dlvu2hntoiyt2" path="res://content/domains/interaction/definitions/def_smart_object.gd" id="Definition"]
+[ext_resource type="Script" uid="uid://de24stawd07mg" path="res://content/domains/packages/definitions/def_package_return_action.gd" id="Executor"]
+[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/domains/interaction/components/c_grab_control.gd" id="GrabControl"]
+[ext_resource type="Script" uid="uid://c62hkkcrfp124" path="res://content/domains/interaction/definitions/def_smart_slot.gd" id="Slot"]
 
 [sub_resource type="Resource" id="Executor"]
 script = ExtResource("Executor")
 action_id = &"return_refused_package"
-slot = 1
 caption = "Вернуть отказную посылку"
 allow_interact_fallback = false
 
@@ -25,8 +19,13 @@ slot_id = &"return"
 executor = SubResource("Executor")
 required_actor_components = Array[Script]([ExtResource("GrabControl")])
 
+[sub_resource type="Resource" id="Slot"]
+script = ExtResource("Slot")
+slot_id = &"return"
+marker = NodePath("ReturnMarker")
+
 [resource]
 script = ExtResource("Definition")
-key = &"package_return"
 slots = Array[ExtResource("Slot")]([SubResource("Slot")])
 affordances = Array[ExtResource("Affordance")]([SubResource("Affordance")])
+key = &"package_return"

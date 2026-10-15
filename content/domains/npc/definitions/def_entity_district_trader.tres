@@ -6,18 +6,17 @@
 [ext_resource type="Script" uid="uid://ci5p5fttb3jl1" path="res://content/shared/components/c_persistent_identity.gd" id="6_8pob2"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="7_x5jro"]
 [ext_resource type="Script" uid="uid://cvgkpkfqjch0p" path="res://content/domains/combat/components/c_npc_combat.gd" id="9_kilkc"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="11_x5jro"]
 [ext_resource type="Script" uid="uid://bx06h57gdvgkb" path="res://content/domains/npc/authoring/et_npc_brain_state.gd" id="Brain"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_handoff.tres" id="Customer_handoff"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_request.tres" id="Customer_request"]
 [ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/domains/needs/definitions/def_hunger_default.tres" id="Hunger_policy"]
 [ext_resource type="Script" uid="uid://bh1l24fdkshu6" path="res://content/domains/npc/authoring/et_npc_identity.gd" id="Identity"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="ImpactTrait"]
 [ext_resource type="Script" uid="uid://bpcjvv4f88op7" path="res://content/domains/npc/authoring/et_npc_roles.gd" id="Roles"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_action_npc_street.tres" id="Street_action"]
 [ext_resource type="Script" uid="uid://cdbwrqyj5t310" path="res://content/shared/definitions/def_entity_template.gd" id="Template"]
 [ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
-
-[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_request.tres" id="Customer_request"]
-[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_handoff.tres" id="Customer_handoff"]
-
-[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="ImpactTrait"]
 
 [sub_resource type="Resource" id="Identity"]
 script = ExtResource("Identity")
@@ -41,7 +40,7 @@ action_set_provider = 1
 trader_provider = 1
 hunger_policy = ExtResource("Hunger_policy")
 street_action = ExtResource("Street_action")
-additional_actions = [ExtResource("Customer_request"), ExtResource("Customer_handoff")]
+additional_actions = Array[ExtResource("11_x5jro")]([ExtResource("Customer_request"), ExtResource("Customer_handoff")])
 trait_id = &"npc_roles"
 required_components = Array[Script]([ExtResource("5_s5cpd")])
 required_root_class = &"RigidBody3D"

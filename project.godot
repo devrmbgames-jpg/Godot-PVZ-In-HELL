@@ -26,14 +26,14 @@ buses/default_bus_layout="uid://yl83ywtlw332"
 
 [autoload]
 
-Audio="*uid://cujwm7u5pvogl"
-InputHelper="*uid://cholww48njaeh"
 DialogueManager="*uid://c3rodes2l3gxb"
 Console="*uid://ouiu5xh1cs8n"
-ECS="*uid://dfqwl5njvdnmq"
 DebugD3D="*res://addons/debug_draw/debug_draw_3d.tscn"
 _pvz_ai_runtime_bridge="*res://addons/pvz_ai_tools/runtime_bridge.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+ECS="*uid://dfqwl5njvdnmq"
+InputHelper="*uid://cholww48njaeh"
+Audio="*uid://cujwm7u5pvogl"
 
 [display]
 
@@ -53,14 +53,13 @@ export/convert_text_resources_to_binary=false
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/GDQuest_GDScript_formatter/plugin.cfg", "res://addons/StaticMeshMerger/plugin.cfg", "res://addons/asset_placer/plugin.cfg", "res://addons/at-icons/plugin.cfg", "res://addons/console/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/gecs/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/pvz_ai_tools/plugin.cfg", "res://addons/quick_audio/plugin.cfg", "res://addons/project_entity_traits/plugin.cfg")
+enabled=PackedStringArray("res://addons/GDQuest_GDScript_formatter/plugin.cfg", "res://addons/at-icons/plugin.cfg", "res://addons/console/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/footstepper/plugin.cfg", "res://addons/gecs/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/project_entity_traits/plugin.cfg", "res://addons/pvz_ai_tools/plugin.cfg", "res://addons/quick_audio/plugin.cfg")
 
 [file_customization]
 
 folder_colors={
 "res://addons/": "blue",
 "res://content/": "orange",
-"res://materials/": "purple",
 "res://resources/": "yellow",
 "res://tests/": "gray",
 "res://utils/": "pink"
@@ -298,7 +297,7 @@ look_down={
 [internationalization]
 
 locale/translation_remaps={}
-locale/translations_pot_files=PackedStringArray("res://content/domains/customers/dialogue/customer_prototype.dialogue", "res://content/domains/customers/dialogue/customer_service.dialogue", "res://content/domains/npc/dialogue/npc_street.dialogue")
+locale/translations_pot_files=PackedStringArray("res://content/domains/customers/dialogue/customer_prototype.dialogue", "res://content/domains/customers/dialogue/customer_service.dialogue", "res://content/domains/npc/dialogue/npc_street.dialogue", "res://content/domains/npc/dialogue/archetypes/lost/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/lost/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/shy/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/shy/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/night_hunter/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/night_hunter/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/hag/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/hag/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/brute/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/brute/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/fire_elemental/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/fire_elemental/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/chain_devil/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/chain_devil/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/creepy/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/creepy/variant_b.dialogue", "res://content/domains/npc/dialogue/archetypes/vampire/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/vampire/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/customers/dialogue/customer_prototype.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/customers/dialogue/customer_service.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/brute/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/brute/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/chain_devil/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/chain_devil/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/creepy/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/creepy/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/fire_elemental/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/fire_elemental/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/hag/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/hag/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/lost/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/lost/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/night_hunter/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/night_hunter/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/shy/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/shy/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/vampire/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/vampire/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/weeping_angel/variant_a.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/archetypes/weeping_angel/variant_b.dialogue", "res://.artifacts/cloud_baseline_588b59c1/content/domains/npc/dialogue/npc_street.dialogue")
 
 [layer_names]
 

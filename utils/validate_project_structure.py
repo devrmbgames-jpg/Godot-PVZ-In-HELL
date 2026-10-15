@@ -318,7 +318,7 @@ def _iter_markdown_files() -> list[Path]:
         ROOT / "content" / "ARCHITECTURE.md",
     ]
 
-    for root_name in ("agent_tasks", "qa_tasks", "docs"):
+    for root_name in (".agents/tasks", ".qa/tasks", "docs"):
         root_path: Path = ROOT / root_name
         if root_path.exists():
             files.extend(sorted(root_path.rglob("*.md")))
@@ -362,7 +362,7 @@ def _check_markdown_links(errors: list[str]) -> None:
 
 
 def _check_task_state_contract(errors: list[str]) -> None:
-    task_root: Path = ROOT / "agent_tasks"
+    task_root: Path = ROOT / ".agents/tasks"
     if not task_root.exists():
         return
 
@@ -388,7 +388,7 @@ def _check_task_state_contract(errors: list[str]) -> None:
 
 def _check_task_archive_contract(errors: list[str]) -> None:
     """Keep completed records in the archive and unfinished work in active directories."""
-    task_root: Path = ROOT / "agent_tasks"
+    task_root: Path = ROOT / ".agents/tasks"
     archive_root: Path = task_root / "completed"
     for task_path in sorted(task_root.rglob("*.md")):
         if task_path.name == "README.md":
@@ -398,13 +398,13 @@ def _check_task_archive_contract(errors: list[str]) -> None:
         ) is not None
         archived: bool = task_path.is_relative_to(archive_root)
         if completed and not archived:
-            errors.append(f"{_relative(task_path)}: DONE task must move to agent_tasks/completed/.")
+            errors.append(f"{_relative(task_path)}: DONE task must move to .agents/tasks/completed/.")
         elif archived and not completed:
             errors.append(f"{_relative(task_path)}: archive may contain only DONE task records.")
 
 
 def _check_task_dependencies(errors: list[str]) -> None:
-    task_root: Path = ROOT / "agent_tasks"
+    task_root: Path = ROOT / ".agents/tasks"
     task_files: list[Path] = sorted(task_root.glob("roadmap_*.md"))
     known_ids: set[str] = set()
     task_ids: dict[str, Path] = {}

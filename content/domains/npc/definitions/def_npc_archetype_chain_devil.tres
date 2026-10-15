@@ -28,48 +28,23 @@ name_variants = PackedStringArray("Азгар", "Мальх")
 dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/chain_devil/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/chain_devil/variant_b.dialogue")
 optional_traits = Array[ExtResource("3_dbphk")]([SubResource("Resource_w54bj")])
 maximum_optional_traits = 1
-move_speed_variation = Vector2(0.9, 1.1)
-aggression_variation = Vector2(0.9, 1.1)
-aggressive_speed_multiplier = 1.0
 item_category_weights = Dictionary[int, float]({
 1: 4.0,
 2: 1.0,
 4: 4.0
 })
-combat_preference = 0
 receiver_traits = 11
 damage_multipliers = Dictionary[int, float]({
 7: 0.0
 })
 presentation_cues = PackedStringArray()
-melee_attacks = Array[ExtResource("1_7yrj5")]([ExtResource("2_cjcgr")])
-ranged_attacks = Array[ExtResource("1_7yrj5")]([])
 display_name = "Цепной дьявол"
 resident = false
-merchant = false
 recipient_key = &"visitor_1"
 personality = 1
 schedule = SubResource("Resource_axyi5")
 rules = Array[ExtResource("5_77mij")]([ExtResource("6_q3msj"), ExtResource("7_cjcgr")])
-npc_scene_path = "res://content/domains/npc/entities/district_npc.tscn"
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
-retreat_speed = 1.5
-retreat_seconds = 0.8
-high_attack_probability = 0.75
-low_flee_probability = 0.1
-joke_acceptance_probability = 0.9
-timid_flee_probability = 0.8
-timid_attack_probability = 0.05
-move_speed = 1.8
-near_recognition_range = 1.5
-hearing_range = 20.0
-vision_range = 16.0
-vision_angle = 110.0
-dark_vision_fraction = 0.15
-search_seconds = 12.0
-search_point_count = 3
-pursuit_health_reserve = 0.35
-initiates_conflicts = false
 body_color = Color(0.4745098, 0.27058825, 0.30588236, 1)
 key = &"archetype/chain_devil"

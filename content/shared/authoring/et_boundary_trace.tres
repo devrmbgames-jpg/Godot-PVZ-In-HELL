@@ -1,7 +1,9 @@
-[gd_resource type="Resource" script_class="EntityTrait" format=3]
+[gd_resource type="Resource" script_class="EntityTrait" format=3 uid="uid://b6ivyyl82mbpq"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
-[ext_resource type="Script" path="res://content/shared/components/c_boundary_trace.gd" id="Trace"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_e0wql"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="3_qdb1w"]
+[ext_resource type="Script" uid="uid://cl18v7ifo1i00" path="res://content/shared/components/c_boundary_trace.gd" id="Trace"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
 
 [sub_resource type="Resource" id="Trace"]
 script = ExtResource("Trace")
@@ -9,4 +11,4 @@ script = ExtResource("Trace")
 [resource]
 script = ExtResource("Trait")
 trait_id = &"boundary_trace"
-component_recipes = [SubResource("Trace")]
+component_recipes = Array[ExtResource("1_e0wql")]([SubResource("Trace")])

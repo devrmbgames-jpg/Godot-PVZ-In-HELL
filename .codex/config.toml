@@ -1,7 +1,7 @@
 model = "gpt-6.1-sol"
 
 # Main implementation default.
-model_reasoning_effort = "high"
+#model_reasoning_effort = "medium"
 
 # Architecture/planning tasks may use more reasoning.
 plan_mode_reasoning_effort = "xhigh"
@@ -13,10 +13,10 @@ file_opener = "vscode"
 web_search = "live"
 
 # Keep project instructions bounded.
-project_doc_max_bytes = 16384
+project_doc_max_bytes = 32768
 
 # Prevent noisy Godot/tool output from consuming context.
-tool_output_token_limit = 8096
+tool_output_token_limit = 10000
 
 
 # ---------------------------------------------------------------------------

@@ -36,7 +36,7 @@ Follow existing GECS and GDScript style contracts. Main is the sole writer.
 - Main checks each candidate against original snapshot and **current** HEAD;
   deduplicates by `path + symbol + violated contract`, then accepts or
   rejects based on evidence. Assign canonical RV-001.. within an existing
-  durable `agent_tasks/<owner>.md`, **not** a global queue. For one-session
+  durable `.agents/tasks/<owner>.md`, **not** a global queue. For one-session
   tasks keep the decisions in the conversation.
 - Allowed final statuses: `FIXED(fix SHA, test)`, `REJECTED(evidence)`,
   `OBSOLETE(current SHA)`, `DEFERRED(owner/task/reason)`.

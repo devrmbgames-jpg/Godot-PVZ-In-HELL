@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="6_tj5uk"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="7_tj5uk"]
 [ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="7_u3d1l"]
+[ext_resource type="Script" uid="uid://d0k5q8orb4sl" path="res://content/shared/contracts/definition.gd" id="9_pjv2g"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/domains/interaction/components/c_grabbable.gd" id="Grab_config"]
 [ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="Grab_entity"]
@@ -42,6 +43,7 @@ mass = 5.0
 continuous_cd = true
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_config"), SubResource("Resource_ad8bv"), SubResource("Resource_tj5uk")])
 traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
+ancestor_entity_bindings = PackedStringArray()
 metadata/asset_placer_res_id = "uid://fyo1rkaatagb"
 
 [node name="Box_C" type="MeshInstance3D" parent="." unique_id=165842214]

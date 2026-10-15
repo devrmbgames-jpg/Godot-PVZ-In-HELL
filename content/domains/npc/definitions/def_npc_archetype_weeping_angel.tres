@@ -11,8 +11,6 @@
 [sub_resource type="Resource" id="Resource_qlvtk"]
 script = ExtResource("5_wlbgi")
 weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
-morning = 0
-day = 2
 evening = 1
 key = &"schedule/weeping_angel"
 
@@ -20,15 +18,11 @@ key = &"schedule/weeping_angel"
 script = ExtResource("6_3v5iu")
 name_variants = PackedStringArray("Сераф", "Азариэль")
 dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/weeping_angel/variant_b.dialogue")
-optional_traits = Array[ExtResource("3_x2v3c")]([])
 maximum_optional_traits = 0
-move_speed_variation = Vector2(0.9, 1.1)
-aggression_variation = Vector2(0.9, 1.1)
 aggressive_speed_multiplier = 4.0
 item_category_weights = Dictionary[int, float]({
 4: 10.0
 })
-combat_preference = 0
 receiver_traits = 1
 damage_multipliers = Dictionary[int, float]({
 0: 0.0,
@@ -44,34 +38,11 @@ damage_multipliers = Dictionary[int, float]({
 10: 0.0
 })
 presentation_cues = PackedStringArray("npc/angel/sign_dialogue")
-melee_attacks = Array[ExtResource("1_qlvtk")]([ExtResource("2_vqbp8")])
-ranged_attacks = Array[ExtResource("1_qlvtk")]([])
 display_name = "Плачущий ангел"
-resident = true
-merchant = false
 recipient_key = &"customer_07"
-personality = 2
 schedule = SubResource("Resource_qlvtk")
 rules = Array[ExtResource("4_nmcd6")]([ExtResource("5_vqbp8")])
-npc_scene_path = "res://content/domains/npc/entities/district_npc.tscn"
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
-retreat_speed = 1.5
-retreat_seconds = 0.8
-high_attack_probability = 0.75
-low_flee_probability = 0.1
-joke_acceptance_probability = 0.9
-timid_flee_probability = 0.8
-timid_attack_probability = 0.05
-move_speed = 1.8
-near_recognition_range = 1.5
-hearing_range = 20.0
-vision_range = 16.0
-vision_angle = 110.0
-dark_vision_fraction = 0.15
-search_seconds = 12.0
-search_point_count = 3
-pursuit_health_reserve = 0.35
-initiates_conflicts = false
 body_color = Color(0.7882353, 0.78039217, 0.7411765, 1)
 key = &"archetype/weeping_angel"

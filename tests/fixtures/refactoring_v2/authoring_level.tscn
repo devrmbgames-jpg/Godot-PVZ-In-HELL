@@ -1,25 +1,28 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d02m0fmi1xq67"]
 
+[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/domains/interaction/entities/box.tscn" id="Box"]
 [ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Npc"]
 [ext_resource type="PackedScene" path="res://content/domains/commerce/entities/trader.tscn" id="Trader"]
-[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/box.tscn" id="Box"]
 
-[node name="AuthoringLevel" type="Node3D"]
-metadata/persistent_world_id = &"authoring_fixture"
+[node name="AuthoringLevel" type="Node3D" unique_id=1684635984]
+metadata/persistent_world_id = &"actor_54bfa01b0d9eaacb814f51b6aca95dc7"
 
-[node name="Resident" parent="." instance=ExtResource("Npc")]
-position = Vector3(-3, 0, 0)
-metadata/persistent_local_id = &"resident"
+[node name="Resident" parent="." unique_id=1060294909 instance=ExtResource("Npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 0)
+metadata/persistent_local_id = &"actor_a44e5f59e7a04c7ce8ee1e1821d90a0b"
 
-[node name="InspectionParcelSlot" parent="Resident"]
+[node name="InspectionParcelSlot" parent="Resident" index="8" unique_id=968083495]
 metadata/persistent_local_id = &"resident_inspection_slot"
 
-[node name="Trader" parent="." instance=ExtResource("Trader")]
-position = Vector3(3, 0, 0)
-metadata/persistent_local_id = &"trader"
+[node name="Trader" parent="." unique_id=769910862 instance=ExtResource("Trader")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)
+idle_animation = &"Idle"
+walk_animation = &"Walk"
+metadata/persistent_local_id = &"actor_150edeb49b96de6c553f8d7233d53157"
 
-[node name="Box" parent="." instance=ExtResource("Box")]
-position = Vector3(0, 0, 2)
-metadata/persistent_local_id = &"box"
+[node name="Box" parent="." unique_id=694300464 instance=ExtResource("Box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+metadata/persistent_local_id = &"actor_0f3910b58b4c1d2c292e303d9e27f6c9"
 
 [editable path="Resident"]
+[editable path="Resident/Body"]

@@ -6,7 +6,7 @@ This directory stores **design specifications**. It does not track live implemen
 - `Rxx` / `Rxx.x` = implementation identifier;
 - numbers are not required to match.
 
-Live execution belongs to the current Codex Plan/Goal. If durable cross-session implementation state is needed, the exact file under `agent_tasks/` owns it. Completed implementation history belongs to Git. Do not add PLANNED/IN_PROGRESS/DONE columns here.
+Live execution belongs to the current Codex Plan/Goal. If durable cross-session implementation state is needed, the exact file under `.agents/tasks/` owns it. Completed implementation history belongs to Git. Do not add PLANNED/IN_PROGRESS/DONE columns here.
 
 ## Design → implementation mapping
 
@@ -41,4 +41,4 @@ Live execution belongs to the current Codex Plan/Goal. If durable cross-session 
 
 Design specs can feed several implementation tasks. They remain durable requirements even after implementation files are removed.
 
-When an exact `agent_tasks/*.md` file exists, it may point back to these requirements, but it must not copy them into a second roadmap status table. If an old prose reference conflicts with current code/contracts, inspect the current owner rather than inferring status from this roadmap.
+When an exact `.agents/tasks/*.md` file exists, it may point back to these requirements, but it must not copy them into a second roadmap status table. If an old prose reference conflicts with current code/contracts, inspect the current owner rather than inferring status from this roadmap.
