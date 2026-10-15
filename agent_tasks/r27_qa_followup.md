@@ -39,9 +39,12 @@ Review PASS from base `136cfa18cbc5d6e9e0f20d5c8e58347ecdd2bf31`; no material fi
 Reviewer architecture/style PASS, validation NOT_RUN;400s, UTC08:51:49?08:58:29.
 MCP includes bounded native path diagnostics for new project-owned scripts.
 Physical passing/spacing now passes native physics, social/freeze and production-week gates.
-REVIEW_PENDING: base `2636f85dd143841f8586827ba3ee996056b9456a`,
-target `7e67e938e154c071203c5efcd27c8b539c66aa4b`: RV-001 accepted emergency-priority bug.
-Native focused repair passes; fix checkpoint/targeted re-review pending. Ten rooms IN_PROGRESS.
+R27.2 independent review: RV-001 fixed at `5c1028cf43b39f40f19aec47aa1442686a87944e`;
+related RV-002 social-spacing override fixed and re-reviewed architecture/style PASS at
+`ead2a026cb512f9a5e2a6445c10f6ca647ae6cfe`. Native UID repair separately reviewed at
+`82c5c617d793b6985b15256a8915332f50b14b4d`. Focused traffic14/137, intent6/22,
+social9/63 and parser2/0 failures PASS; details/known general-structure FAIL remain in R27.2.
+Owner QA remains OPEN. Ten rooms IN_PROGRESS; not part of this review.
 Main is sole writer; reuse existing read-only reviewer on immutable checkpoints.
 Independent [home-night fixture mismatch](completed/r27_home_night_fixture_identity.md)
 is repaired, tested, reviewed and archived; original FAIL evidence remains in its task.
