@@ -27,9 +27,9 @@ class Binding extends RefCounted:
 	var source: String = ""
 
 
-## Scene instance captured by the compiler; only that instance may consume this transient plan.
+## Compiler-captured borrowed instance; only it may consume this plan before a lifetime boundary.
 var built_actor: Entity = null
-## Explicit World captured during compilation; null remains valid for pure preview only.
+## Borrowed explicit World captured during compilation; null remains valid for pure preview only.
 var built_world: World = null
 ## Captured instance ID; changing identity requires a fresh compilation/preflight.
 var built_actor_id: String = ""
@@ -47,6 +47,7 @@ var issues: Array[Issue] = []
 
 #region Build outcome
 ## Reports whether every known provider/requirement/binding validation passed.
+## Not a registration receipt; the boundary must still validate the captured context before commit.
 func valid() -> bool:
 	return issues.is_empty()
 #endregion

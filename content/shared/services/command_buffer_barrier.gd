@@ -6,6 +6,8 @@ class_name CommandBufferBarrier
 #region Explicit quiescence barrier
 ## Drains structural/outcome commands without running a scheduled tick.
 ## A non-settling reaction chain rejects capture instead of saving partial state.
+## true requires an observed pass with no pending commands, within 32 passes including that check.
+## false does not roll back commands already executed; it certifies no quiescent boundary.
 static func drain_pending(world: World) -> bool:
 	const MAX_DRAIN_PASSES: int = 32
 	for _pass_index: int in MAX_DRAIN_PASSES:

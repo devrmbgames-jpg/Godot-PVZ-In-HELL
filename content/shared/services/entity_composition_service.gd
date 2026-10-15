@@ -8,6 +8,8 @@ const _READY_META: StringName = &"_entity_composition_ready"
 
 #region Read-only authoring and context
 ## Captures explicit World/identity inputs without assigning Entity.id or binding ECS.world.
+## Copies input containers; immutable Definitions and live binding endpoints remain borrowed.
+## Consume the context in the same synchronous construction transaction, before endpoint expiry.
 static func context_for(
 	actor: Entity,
 	world: World,
@@ -56,6 +58,7 @@ static func begin_reconstruction(actor: Entity) -> void:
 
 
 ## Publishes readiness after native data, durable overlays and initial endpoint fixup are complete.
+## Sets only Entity readiness; queued reactions and global startup readiness remain caller-owned.
 static func publish_ready(actor: Entity) -> void:
 	assert(actor.ecs_id > 0, "Only a natively registered Entity publishes composition readiness")
 	actor.set_meta(_READY_META, true)
@@ -129,6 +132,9 @@ static func registration_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 
 ## Commits a plan within its synchronous transaction, after the owner's accepted preflight.
 ## No World mutation or lifetime boundary may intervene between preflight and this operation.
+## true means native registration, initial bindings and Entity readiness already committed.
+## Initial Observer callbacks have dispatched; their queued commands still need the owner's flush.
+## Rejecting before registration leaves lifetime/disposal of the instance with the caller.
 static func register_plan(
 	context: EntitySpawnContext,
 	plan: EntityBuildPlan,

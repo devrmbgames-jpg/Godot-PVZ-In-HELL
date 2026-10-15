@@ -6,11 +6,14 @@ const DEFAULT_PATH: String = "user://autosave.pvzh"
 const MAGIC: String = "PVZH1"
 ## Версия закрытой схемы; прежний формат отклоняется без миграции и удаления.
 const SCHEMA_VERSION: int = 19
-## Максимальный размер сериализованной нагрузки в байтах.
+## Writer limits payload bytes; read limits the whole file, including header overhead.
+## The 64 MiB edge mismatch is documented in docs/persistence.md; this is not a unified file limit.
 const MAX_BYTES: int = 64 * 1024 * 1024
 
 
 ## Записывает payload и SHA-256 во временный файл, затем заменяет слот; возвращает Error.
+## Synchronous storage only: caller owns schema/semantic preflight. OK includes rename completion.
+## Uses path + .tmp, flush/close; no readback, backup or guaranteed power-loss recovery.
 static func write(snapshot: Dictionary, path: String = DEFAULT_PATH) -> Error:
 	if path.is_empty():
 		return ERR_INVALID_PARAMETER
@@ -40,6 +43,8 @@ static func write(snapshot: Dictionary, path: String = DEFAULT_PATH) -> Error:
 
 
 ## Проверяет заголовок, размер и хеш; пустой словарь означает отсутствие/повреждение файла.
+## Decodes without enabling Objects; a Dictionary root still needs version/semantic can_restore.
+## Caller checks file_exists to distinguish a missing slot from a rejected existing one.
 static func read(path: String = DEFAULT_PATH) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return { }

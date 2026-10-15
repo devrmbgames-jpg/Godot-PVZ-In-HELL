@@ -72,6 +72,9 @@ func add_observer(observer: Observer) -> void:
 
 
 ## Publishes readiness after all state, links and derived bindings have been reconstructed.
+## Called once by level composition; restores Observer activity, explicitly reconciles district,
+## Customers/wallet and drains pending commands without ticking Systems. A failed drain records an
+## initialization issue; the level must check composition_ready after this void operation.
 func finish_startup() -> void:
 	assert(_starting and not initialization_failed(), "Only accepted startup publishes readiness")
 	for actor: Entity in entities:

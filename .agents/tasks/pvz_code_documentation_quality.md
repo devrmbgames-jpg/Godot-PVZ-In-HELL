@@ -44,7 +44,7 @@ Scope — все действующие first-party production/tool `.gd`, оп�
 
 ## Acceptance
 
-- [ ] Все действующие first-party scripts в scope учтены; omissions и исключения имеют конкретное обоснование, а не общий legacy allowlist.
+- [x] Все действующие first-party scripts в scope учтены; exclusions определены tracked inventory и явным ownership, не общим legacy allowlist.
 - [ ] У каждого скрипта есть полезное описание; exports/signals/public mutable fields задокументированы без пустых шаблонов и пересказа имени.
 - [ ] У каждого нетривиального публичного boundary понятны owner, preconditions, mutation, return/rejection и момент завершения; async/reentrant boundaries не маскируются под синхронные.
 - [ ] Derived cache, authoritative state, immutable authoring и terminal history различаются; units, time domain и lifetime constraints указаны там, где они влияют на корректность использования.
@@ -100,22 +100,24 @@ Inventory record review: **PASS**, base `77328491ce8d3ebc183888165f135925f83c2f7
 
 M1, проверенный первый code batch: C_DayCycle, DayTransitionRequest, DayPhaseService, S_DayPhase, GameTimeRules, C_CustomerFlow, CustomerFlowService и WalletService. Accepted запрос / committed факт, gameplay seconds/ticks, writers/кеш, WeakRef receipt lifetime и sync wallet commit уточнены. Base `8d38ada79fe25d4cc03290ca99996788bb3d93b5` → target `e81cf30fb763435a16c33ea88f695b5b4ea7e767`, read-only review **PASS**, material findings нет, triage завершён. Parser log `parsechanged-20261015-172123537`, nonbehavior 8/0, formatter/MCP/static PASS.
 
-Текущий второй batch: DamageRequest, DamageResult, DamageRequestService, HealthMutationService, C_Inventory, C_InventoryItem, R_OwnedBy, InventoryService. Уточнены dispatch/completion, HP/range constraints, snapshot attribution, transient use correlation, synchronous transfer/drop guards и delayed healing consumption. Обработаны 16 уникальных scripts в двух code batches; полный M1/M2/M3 и quality pass остальных файлов не завершены.
+Проверенный второй batch: DamageRequest, DamageResult, DamageRequestService, HealthMutationService, C_Inventory, C_InventoryItem, R_OwnedBy, InventoryService. Уточнены dispatch/completion, HP/range constraints, transient use correlation, transfer/drop guards и delayed healing. Base `71dd93cb6c4fffe3fd6f15b30580212bdf2b3427` → target `5d4d81edc05e4affff71e2f1adb092dcd0421229`, read-only review **PASS**, material findings нет, triage завершён. Parser log `parsechanged-20261015-173513516`, nonbehavior 8/0, formatter/MCP/static PASS.
 
-Current batch base: `71dd93cb6c4fffe3fd6f15b30580212bdf2b3427` → target `5d4d81edc05e4affff71e2f1adb092dcd0421229`. Read-only immutable review **PASS**, material findings нет; main triage завершён, fixes не требуются. ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN (проверки выполнял main). Public symbols/defaults/exports/SAVE_FIELDS не меняются.
+Текущий третий batch: EntityCompositionService, ObserverReactionBoundary, CommandBufferBarrier, EntityBuildPlan, GameWorld, GrabPhysicsSolver, C_Autosave, AutosaveStore, SnapshotRestoreBoundary, WorldSnapshotService, SaveDataCodec. Уточнены synchronous registration/queued flush, borrowed physics context, codec/preflight/partial mutation, restore readiness и autosave writers. Всего изменены 27 уникальных scripts; полный M1/M2/M3 и quality pass остальных файлов не завершены.
+
+Current batch base: `7698e2b45962a1c6a483df5dfbe2309b5b24b4dc`; target/review **REVIEW_PENDING** после commit. Public symbols/defaults/exports/SAVE_FIELDS не меняются.
 
 Проверки batch:
 
-- PASS: `verify_gdscript_nonbehavior_changes.py --base 71dd93cb6c4fffe3fd6f15b30580212bdf2b3427 --mode comments` — 8 scripts, 0 отличий executable source/strings/indentation.
-- PASS: GDQuest incremental format/lint — 8 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-173513516.stdout.log` / `.stderr.log`.
-- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 8 текущих paths checked, diagnostics empty, no instantiation.
+- PASS: `verify_gdscript_nonbehavior_changes.py --base 7698e2b45962a1c6a483df5dfbe2309b5b24b4dc --mode comments` — 11 scripts, 0 отличий executable source/strings/indentation.
+- PASS: GDQuest incremental format/lint — 11 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-174249722.stdout.log` / `.stderr.log`.
+- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 11 paths checked, diagnostics empty, no instantiation. `script_patch` fallback reload 43 не принят за PASS; после него path compile/CLI parser PASS, editor log просмотрен (новых релевантных ошибок нет).
 - PASS: incremental agent validator, strict architecture (0 lexical findings), project structure, scoped whitespace.
 - Full GUT/gameplay/visual: **NOT_RUN**, для comment-only batch не нужны; visual budget 0/8.
 
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Продолжить M1: physics, composition, persistence и оставшиеся critical lifetime/outcome owners; сопоставлять декларации со смыслом локальных комментариев. Уже прочитаны для следующего batch EntityBuildPlan, ObserverReactionBoundary, GameWorld, E_PhysicalCharacter, GrabPhysicsSolver, E_PhysicalSlot; следующий code diff ещё не начат. Inventory/declaration counts сняты, остальные first-party файлы остаются открытым scope M2. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; для собственных addons CLI skip нужно учитывать и проверять их тем же scanner явно. Финальный M3 — на совместном результате зависимостей.
+Собрать immutable review третьего batch и triage. Затем завершать M1 оставшимися критическими owners и переходить к полному domain pass M2. E_PhysicalCharacter и E_PhysicalSlot уже прочитаны: описания authored узлов соответствуют фактическому glue, изменений пока не требуют. Inventory/declaration counts сняты, остальные first-party файлы остаются открытым scope. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; для собственных addons CLI skip нужно учитывать и проверять их тем же scanner явно. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.

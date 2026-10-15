@@ -4,6 +4,7 @@ class_name ObserverReactionBoundary
 
 
 ## Short-lived capture preserves native initial event matching while deferring gameplay callbacks.
+## Caller must finish this scope once, synchronously; dropping it does not close it.
 class RegistrationScope extends RefCounted:
 	var _world: World
 	var _actor: Entity
@@ -62,6 +63,7 @@ class RegistrationScope extends RefCounted:
 
 	#region Accepted ready publication
 	## Delivers captured initial events once after fields and bindings are ready.
+	## Restores activity before callbacks; their CommandBuffers are not drained by this operation.
 	func finish() -> void:
 		assert(not _closed, "A native registration notification scope closes once")
 		_closed = true
@@ -90,6 +92,7 @@ class RegistrationScope extends RefCounted:
 
 #region Runtime registration notifications
 ## Holds gameplay reactions while preserving native subscription matching and callback order.
+## Borrows actor/World through registration and finish; do not keep the scope across an await.
 static func begin_registration(world: World, actor: Entity) -> RegistrationScope:
 	return RegistrationScope.new(world, actor)
 #endregion
@@ -97,6 +100,7 @@ static func begin_registration(world: World, actor: Entity) -> RegistrationScope
 
 #region Synchronous construction reaction scope
 ## Captures activity for an explicit Observer set and prevents partial-construction reactions.
+## Native World/Entity signals still emit; the returned map is the caller's restoration receipt.
 static func suspend(subjects: Array[Observer]) -> Dictionary[Observer, bool]:
 	var activity: Dictionary[Observer, bool] = { }
 	for observer: Observer in subjects:
@@ -106,6 +110,7 @@ static func suspend(subjects: Array[Observer]) -> Dictionary[Observer, bool]:
 
 
 ## Seeds current native membership silently before restoring each Observer's captured activity.
+## Emits no synthetic MATCH effects and runs no queued commands; callers own later reconciliation.
 static func resume(world: World, activity: Dictionary[Observer, bool]) -> void:
 	# Pinned GECS exposes no silent public reseed; this adapter owns its derived monitor index.
 	var entries_by_observer: Dictionary = world.get("_obs_entries_by_observer") as Dictionary

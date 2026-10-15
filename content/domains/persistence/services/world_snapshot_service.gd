@@ -13,6 +13,9 @@ static func _cargo_transaction_in_progress() -> bool:
 
 
 ## Снимает постоянные сущности, включая отключённых NPC; копия цикла всегда задаёт указанное утро.
+## Caller owns the safe boundary: this does not settle outcomes, prepare Night or drain commands.
+## Returns {} for unavailable context/raw inventory or an active cargo transaction; run can_restore
+## before writing. S_NightSave retains its own detached copy for immutable I/O retries.
 static func capture(root: Node, morning_day: int) -> Dictionary:
 	if (
 		not is_instance_valid(ECS.world) or root == null
@@ -114,7 +117,8 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 
 
 #region Предварительная проверка
-## Проверяет весь снимок и закрытые контракты до изменения живого мира.
+## Проверяет форму/schema, IDs, typed fields и domain snapshot contracts без live mutation.
+## Это не полная prefab capability проверка: перед restore/save требуется can_restore.
 static func valid(snapshot: Dictionary, root: Node) -> bool:
 	if (
 		snapshot.get("version") != AutosaveStore.SCHEMA_VERSION
@@ -351,6 +355,8 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 
 
 ## Проверяет роли и prefab-контракты без регистрации Entities и без изменения живого World.
+## Includes valid; builds/disposes temporary prefab instances and plans for missing actors.
+## false leaves live World state intact; no registration/readiness publication or scheduled tick.
 static func can_restore(snapshot: Dictionary, root: Node) -> bool:
 	if is_instance_valid(ECS.world) and _cargo_transaction_in_progress():
 		return false
@@ -391,6 +397,9 @@ static func can_restore(snapshot: Dictionary, root: Node) -> bool:
 #region Восстановление мира
 ## После полной проверки восстанавливает данные, позы и связи, затем отключение и участие района.
 ## Startup passes defer_reconciliation until global readiness; in-place restore reconciles here.
+## Preflight failure leaves the live World intact; a later failure is not generic rollback.
+## With defer=false, true includes the explicit reconciliation command drain. With defer=true,
+## startup still owes GameWorld.finish_startup and must abandon a failed construction.
 static func restore(
 	snapshot: Dictionary, root: Node, defer_reconciliation: bool = false
 ) -> bool:
@@ -723,6 +732,7 @@ static func construction_record(actor: Entity, records: Array) -> Dictionary:
 
 
 ## Overlays validated durable state on fresh recipes before any native initialization callbacks.
+## Mutates detached recipes; false may leave a partial overlay, so discard the plan.
 static func overlay_construction_fields(plan: EntityBuildPlan, record: Dictionary) -> bool:
 	if not plan.valid():
 		return false

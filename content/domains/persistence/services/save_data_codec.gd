@@ -78,8 +78,9 @@ static func component_data(component: Component) -> Dictionary:
 	return { "type": script.resource_path, "fields": fields }
 
 
-## Кодирует ресурсы по закрытому списку и определения по пути; неподдерживаемое значение помечает
-## invalid.
+## Кодирует известный snapshot value graph; records по whitelist, Definitions по immutable пути.
+## Unsupported Object/Resource или глубина > MAX_DEPTH дают invalid envelope. Это не semantic
+## preflight произвольного Dictionary: caller обязан проверить итоговый snapshot через can_restore.
 static func encode(value: Variant, depth: int = 0) -> Variant:
 	if depth > MAX_DEPTH:
 		return { "invalid": true }
@@ -119,8 +120,9 @@ static func encode(value: Variant, depth: int = 0) -> Variant:
 	return value
 
 
-## Восстанавливает разрешённые определения/записи и вложенные данные; неверный тип/глубина даёт
-## null.
+## Decodes supported envelopes into shared immutable Definitions/new owned record Resources.
+## null can mean encoded null or an invalid envelope/depth; apply_fields checks type/null contracts.
+## Not a standalone untrusted-input gate: full snapshot validation belongs to can_restore.
 static func decode(value: Variant, depth: int = 0) -> Variant:
 	if depth > MAX_DEPTH:
 		return null
@@ -178,6 +180,7 @@ static func component_script(path: String) -> Script:
 
 
 ## Проверяет точный набор полей компонента без применения значений.
+## Checks field names/count only; it does not validate encoded values or prefab capability.
 static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 	if not _component_fields.has(script):
 		return false
@@ -192,8 +195,9 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 	return true
 
 
-## Последовательно проверяет и записывает разрешённые поля; полная валидация использует отдельную
-## заготовку.
+## Проверяет/пишет поля и typed containers последовательно; false может оставить частичную запись.
+## Preflight использует отдельную заготовку; live overlay — только после полной проверки snapshot.
+## True подтверждает codec/type contract, не все domain invariants или готовность World.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
 	if script in [

@@ -5,6 +5,8 @@ class_name SnapshotRestoreBoundary
 
 #region Transaction reaction boundary
 ## Starts only after complete preflight; pending old-context commands cannot survive replacement.
+## Publishes reconstruction retirement before suspension, then discards all current command buffers.
+## Caller retains activity for finish; this is reaction suppression, not a rollback transaction.
 static func begin(world: World) -> Dictionary[Observer, bool]:
 	world.emit_event(WorldReconstructionStarted.EVENT, null, WorldReconstructionStarted.new())
 	var activity: Dictionary[Observer, bool] = ObserverReactionBoundary.suspend(world.observers)
@@ -16,6 +18,8 @@ static func begin(world: World) -> Dictionary[Observer, bool]:
 
 
 ## Rebuilds derived bindings before returning observers to their previous activity.
+## Retires autosave workflow receipts/snapshot with a new revision and silently seeds membership.
+## Does not publish Entity/global readiness or reconcile calendar owners; restore/startup does that.
 static func finish(world: World, activity: Dictionary[Observer, bool]) -> void:
 	for entity: Entity in world.entities:
 		if entity.has_component(C_InventoryItem):

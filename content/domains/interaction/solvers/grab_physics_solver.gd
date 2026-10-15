@@ -1,5 +1,6 @@
 extends RefCounted
 ## Общая физика пружины и вращения для callback-тел и обычного Carry без скрипта.
+## Engine physics adapters call explicit operations; no scheduled tick or duplicate pose authority.
 class_name GrabPhysicsSolver
 
 const ROTATION_SENSITIVITY: float = 0.006
@@ -9,8 +10,9 @@ const ANCHOR_TRANSITION_SECONDS: float = 0.5
 
 
 #region Физические адаптеры
-## Применяет силу и угловую скорость через PhysicsDirectBodyState3D; false требует освобождения
-## хвата.
+## Только внутри native body callback: state заимствован на этот вызов, хранить его нельзя.
+## Применяет силу/угловую скорость и обновляет anchor samples R_HeldBy; false требует release.
+## Anchor/error в world space, allowed_break_distance в метрах; state.step — physics seconds.
 static func integrate_state(
 	state: PhysicsDirectBodyState3D,
 	anchor: Node3D,
@@ -53,6 +55,7 @@ static func integrate_state(
 
 
 ## Применяет ту же пружину обычному RigidBody3D перед шагом; step в секундах, transform не меняет.
+## Обновляет transient grip samples; false сообщает вызывающему owner отказ, сам связь не снимает.
 static func integrate_body(
 	body: RigidBody3D,
 	step: float,
@@ -96,6 +99,7 @@ static func integrate_body(
 
 #region Расчёт силы и скорости
 ## Рассчитывает ограниченную силу в ньютонах с массой, гравитацией и демпфированием.
+## Inputs: world-space metres, m/s, m/s² and kg; profile.max_hold_force bounds the returned vector.
 static func position_force(
 	position_error: Vector3,
 	velocity_error: Vector3,
@@ -208,6 +212,7 @@ static func _commit_anchor_sample(
 
 #region Entity physical callback and suspended-hand allowance
 ## В физическом callback применяет удержание по точке живой связи; не перемещает transform напрямую.
+## State не выходит за callback; отказ освобождает хват через GrabReleaseService.
 static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var grip: Relationship = GrabQueries.held_relationship(entity)
 	if grip == null:
@@ -239,7 +244,8 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		GrabReleaseService.release(holder, entity, false)
 
 
-## Computes the physical break allowance for suspended hands without changing ownership.
+## Returns the break allowance in metres, including the world-space suspended-anchor offset.
+## Reads the current hand focus and binding; does not change ownership or advance grip samples.
 static func allowed_break_distance(
 	holder: Entity,
 	anchor: Node3D,
@@ -266,7 +272,9 @@ static func allowed_break_distance(
 
 
 #region Manual rotation and throw impulse
-## Применяет ручной поворот с ограничением авторских осей вращения.
+## Возвращает normalized offset; look_delta — pixel-equivalent input delta с caller sensitivity.
+## Mouse/gamepad и carry scaling уже применены; дополнительный physics delta здесь не нужен.
+## Чистый расчёт с авторским ограничением осей; запись R_HeldBy остаётся вызывающему owner.
 static func rotated_offset(
 	offset: Quaternion,
 	look_delta: Vector2,
