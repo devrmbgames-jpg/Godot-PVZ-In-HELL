@@ -102,7 +102,7 @@ M1, проверенный первый code batch: C_DayCycle, DayTransitionReq
 
 Текущий второй batch: DamageRequest, DamageResult, DamageRequestService, HealthMutationService, C_Inventory, C_InventoryItem, R_OwnedBy, InventoryService. Уточнены dispatch/completion, HP/range constraints, snapshot attribution, transient use correlation, synchronous transfer/drop guards и delayed healing consumption. Обработаны 16 уникальных scripts в двух code batches; полный M1/M2/M3 и quality pass остальных файлов не завершены.
 
-Current batch base: `71dd93cb6c4fffe3fd6f15b30580212bdf2b3427`; target/review **REVIEW_PENDING** после commit. Существующие public symbols/defaults/exports/SAVE_FIELDS не меняются.
+Current batch base: `71dd93cb6c4fffe3fd6f15b30580212bdf2b3427` → target `5d4d81edc05e4affff71e2f1adb092dcd0421229`. Read-only immutable review **PASS**, material findings нет; main triage завершён, fixes не требуются. ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN (проверки выполнял main). Public symbols/defaults/exports/SAVE_FIELDS не меняются.
 
 Проверки batch:
 
@@ -115,7 +115,7 @@ Current batch base: `71dd93cb6c4fffe3fd6f15b30580212bdf2b3427`; target/review **
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Собрать immutable review текущего batch и triage. Продолжить M1: physics, composition, persistence и оставшиеся critical lifetime/outcome owners; сопоставлять декларации со смыслом локальных комментариев. Inventory/declaration counts сняты, остальные first-party файлы остаются открытым scope M2. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; для собственных addons CLI skip нужно учитывать и проверять их тем же scanner явно. Финальный M3 — на совместном результате зависимостей.
+Продолжить M1: physics, composition, persistence и оставшиеся critical lifetime/outcome owners; сопоставлять декларации со смыслом локальных комментариев. Уже прочитаны для следующего batch EntityBuildPlan, ObserverReactionBoundary, GameWorld, E_PhysicalCharacter, GrabPhysicsSolver, E_PhysicalSlot; следующий code diff ещё не начат. Inventory/declaration counts сняты, остальные first-party файлы остаются открытым scope M2. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; для собственных addons CLI skip нужно учитывать и проверять их тем же scanner явно. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.
