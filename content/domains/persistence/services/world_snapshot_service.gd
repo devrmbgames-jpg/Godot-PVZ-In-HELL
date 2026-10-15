@@ -673,6 +673,9 @@ static func restore(
 	RefusalQuestService.restore_bindings()
 	DistrictPopulationService.restore_participation()
 	RawPhysicsSnapshot.restore(snapshot.raw_actors as Array, root)
+	# Current-format receipts may predate automatic registration. Reconcile only real restored boxes
+	# while reactions are suppressed; Customer planning must see their numbers before readiness.
+	PackageRegistrationService.reconcile_received()
 	SnapshotRestoreBoundary.finish(ECS.world, activity)
 	for actor: Entity in entities.values():
 		EntityCompositionService.publish_ready(actor)

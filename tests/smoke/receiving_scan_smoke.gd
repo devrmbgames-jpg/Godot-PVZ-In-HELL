@@ -69,14 +69,17 @@ func _run() -> void:
 		ids[identity.package_id] = true
 		assert(
 			identity.delivery_day == 1
-			and state.registration == C_PackageState.Registration.UNREGISTERED
+			and state.registration == C_PackageState.Registration.REGISTERED
 		)
+		assert(state.scan == C_PackageState.Scan.NOT_SCANNED)
+		assert(state.registration_number > 0 and state.registration_day == 1)
 		found_tags |= identity.definition.tags
 		found_damage_hazard = (found_damage_hazard or identity.definition.hazard_on_damaged != null)
 		found_destroyed_hazard = (
 			found_destroyed_hazard or identity.definition.hazard_on_destroyed != null
 		)
 	assert(found_tags == 15 and found_damage_hazard and found_destroyed_hazard)
+	assert(_registered_count(PackageQueries.ledger()) == batch_size)
 	for tick_index: int in 20:
 		await get_tree().physics_frame
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == batch_size)
@@ -98,21 +101,21 @@ func _run() -> void:
 
 	var first_state: C_PackageState = first.get_component(C_PackageState) as C_PackageState
 	var registry: C_PackageLedger = PackageQueries.ledger()
-	assert(first_state.registration_number == 1 and _registered_count(registry) == 1)
+	assert(first_state.registration_number == 1 and _registered_count(registry) == batch_size)
 	assert(first_state.scan == C_PackageState.Scan.SCANNED)
 	assert(GrabQueries.held_object(actor) == scanner, "Scan must not throw")
 	var feedback: Label3D = scanner.get_node("Feedback/Result") as Label3D
 	assert("\u2116001" in feedback.text)
 	assert((scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).playing)
 	_drive(actor, false, false, true)
-	assert(first_state.registration_number == 1 and _registered_count(registry) == 1)
+	assert(first_state.registration_number == 1 and _registered_count(registry) == batch_size)
 	assert("\u2116001" in feedback.text)
 	await _prepare_target(actor, second, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingGeometry.find_target(actor, interactor) == second)
 	_drive(actor, false, false, true)
 
 	var second_state: C_PackageState = second.get_component(C_PackageState) as C_PackageState
-	assert(second_state.registration_number == 2 and _registered_count(registry) == 2)
+	assert(second_state.registration_number == 2 and _registered_count(registry) == batch_size)
 	var scanner_config: C_Scanner = scanner.get_component(C_Scanner) as C_Scanner
 	scanner_config.scan_range = 0.1
 	assert(
@@ -128,7 +131,7 @@ func _run() -> void:
 		PackageRegistrationService.scan(actor, scanner, first).outcome
 		== PackageScanResult.Outcome.REJECTED
 	)
-	assert(_registered_count(registry) == 2)
+	assert(_registered_count(registry) == batch_size)
 
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	var terminal_body: StaticBody3D = terminal as Node as StaticBody3D
@@ -151,7 +154,6 @@ func _run() -> void:
 	var found_number_one: bool = false
 	var found_number_two: bool = false
 	var found_fragile: bool = false
-	var found_hazard: bool = false
 	for child: Node in package_list.get_children():
 		var package_line: UI_TerminalButtonPackage = child as UI_TerminalButtonPackage
 		assert(package_line != null)
@@ -159,9 +161,14 @@ func _run() -> void:
 		found_number_one = found_number_one or number_label.text == "№001"
 		found_number_two = found_number_two or number_label.text == "№002"
 		found_fragile = found_fragile or (package_line.get_node("%IconFragile") as Control).visible
-		found_hazard = found_hazard or (package_line.get_node("%IconAnomaly") as Control).visible
+		# Actual catalog contents replace legacy hazardous payload; the shell retains fragile tags.
+		var record: PackageRegistrationRecord = PackageHistoryService.record_for(
+			package_line.package_id(),
+		)
+		assert(record.ordered_item != null)
+		assert(not (package_line.get_node("%IconAnomaly") as Control).visible)
 	assert(found_number_one and found_number_two)
-	assert(found_fragile and found_hazard)
+	assert(found_fragile)
 	if OS.get_cmdline_user_args().has("--preview"):
 		await RenderingServer.frame_post_draw
 		var screenshot: Image = get_viewport().get_texture().get_image()
@@ -235,12 +242,17 @@ func _run() -> void:
 	var next_day_parcel: Entity = level.get_node("Entityes/Parcel_002_01") as Entity
 	await _prepare_target(actor, next_day_parcel, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingGeometry.find_target(actor, interactor) == next_day_parcel)
-	assert(PackageRegistrationService.scan(actor, scanner, next_day_parcel).number == 3)
-	assert(_has_active_number(registry, 3))
+	assert(
+		PackageRegistrationService.scan(actor, scanner, next_day_parcel).number == batch_size + 1
+	)
+	assert(_has_active_number(registry, batch_size + 1))
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingGeometry.find_target(actor, interactor) == first)
 	assert(PackageRegistrationService.scan(actor, scanner, first).number == 1)
-	assert(_registered_count(registry) == 3)
+	assert(_registered_count(registry) == batch_size * 2)
+	assert(first_state.registration_day == 1)
+	for operation: MoneyOperation in WalletService.current().operations:
+		assert(operation.reason != MoneyOperation.Reason.MISSED_REGISTRATION)
 	assert(registry.records.size() == batch_size * 2)
 	assert(not PackageRegistrationService.release_number(first))
 	first_state.registration = C_PackageState.Registration.DELIVERED
@@ -255,8 +267,8 @@ func _run() -> void:
 
 	var replacement: Entity = level.get_node("Entityes/Parcel_002_02") as Entity
 	await _prepare_target(actor, replacement, Vector3(0.0, -0.2, -2.2))
-	assert(PackageRegistrationService.scan(actor, scanner, replacement).number == 1)
-	assert(PackageRegistrationService.smallest_free_number(registry) == 4)
+	assert(PackageRegistrationService.scan(actor, scanner, replacement).number == batch_size + 2)
+	assert(PackageRegistrationService.smallest_free_number(registry) == 1)
 	level.free()
 	ECS.world = null
 	await get_tree().process_frame

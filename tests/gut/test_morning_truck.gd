@@ -3,6 +3,21 @@ extends GutTest
 
 const NPC_DEFINITIONS_ROOT: String = "res://content/domains/npc/definitions/"
 
+
+## Reads the committed receiving transaction at its registration publication boundary.
+class RegistrationProbe extends Observer:
+	## Test-owned callback; never retained outside this fixture's World.
+	var callback: Callable
+
+
+	func query() -> QueryBuilder:
+		return q.on_event(PackageScanResult.EVENT)
+
+
+	func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
+		callback.call(entity, payload)
+
+
 var _root: Node3D
 var _world: World
 var _zone: E_ReceivingZone
@@ -120,8 +135,7 @@ func test_next_truck_uses_moved_parking() -> void:
 	assert_true(truck.global_transform.is_equal_approx(_parking.global_transform))
 
 
-## Занятый кузов сохраняет те же ID и сцены; освобождение публикует одно незарегистрированное
-## поступление.
+## Занятый кузов не создаёт историю/номер; освобождение регистрирует реальную коробку без сканера.
 func test_blocked_cargo_preserves_batch_until_space_is_free() -> void:
 	var truck: E_MorningTruck = await _ready_truck()
 	_plan_big_boxes()
@@ -134,6 +148,7 @@ func test_blocked_cargo_preserves_batch_until_space_is_free() -> void:
 	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
 	assert_true(_state.blocked)
 	assert_true(_parcels().is_empty())
+	assert_true(PackageQueries.ledger().records.is_empty())
 	for attempt: int in 3:
 		ReceivingDeliveryService.deliver_one(_zone, _state, 1)
 	assert_eq(_state.incoming_package_ids, ids)
@@ -146,11 +161,42 @@ func test_blocked_cargo_preserves_batch_until_space_is_free() -> void:
 	assert_eq(_parcels().size(), 1)
 	var record: PackageRegistrationRecord = PackageHistoryService.record_for(ids[0])
 	assert_not_null(record)
-	assert_eq(record.number, 0)
+	assert_eq(record.number, 1)
+	assert_eq(record.received_day, 1)
+	assert_eq(record.day_index, 1)
 	assert_eq(
 		(_parcels()[0].get_component(C_PackageState) as C_PackageState).registration,
-		C_PackageState.Registration.UNREGISTERED,
+		C_PackageState.Registration.REGISTERED,
 	)
+	assert_eq(
+		(_parcels()[0].get_component(C_PackageState) as C_PackageState).scan,
+		C_PackageState.Scan.NOT_SCANNED,
+	)
+
+
+## Publication observes committed manifest/state; a recursive delivery cannot duplicate this box.
+func test_registration_fact_follows_manifest_and_can_reenter_delivery() -> void:
+	await _ready_truck()
+	_plan_big_boxes()
+	var observed: Dictionary[String, int] = { "events": 0 }
+	var probe: RegistrationProbe = RegistrationProbe.new()
+	probe.callback = func(parcel: Entity, payload: Variant) -> void:
+		var receipt: PackageScanResult = payload as PackageScanResult
+		observed.events += 1
+		assert_eq(receipt.outcome, PackageScanResult.Outcome.REGISTERED)
+		assert_eq(_state.pending[0].next_package, 1)
+		assert_eq(_state.delivered_counts[1], 1)
+		assert_eq(
+			(parcel.get_component(C_PackageState) as C_PackageState).registration_number,
+			receipt.number,
+		)
+		ReceivingDeliveryService.deliver_one(_zone, _state, 1)
+		_state.pending.clear()
+	_world.add_observer(probe)
+	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
+	assert_eq(observed.events, 1)
+	assert_eq(_parcels().size(), 1)
+	assert_eq(PackageQueries.ledger().records.size(), 1)
 
 
 ## Маркер у стенки не позволяет создать пересекающий её широкий предмет; возврат маркера исправляет
@@ -285,6 +331,9 @@ func test_catalog_order_retries_restore_one_real_parcel_with_the_committed_conte
 	assert_eq(flow.visits.size(), 1)
 	assert_eq(flow.visits[0].package_id, identity.package_id)
 	assert_eq(flow.visits[0].customer_id, district.people[0].npc_id)
+	assert_true(CustomerFlowQueries.arrival_allowed(flow.visits[0]), "No scanner is required")
+	assert_gt(record.number, 0)
+	assert_eq(record.day_index, record.received_day)
 	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
 	assert_eq(_parcels().size(), 1, "Retry keeps a single real parcel and arrival")
 	assert_eq(flow.visits.size(), 1)

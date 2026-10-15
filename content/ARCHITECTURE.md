@@ -234,6 +234,7 @@ A declared migration scope is DONE only when all callers, state ownership and ex
 
 - `E_DaySession` owns the singleton `C_DayCycle`; phase transitions use typed requests and the day-phase processor.
 - Receiving spawns physical Package scenes from `DEF_Package.scene_variants`; it must preserve deterministic package identity and existing occupied space.
+- Successful physical placement automatically registers the shipment through PackageRegistrationService. Receiving commits its manifest before publishing the registration fact; blocked placement allocates no record or number. Scanner reads the existing number and records only its scan fact.
 - Registration number allocation is warehouse-global for active/undelivered packages: smallest free positive base number, displayed as `№001` etc. Day changes do not reset it; only authoritative departure releases it.
 - Scanner/terminal/receiving details live in their direct services/contracts and `PROJECT_INDEX.md` routes.
 
@@ -267,7 +268,8 @@ Do not run every suite after ordinary edits. See `AGENTS.md` for cadence.
 - Customer-facing registration numbers (`№001`, etc.) remain reusable warehouse numbers and are not stable history identity.
 - Every physically created package receives a hidden `C_Package.history_id` formatted as `<day>-<day-local number>-<5-char diagnostic code>`. The code is reversible: hazard class, physical size class, and mass in 0.1 kg encoded as three base36 characters. Do not show this ID in customer dialogue or the Terminal registry; it is reserved for package history/debugging.
 - Package-pickup Customer events default to `requires_registered_package = true`: their NPC does not spawn until the requested Package has an active registration record, and blocked unregistered visits do not prevent shift completion. Events with another authored NPC purpose may explicitly opt out.
-- On the next Morning, a due package-pickup visit that never became eligible because its Package is still unregistered is closed as LOST with `LossCause.MISSED_REGISTRATION` without spawning the NPC. R10 charges the dedicated data-driven missed-registration settlement (default 300%), not the cheaper honest LOST settlement (120%). Registered unresolved packages, not-yet-due visits, and opt-out events are not affected.
+- New receiving shipments already have active registration before customer planning; leaving them unscanned cannot cause a missed-registration penalty. Existing unnumbered live arrival receipts in a supported snapshot are reconciled once before readiness, without replaying registration events or changing existing numbers/dates. Missing/closed/declared-LOST parcels are not materialized or registered by recovery.
+- The retained missed-registration path handles an unresolved unnumbered receipt after its due day, including old missing boxes/isolated fixtures: it marks overdue and requests the dedicated settlement (default 300%), without inventing a LOST declaration. Registered unresolved packages, not-yet-due visits, and opt-out events are not affected.
 
 ## Game time and decision seeds
 

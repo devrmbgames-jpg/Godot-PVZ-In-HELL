@@ -18,6 +18,8 @@ The supported version has one source: [AutosaveStore.SCHEMA_VERSION](../content/
 
 Gameplay domains own their persisted fields and records. They do not import the persistence adapter to schedule themselves. Settings, InputMap, device/prompt revisions and texture caches remain process/UI state.
 
+After a supported snapshot overlays physical packages and the ledger, `PackageRegistrationService.reconcile_received()` assigns numbers to existing active unnumbered arrivals before readiness/customer planning. It does not create missing parcels, register declared-LOST cases, replay registration events, or change existing numbers/dates. New numbers use the restored current Morning as registration day; the original received day stays intact. This one-shot domain reconciliation preserves the existing schema and PVZH1 storage; it is not a previous-schema converter. Already committed penalties remain historical facts.
+
 ## File, version and errors
 
 `AutosaveStore.DEFAULT_PATH` is `user://autosave.pvzh`. GameSessionService selects separate manual and test-level slots; isolated QA rooms have no slot. Tests must override paths and clean only their own files.

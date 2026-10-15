@@ -39,18 +39,36 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	return ray.global_position.distance_to(ray.get_collision_point()) <= config.scan_range
 
 
-## Проверяет применение сканера, затем передаёт регистрацию в register_package().
+## Читает уже выделенный номер, не меняя регистрацию/дату и не публикуя регистрацию повторно.
+## Успешное чтение фиксирует только scan; незарегистрированная коробка не получает номер от сканера.
 static func scan(actor: Entity, scanner: Entity, target: Entity) -> PackageScanResult:
 	if not can_scan(actor, scanner, target):
 		return PackageScanResult.new()
-	return register_package(target)
+	var result: PackageScanResult = PackageScanResult.new()
+	var identity: C_Package = target.get_component(C_Package) as C_Package
+	var state: C_PackageState = target.get_component(C_PackageState) as C_PackageState
+	result.package_id = identity.package_id
+	var record: PackageRegistrationRecord = PackageHistoryService.record_for(identity.package_id)
+	if (
+		record == null or not record.active or record.number <= 0
+		or state.registration != C_PackageState.Registration.REGISTERED
+		or state.registration_number != record.number or state.registration_day != record.day_index
+	):
+		result.message = "Посылка не зарегистрирована при поступлении"
+		return result
+	state.scan = C_PackageState.Scan.SCANNED
+	result.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
+	result.number = record.number
+	result.message = "Номер посылки · №%03d" % record.number
+	return result
 
 
 ## Синхронно регистрирует коробку для доверенных игровых и отладочных вызовов.
-## Проверки удержания сканера и дистанции выполняются в scan().
-## REGISTERED фиксирует номер/state до события.
+## Не фиксирует использование сканера; scan() только читает готовую регистрацию.
+## REGISTERED фиксирует номер/state до события; publish_event=false оставляет публикацию caller.
+## Receiving завершает свой manifest до публикации, restore сверяет записи без replay события.
 ## ALREADY_REGISTERED возвращает прежний номер без события.
-static func register_package(target: Entity) -> PackageScanResult:
+static func register_package(target: Entity, publish_event: bool = true) -> PackageScanResult:
 	var scan_receipt: PackageScanResult = PackageScanResult.new()
 	if not EntityAvailability.contains(target, ECS.world):
 		return scan_receipt
@@ -100,13 +118,34 @@ static func register_package(target: Entity) -> PackageScanResult:
 	registration.number = sequence
 	state.registration_number = registration.number
 	state.registration_day = cycle.day_index
-	state.scan = C_PackageState.Scan.SCANNED
 	state.registration = C_PackageState.Registration.REGISTERED
 	scan_receipt.outcome = PackageScanResult.Outcome.REGISTERED
 	scan_receipt.number = registration.number
 	scan_receipt.message = "Зарегистрирована · №%03d" % registration.number
-	ECS.world.emit_event(PackageScanResult.EVENT, target, scan_receipt)
+	if publish_event:
+		ECS.world.emit_event(PackageScanResult.EVENT, target, scan_receipt)
 	return scan_receipt
+
+
+## Однократная сверка после overlay снимка, до readiness/planning; не scheduled обход.
+## Регистрирует только живые коробки действующих поступлений без номера в порядке ledger.
+## Старые отсутствующие/закрытые/объявленные LOST коробки не создаются и не регистрируются.
+## Возвращает число новых номеров; события не повторяются, даты существующих номеров сохраняются.
+static func reconcile_received() -> int:
+	var ledger: C_PackageLedger = PackageQueries.ledger()
+	if ledger == null:
+		return 0
+	var registered: int = 0
+	for record: PackageRegistrationRecord in ledger.records:
+		if not record.active or record.number != 0 or record.received_day < 1:
+			continue
+		var parcel: Entity = PackageQueries.find_live_package(record.package_id)
+		if parcel == null:
+			continue
+		var receipt: PackageScanResult = register_package(parcel, false)
+		if receipt.outcome == PackageScanResult.Outcome.REGISTERED:
+			registered += 1
+	return registered
 
 
 ## Находит наименьший свободный положительный номер среди активных записей, независимо от дня.

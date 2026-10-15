@@ -139,6 +139,7 @@ static func _has_recipient(definition: DEF_Package) -> bool:
 #region Физическая доставка
 ## Пробует не более одной позиции партии; существующий package/history пропускается без нового тела.
 ## Занятая зона сохраняет текущую позицию для retry; delivered_counts отражает пройденные позиции.
+## Реально размещённая коробка получает номер до planning; факт регистрации публикуется последним.
 static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int) -> void:
 	if not is_instance_valid(zone) or zone.supply == null:
 		return
@@ -215,17 +216,25 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 		return
 
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
-	if PackageHistoryService.record_arrival(parcel, batch.day_index) == null:
+	var registration: PackageScanResult = PackageRegistrationService.register_package(parcel, false)
+	if registration.outcome != PackageScanResult.Outcome.REGISTERED:
 		ECS.world.remove_entity(parcel)
 		receiving.blocked = true
 		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 		return
 
 	receiving.last_spawn_tick = Engine.get_physics_frames()
-	var visit: CustomerVisit = CustomerFlowService.plan_delivered_package(identity)
-	if visit != null:
-		visit.package_history_id = identity.history_id
 	_advance(receiving, batch)
+	# Commit manifest and registration before planning/registration callbacks can re-enter.
+	var world: World = ECS.world
+	var parcel_reference: WeakRef = weakref(parcel)
+	CustomerFlowService.plan_delivered_package(identity)
+	parcel = parcel_reference.get_ref() as E_Package
+	if (
+		ECS.world == world and EntityAvailability.contains(parcel, world)
+		and parcel.get_component(C_Package) == identity
+	):
+		world.emit_event(PackageScanResult.EVENT, parcel, registration)
 
 
 ## Сбрасывает временные повторы и резервы после восстановления снимка; состав партии сохраняется.

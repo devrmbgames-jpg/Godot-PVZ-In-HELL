@@ -967,9 +967,16 @@ func test_catalog_order_roundtrip_restores_live_contents_and_history_after_fresh
 	)
 	assert_same(arrival.ordered_item, selected)
 	assert_eq(PackageOrderPresentation.title(arrival), selected.display_name)
+	assert_gt(arrival.number, 0, "A pre-automatic live arrival gains a number on restore")
+	var retained_number: int = arrival.number
+	assert_eq(
+		(restored.get_component(C_PackageState) as C_PackageState).scan,
+		C_PackageState.Scan.NOT_SCANNED,
+	)
 	contents.selected_item = null
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_same(contents.selected_item, selected, "Reused body also restores the committed choice")
+	assert_eq(PackageHistoryService.record_for("fixture/catalog_order").number, retained_number)
 	_world.remove_entity(restored)
 	var archived: PackageRegistrationRecord = PackageHistoryService.record_for(
 		"fixture/catalog_order"
@@ -979,6 +986,26 @@ func test_catalog_order_roundtrip_restores_live_contents_and_history_after_fresh
 		selected.display_name,
 		"Archive survives body removal",
 	)
+
+
+## A new receiving number survives real slot I/O and Morning restoration without any scanner.
+func test_registered_number_roundtrips_slot_and_morning_without_scan() -> void:
+	var parcel: E_Package = _ordered_package()
+	PackageRegistrationService.register_package(parcel)
+	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
+	assert_eq(state.scan, C_PackageState.Scan.NOT_SCANNED)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+	state.registration_number = 999
+	PackageHistoryService.record_for(parcel.package_id).number = 999
+	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
+	assert_eq(DayPhaseQueries.current().day_index, 2)
+	assert_eq(state.registration_number, 1)
+	assert_eq(state.registration_day, 1)
+	assert_eq(state.scan, C_PackageState.Scan.NOT_SCANNED)
+	assert_eq(PackageHistoryService.record_for(parcel.package_id).number, 1)
+	assert_eq(PackageHistoryService.record_for(parcel.package_id).day_index, 1)
 
 
 ## Malformed choices reject before changing inventory, calendar, live payload or arrival history.

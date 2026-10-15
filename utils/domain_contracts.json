@@ -27,6 +27,26 @@
   "public_edges": [
     {
       "source_owner": "persistence",
+      "target_owner": "packages",
+      "symbol": "PackageRegistrationService",
+      "path": "content/domains/packages/services/package_registration_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "reconcile_received"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "reconcile_received": "request"
+      },
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "purpose": "One-shot package-owned reconciliation after validated snapshot overlay, before readiness; no foreign field writes, spawning or registration event replay."
+    },
+    {
+      "source_owner": "persistence",
       "target_owner": "npc",
       "symbol": "NpcVariationRules",
       "path": "content/domains/npc/rules/npc_variation_rules.gd",

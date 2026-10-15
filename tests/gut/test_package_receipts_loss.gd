@@ -1,6 +1,11 @@
 extends GutTest
 ## Поступление, сканирование, ручная потеря и просрочка с реальным журналом World и терминалом.
 
+const TERMINAL_ROW_SCENE: PackedScene = preload("res://content/ui/ui_terminal_package_line.tscn")
+const TERMINAL_DETAIL_SCENE: PackedScene = preload(
+	"res://content/ui/ui_terminal_package_detail_info.tscn"
+)
+
 var _world: World = null
 var _flow: C_CustomerFlow = null
 var _cycle: C_DayCycle = null
@@ -88,8 +93,8 @@ func test_arrival_is_stable_unregistered_record_without_counter_arrival() -> voi
 	assert_eq(PackageRegistrationService.smallest_free_number(_ledger), 1)
 
 
-## Сканер обновляет ту же запись; следующий номер не зависит от количества поступлений без номера.
-func test_scanning_upgrades_existing_receipt_once_and_preserves_history() -> void:
+## Доверенная регистрация обновляет ту же запись, независимо от других поступлений без номера.
+func test_registration_upgrades_existing_receipt_once_and_preserves_history() -> void:
 	var parcel: Entity = _parcel()
 	var record: PackageRegistrationRecord = PackageHistoryService.record_arrival(parcel, 1)
 	var history_id: String = record.history_id
@@ -111,6 +116,75 @@ func test_scanning_upgrades_existing_receipt_once_and_preserves_history() -> voi
 		PackageScanResult.Outcome.ALREADY_REGISTERED,
 	)
 	assert_eq(PackageRegistrationService.smallest_free_number(_ledger), 2)
+
+
+## Выданный при поступлении номер разрешает приход без сканера и не создаёт просрочку утром.
+func test_automatic_registration_allows_arrival_without_scan_or_overdue_charge() -> void:
+	var parcel: Entity = _parcel()
+	assert_eq(
+		PackageRegistrationService.register_package(parcel).outcome,
+		PackageScanResult.Outcome.REGISTERED,
+	)
+	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
+	assert_eq(state.scan, C_PackageState.Scan.NOT_SCANNED)
+	assert_true(CustomerFlowQueries.arrival_allowed(_visit))
+	assert_eq(_next_morning(), 0)
+	assert_eq(_visit.registration_overdue_day, 0)
+	assert_true(_wallet.operations.is_empty())
+	assert_eq(state.registration_number, 1)
+	assert_eq(state.registration_day, 1)
+	assert_eq(state.scan, C_PackageState.Scan.NOT_SCANNED)
+	var record: PackageRegistrationRecord = _ledger.records[0]
+	var row: UI_TerminalButtonPackage = TERMINAL_ROW_SCENE.instantiate() as UI_TerminalButtonPackage
+	add_child(row)
+	row.present(record, state, _visit, false)
+	assert_eq((row.get_node("%LabelNumber") as Label).text, "№001")
+	var detail: UI_TerminalPackageDetailInfo = (
+		TERMINAL_DETAIL_SCENE.instantiate() as UI_TerminalPackageDetailInfo
+	)
+	add_child(detail)
+	detail.present(record, state, _visit)
+	var text: String = (detail.get_node("%RichTextLabelDescription") as RichTextLabel).text
+	assert_true("Дата поступления: день 1" in text)
+	assert_true("Дата регистрации: день 1" in text)
+	row.free()
+	detail.free()
+
+
+## Current-format recovery allocates only for real active arrivals and remains idempotent.
+func test_received_reconciliation_preserves_registered_missing_and_declared_lost_history() -> void:
+	var registered: Entity = _parcel()
+	PackageRegistrationService.register_package(registered)
+	var retained: PackageRegistrationRecord = _ledger.records[0]
+	var missing: Entity = _parcel("missing")
+	var missing_record: PackageRegistrationRecord = PackageHistoryService.record_arrival(missing, 1)
+	_world.remove_entity(missing)
+	var legacy: Entity = _parcel("legacy")
+	var legacy_record: PackageRegistrationRecord = PackageHistoryService.record_arrival(legacy, 1)
+	var history_id: String = legacy_record.history_id
+	var lost: Entity = _parcel("lost")
+	var lost_record: PackageRegistrationRecord = PackageHistoryService.record_arrival(lost, 1)
+	var lost_visit: CustomerVisit = CustomerVisit.new()
+	lost_visit.package_id = "lost"
+	lost_visit.declaration = CustomerVisit.Declaration.LOST
+	_flow.visits.append(lost_visit)
+	_cycle.day_index = 2
+	assert_eq(PackageRegistrationService.reconcile_received(), 1)
+	assert_eq(legacy_record.number, 2)
+	assert_eq(legacy_record.received_day, 1)
+	assert_eq(legacy_record.day_index, 2)
+	assert_eq(legacy_record.history_id, history_id)
+	assert_eq(
+		(legacy.get_component(C_PackageState) as C_PackageState).registration_number,
+		legacy_record.number,
+	)
+	assert_eq(missing_record.number, 0)
+	assert_eq(lost_record.number, 0)
+	assert_eq(retained.number, 1)
+	assert_eq(retained.day_index, 1)
+	assert_eq(_ledger.records.size(), 4)
+	assert_eq(PackageRegistrationService.reconcile_received(), 0)
+	assert_eq(PackageRegistrationService.smallest_free_number(_ledger), 3)
 
 
 ## Доверенная регистрация коробки без записи поступления также создаёт единственную историю.
@@ -326,7 +400,7 @@ func test_receipt_and_overdue_round_trip_preserves_missing_box_and_financial_his
 func test_terminal_receipt_preserves_number_and_registration_day() -> void:
 	var record: PackageRegistrationRecord = PackageHistoryService.record_arrival(_parcel(), 1)
 	var line: UI_TerminalButtonPackage = (
-		(load("res://content/ui/ui_terminal_package_line.tscn") as PackedScene).instantiate()
+		TERMINAL_ROW_SCENE.instantiate()
 		as UI_TerminalButtonPackage
 	)
 	add_child(line)
@@ -337,7 +411,7 @@ func test_terminal_receipt_preserves_number_and_registration_day() -> void:
 	assert_true((line.get_node("%ButtonCancel") as Button).disabled)
 	assert_eq(UI_TerminalButtonPackage.status_text(record, null, _visit), "НЕ ЗАРЕГИСТРИРОВАНА")
 	var detail: UI_TerminalPackageDetailInfo = (
-		(load("res://content/ui/ui_terminal_package_detail_info.tscn") as PackedScene).instantiate()
+		TERMINAL_DETAIL_SCENE.instantiate()
 		as UI_TerminalPackageDetailInfo
 	)
 	add_child(detail)
