@@ -94,7 +94,7 @@ M1 inventory снят на `45e71fe4010f147ff18a21818c0c2162afcbf20f` через
 
 M1, первый code batch: уточнены 8 scripts — C_DayCycle, DayTransitionRequest, DayPhaseService, S_DayPhase, GameTimeRules, C_CustomerFlow, CustomerFlowService и WalletService. Комментарии различают accepted запрос и committed факт, gameplay seconds/ticks, writers поля/кеша, WeakRef receipt lifetime и синхронный commit кошелька. Это завершённый batch, но M1/M2/M3 и полный pass 947 scripts остаются открыты.
 
-Batch base: `8d38ada79fe25d4cc03290ca99996788bb3d93b5`; implementation target / read-only review: **REVIEW_PENDING** до отдельного commit и результата reviewer.
+Batch base: `8d38ada79fe25d4cc03290ca99996788bb3d93b5`; target `e81cf30fb763435a16c33ea88f695b5b4ea7e767`. Read-only reviewer по этим точным SHA: **PASS**, material findings нет; main triage завершён, исправления не требуются. ARCHITECTURE/STYLE PASS, reviewer VALIDATION NOT_RUN (проверки выполнял main).
 
 Проверки batch:
 
@@ -107,7 +107,7 @@ Batch base: `8d38ada79fe25d4cc03290ca99996788bb3d93b5`; implementation target / 
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получает DEF_NpcArchetype вместо NpcRecord. Smoke и production perception API не изменялись этим batch; точечный MCP compile подтверждает FAIL. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures. Эти сообщения не объявляются общим editor PASS; самостоятельный smoke defect требует отдельного owner scope.
 
 ### Next
-Собрать review первого batch и triage; продолжить M1: проверить declarations с annotations/multiline/inner classes и inherited API, затем остальные critical boundaries (damage, inventory, physics, composition, persistence). Существующий `utils/verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation при сравнении; для собственных addons его текущий CLI skip нужно учитывать и проверять их тем же scanner явно. Остальные first-party файлы остаются открытым scope M2; финальный M3 — на совместном результате зависимостей.
+Продолжить M1: проверить declarations с annotations/multiline/inner classes и inherited API, затем остальные critical boundaries (damage, inventory, physics, composition, persistence). Существующий `utils/verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation при сравнении; для собственных addons его текущий CLI skip нужно учитывать и проверять их тем же scanner явно. Остальные first-party файлы остаются открытым scope M2; финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.
