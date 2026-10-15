@@ -11,6 +11,9 @@ func test_native_authoring_refuses_gameplay_process_before_any_writes() -> void:
 	var refused: Dictionary = tool.author({ "room_key": "brute" }, null)
 	assert_false(refused.data.ok)
 	assert_true(String(refused.data.error).contains("native editor"))
+	var attendance_refusal: Dictionary = tool.author_room_attendance({ "room_key": "lost" }, null)
+	assert_false(attendance_refusal.data.ok)
+	assert_true(String(attendance_refusal.data.error).contains("native editor"))
 	var metadata_refusal: Dictionary = tool.author_hall_identities({ }, null)
 	assert_false(metadata_refusal.data.ok)
 	assert_true(String(metadata_refusal.data.error).contains("native editor"))
@@ -76,6 +79,11 @@ func test_all_ten_presets_keep_original_rules_and_supply_two_cases_daily() -> vo
 		assert_eq(profile.optional_traits, original.optional_traits)
 		assert_eq(preset.district.resident_count, 1)
 		assert_eq(preset.district.visitor_count, 0)
+		for phase: C_DayCycle.Phase in [
+			C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING,
+		]:
+			assert_eq(profile.schedule.location_for(1, phase), DEF_NpcSchedule.Location.STREET)
+		assert_gt(preset.district.place_for(&"home").position.y, 0.0)
 		assert_eq(preset.schedule.supply.maximum_batch_packages, 2)
 		assert_eq(preset.schedule.supply.packages.size(), 2)
 		assert_eq(preset.schedule.events.size(), 2)
@@ -97,6 +105,8 @@ func test_packed_room_retains_core_prefabs_and_owned_return_portal_children() ->
 	assert_eq(root.get("autosave_path"), "")
 	assert_null(root.get_node_or_null("Entityes/Trader"))
 	assert_not_null(root.get_node_or_null("District"))
+	assert_null(root.get_node_or_null("PVZ/Pedestal4"), "Room spawn is clear of hall displays")
+	assert_eq((root.get_node("TruckParking") as Marker3D).position, Vector3(-3, 0.35, -23))
 	var light_count: int = 0
 	for child: Node in root.get_children():
 		if child is NpcLightZone:

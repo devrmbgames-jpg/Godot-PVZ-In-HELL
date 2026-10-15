@@ -180,6 +180,12 @@ func _room_state(key: StringName) -> bool:
 	if _failed:
 		return false
 	var preset: DEF_NpcTestRoom = get_tree().current_scene.get_meta("npc_test_room")
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(district.people[0].npc_id)
+	_check(
+		body.enabled and body.is_visible_in_tree()
+		and district.people[0].placement == NpcRecord.Placement.STREET,
+		String(key) + ": NPC physically present and visible after native transition",
+	)
 	_check(preset.room_key == key, String(key) + ": canonical room preset")
 	_check(
 		district.people[0].profile.key == preset.district.profiles[0].key,

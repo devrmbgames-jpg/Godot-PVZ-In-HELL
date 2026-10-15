@@ -46,7 +46,7 @@
 script = ExtResource("1_53cmw")
 display_name = "Дом посетителя"
 kind = 0
-position = Vector3(-12, 0, 6)
+position = Vector3(-12, 0.05, 6)
 neighbours = PackedStringArray()
 key = &"home"
 

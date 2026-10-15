@@ -7,6 +7,7 @@ const DIRECTORY: String = "res://content/scenes/npc_test_rooms"
 const MORNING_SUPPLY: DEF_Delivery = preload(
 	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
 )
+const ROOM_SPAWN_CLEARANCE: float = 0.05
 const ENTITY_SCRIPT: GDScript = preload("res://addons/gecs/ecs/entity.gd")
 const KEEP_ACTORS: Array[StringName] = [
 	&"Player",
@@ -100,6 +101,72 @@ func author(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	}
 
 
+## Repairs only the open canonical room's isolated attendance, never production archetypes.
+func author_room_attendance(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
+	if not Engine.is_editor_hint():
+		return _refusal("Attendance authoring requires the native editor.")
+	var key: StringName = StringName(params.get("room_key", ""))
+	var expected: String = GameSessionService.test_room_path(key)
+	var root: Node = EditorInterface.get_edited_scene_root()
+	if expected.is_empty() or root == null or root.scene_file_path != expected:
+		return _refusal("Open the requested canonical NPC room.")
+	if EditorInterface.get_unsaved_scenes().has(expected):
+		return _refusal("Save the room before attendance authoring.")
+	if params.get("scene_fingerprint", "") != FileAccess.get_sha256(expected):
+		return _refusal("The saved room fingerprint changed.")
+	var preset_path: String = DIRECTORY.path_join("def_npc_test_room_" + String(key) + ".tres")
+	if params.get("preset_fingerprint", "") != FileAccess.get_sha256(preset_path):
+		return _refusal("The saved preset fingerprint changed.")
+	var preset: DEF_NpcTestRoom = root.get_meta("npc_test_room", null) as DEF_NpcTestRoom
+	var external: DEF_NpcTestRoom = load(preset_path) as DEF_NpcTestRoom
+	var session: Entity = root.get_node_or_null("Entityes/DaySession") as Entity
+	if preset == null or external == null or session == null:
+		return _refusal("Missing native room preset or session.")
+	var districts: Array[DEF_District] = [preset.district, external.district]
+	for recipe: Component in session.component_resources:
+		if recipe is C_District:
+			districts.append((recipe as C_District).definition)
+	if districts.size() != 3:
+		return _refusal("Expected exactly one native district recipe.")
+	for district: DEF_District in districts:
+		if (
+			district == null or district.profiles.size() != 1
+			or district.profiles[0].schedule == null
+			or district.key != StringName("qa_room/" + String(key))
+			or district.place_for(&"home") == null
+			or district.place_for(&"home").resource_path.get_slice("::", 0)
+			not in [expected, preset_path]
+			or district.profiles[0].schedule.resource_path.get_slice("::", 0)
+			not in [expected, preset_path]
+		):
+			return _refusal("The isolated district contract changed.")
+	var manager: EditorUndoRedoManager = EditorInterface.get_editor_undo_redo()
+	manager.create_action("Keep isolated test NPC present", UndoRedo.MERGE_DISABLE, root)
+	var homes: Array[DEF_DistrictPlace] = []
+	var schedules: Array[DEF_NpcSchedule] = []
+	for district: DEF_District in districts:
+		var home: DEF_DistrictPlace = district.place_for(&"home")
+		if not homes.has(home):
+			homes.append(home)
+			var spawn: Vector3 = home.position
+			spawn.y = ROOM_SPAWN_CLEARANCE
+			manager.add_do_property(home, &"position", spawn)
+			manager.add_undo_property(home, &"position", home.position)
+		var attendance: DEF_NpcSchedule = district.profiles[0].schedule
+		if schedules.has(attendance):
+			continue
+		schedules.append(attendance)
+		for field: StringName in [&"morning", &"day", &"evening"]:
+			manager.add_do_property(attendance, field, DEF_NpcSchedule.Location.STREET)
+			manager.add_undo_property(attendance, field, attendance.get(field))
+	manager.commit_action()
+	EditorInterface.mark_scene_as_unsaved()
+	var saved: Error = ResourceSaver.save(external, preset_path)
+	if saved != OK:
+		return _refusal("Native preset save failed: " + error_string(saved))
+	return { "data": { "ok": true, "room_key": key, "undoable": false, "save_scene": expected } }
+
+
 static func _refusal(message: String) -> Dictionary:
 	return { "data": { "ok": false, "error": message } }
 #endregion
@@ -128,7 +195,9 @@ static func make_preset(key: StringName) -> DEF_NpcTestRoom:
 	profile.merchant = false
 	var attendance: DEF_NpcSchedule = original.schedule.duplicate(false) as DEF_NpcSchedule
 	attendance.weekdays = PackedInt32Array([0, 1, 2, 3, 4, 5, 6])
+	attendance.morning = DEF_NpcSchedule.Location.STREET
 	attendance.day = DEF_NpcSchedule.Location.STREET
+	attendance.evening = DEF_NpcSchedule.Location.STREET
 	profile.schedule = attendance
 	var district: DEF_District = DEF_District.new()
 	district.key = StringName("qa_room/" + String(key))
@@ -137,7 +206,10 @@ static func make_preset(key: StringName) -> DEF_NpcTestRoom:
 	district.visitor_count = 0
 	district.maximum_conflict_initiators = 0
 	district.places = [
-		_place(&"home", DEF_DistrictPlace.Kind.HOME, Vector3(-12, 0, 6), "Дом посетителя"),
+		_place(
+			&"home", DEF_DistrictPlace.Kind.HOME,
+			Vector3(-12, ROOM_SPAWN_CLEARANCE, 6), "Дом посетителя",
+		),
 		_place(&"portal", DEF_DistrictPlace.Kind.PORTAL, Vector3(-10, 0, -2), "Вход"),
 		_place(&"walk", DEF_DistrictPlace.Kind.ACTIVITY, Vector3(-6, 0, 4), "Прогулка"),
 		_place(&"shop", DEF_DistrictPlace.Kind.SHOP, Vector3(-6, 0, 8), "Место ожидания"),
@@ -206,6 +278,16 @@ static func build_room(source: PackedScene, preset: DEF_NpcTestRoom) -> Node3D:
 	for child: Node in actors.get_children():
 		if child.name not in KEEP_ACTORS:
 			child.free()
+	# Empty display supports from the hall must not obstruct isolated NPC spawn or activity.
+	for support: Node in root.get_node("PVZ").get_children():
+		if (
+			support.name in [
+				&"Pedestal1", &"Pedestal2", &"Pedestal3", &"Pedestal4", &"Pedestal5", &"Pedestal6",
+			]
+			or String(support.name).begins_with("Pedestal_catalog_")
+		):
+			support.free()
+	(root.get_node("TruckParking") as Marker3D).position = Vector3(-3, 0.35, -23)
 	var session: Entity = root.get_node("Entityes/DaySession") as Entity
 	var recipes: Array[Component] = []
 	var has_flow: bool = false

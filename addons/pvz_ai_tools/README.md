@@ -251,6 +251,21 @@ Both tools register through the companion revision refresh and unregister with
 the plugin source on exit; no Nodes or requests are retained. Focused coverage:
 `tests/gut/test_pvz_npc_test_room_authoring.gd`.
 
+`pvz_npc_test_room_attendance` repairs the saved, open canonical room's isolated
+morning/day/evening attendance and gives its home spawn 5 cm of floor clearance.
+It fills the native property-tool gap for scripted nested Resources. Supply
+`room_key`, `scene_fingerprint` and `preset_fingerprint`; the operation refuses
+gameplay, unknown rooms, dirty scenes, stale hashes, mismatched district recipes
+and schedules outside the room/preset resource graphs. Production profiles are
+not edited. It uses scene UndoRedo for properties, saves the external typed
+preset through native ResourceSaver, and requires `scene_save` for the open room.
+The disk save is not undoable. Example:
+`custom_manage(op="invoke", params={"tool_name":"pvz_npc_test_room_attendance",
+"params":{"room_key":"lost","scene_fingerprint":"<scene SHA-256>",
+"preset_fingerprint":"<preset SHA-256>"}})`.
+Registration refreshes with the companion revision; plugin exit unregisters the
+tool with its source. No Nodes or requests are retained between calls.
+
 ## Diagnostics for new project scripts
 
 `pvz_gdscript_path_diagnostics` compiles one through eight existing project-owned

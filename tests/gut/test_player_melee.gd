@@ -403,6 +403,41 @@ func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> 
 	assert_eq(blade.position, baseline, "Cancellation restores authored mesh pose")
 
 
+## Catalog weapons animate authored meshes on the strike clock and restore them on release.
+func test_catalog_weapon_animations_preserve_physics_and_reset_on_release() -> void:
+	for key: String in ["scythe", "axe", "throwing_knife"]:
+		GrabReleaseService.release(_player, _weapon)
+		_world.remove_entity(_weapon)
+		var packed: PackedScene = load(
+			"res://content/domains/combat/entities/%s.tscn" % key
+		) as PackedScene
+		_weapon = packed.instantiate() as Entity
+		EntityCompositionFixture.register(_world, _weapon)
+		var body: RigidBody3D = _weapon as Node as RigidBody3D
+		body.gravity_scale = 0.0
+		body.global_position = (_player as E_RigidBodyCharacter).right_hand_slot.global_position
+		var grip: R_HeldBy = R_HeldBy.new()
+		grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
+		_weapon.add_relationship(Relationship.new(grip, _player))
+		var blade: Node3D = _weapon.get_node("Blade") as Node3D
+		var handle: Node3D = _weapon.get_node("Handle") as Node3D
+		var collision: Node3D = _weapon.get_node("Collision") as Node3D
+		var blade_pose: Transform3D = blade.transform
+		var handle_pose: Transform3D = handle.transform
+		var physical_pose: Transform3D = body.global_transform
+		var collision_pose: Transform3D = collision.transform
+		assert_true(CombatService.start_strike(_player, _weapon), key)
+		CombatFixture.melee(_player, 0.35)
+		assert_false(blade.transform.is_equal_approx(blade_pose), key + ": visible strike")
+		assert_eq(body.global_transform, physical_pose, key + ": physical body unchanged")
+		assert_eq(collision.transform, collision_pose, key + ": collider unchanged")
+		GrabReleaseService.release(_player, _weapon)
+		CombatFixture.melee(_player, 0.1)
+		assert_true(blade.transform.is_equal_approx(blade_pose), key + ": blade resets")
+		assert_true(handle.transform.is_equal_approx(handle_pose), key + ": handle resets")
+		assert_false((_weapon.get_node("AttackAnimation") as AnimationPlayer).is_playing(), key)
+
+
 ## Молоток атакует NPC, сохраняя более высокий приоритет доступного крепления.
 func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action() -> void:
 	GrabReleaseService.release(_player, _weapon)

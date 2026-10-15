@@ -175,7 +175,7 @@
 script = ExtResource("2_m3jsl")
 display_name = "Дом посетителя"
 kind = 0
-position = Vector3(-12, 0, 6)
+position = Vector3(-12, 0.05, 6)
 neighbours = PackedStringArray()
 key = &"home"
 
@@ -214,7 +214,6 @@ key = &"shade"
 script = ExtResource("9_pmp3m")
 weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
 day = 0
-evening = 1
 key = &"schedule/weeping_angel"
 
 [sub_resource type="Resource" id="Resource_gwu37"]
@@ -467,7 +466,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("64_y014y")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_kaens"]
+[sub_resource type="Resource" id="Resource_1i8u5"]
 resource_local_to_scene = true
 script = ExtResource("65_tpkla")
 
@@ -496,12 +495,12 @@ script = ExtResource("73_opyww")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("74_ry18b")
 
-[sub_resource type="Resource" id="Resource_morv4"]
+[sub_resource type="Resource" id="Resource_26otv"]
 resource_local_to_scene = true
 script = ExtResource("76_nukgb")
 profile = ExtResource("75_yt4iy")
 
-[sub_resource type="Resource" id="Resource_5ysm7"]
+[sub_resource type="Resource" id="Resource_kaens"]
 resource_local_to_scene = true
 script = ExtResource("77_axbdw")
 
@@ -825,7 +824,7 @@ script = ExtResource("131_jgwdj")
 actions = Array[ExtResource("129_vxat7")]([SubResource("Scanner_action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_d15rj"]
+[sub_resource type="Resource" id="Resource_morv4"]
 resource_local_to_scene = true
 script = ExtResource("147_7wpvt")
 
@@ -1006,60 +1005,6 @@ mesh = SubResource("SideBarrierMesh")
 [node name="Collision" type="CollisionShape3D" parent="PVZ/BoundaryE" unique_id=402367061]
 shape = SubResource("SideBarrierShape")
 
-[node name="Pedestal1" type="StaticBody3D" parent="PVZ" unique_id=283324125]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 2)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal1" unique_id=1560531169]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal1" unique_id=2146513552]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal2" type="StaticBody3D" parent="PVZ" unique_id=133407206]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 2)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal2" unique_id=1679685654]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal2" unique_id=1731067087]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal3" type="StaticBody3D" parent="PVZ" unique_id=1661263929]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 2)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal3" unique_id=1446470127]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal3" unique_id=1166992170]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal4" type="StaticBody3D" parent="PVZ" unique_id=394676862]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 6)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal4" unique_id=70671298]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal4" unique_id=394713326]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal5" type="StaticBody3D" parent="PVZ" unique_id=321767965]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 6)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal5" unique_id=362923363]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal5" unique_id=1840820277]
-shape = SubResource("PedestalShape")
-
-[node name="Pedestal6" type="StaticBody3D" parent="PVZ" unique_id=998216302]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.5, 6)
-
-[node name="Visual" type="MeshInstance3D" parent="PVZ/Pedestal6" unique_id=43028872]
-mesh = SubResource("PedestalMesh")
-
-[node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal6" unique_id=1208352246]
-shape = SubResource("PedestalShape")
-
 [node name="Pedestal7" type="StaticBody3D" parent="PVZ" unique_id=204726553]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, -8)
 
@@ -1136,7 +1081,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.21)
 
 [node name="Player" parent="Entityes" unique_id=1984383607 instance=ExtResource("48_hka2p")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 2)
-component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_kaens"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_morv4"), SubResource("Resource_5ysm7")])
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_1i8u5"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_26otv"), SubResource("Resource_kaens")])
 metadata/persistent_local_id = &"placed_entityes_player"
 
 [node name="HeadX" parent="Entityes/Player/HeadY" parent_id_path=PackedInt32Array(1984383607, 1109415379) index="0" unique_id=1292554231]
@@ -1215,7 +1160,7 @@ supply = SubResource("Resource_htxy5")
 package_parent = NodePath("..")
 truck_parking = NodePath("../../TruckParking")
 ancestor_entity_bindings = PackedStringArray()
-component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_d15rj")])
+component_resources = Array[ExtResource("54_axnrn")]([SubResource("Resource_morv4")])
 metadata/persistent_local_id = &"placed_entityes_receivingzone"
 
 [node name="FloorMark" parent="Entityes/ReceivingZone" index="0" unique_id=682019643]
@@ -1358,7 +1303,7 @@ damage_feedback = NodePath("../World/Systems/GamePlay/O_DamageFeedback")
 player = NodePath("../Entityes/Player")
 
 [node name="TruckParking" type="Marker3D" parent="." unique_id=550885970]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0.35, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.35, -23)
 
 [node name="District" type="Node3D" parent="." unique_id=1380008467]
 

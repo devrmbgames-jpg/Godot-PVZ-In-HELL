@@ -5,7 +5,7 @@ extends EditorPlugin
 const SOURCE_CFG: String = "res://addons/pvz_ai_tools/plugin.cfg"
 const HANDLER_PATH: String = "res://addons/pvz_ai_tools/gecs_tools.gd"
 const RETRY_SECONDS: float = 1.0
-const REGISTRATION_REVISION: int = 3
+const REGISTRATION_REVISION: int = 4
 const DebuggerBridgeScript := preload("res://addons/pvz_ai_tools/debugger_bridge.gd")
 
 var _registry: McpToolRegistry = null
@@ -181,6 +181,7 @@ func _register_tools() -> void:
 		_style_script_validation_spec(),
 		_owned_script_diagnostics_spec(),
 		_npc_test_room_authoring_spec(),
+		_npc_test_room_attendance_spec(),
 		_test_hall_identity_authoring_spec(),
 		_translation_sources_spec(),
 		_behavior_tree_authoring_spec(),
@@ -498,6 +499,31 @@ func _player_soul_trade_spec() -> McpCustomToolSpec:
 
 
 #region Fixed native QA authoring extension
+## Bounded native attendance repair for one saved, fingerprinted test room and its preset.
+func _npc_test_room_attendance_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_npc_test_room_attendance"
+	spec.description = "Keep one fingerprinted isolated test NPC present in all playable phases."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {
+			"room_key": { "type": "string", "enum": GameSessionService.TEST_ROOM_KEYS },
+			"scene_fingerprint": { "type": "string" },
+			"preset_fingerprint": { "type": "string" },
+		},
+		"required": ["room_key", "scene_fingerprint", "preset_fingerprint"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/npc_test_room_authoring_tool.gd"
+	spec.method = &"author_room_attendance"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.deferred = false
+	return spec
+
+
 func _npc_test_room_authoring_spec() -> McpCustomToolSpec:
 	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
 	spec.name = "pvz_npc_test_room_authoring"

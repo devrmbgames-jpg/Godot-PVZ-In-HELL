@@ -23,6 +23,28 @@ func _open(key: StringName) -> Node3D:
 
 
 #region All authored isolated rooms
+## Registered identities must also participate physically and be visible to the player.
+func test_all_ten_room_npcs_start_visible_with_clear_activation_space() -> void:
+	for key: StringName in GameSessionService.TEST_ROOM_KEYS:
+		var root: Node3D = _open(key)
+		for frame: int in 3:
+			await get_tree().physics_frame
+		var person: NpcRecord = NpcPopulationQueries.current().people[0]
+		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+		var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+		var context: String = "%s: placement=%s reason=%s" % [
+			key, person.placement, decision.participation_reason,
+		]
+		assert_eq(person.placement, NpcRecord.Placement.STREET, context)
+		assert_true(body.enabled, context)
+		assert_true(body.is_visible_in_tree(), context)
+		var spawn: Vector3 = NpcPopulationQueries.position_for(person.home_id, true)
+		assert_true(NpcActivationSolver.available(body, spawn), context)
+		root.free()
+		_level = null
+		await get_tree().process_frame
+
+
 func test_three_daily_native_supplies_assign_both_registered_cases_to_the_only_resident() -> void:
 	for key: StringName in GameSessionService.TEST_ROOM_KEYS:
 		var root: Node3D = _open(key)

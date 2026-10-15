@@ -1,6 +1,6 @@
 # R27.5 — полный тестовый зал и10 изолированных NPC-комнат
 
-Status: **OWNER_QA**
+Status: **IN_PROGRESS**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -20,19 +20,56 @@ Parent: [R27](r27_qa_followup.md).
 
 ### Current
 
-Source `d0568a32b4f80ab02a9ab8ab0d84babe341a91be`;
-authored `content/scenes/primitive_test_level.tscn` and R26 catalog own the starting surface.
-Live MCP editor connected; author scenes/resources through native editor operations.
-No runtime gameplay .gd/.tscn generation. Native editor-only companion authoring created
-ten rooms/presets/portal prefabs; standard MCP placed16 catalog items and10 hall portals.
-Native MCP authored controlled light zones and installed the required district roster Trait.
-Source hall was saved after native undo authoring of16 mandatory stable item IDs.
-Implementation/native verification and exact-SHA review complete; owner resumed2026-10-14.
-Rooms use fresh native sessions without gameplay save slots or per-room progress caches.
-Editor-only preset snapshots preserve original archetype rules; typed inline room tuning remains editable.
-Companion guards reject gameplay, stale fingerprints, unsaved source and existing destinations.
+Owner follow-up 2026-10-15 reopens implementation acceptance:
+- NPC is absent in the isolated test locations; reproduce and fix native spawning/participation.
+- Move each room's truck away from the exit, allowing for its full cargo footprint.
+- Move the hall truck clear of the displayed items, to the side and reasonably near the terminal.
+- Place the physical test items on authored pedestals using the existing knife display as reference.
+- Add minimal testable animations for the scythe, axe and throwing knife.
+Work is explicitly requested; scene changes use the live editor and preserve unrelated edits.
+Previous PASS below describes the earlier checkpoint, not acceptance of these new findings.
+
+Follow-up implementation is authored and saved through the live Godot Editor:
+- All16 catalog pickups have individual native pedestals; existing actor IDs/paths remain intact.
+- Hall and all ten rooms use parking `(-3, 0.35, -23)`, clear of displays/exits and near the terminal.
+  Native truck compound collision footprint is approximately6m by9.1m.
+- NPC absence reproduced in every room: some copied morning schedules selected OUTSIDE;
+  other activations were blocked by an unused hall pedestal and floor contact at the spawn.
+  Test-only schedules now select STREET in all playable phases; unused room displays are removed
+  and home spawns have5cm floor clearance. Production NPC archetypes/schedules are untouched.
+- Scythe/axe/throwing-knife scenes have native `strike`/`RESET` clips for visual meshes,
+  driven by the existing authoritative strike clock; rigid transforms/colliders are not animated.
+- Project-owned native attendance authoring fills the standard MCP nested Resource editing gap.
+  It guards canonical room/preset hashes, dirty editor state and production-resource boundaries.
+
+Base for follow-up review: `3b31e1c5b6d928187da8dfa7e7568354c05ababb`.
+Current review/build gates are pending; earlier review below belongs to the prior checkpoint.
 
 ### Validation
+
+Current follow-up evidence2026-10-15:
+- NPC participation/clear spawn and three daily supplies: GUT3/640 PASS,
+  `.artifacts/godot_agent/gut-20261015-044325624.stdout.log`.
+- Actual combat/three new clip cancellation regressions: GUT16/218 PASS,
+  `.artifacts/godot_agent/gut-20261015-044410252.stdout.log`.
+- Native preset/editor-only guards/packing: GUT6/284 PASS,
+  `.artifacts/godot_agent/gut-20261015-044419569.stdout.log`.
+- Actual ten-room scene transitions/reset/cleanup: PASS516 checks/20 entries, exit0;
+  `.artifacts/npc-room-followup-20261015.log`, empty stderr.
+- Native compound-shape geometry: all16 items supported and truck footprints clear of
+  displays/room exits, loading door within15m of terminal; PASS, exit0,
+  `.artifacts/lab-geometry-20261015.log`.
+- Native parser and MCP six-script diagnostics PASS; final CLI parser
+  `.artifacts/godot_agent/parsechanged-20261015-044738493.stdout.log`.
+- Incremental formatter, strict architecture and project structure PASS.
+  `validate_agent_changes.py` reports the existing editor-only authoring heuristic as REVIEW/FAIL;
+  preserve the raw result for current immutable review rather than relabelling it PASS.
+- Original count-only GUT2/600 passed while missing actual participation. The strengthened
+  regression reproduced all ten failures before repair; raw FAIL logs preserved in
+  `.artifacts/godot_agent/gut-20261015-043555594.stdout.log` and `gut-20261015-044040350.stdout.log`.
+- Rendered gameplay/visual QA NOT_RUN.
+
+### Prior checkpoint evidence
 
 PASS: real native transitions/reset/cleanup496 checks,10 rooms/20 entries:
 `.artifacts/npc-room-transitions-20261014-052713065.log`, process exit0.
@@ -80,5 +117,5 @@ Owner gameplay/visual acceptance of the expanded lab and all ten rooms remains o
 
 ### Next
 
-Complete owner QA. Automated R27 scope is complete; continue remaining R26 as requested.
+Fix and validate the 2026-10-15 follow-up above, then rebuild the Windows test-level build.
 Preserve all unrelated user edits. Required visual/gameplay acceptance remains open.
