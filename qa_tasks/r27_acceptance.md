@@ -6,8 +6,8 @@ Status: **PENDING_OWNER_QA**
 
 Реализация и автоматические evidence: [R27](../agent_tasks/r27_qa_followup.md).
 Тестовая сборка после завершения milestone: [.export/TEST_LEVEL.cmd](../.export/TEST_LEVEL.cmd).
-Build `.export/windows/20261013-194408Z-25f6de74-r27-isolated-npc-rooms`, full code SHA
-`25f6de748304171b935dba4084f8de78088f9906`; exact-SHA review PASS, dirty=true.
+Build `.export/windows/20261015-045017Z-91ee388a-r27-lab-presence-pedestals-animations`, full code SHA
+`91ee388ab6e6cd64175866a22ddf537ec8240c79`; exact-SHA review PASS, dirty=true.
 Headless-проверки подтверждают поведение и lifecycle; визуальная приёмка остаётся открытой.
 
 - [ ] Шесть запланированных получателей сохраняют визит при взаимном избегании и ожидании.

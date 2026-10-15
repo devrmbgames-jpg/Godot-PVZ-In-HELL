@@ -1,6 +1,6 @@
 # R27.5 — полный тестовый зал и10 изолированных NPC-комнат
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -20,7 +20,7 @@ Parent: [R27](r27_qa_followup.md).
 
 ### Current
 
-Owner follow-up 2026-10-15 reopens implementation acceptance:
+Owner follow-up 2026-10-15 is implemented below; required manual acceptance remains open:
 - NPC is absent in the isolated test locations; reproduce and fix native spawning/participation.
 - Move each room's truck away from the exit, allowing for its full cargo footprint.
 - Move the hall truck clear of the displayed items, to the side and reasonably near the terminal.
@@ -43,7 +43,14 @@ Follow-up implementation is authored and saved through the live Godot Editor:
   It guards canonical room/preset hashes, dirty editor state and production-resource boundaries.
 
 Base for follow-up review: `3b31e1c5b6d928187da8dfa7e7568354c05ababb`.
-Current review/build gates are pending; earlier review below belongs to the prior checkpoint.
+Code/review target: `91ee388ab6e6cd64175866a22ddf537ec8240c79`.
+Independent immutable review PASS/no material findings; ARCHITECTURE/STYLE PASS,
+reviewer VALIDATION NOT_RUN. Review duration/efficiency NOT_MEASURED.
+Windows test-level export and headless menu/level startup120frames PASS:
+`.export/windows/20261015-045017Z-91ee388a-r27-lab-presence-pedestals-animations`,
+launcher `.export/TEST_LEVEL.cmd`. The build preserves unrelated user edits (`dirty=true`).
+Native startup logs are clean; export-process logs retain the live-editor LimboAI DLL-copy
+errors and shutdown-only dummy RID retention, so no clean export-process log is claimed.
 
 ### Validation
 
@@ -104,6 +111,12 @@ has no script/runtime errors. This log is preserved and is not called a clean ex
 
 ### Review triage
 
+Current follow-up review at `91ee388ab6e6cd64175866a22ddf537ec8240c79`: no material findings.
+RV-001 remains REJECTED after explicit re-evaluation of the native editor-only authoring
+boundary. Current attendance repair confines changes to room/preset Resource graphs,
+uses scene-owned UndoRedo and discloses its non-undoable external preset save.
+The raw static REVIEW/FAIL is retained; it is not reported as an automatic PASS.
+
 RV-001/P2 — REJECTED: validator heuristic `author` generates scenes. On current code SHA
 `25f6de748304171b935dba4084f8de78088f9906`, independent review confirms native editor guard,
 saved fingerprint, closed destinations, no overwrite, temporary-Node disposal and plugin cleanup.
@@ -117,5 +130,7 @@ Owner gameplay/visual acceptance of the expanded lab and all ten rooms remains o
 
 ### Next
 
-Fix and validate the 2026-10-15 follow-up above, then rebuild the Windows test-level build.
-Preserve all unrelated user edits. Required visual/gameplay acceptance remains open.
+Owner QA of the updated Windows test build using the expanded [R27 checklist](../qa_tasks/r27_acceptance.md):
+visible usable NPCs in all phases, truck/terminal/exit access, pedestal pickup/labels and weapon animation feel.
+Implementation/native tests/review/export are complete. Preserve all unrelated user edits.
+Required visual/gameplay acceptance remains open; do not archive this task before it closes.
