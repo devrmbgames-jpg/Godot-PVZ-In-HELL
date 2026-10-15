@@ -1,10 +1,12 @@
 # PVZ-B01 — ConfigFile для save/load и согласованный предел размера
 
-Status: **IN_PROGRESS**
+Status: **DEFERRED**
 Priority: **P2**
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 Owner decision: запись содержимого сохранения выполняется через **ConfigFile**, не ручной FileAccess.
 Implementation BASE_SHA: `01af39e1a126e0d1326e474e164efe10d24bfe1b`
+
+Final owner decision 2026-10-16: нужен простой storage финального Dictionary как ConfigFile value; если корректная конвертация не получается, вернуть прежний формат. Владелец не одобрил предложенный cleanup Nodes. По этому fallback все незакоммиченные изменения production adapter, schema и fixtures откачены целевым inverse patch; поддерживается прежний binary PVZH1 / schema 19. Новая сериализация Float64 или иной обход поверх ConfigFile не внедряется. Требования миграции ниже сохраняются как отложенный scope, а не выполненная приёмка.
 
 Owner decision 2026-10-16: ConfigFile остаётся обязательным контейнером; данные могут предварительно сериализоваться в Dictionary/Array. Владелец явно принял ограничение native parser: запрет создания Objects самим ConfigFile.load снят, но после load требуется строгий отказ для любых Object в контейнере и запрет их передачи/использования в live World. Этот ответ заменяет прежний запрет parse-time Object construction ниже; безопасность parser до post-load gate не обещается.
 
@@ -69,12 +71,18 @@ Focused native GUT на AutosaveStore/ConfigFile и существующий per
 
 
 ### Current
-Проверен native API Godot 4.7.1-stable (official) из проекта. Изолированный [probe](../../tests/tools/configfile_native_probe.gd) подтверждает создание RefCounted внутри Dictionary при ConfigFile.load; запрета Objects в аргументах load/parse нет. Владелец принял это ограничение и разрешил строгий post-load gate. Исходный blocker снят его явным решением; начинается миграция единственного storage owner.
+Выполнен разрешённый владельцем fallback: production AutosaveStore восстановлен в точности к HEAD (PVZH1, bytes_to_var без Objects, schema 19), current snapshot/manifest и WorldSnapshot tests восстановлены. Собственный незакоммиченный ConfigFile GUT удалён из активных тестов. Исследование и точный rollback patch сохранены в `.artifacts/configfile_attempt/` и `.artifacts/configfile_attempt_owned_changes.patch`; пользовательские правки не затронуты. ConfigFile migration **DEFERRED**, не DONE.
 
 ### Next
-Реализовать единственный ConfigFile storage путь, полный UTF-8 size guard, canonical checksum, temp native readback и replace. Повысить schema 19 → 20 и согласовать fixtures. Запустить focused native storage/persistence регрессии и один Night retry/fresh-load smoke, затем immutable commit/review/triage.
+Продолжить независимые задачи с фактически поддерживаемым binary контрактом. Не возобновлять усложнение ConfigFile без нового решения владельца. Несогласованный предел полного файла старого adapter остаётся открытой частью отложенного scope, а не объявляется исправленным.
 
 ### Owner QA / blockers
+
+- **OWNER_FALLBACK / DEFERRED**: простая ConfigFile запись финального Dictionary не сохраняет exact Float64 значения freshly captured NPC variation: `move_speed_multiplier` / `aggression_multiplier`. Native encode → load → encode стабилен, но `snapshot != decoded`; строгий readback возвращал ERR_FILE_CORRUPT. Evidence: `.artifacts/godot_agent/configfile-precision.stdout.log`, `canonical_equal=true`, `equal=false`; golden snapshot прошёл storage roundtrip, свежий snapshot — нет. Проверка не заменена approximate comparison.
+- **PASS до fallback, не production acceptance**: экспериментальный ConfigFile adapter GUT 10/10, 147 assertions — small full-file L−1/L/L+1, Unicode/native types, envelope/Object gate, native save/readback/Windows replace failures и защита чужого temp. Source сохранён только в `.artifacts/configfile_attempt/tests/gut/test_autosave_store.gd`; экспериментальный adapter/schema 20 не закоммичены и больше не активны.
+- Автопроверка безопасности отклонила общий Object.free и затем узкий Node.queue_free: признаки scriptless/parentless не признаны доказательством владения; риск удаления чужого узла/double-free. Ни один patch не применён и одобрение не получено. Native evidence создания нового orphan Node: `.artifacts/godot_agent/configfile-node-probe.stdout.log`, `distinct_instance=true`, `orphan_growth=1`, `survives_container_clear=true`. Cleanup strategy не является production результатом.
+- Проверенный runner repair [GUT-CFG01](completed/gut_expected_configfile_errors.md) сохранён отдельными reviewed commits; это не объявляет ConfigFile миграцию выполненной.
+- **PASS**: native parser восстановленного adapter/test, `.artifacts/godot_agent/parsefiles-20261015-164813005.stdout.log`. **FAIL**: исходный persistence baseline после полного fallback — 4/5, 364/365, retained dormant body enabled на line 289; это отдельный [PERSIST-DORM01](persistence_baseline_dormant_restore.md), не отказ binary roundtrip. Обязательная приёмка B01 не объявляется PASS.
 
 - **OWNER_ACCEPTED_LIMITATION**: ConfigFile.load создаёт Objects до schema/checksum gate. Probe использует безвредный RefCounted и отдельные user:// файлы, удаляемые после проверки; пользовательские слоты не затрагиваются. Нельзя объявлять безопасность native parser PASS на основании последующего отказа в preflight.
 - **PASS (API evidence only)**: native roundtrip Dictionary с Unicode/escapes/native types, целочисленным значением >2^53; encode → load → encode; размер текста и файла 301 bytes; temp replace существующего файла и readback. Это не проверка всего gameplay snapshot или полного acceptance.
