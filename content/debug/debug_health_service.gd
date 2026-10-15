@@ -131,14 +131,18 @@ static func _submit(
 	request.amount = amount
 	request.operation = operation
 	request.damage_type = damage_type
+	# Native PER_CALLBACK can resolve the request before submit returns.
+	var captured_id: String = entity.id
+	var previous_current: float = health.current
+	var previous_maximum: float = health.value
 	if not DamageRequestService.submit(request):
 		result.message = "DamageRequestService rejected request"
 		return result
 
 	result.success = true
 	result.message = "health request submitted"
-	result.details.append("entity=%s" % entity.id)
-	result.details.append("hp_before=%.1f/%.1f" % [health.current, health.value])
+	result.details.append("entity=%s" % captured_id)
+	result.details.append("hp_before=%.1f/%.1f" % [previous_current, previous_maximum])
 	result.details.append("amount=%.1f" % amount)
 	result.details.append("operation=%s" % String(DamageRequest.Operation.keys()[operation]))
 	result.details.append("type=%s" % String(DamageRequest.Type.keys()[damage_type]))

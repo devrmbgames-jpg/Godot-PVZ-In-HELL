@@ -216,6 +216,32 @@ func test_debug_save_preserves_slot_when_prefab_cannot_restore_owned_item() -> v
 	assert_same(InventoryService.owner_for(item), _actor)
 
 
+## Inline damage/healing changes HP before submit returns; receipts retain the pre-dispatch values.
+func test_health_receipt_captures_hp_before_inline_damage_and_healing() -> void:
+	_world.add_observer(O_Damage.new())
+	var health: C_Health = _actor.get_component(C_Health) as C_Health
+	health.current = 80.0
+	var target: DebugTarget = DebugTarget.new()
+	target.kind = DebugTarget.Kind.ENTITY
+	target.entity = _actor
+
+	var damaged: DebugServiceResult = DebugHealthService.apply_damage(
+		target,
+		5.0,
+		DamageRequest.Type.GENERIC,
+	)
+
+	assert_true(damaged.success)
+	assert_eq(health.current, 75.0, "Native PER_CALLBACK resolves before the adapter returns")
+	assert_has(damaged.details, "hp_before=80.0/100.0")
+
+	var healed: DebugServiceResult = DebugHealthService.heal(target, 5.0)
+
+	assert_true(healed.success)
+	assert_eq(health.current, 80.0)
+	assert_has(healed.details, "hp_before=75.0/100.0")
+
+
 ## Создание визита сохраняет авторское представление и состояние до прихода без повторного заказа.
 func test_live_visit_option_preserves_accounting_default_and_authored_introduction() -> void:
 	var parcel: Entity = Entity.new()
