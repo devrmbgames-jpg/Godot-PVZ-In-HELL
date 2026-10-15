@@ -2,8 +2,6 @@ extends CanvasLayer
 ## Торговый интерфейс: запрашивает покупки и задания через сервисы, освобождает модальный ввод.
 class_name CommercePanel
 
-const PANEL_SIZE: Vector2 = Vector2(720, 450)
-const MARGIN: float = 32.0
 const REFRESH_SECONDS: float = 0.2
 const RESULT_TEXT: Array[String] = [
 	"Готово",
@@ -26,57 +24,25 @@ var _last_click_frame: int = -1
 var _message: String = ""
 var _last_signature: String = ""
 var _quest_id: StringName = &""
-var _title: Label = null
-var _status: Label = null
-var _offers: VBoxContainer = null
-var _quest: VBoxContainer = null
-var _close: Button = null
-var _purchase_dialog: ConfirmationDialog = null
-var _delivery_button: Button = null
 var _purchase_item: DEF_InventoryItem = null
 var _purchase_id: StringName = &""
 var _purchase_focus: WeakRef = null
 
+@onready var _title: Label = $Root/Center/Panel/Content/Title
+@onready var _status: Label = $Root/Center/Panel/Content/Status
+@onready var _offers: VBoxContainer = $Root/Center/Panel/Content/OffersScroll/Offers
+@onready var _quest: VBoxContainer = $Root/Center/Panel/Content/Quest
+@onready var _close: Button = $Root/Center/Panel/Content/CloseButton
+@onready var _purchase_dialog: ConfirmationDialog = $FurniturePurchase
+@onready var _delivery_button: Button = $FurniturePurchase/DeliveryButton
+@onready var _delivery_spacer: Control = $FurniturePurchase/DeliverySpacer
+
 
 #region Создание и жизненный цикл
 func _ready() -> void:
-	layer = 95
-	var root: MarginContainer = MarginContainer.new()
-	root.name = "Root"
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side: StringName in [&"margin_left", &"margin_top", &"margin_right", &"margin_bottom"]:
-		root.add_theme_constant_override(side, int(MARGIN))
-	add_child(root)
-
-	var center: CenterContainer = CenterContainer.new()
-	root.add_child(center)
-	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = PANEL_SIZE
-	center.add_child(panel)
-	var content: VBoxContainer = VBoxContainer.new()
-	panel.add_child(content)
-	_title = Label.new()
-	content.add_child(_title)
-	_status = Label.new()
-	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	content.add_child(_status)
-	_offers = VBoxContainer.new()
-
-	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.custom_minimum_size.y = 200.0
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	content.add_child(scroll)
-	_offers.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_offers)
-	_quest = VBoxContainer.new()
-	content.add_child(_quest)
-	_close = Button.new()
-	_close.text = "Закрыть"
 	_close.pressed.connect(close_panel)
-	content.add_child(_close)
 	_close.grab_focus()
-	_create_purchase_dialog()
+	_bind_purchase_dialog()
 
 
 func _exit_tree() -> void:
@@ -390,19 +356,19 @@ func _submit_purchase(item: DEF_InventoryItem, operation_id: StringName, deliver
 
 
 #region Выбор способа получения
-func _create_purchase_dialog() -> void:
-	_purchase_dialog = ConfirmationDialog.new()
-	_purchase_dialog.name = "FurniturePurchase"
-	_purchase_dialog.title = "Доставить или заберёшь сам?"
-	_purchase_dialog.exclusive = true
-	_purchase_dialog.min_size = Vector2i(420, 160)
-	_purchase_dialog.get_ok_button().text = "Сам"
-	_purchase_dialog.get_cancel_button().text = "Отмена"
-	_delivery_button = _purchase_dialog.add_button("Доставить +100$", true, &"delivery")
+## Привязывает авторские кнопку/распорку к внутреннему ряду кнопок native AcceptDialog.
+func _bind_purchase_dialog() -> void:
+	var buttons: HBoxContainer = _purchase_dialog.get_ok_button().get_parent() as HBoxContainer
+	_delivery_button.reparent(buttons, false)
+	_delivery_spacer.reparent(buttons, false)
+	_delivery_button.pressed.connect(_request_delivery)
 	_purchase_dialog.confirmed.connect(_choose_purchase.bind(false))
 	_purchase_dialog.custom_action.connect(_delivery_choice)
 	_purchase_dialog.canceled.connect(_cancel_purchase)
-	add_child(_purchase_dialog)
+
+
+func _request_delivery() -> void:
+	_purchase_dialog.custom_action.emit(&"delivery")
 
 
 func _delivery_choice(action: StringName) -> void:

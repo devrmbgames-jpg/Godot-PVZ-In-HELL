@@ -1,6 +1,8 @@
 extends GutTest
 ## Проверяет задание отказа по постоянной коробке и фактическому исходу обслуживания.
 
+const COMMERCE_PANEL_SCENE: PackedScene = preload("res://content/ui/commerce_panel.tscn")
+
 var _world: World = null
 var _cycle: C_DayCycle = null
 var _wallet: C_Wallet = null
@@ -99,7 +101,7 @@ func test_authored_variants_select_reward_deadline_and_dialogue_without_script_c
 		assert_true(RefusalQuestValidator.definition_issues(record.definition).is_empty())
 		assert_eq(RefusalQuestService.offer(_trader), record)
 
-		var panel: CommercePanel = CommercePanel.new()
+		var panel: CommercePanel = COMMERCE_PANEL_SCENE.instantiate() as CommercePanel
 		add_child(panel)
 		panel.set_process(false)
 		panel.call("_show_quest", record, _cycle)
@@ -124,7 +126,7 @@ func test_authored_variants_select_reward_deadline_and_dialogue_without_script_c
 
 		assert_true(RefusalQuestService.accept(record.quest_id))
 		assert_false(RefusalQuestService.accept(record.quest_id))
-		panel = CommercePanel.new()
+		panel = COMMERCE_PANEL_SCENE.instantiate() as CommercePanel
 		add_child(panel)
 		panel.set_process(false)
 		panel.call("_show_quest", record, _cycle)

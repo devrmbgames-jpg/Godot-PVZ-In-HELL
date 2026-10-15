@@ -4,6 +4,7 @@ extends "res://tests/gut/test_trader_furniture.gd"
 const DEF_ITEM_FOOD_PATH: String = (
 	"res://content/domains/inventory/definitions/def_item_food.tres"
 )
+const DEF_ITEM_MED_PATH: String = "res://content/domains/inventory/definitions/def_item_med.tres"
 
 
 #region Доступность и авторские ограничения
@@ -18,9 +19,7 @@ func test_authored_profile_variants_are_the_only_live_shop_assortment() -> void:
 		as DEF_TraderProfile
 	)
 	var food: DEF_InventoryItem = (load(DEF_ITEM_FOOD_PATH) as DEF_InventoryItem)
-	var medicine: DEF_InventoryItem = (
-		load("res://content/domains/inventory/definitions/def_item_med.tres") as DEF_InventoryItem
-	)
+	var medicine: DEF_InventoryItem = load(DEF_ITEM_MED_PATH) as DEF_InventoryItem
 	assert_same(_shop.profile, general)
 	assert_true(food in TraderCatalogRules.catalog(_shop))
 	assert_true(_shelf in TraderCatalogRules.catalog(_shop))
@@ -296,6 +295,132 @@ func test_unavailable_trader_at_answer_cancels_purchase_and_releases_control() -
 
 
 #region Domain requests and native UI composition
+## The permanent scaffold exists in the PackedScene before any runtime callbacks.
+func test_authored_commerce_scene_exposes_layout_and_dialog_before_ready() -> void:
+	var packed: PackedScene = load("res://content/ui/commerce_panel.tscn") as PackedScene
+	var panel: CommercePanel = packed.instantiate() as CommercePanel
+	assert_false(panel.is_node_ready())
+	assert_eq(panel.layer, 95)
+	var margin: MarginContainer = panel.get_node("Root") as MarginContainer
+	assert_eq(margin.anchor_right, 1.0)
+	assert_eq(margin.anchor_bottom, 1.0)
+	for side: StringName in [&"margin_left", &"margin_top", &"margin_right", &"margin_bottom"]:
+		assert_eq(margin.get_theme_constant(side), 32)
+	var body: PanelContainer = panel.get_node("Root/Center/Panel") as PanelContainer
+	assert_eq(body.custom_minimum_size, Vector2(720, 450))
+	var scroll: ScrollContainer = body.get_node("Content/OffersScroll") as ScrollContainer
+	assert_eq(scroll.custom_minimum_size.y, 200.0)
+	assert_eq(scroll.horizontal_scroll_mode, ScrollContainer.SCROLL_MODE_DISABLED)
+	assert_eq(scroll.size_flags_vertical, Control.SIZE_EXPAND_FILL)
+	assert_true(scroll.has_node("Offers"))
+	assert_true(body.has_node("Content/Quest"))
+	assert_eq((body.get_node("Content/CloseButton") as Button).text, "Закрыть")
+	var dialog: ConfirmationDialog = panel.get_node("FurniturePurchase") as ConfirmationDialog
+	assert_true(dialog.exclusive)
+	assert_eq(dialog.min_size, Vector2i(420, 160))
+	assert_eq(dialog.ok_button_text, "Сам")
+	assert_eq(dialog.cancel_button_text, "Отмена")
+	assert_true(dialog.has_node("DeliveryButton"))
+	assert_true(dialog.has_node("DeliverySpacer"))
+	assert_same(dialog.get_node("DeliveryButton").owner, panel)
+	panel.free()
+
+
+## Repeated openings bind one close handler and release the previous mouse/control state.
+func test_scene_reopen_and_close_button_keep_one_capture_and_one_handler() -> void:
+	var previous_mouse: Input.MouseMode = Input.mouse_mode
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	var accepted_mouse: Input.MouseMode = Input.mouse_mode
+	var control: C_GrabControl = _actor.get_component(C_GrabControl) as C_GrabControl
+	for attempt: int in 2:
+		var panel: CommercePanel = CommercePanelFactory.open(_actor, _trader)
+		assert_not_null(panel)
+		assert_eq(panel.scene_file_path, "res://content/ui/commerce_panel.tscn")
+		assert_null(CommercePanelFactory.open(_actor, _trader))
+		assert_false(panel.open_for(_actor, _trader))
+		assert_eq(control.captures.size(), 1)
+		var close_button: Button = panel.get("_close") as Button
+		assert_eq(close_button.pressed.get_connections().size(), 1)
+		close_button.pressed.emit()
+		assert_true(control.captures.is_empty())
+		assert_eq(Input.mouse_mode, accepted_mouse)
+		await get_tree().process_frame
+	Input.mouse_mode = previous_mouse
+
+
+## Authored delivery button uses the same custom action and commits one operation on double signal.
+func test_authored_delivery_button_joins_native_row_and_routes_one_purchase() -> void:
+	var panel: CommercePanel = _open_choice()
+	var dialog: ConfirmationDialog = panel.get("_purchase_dialog") as ConfirmationDialog
+	var delivery: Button = panel.get("_delivery_button") as Button
+	var spacer: Control = panel.get("_delivery_spacer") as Control
+	assert_same(delivery.get_parent(), dialog.get_ok_button().get_parent())
+	assert_same(spacer.get_parent(), delivery.get_parent())
+	assert_eq(spacer.get_index(), delivery.get_index() + 1)
+	assert_eq(spacer.size_flags_horizontal, Control.SIZE_EXPAND_FILL)
+	assert_eq(spacer.mouse_filter, Control.MOUSE_FILTER_PASS)
+	assert_eq(delivery.pressed.get_connections().size(), 1)
+	await get_tree().process_frame
+	delivery.pressed.emit()
+	delivery.pressed.emit()
+	assert_false(dialog.visible)
+	assert_eq(_wallet.operations.size(), 1)
+	assert_eq(_commerce.pending_deliveries.size(), 1)
+	assert_eq(_wallet.balance, 720)
+
+
+## Terminal mode projects its own changing catalog and queues an order without the delivery choice.
+func test_authored_scene_order_mode_refreshes_variable_catalog_and_submits_once() -> void:
+	_commerce.catalog = [load(DEF_ITEM_FOOD_PATH) as DEF_InventoryItem]
+	var panel: CommercePanel = CommercePanelFactory.open(_actor, null, true)
+	assert_not_null(panel)
+	assert_eq((panel.get("_offers") as VBoxContainer).get_child_count(), 1)
+	var button: Button = panel.get("_offers").get_child(0).get_child(0) as Button
+	button.pressed.emit()
+	button.pressed.emit()
+	assert_eq(_commerce.receipts.size(), 1)
+	assert_eq(_commerce.pending_deliveries.size(), 1)
+	assert_eq(_wallet.balance, 975)
+	assert_false((panel.get("_purchase_dialog") as ConfirmationDialog).visible)
+	_commerce.catalog.append(load(DEF_ITEM_MED_PATH) as DEF_InventoryItem)
+	panel.call("_refresh")
+	assert_eq((panel.get("_offers") as VBoxContainer).get_child_count(), 2)
+	_cycle.phase = C_DayCycle.Phase.DAY
+	panel.call("_refresh")
+	assert_true((panel.get("_offers").get_child(0).get_child(0) as Button).disabled)
+	assert_eq(_commerce.receipts.size(), 1)
+
+
+## Failed acquire deletes the instantiated shell; tree exit also releases an active capture.
+func test_failed_scene_open_and_tree_exit_leave_no_modal_capture() -> void:
+	var control: C_GrabControl = _actor.get_component(C_GrabControl) as C_GrabControl
+	_actor.remove_component(C_GrabControl)
+	assert_null(CommercePanelFactory.open(_actor, _trader))
+	await get_tree().process_frame
+	for child: Node in _actor.get_children():
+		assert_false(child is CommercePanel)
+	_actor.add_component(control)
+	var panel: CommercePanel = _open_choice()
+	assert_eq(control.captures.size(), 1)
+	_actor.remove_child(panel)
+	assert_true(control.captures.is_empty())
+	assert_null(panel.get("_purchase_item"))
+	panel.free()
+
+
+## Disabling the actor closes even a pending furniture choice without requesting a purchase.
+func test_unavailable_actor_closes_authored_panel_without_payment() -> void:
+	var panel: CommercePanel = _open_choice()
+	var control: C_GrabControl = _actor.get_component(C_GrabControl) as C_GrabControl
+	_world.disable_entity(_actor)
+	panel.call("_process", 0.0)
+	assert_true(panel.is_queued_for_deletion())
+	assert_true(control.captures.is_empty())
+	assert_eq(_wallet.balance, 1000)
+	assert_true(_commerce.receipts.is_empty())
+	_world.enable_entity(_actor)
+
+
 ## The actual interaction opens native UI; Night cleanup releases the same modal capture.
 func test_trader_action_request_opens_panel_and_night_reset_closes_it() -> void:
 	DialogueUiFixture.install()

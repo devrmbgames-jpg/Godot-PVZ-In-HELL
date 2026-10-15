@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://b43ns1dh34gcf"]
+
+[ext_resource type="Script" uid="uid://slgv4dvc43h2" path="res://content/ui/commerce_panel.gd" id="1_dchrk"]
+
+[node name="CommercePanel" type="CanvasLayer" unique_id=886577361]
+layer = 95
+script = ExtResource("1_dchrk")
+
+[node name="Root" type="MarginContainer" parent="." unique_id=2119578466]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="Center" type="CenterContainer" parent="Root" unique_id=1775828805]
+layout_mode = 2
+
+[node name="Panel" type="PanelContainer" parent="Root/Center" unique_id=1164538936]
+custom_minimum_size = Vector2(720, 450)
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="Root/Center/Panel" unique_id=1013473054]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Center/Panel/Content" unique_id=1161777590]
+layout_mode = 2
+
+[node name="Status" type="Label" parent="Root/Center/Panel/Content" unique_id=1065925947]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="OffersScroll" type="ScrollContainer" parent="Root/Center/Panel/Content" unique_id=1694045909]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Offers" type="VBoxContainer" parent="Root/Center/Panel/Content/OffersScroll" unique_id=1191239176]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Quest" type="VBoxContainer" parent="Root/Center/Panel/Content" unique_id=1549117677]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="Root/Center/Panel/Content" unique_id=1219853499]
+layout_mode = 2
+text = "Закрыть"
+
+[node name="FurniturePurchase" type="ConfirmationDialog" parent="." unique_id=1905760475]
+title = "Доставить или заберёшь сам?"
+size = Vector2i(420, 190)
+min_size = Vector2i(420, 160)
+ok_button_text = "Сам"
+cancel_button_text = "Отмена"
+
+[node name="DeliveryButton" type="Button" parent="FurniturePurchase" unique_id=732652611]
+text = "Доставить +100$"
+
+[node name="DeliverySpacer" type="Control" parent="FurniturePurchase" unique_id=1733817623]
+layout_mode = 3
+anchors_preset = 0
+size_flags_horizontal = 3
+mouse_filter = 1

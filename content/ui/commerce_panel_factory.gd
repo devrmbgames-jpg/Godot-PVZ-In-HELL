@@ -2,6 +2,8 @@ extends RefCounted
 ## Создаёт одну торговую панель доступного участника с модальным захватом ввода.
 class_name CommercePanelFactory
 
+const PANEL_SCENE: PackedScene = preload("res://content/ui/commerce_panel.tscn")
+
 
 #region Panel construction
 ## Создаёт панель после проверки участников и приоритета; отказ возвращает null.
@@ -22,7 +24,7 @@ static func open(actor: Entity, trader: Entity = null, order_mode: bool = false)
 		if child is CommercePanel and not child.is_queued_for_deletion():
 			return null
 
-	var panel: CommercePanel = CommercePanel.new()
+	var panel: CommercePanel = PANEL_SCENE.instantiate() as CommercePanel
 	actor.add_child(panel)
 	if not panel.open_for(actor, trader, order_mode):
 		panel.queue_free()

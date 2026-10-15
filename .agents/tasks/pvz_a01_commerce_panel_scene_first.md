@@ -1,8 +1,9 @@
 # PVZ-A01 — Нативная сцена торговой панели
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 Priority: **P2**
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
+BASE_SHA: `160ab9c9caa872ccb748ab0fc1d64bdd21c15b7b`
 
 ## Task state
 
@@ -48,15 +49,26 @@ Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 
 
 ### Current
-ТЗ подготовлено. Реализация, native проверки и review исправления: **NOT_RUN**.
+Постоянный макет создан/сохранён native MCP в commerce_panel.tscn: CanvasLayer 95, full-rect Margin 32, Center/Panel 720×450, Title/Status, Scroll 200, Offers/Quest, Close и FurniturePurchase. Диалог и авторские DeliveryButton/DeliverySpacer доступны без ready. Типизированные приватные @onready bindings заменили конструктор макета; фабрика и оба прямых quest-test callers используют PackedScene. Динамические строки остались у UI, операции — у прежних сервисов.
+
+AcceptDialog создаёт собственный внутренний ряд кнопок, не являющийся авторским узлом сцены. Ready привязывает к нему уже существующие DeliveryButton/DeliverySpacer без new() и сохраняет custom_action. Native headless сравнение с исходным script из BASE_SHA подтвердило равенство rect, dialog size/min_size, порядка/текста/flags/mouse_filter всех кнопок и распорок. Это проверка свойств, не визуальная приёмка.
 
 ### Next
-Зафиксировать актуальный рабочий SHA и инвентарь постоянных узлов; затем выполнить scene-first миграцию одной связной итерацией.
+Сделать отдельный implementation commit, закрепить TARGET_SHA и передать одному read-only reviewer. Собрать triage; затем OWNER_QA для обязательной ручной приёмки. До неё не объявлять DONE и не архивировать. Независимая ConfigFile миграция может продолжаться во время review.
 
 ### Dependencies / exclusions
 Независима от остальных исправлений аудита. Финальная проверка комментариев входит также в [качество документации](pvz_code_documentation_quality.md), но документация изменённого API обязательна уже здесь. Не включать NPC performance, social/traffic refactor и другие панели.
 
 ### Owner QA / blockers
+
+- **PASS**: focused TraderPurchase 29/29 (386 assertions), RefusalQuest 14/14 (137 assertions): 43 теста, 523 assertions. Native request → CommercePanel → NightReset integration входит в TraderPurchase. Final logs: `.artifacts/godot_agent/gut-20261015-161746609.stdout.log` и `gut-20261015-161754841.stdout.log`.
+- **PASS**: MCP native path diagnostics трёх изменённых scripts, ошибок нет. Макет и UID созданы/сохранены через editor MCP.
+- **PASS**: native layout properties comparator с BASE_SHA, `.artifacts/godot_agent/commerce-layout-compare.stdout.log`, `equal=true`, exit 0. Initial explicit reset_size менял hidden dialog size и удалён до checkpoint.
+- Первый GUT: 28/29 — test ожидал MOUSE_MODE_HIDDEN, который headless backend не применяет. Assertion исправлен на возврат фактически принятого режима; production input код не менялся. Первичный log `.artifacts/godot_agent/gut-20261015-161313184.stdout.log` сохранён.
+- Gameplay/visual **NOT_RUN**, 0/8. Обязательная owner QA: прежний вид/читаемость, keyboard/gamepad focus/navigation и управление на целевых устройствах. Headless assertions это не заменяют.
+- Review **REVIEW_PENDING** до committed immutable snapshot и triage.
+- **PASS**: final formatter/lint, agent smells, strict architecture, полный structure gate, отсутствие CommercePanel.new() в content/tests; native parser `.artifacts/godot_agent/parsechanged-20261015-161721024.stdout.log`.
+- Editor штатно закрыт после MCP ownership check без dirty scenes. Только доказанные собственные 8 пустых BlackboardPlan и 1 UID annotation отменены точным inverse patch; исходные планы и пользовательские изменения сохранены. Patch `.artifacts/commerce_editor_resave_sideeffects.patch`; эти ресурсы не входят в checkpoint.
 
 ### Completion
 Работать по [AGENTS.md](../../AGENTS.md) и [task lifecycle](../skills/task-lifecycle/SKILL.md). GitHub Actions/gh не использовать. После реализации зафиксировать полные base/target/review/fix SHA, реально выполненные PASS/FAIL/NOT_RUN и unresolved findings в этом файле; reviewer работает read-only, не более одного child agent одновременно. После всех обязательных проверок/приёмки перенести этот же файл в `completed/`, обновив ссылки, без дубликата и журнала действий.
