@@ -6,6 +6,13 @@ ordinary authored schedules go directly through the native LimboAI schedule subt
 Emergency, combat, conversation and customer service priority remain visible in the
 existing native trees. Utility and GOAP add no runtime path in this milestone.
 
+Bootstrap and restore use `DistrictCalendarReconcileRequest` to rebuild the district's
+transient calendar cache and assign missing current plans. A record already planned for
+the current day/phase keeps its goal, completion and physical placement; reconstruction
+does not replay its arrival or reactivate a retained dormant body. Committed calendar
+facts and explicit `NpcPhasePlanRequest` retries retain their ordinary planning/arrival
+behavior.
+
 `C_NpcDecision` owns the transient schedule action incarnation and
 ACCEPTED/RUNNING/COMPLETED/FAILED/CANCELLED result. `NpcScheduleActionService` performs
 explicit synchronous transitions; it neither selects branches nor advances time.

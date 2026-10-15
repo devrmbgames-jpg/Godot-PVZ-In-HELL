@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 Priority: **P1**
-BASE_SHA: `de19b8ea28d3ca3d3d4493d4516d62a27b1a05c9`
+BASE_SHA: `495cf8f6d9fb0ea3dc0fbc62b5cef32f18971103`
 
 ## Task state
 
@@ -15,13 +15,19 @@ After the owner-requested ConfigFile rollback, production adapter and fixtures e
 The same dormant assertion also failed while testing the extracted old binary adapter, before fallback. This is separate from the ConfigFile Float64 mismatch. Current owners: WorldSnapshotService, district restore/reconciliation, DistrictPopulationService, O_DistrictLifecycle, the native baseline fixture/test.
 
 ### Current
-Confirmed exact failing assertion after full storage rollback. Root cause not yet established. Known engine shutdown-only Resource/RID retention remains separately KNOWN_ENGINE_LIMITATION / DEFERRED; actual test failure is not waived by that policy.
+Root cause: explicit bootstrap/restore reconciliation reused the calendar-fact planner; its already-planned retry called `_try_arrival()` and changed a saved OUTSIDE placement to STREET. `O_DistrictLifecycle` now preserves an existing current-day/phase plan for the explicit reconciliation command and assigns only missing plans. Real calendar facts and explicit phase-plan retries retain their existing behavior. No saved fields, schema, fixtures, IDs or body ownership changed.
+
+Added MANUAL-command regressions for saved dormancy with both completion states and for a genuinely missing plan. The original golden retained-body regression passes unchanged. Architecture and obligation docs describe the explicit reconstruction boundary.
 
 ### Next
-Inspect the saved record/body availability and restore → explicit district reconciliation boundary. Make the smallest contract-correct fix, validate focused persistence/district checks and one relevant non-visual Night restore integration. Commit a coherent checkpoint and run one immutable read-only reviewer; triage/fix accepted P0/P1/P2 before DONE.
+Commit the verified coherent checkpoint and run one immutable read-only reviewer. Collect triage and resolve accepted P0/P1/P2 before DONE. Only independent work while review runs.
 
 ### Validation
-FAIL: original baseline 4/5 as above. PASS: parser after rollback, `.artifacts/godot_agent/parsefiles-20261015-164813005.stdout.log`. Implementation/targeted review NOT_RUN. Gameplay/visual NOT_RUN, 0/8.
+PASS: DistrictLifecycle 21/21, 196 assertions (`.artifacts/godot_agent/gut-20261015-165456155.stdout.log`). PASS: native current-format persistence baseline 5/5, 365 assertions, engine exit 0 (`gut-20261015-165515554.stdout.log`), including the original failure and health/inventory/retained identity checks. The wrapper reports FAIL on that suite solely for unchanged shutdown Resource/RID/allocator retention diagnostics; logs are preserved and classified KNOWN_ENGINE_LIMITATION / DEFERRED per AGENTS.md, not hidden or relabelled as wrapper PASS.
+
+PASS: WorldSnapshot 37/37, 464 assertions (`gut-20261015-165613749.stdout.log`), StartupRestore 5/5, 38 assertions (`gut-20261015-165627095.stdout.log`). Across these four focused suites: 68 tests, 1,063 assertions; the baseline wrapper limitation is reported separately above.
+
+PASS: two-process Night write/retry/fresh Morning restore, including replacement Morning 3: `tests/artifacts/night_persistence-write-20261016-025645380.log` and `night_persistence-restore-20261016-025658540.log`. PASS: formatter/lint, agent smells, strict architecture, full project structure and native ParseChanged (`.artifacts/godot_agent/parsechanged-20261015-165712971.stdout.log`). Immutable review REVIEW_PENDING. Gameplay/visual NOT_RUN, 0/8.
 
 ### Dependencies / exclusions
 Independent of deferred [PVZ-B01](pvz_b01_configfile_save_storage.md) format migration. Follow GECS, typed GDScript, native scene ownership and task lifecycle. No economy redesign, NPC performance work, random-seed changes or broad golden regeneration.

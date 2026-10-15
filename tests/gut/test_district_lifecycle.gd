@@ -32,6 +32,61 @@ func after_each() -> void:
 
 
 #region Calendar and death facts
+## Restore/bootstrap fills its cache without replaying an already captured physical arrival.
+func test_bootstrap_reconcile_preserves_current_plan_dormancy_and_completion() -> void:
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var session: Entity = _world.query.with_all([C_District, C_DayCycle]).execute_one()
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	assert_eq(person.planned_day, cycle.day_index)
+	assert_eq(person.planned_phase, int(cycle.phase))
+	var goal: StringName = person.goal_id
+	_lifecycle().command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	for completed: bool in [false, true]:
+		DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.OUTSIDE)
+		person.phase_complete = completed
+		_district.lifecycle_day = 0
+		_district.lifecycle_phase = -1
+		var receipt: DistrictCalendarReconcileRequest = (
+			DistrictPopulationService.reconcile_calendar(_world, session)
+		)
+		assert_false(receipt.completed)
+		_world.flush_command_buffers()
+		assert_true(receipt.completed)
+		assert_eq(receipt.rejection_reason, &"")
+		assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
+		assert_false(body.enabled)
+		assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)
+		assert_eq(person.phase_complete, completed)
+		assert_eq(person.goal_id, goal)
+		assert_eq(_district.lifecycle_day, cycle.day_index)
+		assert_eq(_district.lifecycle_phase, int(cycle.phase))
+
+
+## A genuinely absent current plan still receives its goal and ordinary initial participation.
+func test_bootstrap_reconcile_assigns_missing_current_plan() -> void:
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var session: Entity = _world.query.with_all([C_District, C_DayCycle]).execute_one()
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.OUTSIDE)
+	person.planned_day = 0
+	person.planned_phase = -1
+	person.goal_id = &""
+	_district.lifecycle_day = 0
+	_district.lifecycle_phase = -1
+	var receipt: DistrictCalendarReconcileRequest = (
+		DistrictPopulationService.reconcile_calendar(_world, session)
+	)
+	assert_true(receipt.completed)
+	assert_eq(receipt.rejection_reason, &"")
+	assert_eq(person.planned_day, cycle.day_index)
+	assert_eq(person.planned_phase, int(cycle.phase))
+	assert_ne(person.goal_id, &"")
+	assert_true(body.enabled)
+	assert_eq(person.placement, NpcRecord.Placement.STREET)
+
+
 ## Replayed calendar facts preserve completed goals, reaction memory and conflict budget.
 func test_calendar_fact_reconciles_once_without_frame_polling() -> void:
 	var cycle: C_DayCycle = DayPhaseQueries.current()

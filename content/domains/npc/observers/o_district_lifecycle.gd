@@ -39,9 +39,15 @@ func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	assert(fact != null)
 	var captured_district: C_District = session.get_component(C_District) as C_District
 	var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
-	cmd.add_custom(_reconcile_day.bind(
-		weakref(session), fact.day_index, fact.phase, captured_district, captured_cycle
-	))
+	cmd.add_custom(
+		_reconcile_day.bind(
+			weakref(session),
+			fact.day_index,
+			fact.phase,
+			captured_district,
+			captured_cycle,
+		)
+	)
 
 
 func _on_reconcile(_event: Variant, session: Entity, payload: Variant = null) -> void:
@@ -52,7 +58,8 @@ func _on_reconcile(_event: Variant, session: Entity, payload: Variant = null) ->
 
 
 func _execute_reconcile(
-	session_reference: WeakRef, request: DistrictCalendarReconcileRequest
+	session_reference: WeakRef,
+	request: DistrictCalendarReconcileRequest,
 ) -> void:
 	_pending_reconciliations.erase(request)
 	if request.completed:
@@ -68,7 +75,12 @@ func _execute_reconcile(
 		request.rejection_reason = &"stale_context"
 	else:
 		_reconcile_day(
-			session_reference, request.day_index, request.phase, request.district, request.cycle
+			session_reference,
+			request.day_index,
+			request.phase,
+			request.district,
+			request.cycle,
+			true,
 		)
 	request.completed = true
 
@@ -115,6 +127,7 @@ func _reconcile_day(
 	phase: C_DayCycle.Phase,
 	captured_district: C_District,
 	captured_cycle: C_DayCycle,
+	preserve_planned_state: bool = false,
 ) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
@@ -145,6 +158,12 @@ func _reconcile_day(
 			if body.has_component(C_Death):
 				DistrictPopulationService.mark_dead(person, body, day_index)
 			elif not body.has_active_role():
+				# Bootstrap/restore rebuilds missing plans, without replaying an existing arrival.
+				if (
+					preserve_planned_state and person.planned_day == day_index
+					and person.planned_phase == int(phase)
+				):
+					continue
 				_plan_phase(district, person, body, day_index, phase)
 
 	district.lifecycle_day = day_index
