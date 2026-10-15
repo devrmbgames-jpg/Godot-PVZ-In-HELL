@@ -67,6 +67,6 @@ Source: BASE_SHA `954be4d2a7a0087ce08461bc1fbdd8074f815e67` → TARGET_SHA `bc60
 
 ## Dependencies
 
-Выполнить перед [PVZ-A02: кошелёк](pvz_a02_wallet_day_events.md). ConfigFile migration независима; перед общей приёмкой нужен совместный startup/Night integration. Документация сверяется в [PVZ-A03](../pvz_a03_persistence_documentation.md) и [PVZ-DOC01](../pvz_code_documentation_quality.md).
+Выполнить перед [PVZ-A02: кошелёк](pvz_a02_wallet_day_events.md). ConfigFile migration независима; перед общей приёмкой нужен совместный startup/Night integration. Документация сверяется в [PVZ-A03](pvz_a03_persistence_documentation.md) и [PVZ-DOC01](../pvz_code_documentation_quality.md).
 
 Обязательные проверки и review/triage закрыты; этот исходный record архивирован с обновлением ссылок. [TASK-META01](task_metadata_structure_gate.md) закрывает исходный metadata defect, не меняя gameplay acceptance.

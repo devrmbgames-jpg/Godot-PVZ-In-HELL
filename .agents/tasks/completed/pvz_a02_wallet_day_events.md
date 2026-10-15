@@ -57,7 +57,7 @@ S_WalletDay и его UID удалены, native game_world.tscn заменяе�
 Implementation and review are complete. Continue independent PVZ-A01 and resolve the native parser contract in PVZ-B01.
 
 ### Dependencies / exclusions
-Не изменять тарифы, причины MoneyOperation, settlement rules, покупки и scope прочих доменов. [ConfigFile migration](../pvz_b01_configfile_save_storage.md) независима, но итоговый тест Night выполнить на совместном результате. [PVZ-A03](../pvz_a03_persistence_documentation.md) фиксирует окончательный контракт; [documentation quality](../pvz_code_documentation_quality.md) выполняет завершающую сверку.
+Не изменять тарифы, причины MoneyOperation, settlement rules, покупки и scope прочих доменов. [ConfigFile migration](../pvz_b01_configfile_save_storage.md) независима, но итоговый тест Night выполнить на совместном результате. [PVZ-A03](pvz_a03_persistence_documentation.md) фиксирует окончательный контракт; [documentation quality](../pvz_code_documentation_quality.md) выполняет завершающую сверку.
 
 ### Owner QA / blockers
 

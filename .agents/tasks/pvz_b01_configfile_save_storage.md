@@ -67,7 +67,7 @@ Owner decision 2026-10-16: ConfigFile остаётся обязательным 
 
 Focused native GUT на AutosaveStore/ConfigFile и существующий persistence baseline; дополнить только отсутствующие сценарии. Parser/formatter и необходимые schema/inventory/structure/architecture checks выполнить после связного изменения. Один Night failure → retry → fresh-load smoke на milestone; не гонять всю игру/весь suite после каждого edit. Все тесты используют изолированные `user://` слоты, никогда пользовательский default autosave.
 
-Краткий актуальный формат/ошибки описать в docs при завершении этого этапа; полная очистка [PVZ-A03](pvz_a03_persistence_documentation.md) следует за реализацией. Официальные API: [ConfigFile](https://docs.godotengine.org/en/stable/classes/class_configfile.html), [DirAccess](https://docs.godotengine.org/en/stable/classes/class_diraccess.html); первична проверенная сборка проекта.
+Краткий актуальный формат/ошибки описать в docs при завершении этого этапа; полная очистка [PVZ-A03](completed/pvz_a03_persistence_documentation.md) следует за реализацией. Официальные API: [ConfigFile](https://docs.godotengine.org/en/stable/classes/class_configfile.html), [DirAccess](https://docs.godotengine.org/en/stable/classes/class_diraccess.html); первична проверенная сборка проекта.
 
 
 ### Current

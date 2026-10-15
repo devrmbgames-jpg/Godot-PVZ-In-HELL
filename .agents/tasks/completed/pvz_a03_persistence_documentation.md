@@ -1,15 +1,15 @@
 # PVZ-A03 — Актуальный контракт сохранений
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 Priority: **P2**
 Baseline: `dev` / `9e7e889b7466a74e96511dd914835fc77d4b1795`
-Dependencies: [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PERSIST-DORM01](completed/persistence_baseline_dormant_restore.md)
+Dependencies: [PVZ-B01](../pvz_b01_configfile_save_storage.md), [PVZ-CAL01](pvz_customers_calendar_fact_ownership.md), [PVZ-A02](pvz_a02_wallet_day_events.md), [PERSIST-DORM01](persistence_baseline_dormant_restore.md)
 
 ## Task state
 
 ### Goal / scope
 
-Сделать [docs/persistence.md](../../docs/persistence.md) достоверной текущей спецификацией: формат, owners, authority/IDs, safe save, Night capture/retry, passive restore, отказ и защита слота, реальные APIs/tests. В [ARCHITECTURE](../../content/ARCHITECTURE.md#persistence-and-ids) оставить общие роли и ссылку на профильный контракт. Runtime поведение, compatibility и пользовательские файлы не менять.
+Сделать [docs/persistence.md](../../../docs/persistence.md) достоверной текущей спецификацией: формат, owners, authority/IDs, safe save, Night capture/retry, passive restore, отказ и защита слота, реальные APIs/tests. В [ARCHITECTURE](../../../content/ARCHITECTURE.md#persistence-and-ids) оставить общие роли и ссылку на профильный контракт. Runtime поведение, compatibility и пользовательские файлы не менять.
 
 ### Owner decision / changed prerequisite
 
@@ -32,7 +32,7 @@ Dependencies: [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-CAL01](complet
 - [x] Есть authority/identity/path таблицы; живые Relationships, body state и derived caches различаются.
 - [x] Указаны safe Morning API, preflight, отказ существующего слота и последующий Night; примеры используют отдельные user:// пути.
 - [x] Новые ссылки/пути/symbols проверены, исполняемые примеры сверены с опубликованным текстом.
-- [ ] Immutable-SHA review собран, triage выполнен, принятые P0/P1/P2 исправлены.
+- [x] Immutable-SHA review собран, triage выполнен, принятые P0/P1/P2 исправлены.
 
 ### Validation
 
@@ -40,23 +40,26 @@ Dependencies: [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-CAL01](complet
 - PASS: live Godot AI MCP, editor PID 24672, Godot 4.7.1; ownership: main_menu, no unsaved scenes; `pvz_gdscript_path_diagnostics` для AutosaveStore, S_NightSave, GameSessionService, O_DistrictLifecycle — 4 checked, diagnostics empty, scripts instantiated 0.
 - PASS: 30 local links/anchors, 20 source symbols, single version authority; `.artifacts/check_persistence_docs.py` проверяет три изменённых документа и извлекает оба snippets.
 - PASS: `validate_persistence_baseline.py`, 7/7 tooling unit tests; incremental architecture smells и scoped diff whitespace check.
+- PASS: `validate_project_structure.py`; task metadata и changed links соответствуют структуре.
 - Runtime implementation gates принадлежат зависимостям; полный gameplay/GUT прогон из-за docs-only правок не требуется.
 - Visual/gameplay: **NOT_RUN, 0/8**, не требуется для docs-only scope.
 
 ### Current / next
 
-Документационный checkpoint создан; первый review выявил одну неточную authority строку. Исправлено в тексте, нужен scoped fix commit и targeted re-review RV-001. Пока review pending, допустима только независимая работа.
+Scope завершён; RV-001 исправлен и targeted re-review PASS. Перенести этот же файл в completed/ и обновить входящие ссылки. Дальше — отдельный DOC01; B01 остаётся DEFERRED, A01 остаётся OWNER_QA.
 
 ### Review / triage
 
 Initial review: **FAIL**, base `9e7e889b7466a74e96511dd914835fc77d4b1795`, target `45e71fe4010f147ff18a21818c0c2162afcbf20f`; reviewer read-only, tests/MCP не запускал.
 
-- RV-001 (R1), P2, **ACCEPTED**: Physical body authority row ошибочно включала health/inventory/action state; `SaveDataCodec`/Components являются их владельцами. Текст исправлен: эти значения перенесены в domain Components row, body row ограничена pose/native physical state/geometry. Runtime не меняется. Fix SHA / targeted re-review: **PENDING**, repair cycle 1/2.
+- RV-001 (R1), P2, **FIXED**: Physical body authority row ошибочно включала health/inventory/action state; `SaveDataCodec`/Components являются их владельцами. Значения перенесены в domain Components row, body row ограничена pose/native physical state/geometry. Fix `ae1310a18493e9153877998d70ecc0b93176b8ac`, targeted read-only re-review base `45e71fe4010f147ff18a21818c0c2162afcbf20f` → target `ae1310a18493e9153877998d70ecc0b93176b8ac`: **PASS**, новых material findings нет, repair cycle 1/2. Runtime не меняется.
+
+Final review state: **PASS**; ARCHITECTURE/STYLE **PASS**, reviewer VALIDATION **NOT_RUN** (проверки выполнял main). Нет REVIEW_PENDING/BLOCKED и unresolved P0/P1/P2.
 
 ### Completion
 
-DONE только после всего scope, релевантных проверок и review/triage; затем перенести этот файл в completed/ и исправить ссылки. [PVZ-DOC01](pvz_code_documentation_quality.md) использует один текущий persistence-контракт; B01 DEFERRED и A01 OWNER_QA не закрываются этим milestone.
+DONE только после всего scope, релевантных проверок и review/triage; затем перенести этот файл в completed/ и исправить ссылки. [PVZ-DOC01](../pvz_code_documentation_quality.md) использует один текущий persistence-контракт; B01 DEFERRED и A01 OWNER_QA не закрываются этим milestone.
 
 ### Owner QA / blockers
 
-Нет runtime/owner QA для docs-only scope. RV-001 targeted re-review ещё pending; DONE запрещён до его результата.
+Не требуется для docs-only scope; unresolved blockers нет.
