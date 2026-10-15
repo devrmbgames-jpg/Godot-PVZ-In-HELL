@@ -65,7 +65,7 @@ func _on_reconciled(_event: Variant, session: Entity, payload: Variant = null) -
 
 
 func _reconcile_prepared(session_reference: WeakRef, request: CustomerPlanningRequest) -> void:
-	if request.flow.planning_generation != request.generation:
+	if ECS.world != _world or request.flow.planning_generation != request.generation:
 		return
 	_reconcile_day(
 		session_reference, request.day_index, request.phase, request.flow, request.cycle

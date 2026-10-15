@@ -3,6 +3,8 @@ extends Observer
 ## explicit.
 class_name O_DistrictLifecycle
 
+var _pending_reconciliations: Array[DistrictCalendarReconcileRequest] = []
+
 
 #region Reactive boundaries
 ## Declares calendar, body-death and sole-handler planning/preparation/completion inputs.
@@ -45,12 +47,14 @@ func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 func _on_reconcile(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var request: DistrictCalendarReconcileRequest = payload as DistrictCalendarReconcileRequest
 	assert(request != null)
+	_pending_reconciliations.append(request)
 	cmd.add_custom(_execute_reconcile.bind(weakref(session), request))
 
 
 func _execute_reconcile(
 	session_reference: WeakRef, request: DistrictCalendarReconcileRequest
 ) -> void:
+	_pending_reconciliations.erase(request)
 	if request.completed:
 		return
 	var session: Entity = session_reference.get_ref() as Entity
@@ -70,15 +74,14 @@ func _execute_reconcile(
 
 
 func _on_reconstruction(_event: Variant, _session: Entity, _payload: Variant = null) -> void:
-	for session: Entity in _world.query.with_all([C_District]).execute():
-		var district: C_District = session.get_component(C_District) as C_District
-		var request: DistrictCalendarReconcileRequest = (
-			district.lifecycle_request.get_ref() as DistrictCalendarReconcileRequest
-			if district.lifecycle_request != null else null
-		)
-		if request != null and not request.completed:
+	# Retire actual queued work even if its aggregate or owner is no longer queryable.
+	for request: DistrictCalendarReconcileRequest in _pending_reconciliations:
+		if not request.completed:
 			request.rejection_reason = &"reconstruction_started"
 			request.completed = true
+	_pending_reconciliations.clear()
+	for session: Entity in _world.query.with_all([C_District]).execute():
+		var district: C_District = session.get_component(C_District) as C_District
 		district.lifecycle_request = null
 
 

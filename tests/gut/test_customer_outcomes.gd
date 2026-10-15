@@ -213,3 +213,36 @@ func test_stale_challenge_result_is_discarded_after_cleanup() -> void:
 	assert_eq(_wallet.balance, 70)
 	assert_eq(_wallet.operations.size(), 1)
 #endregion
+
+
+#region Queued preparation result World isolation
+## A completed old preparation cannot settle its visit into a new global session's wallet.
+func test_queued_reconciliation_result_rejects_global_world_replacement() -> void:
+	_deliver()
+	_outcomes.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_visit.declaration = CustomerVisit.Declaration.TAKEN
+	_visit.satisfaction = 70
+	var session: Entity = _world.query.with_all([C_CustomerFlow]).execute_one()
+	var request: CustomerPlanningRequest = CustomerFlowService.reconcile_session(_world, session)
+	assert_true(request.completed)
+	assert_false(_visit.settlement_committed)
+	assert_eq(_wallet.balance, 0)
+	var replacement: World = World.new()
+	add_child(replacement)
+	var new_session: Entity = Entity.new()
+	var new_wallet: C_Wallet = C_Wallet.new()
+	new_wallet.policy = DEF_Economy.new()
+	new_wallet.balance = 1000
+	new_session.component_resources = [new_wallet, C_DayCycle.new()]
+	replacement.add_entity(new_session)
+	ECS.world = replacement
+	_world.flush_command_buffers()
+	assert_eq(new_wallet.balance, 1000)
+	assert_eq(new_wallet.operations.size(), 0)
+	assert_eq(_wallet.balance, 0)
+	assert_eq(_wallet.operations.size(), 0)
+	assert_false(_visit.settlement_committed)
+	ECS.world = _world
+	replacement.purge(false)
+	replacement.free()
+#endregion

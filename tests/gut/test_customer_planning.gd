@@ -359,3 +359,49 @@ func test_real_calendar_transitions_publish_committed_facts_without_bootstrap_no
 	assert_eq(_spy.facts[2].phase, C_DayCycle.Phase.NIGHT)
 	assert_true(_spy.committed)
 #endregion
+
+
+#region District receipt retirement before reconstruction
+## Clearing old callbacks must finish their receipts even after aggregate replacement.
+func test_reconstruction_retires_district_receipt_after_component_replacement() -> void:
+	var district: C_District = C_District.new()
+	_session.add_component(district)
+	var lifecycle: O_DistrictLifecycle = O_DistrictLifecycle.new()
+	lifecycle.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(lifecycle)
+	var request: DistrictCalendarReconcileRequest = DistrictPopulationService.reconcile_calendar(
+		_world, _session
+	)
+	assert_false(request.completed)
+	_session.remove_component(C_District)
+	var replacement: C_District = C_District.new()
+	_session.add_component(replacement)
+	var activity: Dictionary[Observer, bool] = SnapshotRestoreBoundary.begin(_world)
+	SnapshotRestoreBoundary.finish(_world, activity)
+	assert_true(request.completed)
+	assert_eq(request.rejection_reason, &"reconstruction_started")
+	var fresh: DistrictCalendarReconcileRequest = DistrictPopulationService.reconcile_calendar(
+		_world, _session
+	)
+	_world.flush_command_buffers()
+	assert_true(fresh.completed)
+	assert_eq(replacement.lifecycle_day, 1)
+	assert_eq(district.lifecycle_day, 0)
+
+
+## A removed owner is absent from the reconstruction query, but its queued receipt still retires.
+func test_reconstruction_retires_district_receipt_after_session_removal() -> void:
+	_session.add_component(C_District.new())
+	var lifecycle: O_DistrictLifecycle = O_DistrictLifecycle.new()
+	lifecycle.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(lifecycle)
+	var request: DistrictCalendarReconcileRequest = DistrictPopulationService.reconcile_calendar(
+		_world, _session
+	)
+	_world.remove_entity(_session)
+	var activity: Dictionary[Observer, bool] = SnapshotRestoreBoundary.begin(_world)
+	SnapshotRestoreBoundary.finish(_world, activity)
+	assert_true(request.completed)
+	assert_eq(request.rejection_reason, &"reconstruction_started")
+	_session.free()
+#endregion
