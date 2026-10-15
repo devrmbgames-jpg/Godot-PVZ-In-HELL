@@ -12,6 +12,8 @@ const MAX_BYTES: int = 64 * 1024 * 1024
 
 ## Записывает payload и SHA-256 во временный файл, затем заменяет слот; возвращает Error.
 static func write(snapshot: Dictionary, path: String = DEFAULT_PATH) -> Error:
+	if path.is_empty():
+		return ERR_INVALID_PARAMETER
 	var payload: PackedByteArray = var_to_bytes(snapshot)
 	if payload.is_empty() or payload.size() > MAX_BYTES:
 		return ERR_INVALID_DATA

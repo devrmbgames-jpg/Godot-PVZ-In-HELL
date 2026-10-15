@@ -33,7 +33,11 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var state: C_Autosave = states[index] as C_Autosave
 		if cycle.phase != C_DayCycle.Phase.NIGHT:
 			continue
-		cycle.night_ready = state.last_saved_morning == cycle.day_index + 1
+		var morning: int = cycle.day_index + 1
+		cycle.night_ready = (
+			state.last_saved_morning == morning
+			or (state.path.is_empty() and state.last_prepared_morning == morning)
+		)
 		if cycle.night_ready or state.work_queued:
 			continue
 		state.retry_remaining = maxf(0.0, state.retry_remaining - delta)
@@ -86,6 +90,13 @@ func _advance(
 		return
 	if not state.preparation.completed or not state.preparation.succeeded:
 		_retry(state, ERR_BUSY if not state.preparation.completed else ERR_INVALID_DATA)
+		return
+
+	# Fresh test sessions still settle outcomes/reset/prepare the morning, but own no save slot.
+	if state.path.is_empty():
+		state.last_prepared_morning = night_day + 1
+		state.last_error = OK
+		cycle.night_ready = true
 		return
 
 	# Capture once after structural/outcome work drains. I/O retries read only this

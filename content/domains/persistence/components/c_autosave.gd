@@ -2,7 +2,8 @@ extends Component
 ## Временное состояние ночной записи: однократная подготовка, задержка ретрая и результат.
 class_name C_Autosave
 
-## Путь локального слота; предыдущий файл заменяется после успешной записи временного.
+## Путь локального слота; пустой отключает хранение, сохраняя обязательную ночную подготовку.
+## Предыдущий файл заменяется только после успешной записи временного.
 @export var path: String = AutosaveStore.DEFAULT_PATH
 ## Operational storage retry seconds, independent of frozen gameplay ticks; bounded by S_NightSave.
 @export var retry_seconds: float = 1.0
@@ -10,6 +11,8 @@ class_name C_Autosave
 var started_night: int = 0
 ## Последнее успешно записанное утро; совпадение разрешает выход из ночи.
 var last_saved_morning: int = 0
+## Последнее подготовленное утро без файла; не подтверждает сохранение. Владелец — S_NightSave.
+var last_prepared_morning: int = 0
 ## Remaining operational retry seconds; transient and never a gameplay timestamp.
 var retry_remaining: float = 0.0
 ## Результат последней проверки/записи сохранения.

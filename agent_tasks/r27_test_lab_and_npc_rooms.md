@@ -1,6 +1,6 @@
 # R27.5 — полный тестовый зал и10 изолированных NPC-комнат
 
-Status: **OWNER_QA**
+Status: **IN_PROGRESS**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -19,6 +19,16 @@ Parent: [R27](r27_qa_followup.md).
 - Do not overwrite gameplay saves; use isolated test-room save/session contract.
 
 ### Current
+
+Owner day-cycle finding2026-10-15 is reproduced and repaired; review/build gates are pending.
+Real sleep remained in NIGHT with ERR_INVALID_DATA: a room has an empty save path but the
+night owner still required a restorable persistence snapshot and disk write. No-save sessions
+now finish evening obligations, reset actions, prepare the district and drain commands before
+allowing MORNING, without snapshot/I/O. A separate transient preparation stamp does not claim
+a successful file save and is invalidated by restore. Empty storage destinations are rejected.
+Earlier supply tests incremented day_index directly; the new authored-station regression runs
+two real day/sleep cycles in every room, without assigning calendar fields or bypassing gates.
+Base for the day-cycle fix: `e298932551f16333868ee2208cb14f5b9545b4d7`.
 
 Owner follow-up 2026-10-15 is implemented below; required manual acceptance remains open:
 - NPC is absent in the isolated test locations; reproduce and fix native spawning/participation.
@@ -55,8 +65,17 @@ errors and shutdown-only dummy RID retention, so no clean export-process log is 
 ### Validation
 
 Current follow-up evidence2026-10-15:
-- NPC participation/clear spawn and three daily supplies: GUT3/640 PASS,
-  `.artifacts/godot_agent/gut-20261015-044325624.stdout.log`.
+- Room bootstrap/supply/participation plus20 real sleep cycles across10 rooms: GUT5/971 PASS,
+  `.artifacts/godot_agent/gut-20261015-050930020.stdout.log`.
+  The new cycle test first reproduced stuck NIGHT/error30; raw FAIL remains in
+  `.artifacts/godot_agent/gut-20261015-050828544.stdout.log`.
+- Ordinary saved-night retry/preparation and restore invalidation: GUT19/167 PASS,
+  `.artifacts/godot_agent/gut-20261015-051104240.stdout.log`.
+- Delivery outcomes/payment failures/night barriers: GUT32/375 PASS,
+  `.artifacts/godot_agent/gut-20261015-051116201.stdout.log`.
+- Day-cycle fix formatter/incremental architecture/strict architecture/structure PASS;
+  fresh-process parser and bounded MCP path diagnostics PASS. Early live-reload fallback
+  errors were resolved by native path compilation; no new editor log entries.
 - Actual combat/three new clip cancellation regressions: GUT16/218 PASS,
   `.artifacts/godot_agent/gut-20261015-044410252.stdout.log`.
 - Native preset/editor-only guards/packing: GUT6/284 PASS,
@@ -132,5 +151,5 @@ Owner gameplay/visual acceptance of the expanded lab and all ten rooms remains o
 
 Owner QA of the updated Windows test build using the expanded [R27 checklist](../qa_tasks/r27_acceptance.md):
 visible usable NPCs in all phases, truck/terminal/exit access, pedestal pickup/labels and weapon animation feel.
-Implementation/native tests/review/export are complete. Preserve all unrelated user edits.
+Finish review/export for the day-cycle repair, then owner QA. Preserve all unrelated user edits.
 Required visual/gameplay acceptance remains open; do not archive this task before it closes.

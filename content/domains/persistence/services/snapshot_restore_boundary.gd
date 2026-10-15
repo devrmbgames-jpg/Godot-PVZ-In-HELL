@@ -28,5 +28,6 @@ static func finish(world: World, activity: Dictionary[Observer, bool]) -> void:
 			autosave.preparation = null
 			autosave.prepared_snapshot = { }
 			autosave.started_night = 0
+			autosave.last_prepared_morning = 0
 	ObserverReactionBoundary.resume(world, activity)
 #endregion

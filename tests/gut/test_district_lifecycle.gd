@@ -226,10 +226,15 @@ func test_night_save_waits_for_preparation_and_then_retries_without_resetting() 
 ## Current-format restore invalidates derived reconciliation state and bootstrap rebuilds it.
 func test_restore_invalidates_calendar_cache_without_serializing_it() -> void:
 	_publish_calendar()
+	var session: Entity = _world.query.with_all([C_District]).execute_one()
+	session.add_component(C_Autosave.new())
+	var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave
+	save.last_prepared_morning = 2
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(_district.lifecycle_day, 0)
 	assert_eq(_district.lifecycle_phase, -1)
+	assert_eq(save.last_prepared_morning, 0, "Restored state cannot retain a no-storage latch")
 	var bootstrap: S_District = S_District.new()
 	bootstrap.group = "GamePlay"
 	_world.add_system(bootstrap, true)

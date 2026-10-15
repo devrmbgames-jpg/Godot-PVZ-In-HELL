@@ -22,6 +22,99 @@ func _open(key: StringName) -> Node3D:
 #endregion
 
 
+#region Complete native day cycle
+## Uses the authored console/sleep actions; never assigns the phase or day index.
+func _room_transition(kind: DayTransitionRequest.Kind) -> bool:
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var previous_phase: C_DayCycle.Phase = cycle.phase
+	var path: String = "Entityes/ShiftConsole"
+	if kind == DayTransitionRequest.Kind.SLEEP:
+		path = "Entityes/SleepPoint"
+	var station: Entity = _level.get_node(path) as Entity
+	var actions: C_InteractionActionSet = station.get_component(C_InteractionActionSet)
+	var action: DEF_DayPhaseAction = null
+	for candidate: DEF_InteractionAction in actions.actions:
+		if candidate is DEF_DayPhaseAction and (candidate as DEF_DayPhaseAction).transition == kind:
+			action = candidate as DEF_DayPhaseAction
+			break
+	assert_not_null(action, path)
+	if action == null:
+		return false
+	var player: Entity = _level.get_node("Entityes/Player") as Entity
+	var available: bool = action.is_available(player, station, station)
+	assert_true(available, DayPhaseService.shift_status(cycle))
+	if not available:
+		return false
+	action.execute(player, station, station)
+	for frame: int in 180:
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
+		if cycle.phase != previous_phase and cycle.phase != C_DayCycle.Phase.NIGHT:
+			return true
+		await get_tree().physics_frame
+	var save: C_Autosave = ECS.world.query.with_all([C_Autosave]).execute_one().get_component(
+		C_Autosave,
+	) as C_Autosave
+	assert_true(false, "Transition stuck: phase=%s error=%s" % [cycle.phase, save.last_error])
+	return false
+
+
+## Real nights must prepare fresh supplies and retain no disk save or detached snapshot.
+func test_real_shift_and_sleep_reach_next_morning_without_save_slot() -> void:
+	for key: StringName in GameSessionService.TEST_ROOM_KEYS:
+		var root: Node3D = _open(key)
+		var player: Node3D = root.get_node("Entityes/Player") as Node3D
+		# Isolate the calendar from the separately tested hostile-archetype sleep safety rules.
+		player.global_position = Vector3(30, 0.05, 25)
+		var cycle: C_DayCycle = DayPhaseQueries.current()
+		var session: Entity = ECS.world.query.with_all([C_Autosave]).execute_one()
+		var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave
+		assert_eq(save.path, "", String(key))
+		for day: int in [1, 2]:
+			var today: Array[Entity] = []
+			for frame: int in 600:
+				GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
+				today.clear()
+				for parcel: Entity in ECS.world.query.with_all([C_Package]).execute():
+					var identity: C_Package = parcel.get_component(C_Package) as C_Package
+					if identity.delivery_day == day:
+						today.append(parcel)
+				if today.size() == 2:
+					break
+				await get_tree().physics_frame
+			assert_eq(today.size(), 2, "%s day%d: actual incoming supply" % [key, day])
+			if today.size() != 2:
+				return
+			for index: int in today.size():
+				var body: RigidBody3D = today[index] as Node as RigidBody3D
+				body.freeze = true
+				body.global_position = Vector3(0, 1, 6 + index * 2)
+			await get_tree().physics_frame
+			if not await _room_transition(DayTransitionRequest.Kind.START_SHIFT):
+				return
+			assert_eq(cycle.phase, C_DayCycle.Phase.DAY, String(key))
+			if not await _room_transition(DayTransitionRequest.Kind.FINISH_SHIFT):
+				return
+			assert_eq(cycle.phase, C_DayCycle.Phase.EVENING, String(key))
+			if not await _room_transition(DayTransitionRequest.Kind.SLEEP):
+				return
+			assert_eq(cycle.phase, C_DayCycle.Phase.MORNING, String(key))
+			assert_eq(cycle.day_index, day + 1, String(key))
+			assert_eq(NpcPopulationQueries.current().prepared_morning, day + 1)
+			assert_eq(save.last_saved_morning, 0, "No file save is claimed")
+			assert_eq(save.last_prepared_morning, day + 1)
+			assert_eq(save.last_error, OK)
+			assert_true(save.prepared_snapshot.is_empty(), "No unused persistence snapshot")
+		root.free()
+		_level = null
+		await get_tree().process_frame
+
+
+## Empty storage destinations must not create a relative temporary file.
+func test_empty_save_destination_is_rejected() -> void:
+	assert_eq(AutosaveStore.write({ "probe": true }, ""), ERR_INVALID_PARAMETER)
+#endregion
+
+
 #region All authored isolated rooms
 ## Registered identities must also participate physically and be visible to the player.
 func test_all_ten_room_npcs_start_visible_with_clear_activation_space() -> void:
