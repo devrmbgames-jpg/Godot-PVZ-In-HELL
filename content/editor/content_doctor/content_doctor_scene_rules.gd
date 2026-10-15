@@ -5,6 +5,7 @@ class_name ContentDoctorSceneRules
 
 #region Authored scene and factory compilation
 ## Optional factory inputs describe this root prefab's actual producer; no scene enters the tree.
+## Caller owns/frees the disposable root; identity/factory compilation may configure that copy.
 static func inspect(
 	scene_root: Node,
 	source: String,

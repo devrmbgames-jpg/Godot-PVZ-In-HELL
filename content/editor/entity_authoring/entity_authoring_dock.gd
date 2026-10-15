@@ -146,6 +146,8 @@ func _repair_identity(actor_ref: WeakRef, metadata_key: StringName) -> void:
 
 #region Detached preview boundary
 func _validate_snapshot() -> void:
+	# A synchronous headless worker inspects only the disposable scratch snapshot.
+	# Keep its diagnostic log; successful results remove the temporary scene and JSON.
 	var actor_ref: WeakRef = _actor_ref
 	var diagnostics_ref: WeakRef = weakref(_diagnostics)
 	var actor: Node = actor_ref.get_ref() as Node if actor_ref != null else null

@@ -1,5 +1,6 @@
 extends RefCounted
 ## One detached content scan; existing authoring providers retain their contract authority.
+## Calls reset per-scan caches; reports contain detached values, not live Entity references.
 class_name ContentDoctor
 
 var _issues: Array[ContentDoctorIssue] = []
@@ -24,6 +25,7 @@ func scan(root_path: String = "res://content") -> Dictionary[String, Variant]:
 
 
 ## Focused checks use the same native dependency graph and providers as a full scan.
+## Referenced assets may extend the supplied paths; valid requires zero errors AND reviews.
 func scan_paths(paths: PackedStringArray) -> Dictionary[String, Variant]:
 	_reset()
 	return _scan_paths(paths)

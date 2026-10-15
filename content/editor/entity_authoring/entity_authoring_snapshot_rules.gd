@@ -9,6 +9,7 @@ const SOURCE_META: StringName = &"_authoring_snapshot_source"
 
 #region Disposable native snapshot
 ## Copies an edited scene without changing it; only the returned snapshot is saved to scratch space.
+## Copies Resources scripted under content/; Scripts, PackedScenes and native assets stay shared.
 static func capture(scene_root: Node) -> PackedScene:
 	var detached: Node = scene_root.duplicate()
 	var copies: Dictionary[Resource, Resource] = { }
@@ -38,6 +39,7 @@ static func _capture_value(value: Variant, copies: Dictionary[Resource, Resource
 			array_copy[index] = _capture_value(array_copy[index], copies)
 		return array_copy
 	if value is Dictionary:
+		# Authored keys keep their identity; only stored values are recursively captured.
 		var dictionary_copy: Dictionary = (value as Dictionary).duplicate()
 		for key: Variant in dictionary_copy:
 			dictionary_copy[key] = _capture_value(dictionary_copy[key], copies)

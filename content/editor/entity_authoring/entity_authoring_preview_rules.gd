@@ -5,6 +5,7 @@ class_name EntityAuthoringPreviewRules
 
 #region Read-only scene compilation
 ## Inspects a caller-owned detached snapshot; identity recipes only change that disposable copy.
+## Caller frees the root afterwards; plans are validated here, never registered in a World.
 static func inspect_scene(scene_root: Node) -> Dictionary:
 	assert(not scene_root.is_inside_tree(), "Preview must never run a live scene")
 	var actors: Array[Entity] = []
