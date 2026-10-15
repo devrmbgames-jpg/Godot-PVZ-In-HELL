@@ -1,6 +1,6 @@
 # QA-HP01 — HP до dispatch в диагностике debug-команд
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 Priority: **P2**
 Baseline: `dev` / `438fd5f0d4a1d10dafe69d86180ad1c2a1f4e34f`
 
@@ -10,7 +10,7 @@ Baseline: `dev` / `438fd5f0d4a1d10dafe69d86180ad1c2a1f4e34f`
 
 DebugHealthService должен сохранять значения `hp_before` до DamageRequestService.submit: native PER_CALLBACK вправе изменить здоровье inline до возврата. Scope: scalar diagnostic context `_submit` и focused regression в test_console_gameplay; combat arithmetic, request/result timing и смысл success не меняются.
 
-Дефект найден при [DOC01](pvz_code_documentation_quality.md); это отдельное исправление поведения.
+Дефект найден при [DOC01](../pvz_code_documentation_quality.md); это отдельное исправление поведения.
 
 ### Reproduction
 
@@ -23,11 +23,11 @@ Baseline GUT: `utils/godot_agent.ps1 -Action GUT -TestPath res://tests/gut/test_
 - [x] Реальный PER_CALLBACK reproduction подтверждает оба неправильных pre-values.
 - [x] Scalar HP/max/ID diagnostic context снят до submit; после dispatch adapter не перечитывает live target для этих строк.
 - [x] Focused GUT и native parser/MCP/style/static gates проходят.
-- [ ] Отдельный immutable checkpoint/review/triage завершён.
+- [x] Отдельный immutable checkpoint/review/triage завершён.
 
 ### Current
 
-Scalar ID/current/max сняты перед submit; итоговый message/success/request pipeline не меняются. Base `438fd5f0d4a1d10dafe69d86180ad1c2a1f4e34f`; target после commit. Review **REVIEW_PENDING**, не DONE. После PASS immutable review/triage архивировать этот же файл и обновить ссылку DOC01.
+Scalar ID/current/max сняты перед submit; итоговый message/success/request pipeline не меняются. Base `438fd5f0d4a1d10dafe69d86180ad1c2a1f4e34f` → target `428ea674dd07d95a3569fd5e4983c1927e1a22ed`. Immutable read-only review **PASS**, material findings нет; triage завершён. Reviewer тесты не запускал, validation ниже выполнена основным агентом.
 
 ### Validation
 
