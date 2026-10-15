@@ -1,6 +1,6 @@
 # R27.5 — полный тестовый зал и10 изолированных NPC-комнат
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Parent: [R27](r27_qa_followup.md).
 
@@ -20,7 +20,7 @@ Parent: [R27](r27_qa_followup.md).
 
 ### Current
 
-Owner parcel-content finding2026-10-15 is repaired; review/export pending.
+Owner parcel-content finding2026-10-15 is repaired; implementation checks/review/export complete.
 Owner confirmed separate room catalogs; Creepy and Lost keep the general catalog.
 Vampire uses blood flask/barrel; Fire Elemental uses fire flask/barrel; Shy uses working clothes.
 Other rooms expose their existing preferred categories, including clothing where authored.
@@ -34,6 +34,14 @@ The bounded companion supply tool fills the scripted nested Resource editing gap
 room/preset hashes and ownership, uses scene UndoRedo and discloses non-undoable preset saves.
 Production profiles, their weights and the general delivery catalog are unchanged.
 Review base: `975961dd05294dae545b56ec7949948c2fd253cf`.
+Code/review target: `2d4041f185c7a9464f0a8ea199b00cdd8c8561b7`.
+Independent immutable review: no material findings; ARCHITECTURE/STYLE PASS,
+reviewer VALIDATION NOT_RUN. Review duration/efficiency NOT_MEASURED.
+Windows QA export and headless menu/level startup120frames PASS:
+`.export/windows/20261015-053501Z-2d4041f1-r27-npc-parcel-assortments`,
+launcher `.export/TEST_LEVEL.cmd`; dirty=true preserves unrelated owner edits.
+Actual startup logs are clean. Export-only shutdown retention remains
+KNOWN_ENGINE_LIMITATION/DEFERRED; no clean export-process log is claimed.
 
 Earlier repaired lab scope remains awaiting owner visual/gameplay acceptance:
 - All16 catalog pickups have individual native pedestals; actor IDs/paths are preserved.
@@ -43,8 +51,7 @@ Earlier repaired lab scope remains awaiting owner visual/gameplay acceptance:
 - Scythe/axe/throwing knife have native visual-mesh strike/RESET clips driven by the strike clock.
 - No-save rooms complete mandatory evening settlement/reset/morning preparation/command draining
   before MORNING; transient preparation is separate from disk-save success and reset by restore.
-Previous verified Windows build: `.export/windows/20261015-051409Z-592774ea-r27-room-night-cycle`.
-It predates the current assortment fix. Rendered owner QA remains open.
+Rendered owner QA remains open.
 
 ### Validation
 
@@ -133,7 +140,11 @@ has no script/runtime errors. This log is preserved and is not called a clean ex
 
 ### Review triage
 
-Current assortment review/export: pending immutable code checkpoint.
+Current assortment review BASE `975961dd05294dae545b56ec7949948c2fd253cf` ->
+TARGET `2d4041f185c7a9464f0a8ea199b00cdd8c8561b7`: no material findings.
+Confirmed ten scene/preset catalog pairs, bindings, physical clothing, unchanged runtime
+selection and production profiles/catalogs. RV-001 re-evaluated and remains REJECTED:
+new catalog mutation preserves fixed native editor-only asset boundaries and explicit save semantics.
 
 Prior day-cycle review BASE `e298932551f16333868ee2208cb14f5b9545b4d7` ->
 TARGET `592774eacbe1301c157f12ad2172f34cb91cc508`: no material findings.
@@ -142,11 +153,11 @@ transient preparation ownership, restore invalidation and unchanged closed save 
 
 Prior lab review at `91ee388ab6e6cd64175866a22ddf537ec8240c79`: no material findings.
 RV-001 remains REJECTED after explicit re-evaluation of the native editor-only authoring
-boundary. Current attendance repair confines changes to room/preset Resource graphs,
+boundary. Prior attendance repair confines changes to room/preset Resource graphs,
 uses scene-owned UndoRedo and discloses its non-undoable external preset save.
 The raw static REVIEW/FAIL is retained; it is not reported as an automatic PASS.
 
-RV-001/P2 — REJECTED: validator heuristic `author` generates scenes. On current code SHA
+RV-001/P2 — REJECTED: validator heuristic `author` generates scenes. On prior code SHA
 `25f6de748304171b935dba4084f8de78088f9906`, independent review confirms native editor guard,
 saved fingerprint, closed destinations, no overwrite, temporary-Node disposal and plugin cleanup.
 Gameplay loads committed editable .tscn; no runtime source generation. This is the explicit
@@ -162,6 +173,6 @@ Owner gameplay/visual acceptance of the expanded lab and all ten rooms remains o
 Owner QA of the updated Windows test build using the expanded [R27 checklist](../qa_tasks/r27_acceptance.md):
 finish a shift and sleep through two mornings with renewed supplies; also verify visible usable NPCs
 in all phases, truck/terminal/exit access, pedestal pickup/labels and weapon animation feel.
-Complete assortment review/export, then owner QA of themed supplies and prior lab criteria.
+Implementation checks/review/export complete; owner QA of themed supplies and prior lab criteria.
 Preserve all unrelated user edits.
 Required visual/gameplay acceptance remains open; do not archive this task before it closes.
