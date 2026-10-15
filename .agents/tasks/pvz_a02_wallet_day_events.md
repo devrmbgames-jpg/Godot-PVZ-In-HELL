@@ -3,7 +3,7 @@
 Status: **PLANNED**
 Priority: **P2**
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
-Dependency: [PVZ-CAL01](pvz_customers_calendar_fact_ownership.md)
+Dependency: [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md)
 
 ## Task state
 
