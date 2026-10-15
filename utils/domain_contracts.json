@@ -19891,6 +19891,22 @@
         "content/domains/commerce/observers/o_wallet_day.gd"
       ],
       "purpose": "PVZ-A02: consume committed calendar facts after mutation; capability and explicit ready/restore bootstrap publish no calendar fact."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "inventory",
+      "symbol": "DEF_ItemCargo",
+      "path": "content/domains/inventory/definitions/def_item_cargo.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/domains/packages/rules/package_packing_rules.gd"
+      ],
+      "purpose": "Reads immutable unit mass, phase, hazards and packing envelope; no inventory or live payload writes.",
+      "method_rights": {}
     }
   ],
   "legacy_decomposition": []

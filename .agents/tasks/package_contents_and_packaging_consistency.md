@@ -1,6 +1,7 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
+BASE_SHA: `8364a7ed7450c4b5b0da7fafb66c36fc27ab0d6d`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
@@ -18,8 +19,19 @@ Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
 
 ### Current
 
-Создана плановая задача до реализации. UID-1-TL08C — пример владельца; его точная запись
-текущей игровой сессии пока не воспроизведена. Код и сохранения не изменялись.
+Выполнение авторизовано текущим `/goal` по `.agents/tasks`; прежняя пометка «ждать отдельную
+команду» относилась к исходному планированию до этого goal. UID-1-TL08C — пример владельца;
+его точная запись текущей игровой сессии пока не восстановлена.
+
+Минимальная эквивалентная комбинация воспроизведена штатным native GUT: выбранный holy_artifact
+при compilation bottles получает C_LiquidTilt и массу 30 кг, тогда как presentation убирает LIQUID.
+M1 реализован: DEF_ItemCargo хранит фазу, unit mass/envelope, hazards и fragile; DEF_PackagePacking
+хранит native варианты, внутренние габариты, padding ratio, лимиты количества/массы и явный порог
+bulk/single-large. PackagePackingRules выбирает минимальную подходящую оболочку канонически,
+проверяя поворот единицы, общий объём и массу; не меняет количество и не использует global RNG.
+Новый inventory→packages контракт только read и только для этого Rules. Текущие поставки и
+сохранения ещё не изменены. До интеграции M2 исходный дефект не считается исправленным.
+Новые immutable данные не являются вторым runtime authority. M1 review: REVIEW_PENDING.
 ## Установленная поверхность и гипотеза причины
 
 - [ReceivingDeliveryService](../../content/domains/packages/services/receiving_delivery_service.gd)
@@ -73,6 +85,17 @@ Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
 
 ### Validation
 
+- PASS baseline reproduction: GUT1/1,7 assertions, `gut-20261015-235404960`, stderr empty.
+  Disposable fixture сохранён в `.artifacts/package_content_baseline_probe.gd`; это наблюдение
+  прежнего дефекта, не регрессия правильного поведения. UID-1-TL08C не объявляется проверенным.
+- Более ранние standalone probes имели compile/runtime errors и не являются PASS evidence.
+- PASS M1: native GUT8/8,49 assertions, `gut-20261015-235704192`, stderr empty; один мелкий,
+  реальная партия, один крупный, rotation/shape, gross mass/padding, phase/hazards, invalid/ties.
+- PASS M1: MCP4 scripts checked/empty, scripts_instantiated=0; native ParseFiles4/0,
+  `parsefiles-20261015-235651420`, exit0/stderr empty. Formatter4, role validator3 production,
+  strict architecture0 lexical findings и project structure PASS.
+- M1 immutable-SHA review: REVIEW_PENDING. Rendered/visual QA NOT_RUN,0/8.
+
 ## План проверки будущей реализации
 
 - Сначала воспроизвести пример владельца или минимальную эквивалентную комбинацию: артефакт,
@@ -94,6 +117,7 @@ Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
 
 ### Next
 
-При отдельной команде на реализацию: воспроизведение -> контракт плана содержимого/упаковки ->
-подбор совместимой сцены и рецепта -> история/save-совместимость -> native регрессии и owner QA.
-Статус остаётся **PLANNED**; реализация этим планированием не разрешена и не начата.
+M1: commit и immutable-SHA review, triage принятых P0/P1/P2. Во время review только независимые
+подзадачи. M2: один зафиксированный shipment plan до compiler,
+подключить receiving/contents/physics/history/UI и определить save-совместимость; затем профильные
+native регрессии и обязательный owner QA. До закрытия всех acceptance задача не DONE.
