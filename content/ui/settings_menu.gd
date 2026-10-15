@@ -1,5 +1,6 @@
 extends CanvasLayer
 ## Модальное меню пользователя; приостановка мира принадлежит только открытому меню.
+## Legacy layout создаётся в _ready; значения и InputMap изменяет GameSettingsService.
 class_name SettingsMenu
 
 ## Меню освободило фокус и восстановило предыдущую паузу/режим мыши; вызывающий UI может вернуть
@@ -53,6 +54,7 @@ func setup_main_menu(settings_path: String = GameSettingsService.FILE_PATH) -> v
 
 ## Авторский профиль либо изолированный слот теста; пустые пути используют стандартный профиль
 ## уровня.
+## Подмена поиска загрузки требует оба непустых пути; manual отдельно задаёт путь записи.
 func setup_save_paths(manual: String, autosave: String) -> void:
 	_manual_path = manual
 	_auto_path = autosave
@@ -264,7 +266,8 @@ func open_menu() -> bool:
 	return true
 
 
-## Сохраняет настройки, отменяет ввод привязки и освобождает фокус/паузу; повторный вызов безопасен.
+## Пытается сохранить настройки, отменяет ввод и освобождает фокус/паузу; повтор безопасен.
+## Ошибка записи даёт warning и не удерживает меню открытым; closed не является save receipt.
 func close_menu() -> void:
 	if not is_open():
 		return

@@ -10,11 +10,12 @@ class_name PackageConditionView
 @export var opened_color: Color = Color(1.0, 0.93, 0.7)
 ## Цвет метки протекающей коробки.
 @export var leaking_color: Color = Color(0.3, 0.85, 1.0)
-## Мировой размер пикселя наклеек, в метрах.
+## pixel_size наклеек в метрах до масштабирования родителем.
 @export var face_label_pixel_size: float = 0.0018
-## Отступ наклеек от грани модели, в метрах.
+## Отступ от грани AABB в локальных метрах marking surface.
 @export var face_label_offset: float = 0.003
 
+# Кеш инвалидируется состоянием, пустотой и identity Definition; authored data не мутирует в UI.
 var _damage: int = -1
 var _opening: int = -1
 var _leaking: bool = false

@@ -6,15 +6,15 @@ class_name DamageFeedbackView
 @export var player: Entity = null
 ## Источник уже принятых DamageFeedback; подключается через bind_observer.
 @export var observer: O_DamageFeedback = null
-## Разрешает представление; отключение очищает предупреждения и метки.
+## Разрешает представление; отключение очищает предупреждения и метки в следующем _process.
 @export var enabled: bool = true
 ## Разрешает синтезированные звуки попадания.
 @export var sound_enabled: bool = true
 ## Отключает цветовую заливку и подъём меток, сохраняя текст.
 @export var reduced_motion: bool = true
-## Длительность локального предупреждения в секундах.
+## Длительность предупреждения в секундах process delta; пауза узла останавливает отсчёт.
 @export_range(0.1, 5.0) var player_warning_seconds: float = 0.8
-## Время жизни мировой метки в секундах.
+## Время жизни мировой метки в секундах того же process delta.
 @export_range(0.1, 5.0) var world_label_seconds: float = 1.2
 ## Предел мировых меток; при переполнении удаляется самая старая.
 @export_range(1, 32) var maximum_world_labels: int = 12
@@ -63,7 +63,8 @@ func _ready() -> void:
 	_clear_warning()
 
 
-## Подключает текущий источник один раз; вызывается при готовности или после назначения observer.
+## Подключает назначенный источник; повтор для того же observer безопасен.
+## Назначать observer до первого подключения: метод не отключает ранее подключённый источник.
 func bind_observer() -> void:
 	if observer != null and not observer.received.is_connected(_on_feedback):
 		observer.received.connect(_on_feedback)

@@ -5,6 +5,7 @@ class_name O_GameplayPanelRequest
 
 #region Native panel requests
 ## Принимает domain requests; панели остаются обычными Godot objects.
+## Open-handler пишет request.opened после factory; момент доставки задаёт очередь Observer.
 func sub_observers() -> Array[Array]:
 	return [
 		[q.on_event(CommercePanelOpenRequest.EVENT), _open_commerce],

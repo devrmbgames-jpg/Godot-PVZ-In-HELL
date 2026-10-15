@@ -113,6 +113,7 @@ func _process(delta: float) -> void:
 
 #region Открытие и закрытие
 ## Открывает журнал для доступного актора, захватывает модальный фокус и публикует событие открытия.
+## Повтор при visible лишь обновляет текущего читателя, не перепривязывая actor.
 func open_for(actor: Entity) -> void:
 	if visible:
 		_refresh(true)
@@ -141,6 +142,7 @@ func open_for(actor: Entity) -> void:
 
 
 ## Освобождает токен фокуса, возвращает мышь и публикует закрытие один раз.
+## Перед освобождением фокуса отправляет последнее примечание через note_changed.
 func close_panel() -> void:
 	if not visible:
 		return
@@ -195,6 +197,7 @@ func _rebuild_package_rows(
 	visits: Dictionary[String, CustomerVisit],
 	deliveries: Dictionary[String, TerminalDeliveryInfo],
 ) -> void:
+	# Видимые подробности явно отмечают notice прочитанным через сервис; данные не пишутся в UI.
 	var focused_package_id: String = _focused_package_id()
 	_clear_package_rows()
 	var records: Array[PackageRegistrationRecord] = _visible_records(ledger, states, visits)

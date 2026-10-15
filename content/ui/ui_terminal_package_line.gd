@@ -108,7 +108,7 @@ func present(
 	_present_notice(notice)
 
 
-## Возвращает постоянный ID записи, показанной этой строкой.
+## Возвращает record.package_id для выбора/заявлений; это не history_id примечания.
 func package_id() -> String:
 	return _package_id
 

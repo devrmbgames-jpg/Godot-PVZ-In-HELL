@@ -25,6 +25,7 @@ var _message: String = ""
 var _last_signature: String = ""
 var _quest_id: StringName = &""
 var _purchase_item: DEF_InventoryItem = null
+# Один operation ID на открытое подтверждение; повторные UI-сигналы не создают новую покупку.
 var _purchase_id: StringName = &""
 var _purchase_focus: WeakRef = null
 
@@ -85,6 +86,7 @@ func _process(delta: float) -> void:
 
 #region Модальный сеанс
 ## Захватывает ввод для торговли/заказа и запрашивает доступное задание торговца.
+## True подтверждает открытие UI-сеанса; покупки и будущая доставка выполняются отдельно.
 func open_for(actor: Entity, trader: Entity = null, order_mode: bool = false) -> bool:
 	if (
 		_capture != 0 or not GrabQueries.holder_available(actor)

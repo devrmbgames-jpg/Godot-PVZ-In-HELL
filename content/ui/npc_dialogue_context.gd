@@ -2,6 +2,7 @@ extends RefCounted
 ## Общий интерфейс UI; уличный и клиентский контексты обращаются к своим сервисам.
 class_name NpcDialogueContext
 
+## Локальный кеш первого job ID; сам заказ каждый раз читается у HomeDeliveryQueries.
 var _delivery_job_id: StringName = &""
 var _closed: bool = false
 var _soul_confirmation_key: StringName = &""

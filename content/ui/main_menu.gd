@@ -1,5 +1,6 @@
 extends Control
 ## Стартовый экран; игровой World создаётся только после выбора новой игры/загрузки.
+## Legacy layout строится в _ready; переходами сцены и загрузкой владеет GameSessionService.
 class_name MainMenu
 
 var _settings: SettingsMenu

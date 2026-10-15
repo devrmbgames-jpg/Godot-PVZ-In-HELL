@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Показывает DialogueManager и владеет модальным вводом; игровые факты принадлежат контексту и
 ## сервисам.
+## Legacy layout создаётся здесь; контекст и resource удерживаются только на время сеанса/await.
 class_name CustomerDialoguePanel
 
 const PANEL_MIN_WIDTH: float = 720.0
@@ -66,7 +67,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_advance(_line.next_id)
 
 
-## Захватывает модальный ввод, показывает курсор и начинает cue; false означает отказ захвата.
+## Захватывает ввод и начинает cue; false при закрытой/уже захваченной панели или отказе фокуса.
+## True означает запуск: получение первой реплики может ждать или сразу завершить разговор.
 func open_for(
 	actor: Entity,
 	context: NpcDialogueContext,
@@ -122,6 +124,7 @@ func _advance(next_id: String) -> void:
 	_advancing = true
 	var resource: DialogueResource = _resource
 	var session_context: NpcDialogueContext = _context
+	# Переход может выполнить ctx mutations до реплики; закрытие/смена сеанса отменяет показ.
 	var next_line: DialogueLine = await resource.get_next_dialogue_line(
 		next_id,
 		[{ "ctx": session_context }],

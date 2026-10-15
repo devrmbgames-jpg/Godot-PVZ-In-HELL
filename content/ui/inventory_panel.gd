@@ -9,10 +9,12 @@ const ICON_SIZE: Vector2 = Vector2(46, 46)
 const SLOT_PADDING: int = 8
 
 ## Участник, чей инвентарь показывается и чей ввод захватывает панель.
+## Заимствованная Entity; назначается хостом до открытия, Node lifetime не удерживается.
 @export var player: Entity = null
 var _capture: int = 0
 var _previous_mouse: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
 var _refresh_remaining: float = 0.0
+# Производный кеш вместимости, выбранного ID и количеств; не источник владения предметами.
 var _rows_signature: String = ""
 var _target: WeakRef = null
 var _status: String = ""
@@ -71,6 +73,7 @@ func _process(delta: float) -> void:
 
 #region Открытие и закрытие
 ## Захватывает модальный ввод и запоминает слабую цель посылки; возвращает успех открытия.
+## Цель сохраняется только для этого сеанса и повторно сверяется с текущим наведением.
 func open_inventory() -> bool:
 	if (
 		_capture != 0 or not GrabQueries.holder_available(player)

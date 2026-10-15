@@ -135,6 +135,7 @@ func interests_text() -> String:
 
 
 ## Использует смысл наблюдаемого ответа; повтор выбора в фазе не перебрасывает реакцию.
+## True также допускает теги без игрового эффекта; это разрешение UI продолжить ветку.
 func apply_response_tags(tags: PackedStringArray) -> bool:
 	if not is_valid():
 		return false

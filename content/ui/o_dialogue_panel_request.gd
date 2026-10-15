@@ -5,6 +5,7 @@ class_name O_DialoguePanelRequest
 
 #region Явные domain requests
 ## Доставляет только opening/closing requests native presentation owner.
+## Captured Component identity проверяется до открытия; opened не ждёт async-реплику.
 func sub_observers() -> Array[Array]:
 	return [
 		[q.on_event(CustomerDialogueOpenRequest.EVENT), _open_customer],

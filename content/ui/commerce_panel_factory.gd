@@ -7,6 +7,7 @@ const PANEL_SCENE: PackedScene = preload("res://content/ui/commerce_panel.tscn")
 
 #region Panel construction
 ## Создаёт панель после проверки участников и приоритета; отказ возвращает null.
+## Панель становится дочерней актору; отказ open_for планирует её queue_free.
 static func open(actor: Entity, trader: Entity = null, order_mode: bool = false) -> CommercePanel:
 	if (
 		not GrabQueries.holder_available(actor) or actor.has_component(C_Death)

@@ -2,9 +2,9 @@ extends Node3D
 ## При голоде локального игрока заменяет вид NPC пищевым образом; личность и физика сохраняются.
 class_name HungerNpcVisual
 
-## Путь обычного вида NPC, временно скрываемого при хищном восприятии.
+## Необязательный путь обычного вида NPC, временно скрываемого при хищном восприятии.
 @export var normal_visual_path: NodePath = NodePath("../Body")
-## Путь обычной надписи, скрываемой вместе с видом; прежняя видимость восстанавливается.
+## Необязательный путь надписи; прежняя видимость запоминается при включении образа.
 @export var normal_message_path: NodePath = NodePath("../Message")
 @onready var _normal: Node3D = get_node_or_null(normal_visual_path) as Node3D
 @onready var _message: Node3D = get_node_or_null(normal_message_path) as Node3D

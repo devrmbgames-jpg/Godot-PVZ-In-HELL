@@ -1,5 +1,6 @@
 extends Control
 ## Рисует виртуальный указатель активного маркера без потребления ввода.
+## Выбирает первый C_Marker с capture_token; pointer задан в экранных пикселях.
 class_name MarkerPointer
 
 const POINTER_RADIUS: float = 4.0

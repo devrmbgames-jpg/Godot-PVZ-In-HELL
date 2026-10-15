@@ -1,5 +1,5 @@
 extends Label3D
-## Обновляет отладочную подпись клиента с частотой 10 Гц, читая CustomerDebugPresentation.
+## Читает CustomerDebugPresentation с номинальным интервалом 0.1 секунды process delta.
 
 const REFRESH_SECONDS: float = 0.1
 

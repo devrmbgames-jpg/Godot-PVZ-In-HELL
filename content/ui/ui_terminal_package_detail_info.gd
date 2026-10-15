@@ -107,6 +107,7 @@ func is_editing_note() -> bool:
 
 
 ## Запоминает курсор и прокрутку текущей истории, затем освобождает текстовый фокус.
+## До освобождения синхронно эмитит изменённый текст; сохранение подтверждает владелец сервиса.
 func end_editing() -> void:
 	_flush_note()
 	_remember_note_position()
@@ -151,7 +152,7 @@ func _on_note_text_changed() -> void:
 func _flush_note() -> void:
 	if _syncing_note or _history_id.is_empty() or _line_edit_ps.text == _reported_note:
 		return
-	# Смена выбора и закрытие сохраняют ввод даже до отложенного text_changed.
+	# Смена выбора и закрытие отправляют ввод даже до отложенного text_changed.
 	_reported_note = _line_edit_ps.text
 	note_changed.emit(_history_id, _reported_note)
 #endregion

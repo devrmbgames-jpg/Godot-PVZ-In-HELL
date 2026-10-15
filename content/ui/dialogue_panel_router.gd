@@ -5,6 +5,7 @@ class_name DialoguePanelRouter
 
 #region Клиентское представление
 ## Открывает authored ресурс после реального приветствия и explicit gameplay begin.
+## False не откатывает уже выполненное greet; true не ждёт первую async-реплику.
 static func open_customer(
 	actor: Entity,
 	customer: E_NpcCharacter,

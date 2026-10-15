@@ -23,6 +23,7 @@ func _init(actor: Entity, customer: E_NpcCharacter) -> void:
 
 
 ## Начинает фазу диалога; таймер терпения продолжает ограничивать обслуживание.
+## Не открывает UI и не захватывает ввод: этим владеют router и panel.
 func begin() -> bool:
 	if not is_valid():
 		return false
@@ -94,7 +95,7 @@ func can_continue() -> bool:
 
 
 #region Диалог и адаптер заказа
-## Возвращает фазу дня, которой управляет игрок.
+## Читает фазу C_DayCycle; при отсутствии сессии возвращает NIGHT.
 func day_phase() -> int:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	return cycle.phase if cycle != null else C_DayCycle.Phase.NIGHT
@@ -197,6 +198,7 @@ func dialogue_cue() -> String:
 
 
 ## Применяет правила обслуживания и социальные теги, включая явное подчинение.
+## True также допускает NONE без мутации; результат разрешает UI перейти к следующей реплике.
 func apply_response_tags(tags: PackedStringArray) -> bool:
 	if not is_valid():
 		return false

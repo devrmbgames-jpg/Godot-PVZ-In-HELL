@@ -1,5 +1,6 @@
 extends CanvasLayer
 ## Обновляет список вечерних доставок с паузой; обещания, коробки и деньги принадлежат сервисам.
+## Текст обновляется по process delta; Label пока создаётся этим legacy-представлением.
 class_name DistrictDeliveryView
 
 const REFRESH_SECONDS: float = 0.5
