@@ -118,9 +118,9 @@ RV-002 (R1 четвёртого batch), P2, **FIXED** (`1ce357a96936cc255c1162cb
 
 Пятый checkpoint: base `1c51aa2b457bfdf5c3f0a452d4ead33005b655e4` → target `2bc9d1119d76c2e8c0e596caa6337b06d85a4960`; read-only review **PASS**, новых findings нет. Nonbehavior/format/native parser/MCP — 26 paths PASS, parser log `parsechanged-20261015-175908161`.
 
-Текущий шестой batch — полный source pass **motion 22/22**. Прочитаны все scripts, authored Physics/Input groups и writers контактных данных из combat. Уточнены 13 scripts: приём прыжка versus применение импульса, gameplay versus physics delta, восстановление stamina, накопление/потребление импульсов, контактные кеши и неиспользуемое legacy look_direction. Поведение и authoring не менялись. До review motion **REVIEW_PENDING**, не DONE.
+Проверенный шестой batch — полный source pass **motion 22/22 — PASS**. Прочитаны все scripts, authored Physics/Input groups и writers контактных данных из combat. Уточнены 13 scripts: приём прыжка versus применение импульса, gameplay versus physics delta, восстановление stamina, накопление/потребление импульсов, контактные кеши и неиспользуемое legacy look_direction. Reviewer сверил changed claims, routing delta и representative unchanged owners; material findings нет, triage завершён.
 
-Current implementation base: `057ce606964138d081792826a137d769e951a28c`; target/review после commit **REVIEW_PENDING**. Всего изменён 91 уникальный script; шесть полных групп (92 scripts) имеют review PASS, motion ждёт review; остальные группы открыты. М1/М2/М3 целиком не завершены.
+Current implementation base: `057ce606964138d081792826a137d769e951a28c` → target `da976c51b656157ef7ebe8359e87e1e4c0d78758`; read-only review **PASS**, новых findings нет. Всего изменён 91 уникальный script; семь полных групп (114 scripts) имеют review PASS, остальные группы открыты. М1/М2/М3 целиком не завершены.
 
 Проверки batch:
 
@@ -133,7 +133,7 @@ Current implementation base: `057ce606964138d081792826a137d769e951a28c`; target/
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Получить immutable review motion и выполнить triage; пока оно идёт — только независимое чтение shared/scenes. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
+Продолжить source pass shared/scenes и подготовить отдельный checkpoint. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.
