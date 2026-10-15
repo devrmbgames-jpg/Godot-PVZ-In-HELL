@@ -134,7 +134,7 @@ RV-002 (R1 четвёртого batch), P2, **FIXED** (`1ce357a96936cc255c1162cb
 
 Девятый checkpoint: base `0bd1a3bb07d31b12bdd10be1e5a5d33f28ee1862` → target `cbff99b2406a7218721fc40270590f733c3d72f9`; review **PASS**, новых findings нет.
 
-Текущий десятый batch: полный source pass debug 19/19, уточнены 14 scripts: значение success, borrowed targets, inline dispatch, wallet units, QA placement/reset, isolated save и destructive debug lifecycle. Base `229753cf92572354f5f3be803ff7d6cd931f43c5`; target после commit, review **REVIEW_PENDING**, не DONE. В documentation-only batches изменены 180 уникальных scripts; одиннадцать полных групп (240 scripts) имеют review PASS, debug ещё ожидает review. М1/М2/М3 целиком не завершены.
+Текущий десятый batch: полный source pass debug 19/19, уточнены 14 scripts: значение success, shared targets, inline dispatch, wallet units, QA placement/reset, isolated save и destructive debug lifecycle. Base `229753cf92572354f5f3be803ff7d6cd931f43c5` → target `442e15a99a0a5b28dd693a430344cf8dff554a08`; review **CHANGES_REQUESTED**, не DONE. RV-003 (R1), P2, ACCEPTED: неверно отрицалось удержание Resource records в DebugTarget. Исправление разделяет Node deletion и strong Resource references/membership; fix/re-review ещё не завершены. В documentation-only batches изменены 180 уникальных scripts; одиннадцать полных групп (240 scripts) имеют review PASS, debug ожидает re-review. М1/М2/М3 целиком не завершены.
 
 Проверки batch:
 

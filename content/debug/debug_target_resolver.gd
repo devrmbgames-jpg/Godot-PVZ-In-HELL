@@ -6,7 +6,8 @@ class_name DebugTargetResolver
 #region Публичный синтаксис цели
 ## Разбирает self/target/#номер/pkg:/visit:/entity: либо raw package_id; отказ возвращает INVALID с
 ## error. #номер выбирает активную регистрацию; PACKAGE допустим без живой коробки.
-## Entity и записи заимствованы: результат не закрепляет их lifetime и не копирует историю.
+## Entity не удерживается от удаления; записи Resource удерживаются сильными ссылками.
+## Удержание записи не гарантирует её актуальное membership в текущем ledger/flow.
 static func resolve(raw_target: String) -> DebugTarget:
 	var result: DebugTarget = DebugTarget.new()
 	result.query = raw_target.strip_edges()
