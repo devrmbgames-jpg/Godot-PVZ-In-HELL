@@ -132,13 +132,13 @@ function Get-GodotDiagnostics {
     if ($Action -eq 'GUT' -and $ExitCode -eq 0) {
         $expectedCounts = @{}
         $nativeCounts = @{}
-        foreach ($line in $output) {
+        foreach ($line in @($output + $errors)) {
             if ($line -match $expectedPattern) {
                 $prefix = $Matches[1]
                 $expectedCounts[$prefix] = 1 + [int]$expectedCounts[$prefix]
             }
         }
-        foreach ($line in $errors) {
+        foreach ($line in @($output + $errors)) {
             if ($line -match $nativePattern) {
                 $prefix = $Matches[1]
                 $nativeCounts[$prefix] = 1 + [int]$nativeCounts[$prefix]

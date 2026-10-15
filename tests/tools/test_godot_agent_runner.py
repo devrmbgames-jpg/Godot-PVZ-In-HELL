@@ -142,6 +142,28 @@ if (@(Get-GodotDiagnostics @($generic) @('ERROR: Unexpected object') 'GUT' 0).Co
 }
 """)
 
+    def test_counts_cover_both_streams_before_combined_stream_suppression(self) -> None:
+        self.run_contract(r"""
+$function = $ast.Find({ param($node)
+    $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+    $node.Name -eq 'Get-GodotDiagnostics'
+}, $true)
+Invoke-Expression $function.Extent.Text
+$confirmation = "[ExpectedError]Expected engine error containing 'ConfigFile parse error at user://slot'."
+$native = 'ERROR: ConfigFile parse error at user://slot:2: EOF.'
+foreach ($case in @(
+    @{Out=@($confirmation, $native); Err=@($native)},
+    @{Out=@($confirmation); Err=@($native, $confirmation)}
+)) {
+    if (@(Get-GodotDiagnostics $case.Out $case.Err 'GUT' 0).Count -eq 0) {
+        throw 'An uncounted diagnostic/marker in the other stream was suppressed'
+    }
+}
+if (@(Get-GodotDiagnostics @($native) @($confirmation) 'GUT' 0).Count -ne 0) {
+    throw 'Exactly matched reversed streams did not pass'
+}
+""")
+
 
 if __name__ == "__main__":
     unittest.main()
