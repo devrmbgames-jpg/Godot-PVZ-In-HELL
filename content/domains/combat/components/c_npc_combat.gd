@@ -28,9 +28,9 @@ var kind: Kind = Kind.MELEE
 var variant: int = -1
 ## Зафиксированное определение текущей атаки.
 var attack: DEF_NpcAttack = null
-## Время исполнения в секундах.
+## GamePlay-секунды исполнения; S_NpcCombat использует также для watchdog native-анимации.
 var elapsed: float = 0.0
-## Остаток задержки следующей атаки в секундах.
+## Остаток GamePlay-секунд после finish; S_NpcCombat уменьшает, cancel обнуляет.
 var cooldown_remaining: float = 0.0
 ## Попытка эффекта уже выполнена, включая промах.
 var effect_committed: bool = false

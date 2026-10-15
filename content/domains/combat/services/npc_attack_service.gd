@@ -50,7 +50,8 @@ static func can_start_against(
 	)
 
 
-## Отклонённый запрос не меняет текущего противника, намерение и cooldown.
+## Предварительный отказ не меняет цель/намерение/cooldown; затем bind предшествует start.
+## Если повторная проверка start откажет после bind, прежняя цель автоматически не вернётся.
 static func start_against(
 	actor: Entity,
 	target: Entity,
@@ -148,6 +149,7 @@ static func choose_and_start(actor: Entity) -> bool:
 
 
 ## Hook анимации или таймера: одна попытка эффекта на атаку, включая промах и невидимую цель.
+## True — melee dispatch или создание projectile; это не подтверждение потери HP.
 static func commit_effect(actor: Entity) -> bool:
 	if NpcGazeQueries.frozen(actor) or NpcDarknessQueries.combat_suppressed(actor):
 		NpcAttackExecutionService.cancel(actor)

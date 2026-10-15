@@ -10,7 +10,7 @@ var body_b: PhysicsBody3D = null
 var tick: int = 0
 ## Неотрицательная скорость сближения вдоль нормали в м/с.
 var normal_speed: float = 0.0
-## Нормальная величина импульса контакта в Н·с.
+## Нормальный импульс в Н·с: measured у rigid, оценка speed × reduced mass у CharacterBody.
 var normal_impulse: float = 0.0
 ## Мировая нормаль к body_a для отложенного кинематического отскока.
 var normal_on_a: Vector3 = Vector3.ZERO

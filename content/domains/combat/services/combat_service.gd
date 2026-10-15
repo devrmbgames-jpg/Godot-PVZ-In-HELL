@@ -52,6 +52,7 @@ static func can_strike(actor: Entity, weapon: Entity) -> bool:
 
 
 ## Фиксирует удар/оружие один раз, запускает визуальный замах и слышимый шум.
+## True подтверждает начало WINDUP; попадание позже ищет S_PlayerMelee.
 static func start_strike(actor: Entity, weapon: Entity) -> bool:
 	if not can_strike(actor, weapon):
 		return false
@@ -71,6 +72,7 @@ static func start_strike(actor: Entity, weapon: Entity) -> bool:
 
 
 ## Запрашивает ближний урон с множителем голода; здоровье меняет O_Damage.
+## True означает dispatch, включая последующий BLOCKED/нулевой HP effect; DamageResult — итог.
 static func hit(actor: Entity, source: Entity, target: Entity, damage: float) -> bool:
 	if (
 		not GrabQueries.holder_available(actor)

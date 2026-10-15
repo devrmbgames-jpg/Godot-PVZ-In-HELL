@@ -1,3 +1,3 @@
 extends E_TraitedEntity
-## Нефизическое представление снаряда; траекторией и лучом владеет ProjectileService.
+## Нефизический снаряд: ProjectileService создаёт, S_CombatProjectile ведёт полёт/луч/удаление.
 class_name E_CombatProjectile

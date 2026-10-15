@@ -1,5 +1,6 @@
 extends GameDefinition
 ## Одна авторская атака NPC; C_NpcCombat хранит отдельные наборы ближних и дальних атак.
+## Таймеры/полёт используют GamePlay-секунды; animation-driven effect вызывается native hook.
 class_name DEF_NpcAttack
 
 ## Базовый урон до голода и сопротивления в единицах здоровья.

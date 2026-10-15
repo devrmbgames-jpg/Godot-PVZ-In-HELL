@@ -7,5 +7,5 @@ class_name C_ReceiverEffect
 @export var definition: DEF_ReceiverEffect = null
 ## Authored native volume relative to the physical item; no generated gameplay nodes.
 @export var area_path: NodePath = ^"EffectArea"
-## Unsaved elapsed simulation seconds; reconstruction starts a fresh complete interval.
+## Unsaved GamePlay seconds owned by S_ReceiverEffect; restore starts a fresh complete interval.
 var tick_elapsed: float = 0.0

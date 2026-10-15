@@ -1,5 +1,6 @@
 extends System
 ## Owns NPC attack cooldown/windup/active/recovery and narrow native-animation watchdog.
+## Timers use GamePlay delta; animation-driven attacks leave hit timing to captured native hooks.
 class_name S_NpcCombat
 
 

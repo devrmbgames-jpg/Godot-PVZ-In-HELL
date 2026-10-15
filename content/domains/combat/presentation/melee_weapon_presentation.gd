@@ -1,5 +1,5 @@
 extends RefCounted
-## Анимирует только авторские визуальные узлы оружия; попадание принадлежит CombatService.
+## Анимирует визуальные узлы; S_PlayerMelee выбирает попадания, CombatService отправляет урон.
 class_name MeleeWeaponPresentation
 
 const RESET_ANIMATION: StringName = &"RESET"

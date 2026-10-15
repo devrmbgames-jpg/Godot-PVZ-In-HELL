@@ -12,5 +12,5 @@ enum Alignment {
 @export var alignment: Alignment = Alignment.HOLY
 ## Positive finite health units per interval before damage resistance; healing is capped by Health.
 @export_range(0.01, 1000.0) var amount_per_tick: float = 8.0
-## Positive finite interval in simulation seconds; physical Area3D owns the authored volume.
+## Positive finite interval in GamePlay seconds; physical Area3D owns the authored volume.
 @export_range(0.05, 60.0) var tick_seconds: float = 1.0

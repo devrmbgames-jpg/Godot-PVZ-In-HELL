@@ -9,6 +9,7 @@ const PROJECTILE_SCENE: PackedScene = preload(
 
 #region Launch construction
 ## Prepares velocity/damage/attribution/source before one compiled native registration.
+## True confirms construction, not a hit; later flight can end at scenery or TTL without damage.
 static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool:
 	if (
 		not GrabQueries.holder_available(actor)

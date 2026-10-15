@@ -2,9 +2,9 @@ extends Component
 ## Данные прямого полёта, урона и снимка атрибуции снаряда.
 class_name C_CombatProjectile
 
-## Постоянная мировая скорость прямого полёта в м/с.
+## Постоянная мировая скорость в метрах за GamePlay-секунду; позу меняет S_CombatProjectile.
 var velocity: Vector3 = Vector3.ZERO
-## Остаток времени полёта в секундах.
+## Остаток GamePlay-секунд; задаёт ProjectileService, уменьшает S_CombatProjectile.
 var remaining_seconds: float = 0.0
 ## Урон уже с множителем голода стрелка; сопротивление применяется у цели.
 var damage: float = 0.0

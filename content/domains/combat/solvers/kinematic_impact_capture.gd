@@ -20,6 +20,7 @@ static func mass_of(body: PhysicsBody3D) -> float:
 
 
 ## После move_and_slide собирает контакты и разделения, исключая предмет держателя; incoming в м/с.
+## Импульс оценивается по скорости и приведённой массе; это не measured Jolt contact impulse.
 static func capture(
 	actor: Entity,
 	body: CharacterBody3D,

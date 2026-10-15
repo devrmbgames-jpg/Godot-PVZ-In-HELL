@@ -16,6 +16,7 @@ static func finish(actor: Entity) -> void:
 
 
 ## Отменяет исполнение и обнуляет cooldown без эффекта атаки.
+## Cleanup снимает native callbacks и меняет generation: queued шаги прежней атаки устаревают.
 static func cancel(actor: Entity) -> void:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state != null:

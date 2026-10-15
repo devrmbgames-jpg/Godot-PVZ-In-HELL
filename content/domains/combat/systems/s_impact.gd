@@ -5,6 +5,7 @@ class_name S_Impact
 const CONTACT_LIMIT: int = 16
 const SEPARATION_RETENTION_TICKS: int = 2
 
+# Session-local эпизоды физической пары: расходуются до callbacks, rearm требует разделения.
 var _pairs: Dictionary[String, ImpactContactPair] = { }
 
 var _flush_scheduled: bool = false
@@ -66,7 +67,7 @@ func _flush_contacts() -> void:
 
 
 #region Объединение снимков
-## Объединяет точки контакта и повторные отчёты A/B одного физического такта.
+## Объединяет отчёты пары до общего flush; зеркальные импульсы берёт по максимуму, не сумме.
 func _enqueue(contact: PhysicsContact) -> void:
 	if not _valid(contact):
 		return

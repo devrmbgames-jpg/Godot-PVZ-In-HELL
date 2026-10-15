@@ -1,5 +1,6 @@
 extends System
 ## Owns player strike clocks, active-window scan and terminal cancellation.
+## GamePlay delta drives both scan and manual weapon presentation; no animation hit authority.
 class_name S_PlayerMelee
 
 
@@ -105,6 +106,7 @@ func _scan_strike(actor: Entity, weapon: Entity, state: C_Combat) -> void:
 		references.append(weakref(target))
 	var generation: int = state.execution_generation
 	var accepted_count: int = 0
+	# One scan may dispatch up to maximum_targets; hit_committed blocks later scans of this strike.
 	for reference: WeakRef in references:
 		if (
 			not EntityAvailability.contains(actor, _world)

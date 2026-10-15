@@ -9,6 +9,7 @@ func query() -> QueryBuilder:
 
 
 ## Combines due intervals per source; queued execution resolves the source lifetime again.
+## GamePlay seconds accumulate from zero; one dispatch per receiver combines all due intervals.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if not is_finite(delta) or delta <= 0.0:
 		return
