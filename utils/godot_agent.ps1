@@ -120,6 +120,42 @@ if ($Action -eq "Version") {
     exit $LASTEXITCODE
 }
 
+function Get-GodotDiagnostics {
+    param([string[]]$StdoutLines, [string[]]$StderrLines, [string]$Action, [int]$ExitCode)
+
+    $ansi = '\x1B\[[0-?]*[ -/]*[@-~]'
+    $output = @($StdoutLines | ForEach-Object { $_ -replace $ansi, '' })
+    $errors = @($StderrLines | ForEach-Object { $_ -replace $ansi, '' })
+    $expectedPattern = "^\[ExpectedError\]Expected engine error containing '(ConfigFile parse error at user://[^']+)'\.\s*$"
+    $nativePattern = '^ERROR: (ConfigFile parse error at user://.+?):\d+:.*$'
+    $accepted = @{}
+    if ($Action -eq 'GUT' -and $ExitCode -eq 0) {
+        $expectedCounts = @{}
+        $nativeCounts = @{}
+        foreach ($line in $output) {
+            if ($line -match $expectedPattern) {
+                $prefix = $Matches[1]
+                $expectedCounts[$prefix] = 1 + [int]$expectedCounts[$prefix]
+            }
+        }
+        foreach ($line in $errors) {
+            if ($line -match $nativePattern) {
+                $prefix = $Matches[1]
+                $nativeCounts[$prefix] = 1 + [int]$nativeCounts[$prefix]
+            }
+        }
+        foreach ($prefix in $expectedCounts.Keys) {
+            if ($expectedCounts[$prefix] -eq $nativeCounts[$prefix]) { $accepted[$prefix] = $true }
+        }
+    }
+    foreach ($line in @($output + $errors)) {
+        if (($line -match $expectedPattern -or $line -match $nativePattern) -and
+            $accepted.ContainsKey($Matches[1])) { continue }
+        if ($line -match 'SCRIPT ERROR|Parse Error|Assertion failed|(?i)\bERROR:' -and
+            $line -notmatch '^ERROR: Failed to read the root certificate store\.$') { $line }
+    }
+}
+
 $versionOutput = @(& $godot --version)
 if ($LASTEXITCODE -ne 0 -or -not (($versionOutput -join " ") -match '^4\.7\.1(\.|$)')) {
     throw "This project requires Godot 4.7.1, got: $($versionOutput -join ' ')"
@@ -205,13 +241,12 @@ if ($env:OS -eq "Windows_NT") {
     $launch.WindowStyle = "Hidden"
 }
 $process = Start-Process @launch
-$lines = @()
-if (Test-Path -LiteralPath $stdout) { $lines += @(Get-Content -LiteralPath $stdout) }
-if (Test-Path -LiteralPath $stderr) { $lines += @(Get-Content -LiteralPath $stderr) }
-$diagnostics = @($lines | Where-Object {
-    ($_ -match 'SCRIPT ERROR|Parse Error|Assertion failed|(?i)\bERROR:') -and
-    ($_ -notmatch '^ERROR: Failed to read the root certificate store\.$')
-})
+$stdoutLines = @()
+$stderrLines = @()
+if (Test-Path -LiteralPath $stdout) { $stdoutLines = @(Get-Content -Encoding UTF8 -LiteralPath $stdout) }
+if (Test-Path -LiteralPath $stderr) { $stderrLines = @(Get-Content -Encoding UTF8 -LiteralPath $stderr) }
+$lines = @($stdoutLines + $stderrLines)
+$diagnostics = @(Get-GodotDiagnostics -StdoutLines $stdoutLines -StderrLines $stderrLines -Action $Action -ExitCode $process.ExitCode)
 $failed = $process.ExitCode -ne 0 -or $diagnostics.Count -gt 0
 if ($Action -in @("ParseFiles", "ParseChanged") -and
     -not ($lines -match 'Changed-script parser: PASS')) {

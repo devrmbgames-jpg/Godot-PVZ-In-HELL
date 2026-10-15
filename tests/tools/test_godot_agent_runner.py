@@ -85,6 +85,63 @@ try {
 throw 'Unverifiable ownership did not block offline mutation'
 """)
 
+    def test_exact_expected_configfile_errors_require_successful_gut_and_matching_counts(self) -> None:
+        self.run_contract(r"""
+$function = $ast.Find({ param($node)
+    $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+    $node.Name -eq 'Get-GodotDiagnostics'
+}, $true)
+Invoke-Expression $function.Extent.Text
+$prefix = 'ConfigFile parse error at user://isolated/slot.pvzh'
+$confirmation = "[ExpectedError]Expected engine error containing '$prefix'.  "
+$native = "ERROR: ${prefix}:1: Unexpected EOF."
+$empty = @(Get-GodotDiagnostics @($confirmation) @($native) 'GUT' 0)
+if ($empty.Count -ne 0) { throw 'Matching expected native diagnostic was rejected' }
+foreach ($mode in @('ParseChanged', 'OfflineScript')) {
+    $rejected = @(Get-GodotDiagnostics @($confirmation) @($native) $mode 0)
+    if ($rejected.Count -eq 0) { throw "Non-GUT $mode accepted expected errors" }
+}
+$rejected = @(Get-GodotDiagnostics @($confirmation) @($native) 'GUT' 1)
+if ($rejected.Count -eq 0) { throw 'Failing GUT accepted expected errors' }
+foreach ($case in @(
+    @{Out=@($confirmation); Err=@($native, $native)},
+    @{Out=@($confirmation, $confirmation); Err=@($native)},
+    @{Out=@(); Err=@($native)},
+    @{Out=@($confirmation); Err=@()},
+    @{Out=@($confirmation); Err=@('ERROR: ConfigFile parse error at user://different:1: EOF.')}
+)) {
+    $rejected = @(Get-GodotDiagnostics $case.Out $case.Err 'GUT' 0)
+    if ($rejected.Count -eq 0) { throw 'Unmatched diagnostic/count/path was accepted' }
+}
+""")
+
+    def test_expected_configfile_errors_do_not_hide_other_errors_or_script_diagnostics(self) -> None:
+        self.run_contract(r"""
+$function = $ast.Find({ param($node)
+    $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+    $node.Name -eq 'Get-GodotDiagnostics'
+}, $true)
+Invoke-Expression $function.Extent.Text
+$confirmation = "[ExpectedError]Expected engine error containing 'ConfigFile parse error at user://slot'."
+$native = 'ERROR: ConfigFile parse error at user://slot:2: EOF.'
+$escape = [char]27
+$colored = "${escape}[34m[ExpectedError]${escape}[0m" + $confirmation.Substring(15)
+if (@(Get-GodotDiagnostics @($colored) @($native) 'GUT' 0).Count -ne 0) {
+    throw 'ANSI expected-error marker did not match'
+}
+foreach ($unexpected in @('SCRIPT ERROR: Broken call', 'Parse Error: Invalid type',
+                         'ERROR: Unexpected object', 'Assertion failed')) {
+    $diagnostics = @(Get-GodotDiagnostics @($confirmation) @($native, $unexpected) 'GUT' 0)
+    if ($diagnostics.Count -ne 1 -or $diagnostics[0] -ne $unexpected) {
+        throw 'An unexpected diagnostic was hidden'
+    }
+}
+$generic = "[ExpectedError]Expected engine error containing 'Unexpected object'."
+if (@(Get-GodotDiagnostics @($generic) @('ERROR: Unexpected object') 'GUT' 0).Count -eq 0) {
+    throw 'An arbitrary expected-error marker bypassed the runner'
+}
+""")
+
 
 if __name__ == "__main__":
     unittest.main()
