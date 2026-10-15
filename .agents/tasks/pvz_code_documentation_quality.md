@@ -104,7 +104,9 @@ M1, проверенный первый code batch: C_DayCycle, DayTransitionReq
 
 Текущий третий batch: EntityCompositionService, ObserverReactionBoundary, CommandBufferBarrier, EntityBuildPlan, GameWorld, GrabPhysicsSolver, C_Autosave, AutosaveStore, SnapshotRestoreBoundary, WorldSnapshotService, SaveDataCodec. Уточнены synchronous registration/queued flush, borrowed physics context, codec/preflight/partial mutation, restore readiness и autosave writers. Всего изменены 27 уникальных scripts; полный M1/M2/M3 и quality pass остальных файлов не завершены.
 
-Current batch base: `7698e2b45962a1c6a483df5dfbe2309b5b24b4dc`; target/review **REVIEW_PENDING** после commit. Public symbols/defaults/exports/SAVE_FIELDS не меняются.
+Current batch base: `7698e2b45962a1c6a483df5dfbe2309b5b24b4dc` → target `e0055c870e65f339ed9079f58b7d24fbdfd52ee3`. Initial read-only review **FAIL**: одна неточность timing, RV-001 ниже. Public symbols/defaults/exports/SAVE_FIELDS не меняются.
+
+RV-001 (R1), P2, **ACCEPTED**: RegistrationScope.finish/register_plan ошибочно описывали initial commands как обязательно pending. Pinned GECS gitlink `14d4282e5c1cb2713c187706ba2f5ff4e315d36e`, `_invoke_entry` исполняет PER_CALLBACK inline. Текст уточнён: inline effects/reentrancy возможны, extra global drain отсутствует; оставшаяся MANUAL/deferred работа принадлежит caller flush. Fix/targeted re-review **PENDING**, cycle 1/2.
 
 Проверки batch:
 
@@ -117,7 +119,7 @@ Current batch base: `7698e2b45962a1c6a483df5dfbe2309b5b24b4dc`; target/review **
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Собрать immutable review третьего batch и triage. Затем завершать M1 оставшимися критическими owners и переходить к полному domain pass M2. E_PhysicalCharacter и E_PhysicalSlot уже прочитаны: описания authored узлов соответствуют фактическому glue, изменений пока не требуют. Inventory/declaration counts сняты, остальные first-party файлы остаются открытым scope. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; для собственных addons CLI skip нужно учитывать и проверять их тем же scanner явно. Финальный M3 — на совместном результате зависимостей.
+Завершить fix commit/targeted re-review RV-001. Независимо прочитаны все 11 inventory, 15 time и 21 commerce scripts; найденные documentation уточнения ещё не внесены и требуют отдельного batch. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. Остальные first-party файлы остаются открытым scope. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.

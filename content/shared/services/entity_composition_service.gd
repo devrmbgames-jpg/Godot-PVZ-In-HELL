@@ -133,7 +133,8 @@ static func registration_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 ## Commits a plan within its synchronous transaction, after the owner's accepted preflight.
 ## No World mutation or lifetime boundary may intervene between preflight and this operation.
 ## true means native registration, initial bindings and Entity readiness already committed.
-## Initial Observer callbacks have dispatched; their queued commands still need the owner's flush.
+## Initial callbacks can run effects inline via GECS PER_CALLBACK; reentrancy is possible here.
+## No extra global drain is performed; remaining MANUAL/deferred commands need the owner's flush.
 ## Rejecting before registration leaves lifetime/disposal of the instance with the caller.
 static func register_plan(
 	context: EntitySpawnContext,

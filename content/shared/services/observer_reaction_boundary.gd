@@ -63,7 +63,8 @@ class RegistrationScope extends RefCounted:
 
 	#region Accepted ready publication
 	## Delivers captured initial events once after fields and bindings are ready.
-	## Restores activity before callbacks; their CommandBuffers are not drained by this operation.
+	## Restores activity before callbacks; GECS PER_CALLBACK may run commands inline/reentrantly.
+	## Adds no global drain; remaining MANUAL/deferred work belongs to the caller's flush boundary.
 	func finish() -> void:
 		assert(not _closed, "A native registration notification scope closes once")
 		_closed = true
