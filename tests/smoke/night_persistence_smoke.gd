@@ -496,6 +496,18 @@ func _expected_ready_components(rows: Array, domain: Script, morning_day: int) -
 				"Night retains its original conflict phase",
 			)
 			fields.conflict_phase = StringName("%d/%d" % [morning_day, C_DayCycle.Phase.MORNING])
+		elif domain == C_Wallet:
+			var days: Array = fields.daily_results as Array
+			var existing: bool = false
+			for day: Dictionary in days:
+				if int(day.fields.day_index) == morning_day:
+					existing = true
+			if not existing:
+				# Ready opens the operation-free Morning; every stored result stays exact.
+				var opened: DailyMoneyResult = DailyMoneyResult.new()
+				opened.day_index = morning_day
+				opened.closing_balance = int(fields.balance)
+				days.append(SaveDataCodec.encode(opened))
 		elif domain == C_CustomerFlow:
 			_check(
 				fields.planned_through_day == morning_day - 1,

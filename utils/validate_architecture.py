@@ -21,6 +21,7 @@ EXCLUDED = {"addons", "tests", "node_modules", "__pycache__"}
 STEP = r"(?:tick|update|process)"
 FUNCTION = re.compile(r"^(?P<static>static\s+)?func\s+(?P<name>\w+)\s*\(")
 SERVICE_CALL = re.compile(rf"\b(\w+Service)\s*\.\s*({STEP})\b")
+WALLET_DAY_CALL = re.compile(r"\bWalletService\s*\.\s*sync_day\b")
 
 
 @dataclass(frozen=True)
@@ -169,6 +170,9 @@ def scan(root: Path) -> list[Finding]:
                 static_step = False
 
             if is_system:
+                for call in WALLET_DAY_CALL.finditer(line):
+                    findings.append(Finding("system-wallet-day-poll", owner, method,
+                                            "WalletService.sync_day", relative, number))
                 for call in SERVICE_CALL.finditer(line):
                     target = f"{call.group(1)}.{call.group(2)}"
                     findings.append(Finding("system-service-step", owner, method, target, relative, number))

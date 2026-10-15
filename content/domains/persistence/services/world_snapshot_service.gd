@@ -673,6 +673,11 @@ static func restore(
 			DistrictPopulationService.reconcile_calendar(world, session)
 		for session: Entity in world.query.with_all([C_CustomerFlow, C_DayCycle]).execute():
 			CustomerFlowService.reconcile_session(world, session)
+		for session: Entity in world.query.with_all([C_Wallet, C_DayCycle]).execute():
+			WalletService.sync_day(
+				session.get_component(C_Wallet) as C_Wallet,
+				session.get_component(C_DayCycle) as C_DayCycle,
+			)
 		# Flush is the completion boundary for preparation and its dependent outcome reactions.
 		return CommandBufferBarrier.drain_pending(world)
 	return true

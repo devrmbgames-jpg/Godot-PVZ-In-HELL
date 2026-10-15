@@ -186,6 +186,14 @@ func test_fresh_and_restored_startup_prepare_customers_after_ready_without_calen
 		_level.set_physics_process(false)
 		var flow: C_CustomerFlow = CustomerFlowQueries.current()
 		var cycle: C_DayCycle = DayPhaseQueries.current()
+		var wallet: C_Wallet = WalletService.current()
+		assert_eq(wallet.daily_results.back().day_index, cycle.day_index)
+		assert_false(wallet.daily_results.back().shift_completed)
+		var wallet_owners: int = 0
+		for observer: Observer in ECS.world.observers:
+			if observer is O_WalletDay:
+				wallet_owners += 1
+		assert_eq(wallet_owners, 1, "Native shared World owns the discrete wallet Observer")
 		assert_eq(flow.planning_day, cycle.day_index)
 		assert_eq(flow.planning_phase, int(cycle.phase))
 		assert_eq(spy.facts, 0)

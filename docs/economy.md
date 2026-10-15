@@ -1,6 +1,10 @@
 # Wallet and daily results (R10)
 
-`DaySession` owns one `C_Wallet` alongside `C_DayCycle`. `WalletService` is the synchronous write boundary; no UI writes money. `S_WalletDay` runs after `S_DayPhase`, marks a shift completed once on Evening/Night, and opens a new daily result without resetting the wallet or journal. Evening transactions belong to the same day; `closing_balance` remains provisional until that day ends.
+`DaySession` owns one `C_Wallet` alongside `C_DayCycle`. `WalletService` is the synchronous write boundary; no UI writes money. `O_WalletDay` consumes the committed `DayPhaseChanged` fact from `S_DayPhase` and the discrete appearance of wallet capability. Its queued callback captures the wallet/cycle identities and day/phase, and rejects removed owners, replacement Components, stale contexts and a different global World before mutation. There is no scheduled wallet-day polling.
+
+`WalletService.sync_day()` explicitly ensures the daily result and marks a shift completed once on Evening/Night. `DailyMoneyResult.shift_completed` remains the sole completion flag. Global ready and successful in-place restore call this operation after passive reconstruction; startup restore defers it to global ready. Even a day without money operations receives a daily result. An operation before bootstrap creates the same result through the normal transaction path. Evening transactions belong to the same day; `closing_balance` remains provisional until that day ends.
+
+Submission of a calendar fact is not completion under MANUAL dispatch. Ready, restore and Night capture use the bounded `CommandBufferBarrier` to drain wallet and outcome reactions before consumers read or snapshot them. Capture retains its immutable prepared graph on storage retries. Wallet bootstrap never publishes a synthetic calendar fact, and Customers bootstrap never enters the wallet's calendar consumer.
 
 ## Monetary operations
 
@@ -18,6 +22,6 @@ Both operation identity and nonempty settlement identity are deduplicated across
 
 Terminal reads balance and current-day totals. `WalletService.snapshot()` returns a detached deep copy for readers/save preparation. R21 must persist and restore the complete exported wallet state, including operation/settlement identities and daily completion flags, together with the day cycle; restoring only balance loses idempotency. Disk persistence is outside R10.
 
-Validation: `tests/gut/test_wallet.gd` and `tests/smoke/wallet_smoke.tscn` cover calculation, idempotency, purchase rejection/retry, debt, day totals, detached state and main-scene day scheduling.
+Validation: `tests/gut/test_wallet.gd` covers calculations and transaction idempotency; `test_wallet_day.gd` covers discrete bootstrap, actual calendar facts, MANUAL flush and queued lifetime isolation. `test_startup_restore.gd`, `test_world_snapshot.gd` and the two-process `night_persistence` smoke cover real readiness, immutable Night capture/retry and fresh load. `utils/validate_architecture.py` rejects direct/deferred wallet-day reconciliation from a System without forbidding ordinary wallet transactions.
 
 2026-09-27 validation: Godot 4.7.1, 7/7 GUT tests (42 assertions); wallet headless smoke PASS after user-authorized correction/rerun of the success marker. Structure validation and diff whitespace check PASS. Optional formatter unavailable; visual validation not run.

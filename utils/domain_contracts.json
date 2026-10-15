@@ -1939,7 +1939,7 @@
         "content/services/commerce/commerce_service.gd",
         "content/services/economy/wallet_service.gd",
         "content/systems/gameplay/s_order_delivery.gd",
-        "content/systems/gameplay/s_wallet_day.gd"
+        "content/domains/commerce/observers/o_wallet_day.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -1998,7 +1998,7 @@
       "public_methods": [],
       "sources": [
         "content/systems/gameplay/s_order_delivery.gd",
-        "content/systems/gameplay/s_wallet_day.gd"
+        "content/domains/commerce/observers/o_wallet_day.gd"
       ],
       "purpose": "Explicit schedule dependency/composition only; no imperative System calls.",
       "method_rights": {},
@@ -4898,7 +4898,8 @@
       ],
       "public_methods": [
         "current",
-        "submit"
+        "submit",
+        "sync_day"
       ],
       "sources": [
         "content/debug/debug_customer_service.gd",
@@ -4907,11 +4908,13 @@
         "content/debug/developer_console_diagnostics.gd",
         "content/ui/commerce_panel.gd",
         "content/ui/interaction_hud.gd",
-        "content/ui/terminal_panel.gd"
+        "content/ui/terminal_panel.gd",
+        "content/scenes/game_world.gd"
       ],
       "method_rights": {
         "current": "query",
-        "submit": "request"
+        "submit": "request",
+        "sync_day": "request"
       },
       "public_instance_methods": []
     },
@@ -13768,22 +13771,6 @@
     {
       "source_owner": "persistence",
       "target_owner": "commerce",
-      "symbol": "S_WalletDay",
-      "path": "content/domains/commerce/systems/s_wallet_day.gd",
-      "rights": [
-        "read"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/systems/persistence/s_night_save.gd"
-      ],
-      "purpose": "Explicit schedule dependency/composition only; no imperative System calls.",
-      "method_rights": {},
-      "public_instance_methods": []
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "commerce",
       "symbol": "WalletService",
       "path": "content/domains/commerce/services/wallet_service.gd",
       "rights": [
@@ -13791,12 +13778,16 @@
         "read",
         "request"
       ],
-      "public_methods": [],
+      "public_methods": [
+        "sync_day"
+      ],
       "sources": [
         "content/services/persistence/district_snapshot_rules.gd",
         "content/services/persistence/world_snapshot_service.gd"
       ],
-      "method_rights": {},
+      "method_rights": {
+        "sync_day": "request"
+      },
       "public_instance_methods": []
     },
     {
@@ -19863,6 +19854,23 @@
         "content/systems/persistence/s_night_save.gd"
       ],
       "purpose": "PVZ-CAL01: drain existing command buffers to terminal readiness/capture without running scheduled work; moved from NightSaveService to preserve an acyclic implementation graph."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "time",
+      "symbol": "DayPhaseChanged",
+      "path": "content/domains/time/contracts/day_phase_changed.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/observers/o_wallet_day.gd"
+      ],
+      "purpose": "PVZ-A02: consume committed calendar facts after mutation; capability and explicit ready/restore bootstrap publish no calendar fact."
     }
   ],
   "legacy_decomposition": []

@@ -1,8 +1,8 @@
 # PVZ-A02 — Итоги кошелька по событиям, без покадрового polling
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 Priority: **P2**
-Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
+BASE_SHA: `78d016bd200db8b12d7c9e7f14cb1c72995494b6`
 Dependency: [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md)
 
 ## Task state
@@ -13,7 +13,7 @@ Dependency: [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md)
 
 ## Evidence / scope
 
-- [s_wallet_day.gd](../../content/domains/commerce/systems/s_wallet_day.gd): `process()` каждый проход целиком делегирует работу `WalletService.sync_day()`.
+- На исходном checkpoint `S_WalletDay.process()` каждый проход делегировал работу `WalletService.sync_day()`. Текущий владелец — [o_wallet_day.gd](../../content/domains/commerce/observers/o_wallet_day.gd); старый System удалён.
 - [wallet_service.gd](../../content/domains/commerce/services/wallet_service.gd): `sync_day()` создаёт daily result и через shift_completed однократно учитывает Evening/Night. Двойной зачёт аудитом не доказан; исправляется execution ownership.
 - [s_day_phase.gd](../../content/domains/time/systems/s_day_phase.gd) уже публикует DayPhaseChanged. [s_night_save.gd](../../content/domains/persistence/systems/s_night_save.gd) содержит зависимость от S_WalletDay.
 - Scope: commerce owner, регистрация Systems/Observers в production и fixtures, startup/restore boundary, затронутые deps/manifests, тесты кошелька и Night snapshot.
@@ -48,15 +48,30 @@ Dependency: [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md)
 
 
 ### Current
-ТЗ подготовлено. Реализация, engine проверки и review исправления: **NOT_RUN**.
+Реализован commerce-owned O_WalletDay на committed DayPhaseChanged и дискретном появлении C_Wallet/C_DayCycle. Callback захватывает WeakRef session, точные Components/day/phase и отвергает заменённый глобальный World. WalletService.sync_day остаётся явной идемпотентной операцией; GameWorld.ready и успешный in-place restore вызывают её после passive reconstruction. Отдельного completion flag и новых SAVE_FIELDS нет.
+
+S_WalletDay и его UID удалены, native game_world.tscn заменяет узел Observer с сохранённым unique_id. Все действующие manifests и Night deps мигрированы; исторические completed records не переписаны. CommandBufferBarrier завершает MANUAL wallet/outcome reactions до Night snapshot. Узкий architecture guard запрещает wallet-day вызов из System, но допускает обычные транзакции.
 
 ### Next
-После PVZ-CAL01 определить фактические bootstrap/restore и Night flush точки, затем перенести дискретное владение в commerce Observer.
+Завершить final checks, сделать отдельный checkpoint-коммит, закрепить полный TARGET_SHA и запустить одного read-only reviewer на BASE_SHA/TARGET_SHA. Собрать triage и закрыть принятые P0/P1/P2 до DONE. Пока review идёт, продолжать только независимые подзадачи.
 
 ### Dependencies / exclusions
 Не изменять тарифы, причины MoneyOperation, settlement rules, покупки и scope прочих доменов. [ConfigFile migration](pvz_b01_configfile_save_storage.md) независима, но итоговый тест Night выполнить на совместном результате. [PVZ-A03](pvz_a03_persistence_documentation.md) фиксирует окончательный контракт; [documentation quality](pvz_code_documentation_quality.md) выполняет завершающую сверку.
 
 ### Owner QA / blockers
 
+Gameplay/visual QA **NOT_RUN**, 0/8; rendered playtests не запускались. MCP использован для native scene mutation/save и checked path diagnostics пяти production scripts — ошибок нет. Старый fallback reload code 43 из script writes перепроверен native path diagnostics, а не объявлен PASS сам по себе.
+
+Native save побочно записал восемь пустых BlackboardPlan и одну UID-аннотацию внешних ресурсов. Main доказал точный metadata-only diff, штатно закрыл editor без dirty scenes и отменил только собственные side effects; исходные планы/пользовательские изменения сохранены. Обратимый patch: `.artifacts/wallet_editor_resave_sideeffects.patch`. В checkpoint эти девять ресурсов не входят.
+
 ### Completion
 Соблюдать [AGENTS.md](../../AGENTS.md), [task lifecycle](../skills/task-lifecycle/SKILL.md), non-visual ограничения и последовательных child agents. GitHub Actions/gh не запускать. Проверки выполнять после связных изменений, не каждого edit. Внести полные base/target/review/fix SHA, реальные PASS/FAIL/NOT_RUN и нерешённые замечания сюда. DONE — только после необходимой валидации/review; затем переместить этот же файл в `completed/` и исправить ссылки.
+
+## Checkpoint evidence
+
+- **PASS**: focused native GUT — wallet day 15/15 (67 assertions), wallet transactions 7/7 (46), WorldSnapshot 37/37 (464), StartupRestore 5/5 (38), DistrictLifecycle 19/19 (167): 83 теста, 782 assertions.
+- **PASS**: architecture validator unit suite 19/19, в том числе прямой/deferred polling и false-positive fixtures для явных операций.
+- **PASS**: GDQuest formatter/lint, agent smells, strict architecture, полный project structure gate и native ParseChanged (`.artifacts/godot_agent/parsechanged-20261015-155738682.stdout.log`).
+- **PASS** финальный two-process Night write/retry/fresh restore, включая replacement Morning 3: `tests/artifacts/night_persistence-write-20261016-015724558.log` и `tests/artifacts/night_persistence-restore-20261016-015737737.log`.
+- Существующий disk snapshot contract остаётся Morning-only. Decode/materialization кошельков Evening/Night проверен без повторного completed_days; save schema не расширялась ради этой задачи.
+- Review **REVIEW_PENDING** до immutable checkpoint и terminal triage. Acceptance выше не объявляется завершённой только по плану или статическому PASS.

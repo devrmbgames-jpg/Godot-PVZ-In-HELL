@@ -14,7 +14,7 @@ func _init() -> void:
 
 ## Runs after calendar, payments, customer outcomes and quest outcomes.
 func deps() -> Dictionary[int, Array]:
-	return { Runs.After: [S_DayPhase, S_WalletDay, S_CustomerFlow, S_RefusalQuest, S_LootDrops] }
+	return { Runs.After: [S_DayPhase, S_CustomerFlow, S_RefusalQuest, S_LootDrops] }
 
 
 ## Selects sessions with authoritative calendar and transient save workflow.
@@ -85,6 +85,7 @@ func _advance(
 
 	if state.preparation == null:
 		state.preparation = DistrictPopulationService.prepare_morning(night_day + 1)
+	# Calendar wallet/outcome Observers must commit before the immutable Night capture.
 	if not CommandBufferBarrier.drain_pending(_world):
 		_retry(state, ERR_BUSY)
 		return

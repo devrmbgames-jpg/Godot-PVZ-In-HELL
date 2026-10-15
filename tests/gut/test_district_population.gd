@@ -19,6 +19,7 @@ func before_each() -> void:
 	ECS.world = _world
 	DialogueUiFixture.install()
 	NpcCustomerComposition.install(_world)
+	_world.add_observer(O_WalletDay.new())
 
 	var owner_node: Node = Node.new()
 	owner_node.set_script(load("res://addons/gecs/ecs/entity.gd"))

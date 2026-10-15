@@ -146,7 +146,8 @@ static func package_settlement(
 	return operation
 
 
-## Создаёт итог дня и однократно отмечает завершённую смену с наступлением вечера.
+## Explicit idempotent operation for ready/restore and O_WalletDay; never called by a tick.
+## Ensures even an operation-free day exists; shift_completed is the sole completion authority.
 static func sync_day(wallet: C_Wallet, cycle: C_DayCycle) -> void:
 	var daily: DailyMoneyResult = _day(wallet, cycle.day_index)
 	if cycle.phase >= C_DayCycle.Phase.EVENING and not daily.shift_completed:

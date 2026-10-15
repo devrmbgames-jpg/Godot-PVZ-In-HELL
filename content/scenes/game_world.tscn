@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/domains/motion/systems/s_jump.gd" id="6_gg2sc"]
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/domains/motion/systems/s_crouch.gd" id="7_6b1dm"]
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/domains/interaction/systems/s_player_input.gd" id="8_qm6qd"]
+[ext_resource type="Script" uid="uid://htvgfmgtx2jj" path="res://content/domains/commerce/observers/o_wallet_day.gd" id="39_y8kp8"]
 [ext_resource type="Script" uid="uid://dfrgb3jjg8xhc" path="res://content/domains/combat/systems/s_receiver_effect.gd" id="59_dm03w"]
 [ext_resource type="Script" uid="uid://catw24xcylq58" path="res://content/domains/hazards/observers/o_blood_area_setup.gd" id="60_5uysu"]
 [ext_resource type="Script" uid="uid://cmbi3d6bll5pc" path="res://content/domains/npc/observers/o_npc_blood_stimulus.gd" id="61_y8kp8"]
@@ -83,7 +84,6 @@
 [ext_resource type="Script" uid="uid://27gfawdrranh" path="res://content/domains/interaction/observers/o_smart_object.gd" id="SmartObject"]
 [ext_resource type="Script" uid="uid://bgattpu1srnc3" path="res://content/domains/motion/systems/s_sprint.gd" id="Sprint"]
 [ext_resource type="Script" uid="uid://d374l476phm" path="res://content/domains/combat/systems/s_throw_lifetime.gd" id="ThrowLifetime"]
-[ext_resource type="Script" uid="uid://dx38hpfqbykum" path="res://content/domains/commerce/systems/s_wallet_day.gd" id="Wallet_system"]
 
 [node name="World" type="Node" unique_id=1962298586]
 script = ExtResource("2_da1x8")
@@ -221,9 +221,8 @@ script = ExtResource("Challenge_outcome")
 [node name="O_ChallengeLifecycle" type="Node" parent="Systems/GamePlay" unique_id=2123583786]
 script = ExtResource("Challenge_lifecycle")
 
-[node name="S_WalletDay" type="Node" parent="Systems/GamePlay" unique_id=729224599]
-script = ExtResource("Wallet_system")
-group = &"GamePlay"
+[node name="O_WalletDay" type="Node" parent="Systems/GamePlay" unique_id=729224599]
+script = ExtResource("39_y8kp8")
 
 [node name="S_DayPhase" type="Node" parent="Systems/GamePlay" unique_id=525864446]
 script = ExtResource("Day_system")
@@ -307,7 +306,6 @@ script = ExtResource("3_ahxau")
 
 [node name="S_NightSave" type="Node" parent="Systems/Storage" unique_id=994431759]
 script = ExtResource("Night_save_system")
-group = &"Storage"
 
 [node name="Physics" type="Node" parent="Systems" unique_id=52509126]
 script = ExtResource("3_ahxau")

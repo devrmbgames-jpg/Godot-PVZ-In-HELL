@@ -84,6 +84,11 @@ func finish_startup() -> void:
 		DistrictPopulationService.reconcile_calendar(self, session)
 	for session: Entity in query.with_all([C_CustomerFlow, C_DayCycle]).execute():
 		CustomerFlowService.reconcile_session(self, session)
+	for session: Entity in query.with_all([C_Wallet, C_DayCycle]).execute():
+		WalletService.sync_day(
+			session.get_component(C_Wallet) as C_Wallet,
+			session.get_component(C_DayCycle) as C_DayCycle,
+		)
 	# Flush is the completion boundary for preparation and its dependent outcome reactions.
 	if not CommandBufferBarrier.drain_pending(self):
 		var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()

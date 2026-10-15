@@ -55,6 +55,7 @@ func before_each() -> void:
 	_root.add_child(_world)
 	ECS.world = _world
 	_world.add_observer(O_NightPreparationRequirement.new())
+	_world.add_observer(O_WalletDay.new())
 	_world.add_observer(O_InventoryLifecycle.new())
 	_session = (
 		_authored(
@@ -1247,4 +1248,40 @@ func test_restore_drains_preparation_results_even_when_outcomes_were_registered_
 	assert_false(planning.has_pending_commands())
 	assert_false(outcomes.has_pending_commands())
 	assert_eq(flow.planning_day, 2)
+#endregion
+
+
+#region Wallet phase commit before Night capture
+## Storage drains the pending calendar Observer before capturing the immutable next-morning graph.
+func test_night_snapshot_contains_committed_wallet_shift_and_restore_opens_new_day_once() -> void:
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var wallet: C_Wallet = WalletService.current()
+	for observer: Observer in _world.observers:
+		if observer is O_WalletDay:
+			observer.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	cycle.phase = C_DayCycle.Phase.NIGHT
+	_world.emit_event(DayPhaseChanged.EVENT, _session, DayPhaseChanged.from_cycle(cycle))
+	assert_eq(wallet.completed_days, 0)
+	_night_step(0.0)
+	var snapshot: Dictionary = AutosaveStore.read(SAVE_PATH)
+	assert_false(snapshot.is_empty())
+	assert_eq(wallet.completed_days, 1)
+	var wallet_fields: Dictionary = { }
+	for record: Dictionary in snapshot.entities:
+		for component: Dictionary in record.components:
+			if SaveDataCodec.component_script(String(component.type)) == C_Wallet:
+				wallet_fields = component.fields as Dictionary
+	assert_eq(wallet_fields.completed_days, 1)
+	var days: Array = wallet_fields.daily_results as Array
+	assert_true((days[0].fields as Dictionary).shift_completed)
+	_night_step(0.1)
+	assert_eq(wallet.completed_days, 1)
+	assert_eq(AutosaveStore.read(SAVE_PATH), snapshot)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(wallet.completed_days, 1)
+	assert_eq(wallet.daily_results.size(), 2)
+	assert_eq(wallet.daily_results[1].day_index, 2)
+	assert_false(wallet.daily_results[1].shift_completed)
+	WalletService.sync_day(wallet, DayPhaseQueries.current())
+	assert_eq(wallet.daily_results.size(), 2)
 #endregion

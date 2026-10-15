@@ -64,7 +64,7 @@
       "content/domains/commerce/definitions/def_trader_profile.gd",
       "content/domains/commerce/definitions/def_upgrade.gd",
       "content/domains/commerce/systems/s_order_delivery.gd",
-      "content/domains/commerce/systems/s_wallet_day.gd",
+      "content/domains/commerce/observers/o_wallet_day.gd",
       "content/domains/customers/components/c_customer_agent.gd",
       "content/domains/customers/components/c_customer_flow.gd",
       "content/domains/customers/components/c_delivery_counter.gd",

@@ -12582,23 +12582,6 @@
       "uid": "uid://bbu8jbx3xpd"
     },
     {
-      "source": "content/systems/gameplay/s_wallet_day.gd",
-      "target": "content/domains/commerce/systems/s_wallet_day.gd",
-      "owner": "commerce",
-      "role": "systems",
-      "task": "31",
-      "symbol": "S_WalletDay"
-    },
-    {
-      "source": "content/systems/gameplay/s_wallet_day.gd.uid",
-      "target": "content/domains/commerce/systems/s_wallet_day.gd.uid",
-      "owner": "commerce",
-      "role": "systems",
-      "task": "31",
-      "symbol": "S_WalletDay",
-      "uid": "uid://dx38hpfqbykum"
-    },
-    {
       "source": "content/systems/input/s_player_input.gd",
       "target": "content/domains/interaction/systems/s_player_input.gd",
       "owner": "interaction",

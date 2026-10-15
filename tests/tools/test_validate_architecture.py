@@ -41,6 +41,18 @@ class ArchitectureValidationTest(unittest.TestCase):
         path.write_text(path.read_text() + "\tFooService.tick()\n", encoding="utf-8")
         self.assertIn("2 occurrences; allowed 0", validate(scan(self.root))[0])
 
+    def test_wallet_day_reconciliation_cannot_return_as_a_system_tick(self) -> None:
+        self.write("content/domains/commerce/systems/day.gd", "extends System\nclass_name S_Day\nfunc process():\n\tWalletService.sync_day(wallet, cycle)\n\tcmd.add_custom(WalletService.sync_day.bind(wallet, cycle))\n")
+        findings = scan(self.root)
+        self.assertEqual(["system-wallet-day-poll"] * 2, [f.rule for f in findings])
+        self.assertIn("2 occurrences; allowed 0", validate(findings)[0])
+
+    def test_wallet_day_explicit_operations_and_other_system_operations_are_allowed(self) -> None:
+        self.write("content/domains/commerce/observers/day.gd", "extends Observer\nclass_name O_Day\nfunc each():\n\tWalletService.sync_day(wallet, cycle)\n")
+        self.write("content/scenes/ready.gd", "extends Node\nfunc ready():\n\tWalletService.sync_day(wallet, cycle)\n")
+        self.write("content/systems/pay.gd", "extends System\nclass_name S_Pay\nfunc process():\n\tWalletService.apply(wallet, operation, day)\n\t# WalletService.sync_day(wallet, cycle)\n\tvar example = 'WalletService.sync_day'\n")
+        self.assertEqual([], scan(self.root))
+
     def test_custom_system_base_cannot_bypass_role_or_symbol_discovery(self) -> None:
         self.write("content/domains/npc/systems/a.gd", "extends CustomSystem\nfunc process():\n\tFooService.tick()\n")
         self.write("logic/b.gd", "extends CustomSystem\nclass_name S_B\nfunc process():\n\tBarService.tick()\n")
