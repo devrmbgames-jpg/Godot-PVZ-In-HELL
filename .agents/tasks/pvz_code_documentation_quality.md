@@ -114,9 +114,9 @@ Current implementation base: `198ccf8dbb75a6e2ec0813949281fbee73b87561` → targ
 
 RV-002 (R1 четвёртого batch), P2, **FIXED** (`1ce357a96936cc255c1162cb6f8315b14cdcfa67`): NightPreparationRequirement ошибочно называл любой queued reply поздним. Уточнена граница возврата emit_event: native PER_CALLBACK может успеть, MANUAL/later flush опоздает. Targeted read-only re-review base `05a02d86c9e667644bcc2db49c74aba8f6620141` → fix target: **PASS**, cycle 1/2, новых findings нет. Format/nonbehavior/native ParseFiles/MCP — 1 path PASS; parser log `parsefiles-20261015-175453107`.
 
-Текущий пятый batch — полный source pass **needs 7/7, quests 10/10, challenges 28/28**. Прочитаны все 45 scripts и необходимые writers/callers; 26 scripts получили уточнения owners, gameplay units, transient/cache versus durable history, Relationship cleanup и outcome/reward timing. До read-only review эта группа **REVIEW_PENDING**, не DONE.
+Проверенный пятый batch — полный source pass **needs 7/7, quests 10/10, challenges 28/28 — PASS**. Прочитаны все 45 scripts и необходимые writers/callers; 26 scripts получили уточнения owners, gameplay units, transient/cache versus durable history, Relationship cleanup и outcome/reward timing. Reviewer сверил changed claims и representative unchanged HungerRules, RefusalQuestValidator, condition Systems и lifecycle/consequence Observers; material findings нет, triage завершён.
 
-Current implementation base: `1c51aa2b457bfdf5c3f0a452d4ead33005b655e4`; target/review после commit **REVIEW_PENDING**. Всего изменены 78 уникальных scripts. Полностью проверены с review три группы inventory/time/commerce (47 scripts); текущие needs/quests/challenges ещё ждут review, остальные группы открыты. М1/М2/М3 целиком не завершены.
+Current implementation base: `1c51aa2b457bfdf5c3f0a452d4ead33005b655e4` → target `2bc9d1119d76c2e8c0e596caa6337b06d85a4960`; read-only review **PASS**, новых findings нет. Всего изменены 78 уникальных scripts. Полностью проверены с review шесть групп inventory/time/commerce/needs/quests/challenges (92 scripts); остальные группы открыты. М1/М2/М3 целиком не завершены.
 
 Проверки batch:
 
@@ -129,7 +129,7 @@ Current implementation base: `1c51aa2b457bfdf5c3f0a452d4ead33005b655e4`; target/
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Собрать immutable review пятого batch и triage. Пока review идёт, только независимое чтение motion/shared/scenes. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
+Продолжить полный source pass motion/shared/scenes; очередной checkpoint — motion. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.
