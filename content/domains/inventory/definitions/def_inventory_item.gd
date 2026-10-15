@@ -1,6 +1,6 @@
 @tool
 extends GameDefinition
-## Авторское описание предмета инвентаря, цены и эффекта использования.
+## Неизменяемое runtime-описание предмета: цена, storage policy и эффект использования.
 class_name DEF_InventoryItem
 
 enum Kind {
@@ -42,7 +42,7 @@ var categories: int = 0
 @export_range(1, 99) var maximum_stack: int = 10
 ## Эффект питания для FOOD.
 @export var food_effect: DEF_FoodEffect = null
-## Восстанавливаемое здоровье для MED_ITEM; применяется через контур урона.
+## Положительные HP лечения MED_ITEM; эффект/фактический расход подтверждает DamageResult.
 @export var healing: float = 35.0
 ## Уровень защиты посылки после использования BUBBLE_WRAP.
 @export var protection_tier: ImpactResult.Severity = ImpactResult.Severity.MEDIUM

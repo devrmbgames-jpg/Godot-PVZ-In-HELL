@@ -12,6 +12,7 @@ static func key_for(delivery: PendingDelivery) -> String:
 
 
 ## Проверяет поддерживаемую физическую сцену до оплаты доставки; тестовый экземпляр освобождается.
+## Не проверяет текущую занятость площадки или World registration plan; это prefab/shape gate.
 static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 	if (
 		item == null or item.world_pickup_scene.is_empty()
@@ -50,6 +51,8 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 
 #region Однократная утренняя выдача
 ## Исполняет первый готовый заказ или признаёт уже созданный по ключу; занятость сохраняет заказ.
+## Синхронно: true подтверждает один fulfilled receipt, без оплаты; физический товар уже существует.
+## false также означает пустую очередь (exhausted), поэтому не является одним лишь blocked status.
 static func fulfill_one(
 	zone: Entity,
 	state: C_OrderReceiving,
@@ -237,6 +240,7 @@ static func _physical_item(
 
 #region Производный контекст выдачи
 ## Сбрасывает таймеры, резервы и слабые ссылки после восстановления World; заказы не меняет.
+## Меняет delivery_revision, чтобы pending System ticket не мог выдать товар в старом контексте.
 static func reset_context(state: C_OrderReceiving) -> void:
 	state.delivery_revision += 1
 	state.delivery_queued = false

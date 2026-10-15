@@ -44,6 +44,8 @@ static func drop_reason(actor: Entity, item: Entity) -> String:
 
 
 ## Создаёт настоящий pickup всего стека только после проверки опоры и объёма; отказ сохраняет стек.
+## true — новый pickup зарегистрирован, исходный item удалён; не использовать его после успеха.
+## Синхронная операция: parent/actor/item должны оставаться в том же World до завершения.
 static func drop(actor: Entity, item: Entity) -> bool:
 	if not drop_reason(actor, item).is_empty():
 		return false
@@ -110,6 +112,8 @@ static func drop(actor: Entity, item: Entity) -> bool:
 
 #region Выпуск имущества при смерти
 ## Выпускает имущество NPC при смерти обычными pickup-сценами; однократность задаёт lifecycle.
+## Best effort: неподдерживаемый prefab пропускается; вызывающий lifecycle затем очищает остатки.
+## Проверка свободной опоры как в drop здесь не выполняется; это отдельная death-drop политика.
 static func release_on_death(owner: Entity) -> void:
 	var spatial: Node3D = owner as Node as Node3D
 	if spatial == null:

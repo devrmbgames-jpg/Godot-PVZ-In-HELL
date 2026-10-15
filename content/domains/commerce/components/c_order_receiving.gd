@@ -1,44 +1,45 @@
 extends Component
-## Сетка физической выдачи заказанных товаров и состояние блокировки места.
+## S_OrderDelivery owns morning retries; OrderDeliveryService commits one paid delivery.
+## Orders/fulfilled остаются в C_Commerce; goods/reservations являются derived caches этого World.
 class_name C_OrderReceiving
 
-## Количество колонок кандидатов размещения.
+## Положительное число колонок простых pickup-кандидатов; мебель использует furniture_placement.
 @export var columns: int = 4
-## Количество рядов кандидатов размещения.
+## Положительное число рядов простых pickup-кандидатов.
 @export var rows: int = 3
-## Шаг между кандидатами по локальным осям в метрах.
+## Положительный шаг простых pickup-кандидатов по локальным +X/+Z в метрах.
 @export var spacing: Vector2 = Vector2(0.75, 0.75)
 ## Запас физической проверки размещения в метрах.
 @export var collision_margin: float = 0.03
-## Последняя попытка доставки не нашла свободного места.
+## OrderDeliveryService отмечает отказ последней попытки: место/prefab/recipe могут быть не готовы.
 var blocked: bool = false
 
-## Путь к авторскому маркеру мебели; уровень задаёт его через экспортируемую ссылку.
+## NodePath от Entity зоны к маркеру мебели; '.' означает саму зону.
 @export var furniture_anchor_path: NodePath = NodePath(".")
-## Ограниченные позиции и проверки полной формы/опоры для мебели.
+## Неизменяемая Definition ограниченных позиций/формы/опоры мебели.
 @export var furniture_placement: DEF_ItemPlacement = preload(
 	"res://content/domains/commerce/definitions/def_furniture_delivery_placement.tres"
 )
-## Пауза между выдачами и повторными попытками занятой площадки.
+## Gameplay seconds между выдачами/retry; S_OrderDelivery уменьшает таймер только утром.
 @export_range(0.25, 10.0) var retry_seconds: float = 1.0
 
-## Остаток паузы; производный контекст, не сохраняется.
+## S_OrderDelivery пишет остаток gameplay seconds; reset_context обнуляет, не сохраняется.
 var retry_remaining: float = 0.0
-## День текущего прохода очереди; новое утро снимает паузу.
+## S_OrderDelivery отмечает день прохода; новый день/restore сбрасывает retry и exhausted.
 var attempt_day: int = 0
-## Все готовые заказы проверены; новые покупки назначаются только на следующее утро.
+## OrderDeliveryService не нашёл due заказов; System пропускает очередь до нового дня/reset.
 var exhausted: bool = false
-## Индекс физических заказов собран для текущего World.
+## OrderDeliveryService построил goods для этого World; reset_context инвалидирует индекс.
 var identity_index_ready: bool = false
-## Производные слабые ссылки физических заказов, без владения предметами.
+## Derived key → WeakRef cache OrderDeliveryService; не владеет предметами, reset_context очищает.
 var goods: Dictionary[String, WeakRef] = { }
-## Зарезервированные объёмы до обновления physics space.
+## World-space AABB резервы OrderDeliveryService до обновления physics space, не сохраняются.
 var reservations: Array[AABB] = []
-## Физический кадр текущего набора резервов.
+## Engine physics frame набора reservations; новый frame/restore очищает резервы.
 var reservation_frame: int = -1
 
-## One scheduled fulfillment is queued for this live aggregate; never persisted.
+## S_OrderDelivery coalesces one queued fulfillment; execution/reset clears it, never persisted.
 var delivery_queued: bool = false
 
-## Transient fulfillment ticket revision; explicit restore invalidates outstanding requests.
+## S_OrderDelivery increments per ticket; reset_context increments to invalidate old queued work.
 var delivery_revision: int = 0

@@ -1,5 +1,6 @@
 extends Observer
 ## Передаёт результат лечения в завершение ожидаемого использования через CommandBuffer.
+## InventoryService повторно проверяет живой стек, owner и pending ID при выполнении команды.
 class_name O_InventoryEffect
 
 

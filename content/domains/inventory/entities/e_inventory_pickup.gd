@@ -1,6 +1,8 @@
 @tool
 extends E_GrabbableBody
 ## Представление физического pickup: R_OwnedBy определяет видимость и столкновения.
+## _process синхронизирует view/body flags; количество/владение меняют inventory операции.
+## Поза остаётся у physics body; смена owned state сбрасывает его скорости однократно.
 class_name E_InventoryPickup
 
 var _world_layer: int = 0

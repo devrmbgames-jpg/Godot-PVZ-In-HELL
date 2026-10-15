@@ -1,5 +1,5 @@
 extends System
-## Планирует выдачу оплаченных заказов в физической зоне через сервис доставки.
+## Владеет gameplay retry clock и очередью утренней выдачи; service исполняет один выбранный заказ.
 class_name S_OrderDelivery
 
 
@@ -15,6 +15,7 @@ func query() -> QueryBuilder:
 
 
 ## Только утром ставит исполнение готового заказа каждой зоны в CommandBuffer.
+## delta — gameplay seconds; queued step захватывает WeakRef зоны, точные Components/day/revision.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0:
 		return
@@ -63,7 +64,8 @@ func _fulfill(
 	day: int,
 	revision: int,
 ) -> void:
-	# Resolve queued owners before passing them to typed gameplay operations.
+	# A queued ticket can outlive its zone/restore: resolve WeakRef and revision before
+	# validating current zone Components and global commerce/calendar in _fulfill_current.
 	var zone: Entity = zone_reference.get_ref() as Entity
 
 	if state.delivery_revision != revision:

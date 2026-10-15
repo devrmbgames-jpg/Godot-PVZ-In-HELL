@@ -7,7 +7,7 @@ enum Mode {
 	ORDER,
 	TRADER_DELIVERY,
 }
-## Устойчивый ID покупки; повтор с другими параметрами считается конфликтом.
+## Устойчивый ID; duplicate сравнивает mode/item_key/quantity, конфликт — их несовпадение.
 @export var operation_id: StringName = &""
 ## Способ покупки: торговец, терминал или доставка торговца.
 @export var mode: Mode = Mode.PURCHASE

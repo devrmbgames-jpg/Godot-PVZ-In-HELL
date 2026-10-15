@@ -102,24 +102,28 @@ M1, проверенный первый code batch: C_DayCycle, DayTransitionReq
 
 Проверенный второй batch: DamageRequest, DamageResult, DamageRequestService, HealthMutationService, C_Inventory, C_InventoryItem, R_OwnedBy, InventoryService. Уточнены dispatch/completion, HP/range constraints, transient use correlation, transfer/drop guards и delayed healing. Base `71dd93cb6c4fffe3fd6f15b30580212bdf2b3427` → target `5d4d81edc05e4affff71e2f1adb092dcd0421229`, read-only review **PASS**, material findings нет, triage завершён. Parser log `parsechanged-20261015-173513516`, nonbehavior 8/0, formatter/MCP/static PASS.
 
-Текущий третий batch: EntityCompositionService, ObserverReactionBoundary, CommandBufferBarrier, EntityBuildPlan, GameWorld, GrabPhysicsSolver, C_Autosave, AutosaveStore, SnapshotRestoreBoundary, WorldSnapshotService, SaveDataCodec. Уточнены synchronous registration/queued flush, borrowed physics context, codec/preflight/partial mutation, restore readiness и autosave writers. Всего изменены 27 уникальных scripts; полный M1/M2/M3 и quality pass остальных файлов не завершены.
+Проверенный третий batch: EntityCompositionService, ObserverReactionBoundary, CommandBufferBarrier, EntityBuildPlan, GameWorld, GrabPhysicsSolver, C_Autosave, AutosaveStore, SnapshotRestoreBoundary, WorldSnapshotService, SaveDataCodec. Уточнены registration/flush, borrowed physics context, codec/preflight/partial mutation, restore readiness и autosave writers; review/fix evidence ниже.
 
 Current batch base: `7698e2b45962a1c6a483df5dfbe2309b5b24b4dc` → target `e0055c870e65f339ed9079f58b7d24fbdfd52ee3`; reviewed fix `41b55b0558a11479513fba9c58044c0132c8f6e6`. Final review **PASS**, RV-001 исправлен. Public symbols/defaults/exports/SAVE_FIELDS не меняются.
 
 RV-001 (R1), P2, **FIXED** (`41b55b0558a11479513fba9c58044c0132c8f6e6`): RegistrationScope.finish/register_plan ошибочно описывали initial commands как обязательно pending. Pinned GECS `14d4282e5c1cb2713c187706ba2f5ff4e315d36e`, `_invoke_entry` исполняет PER_CALLBACK inline. Уточнены inline effects/reentrancy, отсутствие extra global drain и caller flush оставшейся MANUAL/deferred работы. Targeted read-only re-review base `e0055c870e65f339ed9079f58b7d24fbdfd52ee3` → fix target выше: **PASS**, cycle 1/2, новых findings нет. Fix formatter/nonbehavior/native CLI parser/MCP compile — 2 paths PASS; parser log `parsechanged-20261015-174712450`.
 
+Текущий четвёртый batch — полный source pass трёх доменов: **inventory 11/11, time 15/15, commerce 21/21**. Прочитаны все 47 scripts, включая не требующие изменений; декларации сверены с поведением, новыми critical contracts и существующими callers. Исправлены комментарии 25 новых scripts: writers/caches/units, immutable authoring, payment versus fulfillment, body/pickup lifetime и transient IDs. Reviewer должен проверить changed scope и representative unchanged files этих групп; до результата full-domain acceptance **REVIEW_PENDING**.
+
+Current implementation base: `198ccf8dbb75a6e2ec0813949281fbee73b87561`; target/review после commit **REVIEW_PENDING**. Всего изменены 52 уникальных scripts; все остальные domain/global/tool groups остаются открытым scope. M1/M2/M3 целиком не завершены.
+
 Проверки batch:
 
-- PASS: `verify_gdscript_nonbehavior_changes.py --base 7698e2b45962a1c6a483df5dfbe2309b5b24b4dc --mode comments` — 11 scripts, 0 отличий executable source/strings/indentation.
-- PASS: GDQuest incremental format/lint — 11 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-174249722.stdout.log` / `.stderr.log`.
-- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 11 paths checked, diagnostics empty, no instantiation. `script_patch` fallback reload 43 не принят за PASS; после него path compile/CLI parser PASS, editor log просмотрен (новых релевантных ошибок нет).
+- PASS: `verify_gdscript_nonbehavior_changes.py --base 198ccf8dbb75a6e2ec0813949281fbee73b87561 --mode comments` — 25 scripts, 0 отличий executable source/strings/indentation.
+- PASS: GDQuest incremental format/lint — 25 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-175111601.stdout.log` / `.stderr.log`.
+- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 25 paths checked, diagnostics empty, no instantiation. Third batch parser evidence `parsechanged-20261015-174249722`, format/nonbehavior/MCP 11 paths PASS сохранён отдельно от текущего результата.
 - PASS: incremental agent validator, strict architecture (0 lexical findings), project structure, scoped whitespace.
 - Full GUT/gameplay/visual: **NOT_RUN**, для comment-only batch не нужны; visual budget 0/8.
 
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Продолжить полным domain batch inventory/time/commerce: все 11/15/21 scripts прочитаны, найденные уточнения ещё не внесены. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. Остальные first-party файлы остаются открытым scope. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
+Собрать immutable review полного inventory/time/commerce batch и triage. Пока он идёт, разрешён только независимый source pass остальных групп, без зависимых изменений timing/authority. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.

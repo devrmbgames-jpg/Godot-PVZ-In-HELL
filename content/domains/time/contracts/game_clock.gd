@@ -15,8 +15,8 @@ const SAVE_FIELDS: Array[String] = ["elapsed_ticks", "tick_remainder", "world_se
 #endregion
 
 #region Transient step state
-## Explicit gameplay pause; calendar requests and native physics retain separate ownership.
+## Caller-set gameplay pause; S_GameTime stops ticks, not calendar requests or native physics.
 var paused: bool = false
-## Integer elapsed ticks committed by the latest clock step; never persisted as history.
+## S_GameTime writes the latest microsecond step, including zero when paused/Night; not persisted.
 var step_ticks: int = 0
 #endregion

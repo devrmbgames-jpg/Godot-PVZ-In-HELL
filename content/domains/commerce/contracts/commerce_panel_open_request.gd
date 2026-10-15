@@ -10,7 +10,7 @@ var actor_reference: WeakRef
 var actor_id: String
 ## Точная роль торговца на момент принятия interaction action.
 var trader: C_Trader
-## Результат открытия, записанный native UI owner.
+## O_GameplayPanelRequest пишет результат factory.open; emit dispatch сам по себе не означает open.
 var opened: bool = false
 
 

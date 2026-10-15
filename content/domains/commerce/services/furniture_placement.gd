@@ -109,6 +109,7 @@ static func _bounds_for(node: Node3D) -> AABB:
 
 ## Проверяет полную композицию и устойчивый ключ до оплаты/исполнения заказа.
 ## Заготовка остаётся вне дерева; отказ не регистрирует Entity и не меняет World.
+## Proposal мутируется даже при false; операция одноразовая, caller освобождает rejected entity.
 static func prepare_composition(proposal: PreparedFurniture, key: String) -> bool:
 	assert(proposal.spawn_context == null, "Furniture composition preflight runs once")
 	var identity: C_PersistentIdentity = C_PersistentIdentity.new()
@@ -124,6 +125,8 @@ static func prepare_composition(proposal: PreparedFurniture, key: String) -> boo
 
 
 ## Однократно размещает и регистрирует уже проверенную заготовку в той же транзакции.
+## Parent/World/plan должны оставаться в preflight context; не хранить proposal через await.
+## Entity и pose committed до возврата; callbacks могут исполняться inline по native flush mode.
 static func commit(proposal: PreparedFurniture) -> void:
 	assert(
 		proposal.build_plan != null and proposal.build_plan.valid(),

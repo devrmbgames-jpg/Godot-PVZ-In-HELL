@@ -1,5 +1,5 @@
 extends DEF_InteractionAction
-## Открывает торговую панель доступного торговца вне ночной фазы.
+## Неизменяемая action Definition: запрашивает native UI у доступного торговца вне Night.
 class_name DEF_TraderAction
 
 
@@ -13,7 +13,7 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	)
 
 
-## Повторно проверяет доступность и открывает торговую панель.
+## Повторно проверяет доступность и dispatch UI request; void не подтверждает создание панели.
 func execute(actor: Entity, source: Entity, target: Entity) -> void:
 	if is_available(actor, source, target):
 		ECS.world.emit_event(

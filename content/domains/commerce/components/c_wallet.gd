@@ -21,7 +21,7 @@ const SAVE_FIELDS: Array[String] = [
 @export var policy: DEF_Economy = preload(
 	"res://content/domains/commerce/definitions/def_economy_default.tres"
 )
-## Журнал принятых операций с устойчивыми ID.
+## Журнал committed операций WalletService; это owned copies, не caller-owned requests.
 @export var operations: Array[MoneyOperation] = []
 ## Накапливаемые итоги дней и однократные отметки завершённых смен.
 @export var daily_results: Array[DailyMoneyResult] = []

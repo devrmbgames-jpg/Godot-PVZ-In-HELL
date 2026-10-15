@@ -1,6 +1,7 @@
 @tool
 extends E_TraitedEntity
 ## Тонкое представление станции смены/сна; переходы задаются её действиями.
+## Подпись обновляется по raw render seconds независимо от gameplay clock; это UI refresh.
 class_name E_DayPhaseStation
 
 ## Настраивает подпись станции сна вместо станции управления сменой.

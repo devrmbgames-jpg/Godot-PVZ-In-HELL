@@ -1,5 +1,6 @@
 extends Resource
 ## Оплаченный заказ с датой доставки и однократной отметкой исполнения.
+## CommerceService создаёт запись; OrderDeliveryService ставит fulfilled, не списывая деньги снова.
 class_name PendingDelivery
 
 ## Устойчивый ID оплаченного заказа.
@@ -12,5 +13,5 @@ class_name PendingDelivery
 @export var ordered_day: int = 1
 ## Первый день допустимой выдачи; занятое место откладывает исполнение.
 @export var delivery_day: int = 2
-## Доставка создана физически; повторное создание запрещено.
+## Физическая выдача подтверждена spawn или найденным identity; pickup/расход не снимает отметку.
 @export var fulfilled: bool = false

@@ -29,6 +29,7 @@ static func current() -> C_Commerce:
 
 
 ## Увеличивает сохраняемый счётчик запросов вне активной транзакции; отказ даёт пустой ID.
+## ID allocation не оплачивает покупку; неиспользованный ID всё равно расходует sequence.
 static func next_id(prefix: String) -> StringName:
 	var state: C_Commerce = current()
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -43,6 +44,8 @@ static func next_id(prefix: String) -> StringName:
 
 #region Покупка у торговца
 ## Проверяет торговца и место/инвентарь, затем оплачивает и выдаёт товар однократно.
+## COMMITTED означает синхронные payment, выдачу и receipt; DUPLICATE не выдаёт повторно.
+## Для duplicate учитываются mode/item_key/quantity; историческая цена receipt не пересчитывается.
 static func purchase(
 	actor: Entity,
 	trader: Entity,
@@ -176,6 +179,7 @@ static func _purchase_physical_item(
 
 #region Отложенные оплаченные заказы
 ## Оплачивает товар и доставку торговца, сохраняя отложенный заказ с датой исполнения.
+## COMMITTED — оплата и PendingDelivery уже записаны; физическая выдача позже через S_OrderDelivery.
 static func home_delivery(
 	actor: Entity,
 	trader: Entity,
@@ -252,6 +256,7 @@ static func home_delivery(
 
 
 ## Оплачивает заказ терминала утром/вечером для физической доставки следующим днём.
+## COMMITTED — payment/receipt/заказ; занятость места позже может требовать retry.
 static func order(
 	actor: Entity,
 	item: DEF_InventoryItem,

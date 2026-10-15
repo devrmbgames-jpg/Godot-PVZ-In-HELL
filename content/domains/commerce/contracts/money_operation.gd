@@ -1,5 +1,6 @@
 extends Resource
 ## Денежная операция с устойчивым ID производителя для повторных запросов и save/load.
+## Producer заполняет request; WalletService сохраняет owned copy только при COMMITTED.
 class_name MoneyOperation
 
 enum Reason {
@@ -29,5 +30,5 @@ enum Reason {
 @export var day_index: int = 1
 ## ID результата посылки/спора; обязателен для расчётов обслуживания.
 @export var settlement_id: StringName = &""
-## Необязательное пояснение для явных отладочных/ручных операций.
+## Необязательное пояснение; не участвует в WalletService duplicate/conflict comparison.
 @export var note: String = ""

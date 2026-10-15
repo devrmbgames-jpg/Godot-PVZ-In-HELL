@@ -1,5 +1,6 @@
 extends RefCounted
 ## Synchronous query о наличии Night preparation owner без зависимости Time от Persistence.
+## Ответ заполняется внутри emit_event; queued ответ не успеет удержать текущий переход в Night.
 class_name NightPreparationRequirement
 
 ## Канал запроса перед night_started и phase_changed.
@@ -8,7 +9,7 @@ var _required: bool = false
 
 
 #region Preparation response
-## Сообщает, что ночной owner должен завершить подготовку до следующего утра.
+## Синхронный listener отмечает требование; повтор idempotent, это не completion подготовки.
 func require_preparation() -> void:
 	_required = true
 

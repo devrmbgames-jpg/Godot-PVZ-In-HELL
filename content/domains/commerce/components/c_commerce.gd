@@ -1,5 +1,6 @@
 extends Component
-## Сессионные записи торговли; runtime-изменения проходят через CommerceService.
+## CommerceService создаёт чеки/заказы; OrderDeliveryService отмечает физическое исполнение.
+## Records hold no live items; C_OrderReceiving owns delivery queue/guards.
 class_name C_Commerce
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
@@ -9,7 +10,7 @@ const SAVE_FIELDS: Array[String] = ["receipts", "pending_deliveries", "next_requ
 @export var receipts: Array[PurchaseReceipt] = []
 ## Оплаченные доставки, включая уже исполненные для защиты от повтора.
 @export var pending_deliveries: Array[PendingDelivery] = []
-## Авторский ассортимент заказов через терминал.
+## Неизменяемый runtime ассортимент терминала; ассортимент торговца задаёт отдельный Profile.
 @export var catalog: Array[DEF_InventoryItem] = [
 	preload("res://content/domains/inventory/definitions/def_item_food.tres"),
 	preload("res://content/domains/inventory/definitions/def_item_med.tres"),
@@ -17,5 +18,5 @@ const SAVE_FIELDS: Array[String] = ["receipts", "pending_deliveries", "next_requ
 ]
 ## Сохраняемый счётчик ID торговых запросов.
 @export var next_request: int = 0
-## Защита синхронного расчёта и выдачи от повторного входа.
+## CommerceService удерживает transient guard при синхронных оплате/выдаче, не сохраняется.
 var transaction_in_progress: bool = false

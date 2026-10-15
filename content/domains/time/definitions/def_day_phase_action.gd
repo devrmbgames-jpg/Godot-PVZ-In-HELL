@@ -1,5 +1,5 @@
 extends DEF_InteractionAction
-## Отправляет запрос смены фазы с ожидаемыми днём и состоянием цикла.
+## Неизменяемая authoring action: отправляет запрос перехода, не фиксирует фазу самостоятельно.
 class_name DEF_DayPhaseAction
 
 ## Авторский переход, который запрашивает это действие.
@@ -12,6 +12,7 @@ func is_available(_actor: Entity, _source: Entity, _target: Entity) -> bool:
 
 
 ## Отправляет запрос с текущими днём и фазой для защиты от устаревшего действия.
+## Возврат void не подтверждает переход; S_DayPhase повторно проверяет accepted request.
 func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null:

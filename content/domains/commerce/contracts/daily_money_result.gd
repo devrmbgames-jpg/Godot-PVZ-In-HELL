@@ -10,7 +10,7 @@ class_name DailyMoneyResult
 @export var spending: int = 0
 ## Сумма штрафных операций дня с учётом отмен.
 @export var penalties: int = 0
-## Баланс при фиксации результата дня.
+## WalletService обновляет после каждой операции дня; при создании равен текущему балансу.
 @export var closing_balance: int = 0
 ## Смена отмечена завершённой и учитывается в completed_days.
 @export var shift_completed: bool = false
