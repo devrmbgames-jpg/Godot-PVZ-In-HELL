@@ -5,7 +5,9 @@ Priority: **P2**
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 Dependencies: [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-CAL01](pvz_customers_calendar_fact_ownership.md), [PVZ-A02](pvz_a02_wallet_day_events.md)
 
-## Goal
+## Task state
+
+### Goal
 
 Сделать документацию Persistence достоверным описанием текущей реализации после ConfigFile/календарных исправлений. Разработчик должен понимать поддерживаемый формат, владельцев, точки commit/flush и поведение при отказе, не восстанавливая порядок десятков исторических миграций.
 
@@ -39,7 +41,7 @@ Dependencies: [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-CAL01](pvz_cus
 - [ ] Примеры соответствуют реальному API, используют изолированные слоты и не требуют несуществующих методов/flags.
 - [ ] Все новые/изменённые ссылки проверены; архивы и provenance не переписаны как действующий код.
 
-## Validation
+### Validation
 
 Для docs-only изменений: link/path/symbol checks, поиск противоречащих current-version утверждений и ручная сверка с pinned source. Проверить GDScript snippets native parser/целевым тестом, когда пример содержит исполняемый код. Полный gameplay/GUT прогон из-за редакторской правки не требуется.
 
@@ -47,7 +49,6 @@ Dependencies: [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-CAL01](pvz_cus
 
 Документацию обновлять связной milestone-итерацией после изменившегося контракта; не запускать этот полный аудит после каждой мелкой code change.
 
-## Task state
 
 ### Current
 ТЗ подготовлено. Финальная версия ConfigFile ещё не реализована в рамках этих задач; documentation fix/review: **NOT_RUN**.
@@ -57,6 +58,8 @@ Dependencies: [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-CAL01](pvz_cus
 
 ### Dependencies / exclusions
 PVZ-B01 обновляет минимальную документацию своего изменения сразу; эта задача делает итоговую очистку/согласование, не откладывая обязательную документацию кода. [Качество документирования](pvz_code_documentation_quality.md) использует получившийся контракт и не ведёт вторую копию. UI/NPC performance, архитектурный rewrite и смена правил compatibility вне scope.
+
+### Owner QA / blockers
 
 ### Completion
 Следовать [AGENTS.md](../../AGENTS.md) и task-lifecycle; GitHub Actions/gh не запускать. Зафиксировать full base/target/review SHA, проверенные source owners, реальные PASS/FAIL/NOT_RUN и unresolved discrepancies в этом файле. Не более одного child agent одновременно. DONE только при согласованном текущем документе; затем перенести этот же файл в `completed/` и исправить ссылки без дубликата/журнала.

@@ -4,7 +4,9 @@ Status: **PLANNED**
 Priority: **P2**
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 
-## Goal
+## Task state
+
+### Goal
 
 Перенести постоянный макет CommercePanel из GDScript в редактируемую Godot-сцену, сохранив поведение торговли, заказов, заданий и модального ввода. Это исправление scene-first, а не редизайн интерфейса.
 
@@ -34,7 +36,7 @@ Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 - [ ] Один пользовательский сигнал создаёт не более одной операции; повторные открытия не накапливают обработчики/узлы.
 - [ ] Нет изменения экономических правил, gameplay state authority или публичного API без необходимой миграции всех callers.
 
-## Validation
+### Validation
 
 После связного набора правок: native Godot parser изменённых скриптов и загрузка новой сцены; focused GUT на фабрику, scene bindings, оба режима, сигналы и lifecycle. На завершении — один подходящий non-visual integration/smoke сценарий, а не полный прогон после каждой мелкой правки.
 
@@ -44,7 +46,6 @@ Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 
 Ручная приёмка владельца: соответствие прежнему макету, читаемость, фокус/навигация и отсутствие регрессии управления на целевых устройствах. Агент не запускает rendered/visual QA без разрешения; headless PASS её не заменяет. До обязательной ручной приёмки — OWNER_QA, если владелец явно не отложил её.
 
-## Task state
 
 ### Current
 ТЗ подготовлено. Реализация, native проверки и review исправления: **NOT_RUN**.
@@ -54,6 +55,8 @@ Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 
 ### Dependencies / exclusions
 Независима от остальных исправлений аудита. Финальная проверка комментариев входит также в [качество документации](pvz_code_documentation_quality.md), но документация изменённого API обязательна уже здесь. Не включать NPC performance, social/traffic refactor и другие панели.
+
+### Owner QA / blockers
 
 ### Completion
 Работать по [AGENTS.md](../../AGENTS.md) и [task lifecycle](../skills/task-lifecycle/SKILL.md). GitHub Actions/gh не использовать. После реализации зафиксировать полные base/target/review/fix SHA, реально выполненные PASS/FAIL/NOT_RUN и unresolved findings в этом файле; reviewer работает read-only, не более одного child agent одновременно. После всех обязательных проверок/приёмки перенести этот же файл в `completed/`, обновив ссылки, без дубликата и журнала действий.

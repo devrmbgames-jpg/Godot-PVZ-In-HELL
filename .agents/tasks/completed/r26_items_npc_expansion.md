@@ -1,5 +1,7 @@
 # R26 — Physical items and modular NPC archetypes
-Status: **DONE** — принято владельцем 2026-10-15.
+Status: **DONE**
+
+ — принято владельцем 2026-10-15.
 
 ## Task state
 

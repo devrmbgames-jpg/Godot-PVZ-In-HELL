@@ -1,6 +1,8 @@
 # R27 — исправления по ручной QA и изолированные тестовые комнаты
 
-Status: **DONE** — принято владельцем 2026-10-15.
+Status: **DONE**
+
+ — принято владельцем 2026-10-15.
 
 Source QA: owner report2026-10-13, HEAD `d0568a32b4f80ab02a9ab8ab0d84babe341a91be`.
 Parent acceptance: [R26](r26_items_npc_expansion.md), [QA checklist](../../../.qa/tasks/r26_acceptance.md).

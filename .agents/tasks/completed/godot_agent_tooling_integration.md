@@ -1,5 +1,7 @@
 # Godot Agent Tooling — editor ownership and independent CLI validation
-Status: **DONE** — принято владельцем 2026-10-15.
+Status: **DONE**
+
+ — принято владельцем 2026-10-15.
 
 ## Task state
 

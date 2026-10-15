@@ -5,7 +5,9 @@ Priority: **P2**
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 Owner decision: запись содержимого сохранения выполняется через **ConfigFile**, не ручной FileAccess.
 
-## Goal
+## Task state
+
+### Goal
 
 Заменить ручной бинарный файловый контейнер нативным ConfigFile, устранить несовпадение ограничений writer/reader и сохранить безопасное восстановление, контроль повреждения, защиту слота и идемпотентный Night retry. Это полная миграция storage adapter, не обёртка старого бинарного формата.
 
@@ -56,19 +58,20 @@ Owner decision: запись содержимого сохранения вып�
 - [ ] Реальный non-visual save → fresh session/load восстанавливает утро; повтор Night не дублирует деньги, district preparation и identities.
 - [ ] Применение storage format не меняет gameplay authority, стабильные resource paths и смысл текущих сохранённых полей.
 
-## Validation
+### Validation
 
 Focused native GUT на AutosaveStore/ConfigFile и существующий persistence baseline; дополнить только отсутствующие сценарии. Parser/formatter и необходимые schema/inventory/structure/architecture checks выполнить после связного изменения. Один Night failure → retry → fresh-load smoke на milestone; не гонять всю игру/весь suite после каждого edit. Все тесты используют изолированные `user://` слоты, никогда пользовательский default autosave.
 
 Краткий актуальный формат/ошибки описать в docs при завершении этого этапа; полная очистка [PVZ-A03](pvz_a03_persistence_documentation.md) следует за реализацией. Официальные API: [ConfigFile](https://docs.godotengine.org/en/stable/classes/class_configfile.html), [DirAccess](https://docs.godotengine.org/en/stable/classes/class_diraccess.html); первична проверенная сборка проекта.
 
-## Task state
 
 ### Current
 Зафиксировано требование владельца использовать ConfigFile. Реализация, native тесты и review исправления: **NOT_RUN**.
 
 ### Next
 Снять актуальные schema/callers/fixture контракты; доказать native ConfigFile roundtrip допустимого snapshot и согласованный полный размер, затем заменить единственный storage путь.
+
+### Owner QA / blockers
 
 ### Dependencies / completion
 Независима от UI и календарного refactor; после [PVZ-CAL01](pvz_customers_calendar_fact_ownership.md)/[PVZ-A02](pvz_a02_wallet_day_events.md) проверить совместный Night startup/settlement contract. Соблюдать [AGENTS.md](../../AGENTS.md) и [task lifecycle](../skills/task-lifecycle/SKILL.md): без GitHub Actions/gh, неразрешённых visual playtests и сторонних addon edits. Полные base/target/review/fix SHA и реальные PASS/FAIL/NOT_RUN сохранять здесь; не более одного child agent одновременно. Неподтверждённую безопасность native parser/replace отмечать конкретным BLOCKED, не скрывать обходным ручным writer. После обязательных проверок/review — DONE и перенос этого же файла в `completed/` с исправлением ссылок.

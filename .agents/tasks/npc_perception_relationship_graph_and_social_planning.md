@@ -5,7 +5,7 @@ Baseline: `dev` / `8dc5a5d6ca56f5c188ef012252c7309bf5ead23a`
 Основание: расширение замечания о квадратичном поиске соседей в S_NpcIntent. Это новая функциональная архитектура, не только performance fix.
 Авторизация текущего этапа: исследование и ТЗ; реализация игрового кода не начата.
 
-## Goal / решения владельца
+### Goal / решения владельца
 
 NPC имеют направленные отношения к конкретным личностям и принимают решения по собственному восприятию и памяти. Знание личности/отношения не раскрывает её текущие координаты. Все обычные NPC получают зрение; отсутствие зрения или обзор назад допустимы только как явное авторское исключение.
 
@@ -140,8 +140,18 @@ S_NpcIntent больше не получает всех NPC и не опреде
 
 ## Task state / execution policy
 
-Current: исследованы актуальные owners и новые активные tasks на baseline; подготовлены целевые контракты и этапы. Реализация, измерение стоимости, Godot/GUT/smoke и gameplay/visual QA: **NOT_RUN**.
-Next: при запуске задачи начать с M0; обновить baseline и не перезаписывать новые изменения других задач. План не разрешает запускать реализацию соседних tasks.
+### Current
+
+исследованы актуальные owners и новые активные tasks на baseline; подготовлены целевые контракты и этапы.
+
+### Validation
+
+Реализация, измерение стоимости, Godot/GUT/smoke и gameplay/visual QA: **NOT_RUN**.
+### Next
+
+при запуске задачи начать с M0; обновить baseline и не перезаписывать новые изменения других задач. План не разрешает запускать реализацию соседних tasks.
+
+### Owner QA / blockers
 
 Прочитать по необходимости [game-ai](../skills/game-ai/SKILL.md), [game design](../skills/professional-game-design/SKILL.md), [GECS](../skills/gecs-v8/SKILL.md), [style](../skills/gdscript-style/SKILL.md), [scene authoring](../skills/godot-scene-authoring/SKILL.md), [performance](../skills/godot-performance/SKILL.md), [refactoring](../skills/refactoring/SKILL.md), [validation](../skills/validation-workflow/SKILL.md), [task lifecycle](../skills/task-lifecycle/SKILL.md). Перед LimboAI API — его проектный skill/закреплённый source. Использовать MCP при наличии; native CLI проверки не зависят от MCP. Без GitHub Actions/gh и сторонних addon edits; один child agent одновременно. Тесты после связного batch/на milestone, не весь suite после мелкой правки. Требуемые owner QA/review/blocked gates не переименовывать в DONE; хранить полные base/target/review/fix SHA, после завершения перенести этот же файл в completed и исправить ссылки.
 

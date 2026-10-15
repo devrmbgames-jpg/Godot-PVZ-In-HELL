@@ -5,7 +5,9 @@ Priority: **P2**
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 Dependency: [PVZ-CAL01](pvz_customers_calendar_fact_ownership.md)
 
-## Goal
+## Task state
+
+### Goal
 
 Заменить регулярный обход S_WalletDay реакцией на committed календарный переход и явной однократной инициализацией/сверкой. Сохранить финансовые результаты и идемпотентность; не менять экономику.
 
@@ -38,13 +40,12 @@ Dependency: [PVZ-CAL01](pvz_customers_calendar_fact_ownership.md)
 - [ ] После перехода/flush Night snapshot содержит актуальные результаты; повторная запись Night не закрывает смену снова.
 - [ ] Для обычного и отложенного buffer режима результат совпадает; bootstrap Customers не запускает wallet day reaction.
 
-## Validation
+### Validation
 
 Расширить существующие focused GUT кошелька/календаря сценариями выше; не дублировать уже достаточные тесты. Native parser изменённых scripts/scenes; один non-visual календарь → итог → Night snapshot/restore smoke на завершении этапа.
 
 Применить formatter, structure/domain dependencies и strict architecture gates по validation-workflow. Добавить узкую регрессию против возврата `System.process → Service.sync_day` или эквивалентного polling; текущий regex tick/update/process его не ловит. Не превращать это в запрет всех Service-вызовов из Systems и не добавлять allowlist скрытого scheduler.
 
-## Task state
 
 ### Current
 ТЗ подготовлено. Реализация, engine проверки и review исправления: **NOT_RUN**.
@@ -54,6 +55,8 @@ Dependency: [PVZ-CAL01](pvz_customers_calendar_fact_ownership.md)
 
 ### Dependencies / exclusions
 Не изменять тарифы, причины MoneyOperation, settlement rules, покупки и scope прочих доменов. [ConfigFile migration](pvz_b01_configfile_save_storage.md) независима, но итоговый тест Night выполнить на совместном результате. [PVZ-A03](pvz_a03_persistence_documentation.md) фиксирует окончательный контракт; [documentation quality](pvz_code_documentation_quality.md) выполняет завершающую сверку.
+
+### Owner QA / blockers
 
 ### Completion
 Соблюдать [AGENTS.md](../../AGENTS.md), [task lifecycle](../skills/task-lifecycle/SKILL.md), non-visual ограничения и последовательных child agents. GitHub Actions/gh не запускать. Проверки выполнять после связных изменений, не каждого edit. Внести полные base/target/review/fix SHA, реальные PASS/FAIL/NOT_RUN и нерешённые замечания сюда. DONE — только после необходимой валидации/review; затем переместить этот же файл в `completed/` и исправить ссылки.

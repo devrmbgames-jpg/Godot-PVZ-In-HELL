@@ -4,6 +4,7 @@ Status: **PLANNED**
 
 Parent: [R27](completed/r27_qa_followup.md).
 
+
 ## Task state
 
 ### Goal / acceptance
@@ -80,6 +81,8 @@ caption, without mutating shared authored captions or opening a modal. Ordinary 
 Native cleanup hides/clears the sign and restores the replaced message view; scene ownership frees it.
 Companion MCP gains bounded path diagnostics for new owned scripts and revision-based atomic
 registration refresh; vendored Godot AI/GECS remain unchanged.
+
+### Validation
 
 ### Prior validation
 

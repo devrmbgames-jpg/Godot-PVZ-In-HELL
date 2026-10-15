@@ -1,5 +1,7 @@
 # R26.3 — LimboAI Behavior Trees for NPC archetypes
-Status: **DONE** — принято владельцем 2026-10-15.
+Status: **DONE**
+
+ — принято владельцем 2026-10-15.
 
 Parent: [R26](r26_items_npc_expansion.md).
 

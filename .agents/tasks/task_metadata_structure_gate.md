@@ -1,6 +1,8 @@
 # TASK-META01 — восстановить canonical metadata существующих задач
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
+
+BASE_SHA: `9cc33be68ef8fb42ce4ab1965335c6e840722a49`.
 
 ## Task state
 
@@ -10,17 +12,17 @@ Status: **PLANNED**
 
 ### Current
 
-При PVZ-CAL01 независимо воспроизведено 81 нарушение `_check_task_state_contract`: строгий status regex не принимает строку `Status: **DONE** — принято ...`; ряд планов использует верхнеуровневые Goal/Current/Validation либо русские заголовки вместо canonical блока. Исходный SHA и текущая worktree дали одинаковый набор (introduced = 0), доказательство: `.artifacts/calendar_task_metadata_baseline.txt`. Собственный task record PVZ-CAL01 нормализуется в его checkpoint.
+Нормализованы 33 существовавших task records: пояснения приёмки вынесены на строку после canonical Status, добавлены/понижены нужные headings. Prose-токены всех исходных требований, планов и исторической приёмки сохранены; добавленная ссылка Owner QA только указывает на прежние критерии. Полный structure gate PASS без изменения validator. Original bytes и staged-candidates: `.artifacts/task_metadata_original/`; пользовательский diff диалогового ТЗ не включается в metadata commit.
 
 ### Next
 
-Проверить минимальные заголовки затронутых задач. Перенести пояснение приёмки на отдельную строку, нормализовать владельца Task state и необходимые подразделы, сохранив текст/семантику. Для уже грязных файлов отдельно сохранить существующий diff и включать в коммит только собственную нормализацию. Не ослаблять validator ради PASS.
+Создать отдельный metadata commit из проверенных staged-candidates, закрепить полные BASE_SHA/TARGET_SHA, выполнить read-only review и triage. До этого задача не DONE. Runtime-исправления RV-001/RV-002 принадлежат PVZ-CAL01 и в metadata commit не входят.
 
 ### Validation
 
 - **PASS**: сравнение исходного SHA и worktree — 81 baseline finding, 0 introduced до нормализации PVZ-CAL01.
 - **FAIL**: `python utils/validate_project_structure.py` на baseline metadata; scoped strict domain dependencies и architecture PVZ-CAL01 проходят.
-- Исправление metadata и его review: **NOT_RUN**. Godot/GUT/visual проверки для этой документной задачи не требуются.
+- **PASS**: 33 нормализованных records, идентичные prose-токены оригиналов и staged-candidates, полный structure gate и UTF-8. Metadata commit/review: **REVIEW_PENDING**. Godot/GUT/visual проверки для документного scope не требуются.
 
 ### Owner QA / blockers
 

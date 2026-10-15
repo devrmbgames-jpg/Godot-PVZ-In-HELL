@@ -4,7 +4,9 @@ Status: **PLANNED**
 Priority: **P2** (задача по выбранному замечанию о документации кода)
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 
-## Goal
+## Task state
+
+### Goal
 
 Устранить пропуски, неточности и бесполезные комментарии в проектном коде так, чтобы разработчик понимал назначение, владельца состояния, единицы, ограничения и timing публичной операции без реконструкции всего call graph. Не увеличивать количество комментариев ради процента покрытия и не менять игровое поведение.
 
@@ -51,7 +53,7 @@ Scope — все действующие first-party production/tool `.gd`, оп�
 - [ ] Зафиксированы проверенный scope и фактические counts; нет выдуманного «100% качества» по наличию ## или проценту comment lines.
 - [ ] Завершающий reviewer проверил критические public APIs и репрезентативные файлы каждой обработанной группы; оставшиеся проблемы устранены либо задача остаётся незавершённой.
 
-## Validation
+### Validation
 
 Использовать существующие style tools или небольшой scoped inventory/check при отсутствии нужной проверки; не строить новую тяжёлую documentation framework. Структурная проверка должна учитывать annotations/multiline/inner classes; отсутствие ## можно обнаруживать автоматически, истинность и достаточность комментария проверяет человек/reviewer.
 
@@ -59,7 +61,6 @@ Scope — все действующие first-party production/tool `.gd`, оп�
 
 Финальная проверка распространяется на все изменённые файлы относительно полного base SHA, а не на пустой `--changed` после коммита. Не утверждать, что процент structural coverage доказывает смысловую полноту. Исходные engine/runtime gates предыдущих задач не заменяются этим documentation pass.
 
-## Task state
 
 ### Current
 ТЗ подготовлено. Полный inventory/метрики ещё не сняты; исправление документации и финальный review: **NOT_RUN**.
@@ -69,6 +70,8 @@ Scope — все действующие first-party production/tool `.gd`, оп�
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](pvz_customers_calendar_fact_ownership.md), [PVZ-A02](pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.
+
+### Owner QA / blockers
 
 ### Completion
 Следовать [AGENTS.md](../../AGENTS.md) и task-lifecycle: GitHub Actions/gh, внешние addon edits и неразрешённые visual tests запрещены; не более одного child agent одновременно. Хранить здесь полные base/target/review/fix SHA, краткие фактические counts, PASS/FAIL/NOT_RUN и текущие unresolved findings; без отдельной очереди/истории. После полного scope, проверок и review — DONE и перенос этого же файла в `completed/` с исправлением ссылок.
