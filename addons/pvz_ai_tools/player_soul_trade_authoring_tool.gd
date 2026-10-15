@@ -9,6 +9,7 @@ const TRAIT: String = "res://content/domains/npc/authoring/et_player_soul_trade.
 
 #region Guarded native editor save
 ## Restores the clean fingerprinted player graph and appends its soul capability.
+## Success requests native scene reload; save/UID errors have no disk rollback or Undo.
 func save(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	if not Engine.is_editor_hint() or not EditorInterface.get_unsaved_scenes().is_empty():
 		return { "error": "A connected editor with clean scenes is required." }
@@ -56,6 +57,7 @@ func save(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 
 #region Pure packed-state authoring
 ## Changes exactly one packed root-capability value; no Node instantiation or gameplay registration.
+## Returned packed containers share the existing Trait Resources and the supplied capability.
 static func append_trait(source: PackedScene, capability: EntityTrait) -> Dictionary:
 	var state: SceneState = source.get_state()
 	if state.get_node_count() == 0 or state.get_node_type(0) != &"CharacterBody3D":

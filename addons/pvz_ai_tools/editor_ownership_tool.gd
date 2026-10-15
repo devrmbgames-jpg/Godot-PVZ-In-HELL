@@ -5,6 +5,7 @@ extends RefCounted
 
 ## Reports the current scene, every open scene and unsaved editor scene.
 ## A blank scene path represents a scene not yet saved to a file.
+## This is a point-in-time report, not an edit lock or a dirty-external-Resource inventory.
 func inspect(_params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var scene_root: Node = EditorInterface.get_edited_scene_root()
 	var current_scene: String = String(scene_root.scene_file_path) if scene_root != null else ""

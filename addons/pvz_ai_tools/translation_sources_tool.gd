@@ -23,6 +23,7 @@ func quiesce_for_script_swap() -> Dictionary:
 
 
 ## Only preview/apply of the fixed diagnostic catalog is allowed; no arbitrary settings.
+## Apply saves ProjectSettings before pruning DMCache; no removals means no save.
 func configure(params: Dictionary, _context: McpCallContext) -> Dictionary:
 	var action: String = String(params.get("action", "preview"))
 	if params.size() != 1 or not params.has("action") or action not in ["preview", "apply"]:

@@ -1,4 +1,5 @@
-## Registers compact, read-only PVZ/GECS inspection tools with Godot AI MCP.
+## Registers bounded PVZ inspection, validation and native authoring tools with Godot AI MCP.
+## Owns registry entries and the debugger bridge; processing only maintains their lifecycle.
 @tool
 extends EditorPlugin
 

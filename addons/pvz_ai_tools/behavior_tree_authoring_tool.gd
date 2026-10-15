@@ -22,6 +22,8 @@ func quiesce_for_script_swap() -> Dictionary:
 
 
 ## Native graph creation, fingerprinted root replacement and guarded subtree insertion.
+## Insert edits the loaded tree and removes its added branch on save failure; replacement uses
+## an isolated graph. Success means a native file save, not a running BT instance update.
 func author(params: Dictionary, _context: McpCallContext) -> Dictionary:
 	if not Engine.is_editor_hint():
 		return { "error": "Behavior-tree authoring requires the native editor." }
@@ -122,7 +124,7 @@ static func prepare_replacement(params: Dictionary, inspected: Resource = null) 
 	return { "tree": tree }
 
 
-## Only direct files in the existing authored NPC tree directory are writable.
+## Only direct .tres files in the authored NPC/customer tree directories are writable.
 static func valid_tree_path(tree_path: String) -> bool:
 	return (
 		tree_path.ends_with(".tres")
@@ -132,6 +134,7 @@ static func valid_tree_path(tree_path: String) -> bool:
 
 
 ## Construct at most 64 native tasks and six nested levels, before any disk mutation.
+## A supplied nonempty budget shares remaining count in [0]; rejected builds also consume it.
 static func build_task(graph: Dictionary, depth: int = 0, budget: Array[int] = [64]) -> BTTask:
 	if depth > 6 or budget[0] <= 0:
 		return null
@@ -211,6 +214,7 @@ static func build_task(graph: Dictionary, depth: int = 0, budget: Array[int] = [
 
 
 ## Preserve the actual existing root/children/Blackboard plans, refusing stale or cyclic edits.
+## Success mutates the caller's tree and returns its inserted child; null leaves it unchanged.
 static func insert_branch(
 	tree: BehaviorTree,
 	subtree: BehaviorTree,

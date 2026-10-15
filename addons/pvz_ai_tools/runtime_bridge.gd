@@ -1,4 +1,6 @@
 ## Game-process half of PVZ Godot AI GECS inspection.
+## Debugger callbacks read the current World synchronously and return detached diagnostics.
+## Collection/depth limits are presentation bounds; this output is not a persistence snapshot.
 extends Node
 
 const CAPTURE_PREFIX: String = "pvz_ai"
@@ -301,6 +303,7 @@ func _entity_summary(entity: Entity) -> Dictionary:
 
 
 func _components_for(entity: Entity) -> Array[Component]:
+	# Recipes remain visible beside live Components, even when they have the same script type.
 	var result: Array[Component] = []
 	var seen: Dictionary = { }
 

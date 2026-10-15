@@ -40,6 +40,7 @@ const DISPLAY_NAMES: Dictionary[StringName, String] = {
 
 #region Guarded native editor operation
 ## Creates one new fixed destination/preset/portal; all paths are closed, never overwritten.
+## Three native saves are sequential; a later failure can leave earlier outputs on disk.
 func author(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var key: StringName = StringName(params.get("room_key", ""))
 	if key not in GameSessionService.TEST_ROOM_KEYS:
@@ -102,6 +103,8 @@ func author(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 
 
 ## Repairs only the open canonical room's isolated attendance, never production archetypes.
+## Mutates live authoring data through Undo, saves the external preset, and leaves the scene
+## dirty: the caller must save the returned save_scene path separately.
 func author_room_attendance(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	if not Engine.is_editor_hint():
 		return _refusal("Attendance authoring requires the native editor.")
@@ -168,6 +171,7 @@ func author_room_attendance(params: Dictionary, _ctx: McpCallContext) -> Diction
 
 
 ## Replaces only isolated room catalogs; scripted nested Resources need a native editor owner.
+## External preset is saved here; the changed scene remains dirty for a separate native save.
 func author_room_supply(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	if not Engine.is_editor_hint():
 		return _refusal("Supply authoring requires the native editor.")
@@ -258,7 +262,7 @@ static func _refusal(message: String) -> Dictionary:
 
 
 #region Native typed preset construction
-## Creates detached immutable authoring data; canonical definitions and runtime state are untouched.
+## Creates a detached QA graph; shallow profile copies still share unchanged native definitions.
 static func make_preset(key: StringName) -> DEF_NpcTestRoom:
 	if key not in GameSessionService.TEST_ROOM_KEYS:
 		return null
@@ -345,6 +349,7 @@ static func _place(
 
 #region Detached native graph construction
 ## Clones editable native source geometry/prefabs; strips unrelated fixtures and the merchant.
+## Caller owns/frees the detached result; null means the source layout was rejected.
 static func build_room(source: PackedScene, preset: DEF_NpcTestRoom) -> Node3D:
 	var root: Node3D = source.instantiate() as Node3D
 	if (
@@ -432,6 +437,7 @@ static func build_room(source: PackedScene, preset: DEF_NpcTestRoom) -> Node3D:
 
 
 ## Builds a native solid interaction prefab with authored action and Label3D, without custom input.
+## Caller owns the detached body; empty key builds the return-to-hall action.
 static func make_portal(key: StringName, caption: String) -> Node3D:
 	var body: StaticBody3D = StaticBody3D.new()
 	body.set_script(ENTITY_SCRIPT)
@@ -519,6 +525,7 @@ func author_hall_identities(params: Dictionary, _ctx: McpCallContext) -> Diction
 
 
 ## Pure whole-set preflight refuses missing/replaced props and preserves existing authored IDs.
+## Returned Nodes are borrowed scene references for synchronous Undo setup, not owned copies.
 static func identity_plan(root: Node, definitions: Array[DEF_InventoryItem]) -> Dictionary:
 	if definitions.is_empty() or definitions.size() > 32:
 		return { "ok": false, "error": "Expected one through32 canonical catalog items." }

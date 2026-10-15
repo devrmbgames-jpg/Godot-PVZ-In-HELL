@@ -1,4 +1,6 @@
 ## Read-only GECS/entity inspection handlers for PVZ Godot AI custom MCP tools.
+## Handlers return data synchronously or DEFERRED_RESPONSE for the debugger bridge.
+## Auto falls back only before runtime dispatch; a runtime failure is returned as its own reply.
 @tool
 extends RefCounted
 
@@ -250,6 +252,7 @@ func _runtime_request(operation: String, params: Dictionary, ctx: McpCallContext
 #region Entity discovery
 
 func _entity_source() -> Dictionary:
+	# This process's populated World wins over the edited scene; neither is the game process.
 	if is_instance_valid(ECS.world) and not ECS.world.entities.is_empty():
 		var world_entities: Array[Entity] = []
 		for entity: Entity in ECS.world.entities:
@@ -367,6 +370,7 @@ func _entity_summary(entity: Entity) -> Dictionary:
 
 
 func _components_for(entity: Entity) -> Array[Component]:
+	# Include live Components and authored recipes; deduplicate instances, not Component classes.
 	var result: Array[Component] = []
 	var seen: Dictionary = { }
 

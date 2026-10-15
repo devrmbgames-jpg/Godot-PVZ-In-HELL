@@ -60,6 +60,7 @@ func runtime_ready() -> bool:
 
 
 ## Schedules one runtime inspection request after the custom-tool handler returns deferred.
+## True confirms queueing, not a reply; params are copied, but Entity selection happens later.
 func request_runtime(operation: String, params: Dictionary, ctx: McpCallContext) -> bool:
 	if ctx == null or ctx.request_id.is_empty() or not runtime_ready():
 		return false
@@ -78,6 +79,7 @@ func has_pending() -> bool:
 
 
 ## Drops custom-tool requests whose MCP deadline has already elapsed.
+## Expiration sends no late reply; the transport owns the request timeout.
 func expire_pending() -> void:
 	for request_key: Variant in _pending.keys():
 		var request_id: String = String(request_key)

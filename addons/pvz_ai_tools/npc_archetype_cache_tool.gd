@@ -36,6 +36,8 @@ func refresh(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 
 
 ## Preflights every file before native cache refresh; retains no Resources across calls.
+## CACHE_MODE_REPLACE can update shared cached objects. Failure may follow earlier refreshes;
+## completed paths are reported. It neither reloads scenes nor provides Undo.
 static func refresh_resources(paths: PackedStringArray, inspected: Resource = null) -> Dictionary:
 	if inspected != null and paths.has(inspected.resource_path.get_slice("::", 0)):
 		return { "error": "Close the target Resource Inspector before refreshing its cache." }

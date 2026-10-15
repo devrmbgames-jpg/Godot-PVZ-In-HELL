@@ -8,6 +8,7 @@ const ITEM_ROOT: String = "res://content/domains/inventory/definitions/"
 
 #region Editor authoring transaction
 ## Preserves the supply graph and UID; refuses dirty scenes and an inspected target.
+## File save precedes UID restoration; a later error does not undo the already written file.
 func append_item(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	if not Engine.is_editor_hint() or not EditorInterface.get_unsaved_scenes().is_empty():
 		return { "error": "Catalog authoring requires the editor with saved scenes." }

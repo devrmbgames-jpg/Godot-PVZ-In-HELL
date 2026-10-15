@@ -1,6 +1,6 @@
 @tool
 extends RefCounted
-## Canonical native resave of fingerprinted NPC definitions without replacing their resource graph.
+## Canonical native resave of bounded fingerprinted NPC definition graphs with authored values.
 
 const ROOT: String = "res://content/domains/npc/definitions/"
 const MAXIMUM_PATHS: int = 8
@@ -8,6 +8,7 @@ const MAXIMUM_PATHS: int = 8
 
 #region Editor transaction
 ## Requires clean scenes, an uninspected target and the exact reviewed file fingerprints.
+## Saves files/UIDs sequentially; failure reports earlier completed paths without batch rollback.
 func resave(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	if not Engine.is_editor_hint():
 		return { "error": "Canonical resave requires the editor." }

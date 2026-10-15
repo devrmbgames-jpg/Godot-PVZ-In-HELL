@@ -12,7 +12,7 @@ func quiesce_for_script_swap() -> Dictionary:
 	return { "ok": true }
 
 
-## Only fixed project settings are accepted; no arbitrary setting paths or executable commands.
+## Only fixed native EditorSettings are accepted; these belong to the shared editor profile.
 func configure(params: Dictionary, _context: McpCallContext) -> Dictionary:
 	var action: String = String(params.get("action", "inspect"))
 	if params.size() > 1 or not action in ["inspect", "apply"]:
