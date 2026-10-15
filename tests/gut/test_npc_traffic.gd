@@ -205,8 +205,68 @@ func test_moving_angel_yields_in_head_on_encounter() -> void:
 
 
 #region Emergency branch takes precedence over mutual threats
-func test_native_hazard_escape_passes_aggressive_opponent_without_traffic_threats() -> void:
+func test_urgent_friendly_keeps_forward_motion_inside_social_distance(
+	urgent_source: String = use_parameters(["emergency", "combat", "hazard", "fleeing"])
+) -> void:
+	var walker: E_DistrictNpc = _resident(&"walker", FRIENDLY, Vector3(-0.7, 0.02, 0.0))
+	_resident(&"blocker", AGGRESSIVE, Vector3(0.7, 0.02, 0.0))
+	var decision: C_NpcDecision = walker.get_component(C_NpcDecision) as C_NpcDecision
+	var awareness: C_NpcAwareness = walker.get_component(C_NpcAwareness) as C_NpcAwareness
+	match urgent_source:
+		"emergency":
+			decision.intent_owner = C_NpcDecision.Owner.EMERGENCY
+		"combat":
+			decision.intent_owner = C_NpcDecision.Owner.COMBAT
+		"hazard":
+			awareness.hazard_distress = true
+		"fleeing":
+			awareness.fleeing = true
+	NpcIntentService.move_to(walker, Vector3(4.0, 0.0, 0.0), 0.25)
+	var intent: C_NpcIntent = walker.get_component(C_NpcIntent) as C_NpcIntent
+	var generation: int = intent.movement_generation
+	_world.process(1.0 / 60.0)
+	# Inspect the real preferred velocity before the asynchronous RVO/physics callback.
+	assert_gt(walker.navigation_agent.velocity.x, 0.0, "Urgent movement must not retreat")
+	assert_eq(intent.move_position, Vector3(4.0, 0.0, 0.0))
+	assert_eq(intent.movement_generation, generation)
+	assert_eq(NpcPopulationQueries.person_for(&"walker").memories.size(), 0)
+	assert_eq(NpcPopulationQueries.person_for(&"blocker").memories.size(), 0)
+
+
+func test_queued_threat_rechecks_emergency_on_either_participant(
+	urgent_is_owner: bool = use_parameters([true, false])
+) -> void:
 	var left: E_DistrictNpc = _resident(&"a", AGGRESSIVE, Vector3(-0.7, 0.02, 0.0))
+	var right: E_DistrictNpc = _resident(&"b", AGGRESSIVE, Vector3(0.7, 0.02, 0.0))
+	NpcIntentService.move_to(left, Vector3(4.0, 0.0, 0.0), 0.25)
+	NpcIntentService.move_to(right, Vector3(-4.0, 0.0, 0.0), 0.25)
+	_world.process(1.0 / 60.0)
+	var steering: S_NpcIntent = _world.systems[0] as S_NpcIntent
+	var traffic: C_NpcTraffic = left.get_component(C_NpcTraffic) as C_NpcTraffic
+	var intent: C_NpcIntent = left.get_component(C_NpcIntent) as C_NpcIntent
+	var generation: int = intent.movement_generation
+	traffic.threat_elapsed = traffic.rule.threat_interval
+	steering.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(1.0 / 60.0)
+	assert_true(steering.has_pending_commands(), "A normal encounter queued its threat")
+	var urgent: E_DistrictNpc = left if urgent_is_owner else right
+	(urgent.get_component(C_NpcDecision) as C_NpcDecision).intent_owner = (
+		C_NpcDecision.Owner.EMERGENCY
+	)
+	_world.flush_command_buffers()
+	_world.process(traffic.rule.threat_interval)
+	_world.flush_command_buffers()
+	assert_eq(NpcPopulationQueries.person_for(&"a").memories.size(), 0)
+	assert_eq(NpcPopulationQueries.person_for(&"b").memories.size(), 0)
+	var person: NpcRecord = NpcPopulationQueries.person_for(&"a")
+	assert_eq(NpcTrafficRules.attack_bonus(person, &"b", POLICY), 0.0)
+	assert_eq(intent.movement_generation, generation)
+
+
+func test_native_hazard_escape_passes_aggressive_opponent_without_traffic_threats(
+	profile: DEF_NpcArchetype = use_parameters([AGGRESSIVE, FRIENDLY])
+) -> void:
+	var left: E_DistrictNpc = _resident(&"a", profile, Vector3(-0.7, 0.02, 0.0))
 	var right: E_DistrictNpc = _resident(&"b", AGGRESSIVE, Vector3(0.7, 0.02, 0.0))
 	var packed: PackedScene = load("res://content/domains/hazards/entities/npc_fire_aura.tscn")
 	var hazard: Entity = packed.instantiate() as Entity

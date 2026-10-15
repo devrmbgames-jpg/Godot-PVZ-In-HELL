@@ -246,8 +246,10 @@ func _passing_direction(
 		offset.y = 0.0
 		var distance: float = offset.length()
 		var clearance: float = npc.navigation_agent.radius + other.navigation_agent.radius
+		# Urgent intent keeps capsule avoidance but cannot yield to ordinary social distance.
 		var keep_space: bool = (
 			traffic != null and traffic.rule != null and not aggressive
+			and not _urgent(npc)
 			and not _gaze_constrained(npc) and not _gaze_constrained(other)
 			and NpcTrafficRules.aggressive(_person(other))
 		)
