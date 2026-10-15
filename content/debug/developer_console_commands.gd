@@ -1,6 +1,7 @@
 extends Node
 ## Регистрирует проектные команды консоли; строки проверяются здесь, игровые действия принадлежат
 ## сервисам.
+## Node владеет регистрациями и дочерним console glue; выход снимает его команды.
 class_name DeveloperConsoleCommands
 
 const ENABLE_SETTING: StringName = &"debug/developer_console_commands_enabled"

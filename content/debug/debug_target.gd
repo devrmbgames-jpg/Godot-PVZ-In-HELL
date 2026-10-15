@@ -14,13 +14,13 @@ enum Kind {
 var query: String = ""
 ## Какой контракт найден; INVALID сопровождается error.
 var kind: Kind = Kind.INVALID
-## Необязательная живая Entity; доступность повторно проверяется перед мутацией.
+## Заимствованная Entity; доступность проверяет вызывающий перед мутацией/после await.
 var entity: Entity = null
 ## Стабильный ID коробки, даже если физический экземпляр отсутствует.
 var package_id: String = ""
-## Необязательная запись регистрации для данной коробки.
+## Необязательная общая запись журнала, не копия; её writer остаётся в packages.
 var registration: PackageRegistrationRecord = null
-## Необязательный случай обслуживания данного заказа.
+## Необязательный общий CustomerVisit, не копия; его writer остаётся в customers.
 var visit: CustomerVisit = null
 ## Причина неуспешного разрешения цели.
 var error: String = ""

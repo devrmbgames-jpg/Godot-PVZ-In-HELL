@@ -5,7 +5,8 @@ class_name DebugTargetResolver
 
 #region Публичный синтаксис цели
 ## Разбирает self/target/#номер/pkg:/visit:/entity: либо raw package_id; отказ возвращает INVALID с
-## error.
+## error. #номер выбирает активную регистрацию; PACKAGE допустим без живой коробки.
+## Entity и записи заимствованы: результат не закрепляет их lifetime и не копирует историю.
 static func resolve(raw_target: String) -> DebugTarget:
 	var result: DebugTarget = DebugTarget.new()
 	result.query = raw_target.strip_edges()
@@ -33,7 +34,7 @@ static func resolve(raw_target: String) -> DebugTarget:
 	return _resolve_package_id(result, result.query)
 
 
-## Первая Entity с маркером ввода игрока либо null при отсутствии World.
+## Первая Entity с маркером ввода либо null; доступность проверяет вызывающий.
 static func player() -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null

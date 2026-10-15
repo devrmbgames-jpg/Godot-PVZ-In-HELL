@@ -4,6 +4,7 @@ class_name DebugWorldService
 
 
 ## Запрашивает следующий допустимый переход фазы через DayPhaseService; ночь не переключает вручную.
+## Success означает pending transition; применение фазы принадлежит её System.
 static func day_next() -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -48,6 +49,8 @@ static func day_next() -> DebugServiceResult:
 
 
 ## В дневную фазу запрашивает следующую доступную задачу обслуживания при свободной активной роли.
+## Planning должен завершиться к возврату emit_event. Success означает enqueue роли либо
+## start_visit; физическое прибытие NPC может наступить позже.
 static func customer_next() -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()

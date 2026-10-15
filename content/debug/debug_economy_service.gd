@@ -1,5 +1,7 @@
 extends RefCounted
 ## Ручные QA-операции кошелька через обычный журнал с уникальными ID.
+## Суммы в целых денежных единицах; success только после синхронного COMMITTED.
+## Повтор команды создаёт новую операцию: adapter не дедуплицирует пользовательский ввод.
 class_name DebugEconomyService
 
 const OPERATION_PREFIX: String = "debug"

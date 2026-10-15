@@ -7,7 +7,7 @@ const DEFAULT_CUSTOMER_KEY: String = "default"
 
 #region Создание и исход визита
 ## Для коробки создаёт один QA-визит либо возвращает существующий; arrive выбирает очередь вместо
-## закрытого учётного случая.
+## закрытого учётного случая. Success фиксирует запись в flow; arrive не создаёт тело NPC.
 static func create_visit(
 	target: DebugTarget,
 	customer_key: String,
@@ -70,7 +70,8 @@ static func create_visit(
 	return result
 
 
-## Явно меняет QA-факт до расчёта/жалобы; запрещает сброс при уже принятом заявлении.
+## Явно меняет QA-факт до расчёта/жалобы, без физической выдачи. Совпавший факт — no-op.
+## Только сброс в NOT_RESOLVED запрещён при уже принятом заявлении.
 static func set_actual(target: DebugTarget, actual: CustomerVisit.Actual) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var visit: CustomerVisit = target.visit
@@ -145,6 +146,7 @@ static func declare(
 
 #region Жалоба и одобрение
 ## Создаёт QA-жалобу через сервис исхода; resolve_now сразу запускает её проверку/расчёт.
+## Success подтверждает создание; итог resolve_now нужно читать из complaint.outcome.
 static func complaint(
 	target: DebugTarget,
 	reason: CustomerComplaint.Reason,

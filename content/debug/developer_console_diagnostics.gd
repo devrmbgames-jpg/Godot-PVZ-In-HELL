@@ -196,7 +196,7 @@ static func day_info() -> PackedStringArray:
 
 
 #region Доступные цели
-## Показывает доступные цели разных контрактов с ограничением в 64 строки.
+## Показывает до 64 доступных целей; строка о truncation добавляется сверх этого лимита.
 static func debug_targets() -> PackedStringArray:
 	const MAX_LINES: int = 64
 	var lines: PackedStringArray = []

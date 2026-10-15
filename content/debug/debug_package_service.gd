@@ -15,7 +15,8 @@ const DEBUG_ID_PREFIX: String = "debug:"
 
 #region Команды коробок
 ## Создаёт 1–50 отладочных коробок в приёмке либо у игрока; register_packages включает обычную
-## регистрацию.
+## регистрацию без сканера. receiving использует placement solver; self — сетку у игрока.
+## При отказе удаляет созданные коробки и их QA-записи; счётчики ID не откатываются.
 static func spawn(
 	definition_key: StringName,
 	count: int,
@@ -166,7 +167,7 @@ static func purge(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
-## Регистрирует живую коробку обычной транзакцией и возвращает результат для консоли.
+## Регистрирует живую коробку доверенным helper без сканера; повтор регистрации допустим.
 static func register(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if target.kind != DebugTarget.Kind.PACKAGE:
@@ -189,6 +190,7 @@ static func register(target: DebugTarget) -> DebugServiceResult:
 
 
 ## Восстанавливает HP живой коробки и снимает повреждение/утечку; уничтоженную не воскрешает.
+## Opening, released contents и состояние C_LiquidTilt не сбрасываются.
 static func reset(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if target.kind != DebugTarget.Kind.PACKAGE:
@@ -256,6 +258,7 @@ static func _definition(zone: E_ReceivingZone, key: StringName) -> DEF_Package:
 
 
 static func _place_near_player(zone: E_ReceivingZone, parcel: E_Package, index: int) -> bool:
+	# Явное QA-размещение в мировых метрах: без проверки свободного объёма solver.
 	var actor: Entity = DebugTargetResolver.player()
 	var actor_node: Node3D = actor as Node as Node3D
 	var body: RigidBody3D = parcel as Node as RigidBody3D

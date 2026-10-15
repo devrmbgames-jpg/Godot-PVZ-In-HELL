@@ -1,5 +1,7 @@
 extends RefCounted
 ## QA-запросы урона/лечения через DamageRequest и явный отладочный сброс живого существа.
+## Для damage/heal/kill success означает submit; PER_CALLBACK может исполнить его inline.
+## Ненулевой эффект и смерть определяет обычный pipeline, а не результат адаптера.
 class_name DebugHealthService
 
 
@@ -25,7 +27,7 @@ static func heal(target: DebugTarget, amount: float) -> DebugServiceResult:
 
 
 ## Запрашивает GENERIC-урон по текущим HP; реальный эффект и смерть исполняются обычным damage
-## pipeline.
+## pipeline; сопротивление и другие правила могут сохранить цель живой.
 static func kill(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if not EntityAvailability.contains(target.entity, ECS.world):

@@ -41,6 +41,7 @@ static func item(key: String) -> DEF_InventoryItem:
 
 
 ## Разрешает QA-цель; для визита возвращает его действующего получателя, иначе Entity цели.
+## Возвращает заимствованную Entity либо null; lifetime проверяет вызывающий.
 static func subject(raw: String) -> Entity:
 	var target: DebugTarget = DebugTargetResolver.resolve(raw)
 	if target.visit != null:
@@ -411,7 +412,8 @@ static func meat_spawn() -> DebugServiceResult:
 
 #region Отдельные слоты сохранения
 ## Записывает/восстанавливает проверенный утренний snapshot в debug_slots при свободных действиях;
-## обычный autosave не используется.
+## обычный autosave не используется. Write проверяет can_restore до изменения файла.
+## Success означает завершённый write/restore; загрузка заменяет runtime-состояние мира.
 static func save_slot(slot: String, writing: bool) -> DebugServiceResult:
 	var path: String = slot_path(slot)
 	if path.is_empty():
@@ -497,7 +499,7 @@ static func slot_path(slot: String) -> String:
 
 
 #region Результат команды
-## Создаёт принятый результат со строками контекста.
+## Только упаковывает success и строки: сама операция и её проверка принадлежат caller.
 static func success(lines: PackedStringArray = []) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	result.success = true

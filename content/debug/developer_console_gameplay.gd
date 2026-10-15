@@ -1,5 +1,6 @@
 extends Node
 ## Входы команд игрового QA; проверки и запись идут через сервисы либо явный сценовый API.
+## Дочерний glue DeveloperConsoleCommands: регистрирует COMMANDS на ready и снимает на exit.
 
 const COMMANDS: Dictionary[String, Array] = {
 	"stamina_info": [

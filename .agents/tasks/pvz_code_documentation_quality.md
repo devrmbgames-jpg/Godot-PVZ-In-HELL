@@ -132,20 +132,22 @@ RV-002 (R1 четвёртого batch), P2, **FIXED** (`1ce357a96936cc255c1162cb
 
 Проверенный девятый batch — полный source pass **packages 70/70 — PASS**. Прочитаны все scripts и clocks authored GamePlay; 45 scripts получили уточнения writers, borrowed/consumed Nodes, command dispatch/terminal receipts, partial cargo commits, departure lifetime, event timing и transient versus durable state. Reviewer сверил changed claims и representative unchanged action/fact/Trait/presentation contracts; material findings нет, triage завершён.
 
-Current implementation base: `0bd1a3bb07d31b12bdd10be1e5a5d33f28ee1862` → target `cbff99b2406a7218721fc40270590f733c3d72f9`; read-only review **PASS**, новых findings нет. В documentation-only batches изменены 166 уникальных scripts; одиннадцать полных групп (240 scripts) имеют review PASS, остальные группы открыты. М1/М2/М3 целиком не завершены.
+Девятый checkpoint: base `0bd1a3bb07d31b12bdd10be1e5a5d33f28ee1862` → target `cbff99b2406a7218721fc40270590f733c3d72f9`; review **PASS**, новых findings нет.
+
+Текущий десятый batch: полный source pass debug 19/19, уточнены 14 scripts: значение success, borrowed targets, inline dispatch, wallet units, QA placement/reset, isolated save и destructive debug lifecycle. Base `229753cf92572354f5f3be803ff7d6cd931f43c5`; target после commit, review **REVIEW_PENDING**, не DONE. В documentation-only batches изменены 180 уникальных scripts; одиннадцать полных групп (240 scripts) имеют review PASS, debug ещё ожидает review. М1/М2/М3 целиком не завершены.
 
 Проверки batch:
 
-- PASS: `verify_gdscript_nonbehavior_changes.py --base 0bd1a3bb07d31b12bdd10be1e5a5d33f28ee1862 --mode comments` — 45 scripts, 0 отличий executable source/strings/indentation; GDQuest incremental format/lint — 45 scripts.
-- PASS: native `ParseChanged` — 45 files, 0 failures, process exit 0; logs `.artifacts/godot_agent/parsechanged-20261015-182820273.stdout.log` / `.stderr.log`, stderr пустой. Final transient timer comment проверен focused ParseFiles `parsefiles-20261015-182958706` — PASS.
-- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 45 paths checked, diagnostics empty, no instantiation; final C_LiquidTilt перепроверен после последней правки. Prior parser evidence `parsechanged-20261015-174249722` (11 paths) и `parsechanged-20261015-175111601` (25 paths) относится к своим checkpoints.
+- PASS: `verify_gdscript_nonbehavior_changes.py --base 229753cf92572354f5f3be803ff7d6cd931f43c5 --mode comments` — 14 scripts, 0 отличий executable source/strings/indentation; GDQuest incremental format/lint — 14 scripts.
+- PASS: native `ParseChanged` — 14 files, 0 failures, process exit 0; logs `.artifacts/godot_agent/parsechanged-20261015-185223470.stdout.log` / `.stderr.log`, stderr пустой. Предыдущий packages parser `parsechanged-20261015-182820273` (45 paths) и final C_LiquidTilt `parsefiles-20261015-182958706` — PASS.
+- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 14 paths checked, diagnostics empty, scripts_instantiated=0.
 - PASS: incremental agent validator, strict architecture (0 lexical findings), project structure, scoped whitespace.
 - Full GUT/gameplay/visual: **NOT_RUN**, для comment-only batch не нужны; visual budget 0/8.
 
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Content/debug 19/19 scripts прочитаны; comment fixes/validation/review ещё не завершены. Независимые [QA-SAVE01](completed/debug_save_slot_full_preflight.md) (`bf71a6dc76f71ba9267bef89ebb9d0222b196a13`) и [QA-HP01](completed/debug_health_receipt_before_dispatch.md) (`428ea674dd07d95a3569fd5e4983c1927e1a22ed`) завершены, review PASS; focused GUT после обоих 10/10. Behavior fixes не входят в comment-only count. PVZH1 storage остаётся по owner fallback; ConfigFile migration не возобновляется. Собственные addons проверять nonbehavior scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
+Закончить review debug, затем [QA-CMP01](debug_complaint_pending_message.md) и content/editor. Независимые [QA-SAVE01](completed/debug_save_slot_full_preflight.md) (`bf71a6dc76f71ba9267bef89ebb9d0222b196a13`) и [QA-HP01](completed/debug_health_receipt_before_dispatch.md) (`428ea674dd07d95a3569fd5e4983c1927e1a22ed`) завершены, review PASS; focused GUT после обоих 10/10. Behavior fixes не входят в comment-only count. PVZH1 storage остаётся по owner fallback; ConfigFile migration не возобновляется. Собственные addons проверять nonbehavior scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.

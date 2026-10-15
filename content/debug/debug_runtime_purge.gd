@@ -10,6 +10,9 @@ var _quitting: bool = false
 var _exit_controls_ready: bool = false
 
 
+## Destructive debug-only coroutine; parent this coordinator outside the gameplay scene.
+## Await for both deletion drains and registry cleanup; repeated calls do not restart it.
+## Keeps the game process and Autoload shells, then creates a small exit overlay.
 func purge_runtime() -> void:
 	if _started:
 		return
