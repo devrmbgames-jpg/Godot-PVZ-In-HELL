@@ -250,6 +250,8 @@ func _save_variant(
 	# Упаковываем и сохраняем
 	var packed: PackedScene = PackedScene.new()
 	var pack_err: int = packed.pack(final_root)
+	# PackedScene owns the serialized state; the disposable duplicate is no longer needed.
+	final_root.free()
 	if pack_err != OK:
 		push_warning("[GLTF Auto Processor] Failed to pack: " + out_path)
 		return
