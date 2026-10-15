@@ -132,7 +132,7 @@ RV-002 (R1 четвёртого batch), P2, **FIXED** (`1ce357a96936cc255c1162cb
 
 Проверенный девятый batch — полный source pass **packages 70/70 — PASS**. Прочитаны все scripts и clocks authored GamePlay; 45 scripts получили уточнения writers, borrowed/consumed Nodes, command dispatch/terminal receipts, partial cargo commits, departure lifetime, event timing и transient versus durable state. Reviewer сверил changed claims и representative unchanged action/fact/Trait/presentation contracts; material findings нет, triage завершён.
 
-Current implementation base: `0bd1a3bb07d31b12bdd10be1e5a5d33f28ee1862` → target `cbff99b2406a7218721fc40270590f733c3d72f9`; read-only review **PASS**, новых findings нет. Всего изменены 166 уникальных scripts; одиннадцать полных групп (240 scripts) имеют review PASS, остальные группы открыты. М1/М2/М3 целиком не завершены.
+Current implementation base: `0bd1a3bb07d31b12bdd10be1e5a5d33f28ee1862` → target `cbff99b2406a7218721fc40270590f733c3d72f9`; read-only review **PASS**, новых findings нет. В documentation-only batches изменены 166 уникальных scripts; одиннадцать полных групп (240 scripts) имеют review PASS, остальные группы открыты. М1/М2/М3 целиком не завершены.
 
 Проверки batch:
 
@@ -145,7 +145,7 @@ Current implementation base: `0bd1a3bb07d31b12bdd10be1e5a5d33f28ee1862` → targ
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Продолжить content/debug: 16/19 scripts прочитаны; остаются developer_console_commands.gd, developer_console_diagnostics.gd и developer_console_gameplay.gd, затем comment fixes/validation/review. Подтверждённый write-preflight дефект изолирован в [QA-SAVE01](debug_save_slot_full_preflight.md), не входит в comment-only batch. PVZH1 storage остаётся по owner fallback; ConfigFile migration не возобновляется. Собственные addons проверять nonbehavior scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
+Продолжить content/debug: полностью прочитаны 16/19 scripts; остаются developer_console_commands.gd (ещё не прочитан), developer_console_diagnostics.gd (первые 190/342 строк) и developer_console_gameplay.gd (первые 200/523 строк), затем comment fixes/validation/review. Независимый [QA-SAVE01](completed/debug_save_slot_full_preflight.md) завершён: `bf71a6dc76f71ba9267bef89ebb9d0222b196a13`, GUT 9/9, review PASS; этот behavior fix не входит в comment-only count. PVZH1 storage остаётся по owner fallback; ConfigFile migration не возобновляется. Собственные addons проверять nonbehavior scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.
