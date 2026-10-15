@@ -1,6 +1,7 @@
 extends RefCounted
 ## Фактические правила физического удержания; авторский C_Grabbable переопределяет стандартные
 ## значения.
+## Отдельный mutable snapshot конкретного хвата, без обратной записи в shared C_Grabbable recipe.
 class_name GrabControlProfile
 
 ## Битовая маска допустимых физических рук; ноль означает только Carry.

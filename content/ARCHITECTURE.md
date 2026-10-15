@@ -189,7 +189,7 @@ A declared migration scope is DONE only when all callers, state ownership and ex
 
 - Held-item authority is `item --R_HeldBy--> actor`. `C_GrabControl.held_*` fields are derived reverse caches only.
 - Push authority is `cart --R_PushedBy--> actor`; `C_PushControl` is derived/cache state.
-- Cart driver/cargo authority is being normalized under R22.5; read the current code and the exact R22.5 milestone before changing those relationships.
+- Cart driver authority is `cart --R_CartDrivenBy--> actor`; `C_CartDriver` is a reverse cache. Cargo authority is `cargo --R_CartCargo--> cart`; `S_CartCargo` owns membership/settling and native cart/cargo callbacks own physical motion.
 - Raw/scriptless `RigidBody3D` Carry is supported through `C_PhysicsBodyRef` proxy Entities; the physical body remains physics authority.
 - Portable native placements declare a stable `raw_actor/placed/<UUID>` group on the body.
   `RawPhysicsActorService` handles identity and explicit disposal; its grab-proxy remains transient.

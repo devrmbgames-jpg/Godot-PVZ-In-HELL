@@ -17,7 +17,7 @@ var held_right: Entity = null
 var held_left: Entity = null
 ## Меняет соответствие основного/дополнительного ввода, не перекладывая предметы между руками.
 @export var swap_hand_controls: bool = false
-## Порог удержания G в секундах для запроса будущего контекстного меню вместо бросания.
+## Порог удержания Drop в GamePlay-секундах для placeholder меню вместо короткого отпускания.
 @export_range(0.1, 2.0, 0.05) var drop_long_press_seconds: float = 0.45
 ## Единственный реестр захвата управления; каждый acquire имеет собственный ключ.
 var captures: Dictionary[int, InteractionControlCapture] = { }

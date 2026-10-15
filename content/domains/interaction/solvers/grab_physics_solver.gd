@@ -56,6 +56,7 @@ static func integrate_state(
 
 ## Применяет ту же пружину обычному RigidBody3D перед шагом; step в секундах, transform не меняет.
 ## Обновляет transient grip samples; false сообщает вызывающему owner отказ, сам связь не снимает.
+## S_Grab передаёт GamePlay delta; native integrate_state отдельно использует state.step.
 static func integrate_body(
 	body: RigidBody3D,
 	step: float,

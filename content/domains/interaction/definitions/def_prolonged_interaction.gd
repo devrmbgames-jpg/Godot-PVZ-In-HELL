@@ -9,7 +9,7 @@ enum ResetPolicy {
 	NEVER,
 }
 
-## Длительность полного выполнения, в секундах.
+## Длительность полного выполнения в GamePlay-секундах Interaction-группы.
 @export_range(0.01, 60.0, 0.01, "or_greater") var duration_seconds: float = 6.0
 ## Правило потери или сохранения прогресса при прерывании и завершении.
 @export var reset_policy: ResetPolicy = ResetPolicy.INSTANT

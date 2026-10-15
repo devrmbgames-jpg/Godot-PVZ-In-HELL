@@ -1,5 +1,5 @@
 extends RefCounted
-## Вычисляет прогресс детерминированно; эффекты и захват управления принадлежат исполнителю.
+## Мутирует переданный progress детерминированно; эффект/захват управления принадлежат исполнителю.
 class_name ProlongedProgressSolver
 
 const COMPLETE_FRACTION: float = 1.0

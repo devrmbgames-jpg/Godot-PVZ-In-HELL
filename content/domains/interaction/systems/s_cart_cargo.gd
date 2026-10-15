@@ -15,6 +15,7 @@ func query() -> QueryBuilder:
 
 
 ## Captures cart/Component/physics-frame identity before queued membership changes.
+## Settling uses supplied GamePlay delta; stale/duplicate physical-frame samples are discarded.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	if not is_finite(delta) or delta <= 0.0:
 		return

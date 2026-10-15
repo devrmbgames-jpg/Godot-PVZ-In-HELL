@@ -82,7 +82,7 @@ static var _revision: int = 0
 
 
 #region Устройство и ревизия
-## Ревизия устройства/назначений для обновления UI по изменению вместо повторной сборки каждый кадр.
+## Ревизия устройства/назначений; GameSettingsService и observe повышают, UI сравнивает для rebuild.
 static func revision() -> int:
 	return _revision
 

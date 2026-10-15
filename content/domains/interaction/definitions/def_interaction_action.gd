@@ -1,5 +1,6 @@
 extends GameDefinition
-## Авторский контракт доступности и исполнения контекстного действия без собственного состояния.
+## Авторский контракт действий; runtime прогресс хранится в Components/Relationships.
+## Конкретные временные адаптеры могут нести параметры выбранной команды без мутации shared asset.
 class_name DEF_InteractionAction
 
 enum Slot {
@@ -43,6 +44,7 @@ func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
 
 ## Повторно проверяет доступность и исполняет; переопределяется, если сам эффект может
 ## завершиться отказом.
+## Базовый true означает вызов execute после eligibility; отдельного подтверждения эффекта нет.
 func complete(actor: Entity, source: Entity, target: Entity) -> bool:
 	if not is_available(actor, source, target):
 		return false

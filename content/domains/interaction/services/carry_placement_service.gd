@@ -85,6 +85,7 @@ static func _clear_path(
 
 
 ## Повторно проверяет размещение, освобождает хват и однократно ставит тело в точку площадки.
+## Это явная синхронизация placement; далее transform и скорости снова принадлежат native body.
 static func place(actor: Entity, area: E_PlacementArea) -> bool:
 	if not can_place(actor, area):
 		return false

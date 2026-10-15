@@ -81,6 +81,7 @@ func query() -> QueryBuilder:
 
 ## Один снимок на игровой такт: удержания, фронты и дельта взгляда; затем очищает накопленные
 ## события.
+## Drop/gamepad look используют GamePlay delta Input-группы; mouse motion уже накоплен в пикселях.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var controllers: Array = components[0]
 	var captured: bool = _accepts_input()

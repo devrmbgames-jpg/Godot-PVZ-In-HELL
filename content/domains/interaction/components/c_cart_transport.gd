@@ -36,11 +36,11 @@ class_name C_CartTransport
 
 ## Восстанавливаемый обратный кеш груза; авторитетные связи принадлежат R_CartCargo.
 var cargo: Array[Entity] = []
-## Временные таймеры кандидатов в груз, в секундах; не создают владение.
+## GamePlay-секунды кандидатов; S_CartCargo обновляет не более раза за physics frame, не владение.
 var settling: Dictionary[int, float] = { }
-## Текущая моторная скорость тележки, в метрах в секунду.
+## Моторная скорость в м/с; native CartDriveSolver пишет, driver cleanup обнуляет.
 var drive_speed: float = 0.0
-## Измеренная фактическая мировая скорость тележки, в метрах в секунду.
+## CartDriveSolver измеряет мировую скорость по перемещению за native physics delta, в м/с.
 var actual_velocity: Vector3 = Vector3.ZERO
 
 ## Transient receipt written by S_CartCargo: one settling sample per actual physical frame.

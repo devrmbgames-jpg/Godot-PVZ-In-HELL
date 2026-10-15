@@ -341,6 +341,7 @@ static func button_label(slot_index: int) -> String:
 #region Исполнение и выбор источника
 ## Resolves and executes one explicit channel request; scheduled input arbitration belongs to
 ## S_InteractionInput.
+## True потребляет pressed/held даже без доступного действия; не является receipt его эффекта.
 static func execute_slot(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,

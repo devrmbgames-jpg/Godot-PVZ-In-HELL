@@ -47,6 +47,7 @@ static func can_request(actor: Entity, target: Entity, operation: Operation) -> 
 
 
 ## Повторно проверяет запрос; разблокировка подтверждает доступ, открытие меняет только намерение.
+## True для OPEN/CLOSE не подтверждает движение; endpoint fact возникает из report_fraction.
 static func request(actor: Entity, target: Entity, operation: Operation) -> bool:
 	if not can_request(actor, target, operation):
 		return false

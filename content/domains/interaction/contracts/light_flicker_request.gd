@@ -1,5 +1,6 @@
 extends RefCounted
 ## Запрос мерцания ламп; enabled цепи сохраняет состояние игрового выключателя.
+## Длительность и интервал измеряет CircuitLightView по process delta, отдельно от GameTime.
 class_name LightFlickerRequest
 
 ## Имя мирового события с этим типизированным запросом.

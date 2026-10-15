@@ -1,5 +1,6 @@
 extends Component
 ## Параметры луча, текущие цели и подсказка взаимодействия актора.
+## S_InteractionTargeting пишет цели; resolver обновляет prompt, S_InteractionInput — tick receipt.
 class_name C_Interactor
 
 ## Физические слои, проверяемые лучом взаимодействия.

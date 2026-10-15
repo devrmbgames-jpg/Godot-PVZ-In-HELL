@@ -1,5 +1,6 @@
 extends Component
 ## Производное состояние Carry из фактической массы физического тела.
+## GrabService пишет при принятии/refresh_carry_mass; GrabHoldCache очищает при release.
 class_name C_CarryLoad
 
 ## Carry применяется к управлению и расходу выносливости.

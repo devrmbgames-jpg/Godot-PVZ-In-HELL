@@ -104,6 +104,7 @@ static func can_unfix(actor: Entity, target: Entity) -> bool:
 
 ## Определяет цель и зависимые закреплённые объекты, затем последовательно восстанавливает их
 ## снимки.
+## False после позднего отказа не откатывает уже восстановленных участников cluster.
 static func unfix(actor: Entity, target: Entity) -> bool:
 	if not can_unfix(actor, target):
 		return false

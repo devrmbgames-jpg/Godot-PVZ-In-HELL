@@ -9,7 +9,8 @@ const _ACQUISITION_OPERATIONS: Array[SmartObjectRequest.Operation] = [
 
 
 #region Public request boundary
-## Returns a pending receipt; only the owning Observer can publish committed outcomes.
+## Returns a receipt: early validation may reject; native PER_CALLBACK may commit before return.
+## PENDING requires the handler's buffer flush; always inspect status rather than assume completion.
 static func submit(
 	operation: SmartObjectRequest.Operation,
 	actor: Entity,

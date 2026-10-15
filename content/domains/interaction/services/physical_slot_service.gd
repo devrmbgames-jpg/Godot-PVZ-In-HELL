@@ -64,6 +64,7 @@ static func can_store(actor: Entity, slot: E_PhysicalSlot, hand: int) -> bool:
 
 
 ## После проверки освобождает руку, создаёт R_StoredIn и применяет крепление.
+## Если attach откажет после release, хват не восстанавливается автоматически.
 static func store(actor: Entity, slot: E_PhysicalSlot, hand: int) -> bool:
 	if not can_store(actor, slot, hand):
 		return false
@@ -163,6 +164,7 @@ static func release(item: Entity) -> void:
 
 
 ## Однократно снимает RemoteTransform-крепление и возвращает настройки из снимка.
+## Старые скорости не восстанавливаются: тело просыпается с нулевыми linear/angular velocity.
 static func detach(item: Entity, binding: Relationship) -> void:
 	var slot_state: R_StoredIn = binding.relation as R_StoredIn
 	if not slot_state.applied:

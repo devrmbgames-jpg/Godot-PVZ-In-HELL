@@ -1,5 +1,6 @@
 extends Component
-## Намерения текущего физического такта; игровые потребители не переписывают поля ввода.
+## S_PlayerInput пишет input edges; S_PlayerIntent преобразует move/look с учётом управления.
+## Мировые намерения NPC пишет S_NpcIntent; физический callback исполняет их без нового ввода.
 class_name C_Controller
 
 ## Событие основного взаимодействия текущего физического такта; пишет производитель ввода.
@@ -40,24 +41,24 @@ var drop_pressed: bool = false
 var drop_long_pressed: bool = false
 ## Производитель ввода отсчитывает удержание кнопки отпускания.
 var drop_tracking: bool = false
-## Прошедшее удержание кнопки отпускания в секундах.
+## Прошедшее удержание в GamePlay-секундах Input-группы; пишет S_PlayerInput.
 var drop_elapsed: float = 0.0
 ## Долгое действие уже сообщено и не повторяется до отпускания.
 var drop_long_fired: bool = false
 
-## Намерение куда смотреть
+## Мировое направление взгляда; player intent нормализует, native look solver исполняет.
 @export var direction_look: Vector3 = Vector3.FORWARD
 
-## Намерение куда идти
+## Мировое направление движения с величиной намерения; физический solver применяет ограничения.
 @export var direction_motion: Vector3 = Vector3.ZERO
 ## Навигационное уклонение задаёт предел скорости вместе с направлением.
 ## false сохраняет обычную инерцию и внешние импульсы движения игрока.
 var limit_motion_velocity: bool = false
 
-## Намерение вызвать какое то взаимодействие (E)
+## Legacy export: текущий input owner использует interact_pressed/interact_held.
 @export var interract_main: bool = false
 
-## Намерение вызвать какое то дополнительное взаимодействие (F)
+## Legacy export: текущий input owner использует use_pressed/use_held.
 @export var interract_second: bool = false
 
 ## Основное действие (ЛКМ)

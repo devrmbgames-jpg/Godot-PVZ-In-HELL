@@ -26,6 +26,8 @@ func query() -> QueryBuilder:
 
 ## Captures immutable input values and Component identity before the declared command-buffer
 ## boundary.
+## Delta — GamePlay-секунды Interaction-группы; captured tick сверяется с текущим.
+## Повтор положительного input_tick не исполняется; нулевой fixture tick не дедуплицируется.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for actor: Entity in entities:
 		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller

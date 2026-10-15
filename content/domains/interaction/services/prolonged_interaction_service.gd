@@ -1,5 +1,5 @@
 extends RefCounted
-## Владеет длительными сеансами и синхронным завершением эффекта на границе команды ввода.
+## Создаёт/освобождает длительные сеансы; S_InteractionInput ведёт часы и завершает эффект.
 class_name ProlongedInteractionService
 
 
@@ -79,6 +79,7 @@ static func active_progress(actor: Entity) -> ProlongedInteractionProgress:
 
 
 ## Проверяет участников и свободную цель, создаёт связи и захватывает приоритет PROLONGED.
+## True — начатое участие, не выполненный эффект; progress Resource может создаться до отказа.
 static func begin(
 	actor: Entity,
 	choice: InteractionActionChoice,

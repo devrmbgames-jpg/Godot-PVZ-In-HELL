@@ -6,7 +6,7 @@ class_name DEF_OpenableMotion
 @export var closed_transform: Transform3D = Transform3D.IDENTITY
 ## Локальное положение открытого физического тела относительно корня объекта.
 @export var open_transform: Transform3D = Transform3D.IDENTITY
-## Авторское время полного движения в секундах, ограничивающее скорость мотора.
+## Время полного движения в native physics-секундах для лимита мотора; препятствия замедляют его.
 @export_range(0.01, 60.0, 0.01, "or_greater") var duration_seconds: float = 0.5
 ## Коэффициент отклика мотора в 1/с; transform тела напрямую не переопределяется.
 @export_range(0.1, 60.0) var motor_response: float = 8.0

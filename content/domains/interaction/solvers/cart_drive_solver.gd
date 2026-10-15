@@ -10,7 +10,7 @@ const TERRAIN_MASK: int = 1
 
 #region Физический шаг тележки
 ## Продвигает физическую тележку, ограничивает отставание водителя без clock определения груза;
-## delta в секундах.
+## delta — native physics-секунды, отдельно от GamePlay settling часов S_CartCargo.
 static func step(cart: E_TransportCart, delta: float) -> void:
 	if not GrabQueries.entity_available(cart) or delta <= 0.0:
 		CartCargoService.release_all(cart)

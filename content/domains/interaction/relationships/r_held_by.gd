@@ -20,7 +20,7 @@ var previous_anchor_position: Vector3 = Vector3.ZERO
 var anchor_sample_valid: bool = false
 ## Instance ID точки удержания для обнаружения смены якоря.
 var previous_anchor_id: int = 0
-## Оставшееся время сглаживания смены точки удержания, в секундах.
+## Остаток допуска смены якоря в секундах вызвавшего adapter; GrabPhysicsSolver уменьшает.
 var anchor_transition_remaining: float = 0.0
 ## Токен управления, принадлежащий этому хвату; освобождается при завершении.
 var capture_token: int = 0

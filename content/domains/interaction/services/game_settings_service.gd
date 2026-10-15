@@ -200,6 +200,7 @@ static func save(path: String = FILE_PATH) -> Error:
 
 ## Читает профиль: значения проверяются, привязки заменяются только после успешного декодирования
 ## всей группы действия.
+## Читает в память/InputMap; apply вызывается отдельно. Ошибка одной группы не откатывает другие.
 static func load_settings(path: String = FILE_PATH) -> void:
 	var config: ConfigFile = ConfigFile.new()
 	if config.load(path) != OK:
