@@ -2,7 +2,7 @@ extends RefCounted
 ## Pure conversions and validity checks for the gameplay clock, independent of wall time.
 class_name GameTimeRules
 
-## Fixed schema-9 quantum: one elapsed simulation tick is one microsecond.
+## Persistent gameplay quantum: one elapsed simulation tick is one microsecond.
 const TICKS_PER_SECOND: int = 1_000_000
 ## Largest integer exactly representable by the floating-point step conversion.
 const MAX_STEP_TICKS: int = 9_007_199_254_740_991

@@ -1,6 +1,6 @@
 # PVZ-DOC01 — Качество документирования проектного GDScript
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 Priority: **P2** (задача по выбранному замечанию о документации кода)
 Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 
@@ -63,10 +63,51 @@ Scope — все действующие first-party production/tool `.gd`, оп�
 
 
 ### Current
-ТЗ подготовлено. Полный inventory/метрики ещё не сняты; исправление документации и финальный review: **NOT_RUN**.
+M1 inventory снят на `45e71fe4010f147ff18a21818c0c2162afcbf20f` через `git ls-files -z -- '*.gd'`: 1603 tracked scripts, из них 947 first-party production/tool, 236 tests, 420 внешних addon scripts. Других корней `.gd` не найдено. `addons/gecs` — отдельный submodule, не входит в tracked first-party scope и не изменяется. Scope не сокращён до первых просмотренных APIs.
+
+| Группа | Scripts |
+| --- | ---: |
+| challenges | 28 |
+| combat | 78 |
+| commerce | 21 |
+| customers | 113 |
+| hazards | 44 |
+| interaction | 153 |
+| inventory | 11 |
+| motion | 22 |
+| needs | 7 |
+| npc | 225 |
+| packages | 70 |
+| persistence | 19 |
+| quests | 10 |
+| time | 15 |
+| content/shared | 31 |
+| content/scenes | 6 |
+| content/ui | 31 |
+| content/debug | 19 |
+| content/editor | 11 |
+| utils | 16 |
+| addons/project_entity_traits | 1 |
+| addons/pvz_ai_tools | 16 |
+
+В first-party inventory 67501 строк, 158 scripts без class_name и 2 scripts с вложенными class declarations. Это структурные метрики, не оценка качества. `.artifacts/doc01_inventory.json` сохраняет воспроизводимый список выбранных путей; источник scope — tracked Git inventory и явные root exclusions выше. Простой поиск `##` до class_name дал ложный пропуск E_Door (описание стоит после class_name); такой regex не используется как acceptance gate. Annotation/multiline/declaration и inherited API counts ещё **NOT_RUN**.
+
+M1, первый code batch: уточнены 8 scripts — C_DayCycle, DayTransitionRequest, DayPhaseService, S_DayPhase, GameTimeRules, C_CustomerFlow, CustomerFlowService и WalletService. Комментарии различают accepted запрос и committed факт, gameplay seconds/ticks, writers поля/кеша, WeakRef receipt lifetime и синхронный commit кошелька. Это завершённый batch, но M1/M2/M3 и полный pass 947 scripts остаются открыты.
+
+Batch base: `8d38ada79fe25d4cc03290ca99996788bb3d93b5`; implementation target / read-only review: **REVIEW_PENDING** до отдельного commit и результата reviewer.
+
+Проверки batch:
+
+- PASS: `verify_gdscript_nonbehavior_changes.py --base 8d38ada79fe25d4cc03290ca99996788bb3d93b5 --mode comments` — 8 scripts, 0 отличий executable source/strings/indentation.
+- PASS: GDQuest incremental format/lint — 8 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-172123537.stdout.log` / `.stderr.log`.
+- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 8 paths checked, diagnostics empty, no instantiation. Native `script_patch` дал fallback reload 43, поэтому не принят за PASS; независимая path compile и CLI parser проверили файл успешно. Editor log просмотрен.
+- PASS: incremental agent validator, strict architecture (0 lexical findings), project structure, scoped whitespace.
+- Full GUT/gameplay/visual: **NOT_RUN**, для comment-only batch не нужны; visual budget 0/8.
+
+В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получает DEF_NpcArchetype вместо NpcRecord. Smoke и production perception API не изменялись этим batch; точечный MCP compile подтверждает FAIL. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures. Эти сообщения не объявляются общим editor PASS; самостоятельный smoke defect требует отдельного owner scope.
 
 ### Next
-Получить актуальный first-party inventory и начать M1. Комментарии неизменяемых областей можно исправлять независимо, но финальный M3 выполнить на совместном результате задач ниже.
+Собрать review первого batch и triage; продолжить M1: проверить declarations с annotations/multiline/inner classes и inherited API, затем остальные critical boundaries (damage, inventory, physics, composition, persistence). Существующий `utils/verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation при сравнении; для собственных addons его текущий CLI skip нужно учитывать и проверять их тем же scanner явно. Остальные first-party файлы остаются открытым scope M2; финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.

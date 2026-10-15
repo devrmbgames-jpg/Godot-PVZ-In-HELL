@@ -31,7 +31,8 @@ static func snapshot(wallet: C_Wallet) -> C_Wallet:
 
 
 #region Синхронный расчёт операций
-## Применяет операцию к текущему кошельку и дню через общий контракт apply.
+## Синхронно применяет операцию к текущему кошельку/дню; COMMITTED уже изменил баланс и журнал.
+## Нет сессии — INVALID; остальные статусы и idempotency определяет apply.
 static func submit(operation: MoneyOperation) -> Status:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var wallet: C_Wallet = current()
@@ -40,7 +41,10 @@ static func submit(operation: MoneyOperation) -> Status:
 	return apply(wallet, operation, cycle.day_index)
 
 
-## Проверяет ID, сумму, день и расчёт; повтор не меняет баланс, конфликт отклоняется.
+## Синхронный commit: проверяет ID/settlement, сумму в целых денежных единицах и день.
+## COMMITTED копирует операцию в журнал, меняет баланс и daily totals до возврата.
+## Идентичный повтор — DUPLICATE без записи; конфликт ID — CONFLICT. Остальные отказы также
+## не меняют кошелёк; операция отправителя не становится mutable записью журнала.
 static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int) -> Status:
 	if wallet == null or operation == null or operation.operation_id == &"":
 		return Status.INVALID

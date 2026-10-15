@@ -1,12 +1,16 @@
 extends RefCounted
-## Владеет обслуживанием посылок и визитами; изменения выполняет вне обхода GECS через
-## CommandBuffer.
+## Явные операции визита и подачи planning-команд; scheduled выбор остаётся у Systems.
+## Lifecycle операции синхронны; reconcile_session возвращает receipt queued Observer работы.
 class_name CustomerFlowService
 
 
 #region Планирование и сверка заказов
 ## Submits one explicit current-context preparation; consumers must wait for the Observer flush.
 ## Ready/restore call this once; S_CustomerFlow only recovers missing/late capability state.
+## Requires this World's session with flow/cycle; returns the pending receipt when coalescing.
+## Already reconciled may return null or a completed receipt; submission is not completion.
+## The handler revalidates captured Component/generation/day/phase before committing;
+## inspect completed/rejection_reason and drain dependent outcome work at the caller's boundary.
 static func reconcile_session(world: World, session: Entity) -> CustomerPlanningRequest:
 	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle

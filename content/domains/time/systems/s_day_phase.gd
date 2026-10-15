@@ -2,11 +2,11 @@ extends System
 ## Исполняет ожидающий переход с повторной проверкой; запросы проходят через DayPhaseService.
 class_name S_DayPhase
 
-## Сон принят и началась ночная подготовка указанного дня.
+## Фаза NIGHT уже записана; подготовка указанного дня ещё может быть pending.
 signal night_started(day_index: int)
-## Ночная подготовка разрешила переход к следующему игровому дню.
+## После открытия Night gate уже записаны следующий день и MORNING.
 signal morning_started(day_index: int)
-## Уведомляет о принятом изменении дня/фазы после записи состояния.
+## Уведомляет о зафиксированном изменении дня/фазы после записи состояния, не о submit.
 signal phase_changed(day_index: int, phase: C_DayCycle.Phase)
 
 
@@ -67,7 +67,8 @@ func _commit_start_shift(
 	cycle: C_DayCycle,
 	request: DayTransitionRequest,
 ) -> void:
-	# Resolve queued owners before passing them to typed gameplay operations.
+	# The flush may outlive submit's context: require the same session/Component/day/phase
+	# before committing receiving departure and publishing the transition.
 	var session: Entity = session_reference.get_ref() as Entity
 
 	if (

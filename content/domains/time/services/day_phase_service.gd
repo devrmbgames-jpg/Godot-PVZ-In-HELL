@@ -120,7 +120,9 @@ static func shift_status(cycle: C_DayCycle) -> String:
 
 
 #region Отправка запроса
-## Сохраняет один допустимый запрос с совпадающими ожидаемыми днём и фазой.
+## true означает только accepted: сохраняет один запрос для текущих дня/фазы; false не меняет их.
+## S_DayPhase повторно проверяет запреты при исполнении и может отбросить запрос.
+## О завершённом переходе сообщает DayPhaseChanged, а не возвращаемый bool.
 static func submit(request: DayTransitionRequest) -> bool:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if request == null or not permits(cycle, request.kind):
