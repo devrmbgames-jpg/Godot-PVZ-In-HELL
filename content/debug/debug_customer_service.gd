@@ -183,7 +183,13 @@ static func complaint(
 		)
 
 	result.success = true
-	result.message = "complaint resolved" if resolve_now else "complaint created"
+	result.message = "complaint created"
+	if resolve_now:
+		result.message = (
+			"complaint remains pending"
+			if visit.complaint.outcome == CustomerComplaint.Outcome.PENDING
+			else "complaint resolved"
+		)
 	result.details.append("complaint=%s" % String(visit.complaint.complaint_id))
 	result.details.append(
 		"reason=%s" % _enum_name(CustomerComplaint.Reason, visit.complaint.reason)

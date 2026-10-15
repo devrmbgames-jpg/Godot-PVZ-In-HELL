@@ -1,8 +1,8 @@
 # QA-CMP01 — Честный исход resolve_now в debug-жалобе
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 Priority: **P2**
-Baseline: `dev` / `229753cf92572354f5f3be803ff7d6cd931f43c5`
+Baseline: `dev` / `4a671935c936cd472da5d73c0c7235dd6435ba2a`
 
 ## Task state
 
@@ -12,18 +12,22 @@ DebugCustomerService.complaint(resolve_now=true) не должен писать 
 
 ### Current
 
-Source evidence: debug_customer_service.gd после void resolve_complaint безусловно выбирает message по входному resolve_now. CustomerOutcomeService.resolve_complaint возвращается с PENDING, если wallet отсутствует либо WalletService.apply отклонён. Это не требует физического NPC. Runtime reproduction ещё NOT_RUN; проверить минимальный реальный visit при отсутствующем wallet, затем успешный расчёт при доступном wallet.
+Baseline reproduction подтверждён: реальный visit без C_Wallet остаётся PENDING, но message равен «complaint resolved». GUT 10/11, 104/105 asserts, падает только pending-message; последующий расчёт при доступном wallet и повтор без двойного списания проходят. Logs `gut-20261015-190230828.stdout.log` / `.stderr.log` в `.artifacts/godot_agent/`.
+
+Message теперь выбирается по фактическому outcome после обычного resolve. Success создания, приём повторной жалобы и денежный pipeline не меняются. Base `4a671935c936cd472da5d73c0c7235dd6435ba2a`; target после commit. Review **REVIEW_PENDING**, не DONE.
 
 ### Acceptance
 
-- [ ] Focused regression подтверждает неверный message при PENDING.
-- [ ] Message различает созданную pending-жалобу и terminal outcome; success создания не меняется.
-- [ ] Реальный resolve по обычному pipeline и повторный вызов сохраняют историю/денежную идемпотентность.
+- [x] Focused regression подтверждает неверный message при PENDING.
+- [x] Message различает созданную pending-жалобу и terminal outcome; success создания не меняется.
+- [x] Реальный resolve по обычному pipeline и повторный вызов сохраняют историю/денежную идемпотентность.
 - [ ] Relevant GUT/parser/MCP/style/static checks и immutable commit/review/triage PASS.
 
 ### Validation
 
-NOT_RUN — зарегистрирован отдельный scope; production behavior пока не изменено.
+- **PASS** focused console GUT, 11/11 tests, 105 asserts, process exit0, stderr пустой; logs `gut-20261015-190351181.stdout.log` / `.stderr.log`.
+- **PASS** native ParseChanged2/0, exit0/stderr пустой; log `parsechanged-20261015-190411861`.
+- **PASS** live MCP2 checked/empty, no instances; formatter2, agent validator1 applicable production path, strict architecture0 findings, project structure и scoped whitespace.
 
 ### Owner QA / blockers
 

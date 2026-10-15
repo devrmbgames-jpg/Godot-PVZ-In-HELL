@@ -242,6 +242,44 @@ func test_health_receipt_captures_hp_before_inline_damage_and_healing() -> void:
 	assert_has(healed.details, "hp_before=75.0/100.0")
 
 
+## A missing wallet leaves the accepted complaint pending; retries settle the same record once.
+func test_complaint_message_tracks_pending_and_terminal_outcomes() -> void:
+	var flow: C_CustomerFlow = _session.get_component(C_CustomerFlow) as C_CustomerFlow
+	var visit: CustomerVisit = CustomerVisit.new()
+	visit.visit_id = &"visit/console_pending"
+	visit.definition = DEF_Customer.new()
+	visit.accounting_value = 200
+	flow.visits.append(visit)
+	var target: DebugTarget = DebugTarget.new()
+	target.kind = DebugTarget.Kind.VISIT
+	target.visit = visit
+	_session.remove_component(C_Wallet)
+
+	var pending: DebugServiceResult = DebugCustomerService.complaint(
+		target, CustomerComplaint.Reason.NOT_DELIVERED, true,
+	)
+
+	assert_true(pending.success, "Creation succeeded even though settlement cannot finish")
+	assert_eq(visit.complaint.outcome, CustomerComplaint.Outcome.PENDING)
+	assert_eq(pending.message, "complaint remains pending")
+	var complaint: CustomerComplaint = visit.complaint
+	_session.add_component(C_Wallet.new())
+	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
+	wallet.policy = DEF_Economy.new()
+	wallet.policy.fraud_percent = 100
+	wallet.balance = 1000
+	for _attempt: int in 2:
+		var resolved: DebugServiceResult = DebugCustomerService.complaint(
+			target, CustomerComplaint.Reason.NOT_DELIVERED, true,
+		)
+		assert_true(resolved.success)
+		assert_eq(resolved.message, "complaint resolved")
+		assert_same(visit.complaint, complaint)
+		assert_eq(complaint.outcome, CustomerComplaint.Outcome.CONFIRMED)
+		assert_eq(wallet.balance, 800)
+		assert_eq(wallet.operations.size(), 1, "Retry must not charge twice")
+
+
 ## Создание визита сохраняет авторское представление и состояние до прихода без повторного заказа.
 func test_live_visit_option_preserves_accounting_default_and_authored_introduction() -> void:
 	var parcel: Entity = Entity.new()
