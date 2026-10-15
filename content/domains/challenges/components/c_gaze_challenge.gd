@@ -1,5 +1,6 @@
 extends Component
-## Производное измерение взгляда; живые связи и часы принадлежат общему испытанию.
+## Derived observation: S_ChallengeGaze вызывает GazeTrackingGeometry для заполнения/очистки sample.
+## Часы находятся в C_Challenge, actor binding — R_ChallengeActor; codec этот cache не сохраняет.
 class_name C_GazeChallenge
 
 ## Геометрия текущего измерения пригодна для проверки условия.

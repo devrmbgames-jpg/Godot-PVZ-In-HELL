@@ -4,6 +4,7 @@ class_name ChallengeEffectLifecycle
 
 
 ## Снимает связи эффектов носителя и удаляет ещё доступные автономные опасности.
+## Native removed callbacks may reenter challenge cleanup during this synchronous operation.
 static func retire(subject: Entity) -> void:
 	if not is_instance_valid(subject):
 		return

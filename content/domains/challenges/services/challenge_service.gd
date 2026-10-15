@@ -27,6 +27,7 @@ static func debug_start(subject: Entity, actor: Entity, definition: DEF_Challeng
 
 
 ## Однократно фиксирует запуск в дневной фазе и связь с участником.
+## true уже записал ARMED/consumed и actor binding; это ещё не ACTIVE и не spawn эффекта.
 static func arm(subject: Entity, actor: Entity) -> bool:
 	if not _available(subject) or not _available(actor):
 		return false
@@ -49,6 +50,8 @@ static func arm(subject: Entity, actor: Entity) -> bool:
 
 
 ## Переводит действующий ARMED-сеанс в ACTIVE со сбросом часов.
+## true подтверждает этот commit/dispatch; synchronous listeners могут сразу отменить сеанс.
+## Effect setup/consequences may remain pending; true does not promise effect readiness.
 static func activate(subject: Entity) -> bool:
 	if not _available(subject):
 		return false
@@ -190,6 +193,7 @@ static func _available(entity: Entity) -> bool:
 
 
 ## Commits one terminal result before publishing its typed fact; the session must be ACTIVE.
+## Does not wait for downstream customer consequences; listeners may reenter/cancel during dispatch.
 static func resolve(subject: Entity, outcome: ChallengeResult.Type) -> void:
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	assert(state != null and state.phase == C_Challenge.Phase.ACTIVE)
@@ -222,6 +226,7 @@ static func _cleanup(subject: Entity, state: C_Challenge) -> void:
 		light_rule = state.definition.condition as DEF_LightChallengeCondition
 	if light_rule != null and light_rule.wait_outside_until_dark:
 		LightCircuitService.stop_flicker(light_rule.circuit_id, StringName(subject.id))
+	# Retire participation only after marking CLEANUP: relationship/lifetime callbacks can reenter.
 	state.phase = C_Challenge.Phase.CLEANUP
 	state.elapsed = 0.0
 	state.result_remaining = 0.0

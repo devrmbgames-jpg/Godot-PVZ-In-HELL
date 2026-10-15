@@ -178,6 +178,7 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 
 
 ## Вечером принимает ещё открытое предложение до истечения срока.
+## true уже записал ACTIVE; повтор ACTIVE возвращает false, а награда здесь не выплачивается.
 static func accept(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -209,6 +210,7 @@ static func ignore(quest_id: StringName) -> bool:
 
 #region Исходы, очистка и награда
 ## Commits one quest outcome and removes its live bindings before reporting completion.
+## Terminal/foreign records are no-ops; reward payment remains a separate pay_reward operation.
 static func resolve(
 	record: RefusalQuestRecord,
 	outcome: RefusalQuestRecord.State,
@@ -253,6 +255,7 @@ static func resolve(
 
 
 ## Submits one idempotent wallet operation; reward_paid follows the actual receipt.
+## COMMITTED/DUPLICATE sets reward_paid now; the System retries rejected payment.
 static func pay_reward(record: RefusalQuestRecord, day_index: int) -> void:
 	if (
 		find(record.quest_id) != record

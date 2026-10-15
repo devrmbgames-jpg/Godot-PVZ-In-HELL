@@ -1,5 +1,5 @@
 extends GameDefinition
-## Авторские условия задания торговца на настоящий отказ в выдаче.
+## Immutable условия задания на настоящий отказ; принятые reward/deadline хранятся в quest record.
 class_name DEF_RefusalQuest
 
 ## Награда за фактический отказ игрока в целых денежных единицах.

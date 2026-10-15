@@ -10,6 +10,7 @@ const ANGLE_BOUNDARY_EPSILON: float = 0.0001
 #region Explicit pose measurements
 ## Измеряет фактическую камеру/голову и луч до головы носителя; неверная геометрия очищает
 ## измерение.
+## Synchronous physics-space read; writes observation only, never condition outcome or clocks.
 static func sample(
 	actor: Entity,
 	subject: Entity,
@@ -62,6 +63,7 @@ static func sample(
 
 
 ## Измеряет расстояние в метрах и угол в градусах без физического луча.
+## Inputs share world space; rule is required. LOS/attention stay cleared until sample.
 static func measure_geometry(
 	origin: Vector3,
 	forward: Vector3,

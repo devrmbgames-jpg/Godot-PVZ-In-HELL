@@ -15,6 +15,7 @@ func query() -> QueryBuilder:
 
 
 ## Commits only scalar growth; no structural command or hidden Service clock is required.
+## delta is gameplay seconds; valid participating actors accrue active_seconds even at maximum.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if (

@@ -6,6 +6,7 @@ class_name HungerService
 
 #region Рост и питание
 ## Явно задаёт допустимый уровень через ту же проверку доступности и границ, что у еды.
+## true commits value now; false leaves it intact. Neither outcome resets active_seconds.
 static func set_value(actor: Entity, value: float) -> bool:
 	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death):
 		return false
@@ -22,6 +23,7 @@ static func set_value(actor: Entity, value: float) -> bool:
 
 
 ## Уменьшает положительный голод доступного живого участника; отказ не требует расходования еды.
+## true означает фактическое уменьшение value в этом вызове; inventory расходует единицу отдельно.
 static func apply_food(actor: Entity, effect: DEF_FoodEffect) -> bool:
 	if (
 		not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or effect == null

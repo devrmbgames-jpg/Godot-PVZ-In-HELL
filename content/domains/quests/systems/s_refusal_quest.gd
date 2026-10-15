@@ -16,6 +16,7 @@ func query() -> QueryBuilder:
 
 
 ## Captures aggregate/calendar/record identity; a later load or offer is a distinct step.
+## WeakRef/session Components/day/phase are revalidated at flush; new records wait for a later step.
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for session: Entity in entities:
 		var state: C_QuestSession = session.get_component(C_QuestSession) as C_QuestSession

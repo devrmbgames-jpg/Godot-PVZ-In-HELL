@@ -1,5 +1,6 @@
 extends Resource
 ## Постоянные факты задания; живые связи с выдавшим NPC и посылкой принадлежат Relationships.
+## RefusalQuestService владеет записью; Definition immutable, reward/deadline — отдельные snapshots.
 class_name RefusalQuestRecord
 
 enum State {
@@ -32,5 +33,5 @@ enum State {
 @export var resolved_day: int = 0
 ## Награда в целых денежных единицах.
 @export var reward: int = 60
-## Кошелёк принял выплату или подтвердил тот же повторный запрос.
+## Service received WalletService.COMMITTED/DUPLICATE; terminal outcome alone promises no payment.
 @export var reward_paid: bool = false

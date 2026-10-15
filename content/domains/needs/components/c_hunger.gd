@@ -1,5 +1,6 @@
 extends Component
-## Состояние накопленного голода; пороги и множители задаёт авторская политика.
+## S_Hunger растит value/active time; HungerService меняет value явной food/debug операцией.
+## Пороги и множители читаются из immutable политики, не копируются в отдельную authority.
 class_name C_Hunger
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
@@ -15,5 +16,6 @@ enum Tier {
 @export var policy: DEF_HungerPolicy = null
 ## Текущий накопленный голод, 0–maximum; еда уменьшает значение.
 @export var value: float = 0.0
-## Суммарное активное время роста в секундах, без ночи, паузы и смерти.
+## S_Hunger суммирует gameplay seconds участия, в том числе при достигнутом maximum/нулевом росте.
+## Ночь/пауза/недоступность не учитываются; transient diagnostics, не сохраняется.
 var active_seconds: float = 0.0

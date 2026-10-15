@@ -1,3 +1,3 @@
 extends Resource
-## Авторские данные условия; отдельные вычислители записывают результат в C_Challenge.
+## Immutable authored condition; специализированные Systems пишут измерение в C_Challenge.
 class_name DEF_ChallengeCondition

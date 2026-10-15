@@ -114,18 +114,22 @@ Current implementation base: `198ccf8dbb75a6e2ec0813949281fbee73b87561` → targ
 
 RV-002 (R1 четвёртого batch), P2, **FIXED** (`1ce357a96936cc255c1162cb6f8315b14cdcfa67`): NightPreparationRequirement ошибочно называл любой queued reply поздним. Уточнена граница возврата emit_event: native PER_CALLBACK может успеть, MANUAL/later flush опоздает. Targeted read-only re-review base `05a02d86c9e667644bcc2db49c74aba8f6620141` → fix target: **PASS**, cycle 1/2, новых findings нет. Format/nonbehavior/native ParseFiles/MCP — 1 path PASS; parser log `parsefiles-20261015-175453107`.
 
+Текущий пятый batch — полный source pass **needs 7/7, quests 10/10, challenges 28/28**. Прочитаны все 45 scripts и необходимые writers/callers; 26 scripts получили уточнения owners, gameplay units, transient/cache versus durable history, Relationship cleanup и outcome/reward timing. До read-only review эта группа **REVIEW_PENDING**, не DONE.
+
+Current implementation base: `1c51aa2b457bfdf5c3f0a452d4ead33005b655e4`; target/review после commit **REVIEW_PENDING**. Всего изменены 78 уникальных scripts. Полностью проверены с review три группы inventory/time/commerce (47 scripts); текущие needs/quests/challenges ещё ждут review, остальные группы открыты. М1/М2/М3 целиком не завершены.
+
 Проверки batch:
 
-- PASS: `verify_gdscript_nonbehavior_changes.py --base 198ccf8dbb75a6e2ec0813949281fbee73b87561 --mode comments` — 25 scripts, 0 отличий executable source/strings/indentation.
-- PASS: GDQuest incremental format/lint — 25 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-175111601.stdout.log` / `.stderr.log`.
-- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 25 paths checked, diagnostics empty, no instantiation. Third batch parser evidence `parsechanged-20261015-174249722`, format/nonbehavior/MCP 11 paths PASS сохранён отдельно от текущего результата.
+- PASS: `verify_gdscript_nonbehavior_changes.py --base 1c51aa2b457bfdf5c3f0a452d4ead33005b655e4 --mode comments` — 26 scripts, 0 отличий executable source/strings/indentation.
+- PASS: GDQuest incremental format/lint — 26 scripts; native `ParseChanged`, `.artifacts/godot_agent/parsechanged-20261015-175908161.stdout.log` / `.stderr.log`.
+- PASS: live MCP `pvz_gdscript_path_diagnostics` — все 26 paths checked, diagnostics empty, no instantiation. Prior batch parser evidence `parsechanged-20261015-174249722` (11 paths) и `parsechanged-20261015-175111601` (25 paths), format/nonbehavior/MCP PASS относятся к своим immutable checkpoints.
 - PASS: incremental agent validator, strict architecture (0 lexical findings), project structure, scoped whitespace.
 - Full GUT/gameplay/visual: **NOT_RUN**, для comment-only batch не нужны; visual budget 0/8.
 
 В editor log обнаружен существующий отдельный parse defect `personal_delivery_dialogue_smoke.gd:173`: can_see получал DEF_NpcArchetype вместо NpcRecord. В отдельном [SMOKE-PD01](completed/personal_delivery_smoke_perception_argument.md) исправлен единственный аргумент: native parse и двухпроцессный smoke PASS, review PASS, implementation `45ddf2e8bfbd4cb83a40c0bdee27621a106aae88`. DOC01 batch этот код не менял. Cyclic authoring resource errors принадлежат намеренно некорректным test fixtures; сообщения не объявляются общим editor PASS.
 
 ### Next
-Продолжить полным domain batch needs 7, quests 10, challenges 28: все scripts прочитаны, найденные уточнения ещё не внесены. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
+Собрать immutable review пятого batch и triage. Пока review идёт, только независимое чтение motion/shared/scenes. E_PhysicalCharacter/E_PhysicalSlot описывают authored glue корректно. `verify_gdscript_nonbehavior_changes.py` сохраняет strings/indentation; собственные addons проверять тем же scanner явно из-за CLI skip. Финальный M3 — на совместном результате зависимостей.
 
 ### Dependencies
 Финальная сверка после [PVZ-A01](pvz_a01_commerce_panel_scene_first.md), [PVZ-CAL01](completed/pvz_customers_calendar_fact_ownership.md), [PVZ-A02](completed/pvz_a02_wallet_day_events.md), [PVZ-B01](pvz_b01_configfile_save_storage.md), [PVZ-A03](completed/pvz_a03_persistence_documentation.md). Каждая implementation задача документирует свой новый код сразу; эта задача не разрешает откладывать такую документацию.

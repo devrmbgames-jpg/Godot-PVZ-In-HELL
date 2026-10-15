@@ -20,6 +20,7 @@ func query() -> QueryBuilder:
 
 
 ## Captures component, phase and Definition identity before deferred execution.
+## delta is gameplay seconds; queued lifetime checks do not advance inactive/dormant sessions.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for subject: Entity in entities:
 		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge

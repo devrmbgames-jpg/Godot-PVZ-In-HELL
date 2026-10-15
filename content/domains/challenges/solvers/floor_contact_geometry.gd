@@ -5,6 +5,7 @@ class_name FloorContactGeometry
 
 #region Physical contact measurement
 ## Checks real support RID, local authored bounds and height tolerance without advancing time.
+## pose is the floor's world transform; support position is world metres, profile bounds are local.
 static func touches_surface(motion: C_Motion, pose: Transform3D, profile: DEF_FloorHazard) -> bool:
 	if motion == null or not motion.is_on_floor or not motion.floor_body_rid.is_valid():
 		return false
