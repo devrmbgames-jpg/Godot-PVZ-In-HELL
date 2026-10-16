@@ -28,18 +28,16 @@ M1/M2a/M2b завершены после независимых review/triage: t
 packing .tres, сцены barrel/long и cargo references всех 16 catalog items. Уникальные SHA и native
 evidence сохранены ниже; item UID и 224 прежних свойства сохранены. Общая задача IN_PROGRESS.
 
-M2c подготовлен: ET_PackageState/PackageLiquidRules выводят C_LiquidTilt из selected_item.cargo,
-а не из прежнего содержимого shell. Для catalog liquids S_LiquidTilt больше не отключён; собственные
-пороги/урон заданы DEF_ItemCargo. Разрыв использует native rupture_hazard фактического груза;
-destruction захватывает эффект до публикации обломков. Нормальное вскрытие выпускает целое тело.
+M2c завершён после repair/re-review: RV-001/P1 FIXED, новых material findings нет. Реальная cargo
+phase определяет C_LiquidTilt; rupture расходует payload однократно через existing released flag.
+Passive restore получает selected_item до compilation и восстанавливает derived capability.
+Schema19/PVZH1 сохранены; native регрессии, headless smoke и architecture/style review PASS.
 
-Passive restore получает уже сохранённый selected_item до compilation и package-owned операция
-восстанавливает derived liquid capability на reused bodies, сбрасывая только transient timer.
-Новые saved поля/версия не вводятся: schema19/PVZH1 сохранены; preflight проверяет cargo profile.
-Это исправляет существующий material-phase контракт без изменения геометрии или номеров.
-M2c завершён после repair/re-review: RV-001/P1 FIXED, новых material findings нет.
-Точные native регрессии, headless main-level smoke и architecture/style review PASS;
-вся задача остаётся IN_PROGRESS до полного плана отправления и owner QA.
+M2d.1 подготовлен: PackageShipmentRules возвращает detached PackageShipmentPlan до создания Entity.
+План включает выбранный item, допустимое количество, минимальную подходящую packing, её variant
+и массу shell+payload; explicit quantity не изменяется, auto quantity выбирается только среди
+физически допустимых значений. Независимые RNG purpose и canonical ordering обеспечивают retry.
+Это подготовка M2d, runtime receiving/Components/save/history/UI ещё не подключены. Review pending.
 
 Полный once-committed plan количества/массы/упаковки и UI/history ещё не подключён. Вопрос
 несовместимых старых коробок при будущем изменении схемы задан владельцу и остаётся открытым;
@@ -150,6 +148,13 @@ M2c checks:
 - PASS fix headless receiving_scan `tests/artifacts/receiving_scan-20261016-104548265.log`, exit0.
 - PASS targeted re-review BASE_SHA → TARGET_SHA: RV-001 FIXED, no material findings,
   architecture/style PASS, reviewer validation NOT_RUN. Цикл repair/re-review1/2 завершён.
+
+M2d.1 checks:
+- PASS GUT7/7,141 assertions (`gut-20261016-010014338`), stderr empty: actual quantities/mass,
+  barrel/scythe, incompatible counts, capacity gaps, retry/order/global RNG, invalid inputs.
+- PASS MCP3 checked/empty, scripts_instantiated=0; native ParseChanged (`20261016-010018806`),
+  formatter3, role2, strict architecture0 и structure. Native materialization здесь не запускается.
+- Immutable-SHA review pending до отдельного implementation commit; visual QA NOT_RUN,0/8.
 
 ### Review triage
 
