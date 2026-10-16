@@ -1,8 +1,8 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
-BASE_SHA: `d6ac88d3aca65756d651af5aff96149802fbc6ea`
-TARGET_SHA: pending M2e1 commit/review; task remains IN_PROGRESS
+BASE_SHA: `905db54ec1cd99c60dbf58eca0f568634a984668`
+TARGET_SHA: pending lifecycle-regression commit/review; task remains IN_PROGRESS
 
 Created: 2026-10-15. Related: [согласованность посылок](completed/package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
@@ -30,7 +30,7 @@ M2b reviewed: DEF_NpcParcelReaction CAPABILITY у4 архетипов, чист�
 M2c1 carry reviewed, RV-002/003 fixed; fresh C_GrabControl/C_CarryLoad/C_Strength, Strength6/offset0.35 м, existing R_HeldBy/solver/cleanup; architecture/style PASS, reviewer validation NOT_RUN.
 M2c2 fire reviewed: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without repeat from empty shells; catalog quantity/history/schema22 unchanged. Unknown legacy stubs remain unknown. No material findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
 M2d runtime reviewed: common wrong-offer commit, native KEEP/throw/fire, GameClock pair180s block, closed incident codec/schema23 and held reconstruction. RV-004/005 fixed in `fd0dda76885715ec13d1a27a96c70c631f5394b1`; targeted architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Intimidation remains open.
-M2e1: pure single-roll intimidation chooser and closed captured outcome/Strength/roll/tick, schema24/native golden; completed history and pending RETURN/ATTACK preserve data without replay. Runtime action/physical return are M2e2, NOT_IMPLEMENTED. Review pending.
+M2e1 review PASS `905db54ec1cd99c60dbf58eca0f568634a984668` (BASE `d6ac88d3aca65756d651af5aff96149802fbc6ea`): pure single-roll chooser and closed captured outcome/Strength/roll/tick, schema24/native golden; completed history and pending RETURN/ATTACK preserve data without replay. No findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2. Runtime action/physical return are M2e2, NOT_IMPLEMENTED. Independent lifecycle regressions disable/remove thief: physical parcel remains, pair closes once, no false order settlement; review pending.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults с Inspector overrides; отдельного подтверждения владельца по двум пересечениям не было.
 RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
 RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
@@ -161,7 +161,6 @@ Native default holy_rejection_first=true даёт приоритет свято�
   их локальные планы ссылаются на этот единый контракт, без собственного дубля выдачи.
 
 ### Validation
-
 - M1b GUT106/106,815 assertions, stderr0: counter13/89 (`032611400`), handoff13/118 (`032352514`), inspection12/163 (`032430965`), service17/103 (`032506237`), queue51/342 (`032537132`); prefix `gut-20261016-` in `.artifacts/godot_agent/`.
 - Native ParseChanged9/0 (`20261016-033337292`), MCP9 checked/empty/scripts0; formatter9/role9/strict architecture0/structure/persistence inventory PASS. Новая вывеска стойки сохранена editor/MCP.
 - M2a GUT14/14,302 assertions, stderr0: capabilities4/69 (`034803629`), cargo_catalog3/129 (`034836853`), receiver_effect7/104 (`034855192`); prefix `gut-20261016-`.
@@ -175,6 +174,7 @@ Native default holy_rejection_first=true даёт приоритет свято�
 - M2d native ParseFiles15/0/exit0 (`20261016-051107199`) and isolated golden parser1/0; wrappers FAIL only known shutdown retention (full ParseChanged20 reports artificial1 failure, `050821609`), KNOWN_ENGINE_LIMITATION/DEFERRED. MCP20 checked/empty/scripts0; formatter20/strict architecture0/structure/persistence PASS; native game_world Observer saved via MCP, visual0/8.
 - M2d repair: GUT74/74,876 assertions/stderr0: snapshot47/642 (`gut-20261016-053116726`), incidents27/234 including MANUAL BURN (`gut-20261016-053256656`). Native ParseFiles7/0/exit0 (`parsefiles-20261016-053211174`), wrapper FAIL only known shutdown retention/DEFERRED; MCP7 checked/empty/scripts0, formatter7/strict architecture0/structure/persistence PASS.
 - M2e1: native GUT48/48,982 assertions: rules11/133 (`gut-20261016-062037952`), golden10/615 (`gut-20261016-062243056`), incidents27/234 (`gut-20261016-062335169`). Golden native exit0, wrapper FAIL only shutdown retention/KNOWN_ENGINE_LIMITATION/DEFERRED; others stderr0/PASS. Schema23 startup rejection preserves file bytes/World. MCP6 checked/empty/scripts0; formatter6/strict architecture0/structure/persistence PASS. Native ParseFiles5/0/PASS (`20261016-062507621`); full6 wrapper FAIL isolated golden1, child parser1/0/PASS (`20261016-062406332`), known shutdown retention/DEFERRED. Visual0/8.
+- Lifecycle regression: incidents29/29,255 assertions/stderr0 (`gut-20261016-062740857`), native ParseFiles1/0/PASS (`20261016-062814288`), MCP1 checked/empty; formatter1/strict architecture0/structure PASS. Production unchanged; visual0/8.
 - RV-001: focused handoff14/14,124 assertions, stderr0 (`gut-20261016-033859456`); native ParseChanged2/0 (`20261016-033946776`), MCP2 checked/empty, formatter2/role2/strict architecture0/structure PASS.
 - delivery_completion native write/restore PASS/PASS, exit0/0: `.artifacts/godot_agent/delivery_completion-m1b-{write,restore}.{stdout,stderr}.log`. Fixture проверяет arrival number/отдельный LOST и физическое поднесение. Wrapper FAIL: неизвестный phase marker и shutdown-only retention (KNOWN_ENGINE_LIMITATION/DEFERRED), не runtime PASS обёртки.
 - Одна коробка одновременно в Area и руках, два NPC и deferred устаревший запрос: ровно один commit,
@@ -197,4 +197,4 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-Collect M2e1 immutable review/triage; then M2e2 native action, committed attack/return and safe placement. Final lifecycle/complaints regressions and separately authorized NPC gameplay QA remain. M2d review closed after cycle1/2; cargo QA6/6 PASS/task archived. NPC visual0/8; task IN_PROGRESS.
+Collect lifecycle-regression immutable review/triage; then M2e2 native action, committed attack/return and safe placement. Final complaints regressions and separately authorized NPC gameplay QA remain. M2d review closed after cycle1/2; cargo QA6/6 PASS/task archived. NPC visual0/8; task IN_PROGRESS.

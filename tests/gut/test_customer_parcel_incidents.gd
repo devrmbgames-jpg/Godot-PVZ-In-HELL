@@ -201,6 +201,41 @@ func test_native_brute_keeps_one_actual_grip_without_resolving_its_own_order() -
 	)
 
 
+func test_disabling_the_thief_releases_the_real_parcel_without_settling_its_order() -> void:
+	_native_receiver(&"archetype/brute")
+	_decision(REACTIONS.Outcome.KEEP)
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	_cycle.clock.elapsed_ticks += GameTimeRules.duration_ticks(200.0)
+	_world.disable_entity(_customer)
+	_assert_retired_theft_keeps_the_unresolved_parcel()
+	var deadline: int = _flow.parcel_incidents[0].next_eligible_tick
+	_cycle.clock.elapsed_ticks += GameTimeRules.duration_ticks(1.0)
+	GrabReleaseService.entity_unavailable(_customer)
+	assert_eq(_flow.parcel_incidents[0].next_eligible_tick, deadline)
+
+
+func test_removing_the_thief_releases_the_real_parcel_without_settling_its_order() -> void:
+	_native_receiver(&"archetype/brute")
+	_decision(REACTIONS.Outcome.KEEP)
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	_cycle.clock.elapsed_ticks += GameTimeRules.duration_ticks(200.0)
+	_world.remove_entity(_customer)
+	_assert_retired_theft_keeps_the_unresolved_parcel()
+
+
+func _assert_retired_theft_keeps_the_unresolved_parcel() -> void:
+	assert_null(GrabQueries.held_relationship(_parcel))
+	assert_true(EntityAvailability.contains(_parcel, _world))
+	assert_eq(_flow.parcel_incidents[0].phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_eq(
+		_flow.parcel_incidents[0].next_eligible_tick,
+		_cycle.clock.elapsed_ticks + CustomerParcelIncidentService.BLOCK_TICKS,
+	)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(_flow.parcel_incidents.size(), 1)
+	assert_null(ThrowContext.relationship(_parcel))
+
+
 func test_chain_throw_is_a_real_impulse_attributed_to_the_npc() -> void:
 	_native_receiver(&"archetype/chain_devil")
 	_decision(REACTIONS.Outcome.THROW_AT_PLAYER)
