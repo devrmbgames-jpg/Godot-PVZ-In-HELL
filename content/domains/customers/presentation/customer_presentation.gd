@@ -7,7 +7,12 @@ class_name CustomerPresentation
 ## Supplies only derived text to the actor-owned sign; no role/outcome transition occurs.
 static func project_sign(request: NpcSignTextRequest, body: E_DistrictNpc) -> void:
 	var visit: CustomerVisit = CustomerFlowQueries.visit_for(body)
-	if visit != null and not visit.finished:
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	if visit != null and not visit.finished and agent.phase in [
+		C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.DIALOGUE,
+		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE,
+	]:
+		request.intent_id = visit.visit_id
 		var number: int = registered_number(visit)
 		request.text = (
 			String(TranslationServer.translate("ЗАКАЗ №%03d\nУПАКОВКУ НЕ ВСКРЫВАТЬ.")) % number
@@ -23,8 +28,14 @@ static func project_sign(request: NpcSignTextRequest, body: E_DistrictNpc) -> vo
 		visit.visit_id if visit != null else &"",
 	)
 	if job != null:
+		request.intent_id = (
+			StringName("%s|%s" % [request.intent_id, job.job_id])
+			if not request.intent_id.is_empty() else job.job_id
+		)
 		var delivery: String = String(TranslationServer.translate("ДОСТАВИТЬ ДОМОЙ. +%d\n%s"))
-		request.text += "\n" + delivery % [
+		if not request.text.is_empty():
+			request.text += "\n"
+		request.text += delivery % [
 			job.bonus,
 			NpcPopulationQueries.place_name(job.address_id),
 		]

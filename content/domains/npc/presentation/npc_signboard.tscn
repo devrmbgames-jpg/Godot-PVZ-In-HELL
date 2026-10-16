@@ -11,6 +11,8 @@ size = Vector3(1.15, 0.62, 0.035)
 
 [node name="WorldSign" type="Node3D" unique_id=1022963945]
 script = ExtResource("1_cnl8l")
+erase_seconds = 0.3
+write_seconds = 1.4
 
 [node name="Board" type="MeshInstance3D" parent="." unique_id=1347833478]
 material_override = SubResource("StandardMaterial3D_ahbg2")

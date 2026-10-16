@@ -7,6 +7,9 @@ const ANGEL_PROFILE: DEF_NpcArchetype = preload(
 const PACKAGE_SCENE: String = "res://content/domains/packages/entities/package_a.tscn"
 const SERVICE_TREE: String = "res://content/domains/customers/ai/trees/bt_npc_service.tres"
 
+var _communication: String = ""
+var _communication_id: StringName = &"test/communication"
+
 
 #region Native sign fixture
 func _angel_person() -> NpcRecord:
@@ -22,6 +25,18 @@ func _sign(body: E_DistrictNpc) -> NpcSignboard:
 
 func _writing(body: E_DistrictNpc) -> Label3D:
 	return _sign(body).get_node("Text") as Label3D
+
+
+func _complete_writing(body: E_DistrictNpc) -> void:
+	var sign: NpcSignboard = _sign(body)
+	sign.call("_process", 0.0)
+	sign.call("_process", sign.erase_seconds)
+	sign.call("_process", sign.write_seconds)
+
+
+func _project_communication(request: NpcSignTextRequest) -> void:
+	request.text = _communication
+	request.intent_id = _communication_id
 
 
 func _freeze(body: E_DistrictNpc, person: NpcRecord) -> void:
@@ -74,9 +89,8 @@ func test_authored_board_and_label_follow_frozen_angel_without_modal_input() -> 
 	_freeze(body, person)
 	for frame: int in range(3):
 		await get_tree().process_frame
-	assert_true(sign.visible)
-	assert_string_contains(_writing(body).text, "НЕ ОТВОДИ ВЗГЛЯД")
-	assert_string_contains(_writing(body).text, "\n")
+	assert_false(sign.visible, "Observation alone is not communication")
+	assert_eq(_writing(body).text, "")
 	assert_false(_writing(body).no_depth_test)
 	assert_false((body.get_node("Message") as Label3D).visible)
 	assert_eq(body.global_transform, native_pose)
@@ -94,6 +108,7 @@ func test_registration_refreshes_same_physical_sign_and_service_uses_no_panel() 
 	_prepare_role(body, person, visit)
 	_freeze(body, person)
 	await get_tree().process_frame
+	_complete_writing(body)
 	assert_string_contains(_writing(body).text, "НОМЕРА НЕТ")
 	var sign: NpcSignboard = _sign(body)
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
@@ -105,6 +120,7 @@ func test_registration_refreshes_same_physical_sign_and_service_uses_no_panel() 
 	assert_gt(number, 0)
 	assert_true(_run_tree(body, SERVICE_TREE, 0.2))
 	await get_tree().process_frame
+	_complete_writing(body)
 	assert_same(_sign(body), sign)
 	assert_string_contains(_writing(body).text, "%03d" % number)
 	assert_string_contains(_writing(body).text, "НЕ ВСКРЫВАТЬ")
@@ -122,6 +138,7 @@ func test_written_personal_offer_accepts_through_native_action_without_dialogue(
 	var job: NpcHomeDelivery = HomeDeliveryQueries.personal_for(person.npc_id, visit.visit_id)
 	assert_not_null(job)
 	await get_tree().process_frame
+	_complete_writing(body)
 	assert_string_contains(_writing(body).text, "ДОСТАВИТЬ ДОМОЙ")
 	assert_string_contains(_writing(body).text, NpcPopulationQueries.place_name(job.address_id))
 	var action: DEF_CustomerAction = load(
@@ -132,6 +149,8 @@ func test_written_personal_offer_accepts_through_native_action_without_dialogue(
 	assert_true(action.is_available(_player, body, body))
 	assert_true(action.complete(_player, body, body))
 	assert_eq(job.status, NpcHomeDelivery.Status.ACCEPTED)
+	_complete_writing(body)
+	assert_false(_sign(body).visible, "Accepted offers are no longer live communication")
 	assert_eq(person.goal_id, person.home_id)
 	assert_false(action.complete(_player, body, body))
 	assert_eq(_district.home_deliveries.size(), 1)
@@ -147,6 +166,7 @@ func test_role_cleanup_death_and_scene_owner_release_do_not_leave_stale_sign() -
 	var visit: CustomerVisit = _delivery_case(person, "angel_world_cleanup")
 	_prepare_role(body, person, visit)
 	await get_tree().process_frame
+	_complete_writing(body)
 	assert_string_contains(_writing(body).text, "ЗАКАЗ")
 	NpcServiceRole.release(body, visit.visit_id)
 	await get_tree().process_frame
@@ -163,8 +183,11 @@ func test_role_cleanup_death_and_scene_owner_release_do_not_leave_stale_sign() -
 func test_ordinary_actor_restores_native_message_and_keeps_modal_conversation() -> void:
 	var person: NpcRecord = _angel_person()
 	var body: E_DistrictNpc = _stage(person)
+	_prepare_role(body, person, _unregistered(person))
 	await get_tree().process_frame
+	_complete_writing(body)
 	assert_true(_sign(body).visible)
+	NpcServiceRole.release(body, CustomerFlowQueries.visit_for(body).visit_id)
 	person.profile = load(LOST_PATH) as DEF_NpcArchetype
 	person.variation = NpcVariationRules.create(person.profile, 1234, person.npc_id, 1)
 	await get_tree().process_frame
@@ -195,4 +218,130 @@ func test_variant_selection_and_sign_query_do_not_change_durable_person() -> voi
 	var copy: NpcRecord = SaveDataCodec.decode(snapshot) as NpcRecord
 	assert_eq(copy.variation.dialogue_path, person.variation.dialogue_path)
 	assert_eq(copy.display_name, person.display_name)
+#endregion
+
+
+#region Communication lifetime and gradual writing
+func test_empty_whitespace_and_stale_native_message_do_not_create_a_board() -> void:
+	var body: E_DistrictNpc = _stage(_angel_person())
+	var sign: NpcSignboard = _sign(body)
+	sign.set_process(false)
+	(body.get_node("Message") as Label3D).text = "ЗАКАЗ №999 — устаревшая подпись"
+	sign.text_requested.connect(_project_communication)
+	for value: String in ["", " \n\t "]:
+		_communication = value
+		sign.call("_process", sign.write_seconds)
+		assert_false(sign.visible)
+		assert_eq(_writing(body).text, "")
+		assert_eq(sign.phase(), NpcSignboard.Phase.HIDDEN)
+
+
+func test_cyrillic_multiline_writing_is_intermediate_and_same_intent_does_not_restart() -> void:
+	var person: NpcRecord = _angel_person()
+	var body: E_DistrictNpc = _stage(person)
+	_freeze(body, person)
+	var sign: NpcSignboard = _sign(body)
+	sign.set_process(false)
+	sign.text_requested.connect(_project_communication)
+	_communication = "ЗАКАЗ №123\nНЕ ВСКРЫВАТЬ."
+	sign.call("_process", sign.write_seconds * 0.5)
+	var partial: String = _writing(body).text
+	assert_true(sign.visible)
+	assert_eq(sign.phase(), NpcSignboard.Phase.WRITING)
+	assert_gt(partial.length(), 0)
+	assert_lt(partial.length(), _communication.length())
+	assert_true(_communication.begins_with(partial))
+	sign.call("_process", sign.write_seconds * 0.25)
+	assert_gt(_writing(body).text.length(), partial.length())
+	sign.call("_process", sign.write_seconds * 0.25)
+	assert_eq(_writing(body).text, _communication)
+	assert_eq(sign.phase(), NpcSignboard.Phase.READABLE)
+	assert_true(NpcGazeQueries.frozen(body))
+	assert_true(body.freeze)
+
+
+func test_replacement_cancels_old_writing_and_source_identity_can_restart_equal_text() -> void:
+	var body: E_DistrictNpc = _stage(_angel_person())
+	var sign: NpcSignboard = _sign(body)
+	sign.set_process(false)
+	sign.text_requested.connect(_project_communication)
+	_communication = "Первое сообщение"
+	_complete_writing(body)
+	_communication = "Второе сообщение"
+	sign.call("_process", sign.erase_seconds * 0.5)
+	assert_eq(sign.phase(), NpcSignboard.Phase.ERASING)
+	_communication = "Третье сообщение\nНовый номер"
+	sign.call("_process", sign.erase_seconds)
+	assert_eq(sign.phase(), NpcSignboard.Phase.WRITING)
+	assert_eq(_writing(body).text, "")
+	sign.call("_process", sign.write_seconds)
+	assert_eq(_writing(body).text, _communication)
+	_communication_id = &"test/replacement"
+	sign.call("_process", 0.0)
+	assert_eq(sign.phase(), NpcSignboard.Phase.WRITING)
+	assert_eq(_writing(body).text, "", "The obsolete source is retired immediately")
+	_complete_writing(body)
+	assert_eq(_writing(body).text, _communication)
+
+
+func test_role_presence_without_request_and_finished_visit_retire_the_whole_board() -> void:
+	var person: NpcRecord = _angel_person()
+	var body: E_DistrictNpc = _stage(person)
+	var visit: CustomerVisit = _unregistered(person)
+	_prepare_role(body, person, visit)
+	var sign: NpcSignboard = _sign(body)
+	sign.set_process(false)
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.QUEUED
+	_complete_writing(body)
+	assert_false(sign.visible)
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	_complete_writing(body)
+	assert_true(sign.visible)
+	visit.finished = true
+	sign.call("_process", 0.0)
+	assert_false(sign.visible)
+	assert_eq(_writing(body).text, "")
+	visit.finished = false
+	_complete_writing(body)
+	assert_true(sign.visible)
+	NpcServiceRole.release(body, visit.visit_id)
+	sign.call("_process", 0.0)
+	assert_false(sign.visible)
+	assert_eq(sign.phase(), NpcSignboard.Phase.HIDDEN)
+
+
+func test_expired_personal_offer_hides_board_without_an_active_service_role() -> void:
+	var person: NpcRecord = _angel_person()
+	var body: E_DistrictNpc = _stage(person)
+	var visit: CustomerVisit = _delivery_case(person, "angel_expired_offer")
+	var job: NpcHomeDelivery = HomeDeliveryQueries.personal_for(person.npc_id, visit.visit_id)
+	assert_not_null(job)
+	var sign: NpcSignboard = _sign(body)
+	sign.set_process(false)
+	_complete_writing(body)
+	assert_true(sign.visible)
+	job.status = NpcHomeDelivery.Status.EXPIRED
+	sign.call("_process", 0.0)
+	assert_false(sign.visible)
+	assert_eq(_writing(body).text, "")
+
+
+func test_native_pause_stops_writing_and_role_cleanup_cancels_pending_transition() -> void:
+	var body: E_DistrictNpc = _stage(_angel_person())
+	var sign: NpcSignboard = _sign(body)
+	sign.text_requested.connect(_project_communication)
+	_communication = "Сообщение в процессе записи"
+	sign.call("_process", sign.write_seconds * 0.25)
+	var partial: String = _writing(body).text
+	get_tree().paused = true
+	assert_false(sign.can_process())
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(_writing(body).text, partial)
+	get_tree().paused = false
+	body.request_role_cleanup(NpcRoleCleanupRequest.Kind.RESET_PREPARE)
+	assert_false(sign.visible)
+	assert_eq(_writing(body).text, "")
+	assert_eq(sign.phase(), NpcSignboard.Phase.HIDDEN)
 #endregion

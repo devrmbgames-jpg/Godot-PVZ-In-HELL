@@ -1,6 +1,8 @@
 # R27.3 — таблички ангела в мировом пространстве
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
+BASE_SHA: `fb1c3d5b4081a2c2b4f5e99d490c31b2df460b07`
+TARGET_SHA: pending checkpoint commit; review NOT_RUN
 
 Parent: [R27](completed/r27_qa_followup.md).
 
@@ -21,10 +23,14 @@ Parent: [R27](completed/r27_qa_followup.md).
 
 ### Current
 
-Owner follow-up2026-10-15, planning only: hide the entire sign when there is no actual
-communication; change its text gradually so the player can notice it being rewritten.
-Future scratching animation should be able to reuse the same presentation transition.
-This follow-up is not implemented. Older PASS evidence below covers only the prior checkpoint.
+Follow-up implementation is authorized by the active `/goal` for `.agents/tasks`; earlier
+planning-only text predates that instruction. No idle/name fallback remains. Fresh typed receipts
+identify actual order/offer communication; queued/finished roles alone do not show a board.
+NpcSignboard owns only HIDDEN/ERASING/WRITING/READABLE presentation state and its local clock.
+New text from the same source erases/reveals gradually; an obsolete source clears immediately.
+No deferred callbacks can revive old text. Native pause suspends writing; cleanup hides it.
+Timing is authored through MCP in the native prefab: erase0.3s/write1.4s, provisional owner tuning.
+Native checks/review below cover implementation; owner visual acceptance remains NOT_RUN,0/8.
 
 ### Planned follow-up contract
 
@@ -66,7 +72,7 @@ This follow-up is not implemented. Older PASS evidence below covers only the pri
   dialogue retain their guarantees. Keep presentation read-only and shared resources immutable.
 - Owner QA: watch a change, look away/look back during writing, confirm no permanent idle board
   and a legible completed request. Real scratching animation is not required for this follow-up.
-- Current follow-up tests/visual QA: **NOT_RUN**; this turn plans work only.
+- Follow-up native evidence is separate from the prior checkpoint below; visual QA **NOT_RUN**.
 
 ### Prior implementation checkpoint
 
@@ -83,6 +89,17 @@ Companion MCP gains bounded path diagnostics for new owned scripts and revision-
 registration refresh; vendored Godot AI/GECS remain unchanged.
 
 ### Validation
+
+Follow-up native PASS:73/73 tests,1130 assertions; stderr empty:
+- Angel signs43/748 (`gut-20261016-022419697`), gaze freeze15/110 (`022527711`),
+  customer dialogue15/272 (`022538160`); all real headless Godot4.7.1.
+- ParseChanged4/0 (`20261016-022544583`); MCP4 checked/empty, scripts_instantiated0.
+  Editor cursor4: no new errors; four earlier cycle-fixture load errors are intentional negative
+  authoring inputs used by test_entity_authoring_preview/test_content_doctor, not changed scripts.
+- Formatter4, role4, strict architecture0, project structure and persistence inventory PASS.
+  Native scene tuning saved via editor/MCP; UID/nodes/geometry preserved. Visual NOT_RUN,0/8.
+- Earlier incomplete run41/43 (`022121752`) and intermediate42/43 (`022300134`) are FAIL,
+  superseded by final native evidence; stale source retirement and ordinary-role fixture fixed.
 
 ### Prior validation
 
@@ -103,10 +120,10 @@ Architecture/style PASS; reviewer validation NOT_RUN. UTC2026-10-13 08:51:49?08:
 
 ### Owner QA / blockers
 
-New follow-up implementation and owner visual acceptance remain open. Previous tests do not
-verify the new no-message/gradual-writing requirements. Work is planned, not started.
+Follow-up validation/review must finish before its code checkpoint closes. Owner visual acceptance
+remains open: observe writing and look-away/look-back without moving the frozen actor; idle hides
+the whole board. No rendered test is authorized for this follow-up; visual0/8.
 
 ### Next
 
-Await a separate implementation instruction. Then implement communication-driven visibility and
-primitive writing transitions, run focused checks and return to owner visual acceptance.
+Finish focused native checks, commit and immutable-SHA review/triage, then owner visual acceptance.
