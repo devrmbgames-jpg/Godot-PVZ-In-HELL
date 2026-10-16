@@ -225,6 +225,16 @@ func test_grip_inside_parcel_still_rejects_an_intersecting_wall() -> void:
 	assert_true(_can_receive())
 
 
+func test_compatibility_query_rejects_missing_or_retired_participants_without_mutation() -> void:
+	await get_tree().physics_frame
+	assert_true(_can_receive())
+	assert_false(CustomerHandoffService.can_receive(_actor, null, _visit, _parcel, true))
+	assert_false(CustomerHandoffService.can_receive(null, _customer, _visit, _parcel, true))
+	_world.remove_entity(_customer)
+	assert_false(_can_receive())
+	_expect_held()
+
+
 func test_pause_or_changed_holder_rejects_before_delivery_mutation() -> void:
 	get_tree().paused = true
 	assert_false(_can_receive())

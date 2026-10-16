@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `7de2d5c23f4aaf8722ea92262db0904bfd4c0dec`
-TARGET_SHA: pending M1b commit — REVIEW_PENDING
+TARGET_SHA: `9cc2bf517589a1d3f682adbe75a6b83e163eb094` — RV-001 repair / re-review pending
 
 Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
 [Жуткий](creepy_npc_unpredictable_stalking.md),
@@ -27,12 +27,12 @@ Created: 2026-10-15. Основание: прямой запрос владел�
 
 Активный `/goal` авторизует выполнение задач; прежнее «только планирование» предшествует ему.
 M1a review PASS: `64b6c4eb57ee483a205a835afbeefd5fb64e2e8e`→`9ee5a479848d5adeed91c3e4d14627374ccae232`.
-M1b реализован, review pending: единый transient CustomerParcelOffer для рук/стола, READY прежде WRONG;
+M1b реализован, review RV-001: единый transient CustomerParcelOffer для рук/стола, READY прежде WRONG;
 дистанция с миллиметровыми сортировочными buckets, затем стабильный package_id; строгий<1 м/LOS сохранён.
 Стол требует native Area, допустимых скоростей и физической цепочки опоры до стойки, без хвата/слота/cargo.
 Резерв R_NpcServiceAt исключителен; district без него/домашние встречи не конкурируют за стойку.
 Commit повторно проверяет World/роль/визит/источник и после greeting; итог/осмотр остаются у _resolve_delivery.
-Main triage M1a: нет открытых принятых P0/P1/P2; M1b repair0/2; visual NOT_RUN,0/8.
+RV-001 [P2] ACCEPTED: can_receive разыменовывал отсутствующего customer до gate; добавлен entity_available перед _offer и null/retired/actor regression. Re-review pending, repair1/2; visual NOT_RUN,0/8.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
 запугивание меняет шансы атаки/возврата на5 процентных пунктов за Strength; блок персонален для пары.
 Приоритет святого символа и трактовка взаимоисключающих огненных исходов пока остаются предложениями.
@@ -172,8 +172,8 @@ Main triage M1a: нет открытых принятых P0/P1/P2; M1b repair0/
 - M1b GUT106/106,815 assertions, stderr0: counter13/89 (`032611400`), handoff13/118 (`032352514`), inspection12/163 (`032430965`), service17/103 (`032506237`), queue51/342 (`032537132`); prefix `gut-20261016-` in `.artifacts/godot_agent/`.
 - Native ParseChanged9/0 (`20261016-033337292`), MCP9 checked/empty/scripts0; formatter9/role9/strict architecture0/structure/persistence inventory PASS. Новая вывеска стойки сохранена editor/MCP.
 - Counter native Jolt: настоящее падение/стабилизация, unsupported gap/скорости, стопка, смешанные источники, свой приоритет, stable wrong tie, stale role/visit/pose/grip, резерв и штатный осмотр PASS.
+- RV-001: focused handoff14/14,124 assertions, stderr0 (`gut-20261016-033859456`); native ParseChanged2/0 (`20261016-033946776`), MCP2 checked/empty, formatter2/role2/strict architecture0/structure PASS.
 - delivery_completion native write/restore PASS/PASS, exit0/0: `.artifacts/godot_agent/delivery_completion-m1b-{write,restore}.{stdout,stderr}.log`. Fixture проверяет arrival number/отдельный LOST и физическое поднесение. Wrapper FAIL: неизвестный phase marker и shutdown-only retention (KNOWN_ENGINE_LIMITATION/DEFERRED), не runtime PASS обёртки.
-
 - Native/GUT: стол без F; коробка ещё в руках/пролетает над столом; несколько коробок/получателей,
   одна корректная выдача; <1 м захват, ровно1 м/дальше — нет; стенка/большая коробка/занятые слоты.
 - Одна коробка одновременно в Area и руках, два NPC и deferred устаревший запрос: ровно один commit,
@@ -196,5 +196,5 @@ Main triage M1a: нет открытых принятых P0/P1/P2; M1b repair0/
 
 ### Next
 
-M1b: commit и immutable-SHA review/triage до закрытия checkpoint;
+M1b: commit RV-001 и узкий immutable-SHA re-review/triage до закрытия checkpoint;
 далее typed-реакции/эпизоды -> присвоение/запугивание/физика -> saves/регрессии -> owner QA.

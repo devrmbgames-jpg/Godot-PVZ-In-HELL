@@ -17,7 +17,7 @@ static func can_receive(
 	parcel: Entity,
 	assigned: bool,
 ) -> bool:
-	if not assigned:
+	if not assigned or not GrabQueries.entity_available(customer):
 		return false
 	var offer: CustomerParcelOffer = _offer(actor, customer, visit, parcel, null)
 	return evaluate_offer(offer, true).result == PackageDeliveryCheck.Result.READY
