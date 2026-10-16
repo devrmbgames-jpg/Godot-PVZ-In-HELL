@@ -7,6 +7,12 @@ const DEF_DELIVERY_MORNING_SUPPLY_PATH: String = (
 const BLOOD_ITEM: DEF_InventoryItem = preload(
 	"res://content/domains/inventory/definitions/def_item_blood_flask.tres"
 )
+const AXE_ITEM: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_axe.tres"
+)
+const TOY_ITEM: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_toy_block.tres"
+)
 var _root: Node3D
 var _world: World
 var _actor: E_RigidBodyCharacter
@@ -256,9 +262,7 @@ func test_selected_catalog_weapon_releases_real_contents_without_legacy_bottle_h
 	_world.add_observer(O_PackageDestruction.new())
 	_world.add_observer(O_PackageDestroyedHazard.new())
 	_world.add_system(S_LiquidTilt.new())
-	var selected: DEF_InventoryItem = load(
-		"res://content/domains/inventory/definitions/def_item_axe.tres"
-	) as DEF_InventoryItem
+	var selected: DEF_InventoryItem = AXE_ITEM
 	var parcel: E_Package = _catalog_package(_supply_definition(&"bottles"), selected)
 	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
 	(parcel as Node as Node3D).rotation.z = PI / 2.0
@@ -320,6 +324,135 @@ func test_catalog_liquid_leaks_with_its_native_effect_under_dry_legacy_definitio
 	assert_eq(effects[0].scene_file_path, blood.cargo_profile.rupture_hazard.resource_path)
 	_world.process(30.0)
 	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 1)
+
+
+#region Actual payload fire destruction
+func _legacy_fire_definition() -> DEF_Package:
+	var definition: DEF_Package = _supply_definition(&"bottles").duplicate(true) as DEF_Package
+	definition.unpack_scene = load(BLOOD_ITEM.world_pickup_scene) as PackedScene
+	return definition
+
+
+func _install_fire_destruction() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_PackageDamage.new())
+	_world.add_observer(O_PackageDestruction.new())
+	_world.add_observer(O_PackageDestroyedHazard.new())
+
+
+func _fire_damage(parcel: E_Package, amount: float) -> void:
+	var request: DamageRequest = DamageRequest.new()
+	request.target = parcel
+	request.source = _actor
+	request.instigator = _actor
+	request.amount = amount
+	request.damage_type = DamageRequest.Type.FIRE
+	assert_true(DamageRequestService.submit(request))
+
+
+func test_remaining_payload_reads_native_legacy_item_without_creating_nodes() -> void:
+	var contents: C_PackageContents = C_PackageContents.new()
+	var definition: DEF_Package = _legacy_fire_definition()
+	var node_count: int = int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
+	var item: DEF_InventoryItem = PackagePayloadRules.remaining_item(definition, contents)
+	assert_same(item, BLOOD_ITEM)
+	assert_eq(int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)), node_count)
+	assert_null(PackagePayloadRules.remaining_item(_supply_definition(&"bottles"), contents))
+	contents.selected_item = AXE_ITEM
+	contents.quantity = 2
+	assert_same(PackagePayloadRules.remaining_item(definition, contents), contents.selected_item)
+	contents.quantity = 0
+	assert_null(PackagePayloadRules.remaining_item(definition, contents))
+	contents.quantity = 2
+	contents.released = true
+	assert_null(PackagePayloadRules.remaining_item(definition, contents))
+
+
+func test_lethal_fire_consumes_all_catalog_units_before_debris_without_intact_loot() -> void:
+	_install_fire_destruction()
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), TOY_ITEM, 8)
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	_fire_damage(parcel, 10000.0)
+	assert_true(contents.released)
+	assert_eq(contents.quantity, 8, "Committed arrival composition stays immutable")
+	assert_eq(_world.query.with_all([C_Package]).execute().size(), 0)
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 0)
+	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 0)
+	var queue_owner: Entity = _world.query.with_all([C_LootDrops]).execute_one()
+	assert_true((queue_owner.get_component(C_LootDrops) as C_LootDrops).pending.is_empty())
+
+
+func test_fire_consumption_is_one_shot_and_refreshes_the_actual_held_mass() -> void:
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), TOY_ITEM, 8)
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	body.freeze = false
+	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	var carry: C_CarryLoad = _actor.get_component(C_CarryLoad) as C_CarryLoad
+	assert_true(carry.active)
+	var full_mass: float = body.mass
+	assert_true(PackageContentsService.consume_fire_remainder(parcel))
+	assert_false(PackageContentsService.consume_fire_remainder(parcel))
+	assert_true(PackageContentsService.is_empty(parcel))
+	assert_lt(body.mass, full_mass)
+	assert_almost_eq(body.mass, PackageContentsService.empty_mass_kg(parcel), 0.0001)
+	assert_almost_eq(carry.mass_kg, body.mass, 0.0001)
+	assert_same(GrabQueries.held_object(_actor), parcel)
+	assert_true(PackageContentsService.release(parcel, _actor).is_empty())
+
+
+func test_nonlethal_fire_keeps_the_payload_inside_the_box() -> void:
+	_install_fire_destruction()
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), TOY_ITEM)
+	_fire_damage(parcel, 1.0)
+	assert_false(PackageContentsService.is_empty(parcel))
+
+
+func test_immune_catalog_item_is_not_marked_consumed_by_fire() -> void:
+	_install_fire_destruction()
+	var parcel: E_Package = _catalog_package(_supply_definition(&"bottles"), AXE_ITEM)
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	_fire_damage(parcel, 10000.0)
+	assert_false(contents.released)
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 0)
+
+
+func test_newly_burned_legacy_contents_emit_their_native_destruction_effect_once() -> void:
+	_install_fire_destruction()
+	var parcel: E_Package = _catalog_package(_legacy_fire_definition())
+	var definition: DEF_Package = parcel.package_definition
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	_fire_damage(parcel, 10000.0)
+	assert_true(contents.released)
+	var effects: Array[Entity] = _world.query.with_all([C_Hazard]).execute()
+	assert_eq(effects.size(), 1)
+	if effects.size() == 1:
+		assert_eq(effects[0].scene_file_path, definition.hazard_on_destroyed.resource_path)
+	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 0)
+
+
+func test_fire_destruction_of_released_legacy_shell_does_not_repeat_the_payload_effect() -> void:
+	_install_fire_destruction()
+	var parcel: E_Package = _catalog_package(_legacy_fire_definition())
+	var items: Array[Entity] = PackageContentsService.release(parcel, _actor)
+	assert_false(items.is_empty())
+	var effects_before: int = _world.query.with_all([C_Hazard]).execute().size()
+	_fire_damage(parcel, 10000.0)
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), effects_before)
+	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), items.size())
+
+
+func test_catalog_fire_rupture_keeps_actual_effect_without_legacy_or_intact_payload() -> void:
+	_install_fire_destruction()
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), BLOOD_ITEM)
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	_fire_damage(parcel, 10000.0)
+	assert_true(contents.released)
+	var effects: Array[Entity] = _world.query.with_all([C_Hazard]).execute()
+	assert_eq(effects.size(), 1)
+	if effects.size() == 1:
+		assert_eq(effects[0].scene_file_path, BLOOD_ITEM.cargo_profile.rupture_hazard.resource_path)
+	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 0)
+#endregion
 
 
 ## Destruction captures the payload effect before replacement and never uses the old book recipe.
@@ -415,9 +548,7 @@ func test_catalog_liquid_opening_does_not_rupture_its_intact_native_item() -> vo
 
 ## Real bulk emits exactly the committed unit count, even when the old recipe specified one.
 func test_catalog_bulk_releases_committed_quantity_and_keeps_empty_packing_mass() -> void:
-	var toy: DEF_InventoryItem = load(
-		"res://content/domains/inventory/definitions/def_item_toy_block.tres"
-	) as DEF_InventoryItem
+	var toy: DEF_InventoryItem = TOY_ITEM
 	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), toy, 8)
 	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
 	assert_eq(contents.quantity, 8)

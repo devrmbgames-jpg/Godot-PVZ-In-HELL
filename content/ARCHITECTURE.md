@@ -319,6 +319,12 @@ key or shopping category. DEF_InventoryItem.destroyed_by_fire is independent aut
 material eligibility, including virtual supplies; it is neither a flammability flag nor a damage
 operation. Reaction consumers must validate actual remaining contents before using these facts.
 Effect execution, damage and content consumption retain their existing domain owners.
+PackagePayloadRules reads remaining catalog composition or the native legacy pickup's authored
+C_InventoryItem without instantiating Nodes. On lethal FIRE, O_PackageDestruction commits eligible
+remaining cargo through PackageContentsService before publishing debris. The existing released
+flag still owns consumption; a transient contents_burned fact permits that destruction's native
+legacy effect while keeping previously emptied shells inert. Catalog rupture retains its captured
+effect and cannot recreate intact cargo. Arrival quantity/history remain unchanged.
 
 DEF_NpcParcelReaction is a typed CAPABILITY in the existing NPC trait set. Its mode owns authored
 take/conditional-throw or fire probabilities; holy precedence and absolute/conditional fire damage

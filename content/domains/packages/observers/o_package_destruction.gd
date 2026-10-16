@@ -44,6 +44,12 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 	var rupture_hazard: PackedScene = (
 		PackageContentsService.consume_catalog_rupture(package) if catalog_order else null
 	)
+	var contents_burned: bool = false
+	if (
+		event.cause != null and event.cause.request != null
+		and event.cause.request.damage_type == DamageRequest.Type.FIRE
+	):
+		contents_burned = PackageContentsService.consume_fire_remainder(package)
 	cmd.add_custom(
 		_replace_with_debris.bind(
 			weakref(package),
@@ -59,6 +65,7 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 			PackageContentsService.is_empty(package),
 			catalog_order,
 			rupture_hazard,
+			contents_burned,
 		)
 	)
 
@@ -80,6 +87,7 @@ func _replace_with_debris(
 	contents_released: bool,
 	catalog_order: bool,
 	catalog_rupture_hazard: PackedScene,
+	contents_burned: bool,
 ) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var package: Entity = package_reference.get_ref() as Entity
@@ -128,6 +136,7 @@ func _replace_with_debris(
 	spawned.contents_released = contents_released or PackageContentsService.is_empty(package)
 	spawned.catalog_order = catalog_order
 	spawned.catalog_rupture_hazard = catalog_rupture_hazard
+	spawned.contents_burned = contents_burned
 	_world.emit_event(PackageDebrisSpawnedEvent.EVENT, debris, spawned)
 
 	_world.remove_entity(package)

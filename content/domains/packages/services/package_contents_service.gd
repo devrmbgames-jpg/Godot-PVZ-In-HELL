@@ -87,6 +87,21 @@ static func consume_catalog_rupture(package: Entity) -> PackedScene:
 	return scene
 
 
+## Consumes remaining fire-destructible cargo before destruction callbacks; never creates loot.
+## Returns true only for this consumption, so a spent shell cannot re-arm a legacy effect.
+static func consume_fire_remainder(package: Entity) -> bool:
+	var identity: C_Package = package.get_component(C_Package) as C_Package
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	var item: DEF_InventoryItem = PackagePayloadRules.remaining_item(identity.definition, contents)
+	if item == null or not item.destroyed_by_fire:
+		return false
+	var body: RigidBody3D = package as Node as RigidBody3D
+	contents.released = true
+	body.mass = empty_mass_kg(package)
+	GrabService.refresh_carry_mass(package)
+	return true
+
+
 ## Rebuilds derived liquid capability after validated passive overlay, before World readiness.
 ## Saved leak facts remain untouched; transient timers never replay across restore.
 static func restore_liquid_capability(package: Entity) -> void:

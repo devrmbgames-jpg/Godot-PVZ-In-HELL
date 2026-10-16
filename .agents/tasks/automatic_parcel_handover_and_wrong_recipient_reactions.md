@@ -1,10 +1,12 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
-BASE_SHA: `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`
-TARGET_SHA: `6c7e9778124c63bb5432e02a0bcdf88dde203016` - REVIEW_PASS (targeted repair1/2)
+BASE_SHA: `2d4dd560f314f722652911ad19e050fa9192ab9e`
+TARGET_SHA: pending M2c2 fire consumption commit — REVIEW_PENDING
 
 Created: 2026-10-15. Related: [согласованность посылок](package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
+
+## Task state
 
 ### Goal / acceptance
 
@@ -22,14 +24,11 @@ Created: 2026-10-15. Related: [согласованность посылок](pa
 ### Current / authorization
 
 Активный `/goal` авторизует выполнение задач; прежнее «только планирование» предшествует ему.
-M1a/b закрыты по реализации/автопроверкам/review: общий CustomerParcelOffer рук/стола, строгий<1 м/LOS,
-физическая опора, READY прежде WRONG, стабильный tie-break, резерв и повторный gate до _resolve_delivery.
-M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: typed item holy/fire metadata,16 native .tres,
-22 prefab effect agreement; no material findings, reviewer validation NOT_RUN, repair0/2.
-M2b policy закрыт по реализации/review: DEF_NpcParcelReaction CAPABILITY у4 архетипов и чистый chooser;
-rolls передаются явно; review no material findings, architecture/style PASS, validation NOT_RUN, repair0/2.
-M2c1 carry reviewed with RV-002/003 fixed; targeted architecture/style PASS, no other findings, reviewer validation NOT_RUN.
-Свежие C_GrabControl/C_CarryLoad/C_Strength, authored Strength6/offset0.35 м; R_HeldBy, solver и cleanup прежние.
+M1a/b reviewed: общий CustomerParcelOffer рук/стола, строгий<1 м/LOS, опора, READY прежде WRONG, tie-break, резерв и повторный gate до _resolve_delivery.
+M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: item holy/fire metadata,16 .tres/22 prefab agreement; reviewer validation NOT_RUN, repair0/2.
+M2b reviewed: DEF_NpcParcelReaction CAPABILITY у4 архетипов, чистый chooser с переданными rolls; architecture/style PASS, validation NOT_RUN, repair0/2.
+M2c1 carry reviewed, RV-002/003 fixed; fresh C_GrabControl/C_CarryLoad/C_Strength, Strength6/offset0.35 м, existing R_HeldBy/solver/cleanup; architecture/style PASS, reviewer validation NOT_RUN.
+M2c2 fire implemented, review pending: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without re-emission from empty shells; catalog quantity/history unchanged, schema22 unchanged. Unknown legacy stubs have no invented item/fire metadata.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults, с явными Inspector overrides.
 RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
 RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
@@ -174,6 +173,7 @@ Native default holy_rejection_first=true даёт приоритет свято�
 - M2b GUT19/19,1387 assertions, stderr0: reaction_rules9/93 (`035837828`), archetype_catalog4/934 (`035927943`), variation6/360 (`035958958`); native ParseChanged3/0 (`20261016-040031502`), MCP3 checked/empty/scripts0; formatter3/role3 PASS.
 - M2b native/MCP создал4 typed .tres и добавил их4 архетипам с сохранением UID; strict architecture0/structure/persistence inventory PASS. Только выбор, не runtime reaction acceptance; visual0/8.
 - M2c1 GUT78/78,877 assertions, stderr0: holder6/41 (`041452327`), handoff14/124 (`041543725`), counter13/89 (`041656538`), world_snapshot45/623 (`041739066`); native ParseChanged2/0 (`20261016-041849211`), MCP2 checked/empty, formatter2/strict architecture0/structure/persistence PASS. Native3 scenes saved via MCP; visual0/8. Repairs: holder7/48 (`042516967`), live_roster10/899 (`042537376`), MCP4 checked/empty; schema22 golden5/365 (`042654370`) native exit0, wrapper FAIL only deferred shutdown retention. Repair native ParseChanged4/0 (`20261016-042749699`), formatter4/strict architecture0/structure/persistence/staged PASS.
+- M2c2 GUT44/44,510 assertions, stderr0: contents29/356 (`043453283`), receipts_loss15/154 (`043356625`); native ParseChanged6/0 (`20261016-043535910`), MCP6 checked/empty/scripts0, formatter6/strict architecture0/structure/persistence PASS; visual0/8. First new-fixture failures corrected (non-orderable food/legacy stub), final native PASS.
 - RV-001: focused handoff14/14,124 assertions, stderr0 (`gut-20261016-033859456`); native ParseChanged2/0 (`20261016-033946776`), MCP2 checked/empty, formatter2/role2/strict architecture0/structure PASS.
 - delivery_completion native write/restore PASS/PASS, exit0/0: `.artifacts/godot_agent/delivery_completion-m1b-{write,restore}.{stdout,stderr}.log`. Fixture проверяет arrival number/отдельный LOST и физическое поднесение. Wrapper FAIL: неизвестный phase marker и shutdown-only retention (KNOWN_ENGINE_LIMITATION/DEFERRED), не runtime PASS обёртки.
 - Одна коробка одновременно в Area и руках, два NPC и deferred устаревший запрос: ровно один commit,
@@ -196,5 +196,5 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-M2c1 closed. Next: actual fire payload consumption; then durable incidents/selection, GameClock deadline and physical effects;
+M2c2: collect immutable review/triage; then durable incidents/selection, GameClock deadline and physical effects;
 затем присвоение/запугивание/save compatibility/регрессии -> owner QA. Runtime реакции ещё не реализованы; задача IN_PROGRESS.

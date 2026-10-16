@@ -13017,7 +13017,8 @@
         "new"
       ],
       "sources": [
-        "content/services/gameplay/loot_drop_service.gd"
+        "content/services/gameplay/loot_drop_service.gd",
+        "content/domains/packages/rules/package_payload_rules.gd"
       ],
       "method_rights": {
         "new": "read"
@@ -18778,7 +18779,8 @@
         "content/domains/packages/services/receiving_delivery_service.gd",
         "content/domains/packages/rules/package_liquid_rules.gd",
         "content/domains/packages/authoring/et_package_state.gd",
-        "content/domains/packages/rules/package_cargo_rules.gd"
+        "content/domains/packages/rules/package_cargo_rules.gd",
+        "content/domains/packages/rules/package_payload_rules.gd"
       ],
       "purpose": "Reads immutable catalog data and retains the once-selected definition in the package and arrival projection; no inventory mutation.",
       "method_rights": {}

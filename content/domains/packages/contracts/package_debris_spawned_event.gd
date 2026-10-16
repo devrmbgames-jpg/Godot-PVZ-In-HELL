@@ -17,6 +17,9 @@ var cause: DamageResult = null
 var world_pose: Transform3D = Transform3D.IDENTITY
 ## Пустая оболочка не наследует опасность уничтоженного содержимого.
 var contents_released: bool = false
+## This destruction consumed the remaining payload by fire; its native rupture may still emit.
+## Transient fact distinguishes newly burned cargo from an already empty legacy shell.
+var contents_burned: bool = false
 ## A catalog payload replaces legacy contents hazards with its captured native effect.
 var catalog_order: bool = false
 ## Committed one-shot catalog effect; released already records consumption before publication.
