@@ -34,7 +34,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	if PackageContentsService.has_catalog_order(entity):
 		if event.kind == PackageLifecycleEvent.Kind.OPENED:
 			return
-		scene = PackageContentsService.catalog_rupture_hazard(entity)
+		scene = PackageContentsService.consume_catalog_rupture(entity)
 	elif event.kind == PackageLifecycleEvent.Kind.OPENED:
 		scene = definition.hazard_on_opened
 	else:

@@ -1,5 +1,5 @@
 extends Component
-## Признак однократного извлечения; созданные предметы владеют своим состоянием и физикой.
+## Однократная передача содержимого реальным предметам либо его расходование native разрывом.
 ## PackageContentsService фиксирует released до регистрации тел; остаток хранится в C_LootDrops.
 class_name C_PackageContents
 
@@ -9,5 +9,5 @@ const SAVE_FIELDS: Array[String] = ["released", "selected_item"]
 ## Committed immutable order definition; null retains the package's authored legacy contents.
 @export var selected_item: DEF_InventoryItem = null
 
-## Содержимое уже извлечено; повторное открытие или разрушение не создаёт его снова.
+## Содержимое уже извлечено или израсходовано разрывом; повторная материализация запрещена.
 @export var released: bool = false

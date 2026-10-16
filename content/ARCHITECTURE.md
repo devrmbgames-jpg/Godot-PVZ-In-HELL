@@ -294,8 +294,10 @@ physical item definitions and agreement with live parcel data before mutation; r
 rerolls. Missing categories fall back to available categories, and absent catalog entries retain
 authored legacy contents. Catalog liquid capability and tilt tuning come from immutable
 DEF_ItemCargo, before native publication. A solid item never inherits the old liquid recipe;
-liquids keep their own native rupture effect on leak/damage/destruction. Normal opening releases
-an intact catalog body without firing its rupture effect. Destruction captures its selected
+liquids keep their own native rupture effect on leak/damage/destruction. First rupture consumes
+the payload through C_PackageContents.released before callbacks; the emptied shell cannot later
+rupture or materialize an intact replacement. Normal opening instead transfers the payload to
+an intact native body without firing its effect. Destruction captures the committed one-shot
 effect before replacing the package. Passive restore supplies the saved selected_item before
 compilation and rebuilds the derived liquid capability on retained bodies without replaying leak
 facts or timers. The storage format remains schema19/PVZH1. Package IDs and recipients retain

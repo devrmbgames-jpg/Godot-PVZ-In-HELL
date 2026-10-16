@@ -14,7 +14,7 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var event: PackageDebrisSpawnedEvent = payload as PackageDebrisSpawnedEvent
 	if event == null or event.definition == null:
 		return
-	if event.contents_released:
+	if event.contents_released and not event.catalog_order:
 		return
 	var scene: PackedScene = event.definition.hazard_on_destroyed
 	if event.catalog_order:

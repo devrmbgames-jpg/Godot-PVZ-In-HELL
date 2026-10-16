@@ -33,12 +33,21 @@ static func is_liquid(package: Entity) -> bool:
 	)
 
 
-## Returns the actual catalog payload effect; null is meaningful for a safe solid or empty shell.
-static func catalog_rupture_hazard(package: Entity) -> PackedScene:
+## Consumes the actual ruptured payload once before callbacks; returns its captured native effect.
+## Existing released is the durable empty/consumed authority, also blocking later intact extraction.
+static func consume_catalog_rupture(package: Entity) -> PackedScene:
 	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
 	if contents == null or contents.released or contents.selected_item == null:
 		return null
-	return contents.selected_item.cargo_profile.rupture_hazard
+	var scene: PackedScene = contents.selected_item.cargo_profile.rupture_hazard
+	if scene == null:
+		return null
+	var identity: C_Package = package.get_component(C_Package) as C_Package
+	var body: RigidBody3D = package as Node as RigidBody3D
+	contents.released = true
+	body.mass = identity.definition.empty_mass_kg
+	GrabService.refresh_carry_mass(package)
+	return scene
 
 
 ## Rebuilds derived liquid capability after validated passive overlay, before World readiness.

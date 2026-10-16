@@ -1092,6 +1092,35 @@ func test_catalog_solid_restore_removes_legacy_liquid_component() -> void:
 	assert_false(restored.has_component(C_LiquidTilt))
 
 
+## Existing released state preserves a consumed rupture across fresh and retained reconstruction.
+func test_consumed_catalog_payload_restore_cannot_release_or_rupture_again() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_PackageHazard.new())
+	var item_path: String = (
+		"res://content/domains/inventory/definitions/def_item_blood_flask.tres"
+	)
+	var parcel: E_Package = _ordered_package(item_path)
+	assert_not_null(PackageContentsService.consume_catalog_rupture(parcel))
+	var condition: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
+	condition.damage = C_PackageState.Damage.DAMAGED
+	condition.leaking = true
+	var empty_mass: float = parcel.package_definition.empty_mass_kg
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_true(PackageContentsService.is_empty(parcel))
+	assert_true(condition.leaking, "The saved leak fact is preserved, without a replayed rupture")
+	assert_true(PackageContentsService.release(parcel).is_empty())
+	assert_null(PackageContentsService.consume_catalog_rupture(parcel))
+	_world.remove_entity(parcel)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: Entity = _world.query.with_all([C_Package]).execute_one()
+	assert_true(PackageContentsService.is_empty(restored))
+	assert_true(PackageContentsService.release(restored).is_empty())
+	PackageLifecycle.publish(restored, PackageLifecycleEvent.Kind.DAMAGED, _actor)
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 0)
+	assert_eq((restored as Node as RigidBody3D).mass, empty_mass)
+
+
 func _ordered_package(item_path: String = ORDER_ITEM_PATH, source_index: int = 0) -> E_Package:
 	var parcel: E_Package = (load(_PACKAGE_SCENE_PATH) as PackedScene).instantiate() as E_Package
 	var supply: DEF_Delivery = load(ORDER_SUPPLY_PATH) as DEF_Delivery

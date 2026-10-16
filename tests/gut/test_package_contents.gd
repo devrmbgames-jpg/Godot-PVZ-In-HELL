@@ -339,6 +339,57 @@ func test_catalog_acid_destruction_uses_actual_payload_effect_on_debris() -> voi
 	assert_eq(_world.query.with_all([C_Package]).execute().size(), 0)
 
 
+## The same native catalog payload cannot rupture twice across damage and destruction.
+func test_one_catalog_payload_cannot_rupture_again_on_destruction_after_damage() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_PackageHazard.new())
+	_world.add_observer(O_PackageDamage.new())
+	_world.add_observer(O_PackageDestruction.new())
+	_world.add_observer(O_PackageDestroyedHazard.new())
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), BLOOD_ITEM)
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	var request: DamageRequest = DamageRequest.new()
+	request.target = parcel
+	request.source = _actor
+	request.instigator = _actor
+	request.amount = 50.0
+	assert_true(DamageRequestService.submit(request))
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 1)
+	assert_true(contents.released, "The native rupture consumes this payload before callbacks")
+	assert_eq((parcel as Node as RigidBody3D).mass, parcel.package_definition.empty_mass_kg)
+	request = DamageRequest.new()
+	request.target = parcel
+	request.source = _actor
+	request.instigator = _actor
+	request.amount = 100.0
+	assert_true(DamageRequestService.submit(request))
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 1)
+
+
+## A ruptured liquid cannot later materialize an intact item with an unfired native emitter.
+func test_catalog_leak_then_open_cannot_release_a_second_payload_effect() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_HazardEmitter.new())
+	_world.add_observer(O_PackageHazard.new())
+	_world.add_system(S_LiquidTilt.new())
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), BLOOD_ITEM)
+	(parcel as Node as Node3D).rotation.z = PI / 2.0
+	var tilt: C_LiquidTilt = parcel.get_component(C_LiquidTilt) as C_LiquidTilt
+	_world.process(tilt.duration_seconds + 0.1)
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 1)
+	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
+	var items: Array[Entity] = PackageContentsService.release(parcel, _actor)
+	assert_true(items.is_empty(), "Spent contents never become a fresh native flask")
+	if not items.is_empty():
+		var request: DamageRequest = DamageRequest.new()
+		request.target = items[0]
+		request.source = _actor
+		request.instigator = _actor
+		request.amount = 100.0
+		assert_true(DamageRequestService.submit(request))
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 1)
+
+
 ## Normal opening releases an intact catalog item; its own damage produces the effect later.
 func test_catalog_liquid_opening_does_not_rupture_its_intact_native_item() -> void:
 	_world.add_observer(O_HazardSpawn.new())

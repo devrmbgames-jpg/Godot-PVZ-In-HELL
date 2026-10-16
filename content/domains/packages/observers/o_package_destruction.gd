@@ -40,6 +40,10 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 		if event.cause != null and event.cause.world_pose.is_finite()
 		else spatial.global_transform
 	)
+	var catalog_order: bool = PackageContentsService.has_catalog_order(package)
+	var rupture_hazard: PackedScene = (
+		PackageContentsService.consume_catalog_rupture(package) if catalog_order else null
+	)
 	cmd.add_custom(
 		_replace_with_debris.bind(
 			weakref(package),
@@ -53,8 +57,8 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 			angular_velocity,
 			event.cause,
 			PackageContentsService.is_empty(package),
-			PackageContentsService.has_catalog_order(package),
-			PackageContentsService.catalog_rupture_hazard(package),
+			catalog_order,
+			rupture_hazard,
 		)
 	)
 

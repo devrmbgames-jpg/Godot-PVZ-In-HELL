@@ -1,7 +1,7 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `5bc785f40485f99cd1c1d0a7e7335dd254e71f11`
+BASE_SHA: `ca0e1409eaca761988f8913cb242953baac36a4e`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
@@ -36,7 +36,8 @@ Passive restore получает уже сохранённый selected_item д�
 восстанавливает derived liquid capability на reused bodies, сбрасывая только transient timer.
 Новые saved поля/версия не вводятся: schema19/PVZH1 сохранены; preflight проверяет cargo profile.
 Это исправляет существующий material-phase контракт без изменения геометрии или номеров.
-M2c review REVIEW_PENDING. Точные native регрессии и headless main-level smoke PASS.
+M2c review нашёл RV-001/P1; исправление подготовлено, повторный review REVIEW_PENDING.
+Точные native регрессии и headless main-level smoke PASS; milestone не DONE.
 
 Полный once-committed plan количества/массы/упаковки и UI/history ещё не подключён. Вопрос
 несовместимых старых коробок при будущем изменении схемы задан владельцу и остаётся открытым;
@@ -139,7 +140,23 @@ M2c checks:
   project structure и persistence baseline PASS. Saved fields/schema не менялись.
 - PASS headless main-level receiving_scan, `tests/artifacts/receiving_scan-20261016-103250197.log`,
   exit0/explicit PASS/no errors. Регистрация, сканер, терминал и второе утро сохранены.
-- M2c immutable-SHA review REVIEW_PENDING; вся задача остаётся IN_PROGRESS.
+- Первичный review `5bc785f40485f99cd1c1d0a7e7335dd254e71f11` →
+  `ca0e1409eaca761988f8913cb242953baac36a4e` нашёл RV-001/P1; это не PASS milestone.
+- PASS RV-001 fix: contents20/20,280 assertions (`gut-20261016-004655871`), snapshot41/41,520
+  assertions (`004330104`); native parser8/0 (`parsechanged-20261016-004531866`), MCP8 checked/empty,
+  formatter8/role6/strict architecture0/structure/persistence baseline PASS. Schema19 fields intact.
+- PASS fix headless receiving_scan `tests/artifacts/receiving_scan-20261016-104548265.log`, exit0.
+
+### Review triage
+
+- RV-001 — **ACCEPTED P1**, source `ca0e1409eaca761988f8913cb242953baac36a4e`:
+  один payload повторно испускал native rupture при damage→destroy либо leak→open→native damage.
+  Native regression baseline (`gut-20261016-003927943`) подтвердил2 FAIL/20 tests, эффект2 вместо1.
+  Fix: consume_catalog_rupture фиксирует existing C_PackageContents.released до callbacks,
+  переводит массу в пустую оболочку и возвращает один committed effect. Damage/destruction
+  пользуются одной операцией; обычное вскрытие вместо этого передаёт payload целому native body.
+  Contents20 и snapshot41 подтверждают single effect, отказ повторной extraction и consumed restore.
+  Fix commit и targeted re-review ещё не зафиксированы; DONE запрещён до их завершения.
 
 ## План проверки будущей реализации
 

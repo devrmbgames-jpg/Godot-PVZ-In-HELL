@@ -8845,7 +8845,7 @@
       "public_methods": [
         "is_empty",
         "has_catalog_order",
-        "catalog_rupture_hazard"
+        "consume_catalog_rupture"
       ],
       "sources": [
         "content/observers/gameplay/o_package_hazard.gd"
@@ -8853,7 +8853,7 @@
       "method_rights": {
         "is_empty": "query",
         "has_catalog_order": "query",
-        "catalog_rupture_hazard": "query"
+        "consume_catalog_rupture": "request"
       },
       "public_instance_methods": []
     },

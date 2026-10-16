@@ -19,5 +19,5 @@ var world_pose: Transform3D = Transform3D.IDENTITY
 var contents_released: bool = false
 ## A catalog payload replaces legacy contents hazards with its captured native effect.
 var catalog_order: bool = false
-## Actual catalog rupture effect captured before package/debris publication can change lifetime.
+## Committed one-shot catalog effect; released already records consumption before publication.
 var catalog_rupture_hazard: PackedScene = null
