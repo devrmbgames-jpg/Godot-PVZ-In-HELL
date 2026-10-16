@@ -353,6 +353,101 @@ func test_incompatible_and_unresolved_data_reject_before_live_mutation() -> void
 
 
 #region Closed codec path inventory
+## A held incident reconstructs native ownership without replaying the recognition transaction.
+func test_stolen_parcel_disk_roundtrip_restores_one_grip_on_retained_and_fresh_bodies() -> void:
+	_fixture_world.add_observer(O_GrabLifecycle.new())
+	_fixture_world.add_observer(O_CustomerParcelIncidents.new())
+	var session: Entity = _fixture_world.query.with_all([C_DayCycle]).execute_one()
+	var flow: C_CustomerFlow = C_CustomerFlow.new()
+	session.add_component(flow)
+	var parcel: Entity = PackageQueries.find_live_package("fixture/shipment/1")
+	var holder: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+	(GrabQueries.physical_body(parcel)).freeze = false
+	var binding: Relationship = Relationship.new(R_HeldBy.new(), holder)
+	parcel.add_relationship(binding)
+	assert_true((binding.relation as R_HeldBy).lifecycle_applied)
+	var incident: CustomerParcelIncident = CustomerParcelIncident.new()
+	incident.sequence = 1
+	incident.npc_id = _active_id
+	incident.package_id = "fixture/shipment/1"
+	incident.visit_id = &"fixture/wrong-offer"
+	incident.outcome = CustomerParcelReactionRules.Outcome.KEEP
+	incident.phase = CustomerParcelIncident.Phase.HELD
+	incident.created_tick = GameTimeQueries.current().elapsed_ticks
+	incident.next_eligible_tick = incident.created_tick + CustomerParcelIncidentService.BLOCK_TICKS
+	flow.parcel_incident_sequence = 2
+	flow.parcel_incidents.append(incident)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+	assert_eq(AutosaveStore.write(snapshot, SLOT_PATH), OK)
+	var loaded: Dictionary = AutosaveStore.read(SLOT_PATH)
+	for attempt: int in 2:
+		GrabReleaseService.release(holder, parcel)
+		assert_true(WorldSnapshotService.restore(loaded, _fixture_root, true))
+		assert_same(GrabQueries.held_object(holder), parcel)
+		var restored: C_CustomerFlow = CustomerFlowQueries.current()
+		assert_eq(restored.parcel_incident_sequence, 2)
+		assert_eq(restored.parcel_incidents[0].phase, CustomerParcelIncident.Phase.HELD)
+		assert_eq(restored.parcel_incidents[0].next_eligible_tick, incident.next_eligible_tick)
+		assert_null(ThrowContext.relationship(parcel))
+	_fixture_world.remove_entity(holder)
+	_fixture_world.remove_entity(parcel)
+	await get_tree().process_frame
+	assert_true(WorldSnapshotService.can_restore(loaded, _fixture_root))
+	assert_true(WorldSnapshotService.restore(loaded, _fixture_root, true))
+	holder = NpcPopulationQueries.body_for(_active_id)
+	parcel = PackageQueries.find_live_package("fixture/shipment/1")
+	assert_same(GrabQueries.held_object(holder), parcel)
+	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
+	assert_eq(load_state.mass_kg, GrabQueries.physical_body(parcel).mass)
+	assert_eq(CustomerFlowQueries.current().parcel_incident_sequence, 2)
+	assert_false(CustomerFlowQueries.current().parcel_reaction_in_progress)
+
+
+## Invalid incident data rejects before touching the actual World or the current pair journal.
+func test_invalid_incident_shape_deadline_pair_and_held_endpoints_reject_before_mutation() -> void:
+	var session: Entity = _fixture_world.query.with_all([C_DayCycle]).execute_one()
+	var flow: C_CustomerFlow = C_CustomerFlow.new()
+	session.add_component(flow)
+	var incident: CustomerParcelIncident = CustomerParcelIncident.new()
+	incident.sequence = 1
+	incident.npc_id = &"departed/receiver"
+	incident.package_id = "destroyed/parcel"
+	incident.visit_id = &"previous/contact"
+	incident.created_tick = GameTimeQueries.current().elapsed_ticks
+	incident.next_eligible_tick = incident.created_tick + CustomerParcelIncidentService.BLOCK_TICKS
+	flow.parcel_incidents.append(incident)
+	flow.parcel_incident_sequence = 2
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+	var entity_count: int = _fixture_world.entities.size()
+	for mutation: String in ["sequence", "future", "short", "duplicate", "missing", "held"]:
+		var invalid: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in invalid.entities:
+			for saved: Dictionary in record.components:
+				if String(saved.type) != (C_CustomerFlow as Script).resource_path:
+					continue
+				var fields: Dictionary = saved.fields as Dictionary
+				var cases: Array = fields.parcel_incidents as Array
+				var entry: Dictionary = (cases[0] as Dictionary).fields as Dictionary
+				match mutation:
+					"sequence": entry.sequence = 0
+					"future": entry.created_tick = incident.created_tick + 1
+					"short": entry.next_eligible_tick = incident.created_tick + 1
+					"duplicate":
+						fields.parcel_incident_sequence = 3
+						var duplicate: Dictionary = (cases[0] as Dictionary).duplicate(true)
+						(duplicate.fields as Dictionary).sequence = 2
+						cases.append(duplicate)
+					"missing": entry.erase("created_tick")
+					"held":
+						entry.phase = CustomerParcelIncident.Phase.HELD
+						entry.outcome = CustomerParcelReactionRules.Outcome.KEEP
+		assert_false(WorldSnapshotService.restore(invalid, _fixture_root), mutation)
+		assert_same(flow.parcel_incidents[0], incident)
+		assert_eq(_fixture_world.entities.size(), entity_count)
+
+
 ## Exercises every declared Component/record script through the actual codec, including native field
 ## values.
 func test_manifest_covers_runtime_codec_script_paths() -> void:

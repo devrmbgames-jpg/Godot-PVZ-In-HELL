@@ -27,6 +27,7 @@ func before_each() -> void:
 	_cycle.phase = C_DayCycle.Phase.DAY
 	_visit = CustomerVisit.new()
 	_visit.visit_id = &"handoff"
+	_visit.customer_id = &"fixture/customer"
 	_visit.package_id = "handoff-parcel"
 	_visit.definition = DEF_Customer.new()
 	_visit.started = true
@@ -266,14 +267,15 @@ func test_waiting_customer_takes_correct_carry_once_without_button_or_greeting_d
 
 
 ## Неподходящая коробка остаётся в руках; повторные попытки не засоряют реплики отказами.
-func test_wrong_unregistered_destroyed_and_unassigned_orders_stay_held_silently() -> void:
+func test_wrong_then_invalid_orders_stay_held_without_repeating_the_refusal() -> void:
 	await get_tree().physics_frame
 	var message: Label3D = _customer.get_node("Message") as Label3D
-	var original_text: String = message.text
 	var identity: C_Package = _parcel.get_component(C_Package) as C_Package
 	identity.package_id = "someone-else"
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
+	var original_text: String = message.text
+	assert_eq(original_text, "Это не моя посылка.")
 	identity.package_id = _visit.package_id
 
 	var state: C_PackageState = _parcel.get_component(C_PackageState) as C_PackageState

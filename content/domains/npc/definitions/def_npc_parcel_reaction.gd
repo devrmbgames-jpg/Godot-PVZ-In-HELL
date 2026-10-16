@@ -25,6 +25,8 @@ enum Mode {
 @export_range(0.0, 1.0) var damage_probability: float = 0.0
 ## False shares one absolute burn/damage/refusal partition; true uses a second conditional roll.
 @export var damage_after_not_burned: bool = false
+## FIRE damage outcome: positive HP amount, independently authored from its probability.
+@export_range(0.1, 1000.0, 0.1) var damage_amount: float = 20.0
 
 
 #region Authored capability validation
@@ -34,6 +36,8 @@ func _init() -> void:
 
 func valid_configuration() -> bool:
 	if kind != Kind.CAPABILITY:
+		return false
+	if not is_finite(damage_amount) or damage_amount <= 0.0:
 		return false
 	for probability: float in [
 		take_probability,

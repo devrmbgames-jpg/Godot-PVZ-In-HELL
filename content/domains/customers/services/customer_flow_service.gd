@@ -227,7 +227,9 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 		actor, customer, visit, false, CustomerParcelOffer.Source.COUNTER, station,
 	)
 	var delivery_status: PackageDeliveryCheck.Result = confirm_offer(offer, false)
-	if delivery_status != PackageDeliveryCheck.Result.READY:
+	if delivery_status not in [
+		PackageDeliveryCheck.Result.READY, PackageDeliveryCheck.Result.WRONG_PACKAGE,
+	]:
 		station.show_message(CustomerPresentation.check_text(delivery_status))
 	return delivery_status
 
@@ -263,7 +265,7 @@ static func direct_handoff_package(
 	return offer.parcel if offer != null else null
 
 
-## Автоприём проходит те же правила выдачи/осмотра; ошибочные предложения не меняют мир.
+## Automatic handover shares delivery rules; wrong offers commit their separate reaction owner.
 static func try_automatic_handoff(customer: E_NpcCharacter, visit: CustomerVisit) -> bool:
 	if visit == null or not is_instance_valid(ECS.world):
 		return false
@@ -276,11 +278,14 @@ static func try_automatic_handoff(customer: E_NpcCharacter, visit: CustomerVisit
 
 
 ## Revalidates a selected offer after any synchronous greeting; there is one delivery commit path.
-## Wrong-parcel reactions are a later explicit operation, never a successful delivery here.
+## Wrong-parcel recognition commits separately and never reports a successful delivery.
 static func confirm_offer(
 	offer: CustomerParcelOffer, automatic: bool = true,
 ) -> PackageDeliveryCheck.Result:
 	var check: PackageDeliveryCheck = CustomerHandoffService.evaluate_offer(offer, automatic)
+	if check.result == PackageDeliveryCheck.Result.WRONG_PACKAGE:
+		CustomerParcelIncidentService.react(offer, automatic)
+		return check.result
 	if check.result != PackageDeliveryCheck.Result.READY:
 		return check.result
 	if offer.agent.phase == C_CustomerAgent.Phase.WAITING:
@@ -317,7 +322,9 @@ static func confirm_direct_delivery(
 		actor, customer, visit, false, CustomerParcelOffer.Source.HELD,
 	)
 	var delivery_status: PackageDeliveryCheck.Result = confirm_offer(offer, false)
-	if delivery_status != PackageDeliveryCheck.Result.READY:
+	if delivery_status not in [
+		PackageDeliveryCheck.Result.READY, PackageDeliveryCheck.Result.WRONG_PACKAGE,
+	]:
 		customer.show_message(CustomerPresentation.check_text(delivery_status))
 	return delivery_status
 

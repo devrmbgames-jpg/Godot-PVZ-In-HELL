@@ -189,6 +189,15 @@ static func try_pickup_body(
 
 ## Освобождает соответствующее владение перед импульсом авторского изменения скорости броска.
 static func throw(holder: Entity, held: Entity) -> void:
+	var controller: C_Controller = (
+		holder.get_component(C_Controller) as C_Controller if is_instance_valid(holder) else null
+	)
+	var direction: Vector3 = controller.direction_look if controller != null else Vector3.ZERO
+	throw_in_direction(holder, held, direction)
+
+
+## Throws the real held body toward a captured world direction; leaves controller intent unchanged.
+static func throw_in_direction(holder: Entity, held: Entity, direction: Vector3) -> void:
 	if not is_instance_valid(holder) or not is_instance_valid(held):
 		return
 
@@ -196,12 +205,11 @@ static func throw(holder: Entity, held: Entity) -> void:
 	if grip == null or grip.target != holder:
 		return
 
-	var controller: C_Controller = holder.get_component(C_Controller) as C_Controller
 	var body: RigidBody3D = GrabQueries.physical_body(held)
 	var grip_data: R_HeldBy = grip.relation as R_HeldBy
 	var profile: GrabControlProfile = grip_data.profile
 
-	if controller == null or body == null or profile == null:
+	if not direction.is_finite() or direction.is_zero_approx() or body == null or profile == null:
 		GrabReleaseService.release(holder, held)
 		return
 
@@ -213,12 +221,21 @@ static func throw(holder: Entity, held: Entity) -> void:
 		strength,
 	)
 	var impulse: Vector3 = GrabPhysicsSolver.throw_impulse(
-		controller.direction_look,
+		direction.normalized(),
 		effective_throw_velocity,
 		body.mass,
 	)
 
+	var world: World = ECS.world
 	GrabReleaseService.release(holder, held)
+	# Release notifies observers; a retired body, replacement owner or World cannot be thrown.
+	if (
+		ECS.world != world or not EntityAvailability.contains(held, world)
+		or not GrabQueries.holder_available(holder)
+		or GrabQueries.physical_body(held) != body
+		or GrabQueries.held_relationship(held) != null
+	):
+		return
 	body.sleeping = false
 	body.apply_central_impulse(impulse)
 	if not impulse.is_zero_approx():

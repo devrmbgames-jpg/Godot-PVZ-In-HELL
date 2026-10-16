@@ -2741,7 +2741,10 @@
         "holder_available",
         "physical_body",
         "held_object",
-        "hold_anchor"
+        "hold_anchor",
+        "can_carry_body",
+        "profile_for",
+        "profile_slot_allowed"
       ],
       "sources": [
         "content/services/customers/customer_dialogue_service.gd",
@@ -2749,7 +2752,8 @@
         "content/services/customers/customer_handoff_service.gd",
         "content/services/npc/npc_delivery_scenario_service.gd",
         "content/services/npc/npc_home_delivery_service.gd",
-        "content/systems/gameplay/s_customer_combat.gd"
+        "content/systems/gameplay/s_customer_combat.gd",
+        "content/domains/customers/services/customer_parcel_incident_service.gd"
       ],
       "method_rights": {
         "entity_available": "request",
@@ -2758,7 +2762,10 @@
         "holder_available": "request",
         "physical_body": "request",
         "held_object": "query",
-        "hold_anchor": "query"
+        "hold_anchor": "query",
+        "can_carry_body": "query",
+        "profile_for": "query",
+        "profile_slot_allowed": "query"
       },
       "public_instance_methods": []
     },
@@ -3512,7 +3519,9 @@
         "request",
         "subscribe"
       ],
-      "public_methods": [],
+      "public_methods": [
+        "rules_for"
+      ],
       "sources": [
         "content/services/customers/customer_flow_service.gd",
         "content/services/customers/customer_presentation.gd",
@@ -3521,10 +3530,12 @@
         "content/services/npc/npc_service_role.gd"
       ],
       "method_rights": {
-        "rule_for": "query"
+        "rule_for": "query",
+        "rules_for": "query"
       },
       "public_instance_methods": [
-        "rule_for"
+        "rule_for",
+        "rules_for"
       ]
     },
     {
@@ -4199,7 +4210,8 @@
         "read"
       ],
       "public_methods": [
-        "decision"
+        "decision",
+        "current"
       ],
       "sources": [
         "content/services/customers/customer_flow_service.gd",
@@ -4208,7 +4220,8 @@
         "content/services/npc/npc_delivery_offer_service.gd"
       ],
       "method_rights": {
-        "decision": "query"
+        "decision": "query",
+        "current": "query"
       },
       "public_instance_methods": [],
       "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
@@ -13907,13 +13920,15 @@
         "read"
       ],
       "public_methods": [
-        "find_visit"
+        "find_visit",
+        "current"
       ],
       "sources": [
         "content/services/persistence/night_reset_service.gd"
       ],
       "method_rights": {
-        "find_visit": "query"
+        "find_visit": "query",
+        "current": "query"
       },
       "public_instance_methods": []
     },
@@ -20116,7 +20131,8 @@
         "valid_configuration": "query"
       },
       "sources": [
-        "content/domains/customers/rules/customer_parcel_reaction_rules.gd"
+        "content/domains/customers/rules/customer_parcel_reaction_rules.gd",
+        "content/domains/customers/services/customer_parcel_incident_queries.gd"
       ],
       "purpose": "Pure wrong-parcel choice consumes an immutable typed NPC capability; no mutable personality, lifetime or outcome authority."
     },
@@ -20140,6 +20156,259 @@
         "content/domains/npc/authoring/et_npc_parcel_holder.gd"
       ],
       "purpose": "Native NPC parcel-holder Trait constructs fresh grab data; R_HeldBy/O_GrabLifecycle remain the live binding and cache owners."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "interaction",
+      "symbol": "GrabService",
+      "path": "content/domains/interaction/services/grab_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "throw_in_direction",
+        "grip_added"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "throw_in_direction": "request",
+        "grip_added": "request"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_parcel_incident_service.gd"
+      ],
+      "purpose": "Explicit captured-direction throw and passive reconstruction of committed NPC grip; common grab owners retain physics and cleanup authority."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "packages",
+      "symbol": "PackagePayloadRules",
+      "path": "content/domains/packages/rules/package_payload_rules.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "remaining_item"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "remaining_item": "query"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_parcel_incident_service.gd"
+      ],
+      "purpose": "Read actual remaining cargo capabilities before one wrong-parcel choice; no payload mutation."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "combat",
+      "symbol": "C_ThrowDamage",
+      "path": "content/domains/combat/components/c_throw_damage.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "read"
+      },
+      "sources": [
+        "content/domains/packages/authoring/et_package_state.gd"
+      ],
+      "purpose": "Fresh construction-only attribution capability with zero bonus HP; native impacts remain the damage authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "customers",
+      "symbol": "CustomerParcelIncident",
+      "path": "content/domains/customers/contracts/customer_parcel_incident.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "read"
+      },
+      "sources": [
+        "content/domains/persistence/rules/customer_parcel_incident_snapshot_rules.gd",
+        "content/domains/persistence/services/save_data_codec.gd"
+      ],
+      "purpose": "Closed durable incident codec and semantic preflight; live Entity references are never serialized."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "customers",
+      "symbol": "CustomerParcelIncidentService",
+      "path": "content/domains/customers/services/customer_parcel_incident_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "release_for_restore",
+        "restore_bindings"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "release_for_restore": "request",
+        "restore_bindings": "request"
+      },
+      "sources": [
+        "content/domains/persistence/services/world_snapshot_service.gd"
+      ],
+      "purpose": "Explicit accepted restore boundary retires old stolen grips and reconstructs committed ownership with reactions suppressed."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "interaction",
+      "symbol": "C_CarryLoad",
+      "path": "content/domains/interaction/components/c_carry_load.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/customer_parcel_incident_snapshot_rules.gd"
+      ],
+      "purpose": "Read native recipe capability before restoring an appropriation; no runtime carry mutation."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "interaction",
+      "symbol": "CarryLoadPolicy",
+      "path": "content/domains/interaction/rules/carry_load_policy.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "can_carry"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "can_carry": "query"
+      },
+      "sources": [
+        "content/domains/persistence/rules/customer_parcel_incident_snapshot_rules.gd"
+      ],
+      "purpose": "Validate saved actual payload mass against saved positive NPC Strength before World mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "combat",
+      "symbol": "DamageRequest",
+      "path": "content/domains/combat/contracts/damage_request.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "read"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_parcel_incident_service.gd"
+      ],
+      "purpose": "Creates one attributed request payload after incident commit; health mutation remains with the combat damage owner."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "combat",
+      "symbol": "DamageRequestService",
+      "path": "content/domains/combat/services/damage_request_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "submit"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "submit": "request"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_parcel_incident_service.gd"
+      ],
+      "purpose": "Submits actual wrong-parcel fire damage through the existing request/result lifecycle."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "motion",
+      "symbol": "C_Strength",
+      "path": "content/domains/motion/components/c_strength.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_parcel_incident_service.gd"
+      ],
+      "purpose": "Read native NPC carry strength before transfer; no stat mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "time",
+      "symbol": "GameTimeRules",
+      "path": "content/domains/time/rules/game_time_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_parcel_incident_service.gd"
+      ],
+      "purpose": "Reads the canonical microsecond quantum; no extra clock or tick."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "combat",
+      "symbol": "DEF_ReceiverEffect",
+      "path": "content/domains/combat/definitions/def_receiver_effect.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_parcel_incident_service.gd"
+      ],
+      "purpose": "Read actual payload holy alignment from immutable native effect definition."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "customers",
+      "symbol": "CustomerParcelReactionRules",
+      "path": "content/domains/customers/rules/customer_parcel_reaction_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/customer_parcel_incident_snapshot_rules.gd"
+      ],
+      "purpose": "Read the closed committed-outcome enum without executing or rerolling a reaction."
     }
   ],
   "legacy_decomposition": []

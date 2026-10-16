@@ -4,7 +4,10 @@ class_name WorldSnapshotService
 
 
 #region Ключи и снимок
-static func _cargo_transaction_in_progress() -> bool:
+static func _snapshot_transaction_in_progress() -> bool:
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	if flow != null and flow.parcel_reaction_in_progress:
+		return true
 	for owner: Entity in ECS.world.query.with_all([C_Receiving]).execute():
 		var receiving: C_Receiving = owner.get_component(C_Receiving) as C_Receiving
 		if receiving.cargo_commit_in_progress:
@@ -19,7 +22,7 @@ static func _cargo_transaction_in_progress() -> bool:
 static func capture(root: Node, morning_day: int) -> Dictionary:
 	if (
 		not is_instance_valid(ECS.world) or root == null
-		or morning_day < 1 or _cargo_transaction_in_progress()
+		or morning_day < 1 or _snapshot_transaction_in_progress()
 	):
 		return { }
 
@@ -351,6 +354,7 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 		and DistrictSnapshotRules.valid(records, all_components, int(snapshot.morning_day))
 		and LootSnapshotRules.valid(records, all_components)
 		and PackageOrderSnapshotRules.valid(all_components, records)
+		and CustomerParcelIncidentSnapshotRules.valid(all_components, records)
 	)
 
 
@@ -358,7 +362,7 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 ## Includes valid; builds/disposes temporary prefab instances and plans for missing actors.
 ## false leaves live World state intact; no registration/readiness publication or scheduled tick.
 static func can_restore(snapshot: Dictionary, root: Node) -> bool:
-	if is_instance_valid(ECS.world) and _cargo_transaction_in_progress():
+	if is_instance_valid(ECS.world) and _snapshot_transaction_in_progress():
 		return false
 	if not valid(snapshot, root):
 		return false
@@ -388,6 +392,7 @@ static func can_restore(snapshot: Dictionary, root: Node) -> bool:
 	var compatible: bool = (
 		_prepare_fresh_recipes(snapshot.entities as Array, entities, temporary, null, plans)
 		and SnapshotGraphRules.valid_entities(snapshot.entities as Array, entities)
+		and CustomerParcelIncidentSnapshotRules.valid_entities(snapshot.entities as Array, entities)
 	)
 	for candidate: Entity in temporary:
 		candidate.free()
@@ -460,6 +465,9 @@ static func restore(
 	if (
 		not _prepare_fresh_recipes(snapshot.entities as Array, entities, fresh, ECS.world, plans)
 		or not SnapshotGraphRules.valid_entities(snapshot.entities as Array, entities)
+		or not CustomerParcelIncidentSnapshotRules.valid_entities(
+			snapshot.entities as Array, entities,
+		)
 		or not _valid_ids(snapshot.entities as Array, entities)
 	):
 		for candidate: Entity in fresh:
@@ -467,6 +475,7 @@ static func restore(
 		return false
 
 	var activity: Dictionary[Observer, bool] = SnapshotRestoreBoundary.begin(ECS.world)
+	CustomerParcelIncidentService.release_for_restore()
 	for actor: Entity in entities.values():
 		EntityCompositionService.begin_reconstruction(actor)
 
@@ -689,6 +698,9 @@ static func restore(
 	RefusalQuestService.restore_bindings()
 	DistrictPopulationService.restore_participation()
 	RawPhysicsSnapshot.restore(snapshot.raw_actors as Array, root)
+	if not CustomerParcelIncidentService.restore_bindings():
+		SnapshotRestoreBoundary.finish(ECS.world, activity)
+		return false
 	# Current-format receipts may predate automatic registration. Reconcile only real restored boxes
 	# while reactions are suppressed; Customer planning must see their numbers before readiness.
 	PackageRegistrationService.reconcile_received()

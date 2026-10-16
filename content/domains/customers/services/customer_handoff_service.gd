@@ -148,6 +148,11 @@ static func _append_offer(
 	offer.check = evaluate_offer(offer, automatic)
 	if offer.check.result == PackageDeliveryCheck.Result.MISSING:
 		return
+	if (
+		offer.check.result == PackageDeliveryCheck.Result.WRONG_PACKAGE
+		and CustomerParcelIncidentQueries.blocked(offer.visit, offer.parcel)
+	):
+		return
 	if automatic and offer.check.result not in [
 		PackageDeliveryCheck.Result.READY, PackageDeliveryCheck.Result.WRONG_PACKAGE,
 	]:

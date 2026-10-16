@@ -47,6 +47,7 @@ static var _record_types: Array[Script] = [
 	NpcMemory,
 	NpcHomeDelivery,
 	CustomerVisit,
+	CustomerParcelIncident,
 	CustomerComplaint,
 	CombatContext,
 	MoneyOperation,
@@ -205,6 +206,7 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		NpcVariation,
 		NpcRecord,
 		ReceivingBatch,
+		CustomerParcelIncident,
 		PackageRegistrationRecord,
 		SoulTradeRecord,
 		BloodConsentRecord,
@@ -216,6 +218,8 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			exact_fields = NpcRecord.SAVE_FIELDS
 		elif script == ReceivingBatch:
 			exact_fields = ReceivingBatch.SAVE_FIELDS
+		elif script == CustomerParcelIncident:
+			exact_fields = CustomerParcelIncident.SAVE_FIELDS
 		elif script == PackageRegistrationRecord:
 			exact_fields = PackageRegistrationRecord.SAVE_FIELDS
 		elif script == SoulTradeRecord:

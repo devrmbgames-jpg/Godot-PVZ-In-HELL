@@ -53,6 +53,43 @@ static func _valid_pose(pose: Transform3D) -> bool:
 
 
 #region Native counter support
+## Chooses a lateral path clear for every actual parcel collider over one metre of travel.
+## Blocked sides return zero, so a holy rejection never invents a teleport or an aimed hit.
+static func clear_side_direction(
+	body: RigidBody3D, to_player: Vector3, customer: Entity, actor: Entity,
+) -> Vector3:
+	var away: Vector3 = to_player.slide(Vector3.UP).normalized()
+	if away.is_zero_approx():
+		away = Vector3.FORWARD
+	var side: Vector3 = away.cross(Vector3.UP).normalized()
+	var excluded: Array[RID] = [body.get_rid()]
+	for owner: Entity in [customer, actor]:
+		var physics: PhysicsBody3D = owner as Node as PhysicsBody3D
+		if physics != null:
+			excluded.append(physics.get_rid())
+	for direction: Vector3 in [side, -side]:
+		var clear: bool = true
+		for owner_id: int in body.get_shape_owners():
+			if body.is_shape_owner_disabled(owner_id):
+				continue
+			for index: int in body.shape_owner_get_shape_count(owner_id):
+				var parameters: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+				parameters.shape = body.shape_owner_get_shape(owner_id, index)
+				parameters.transform = (
+					body.global_transform * body.shape_owner_get_transform(owner_id)
+				)
+				parameters.motion = direction * MAX_REACH_METERS
+				parameters.collision_mask = CustomerHandoffService.OCCLUSION_MASK
+				parameters.exclude = excluded
+				var space: PhysicsDirectSpaceState3D = body.get_world_3d().direct_space_state
+				var travel: PackedFloat32Array = space.cast_motion(parameters)
+				if travel.size() != 2 or travel[0] < 1.0:
+					clear = false
+		if clear:
+			return direction
+	return Vector3.ZERO
+
+
 ## Reads a downward physical support chain through the supplied stable parcels to the counter.
 ## The caller filters hands/slots/cargo and velocities; the chain is bounded by this finite set.
 static func counter_supported(

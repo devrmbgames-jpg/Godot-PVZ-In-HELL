@@ -326,6 +326,17 @@ flag still owns consumption; a transient contents_burned fact permits that destr
 legacy effect while keeping previously emptied shells inert. Catalog rupture retains its captured
 effect and cannot recreate intact cargo. Arrival quantity/history remain unchanged.
 
+Runtime wrong offers enter CustomerParcelIncidentService from the common CustomerFlow commit gate.
+C_CustomerFlow owns one monotonic decision sequence and the retained typed NPC/parcel incidents;
+GameClock owns time and each incident holds its 180-active-second deadline. One synchronous operation
+commits choice/block before callbacks and excludes snapshot capture until effects finish. No Service
+tick or extra clock is introduced. O_CustomerParcelIncidents records discrete stolen-grip release;
+R_HeldBy remains live ownership. Native NPC traits supply carry capability; package state recipes
+supply throw provenance with zero bonus HP. GrabService owns captured-direction impulses/cleanup,
+and DamageRequest/normal package lifecycle own fire effects. Correct parcels bypass wrong-pair blocks.
+Schema23 restores committed stolen bindings by stable IDs inside the accepted snapshot boundary,
+without replaying reaction effects. Intimidation and owner gameplay acceptance remain separate work.
+
 DEF_NpcParcelReaction is a typed CAPABILITY in the existing NPC trait set. Its mode owns authored
 take/conditional-throw or fire probabilities; holy precedence and absolute/conditional fire damage
 are explicit tuning. CustomerParcelReactionRules consumes the selected immutable capability,

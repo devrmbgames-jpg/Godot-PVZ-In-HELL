@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://dfrgb3jjg8xhc" path="res://content/domains/combat/systems/s_receiver_effect.gd" id="59_dm03w"]
 [ext_resource type="Script" uid="uid://catw24xcylq58" path="res://content/domains/hazards/observers/o_blood_area_setup.gd" id="60_5uysu"]
 [ext_resource type="Script" uid="uid://cmbi3d6bll5pc" path="res://content/domains/npc/observers/o_npc_blood_stimulus.gd" id="61_y8kp8"]
+[ext_resource type="Script" uid="uid://bcijio253j4m1" path="res://content/domains/customers/observers/o_customer_parcel_incidents.gd" id="62_2281s"]
 [ext_resource type="Script" uid="uid://dkb2c2k1cmk1v" path="res://content/domains/interaction/systems/s_anchor_stability.gd" id="Anchor_stability"]
 [ext_resource type="Script" uid="uid://gh1el1ej0i27" path="res://content/domains/interaction/systems/s_cart_cargo.gd" id="Cart_cargo_system"]
 [ext_resource type="Script" uid="uid://cgqgtiq38w0ep" path="res://content/domains/challenges/observers/o_challenge_floor_activation.gd" id="Challenge_floor"]
@@ -301,11 +302,15 @@ script = ExtResource("60_5uysu")
 [node name="O_NpcBloodStimulus" type="Node" parent="Systems/GamePlay" unique_id=1591797161]
 script = ExtResource("61_y8kp8")
 
+[node name="O_CustomerParcelIncidents" type="Node" parent="Systems/GamePlay" unique_id=1075427141]
+script = ExtResource("62_2281s")
+
 [node name="Storage" type="Node" parent="Systems" unique_id=2085462013]
 script = ExtResource("3_ahxau")
 
 [node name="S_NightSave" type="Node" parent="Systems/Storage" unique_id=994431759]
 script = ExtResource("Night_save_system")
+group = &"Storage"
 
 [node name="Physics" type="Node" parent="Systems" unique_id=52509126]
 script = ExtResource("3_ahxau")

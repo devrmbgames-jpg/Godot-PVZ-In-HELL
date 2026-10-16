@@ -1,5 +1,5 @@
 {
-  "schema": 22,
+  "schema": 23,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -38,7 +38,9 @@
       "path": "res://content/domains/customers/components/c_customer_flow.gd",
       "fields": [
         "planned_through_day",
-        "visits"
+        "visits",
+        "parcel_incident_sequence",
+        "parcel_incidents"
       ]
     },
     {
@@ -339,6 +341,10 @@
     {
       "symbol": "CustomerVisit",
       "path": "res://content/domains/customers/contracts/customer_visit.gd"
+    },
+    {
+      "symbol": "CustomerParcelIncident",
+      "path": "res://content/domains/customers/contracts/customer_parcel_incident.gd"
     },
     {
       "symbol": "CustomerComplaint",

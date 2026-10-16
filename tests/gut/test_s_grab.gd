@@ -485,6 +485,23 @@ func test_primary_throws_after_releasing_ownership() -> void:
 	assert_lt(box_body.linear_velocity.z, -9.5)
 
 
+## A release callback may transfer the body; the old throw must preserve the replacement grip.
+func test_captured_direction_throw_does_not_arm_or_impulse_a_replacement_holder() -> void:
+	var receiver: Entity = make_holder(Vector3(3, 0, 0))
+	box_entity.add_component(C_ThrowDamage.new())
+	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)
+	box_entity.relationship_removed.connect(
+		func(subject: Entity, previous: Relationship) -> void:
+			if previous.relation is R_HeldBy and previous.target == holder_entity:
+				subject.add_relationship(Relationship.new(R_HeldBy.new(), receiver)),
+	)
+	GrabService.throw_in_direction(holder_entity, box_entity, Vector3.RIGHT)
+	assert_same(GrabQueries.held_object(receiver), box_entity)
+	assert_null(GrabQueries.held_object(holder_entity))
+	assert_null(ThrowContext.relationship(box_entity))
+	assert_eq(box_body.linear_velocity, Vector3.ZERO)
+
+
 ## Основная и вторичная кнопки сами не создают хват при свободных руках.
 func test_free_primary_and_secondary_do_not_acquire_object() -> void:
 	input_state.action_main_pressed = true

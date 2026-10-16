@@ -45,6 +45,10 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 	if definition == null:
 		return []
 	var recipes: Array[Component] = []
+	# Parcels retain intentional throw provenance; impact energy remains the damage authority.
+	var throwing: C_ThrowDamage = C_ThrowDamage.new()
+	throwing.throw_damage = 0.0
+	recipes.append(throwing)
 	if definition.unpack_scene != null:
 		recipes.append(C_PackageContents.new())
 	var tilt: C_LiquidTilt = PackageLiquidRules.recipe_for(definition, _selected_item(context))

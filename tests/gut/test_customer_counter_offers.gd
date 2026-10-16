@@ -66,6 +66,7 @@ func after_each() -> void:
 func _new_visit(id: StringName, package_id: String) -> CustomerVisit:
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = id
+	visit.customer_id = StringName("fixture/customer/" + String(id))
 	visit.package_id = package_id
 	visit.definition = DEF_Customer.new()
 	visit.started = true
@@ -124,6 +125,25 @@ func _assert_unresolved(parcel: Entity) -> void:
 
 
 #region Counter source and the scheduled entry point
+func test_wrong_counter_parcel_keeps_the_same_pair_block_after_moving_to_player_hands() -> void:
+	var parcel: E_Package = _parcel("parcel/wrong")
+	await _sync_physics()
+	var offer: CustomerParcelOffer = _offer()
+	assert_not_null(offer)
+	assert_eq(CustomerFlowService.confirm_offer(offer), PackageDeliveryCheck.Result.WRONG_PACKAGE)
+	assert_eq(_flow.parcel_incidents.size(), 1)
+	assert_null(_offer())
+	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	var sequence: int = _flow.parcel_incident_sequence
+	var selected: CustomerParcelOffer = CustomerHandoffService.select_offer(
+		_actor, _customer, _visit, false, CustomerParcelOffer.Source.HELD,
+	)
+	assert_null(selected)
+	assert_eq(_flow.parcel_incident_sequence, sequence)
+	assert_same(GrabQueries.held_object(_actor), parcel)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+
+
 func test_real_falling_parcel_becomes_an_offer_only_after_landing_and_settling() -> void:
 	var parcel: E_Package = _parcel("parcel/own", Vector3(0, 1.7, 0))
 	var body: RigidBody3D = parcel as Node as RigidBody3D
@@ -243,19 +263,20 @@ func test_stable_stack_is_supported_through_the_lower_parcel_to_the_counter() ->
 
 
 func test_wrong_candidate_tie_uses_stable_package_id_and_commits_no_delivery() -> void:
-	_parcel("wrong/b", Vector3(0.3, 1.1, 0))
+	var second: E_Package = _parcel("wrong/b", Vector3(0.3, 1.1, 0))
 	var first: E_Package = _parcel("wrong/a", Vector3(-0.3, 1.1, 0))
 	await _sync_physics()
-	for attempt: int in 3:
+	for expected: E_Package in [first, second]:
 		var offer: CustomerParcelOffer = _offer()
 		assert_not_null(offer)
 		if offer != null:
-			assert_same(offer.parcel, first)
+			assert_same(offer.parcel, expected)
 			assert_eq(offer.check.result, PackageDeliveryCheck.Result.WRONG_PACKAGE)
 			assert_eq(
 				CustomerFlowService.confirm_offer(offer),
 				PackageDeliveryCheck.Result.WRONG_PACKAGE,
 			)
+	assert_null(_offer(), "Both stable pairs are blocked after their own single recognition")
 	_assert_unresolved(first)
 #endregion
 

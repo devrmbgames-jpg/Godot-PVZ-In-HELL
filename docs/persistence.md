@@ -38,6 +38,8 @@ Schema 21 retains the frozen catalog quantity/packing on `C_PackageContents` and
 
 Schema 22 adds persisted `C_Strength` to native NPCs through `ET_NpcParcelHolder`. Fresh and retained district bodies restore the saved positive Strength rather than the authored default. Schema21 NPC records without that component are unsupported: startup rejects them before mutation and preserves the original file. The PVZH1 envelope is unchanged.
 
+Schema 23 persists `C_CustomerFlow.parcel_incident_sequence` and typed pair incidents. The chosen outcome and active-gameplay deadline commit before physical effects; capture refuses an in-progress reaction. Semantic preflight rejects malformed sequences, duplicate pairs/deadlines and impossible held endpoints before mutation. Accepted restore retires previous stolen grips and rebuilds only committed NPC ownership through the common grab owner while observers are suspended; it never repeats RNG, speech, impulses or damage. Unsupported schema22 and earlier files are rejected and preserved, without conversion or PVZH1 changes.
+
 ## Refactoring v2 identity contract
 
 This heading retains incoming historical links; the rules below describe the implemented runtime.

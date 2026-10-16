@@ -1,0 +1,281 @@
+extends "res://tests/gut/test_customer_handoff.gd"
+## Real wrong-offer commits, physical NPC ownership/throws and active-time pair idempotency.
+
+const REACTIONS = preload("res://content/domains/customers/rules/customer_parcel_reaction_rules.gd")
+const SUPPLY: DEF_Delivery = preload(
+	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
+)
+const TOY: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_toy_block.tres"
+)
+const HOLY: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_holy_artifact.tres"
+)
+
+var _flow: C_CustomerFlow
+
+
+## Observes the actual synchronous release callback, not a manually toggled transaction flag.
+class CaptureDuringRelease extends Observer:
+	## Borrowed test root for the real snapshot operation.
+	var capture_root: Node
+	## Captured operation results, retained only for this test.
+	var snapshots: Array[Dictionary] = []
+	## Journal size visible inside the physical ownership transition.
+	var committed_count: int = 0
+
+
+	func query() -> QueryBuilder:
+		return q.on_relationship_removed([R_HeldBy])
+
+
+	func each(_event: Variant, _entity: Entity, _payload: Variant = null) -> void:
+		committed_count = CustomerFlowQueries.current().parcel_incidents.size()
+		snapshots.append(WorldSnapshotService.capture(capture_root, 1))
+
+
+#region Real role and captured decision fixtures
+func before_each() -> void:
+	await super.before_each()
+	_flow = CustomerFlowQueries.current()
+	_world.add_observer(O_CustomerParcelIncidents.new())
+	_visit.customer_id = &"npc/ordinary"
+	_cycle.clock.elapsed_ticks = 1000
+
+
+func _wrong_offer() -> CustomerParcelOffer:
+	_visit.package_id = "other-required-parcel"
+	for binding: Relationship in _parcel.relationships.duplicate():
+		if binding.relation is R_AssignedTo:
+			_parcel.remove_relationship(binding)
+	return CustomerHandoffService.select_offer(_actor, _customer, _visit)
+
+
+func _native_receiver(key: StringName) -> void:
+	var district: C_District = C_District.new()
+	district.definition = (
+		load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	)
+	district.people = NpcPopulationRules.initial_records(district.definition, 1, 0)
+	var session: Entity = _world.query.with_all([C_CustomerFlow]).execute_one()
+	session.add_component(district)
+	var person: NpcRecord = null
+	for candidate: NpcRecord in district.people:
+		if candidate.profile.key == key:
+			person = candidate
+	assert_not_null(person)
+	if person == null:
+		return
+	_world.remove_entity(_customer)
+	var actor: E_DistrictNpc = (
+		load("res://content/domains/npc/entities/district_npc.tscn") as PackedScene
+	).instantiate() as E_DistrictNpc
+	actor.freeze = true
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		_world,
+		String(person.npc_id),
+	)
+	NpcConstructionService.configure_context(context, person, district.definition)
+	assert_true(EntityCompositionService.try_register(context))
+	_customer = actor
+	_agent = C_CustomerAgent.new()
+	_agent.visit_id = _visit.visit_id
+	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	_customer.add_component(_agent)
+	_visit.customer_id = person.npc_id
+	(_actor as Node as Node3D).position.z = -2.0
+	var anchor: Node3D = _customer.hold_anchor
+	var position: Vector3 = anchor.global_position - anchor.global_basis.z * 0.35
+	(_parcel as Node as Node3D).global_position = position
+
+
+func _payload(item: DEF_InventoryItem) -> void:
+	var contents: C_PackageContents = _parcel.get_component(C_PackageContents) as C_PackageContents
+	contents.selected_item = item
+	contents.quantity = 1
+	contents.packing_profile = PackagePackingRules.choose(
+		SUPPLY.packing_profiles,
+		item.cargo_profile,
+		1,
+	)
+	(_parcel as Node as RigidBody3D).mass = PackageContentsService.full_mass_kg(_parcel)
+
+
+func _decision(outcome: REACTIONS.Outcome) -> void:
+	var rule: DEF_NpcParcelReaction = CustomerParcelIncidentQueries.rule_for(_customer)
+	var contents: C_PackageContents = _parcel.get_component(C_PackageContents) as C_PackageContents
+	var item: DEF_InventoryItem = PackagePayloadRules.remaining_item(
+		_parcel.package_definition,
+		contents,
+	)
+	for sequence: int in range(1, 1000):
+		var random: RandomNumberGenerator = GameTimeQueries.decision(
+			String(_visit.customer_id),
+			1,
+			"customer/parcel/" + (_parcel.get_component(C_Package) as C_Package).package_id,
+			sequence,
+		)
+		var selected: REACTIONS.Outcome = REACTIONS.choose(
+			rule,
+			item == HOLY,
+			item != null and item.destroyed_by_fire,
+			random.randf(),
+			random.randf(),
+		)
+		if selected == outcome:
+			_flow.parcel_incident_sequence = sequence
+			return
+	fail_test("Authored decision fixture has no requested outcome")
+#endregion
+
+
+#region Recognition and physical outcomes
+func test_wrong_refusal_commits_before_reentry_and_expires_at_180_active_seconds() -> void:
+	var offer: CustomerParcelOffer = _wrong_offer()
+	assert_not_null(offer)
+	assert_eq(CustomerFlowService.confirm_offer(offer), PackageDeliveryCheck.Result.WRONG_PACKAGE)
+	assert_eq(_flow.parcel_incidents.size(), 1)
+	assert_eq(_flow.parcel_incident_sequence, 2)
+	assert_same(GrabQueries.held_object(_actor), _parcel)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_null(CustomerHandoffService.select_offer(_actor, _customer, _visit, false))
+	assert_false(CustomerParcelIncidentService.react(offer, false))
+	_cycle.clock.elapsed_ticks += GameTimeRules.duration_ticks(179.9)
+	assert_null(CustomerHandoffService.select_offer(_actor, _customer, _visit))
+	_cycle.clock.elapsed_ticks += GameTimeRules.duration_ticks(0.1)
+	assert_not_null(CustomerHandoffService.select_offer(_actor, _customer, _visit))
+	assert_true(CustomerParcelIncidentService.react(offer, true))
+	assert_eq(_flow.parcel_incidents.size(), 1)
+	assert_eq(_flow.parcel_incident_sequence, 3)
+
+
+func test_pair_block_does_not_block_the_actual_recipient_or_repeat_manual_speech() -> void:
+	var offer: CustomerParcelOffer = _wrong_offer()
+	assert_true(CustomerParcelIncidentService.react(offer, true))
+	_customer.show_message("sentinel")
+	CustomerFlowService.confirm_offer(offer, false)
+	assert_eq((_customer.get_node("Message") as Label3D).text, "sentinel")
+	_visit.package_id = (_parcel.get_component(C_Package) as C_Package).package_id
+	CustomerParcelAssignment.bind_parcel(_customer, _visit)
+	assert_true(CustomerFlowService.try_automatic_handoff(_customer, _visit))
+	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
+
+
+func test_native_brute_keeps_one_actual_grip_without_resolving_its_own_order() -> void:
+	_native_receiver(&"archetype/brute")
+	_decision(REACTIONS.Outcome.KEEP)
+	var offer: CustomerParcelOffer = _wrong_offer()
+	assert_true(CustomerParcelIncidentService.react(offer, true))
+	assert_null(GrabQueries.held_object(_actor))
+	assert_same(GrabQueries.held_object(_customer), _parcel)
+	assert_eq(_flow.parcel_incidents[0].phase, CustomerParcelIncident.Phase.HELD)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq((_customer.get_node("Message") as Label3D).text, "Спасибо за подарок.")
+	_cycle.clock.elapsed_ticks += GameTimeRules.duration_ticks(200.0)
+	GrabReleaseService.release(_customer, _parcel)
+	assert_eq(_flow.parcel_incidents[0].phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_eq(
+		_flow.parcel_incidents[0].next_eligible_tick,
+		_cycle.clock.elapsed_ticks + CustomerParcelIncidentService.BLOCK_TICKS,
+	)
+
+
+func test_chain_throw_is_a_real_impulse_attributed_to_the_npc() -> void:
+	_native_receiver(&"archetype/chain_devil")
+	_decision(REACTIONS.Outcome.THROW_AT_PLAYER)
+	var expected: Vector3 = (_actor as Node as Node3D).global_position - (
+		_parcel as Node as Node3D
+	).global_position
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_null(GrabQueries.held_relationship(_parcel))
+	assert_same(ThrowContext.relationship(_parcel).target, _customer)
+	await get_tree().physics_frame
+	var body: RigidBody3D = _parcel as Node as RigidBody3D
+	for step: int in 6:
+		if body.linear_velocity.length_squared() > 0.0:
+			break
+		await get_tree().physics_frame
+	assert_gt(body.linear_velocity.dot(expected), 0.0)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+
+
+func test_holy_payload_is_thrown_sideways_instead_of_kept_or_aimed_at_player() -> void:
+	_native_receiver(&"archetype/brute")
+	_payload(HOLY)
+	var to_player: Vector3 = (_actor as Node as Node3D).global_position - (
+		_parcel as Node as Node3D
+	).global_position
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_eq(_flow.parcel_incidents[0].outcome, REACTIONS.Outcome.THROW_ASIDE)
+	assert_null(GrabQueries.held_relationship(_parcel))
+	await get_tree().physics_frame
+	var body: RigidBody3D = _parcel as Node as RigidBody3D
+	for step: int in 6:
+		if body.linear_velocity.length_squared() > 0.0:
+			break
+		await get_tree().physics_frame
+	var velocity: Vector3 = body.linear_velocity
+	assert_gt(velocity.length(), 0.0)
+	assert_almost_eq(
+		velocity.normalized().dot(to_player.slide(Vector3.UP).normalized()),
+		0.0,
+		0.001,
+	)
+
+
+func test_fire_burn_uses_actual_damage_and_consumes_the_real_selected_payload() -> void:
+	_native_receiver(&"archetype/fire_elemental")
+	_payload(TOY)
+	_decision(REACTIONS.Outcome.BURN)
+	_world.add_observer(O_Damage.new())
+	_world.add_observer(O_PackageDamage.new())
+	_world.add_observer(O_PackageDestruction.new())
+	var contents: C_PackageContents = _parcel.get_component(C_PackageContents) as C_PackageContents
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_true(contents.released)
+	assert_eq(_world.query.with_all([C_Package]).execute().size(), 0)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_false(_flow.parcel_reaction_in_progress)
+
+
+func test_fire_damage_uses_authored_hp_amount_and_does_not_consume_solid_contents() -> void:
+	_native_receiver(&"archetype/fire_elemental")
+	_payload(TOY)
+	_decision(REACTIONS.Outcome.DAMAGE)
+	_world.add_observer(O_Damage.new())
+	_world.add_observer(O_PackageDamage.new())
+	var health: C_Health = _parcel.get_component(C_Health) as C_Health
+	var previous: float = health.current
+	var rule: DEF_NpcParcelReaction = CustomerParcelIncidentQueries.rule_for(_customer)
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_eq(health.current, previous - rule.damage_amount)
+	assert_false(PackageContentsService.is_empty(_parcel))
+
+
+func test_release_callback_sees_committed_choice_and_cannot_capture_half_a_reaction() -> void:
+	_native_receiver(&"archetype/brute")
+	_decision(REACTIONS.Outcome.KEEP)
+	var observer: CaptureDuringRelease = CaptureDuringRelease.new()
+	observer.capture_root = self
+	_world.add_observer(observer)
+	assert_false(WorldSnapshotService.capture(self, 1).is_empty())
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_eq(observer.committed_count, 1)
+	assert_eq(observer.snapshots.size(), 1)
+	if not observer.snapshots.is_empty():
+		assert_true(observer.snapshots[0].is_empty())
+	assert_false(_flow.parcel_reaction_in_progress)
+
+
+func test_incident_codec_is_closed_and_transaction_guard_rejects_capture() -> void:
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	var encoded: Dictionary = SaveDataCodec.encode(_flow.parcel_incidents[0]) as Dictionary
+	var restored: CustomerParcelIncident = SaveDataCodec.decode(encoded) as CustomerParcelIncident
+	assert_not_null(restored)
+	if restored != null:
+		assert_eq(restored.sequence, _flow.parcel_incidents[0].sequence)
+	_flow.parcel_reaction_in_progress = true
+	assert_true(WorldSnapshotService.capture(self, 1).is_empty())
+	_flow.parcel_reaction_in_progress = false
+#endregion
