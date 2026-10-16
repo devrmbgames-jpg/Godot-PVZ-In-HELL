@@ -49,7 +49,7 @@ CustomerVisit.stalking_visit_count — durable; C_Agent/target Relationship/rout
 | C1 | M1/M2: свободные эпизоды, сохранённые паузы/выборы, отмены. COMPLETE, не повторять. |
 | C2 | M3a: безопасная native вставка в BT через companion MCP. COMPLETE, не переизобретать. |
 | C3 | Закончить существующий M3b целиком: rear SERVICE → arrive → обнаружение/номер → handoff/осмотр → сохранение/загрузка. COMPLETE. |
-| C4 | Обязательная отдельная игровая приёмка Жуткого. NOT_RUN. |
+| C4 | Использовано3/8 разрешённых случаев. Case1 PASS только skip; case2 INCONCLUSIVE в целом, bounded episode подтверждён; case3 INCONCLUSIVE — поворот не выполнен. |
 
 C3 — один согласованный пакет реализации/проверок/ревью, не отдельное ревью каждого
 поля schema или leaf. Не добавлять новые хоррор-механики и не переписывать C1/C2 без дефекта.
@@ -65,10 +65,11 @@ C3 использует технически принятый [общий handof
 ## Next
 
 Выполнить разрешённые C4 случаи по
-[QA-карточке](../../.qa/tasks/creepy_npc_unpredictable_stalking.md), бюджет0/8.
-Сначала закончить текущий parcel input repair/review; зависимый handoff не проверять
-на непроверенном изменении. Runner Q1/Q2 завершён и archived; Windows C3 QA-сборка
-04110f3b готова, ссылка/evidence в QA-карточке. Не объявлять весь task DONE до C4.
+[QA-карточке](../../.qa/tasks/creepy_npc_unpredictable_stalking.md): следующий разрешённый случай4,
+реальное обнаружение ближе2.5м/cooldown. Case3 завершён INCONCLUSIVE, поворот не выполнен:
+к моменту наблюдения активного подхода уже не было; причина отмены и production-дефект не установлены.
+Parcel dialogue migration085f14111a20078d393e0ad4556bf782a4309ec3 reviewed PASS/no findings;
+финальный H4 использовал8/8, повторять нельзя. Runner Q1/Q2 archived. Не объявлять task DONE до C4.
 
 ## Validation / review
 
@@ -91,10 +92,18 @@ Repair: native GUT38/38,320 assertions,stderr0 PASS (`gut-20261016-155557405.*.l
 Repair MCP2 checked/empty; formatter2,strict architecture0,structure,diff-check PASS.
 Comment-only MCP hot reload initially returned43; subsequent native path diagnostic checked/empty,
 а свежий native parser PASS. Эти transient diagnostics не классифицировались как shutdown.
-C3 baseline review: RV-001 FIXED; targeted re-review PASS/no findings,repair1/2 (SHA выше). Rendered C4: NOT_RUN,0/8.
+C3 baseline review: RV-001 FIXED; targeted re-review PASS/no findings,repair1/2 (SHA выше). Rendered C4:3/8 использовано; surprise/variation/дальний поворот остаются открытыми.
 
 ## Owner QA / blockers
 
-Владелец разрешил до8 C4 rendered/playtest случаев 2026-10-17; сейчас0/8.
+Владелец разрешил до8 C4 rendered/playtest случаев 2026-10-17; использовано3/8.
+Case1 PASS только ветки пропуска; case2 INCONCLUSIVE в целом, ограниченность подхода и отсутствие reroll подтверждены.
 Бюджет отдельный от parcel H4. Приёмка остаётся открытой до фактических результатов.
 После C3 установить OWNER_QA и перейти к следующей готовой задаче, не объявляя весь task DONE.
+
+C4 live evidence: `.artifacts/creepy-c4-085f/01-observation.json`, `02-observation.json` и просмотренные
+`01-terminal-skip.png`, `02-carry.png`; case3 `03-observation.json` INCONCLUSIVE, без поворота/PNG.
+Case2: QA seed1/native probability0.6, реальный Carry и
+движение; ready/deadline/replans/sequence неизменны, эпизод завершён за12.57active seconds,
+notice=-1/memories0. Вариативность между opportunities и субъективная внезапность не подтверждены.
+Все новые rendered cases ограничены общим бюджетом8; подготовка не выдаётся за PASS.
