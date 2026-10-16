@@ -5,6 +5,7 @@ extends RefCounted
 const TREE_DIRECTORY: String = "res://content/domains/npc/ai/trees/"
 const CUSTOMER_TREE_DIRECTORY: String = "res://content/domains/customers/ai/trees/"
 const TASK_DIRECTORY: String = "res://content/domains/npc/ai/tasks/"
+const CUSTOMER_TASK_DIRECTORY: String = "res://content/domains/customers/ai/tasks/"
 const TASK_TYPES: Array[String] = [
 	"BTDynamicSelector",
 	"BTDynamicSequence",
@@ -21,7 +22,7 @@ func quiesce_for_script_swap() -> Dictionary:
 	return { "ok": true }
 
 
-## Native graph creation, fingerprinted root replacement and guarded subtree insertion.
+## Native graph creation, fingerprinted root replacement and guarded root/nested subtree insertion.
 ## Insert edits the loaded tree and removes its added branch on save failure; replacement uses
 ## an isolated graph. Success means a native file save, not a running BT instance update.
 func author(params: Dictionary, _context: McpCallContext) -> Dictionary:
@@ -31,11 +32,15 @@ func author(params: Dictionary, _context: McpCallContext) -> Dictionary:
 	var tree_path: String = String(params.get("path", ""))
 	if not valid_tree_path(tree_path):
 		return { "error": "Expected a direct NPC or customer tree .tres path." }
-	if operation == "replace":
-		if params.size() != 4 or not EditorInterface.get_unsaved_scenes().is_empty():
+	if operation in ["replace", "insert_nested"]:
+		var expected_size: int = 4 if operation == "replace" else 8
+		if params.size() != expected_size or not EditorInterface.get_unsaved_scenes().is_empty():
 			return { "error": "Expected a fingerprinted replacement with clean editor scenes." }
 		var inspected: Resource = EditorInterface.get_inspector().get_edited_object() as Resource
-		var prepared: Dictionary = prepare_replacement(params, inspected)
+		var prepared: Dictionary = (
+			prepare_replacement(params, inspected)
+			if operation == "replace" else prepare_nested_insert(params, inspected)
+		)
 		if prepared.has("error"):
 			return prepared
 		var replacement: BehaviorTree = prepared.tree
@@ -124,6 +129,65 @@ static func prepare_replacement(params: Dictionary, inspected: Resource = null) 
 	return { "tree": tree }
 
 
+## Prepares one nested selector insertion in an isolated native graph; siblings remain authored.
+## Fingerprint, exact child names and a bounded direct-child path must all agree before mutation.
+static func prepare_nested_insert(params: Dictionary, inspected: Resource = null) -> Dictionary:
+	var path: String = String(params.get("path", ""))
+	var fingerprint: String = String(params.get("fingerprint", ""))
+	var task_path: Variant = params.get("task_path")
+	var subtree_path: String = String(params.get("subtree", ""))
+	var index_value: Variant = params.get("index")
+	var expected: Variant = params.get("expected_children")
+	for key: Variant in params:
+		if key not in [
+			"op", "path", "fingerprint", "task_path", "subtree", "index",
+			"expected_children", "name",
+		]:
+			return { "error": "Unexpected nested insertion parameter." }
+	if (
+		params.size() != 8 or params.get("op") != "insert_nested"
+		or not valid_tree_path(path) or not FileAccess.file_exists(path)
+		or fingerprint.is_empty() or FileAccess.get_sha256(path) != fingerprint
+		or ResourceLoader.get_resource_uid(path) < 0 or not valid_tree_path(subtree_path)
+		or not FileAccess.file_exists(subtree_path)
+		or not task_path is Array or task_path.is_empty() or task_path.size() > 12
+		or not expected is Array or expected.size() > 64
+		or (not index_value is int and not index_value is float)
+	):
+		return { "error": "Expected native trees, an exact fingerprint, bounded path and guard." }
+	if (
+		not is_finite(float(index_value)) or float(index_value) != floorf(float(index_value))
+		or float(index_value) < 0.0 or float(index_value) > 64.0
+	):
+		return { "error": "Insertion index must be a finite integer." }
+	if inspected != null and (
+		inspected.resource_path == path or inspected.resource_path.begins_with(path + "::")
+	):
+		return { "error": "Finish inspecting/editing the target resource before insertion." }
+	var tree: BehaviorTree = ResourceLoader.load(
+		path, "BehaviorTree", ResourceLoader.CACHE_MODE_IGNORE,
+	) as BehaviorTree
+	if tree == null or tree.get_root_task() == null:
+		return { "error": "Expected a native tree root." }
+	var parent: BTTask = tree.get_root_task()
+	for value: Variant in task_path:
+		if (
+			(not value is int and not value is float) or not is_finite(float(value))
+			or float(value) != floorf(float(value)) or float(value) < 0.0
+			or float(value) > 63.0
+			or float(value) >= parent.get_child_count()
+		):
+			return { "error": "Nested path does not identify a direct child." }
+		parent = parent.get_child(int(value))
+	var subtree: BehaviorTree = load(subtree_path) as BehaviorTree
+	var added: BTSubtree = _insert_at_selector(
+		tree, parent, subtree, int(index_value), expected, String(params.get("name", "")),
+	)
+	if added == null:
+		return { "error": "Stale child guard, invalid selector or recursive subtree; unchanged." }
+	return { "tree": tree }
+
+
 ## Only direct .tres files in the authored NPC/customer tree directories are writable.
 static func valid_tree_path(tree_path: String) -> bool:
 	return (
@@ -171,8 +235,7 @@ static func build_task(graph: Dictionary, depth: int = 0, budget: Array[int] = [
 	if not script_path.is_empty():
 		if (
 			task_type not in ["BTAction", "BTCondition"]
-			or not script_path.begins_with(TASK_DIRECTORY)
-			or script_path.get_base_dir() + "/" != TASK_DIRECTORY
+			or script_path.get_base_dir() + "/" not in [TASK_DIRECTORY, CUSTOMER_TASK_DIRECTORY]
 			or script_path.get_extension() != "gd" or script_path.contains("..")
 		):
 			return null
@@ -222,27 +285,39 @@ static func insert_branch(
 	expected: Array,
 	branch_name: String,
 ) -> BTSubtree:
+	if tree == null:
+		return null
+	return _insert_at_selector(tree, tree.get_root_task(), subtree, index, expected, branch_name)
+
+
+static func _insert_at_selector(
+	tree: BehaviorTree,
+	parent: BTTask,
+	subtree: BehaviorTree,
+	index: int,
+	expected: Array,
+	branch_name: String,
+) -> BTSubtree:
 	if (
 		tree == null or subtree == null or subtree.get_root_task() == null
-		or tree.get_root_task() == null or branch_name.is_empty()
+		or parent == null or branch_name.is_empty()
 	):
 		return null
-	var root_task: BTTask = tree.get_root_task()
 	if (
-		root_task.get_class() not in ["BTDynamicSelector", "BTSelector"] or index < 0
-		or index > root_task.get_child_count() or child_names(root_task) != expected
+		parent.get_class() not in ["BTDynamicSelector", "BTSelector"] or index < 0
+		or index > parent.get_child_count() or child_names(parent) != expected
 	):
 		return null
 	if _references_tree(subtree, tree, []):
 		return null
-	for child_index: int in root_task.get_child_count():
-		var existing: BTSubtree = root_task.get_child(child_index) as BTSubtree
+	for child_index: int in parent.get_child_count():
+		var existing: BTSubtree = parent.get_child(child_index) as BTSubtree
 		if existing != null and existing.subtree == subtree:
 			return null
 	var added: BTSubtree = BTSubtree.new()
 	added.subtree = subtree
 	added.set_custom_name(branch_name)
-	root_task.add_child_at_index(added, index)
+	parent.add_child_at_index(added, index)
 	return added
 
 
@@ -261,6 +336,10 @@ static func _references_tree(
 ) -> bool:
 	if (
 		candidate == target or candidate.get_root_task() == null
+		or (
+			not candidate.resource_path.is_empty()
+			and candidate.resource_path == target.resource_path
+		)
 		or visited.has(candidate) or visited.size() >= 64
 	):
 		return true

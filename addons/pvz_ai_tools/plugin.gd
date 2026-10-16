@@ -6,7 +6,7 @@ extends EditorPlugin
 const SOURCE_CFG: String = "res://addons/pvz_ai_tools/plugin.cfg"
 const HANDLER_PATH: String = "res://addons/pvz_ai_tools/gecs_tools.gd"
 const RETRY_SECONDS: float = 1.0
-const REGISTRATION_REVISION: int = 5
+const REGISTRATION_REVISION: int = 6
 const DebuggerBridgeScript := preload("res://addons/pvz_ai_tools/debugger_bridge.gd")
 
 var _registry: McpToolRegistry = null
@@ -370,18 +370,27 @@ func _source_property() -> Dictionary:
 	}
 
 
-## Bounded native Resource saves; existing tree edits require the captured root child order.
+## Native tree saves; nested insertion requires a fingerprint and exact selector child order.
 func _behavior_tree_authoring_spec() -> McpCustomToolSpec:
 	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
 	spec.name = "pvz_behavior_tree_authoring"
-	spec.description = "Inspect/create/replace an NPC LimboAI tree or insert a guarded subtree."
+	spec.description = "Author native NPC/customer trees with guarded nested subtree insertion."
 	spec.params_schema = {
 		"type": "object",
 		"properties": {
-			"op": { "type": "string", "enum": ["inspect", "create", "replace", "insert"] },
+			"op": {
+				"type": "string",
+				"enum": ["inspect", "create", "replace", "insert", "insert_nested"],
+			},
 			"path": { "type": "string" },
 			"root": { "type": "object" },
 			"fingerprint": { "type": "string" },
+			"task_path": {
+				"type": "array",
+				"items": { "type": "integer", "minimum": 0, "maximum": 63 },
+				"minItems": 1,
+				"maxItems": 12,
+			},
 			"subtree": { "type": "string" },
 			"index": { "type": "integer", "minimum": 0, "maximum": 64 },
 			"name": { "type": "string" },

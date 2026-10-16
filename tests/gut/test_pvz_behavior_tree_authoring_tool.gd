@@ -4,6 +4,118 @@ extends GutTest
 const AuthoringTool = preload("res://addons/pvz_ai_tools/behavior_tree_authoring_tool.gd")
 
 
+#region Nested native insertion
+func _nested_params() -> Dictionary:
+	var path: String = AuthoringTool.CUSTOMER_TREE_DIRECTORY + "bt_npc_service.tres"
+	return {
+		"op": "insert_nested",
+		"path": path,
+		"fingerprint": FileAccess.get_sha256(path),
+		"task_path": [1, 1, 3, 1],
+		"subtree": AuthoringTool.TREE_DIRECTORY + "bt_npc_stalking.tres",
+		"index": 0,
+		"expected_children": [
+			"Место выдачи достигнуто", "Не удалось добраться", "Идти к стойке или двери",
+		],
+		"name": "Prepared rear service",
+	}
+
+
+func _arrival_selector(tree: BehaviorTree) -> BTTask:
+	return tree.get_root_task().get_child(1).get_child(1).get_child(3).get_child(1)
+
+
+func test_nested_insert_preserves_cached_tree_siblings_and_native_properties() -> void:
+	var params: Dictionary = _nested_params()
+	var cached: BehaviorTree = load(params.path) as BehaviorTree
+	var original: BTTask = _arrival_selector(cached)
+	var prepared: Dictionary = AuthoringTool.prepare_nested_insert(params)
+	assert_false(prepared.has("error"))
+	if prepared.has("error"):
+		return
+	var tree: BehaviorTree = prepared.tree
+	var selector: BTTask = _arrival_selector(tree)
+	assert_not_same(tree, cached)
+	assert_not_same(selector, original)
+	assert_eq(selector.get_child_count(), 4)
+	assert_eq(selector.get_child(0).get_custom_name(), "Prepared rear service")
+	assert_same(
+		(selector.get_child(0) as BTSubtree).subtree, load(params.subtree) as BehaviorTree,
+	)
+	assert_eq(AuthoringTool.child_names(original), params.expected_children)
+	assert_eq(selector.get_child(1).get_custom_name(), original.get_child(0).get_custom_name())
+	var retained_timeout: BTTask = selector.get_child(2).get_child(0)
+	assert_eq(retained_timeout.get("seconds_property"), &"approach_timeout")
+	assert_eq(
+		tree.get_root_task().get_child(0).get_custom_name(),
+		cached.get_root_task().get_child(0).get_custom_name(),
+	)
+	assert_eq(tree.description, cached.description)
+	assert_eq(FileAccess.get_sha256(params.path), params.fingerprint)
+	assert_true(AuthoringTool.prepare_nested_insert(params, cached).has("error"))
+	assert_true(AuthoringTool.prepare_nested_insert(params, original).has("error"))
+
+
+func test_nested_insert_refuses_stale_guards_invalid_paths_and_recursion() -> void:
+	var params: Dictionary = _nested_params()
+	var fingerprint: String = params.fingerprint
+	params.fingerprint = "stale"
+	assert_true(AuthoringTool.prepare_nested_insert(params).has("error"))
+	params.fingerprint = fingerprint
+	params.expected_children = ["Stale order"]
+	assert_true(AuthoringTool.prepare_nested_insert(params).has("error"))
+	params = _nested_params()
+	params.subtree = params.path
+	assert_true(AuthoringTool.prepare_nested_insert(params).has("error"))
+	params = _nested_params()
+	for invalid: Array in [[], [99], [-1], [0.5], [INF], ["1"], [0]]:
+		params.task_path = invalid
+		assert_true(AuthoringTool.prepare_nested_insert(params).has("error"), str(invalid))
+	params.task_path = [1, 1, 3, 1]
+	for invalid: Variant in [-1, 65, INF, NAN, 0.5, "0", null]:
+		params.index = invalid
+		assert_true(AuthoringTool.prepare_nested_insert(params).has("error"), str(invalid))
+	params.index = 0
+	params.unexpected = true
+	assert_true(AuthoringTool.prepare_nested_insert(params).has("error"))
+	assert_eq(FileAccess.get_sha256(params.path), fingerprint)
+
+
+func test_nested_insert_rejects_a_reference_to_another_incarnation_of_containing_tree() -> void:
+	var params: Dictionary = _nested_params()
+	var cached: BehaviorTree = load(params.path) as BehaviorTree
+	var isolated: BehaviorTree = ResourceLoader.load(
+		params.path, "BehaviorTree", ResourceLoader.CACHE_MODE_IGNORE,
+	) as BehaviorTree
+	assert_not_same(cached, isolated)
+	assert_null(AuthoringTool.insert_branch(
+		isolated, cached, 0, AuthoringTool.child_names(isolated.get_root_task()), "Recursive",
+	))
+	assert_null(AuthoringTool.insert_branch(
+		cached, isolated, 0, AuthoringTool.child_names(cached.get_root_task()), "Recursive",
+	))
+
+
+func test_customer_leaf_graph_uses_only_direct_owned_task_paths() -> void:
+	var graph: Dictionary = {
+		"type": "BTAction",
+		"script": AuthoringTool.CUSTOMER_TASK_DIRECTORY + "bt_npc_approach_service.gd",
+		"intent_owner": C_NpcDecision.Owner.SERVICE,
+	}
+	var task: BTTask = AuthoringTool.build_task(graph)
+	assert_not_null(task)
+	if task != null:
+		assert_eq(task.get("intent_owner"), C_NpcDecision.Owner.SERVICE)
+	for invalid: String in [
+		AuthoringTool.CUSTOMER_TASK_DIRECTORY + "../tasks/bt_npc_approach_service.gd",
+		AuthoringTool.CUSTOMER_TASK_DIRECTORY + "nested/task.gd",
+		"res://content/scenes/main_level.gd",
+	]:
+		graph.script = invalid
+		assert_null(AuthoringTool.build_task(graph))
+#endregion
+
+
 func test_replacement_prepares_detached_root_without_writing_or_mutating_cached_tree() -> void:
 	var path: String = AuthoringTool.TREE_DIRECTORY + "bt_npc_ranged_combat.tres"
 	var cached: BehaviorTree = load(path) as BehaviorTree
