@@ -9,10 +9,10 @@ const TERRAIN_MASK: int = 1
 
 #region Физический шаг
 ## Applies native look/impulse/transport/slide motion and returns the callback-local contact sample.
-## Called by E_CharacterBodyPlayer with its native body and Components; delta is physics seconds.
+## Called by E_CharacterBodyCharacter with its native body and Components; delta is physics seconds.
 ## Consumes and clears pending impulse/rebound; body retains authoritative velocity/transform.
 static func step(
-	actor: E_CharacterBodyPlayer,
+	actor: E_CharacterBodyCharacter,
 	body: CharacterBody3D,
 	control: C_Controller,
 	motion: C_Motion,
@@ -75,7 +75,7 @@ static func step(
 ## callback.
 ## delta is physics seconds. Refreshes floor flags/velocity; ray contact position may remain stale.
 static func update_support(
-	actor: E_CharacterBodyPlayer,
+	actor: E_CharacterBodyCharacter,
 	body: CharacterBody3D,
 	motion: C_Motion,
 	config: C_CharacterBody,
@@ -239,7 +239,7 @@ static func _lift_step(body: CharacterBody3D, height: float, delta: float) -> vo
 
 
 static func _push_support(
-	actor: E_CharacterBodyPlayer,
+	actor: E_CharacterBodyCharacter,
 	body: CharacterBody3D,
 	motion: C_Motion,
 	config: C_CharacterBody,

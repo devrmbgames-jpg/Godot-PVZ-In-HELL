@@ -62,10 +62,10 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-Собрать exact-SHA review расширенного baseline, затем обобщить существующий CharacterBody callback
-для E_PhysicalCharacter, сохранив player input и отдельный независимый NPC look/intent.
-`E_CharacterBodyPlayer` сейчас владеет общим callback и ground_ray; solver typed к player только
-в step/update_support/_push_support. NPC/trader наследуют rigid foundation; legacy rigid player
+Общий callback/ground_ray перенесены без изменения исполнения в `E_CharacterBodyCharacter`;
+авторский `E_CharacterBodyPlayer` наследует его, solver typed к общему физическому типу.
+Это подготовка P1, а не завершённый NPC pilot. После review перенести NPC look/lifecycle и сцены.
+NPC/trader наследуют rigid foundation; legacy rigid player
 тоже использует её, поэтому не менять общий native root вслепую. Сохранить scene paths/UID/anchors.
 MCP node_manage не поддерживает смену root type. Для согласованной массовой миграции использовать
 разрешённый native offline SceneTree/ResourceSaver путь после проверки unsaved scenes и штатного
@@ -78,8 +78,12 @@ Baseline initial2/4 review BASE `97ff746acc84576a3be98dc8102565d31c391230`, TARG
 `c407a2d82fc55dd331c5ea240c20328ee78dd918`: PASS/no findings, reviewer execution NOT_RUN.
 Final extended native GUT6/6,17 assertions, stderr0 PASS:
 `.artifacts/godot_agent/gut-20261016-182942880.{stdout,stderr}.log`, measured JSON lines retained there.
-MCP changed script checked/empty; formatter PASS. Extended-baseline review REVIEW_PENDING.
-Implementation parser/GUT/runtime/review ещё NOT_RUN.
+MCP baseline script checked/empty; formatter PASS. Extended-baseline review PASS/no findings:
+BASE `c407a2d82fc55dd331c5ea240c20328ee78dd918`, TARGET `1f54cd6dba8355ade27c38a5271e1d5fb2029afa`;
+reviewer execution NOT_RUN. Accepted P0/P1/P2: none.
+Common callback foundation: MCP 3 scripts checked/empty; native player physics GUT PASS,
+stderr0, Functional PASS/CLEAN: `.artifacts/godot_agent/gut-20261016-183714486.*.log`.
+Foundation review REVIEW_PENDING; actual NPC migration/clamp checks ещё NOT_RUN.
 Проверять total clamp, повторные контакты,
 held/free переход, неподвижного/замороженного NPC, стены/опоры, player regression и fresh restore.
 Один согласованный набор evidence на пакет; общий migration check на P3, не после каждого cast.
