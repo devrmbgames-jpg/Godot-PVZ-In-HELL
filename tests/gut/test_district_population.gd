@@ -208,7 +208,10 @@ func test_footsteps_read_native_npc_and_player_velocity_instead_of_controller_in
 	_world.process(_district.definition.footstep_interval)
 	assert_eq(_district.noises.size(), 1, "Intent without physical velocity emits no footstep")
 
-	# The same scheduled reader also supports the project's existing CharacterBody player.
+	# Derived delivery fixtures already contain a player. This isolated read test needs one
+	# authoritative PlayerInput role, attached to the native CharacterBody fixture below.
+	for existing: Entity in _world.query.with_all([C_PlayerInputController]).execute():
+		existing.remove_component(C_PlayerInputController)
 	var player_body: CharacterBody3D = CharacterBody3D.new()
 	player_body.set_script(ENTITY_SCRIPT)
 	var player: Entity = player_body as Node as Entity

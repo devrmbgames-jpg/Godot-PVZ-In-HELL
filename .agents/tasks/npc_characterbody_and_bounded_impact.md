@@ -69,9 +69,8 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-Commit RV-001 multi-contact native red/green repair and request targeted re-review (cycle2/2).
-Do not close before collecting and triaging that result.
-Reconcile remaining source-matrix coverage, then prepare the task QA card and Windows build;
+RV-001 closed after cycle2 review. Reconcile remaining source-matrix coverage, then prepare
+the task QA card and Windows build;
 rendered feel QA has
 no task-specific approval yet (0/8). Do not claim P3/DONE or export QA PASS prematurely.
 
@@ -84,7 +83,8 @@ Foundation review PASS/no findings: BASE `1f54cd6dba8355ade27c38a5271e1d5fb2029a
 TARGET `003af971102c4c6f40c4a478eeb9a35b63bd20f4`; reviewer execution NOT_RUN.
 Migration review BASE `003af971102c4c6f40c4a478eeb9a35b63bd20f4`,
 TARGET `23e26a2541dab773a2a4db3cdc29e234c7ce657b`: one P2, STYLE PASS, execution NOT_RUN.
-RV-001 ACCEPTED: post-slide oblique projection may exceed planar/upward external caps.
+RV-001 FIXED (`5a2cf2a66030b53d9faed4fc9d2fcf2e966316b2`, native19/741):
+post-slide oblique projection could exceed planar/upward external caps.
 Native red reproduced cache up1.416>1 and accumulating actual planar speed, log
 `gut-20261016-200127909.*.log`. Cycle1 repair `b47c12ea029c56d13f0d2efd14bd2d0594575f18`
 re-reviewed from `6665e0dc26a76f58b3e2b4e88146c2b487475f1c`: original floor fixed,
@@ -93,7 +93,9 @@ normal and retires inward blocked planar axes in both native velocity and extern
 Native airborne multi-normal corner red `gut-20261016-201427846.*.log`; green
 `gut-20261016-201854709.*.log` PASS19/741 CLEAN includes falling nonzero native velocity,
 distinct normals in one result, cache/body decomposition and no launch after wall removal.
-Cycle2 re-review REVIEW_PENDING; if unresolved, affected scope BLOCKED rather than cycle3.
+Cycle2 re-review BASE `b47c12ea029c56d13f0d2efd14bd2d0594575f18`,
+TARGET `5a2cf2a66030b53d9faed4fc9d2fcf2e966316b2`: no material findings,
+ARCHITECTURE/STYLE PASS, reviewer execution NOT_RUN. No unresolved accepted P0/P1/P2.
 Source-matrix reconciliation remains open.
 Native commands use `utils/godot_agent.ps1 -Action GUT -TestPath res://tests/gut/<suite>.gd`.
 Logs below share prefix `.artifacts/godot_agent/gut-20261016-` and suffix `.*.log`.
@@ -120,6 +122,12 @@ Actual physics decay after 0.1s: external speed 1.999999642 at60Hz and 2.0000009
 Final production MCP scripts checked/empty; formatter/lint (67 files), architecture(strict),
 structure and staged agent validator/diff-check PASS. The final test-only duplicated-load cleanup has native
 MCP diagnostics checked/empty; previous GUT result precedes that behavior-neutral cleanup.
+Inherited dialogue regressions exposed a fixture-only ambiguity: their World already contains
+a legacy player, so execute_one could sample it instead of the new CharacterBody test actor.
+Footstep test now establishes exactly one PlayerInput role before its native reader assertion;
+production role ownership is unchanged. Inherited D1 run34/726 PASS/CLEAN (`202208405`).
+Focused district_population rerun7/64 PASS/CLEAN (`202431799`) includes the final fixture
+and duplicated-load cleanup. Scene migration remains reviewed; this is test isolation only.
 Initial red runs and authoring failures retained in artifacts; not counted as acceptance.
 Scene/Traits migration used native PackedScene/ResourceSaver with no-write preflight and editor
 closed; incoming ShapeCast authored/saved with live MCP. Editor restarted through guarded launcher.
