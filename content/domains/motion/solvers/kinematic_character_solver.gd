@@ -101,36 +101,39 @@ static func _retain_external_velocity(
 	incoming: Vector3,
 ) -> void:
 	var external: Vector3 = config.impulse_velocity
-	if body.velocity.is_zero_approx():
+	var native_velocity: Vector3 = body.velocity
+	if native_velocity.is_zero_approx():
 		external = Vector3.ZERO
 	else:
 		for index: int in body.get_slide_collision_count():
 			var collision: KinematicCollision3D = body.get_slide_collision(index)
-			var normal: Vector3 = collision.get_normal()
-			var angle: float = normal.angle_to(body.up_direction)
-			if angle <= body.floor_max_angle + NATIVE_FLOOR_ANGLE_TOLERANCE:
-				continue
-			if angle >= PI - body.floor_max_angle - NATIVE_FLOOR_ANGLE_TOLERANCE:
-				if incoming.dot(body.up_direction) > 0.0 and body.slide_on_ceiling:
-					external = external.slide(normal)
-				else:
-					external = body.up_direction * external.dot(body.up_direction)
-			elif body.floor_block_on_wall:
-				var horizontal_normal: Vector3 = normal.slide(body.up_direction).normalized()
-				if incoming.slide(body.up_direction).dot(horizontal_normal) > 0.0:
+			for contact_index: int in collision.get_collision_count():
+				var normal: Vector3 = collision.get_normal(contact_index)
+				var angle: float = normal.angle_to(body.up_direction)
+				if angle <= body.floor_max_angle + NATIVE_FLOOR_ANGLE_TOLERANCE:
 					continue
-				if incoming.dot(body.up_direction) > 0.0:
-					var vertical: Vector3 = body.up_direction * external.dot(body.up_direction)
-					external = vertical + external.slide(normal).slide(body.up_direction)
-				else:
-					external = external.slide(horizontal_normal)
+				if angle >= PI - body.floor_max_angle - NATIVE_FLOOR_ANGLE_TOLERANCE:
+					if incoming.dot(body.up_direction) > 0.0 and body.slide_on_ceiling:
+						external = external.slide(normal)
+					else:
+						external = body.up_direction * external.dot(body.up_direction)
+				elif body.floor_block_on_wall:
+					var horizontal_normal: Vector3 = normal.slide(body.up_direction).normalized()
+					if incoming.slide(body.up_direction).dot(horizontal_normal) > 0.0:
+						continue
+					if external.dot(horizontal_normal) < 0.0:
+						external = external.slide(horizontal_normal)
+					# Native grounded motion can retain velocity into a secondary corner face.
+					# Retire only that blocked axis, including its contribution in native velocity.
+					if native_velocity.dot(horizontal_normal) < 0.0:
+						native_velocity = native_velocity.slide(horizontal_normal)
 		if body.is_on_floor() and incoming.dot(body.up_direction) <= 0.0:
 			external = external.slide(body.up_direction)
 
 	# Apply the same removal to native velocity and the retained contribution. The difference
 	# remains native own motion; a removed response cannot become controlled motion next frame.
 	var limited: Vector3 = KinematicExternalMotionRules.limit_projected_velocity(external, config)
-	body.velocity += limited - external
+	body.velocity = native_velocity + limited - external
 	config.impulse_velocity = limited
 
 

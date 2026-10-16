@@ -702,6 +702,74 @@ func test_oblique_wall_resolves_mixed_motion_and_gravity_without_delayed_launch(
 	assert_lte(_body.velocity.y, 0.0)
 
 
+## A falling native body can report both corner normals while its vertical velocity stays nonzero.
+func test_airborne_multi_contact_corner_does_not_leave_blocked_external_motion() -> void:
+	var walls: Array[StaticBody3D] = []
+	for axis: Vector3 in [Vector3.RIGHT, Vector3.BACK]:
+		var wall: StaticBody3D = StaticBody3D.new()
+		var shape: BoxShape3D = BoxShape3D.new()
+		shape.size = Vector3(0.4, 30.0, 30.0) if axis == Vector3.RIGHT else Vector3(30.0, 30.0, 0.4)
+		wall.add_child(_collider(shape))
+		wall.position = axis * 0.8 + Vector3.UP * 10.0
+		_world.add_child(wall)
+		walls.append(wall)
+	var motion: C_Motion = _npc.get_component(C_Motion) as C_Motion
+	var config: C_CharacterBody = _npc.get_component(C_CharacterBody) as C_CharacterBody
+	motion.ground_deceleration = 0.0
+	motion.air_acceleration = 0.0
+	_npc.clear_physical_motion(true)
+	_body.global_position = Vector3.UP * 10.0
+	_body.velocity = Vector3.DOWN * 2.0
+	var simultaneous_normals: bool = false
+	for frame: int in 30:
+		motion.pending_impulse = Vector3(30.0, 0.0, 30.0) * config.mass_kg
+		await _tick()
+		for slide_index: int in _body.get_slide_collision_count():
+			var collision: KinematicCollision3D = _body.get_slide_collision(slide_index)
+			for contact_index: int in range(1, collision.get_collision_count()):
+				if collision.get_normal().dot(collision.get_normal(contact_index)) < 0.9:
+					simultaneous_normals = true
+		if (
+			absf(_body.velocity.x - config.impulse_velocity.x) > POSITION_EPSILON
+			or absf(_body.velocity.z - config.impulse_velocity.z) > POSITION_EPSILON
+		):
+			var normals: Array[String] = []
+			for slide_index: int in _body.get_slide_collision_count():
+				var collision: KinematicCollision3D = _body.get_slide_collision(slide_index)
+				for contact_index: int in collision.get_collision_count():
+					normals.append(str(collision.get_normal(contact_index)))
+			print(
+				"AIRBORNE_CORNER_PROBE "
+				+ JSON.stringify(
+					{
+						"frame": frame,
+						"velocity": str(_body.velocity),
+						"external": str(config.impulse_velocity),
+						"wall_normal": str(_body.get_wall_normal()),
+						"normals": normals,
+					}
+				)
+			)
+		assert_almost_eq(_body.velocity.x - config.impulse_velocity.x, 0.0, POSITION_EPSILON)
+		assert_almost_eq(_body.velocity.z - config.impulse_velocity.z, 0.0, POSITION_EPSILON)
+	assert_true(
+		simultaneous_normals,
+		"The fixture must produce distinct normals in one native result",
+	)
+	assert_lt(_body.velocity.y, -2.0, "Gravity prevents the zero-velocity shortcut")
+	for wall: StaticBody3D in walls:
+		wall.free()
+	for frame: int in 45:
+		await _tick()
+	assert_almost_eq(config.impulse_velocity.length(), 0.0, POSITION_EPSILON)
+	assert_almost_eq(
+		Vector2(_body.velocity.x, _body.velocity.z).length(),
+		0.0,
+		POSITION_EPSILON,
+		"No hidden own velocity survives wall removal",
+	)
+
+
 func test_external_decay_uses_native_delta_at_60_and_120_physics_hz() -> void:
 	var motion: C_Motion = _npc.get_component(C_Motion) as C_Motion
 	var config: C_CharacterBody = _npc.get_component(C_CharacterBody) as C_CharacterBody

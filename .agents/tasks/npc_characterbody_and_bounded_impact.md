@@ -69,7 +69,7 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-Commit RV-001 native red/green repair and request targeted exact-SHA re-review (cycle1/2).
+Commit RV-001 multi-contact native red/green repair and request targeted re-review (cycle2/2).
 Do not close before collecting and triaging that result.
 Reconcile remaining source-matrix coverage, then prepare the task QA card and Windows build;
 rendered feel QA has
@@ -86,16 +86,22 @@ Migration review BASE `003af971102c4c6f40c4a478eeb9a35b63bd20f4`,
 TARGET `23e26a2541dab773a2a4db3cdc29e234c7ce657b`: one P2, STYLE PASS, execution NOT_RUN.
 RV-001 ACCEPTED: post-slide oblique projection may exceed planar/upward external caps.
 Native red reproduced cache up1.416>1 and accumulating actual planar speed, log
-`gut-20261016-200127909.*.log`. Repair cycle1/2 implemented, re-review REVIEW_PENDING.
-Green `gut-20261016-200854084.*.log`: native floor/corner/ceiling/oblique wall/own speed/gravity,
-no converted residual, all impact regressions PASS/CLEAN. Source-matrix reconciliation remains open.
+`gut-20261016-200127909.*.log`. Cycle1 repair `b47c12ea029c56d13f0d2efd14bd2d0594575f18`
+re-reviewed from `6665e0dc26a76f58b3e2b4e88146c2b487475f1c`: original floor fixed,
+secondary native corner normal still leaked blocked response. Cycle2 handles every contact
+normal and retires inward blocked planar axes in both native velocity and external state.
+Native airborne multi-normal corner red `gut-20261016-201427846.*.log`; green
+`gut-20261016-201854709.*.log` PASS19/741 CLEAN includes falling nonzero native velocity,
+distinct normals in one result, cache/body decomposition and no launch after wall removal.
+Cycle2 re-review REVIEW_PENDING; if unresolved, affected scope BLOCKED rather than cycle3.
+Source-matrix reconciliation remains open.
 Native commands use `utils/godot_agent.ps1 -Action GUT -TestPath res://tests/gut/<suite>.gd`.
 Logs below share prefix `.artifacts/godot_agent/gut-20261016-` and suffix `.*.log`.
 All listed final runs are Functional PASS, stderr0 and CLEAN:
 
 | Suite | Tests/assertions | Log timestamp |
 | --- | --- | --- |
-| npc_impact_motion | 18/677 | 200854084 |
+| npc_impact_motion | 19/741 | 201854709 |
 | npc_gaze_freeze (nonimmune physical fixture; authored Angel immunity retained) | 16/122 | 192621089 |
 | characterbody_physics | 8/41 | 194831926 |
 | npc_activation | 12/119 | 191142241 |
