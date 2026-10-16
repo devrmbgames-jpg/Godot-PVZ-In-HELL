@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `905db54ec1cd99c60dbf58eca0f568634a984668`
-TARGET_SHA: pending lifecycle-regression commit/review; task remains IN_PROGRESS
+TARGET_SHA: `411598f5a71f9c2b756ca0f2256c3ac2bf328d49` — lifecycle-regression review PASS; task IN_PROGRESS
 
 Created: 2026-10-15. Related: [согласованность посылок](completed/package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
@@ -30,7 +30,7 @@ M2b reviewed: DEF_NpcParcelReaction CAPABILITY у4 архетипов, чист�
 M2c1 carry reviewed, RV-002/003 fixed; fresh C_GrabControl/C_CarryLoad/C_Strength, Strength6/offset0.35 м, existing R_HeldBy/solver/cleanup; architecture/style PASS, reviewer validation NOT_RUN.
 M2c2 fire reviewed: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without repeat from empty shells; catalog quantity/history/schema22 unchanged. Unknown legacy stubs remain unknown. No material findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
 M2d runtime reviewed: common wrong-offer commit, native KEEP/throw/fire, GameClock pair180s block, closed incident codec/schema23 and held reconstruction. RV-004/005 fixed in `fd0dda76885715ec13d1a27a96c70c631f5394b1`; targeted architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Intimidation remains open.
-M2e1 review PASS `905db54ec1cd99c60dbf58eca0f568634a984668` (BASE `d6ac88d3aca65756d651af5aff96149802fbc6ea`): pure single-roll chooser and closed captured outcome/Strength/roll/tick, schema24/native golden; completed history and pending RETURN/ATTACK preserve data without replay. No findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2. Runtime action/physical return are M2e2, NOT_IMPLEMENTED. Independent lifecycle regressions disable/remove thief: physical parcel remains, pair closes once, no false order settlement; review pending.
+M2e1 review PASS `905db54ec1cd99c60dbf58eca0f568634a984668` (BASE `d6ac88d3aca65756d651af5aff96149802fbc6ea`): pure single-roll chooser and closed captured outcome/Strength/roll/tick, schema24/native golden; completed history and pending RETURN/ATTACK preserve data without replay. No findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2. Runtime action/physical return are M2e2, NOT_IMPLEMENTED. Independent lifecycle regressions review PASS in TARGET above: disable/remove thief preserves physical parcel, closes pair once, no false order settlement; no findings, architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults с Inspector overrides; отдельного подтверждения владельца по двум пересечениям не было.
 RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
 RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
@@ -197,4 +197,4 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-Collect lifecycle-regression immutable review/triage; then M2e2 native action, committed attack/return and safe placement. Final complaints regressions and separately authorized NPC gameplay QA remain. M2d review closed after cycle1/2; cargo QA6/6 PASS/task archived. NPC visual0/8; task IN_PROGRESS.
+M2e2: native demand action, incident-owned committed attack/return and safe placement. Runtime action authoring belongs to `content/domains/npc/authoring/et_district_npc_npc_roles.tres` (district_npc direct Trait); `def_entity_district_npc.tres` is editor-only preset. Preserve native patience/leave clocks without extending theft window. Final complaints regressions and separately authorized NPC gameplay QA remain. Cargo QA6/6 PASS/task archived; NPC visual0/8; task IN_PROGRESS.
