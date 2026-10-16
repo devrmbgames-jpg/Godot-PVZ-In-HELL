@@ -30,6 +30,8 @@ func _sample(actor_reference: WeakRef, captured: C_NpcGazeFreeze) -> void:
 	var observed: bool = NpcCameraVisibility.observed(actor, player, captured.rule)
 	if captured.observed == observed:
 		return
+	# Both edges retire the response sampled under the previous observation constraint.
+	actor.clear_physical_motion()
 	captured.observed = observed
 	if observed:
 		# Cancel the current execution, retaining R_CombatTarget for the next unobserved decision.

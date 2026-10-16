@@ -411,7 +411,7 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 	var actor: Entity = Entity.new()
 	actor.component_resources = [C_PlayerInputController.new()]
 	_world.add_entity(actor)
-	var customer_body: RigidBody3D = RigidBody3D.new()
+	var customer_body: CharacterBody3D = CharacterBody3D.new()
 	customer_body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
 
 	var customer: E_NpcCharacter = customer_body as Node as E_NpcCharacter

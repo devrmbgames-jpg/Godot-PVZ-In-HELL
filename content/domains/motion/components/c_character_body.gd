@@ -27,7 +27,14 @@ class_name C_CharacterBody
 ## Предел обычного толкания вдоль движения в м/с.
 @export_range(0.0, 10.0, 0.1, "or_greater") var walk_push_maximum_speed: float = 3.0
 
-## Мировая плоская скорость внешних импульсов в м/с, не полная скорость body.
+## Ограничивает суммарное внешнее движение; отключено у существующего игрока.
+@export var bounded_external_motion: bool = false
+## Предел горизонтальной внешней скорости в м/с, отдельно от собственного управления.
+@export_range(0.0, 20.0, 0.1, "or_greater") var maximum_external_planar_speed: float = 3.0
+## Предел дополнительной скорости вверх в м/с, отдельно от гравитации.
+@export_range(0.0, 5.0, 0.1, "or_greater") var maximum_external_upward_speed: float = 1.0
+
+## Мировая скорость внешних импульсов в м/с, не полная скорость body.
 ## KinematicCharacterSolver затухает её; KinematicImpactCapture проецирует по контактам.
 var impulse_velocity: Vector3 = Vector3.ZERO
 ## Мировая скорость отскока в м/с: KinematicImpactCapture накапливает,
@@ -36,3 +43,20 @@ var pending_rebound_velocity: Vector3 = Vector3.ZERO
 ## KinematicImpactCapture заменяет кеш после slide при наличии C_ImpactInbox.
 ## Ключ — instance ID, WeakRef не удерживает body; прошлый кеш нужен для separations.
 var contact_bodies: Dictionary[int, WeakRef] = { }
+
+## Previous physical-step samples near the authored impact probe; never contact/damage authority.
+## The native contact must still confirm the pair before its incoming point velocity is used.
+var incoming_bodies: Dictionary[int, BodyMotion] = { }
+
+
+## Weak native-body sample, bounded by the probe's result count and replaced every physics step.
+class BodyMotion:
+	extends RefCounted
+	## Collider lifetime is checked before using the sample at a subsequent contact.
+	var body: WeakRef
+	## World centre velocity in m/s before contact response.
+	var linear_velocity: Vector3
+	## World angular velocity in rad/s before contact response.
+	var angular_velocity: Vector3
+	## Physics frame at capture; stale approach samples never arm a later contact.
+	var tick: int

@@ -76,10 +76,10 @@ func _new_visit(id: StringName, package_id: String) -> CustomerVisit:
 
 func _receiver(visit: CustomerVisit, position: Vector3) -> E_NpcCharacter:
 	var customer: E_NpcCharacter = CUSTOMER.instantiate() as E_NpcCharacter
-	var body: RigidBody3D = customer as Node as RigidBody3D
-	body.freeze = true
+	var body: CharacterBody3D = customer as Node as CharacterBody3D
 	body.position = position
 	EntityCompositionFixture.register_visit(_world, customer, visit)
+	body.set_physics_process(false)
 	(customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase = (
 		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	)

@@ -44,7 +44,7 @@ func _bounded_map() -> E_DistrictNpc:
 	var person: NpcRecord = _district.people[0]
 	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	assert_true(DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.STREET))
-	actor.freeze = true
+	actor.set_physics_process(false)
 	actor.place_at(Vector3(8, 0, 0))
 	actor.navigation_agent.set_navigation_map(_map)
 	return actor

@@ -95,10 +95,10 @@ func _run() -> void:
 		).instantiate()
 		as E_NpcCharacter
 	)
-	var customer_body: RigidBody3D = customer as Node as RigidBody3D
-	customer_body.freeze = true
+	var customer_body: CharacterBody3D = customer as Node as CharacterBody3D
 	level.add_child(customer_body)
 	EntityCompositionFixture.register(ECS.world, customer, false)
+	customer_body.set_physics_process(false)
 	var customer_rid: RID = customer_body.get_rid()
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id

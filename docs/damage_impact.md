@@ -25,6 +25,22 @@ will supply it through combat, while Health remains the sole HP authority.
 
 `ImpactCaptureSolver` is a non-System physics bridge. E_GrabbableBody and E_RigidBodyCharacter invoke it before their motion/holding solvers. It only writes `PhysicsContact` snapshots into a runtime `C_ImpactInbox`; it never mutates HP or locates Systems. Additional custom physics Entities should forward their own integration callback to this same bridge.
 
+`E_CharacterBodyCharacter` composes `KinematicImpactCapture` after native slide/push for both
+player and live NPCs. Stationary/frozen NPCs use native recovery contacts without moving.
+Kinematic contacts estimate impulse from closing speed and reduced mass; rigid callbacks supply
+measured native impulse. The bounded NPC foundation's authored ShapeCast retains a one-tick
+weak velocity sample only for raw/custom bodies without their own `C_ImpactInbox` reporter.
+This fallback preserves incoming speed lost during native collision response; a real slide or
+recovery contact is still mandatory. Proximity cannot create damage, and the cache never
+overrides an authored reporter's native contact snapshot or retains a direct body state.
+
+NPC external-motion caps apply to the physical response after contact capture. Damage,
+deduplication and throw provenance still pass through `S_Impact` and ordinary DamageRequest.
+Held-body rebound/support exclusion uses the authoritative physical `R_HeldBy`, including
+existing raw-body proxies. Native grab callbacks yield their inward spring/velocity against
+bounded characters; the generic raw adapter uses a native `test_move` query. Pickup/release
+does not modify native contact-reporting capacity.
+
 `S_Impact` enables contact reporting when physical Entities enter the World; their `C_ImpactInbox` must already be composed before registration. Physics bridges write snapshots, and the System drains them through its explicit `with_all([C_ImpactInbox]).iterate(...)` query across archetype batches. One command-buffer flush coalesces reports and resolves each pair. Empty queries are supported. Held-object/holder contacts are excluded using authoritative R_HeldBy relationships directly. No S_Grab service dependency exists in impact processing.
 
 A pair resolves once per contact episode, including harmless contacts. `body_exited` marks real separation; a later physics snapshot rearms the pair. Resting/sleeping contacts stay consumed. Removal/disable clears pending/pair state; separated stale records expire. Different pairs have independent state.

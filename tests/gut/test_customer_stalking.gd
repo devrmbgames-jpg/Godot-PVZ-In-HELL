@@ -61,12 +61,12 @@ func _rear_fixture(with_map: bool = true, claim_counter: bool = true) -> void:
 	_rear_body = NpcPopulationQueries.body_for(_rear_person.npc_id)
 	DistrictPopulationService.set_placement(_rear_person, _rear_body, NpcRecord.Placement.STREET)
 	_rear_body.place_at(Vector3(0, 0, 4))
-	_rear_body.freeze = true
+	_rear_body.set_physics_process(false)
 	for index: int in _district.people.size():
 		var other: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[index].npc_id)
 		if other != null and other != _rear_body:
 			other.place_at(Vector3(60 + index * 3, 0, 60))
-			other.freeze = true
+			other.set_physics_process(false)
 	_rear_state = _rear_body.get_component(C_NpcStalking) as C_NpcStalking
 	var selected_rule: DEF_NpcStalking = NpcStalkingRules.selected_rule(_rear_person.rules_for())
 	_rear_rule = selected_rule.duplicate() as DEF_NpcStalking

@@ -20,6 +20,15 @@ static func held_relationship(entity: Entity) -> Relationship:
 	return null
 
 
+## Resolves the same authoritative grip for native Entities and existing scriptless-body proxies.
+## Never creates a proxy merely to inspect a collision.
+static func held_body_relationship(body: PhysicsBody3D) -> Relationship:
+	var actor: Entity = body as Node as Entity
+	if actor == null and body is RigidBody3D:
+		actor = PhysicsGrabTarget.handle_for(body as RigidBody3D, false)
+	return held_relationship(actor)
+
+
 ## Возвращает первый удерживаемый предмет по живым связям физических слотов.
 static func held_object(holder: Entity) -> Entity:
 	for slot_index: int in 3:

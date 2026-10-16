@@ -1,5 +1,5 @@
 @tool
-extends E_RigidBodyCharacter
+extends E_CharacterBodyCharacter
 ## Анимация по реальной скорости тела и участие в движке по жизни NPC; root motion не применяется.
 class_name E_NpcCharacter
 
@@ -27,16 +27,15 @@ var _avoidance_before_death: bool = false
 var _death_presented: bool = false
 var _living_layer: int = 0
 var _living_mask: int = 0
-var _living_freeze: bool = false
 var _living_visible: bool = true
 
 
 #region Подготовка и навигационное участие
 func _ready() -> void:
-	var body: RigidBody3D = self as Node as RigidBody3D
+	super._ready()
+	var body: CharacterBody3D = self as Node as CharacterBody3D
 	_living_layer = body.collision_layer
 	_living_mask = body.collision_mask
-	_living_freeze = body.freeze
 	_living_visible = body.visible
 	if not Engine.is_editor_hint() and navigation_agent != null:
 		navigation_agent.velocity_computed.connect(_on_navigation_velocity_computed)
@@ -69,6 +68,19 @@ func sync_navigation_lifecycle(living: bool) -> void:
 #endregion
 
 
+#region Физическое участие и независимый взгляд
+func physical_motion_allowed() -> bool:
+	var health: C_Health = get_component(C_Health) as C_Health
+	return not has_component(C_Death) and (health == null or not health.depleted)
+
+
+func update_physical_look(
+	body: CharacterBody3D, _control: C_Controller, _config: C_CharacterBody, delta: float,
+) -> void:
+	body.global_transform = CharacterLookSolver.step(self, body.global_transform, delta)
+#endregion
+
+
 #region Анимация и терминальное состояние
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -82,8 +94,8 @@ func _process(_delta: float) -> void:
 	if combat != null and combat.animation_driven and combat.phase != C_NpcCombat.Phase.READY:
 		return
 
-	var body: RigidBody3D = self as Node as RigidBody3D
-	var speed: float = Vector2(body.linear_velocity.x, body.linear_velocity.z).length()
+	var body: CharacterBody3D = self as Node as CharacterBody3D
+	var speed: float = Vector2(body.velocity.x, body.velocity.z).length()
 	_walking = speed > WALK_STOP_SPEED if _walking else speed >= WALK_START_SPEED
 	var animation: StringName = walk_animation if _walking else _stationary_animation()
 	if (
@@ -106,11 +118,11 @@ func sync_death_presentation() -> void:
 		return
 
 	_death_presented = dead
-	var body: RigidBody3D = self as Node as RigidBody3D
+	var body: CharacterBody3D = self as Node as CharacterBody3D
 	body.visible = false if dead else _living_visible
 	body.collision_layer = 0 if dead else _living_layer
 	body.collision_mask = 0 if dead else _living_mask
-	body.freeze = true if dead else _living_freeze
+	clear_physical_motion(true)
 	sync_navigation_lifecycle(not dead)
 	if dead and animation_player != null:
 		animation_player.stop()

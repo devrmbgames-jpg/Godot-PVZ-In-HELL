@@ -40,7 +40,7 @@ func before_each() -> void:
 	_actor = Entity.new()
 	_world.add_entity(_actor)
 
-	var customer_body: RigidBody3D = RigidBody3D.new()
+	var customer_body: CharacterBody3D = CharacterBody3D.new()
 	customer_body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
 	_customer = customer_body as Node as E_NpcCharacter
 	var agent: C_CustomerAgent = C_CustomerAgent.new()

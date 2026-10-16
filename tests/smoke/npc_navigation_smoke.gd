@@ -21,6 +21,7 @@ func _run() -> void:
 	add_child(_world)
 	ECS.world = _world
 	_world.add_system(S_NpcIntent.new())
+	_world.add_system(S_Impact.new())
 	_box(Vector3(0, -0.5, 0), Vector3(12, 1, 12))
 	_box(Vector3(1, 1, 0), Vector3(0.5, 2, 3))
 	var mesh: NavigationMesh = NavigationMesh.new()
@@ -48,7 +49,7 @@ func _run() -> void:
 	EntityCompositionFixture.register(_world, customer)
 	assert(customer.navigation_agent != null)
 
-	var body: RigidBody3D = customer as Node as RigidBody3D
+	var body: CharacterBody3D = customer as Node as CharacterBody3D
 	(customer.get_component(C_Motion) as C_Motion).max_speed = 1.8
 	NpcIntentService.move_to(customer, TARGET, ARRIVAL_DISTANCE)
 	var greatest_detour: float = 0.0

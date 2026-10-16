@@ -51,7 +51,7 @@ func _run() -> void:
 			break
 
 	assert(_customer != null)
-	(_customer as Node as RigidBody3D).freeze = true
+	_customer.set_physics_process(false)
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	var identity: StringName = visit.customer_id

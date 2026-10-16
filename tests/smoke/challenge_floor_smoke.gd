@@ -182,11 +182,11 @@ func _main_customer() -> void:
 		).instantiate()
 		as E_NpcCharacter
 	)
-	var body: RigidBody3D = customer as Node as RigidBody3D
+	var body: CharacterBody3D = customer as Node as CharacterBody3D
 	body.position = CustomerFlowQueries.counter().waiting_position()
-	body.freeze = true
 	level.add_child(body)
 	EntityCompositionFixture.register(ECS.world, customer, false)
+	body.set_physics_process(false)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE

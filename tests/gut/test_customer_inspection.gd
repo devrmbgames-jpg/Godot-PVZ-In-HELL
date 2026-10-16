@@ -74,8 +74,8 @@ func before_each() -> void:
 	(booth as Node as Node3D).position = Vector3(4, 0, 0)
 	_world.add_entity(booth)
 	_customer = ((load(CUSTOMER_PATH) as PackedScene).instantiate() as E_NpcCharacter)
-	(_customer as Node as RigidBody3D).freeze = true
 	EntityCompositionFixture.register(_world, _customer)
+	_customer.set_physics_process(false)
 	_agent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_agent.visit_id = _visit.visit_id
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -360,8 +360,8 @@ func test_cleanup_customer_death_or_external_removal_releases_physical_borrow() 
 	var second: E_NpcCharacter = (
 		(load(CUSTOMER_PATH) as PackedScene).instantiate() as E_NpcCharacter
 	)
-	(second as Node as RigidBody3D).freeze = true
 	EntityCompositionFixture.register(_world, second)
+	second.set_physics_process(false)
 
 	var next_visit: CustomerVisit = CustomerVisit.new()
 	next_visit.definition = _visit.definition

@@ -11,7 +11,7 @@ const TRAFFIC_RULE: DEF_NpcTraffic = preload(
 #region Required capability inputs
 func _init() -> void:
 	trait_id = &"npc_brain_state"
-	required_root_class = &"RigidBody3D"
+	required_root_class = &"CharacterBody3D"
 	required_components = [C_NpcIdentity, C_NpcCombat]
 	initial_field_names[C_DamageResistance as Script] = PackedStringArray(["multipliers"])
 	initial_field_names[C_ReceiverTraits as Script] = PackedStringArray(["traits"])

@@ -84,7 +84,7 @@ func _assert_saved_actor(npc_id: StringName, expected: Dictionary) -> void:
 	)
 	var active: bool = person.placement == NpcRecord.Placement.STREET
 	assert_eq(body.enabled, active)
-	assert_eq(body.freeze, not active)
+	assert_eq(body.physical_motion_allowed(), active)
 	assert_eq(body.animation_player.can_process(), active)
 	assert_eq((body.get_node("Brain") as BTPlayer).active, active)
 #endregion
@@ -139,7 +139,7 @@ func test_missing_dormant_body_restores_identity_and_dormancy() -> void:
 	assert_eq(restored.id, stable_id)
 	assert_eq((restored.get_component(C_Health) as C_Health).current, 37.0)
 	assert_false(restored.enabled)
-	assert_true(restored.freeze)
+	assert_false(restored.physical_motion_allowed())
 	assert_eq(restored.collision_layer, 0)
 	assert_false(restored.animation_player.can_process())
 	assert_false((restored.get_node("Brain") as BTPlayer).active)

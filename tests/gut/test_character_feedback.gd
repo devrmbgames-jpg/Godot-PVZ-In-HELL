@@ -155,9 +155,9 @@ func test_real_customer_prefab_uses_spatial_addon_players_under_rigid_body() -> 
 		).instantiate()
 		as E_NpcCharacter
 	)
-	(npc as Node as RigidBody3D).freeze = true
 	_root.add_child(npc)
 	_world.add_entity(npc, null, false)
+	npc.set_physics_process(false)
 	var footsteps: Footstepper = npc.get_node("CharacterFeedback/Footstepper") as Footstepper
 	assert_true(footsteps.is_manual)
 	assert_eq(footsteps.get_child_count(), 3)

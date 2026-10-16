@@ -114,7 +114,7 @@ func _actor(key: StringName, position: Vector3, receiver_traits: int) -> E_Distr
 	if not registered:
 		actor.free()
 		return null
-	actor.freeze = true
+	actor.set_physics_process(false)
 	actor.place_at(position)
 	var traits: C_ReceiverTraits = C_ReceiverTraits.new()
 	traits.traits = receiver_traits

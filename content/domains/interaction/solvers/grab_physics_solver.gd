@@ -7,6 +7,8 @@ const ROTATION_SENSITIVITY: float = 0.006
 const MIN_MASS: float = 0.001
 const ROTATION_EPSILON: float = 0.00001
 const ANCHOR_TRANSITION_SECONDS: float = 0.5
+const CONTACT_QUERY_MARGIN: float = 0.001
+const CONTACT_QUERY_LIMIT: int = 16
 
 
 #region Физические адаптеры
@@ -35,14 +37,12 @@ static func integrate_state(
 		state.step,
 	)
 	var body_mass: float = 1.0 / maxf(state.inverse_mass, MIN_MASS)
-	state.apply_central_force(
-		position_force(
-			position_error,
-			anchor_velocity - state.linear_velocity,
-			state.total_gravity,
-			body_mass,
-			profile,
-		)
+	var force: Vector3 = position_force(
+		position_error,
+		anchor_velocity - state.linear_velocity,
+		state.total_gravity,
+		body_mass,
+		profile,
 	)
 	state.angular_velocity = rotation_velocity(
 		state.transform.basis.orthonormalized().get_rotation_quaternion(),
@@ -50,6 +50,7 @@ static func integrate_state(
 		state.step,
 		profile,
 	)
+	state.apply_central_force(_limit_held_contact_force(state, force))
 	_commit_anchor_sample(anchor, grip, desired_position)
 	return true
 
@@ -77,14 +78,12 @@ static func integrate_body(
 		return false
 
 	var anchor_velocity: Vector3 = _sampled_anchor_velocity(anchor, grip, desired_position, step)
-	body.apply_central_force(
-		position_force(
-			position_error,
-			anchor_velocity - body.linear_velocity,
-			body.get_gravity(),
-			body.mass,
-			profile,
-		)
+	var force: Vector3 = position_force(
+		position_error,
+		anchor_velocity - body.linear_velocity,
+		body.get_gravity(),
+		body.mass,
+		profile,
 	)
 	body.angular_velocity = rotation_velocity(
 		body.global_basis.orthonormalized().get_rotation_quaternion(),
@@ -92,8 +91,69 @@ static func integrate_body(
 		step,
 		profile,
 	)
+	body.apply_central_force(_limit_held_body_force(body, force))
 	_commit_anchor_sample(anchor, grip, desired_position)
 	return true
+
+
+static func _bounded_character(body: PhysicsBody3D) -> bool:
+	var actor: Entity = body as Node as Entity
+	var config: C_CharacterBody = (
+		actor.get_component(C_CharacterBody) as C_CharacterBody if actor != null else null
+	)
+	return config != null and config.bounded_external_motion
+
+
+static func _contact_vector(value: Vector3, normal: Vector3) -> Vector3:
+	return value.slide(normal) if value.dot(normal) < 0.0 else value
+
+
+static func _limit_held_contact_force(state: PhysicsDirectBodyState3D, force: Vector3) -> Vector3:
+	# A held spring yields to bounded physical characters instead of repeatedly penetrating them
+	# and moving their native overlap recovery. The collider and impact report remain intact.
+	for index: int in state.get_contact_count():
+		var other: PhysicsBody3D = state.get_contact_collider_object(index) as PhysicsBody3D
+		if not _bounded_character(other):
+			continue
+		var normal: Vector3 = state.get_contact_local_normal(index).normalized()
+		force = _contact_vector(force, normal)
+		state.linear_velocity = _contact_vector(state.linear_velocity, normal)
+		var offset: Vector3 = (
+			state.get_contact_local_position(index) - state.transform.origin - state.center_of_mass
+		)
+		var angular_normal: Vector3 = offset.cross(normal)
+		if not angular_normal.is_zero_approx():
+			state.angular_velocity = _contact_vector(
+				state.angular_velocity,
+				angular_normal.normalized(),
+			)
+	return force
+
+
+static func _limit_held_body_force(body: RigidBody3D, force: Vector3) -> Vector3:
+	# The scheduled scriptless adapter uses a read-only native motion query, not a borrowed
+	# PhysicsDirectBodyState outside that body's integration callback.
+	var contact: KinematicCollision3D = KinematicCollision3D.new()
+	if not body.test_move(
+		body.global_transform,
+		Vector3.ZERO,
+		contact,
+		CONTACT_QUERY_MARGIN,
+		true,
+		CONTACT_QUERY_LIMIT,
+	):
+		return force
+	for index: int in contact.get_collision_count():
+		var other: PhysicsBody3D = contact.get_collider(index) as PhysicsBody3D
+		if not _bounded_character(other):
+			continue
+		var normal: Vector3 = contact.get_normal(index).normalized()
+		force = _contact_vector(force, normal)
+		body.linear_velocity = _contact_vector(body.linear_velocity, normal)
+		# Generic bodies have no owned integration callback for point-velocity constraints.
+		# Rotation yields while blocked; moving clear restores the normal grip rotation.
+		body.angular_velocity = Vector3.ZERO
+	return force
 
 #endregion
 

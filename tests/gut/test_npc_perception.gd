@@ -65,7 +65,7 @@ func after_each() -> void:
 
 
 func _actor(world_position: Vector3) -> E_DistrictNpc:
-	var body: RigidBody3D = RigidBody3D.new()
+	var body: CharacterBody3D = CharacterBody3D.new()
 	body.set_script(load("res://content/domains/npc/entities/e_district_npc.gd"))
 	var actor: E_DistrictNpc = body as Node as E_DistrictNpc
 	actor.component_resources = ([
@@ -76,7 +76,6 @@ func _actor(world_position: Vector3) -> E_DistrictNpc:
 		C_NpcCombat.new(),
 		C_NpcIdentity.new(),
 	])
-	body.freeze = true
 	body.collision_layer = 2
 	body.collision_mask = 31
 
@@ -88,6 +87,7 @@ func _actor(world_position: Vector3) -> E_DistrictNpc:
 	collision.position = Vector3.UP * 0.85
 	body.add_child(collision)
 	_world.add_entity(actor)
+	body.set_physics_process(false)
 	body.global_position = world_position
 	return actor
 

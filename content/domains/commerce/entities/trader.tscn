@@ -1,37 +1,36 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://content/domains/motion/entities/physical_character.tscn" id="Foundation"]
-[ext_resource type="Script" path="res://content/domains/npc/entities/e_npc_character.gd" id="Entity"]
-[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="PackedScene" path="res://content/domains/motion/entities/character_body_character.tscn" id="1_7tfun"]
+[ext_resource type="Script" path="res://content/domains/motion/components/c_character_body.gd" id="4_hq36t"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_attr_health.tres" id="8_11lp5"]
+[ext_resource type="Script" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="16_seuay"]
+[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="21_ao3ni"]
 [ext_resource type="Script" path="res://content/domains/commerce/definitions/def_trader_action.gd" id="Action"]
-[ext_resource type="PackedScene" path="res://content/ui/hunger_npc_visual.tscn" id="HungerPerception"]
-[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_impact_living.tres" id="LivingImpact"]
-[ext_resource type="Script" path="res://content/domains/motion/components/c_rigid_body.gd" id="RigidBody"]
-[ext_resource type="Script" path="res://content/domains/interaction/components/c_controller.gd" id="Controller"]
-[ext_resource type="Script" path="res://content/domains/motion/components/c_motion.gd" id="Motion"]
-[ext_resource type="Script" path="res://content/domains/motion/components/c_look.gd" id="Look"]
-[ext_resource type="Script" path="res://content/domains/combat/components/c_health.gd" id="Health"]
-[ext_resource type="Script" path="res://content/domains/combat/components/c_living.gd" id="Living"]
-[ext_resource type="Script" path="res://content/domains/combat/components/c_impact_receiver.gd" id="Impact"]
-[ext_resource type="Script" path="res://content/domains/npc/components/c_npc_intent.gd" id="NpcIntent"]
-[ext_resource type="Script" path="res://content/domains/combat/components/c_npc_combat.gd" id="NpcCombat"]
-[ext_resource type="Script" path="res://content/domains/commerce/components/c_trader.gd" id="Trader"]
-[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
 [ext_resource type="Script" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
-
+[ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_controller.gd" id="Controller"]
+[ext_resource type="Script" path="res://content/domains/npc/entities/e_npc_character.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_health.gd" id="Health"]
+[ext_resource type="PackedScene" path="res://content/ui/hunger_npc_visual.tscn" id="HungerPerception"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_impact_receiver.gd" id="Impact"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_living.gd" id="Living"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_impact_living.tres" id="LivingImpact"]
+[ext_resource type="Script" path="res://content/domains/motion/components/c_look.gd" id="Look"]
+[ext_resource type="Script" path="res://content/domains/motion/components/c_motion.gd" id="Motion"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_npc_combat.gd" id="NpcCombat"]
+[ext_resource type="Script" path="res://content/domains/npc/components/c_npc_intent.gd" id="NpcIntent"]
+[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_trader_default.tres" id="Profile"]
 [ext_resource type="Script" path="res://content/domains/npc/components/c_npc_remains.gd" id="Remains"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_remains_default.tres" id="RemainsDefinition"]
-
-[ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
-[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_trader_default.tres" id="Profile"]
 [ext_resource type="Script" path="res://content/ui/trader_status.gd" id="StoreStatus"]
+[ext_resource type="Script" path="res://content/domains/commerce/components/c_trader.gd" id="Trader"]
 
-[sub_resource type="Resource" id="Remains"]
-script = ExtResource("Remains")
-definition = ExtResource("RemainsDefinition")
-
-[sub_resource type="Resource" id="RigidBody"]
-script = ExtResource("RigidBody")
+[sub_resource type="Resource" id="Resource_k4l7o"]
+script = ExtResource("4_hq36t")
+impulse_decay_per_second = 10.0
+bounded_external_motion = true
 
 [sub_resource type="Resource" id="Controller"]
 script = ExtResource("Controller")
@@ -44,9 +43,14 @@ script = ExtResource("Look")
 
 [sub_resource type="Resource" id="Health"]
 script = ExtResource("Health")
+definition = ExtResource("8_11lp5")
 
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
+
+[sub_resource type="Resource" id="Remains"]
+script = ExtResource("Remains")
+definition = ExtResource("RemainsDefinition")
 
 [sub_resource type="Resource" id="Impact"]
 script = ExtResource("Impact")
@@ -68,17 +72,11 @@ script = ExtResource("Interactable")
 [sub_resource type="Resource" id="Action"]
 script = ExtResource("Action")
 action_id = &"trade"
-slot = 1
 caption = "Торговля и задание"
-allow_interact_fallback = true
 
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("Actions")
-actions = [SubResource("Action")]
-
-[sub_resource type="CapsuleShape3D" id="Shape"]
-radius = 0.3
-height = 1.7
+actions = Array[ExtResource("21_ao3ni")]([SubResource("Action")])
 
 [sub_resource type="StandardMaterial3D" id="Coat"]
 albedo_color = Color(0.3, 0.12, 0.08, 1)
@@ -88,12 +86,16 @@ material = SubResource("Coat")
 radius = 0.3
 height = 1.7
 
-[node name="Trader" node_paths=PackedStringArray("navigation_agent") instance=ExtResource("Foundation")]
+[sub_resource type="CapsuleShape3D" id="Shape"]
+radius = 0.3
+height = 1.7
+
+[node name="Trader" node_paths=PackedStringArray("navigation_agent") instance=ExtResource("1_7tfun")]
 collision_layer = 2
 collision_mask = 31
 script = ExtResource("Entity")
 navigation_agent = NodePath("NavigationAgent3D")
-component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Living"), SubResource("Remains"), SubResource("Impact"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Trader"), SubResource("Interactable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Component")]([SubResource("Resource_k4l7o"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Living"), SubResource("Remains"), SubResource("Impact"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Trader"), SubResource("Interactable"), SubResource("Actions")])
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 radius = 0.4
@@ -114,7 +116,7 @@ shape = SubResource("Shape")
 
 [node name="Message" type="Label3D" parent="."]
 script = ExtResource("StoreStatus")
-position = Vector3(0, 2.0, 0)
+position = Vector3(0, 2, 0)
 text = "Торговец"
 billboard = 1
 font_size = 28
@@ -133,6 +135,7 @@ editor_description = "Centre of the furniture pickup zone. Goods spawn independe
 
 [node name="Caption" type="Label3D" parent="FurniturePickup"]
 position = Vector3(0, 1, 0)
-text = "Выдача мебели\nОсвободите место"
+text = "Выдача мебели
+Освободите место"
 billboard = 1
 pixel_size = 0.003

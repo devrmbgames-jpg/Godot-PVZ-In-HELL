@@ -92,7 +92,7 @@ func _spawn() -> void:
 	assert_true(CustomerFlowFixture.spawn(_flow, _cycle))
 	_customer = CustomerFlowQueries.customer_for(_visit.visit_id)
 	assert_not_null(_customer)
-	(_customer as Node as RigidBody3D).freeze = true
+	_customer.set_physics_process(false)
 
 
 func _agent() -> C_CustomerAgent:

@@ -1425,6 +1425,7 @@
     "content/domains/inventory/entities/med_pickup.tscn",
     "content/domains/inventory/entities/npc_meat_pickup.tscn",
     "content/domains/motion/entities/archive/rigid_player.tscn",
+    "content/domains/motion/entities/character_body_character.tscn",
     "content/domains/motion/entities/character_body_player.tscn",
     "content/domains/motion/entities/e_rigid_body_character.tscn",
     "content/domains/motion/entities/physical_character.tscn",

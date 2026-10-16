@@ -41,8 +41,8 @@ func before_each() -> void:
 		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	)
 	_customer = scene.instantiate() as E_NpcCharacter
-	(_customer as Node as RigidBody3D).freeze = true
 	EntityCompositionFixture.register_visit(_world, _customer, _visit)
+	_customer.set_physics_process(false)
 
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -117,7 +117,7 @@ func _press(text: String) -> bool:
 ## Голодная проекция обратима и сохраняет Entity, RID, заказ и исходную реплику.
 func test_food_visual_is_reversible_and_keeps_entity_body_order_and_message() -> void:
 	var entity_id: String = _customer.id
-	var rid: RID = (_customer as Node as RigidBody3D).get_rid()
+	var rid: RID = (_customer as Node as CharacterBody3D).get_rid()
 	_customer.show_message("Настоящий заказ 003")
 	_state.value = 81.0
 	await _food(true)
@@ -125,7 +125,7 @@ func test_food_visual_is_reversible_and_keeps_entity_body_order_and_message() ->
 	assert_false((_customer.get_node("Message") as Node3D).visible)
 	assert_eq(_context.perceived_text("Настоящая реплика"), "Съешь меня")
 	assert_eq(_customer.id, entity_id)
-	assert_eq((_customer as Node as RigidBody3D).get_rid(), rid)
+	assert_eq((_customer as Node as CharacterBody3D).get_rid(), rid)
 	assert_eq(_visit.customer_id, &"real-customer")
 	assert_eq(_visit.package_id, "real-order")
 	assert_eq(_context.package_number(), 3)

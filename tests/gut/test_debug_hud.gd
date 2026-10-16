@@ -41,8 +41,8 @@ func before_each() -> void:
 		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	)
 	_customer = scene.instantiate() as E_NpcCharacter
-	(_customer as Node as RigidBody3D).freeze = true
 	EntityCompositionFixture.register_visit(_world, _customer, _visit)
+	_customer.set_physics_process(false)
 
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE

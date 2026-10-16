@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://uysc716i2ow1"]
+
+[ext_resource type="Script" uid="uid://b13b1imjp6t2y" path="res://content/domains/motion/entities/e_character_body_character.gd" id="1_8j0qn"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_fj1nn"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_ri1dl"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_giw54"]
+[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/domains/motion/components/c_character_body.gd" id="5_4xcm4"]
+[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/domains/interaction/components/c_controller.gd" id="6_qj4sp"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="7_cwg2h"]
+[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/domains/motion/components/c_look.gd" id="8_fjsvr"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="9_tipty"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="10_v4q3e"]
+[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/domains/combat/components/c_living.gd" id="11_1cdeh"]
+[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/domains/combat/definitions/def_impact_living.tres" id="12_6td62"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="13_yvcab"]
+
+[sub_resource type="Resource" id="Resource_ig5if"]
+script = ExtResource("5_4xcm4")
+impulse_decay_per_second = 10.0
+bounded_external_motion = true
+
+[sub_resource type="Resource" id="Controller"]
+script = ExtResource("6_qj4sp")
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("7_cwg2h")
+
+[sub_resource type="Resource" id="Look"]
+script = ExtResource("8_fjsvr")
+
+[sub_resource type="Resource" id="Health"]
+script = ExtResource("10_v4q3e")
+definition = ExtResource("9_tipty")
+
+[sub_resource type="Resource" id="Living"]
+script = ExtResource("11_1cdeh")
+
+[sub_resource type="Resource" id="ImpactReceiver"]
+script = ExtResource("13_yvcab")
+profile = ExtResource("12_6td62")
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8j0qn"]
+radius = 1.1
+height = 3.3
+
+[node name="CharacterBodyCharacter" type="CharacterBody3D" unique_id=1937289037 node_paths=PackedStringArray("ground_ray", "incoming_impact_probe", "head_axis_y", "head_axis_x")]
+collision_layer = 4
+collision_mask = 13
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+axis_lock_angular_z = true
+script = ExtResource("1_8j0qn")
+ground_ray = NodePath("GroundRay")
+incoming_impact_probe = NodePath("IncomingImpactProbe")
+head_axis_y = NodePath("HeadY")
+head_axis_x = NodePath("HeadY/HeadX")
+traits = Array[ExtResource("2_fj1nn")]([ExtResource("3_ri1dl")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("4_giw54")]([SubResource("Resource_ig5if"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Living"), SubResource("ImpactReceiver")])
+
+[node name="HeadY" type="Marker3D" parent="." unique_id=1268223314]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
+
+[node name="HeadX" type="Marker3D" parent="HeadY" unique_id=2114650246]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
+
+[node name="GroundRay" type="RayCast3D" parent="." unique_id=2140022306]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+target_position = Vector3(0, -0.35, 0)
+collision_mask = 31
+
+[node name="IncomingImpactProbe" type="ShapeCast3D" parent="." unique_id=548824015]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+enabled = false
+shape = SubResource("CapsuleShape3D_8j0qn")
+target_position = Vector3(0, 0, 0)
+max_results = 16
+collision_mask = 31

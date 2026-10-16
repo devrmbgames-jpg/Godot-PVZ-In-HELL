@@ -181,7 +181,7 @@ func _native_receiver(key: StringName) -> void:
 	var actor: E_DistrictNpc = (
 		load("res://content/domains/npc/entities/district_npc.tscn") as PackedScene
 	).instantiate() as E_DistrictNpc
-	actor.freeze = true
+	actor.set_physics_process(false)
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		actor,
 		_world,
@@ -1025,10 +1025,10 @@ func test_returned_stolen_parcel_delivers_and_pays_only_its_rightful_order_once(
 	var recipient: E_NpcCharacter = (
 		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	).instantiate() as E_NpcCharacter
-	(recipient as Node as RigidBody3D).freeze = true
 	(recipient as Node as Node3D).position = Vector3(5.0, 0.0, -1.0)
 	rightful.started = true
 	EntityCompositionFixture.register_visit(_world, recipient, rightful)
+	recipient.set_physics_process(false)
 	var agent: C_CustomerAgent = recipient.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	CustomerParcelAssignment.bind_parcel(recipient, rightful)

@@ -96,9 +96,9 @@ func _npc(customer: bool = false, loot_chance: float = 0.0) -> E_NpcCharacter:
 		remains.definition.loot_chance = loot_chance
 		components[index] = remains
 	npc.component_resources = components
-	(npc as Node as RigidBody3D).freeze = true
 	_root.add_child(npc)
 	EntityCompositionFixture.register(_world, npc, false)
+	npc.set_physics_process(false)
 	return npc
 
 
@@ -179,11 +179,11 @@ func test_meat_is_pickable_consumable_food_and_reduces_actual_hunger() -> void:
 func test_dead_trader_stops_native_body_avoidance_and_cannot_sell() -> void:
 	var npc: E_NpcCharacter = _npc()
 	_damage(npc, 200.0)
-	var body: RigidBody3D = npc as Node as RigidBody3D
+	var body: CharacterBody3D = npc as Node as CharacterBody3D
 	assert_false(body.visible)
 	assert_eq(body.collision_layer, 0)
 	assert_eq(body.collision_mask, 0)
-	assert_true(body.freeze)
+	assert_false(npc.physical_motion_allowed())
 	assert_false(npc.navigation_agent.avoidance_enabled)
 	assert_false((npc.get_component(C_Motion) as C_Motion).control_enabled)
 
@@ -211,7 +211,7 @@ func test_remains_and_dead_trader_restore_without_new_loot_or_night_resurrection
 	assert_true((restored.get_component(C_NpcRemains) as C_NpcRemains).released)
 	restored.sync_death_presentation()
 	assert_false((restored as Node as Node3D).visible)
-	assert_eq((restored as Node as RigidBody3D).collision_layer, 0)
+	assert_eq((restored as Node as CharacterBody3D).collision_layer, 0)
 	assert_eq(_drops().size(), 4)
 	NightResetService.reset()
 	assert_true(restored.has_component(C_Death))

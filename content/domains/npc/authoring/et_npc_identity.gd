@@ -7,7 +7,7 @@ class_name ET_NpcIdentity
 #region Identity contract
 func _init() -> void:
 	trait_id = &"npc_identity"
-	required_root_class = &"RigidBody3D"
+	required_root_class = &"CharacterBody3D"
 	required_components = [C_Motion]
 	initial_field_names[C_NpcIdentity as Script] = PackedStringArray(["npc_id"])
 	initial_field_names[C_PersistentIdentity as Script] = PackedStringArray(["key"])

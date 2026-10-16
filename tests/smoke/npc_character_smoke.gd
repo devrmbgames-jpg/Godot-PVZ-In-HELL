@@ -9,11 +9,12 @@ const TARGET: Vector3 = Vector3(4, 0, 0)
 const ARRIVAL_DISTANCE: float = 0.25
 const BLOCKED_MAX_X: float = 0.6
 const IMPULSE: Vector3 = Vector3(600, 0, 0)
-const MIN_IMPULSE_SPEED: float = 7.0
+const MIN_IMPULSE_SPEED: float = 0.1
+const MAX_IMPULSE_SPEED: float = 3.0
 
 var _world: World = null
 var _customer: E_NpcCharacter = null
-var _body: RigidBody3D = null
+var _body: CharacterBody3D = null
 
 
 #region Сценарий физического персонажа
@@ -26,13 +27,14 @@ func _run() -> void:
 	add_child(_world)
 	ECS.world = _world
 	_world.add_system(S_NpcIntent.new())
+	_world.add_system(S_Impact.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(20, 1, 20))
 	var blocker: StaticBody3D = _obstacle(Vector3(1.3, 1, 0), Vector3(1, 2, 3))
 	var scene: PackedScene = (
 		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	)
 	_customer = scene.instantiate() as E_NpcCharacter
-	_body = _customer as Node as RigidBody3D
+	_body = _customer as Node as CharacterBody3D
 	# This headless fixture isolates physics/navigation from streamed footstep playback.
 	(_customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	EntityCompositionFixture.register(_world, _customer)
@@ -58,12 +60,13 @@ func _run() -> void:
 	await _frames(SETTLE_FRAMES)
 
 	var before_impulse: Vector3 = _body.position
-	_body.apply_central_impulse(IMPULSE)
+	motion.pending_impulse += IMPULSE
 	await _frames(2)
 	assert(
-		_body.linear_velocity.x > MIN_IMPULSE_SPEED,
-		"Shared solver must preserve external impulse",
+		_body.velocity.x > MIN_IMPULSE_SPEED,
+		"Shared solver must admit the bounded external response",
 	)
+	assert(_body.velocity.x <= MAX_IMPULSE_SPEED, "The combined external response is bounded")
 	assert(_body.position.x > before_impulse.x, "External impulse must physically displace NPC")
 	NpcIntentService.move_to(_customer, TARGET, ARRIVAL_DISTANCE)
 	await _arrive()

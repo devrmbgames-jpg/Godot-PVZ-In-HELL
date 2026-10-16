@@ -102,7 +102,7 @@ func before_each() -> void:
 	NpcConstructionService.configure_context(context, _person, DISTRICT)
 	assert_true(EntityCompositionService.try_register(context))
 	CustomerNpcLifecycleBinding.bind(_actor, _world)
-	_actor.freeze = true
+	_actor.set_physics_process(false)
 	_actor.place_at(Vector3.ZERO)
 	_visit = CustomerVisit.new()
 	_visit.visit_id = &"fire/visit"
@@ -315,7 +315,7 @@ func test_common_blast_damages_near_receiver_once_and_fire_source_is_immune() ->
 		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	).instantiate() as E_NpcCharacter
 	EntityCompositionFixture.register(_world, victim)
-	victim.freeze = true
+	victim.set_physics_process(false)
 	victim.global_position = (_blast() as Node as Node3D).global_position + Vector3(1.0, 0.0, 0.0)
 	await _sync_physics()
 	var health: C_Health = victim.get_component(C_Health) as C_Health

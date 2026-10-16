@@ -63,11 +63,17 @@ func _sample(
 
 
 func _advance_footsteps(actor: Entity, delta: float) -> void:
-	var body: RigidBody3D = actor as Node as RigidBody3D
+	var body: PhysicsBody3D = actor as Node as PhysicsBody3D
 	if body == null or not actor.enabled:
 		return
 
-	var speed: float = Vector2(body.linear_velocity.x, body.linear_velocity.z).length()
+	var rigid: RigidBody3D = body as RigidBody3D
+	var character: CharacterBody3D = body as CharacterBody3D
+	var velocity: Vector3 = (
+		character.velocity if character != null
+		else rigid.linear_velocity if rigid != null else Vector3.ZERO
+	)
+	var speed: float = Vector2(velocity.x, velocity.z).length()
 	if speed < MIN_WALKING_SPEED:
 		return
 

@@ -59,7 +59,7 @@ func _run() -> void:
 			break
 
 	assert(first != null)
-	(first as Node as RigidBody3D).freeze = true
+	first.set_physics_process(false)
 	var agent: C_CustomerAgent = first.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	assert(visit.definition.key == &"light_sensitive_customer")
@@ -112,7 +112,7 @@ func _run() -> void:
 
 	var second: E_NpcCharacter = CustomerFlowQueries.customer_for(retry.visit_id)
 	assert(second != null)
-	(second as Node as RigidBody3D).freeze = true
+	second.set_physics_process(false)
 	assert(_flickers == 2)
 	state = second.get_component(C_Challenge) as C_Challenge
 	assert(state.phase == C_Challenge.Phase.ACTIVE)

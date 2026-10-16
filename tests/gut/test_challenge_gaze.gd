@@ -5,7 +5,7 @@ extends GutTest
 const FRAME_DELTA: float = 0.1
 
 var _world: World = null
-var _actor: E_RigidBodyCharacter = null
+var _actor: E_PhysicalCharacter = null
 var _subject: E_NpcCharacter = null
 var _state: C_Challenge = null
 var _observation: C_GazeChallenge = null
@@ -76,9 +76,10 @@ func after_each() -> void:
 	_visit = null
 
 
-func _character(customer: bool) -> E_RigidBodyCharacter:
-	var body: RigidBody3D = RigidBody3D.new()
-	body.freeze = true
+func _character(customer: bool) -> E_PhysicalCharacter:
+	var body: PhysicsBody3D = CharacterBody3D.new() if customer else RigidBody3D.new()
+	if body is RigidBody3D:
+		(body as RigidBody3D).freeze = true
 	body.collision_layer = 2 if customer else 4
 	var body_script_path: String
 	if customer:
@@ -86,7 +87,7 @@ func _character(customer: bool) -> E_RigidBodyCharacter:
 	else:
 		body_script_path = "res://content/domains/motion/entities/e_rigid_body_character.gd"
 	body.set_script(load(body_script_path))
-	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
+	var entity: E_PhysicalCharacter = body as Node as E_PhysicalCharacter
 	if customer:
 		entity.component_resources = [C_CustomerAgent.new()]
 	var eyes: Marker3D = Marker3D.new()
@@ -384,7 +385,7 @@ func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogu
 	if customer == null:
 		return
 
-	(customer as Node as RigidBody3D).freeze = true
+	customer.set_physics_process(false)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)

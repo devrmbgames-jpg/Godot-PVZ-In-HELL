@@ -46,7 +46,7 @@ func _freeze(body: E_DistrictNpc, person: NpcRecord) -> void:
 	constraint.observed = true
 	body.sync_gaze_constraint()
 	assert_true(NpcGazeQueries.frozen(body))
-	assert_true(body.freeze)
+	assert_false(body.physical_motion_allowed())
 
 
 func _unregistered(person: NpcRecord) -> CustomerVisit:
@@ -257,7 +257,7 @@ func test_cyrillic_multiline_writing_is_intermediate_and_same_intent_does_not_re
 	assert_eq(_writing(body).text, _communication)
 	assert_eq(sign.phase(), NpcSignboard.Phase.READABLE)
 	assert_true(NpcGazeQueries.frozen(body))
-	assert_true(body.freeze)
+	assert_false(body.physical_motion_allowed())
 
 
 func test_replacement_cancels_old_writing_and_source_identity_can_restart_equal_text() -> void:

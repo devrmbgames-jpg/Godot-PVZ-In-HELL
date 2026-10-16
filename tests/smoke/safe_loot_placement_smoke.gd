@@ -95,10 +95,10 @@ func _blocked_sources(level: Node3D) -> void:
 		(load("res://content/domains/commerce/entities/trader.tscn") as PackedScene).instantiate()
 		as E_NpcCharacter
 	)
-	(npc as Node as RigidBody3D).freeze = true
 	(npc as Node as Node3D).position = ARENA + Vector3.UP
 	level.add_child(npc)
 	EntityCompositionFixture.register(ECS.world, npc, false)
+	npc.set_physics_process(false)
 	var remains: C_NpcRemains = npc.get_component(C_NpcRemains) as C_NpcRemains
 	remains.definition = remains.definition.duplicate() as DEF_NpcRemains
 	remains.definition.loot_chance = 1.0

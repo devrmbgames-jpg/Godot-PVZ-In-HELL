@@ -99,11 +99,23 @@ The main-level root schedules `Input → Interaction → Physics → GamePlay`; 
 | Raw player events and held/edge snapshot | `S_PlayerInput` writes `C_Controller`; `S_PlayerIntent` derives world motion/look according to control focus. Neither writes physical transform/velocity. |
 | Jump, sprint and crouch | `S_Jump` queues an additive `C_Motion.pending_impulse`; `S_Sprint` owns stamina/sprint multiplier from actual body velocity; `S_Crouch` owns posture and collider selection, presentation owns camera/mount height. |
 | RigidBody native integration | `E_RigidBodyCharacter._integrate_forces` independently invokes impact capture, optional cart-driver/push contribution, then motion/look. `CharacterMotionSolver` consumes the impulse and samples support through `PhysicsDirectBodyState3D`; `CharacterLookSolver` owns body/head orientation in that callback. |
-| CharacterBody native integration | `E_CharacterBodyCharacter._physics_process` invokes native slide motion, walking-push contact contribution, impact capture, then actual support sample in that order. The authored `E_CharacterBodyPlayer` type inherits this callback. `KinematicCharacterSolver` owns gravity/impulse/transport/step/slide and returns `KinematicMotionSample`, a callback-local immutable-by-contract pair of velocities. That sample is neither persisted state nor another gameplay owner. Independent contact solvers are composed by Entity glue. |
+| CharacterBody native integration | `E_CharacterBodyCharacter._physics_process` invokes look, native slide motion, walking-push contact contribution, impact capture, then actual support sample. Both `E_CharacterBodyPlayer` and live `E_NpcCharacter` inherit this callback. `KinematicCharacterSolver` owns gravity/impulse/transport/step/slide and returns `KinematicMotionSample`, a callback-local immutable-by-contract pair of velocities. NPC look reuses `CharacterLookSolver.step`; player look retains its existing policy. Independent contact solvers are composed by Entity glue. |
 | Native NPC path/avoidance intent | `S_NpcIntent` owns per-frame Controller preparation, waypoint consumption, avoidance request and transient `C_Motion.control_speed_multiplier` from the authored archetype/live combat relationship. Explicit district reset restores this scale to one. `MotionRules` applies it to both navigation and native physical control without changing personal `max_speed`; `E_NpcCharacter.velocity_computed` supplies only a frame-stamped safe-velocity cache. No navigation callback moves the body; expired safe samples are ignored and death clears participation/cache. |
 | Route lifecycle and planning | `S_NpcRoute` owns cadence-scoped route clocks/progress/retirement. `S_NpcRoutePlanning` atomically publishes new points and initializes their cursor under its frame budget; `S_NpcIntent` alone advances that cursor between publications. Goals/targets remain in the intent Component and authoritative live Relationships. |
 
 `C_Motion` floor data is a derived physical observation, not transform authority. External jump/damage impulses are additive until the callback consumes them once. Floor adhesion cannot erase upward jump/bounce, moving supports retain relative locomotion, and cart/held cargo keep independent native body callbacks. No artificial solver-forwarding Systems are introduced.
+
+Live NPCs author bounded external motion in `C_CharacterBody`: retained response, pending impulse
+and contact rebound share one planar/upward cap before time-based decay. Own locomotion and
+ordinary platform transport remain separate. Held bodies contribute no NPC rebound or platform
+carry; their native grab spring yields against the capsule. Native collisions remove blocked
+external velocity. The player's existing unbounded impulse policy is preserved.
+
+NPC motion permission derives from death, participation and existing gaze state. A frozen live
+NPC still captures native incoming contacts for damage. Placement, brain reset, death, dormancy
+and restore clear transient velocity/impulse/contact samples; they introduce no second freeze
+authority. Animation and footsteps read actual native velocity. No live NPC retains the rigid
+character path; legacy rigid player scenes and free physical items keep their original callbacks.
 
 ### Service smells and request timing
 

@@ -1016,7 +1016,8 @@
         "held_in_slot",
         "held_relationship",
         "holder_available",
-        "physical_body"
+        "physical_body",
+        "held_body_relationship"
       ],
       "sources": [
         "content/observers/gameplay/o_health_lifecycle.gd",
@@ -1033,7 +1034,8 @@
         "held_in_slot": "request",
         "held_relationship": "request",
         "holder_available": "request",
-        "physical_body": "request"
+        "physical_body": "request",
+        "held_body_relationship": "request"
       },
       "public_instance_methods": []
     },
@@ -9994,13 +9996,17 @@
         "request"
       ],
       "public_methods": [
-        "capture"
+        "capture",
+        "capture_stationary",
+        "reset_contacts"
       ],
       "sources": [
-        "content/entities/characters/e_character_body_player.gd"
+        "content/domains/motion/entities/e_character_body_character.gd"
       ],
       "method_rights": {
-        "capture": "request"
+        "capture": "request",
+        "capture_stationary": "request",
+        "reset_contacts": "request"
       },
       "public_instance_methods": []
     },
@@ -10197,14 +10203,16 @@
         "request"
       ],
       "public_methods": [
-        "held_relationship"
+        "held_relationship",
+        "held_body_relationship"
       ],
       "sources": [
         "content/services/motion/kinematic_character_solver.gd",
         "content/services/motion/kinematic_push_solver.gd"
       ],
       "method_rights": {
-        "held_relationship": "request"
+        "held_relationship": "request",
+        "held_body_relationship": "request"
       },
       "public_instance_methods": []
     },
@@ -20784,6 +20792,86 @@
         "content/ui/customer_parcel_dialogue_context.gd"
       ],
       "purpose": "Submit the same captured demand after closing modal UI and rechecking role, incident and participants."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "motion",
+      "symbol": "C_CharacterBody",
+      "path": "content/domains/motion/components/c_character_body.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/interaction/solvers/grab_physics_solver.gd"
+      ],
+      "purpose": "Read the contacted character's authored external-response policy so a held spring yields without moving the character's overlap recovery. No motion state writes."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "motion",
+      "symbol": "C_CharacterBody",
+      "path": "content/domains/motion/components/c_character_body.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/npc/entities/e_npc_character.gd"
+      ],
+      "purpose": "Retain the common native callback signature when supplying NPC-specific independent look."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "motion",
+      "symbol": "E_CharacterBodyCharacter",
+      "path": "content/domains/motion/entities/e_character_body_character.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "physical_motion_allowed",
+        "clear_physical_motion",
+        "update_physical_look"
+      ],
+      "method_rights": {
+        "physical_motion_allowed": "read",
+        "clear_physical_motion": "request",
+        "update_physical_look": "request"
+      },
+      "sources": [
+        "content/domains/npc/entities/e_npc_character.gd"
+      ],
+      "purpose": "NPC native lifecycle specializes the shared CharacterBody callback without inheriting player input or introducing another motion authority."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "motion",
+      "symbol": "CharacterLookSolver",
+      "path": "content/domains/motion/solvers/character_look_solver.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "step"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "step": "request"
+      },
+      "sources": [
+        "content/domains/npc/entities/e_npc_character.gd"
+      ],
+      "purpose": "NPC physical callback applies the existing independent look calculation to its native pose."
     }
   ],
   "legacy_decomposition": []

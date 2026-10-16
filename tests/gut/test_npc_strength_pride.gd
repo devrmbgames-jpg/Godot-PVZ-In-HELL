@@ -92,7 +92,7 @@ func before_each() -> void:
 	NpcConstructionService.configure_context(context, _person, DISTRICT)
 	assert_true(EntityCompositionService.try_register(context))
 	_actor.place_at(Vector3(0, 0, -2))
-	_actor.freeze = true
+	_actor.set_physics_process(false)
 	_actor.rotation.y = PI
 	_pride = _actor.get_component(C_NpcPride) as C_NpcPride
 	_decision = _actor.get_component(C_NpcDecision) as C_NpcDecision

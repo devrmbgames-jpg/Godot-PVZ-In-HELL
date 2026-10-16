@@ -1,18 +1,22 @@
 extends RefCounted
-## Ориентация RigidBody-персонажа внутри физического callback; захват вращения имеет приоритет.
+## Общая ориентация физического персонажа; native callback применяет рассчитанную позу.
 class_name CharacterLookSolver
 
 const ANGLE_EPSILON: float = 0.001
 
 
 #region Физический вход
-## Применяет прямой ввод или ограниченный поворот головы/корпуса; вызывается только из физического
-## callback.
-## state заимствован на время вызова; шаг поворота использует физический state.step.
+## Адаптирует общий расчёт к заимствованному native RigidBody state.
 static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectBodyState3D) -> void:
+	state.transform = step(entity, state.transform, state.step)
+
+
+## Возвращает мировую позу корпуса и применяет локальный поворот головы; delta в секундах.
+## Физическое тело остаётся владельцем применения позы.
+static func step(entity: E_PhysicalCharacter, pose: Transform3D, delta: float) -> Transform3D:
 	var grab_control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 	if grab_control != null and grab_control.rotation_active:
-		return
+		return pose
 
 	var controller := entity.get_component(C_Controller) as C_Controller
 
@@ -22,28 +26,28 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 	var mobility_multiplier: float = CarryLoadPolicy.active_multiplier(carry_load, strength)
 
 	if controller == null:
-		return
+		return pose
 
 	if look == null:
-		return
+		return pose
 
 	var look_direction := controller.direction_look
 
 	if look_direction.is_zero_approx():
-		return
+		return pose
 
 	look_direction = look_direction.normalized()
 	if look.direct_input:
-		_integrate_direct_look(entity, state, look_direction)
-		return
+		return _integrate_direct_look(entity, pose, look_direction)
 
 	var max_rotation_step: float = (
-		deg_to_rad(look.look_acceleration) * state.step * mobility_multiplier
+		deg_to_rad(look.look_acceleration) * delta * mobility_multiplier
 	)
 
-	_integrate_yaw(
+	pose = _integrate_yaw(
 		entity,
-		state,
+		pose,
+		delta,
 		look,
 		controller,
 		look_direction,
@@ -53,49 +57,51 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 
 	_integrate_pitch(entity, look_direction, max_rotation_step)
 
+	return pose
+
 #endregion
 
 
 #region Прямой ввод и ориентация
 static func _integrate_direct_look(
-	entity: E_RigidBodyCharacter,
-	state: PhysicsDirectBodyState3D,
+	entity: E_PhysicalCharacter,
+	pose: Transform3D,
 	look_direction: Vector3,
-) -> void:
+) -> Transform3D:
 	# Поворот корпуса остаётся у физического тела; камера применяет прямой ввод без дополнительного
 	# лимита.
 	var yaw: float = atan2(-look_direction.x, -look_direction.z)
-	var pose: Transform3D = state.transform
 	pose.basis = Basis(Vector3.UP, yaw)
-	state.transform = pose
 	if entity.head_axis_y != null:
 		entity.head_axis_y.rotation.y = 0.0
 	if entity.head_axis_x != null:
 		var horizontal_length: float = Vector2(look_direction.x, look_direction.z).length()
 		entity.head_axis_x.rotation.x = atan2(look_direction.y, horizontal_length)
+	return pose
 
 
 static func _integrate_yaw(
-	entity: E_RigidBodyCharacter,
-	state: PhysicsDirectBodyState3D,
+	entity: E_PhysicalCharacter,
+	pose: Transform3D,
+	delta: float,
 	look: C_Look,
 	controller: C_Controller,
 	look_direction: Vector3,
 	max_rotation_step: float,
 	mobility_multiplier: float,
-) -> void:
+) -> Transform3D:
 	var flat_look_direction := Vector3(look_direction.x, 0.0, look_direction.z)
 
 	if flat_look_direction.is_zero_approx():
-		return
+		return pose
 
 	flat_look_direction = flat_look_direction.normalized()
 
-	var body_forward := -state.transform.basis.z
+	var body_forward := -pose.basis.z
 	body_forward.y = 0.0
 
 	if body_forward.is_zero_approx():
-		return
+		return pose
 
 	body_forward = body_forward.normalized()
 
@@ -141,7 +147,7 @@ static func _integrate_yaw(
 		var motion_target_body_yaw: float = (look_yaw + body_yaw_offset)
 
 		var motion_rotation_step: float = (
-			deg_to_rad(look.motion_alignment_acceleration) * state.step * mobility_multiplier
+			deg_to_rad(look.motion_alignment_acceleration) * delta * mobility_multiplier
 		)
 
 		var motion_new_body_yaw: float = _move_toward_angle(
@@ -150,9 +156,7 @@ static func _integrate_yaw(
 			motion_rotation_step,
 		)
 
-		var motion_transform := state.transform
-		motion_transform.basis = Basis(Vector3.UP, motion_new_body_yaw)
-		state.transform = motion_transform
+		pose.basis = Basis(Vector3.UP, motion_new_body_yaw)
 
 		body_yaw = motion_new_body_yaw
 
@@ -175,7 +179,7 @@ static func _integrate_yaw(
 
 	# Во время движения корпус уже управляется логикой выше.
 	if is_moving:
-		return
+		return pose
 
 	# ---------------------------------------------------------------------
 	# Стоим на месте.
@@ -184,7 +188,7 @@ static func _integrate_yaw(
 	# Затем начинает доворачиваться корпус.
 	# ---------------------------------------------------------------------
 	if absf(relative_yaw) <= head_limit:
-		return
+		return pose
 
 	if entity.head_axis_y != null:
 		var head_yaw_error: float = angle_difference(
@@ -193,20 +197,18 @@ static func _integrate_yaw(
 		)
 
 		if absf(head_yaw_error) > ANGLE_EPSILON:
-			return
+			return pose
 
 	var target_body_yaw: float = (look_yaw - signf(relative_yaw) * head_limit)
 
 	var new_body_yaw: float = _move_toward_angle(body_yaw, target_body_yaw, max_rotation_step)
 
-	var transform := state.transform
-	transform.basis = Basis(Vector3.UP, new_body_yaw)
-
-	state.transform = transform
+	pose.basis = Basis(Vector3.UP, new_body_yaw)
+	return pose
 
 
 static func _integrate_pitch(
-	entity: E_RigidBodyCharacter,
+	entity: E_PhysicalCharacter,
 	look_direction: Vector3,
 	max_rotation_step: float,
 ) -> void:

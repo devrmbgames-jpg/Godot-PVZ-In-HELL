@@ -59,9 +59,9 @@ func before_each() -> void:
 		).instantiate()
 		as E_NpcCharacter
 	)
-	(_customer as Node as RigidBody3D).freeze = true
 	(_customer as Node as Node3D).position = Vector3(0, 0, -1)
 	EntityCompositionFixture.register_visit(_world, _customer, _visit)
+	_customer.set_physics_process(false)
 	_agent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	_parcel = (

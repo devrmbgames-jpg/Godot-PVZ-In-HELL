@@ -87,7 +87,7 @@ func before_each() -> void:
 	NpcConstructionService.configure_context(context, _person, DISTRICT)
 	assert_true(EntityCompositionService.try_register(context))
 	_actor.place_at(Vector3.ZERO)
-	_actor.freeze = true
+	_actor.set_physics_process(false)
 
 
 func after_each() -> void:
@@ -146,7 +146,7 @@ func _ordinary_npc(point: Vector3) -> E_DistrictNpc:
 	)
 	NpcConstructionService.configure_context(context, person, DISTRICT)
 	assert_true(EntityCompositionService.try_register(context))
-	body.freeze = true
+	body.set_physics_process(false)
 	body.place_at(point)
 	return body
 #endregion

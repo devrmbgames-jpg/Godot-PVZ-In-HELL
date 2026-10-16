@@ -44,8 +44,9 @@ func _physical_impacts() -> void:
 			scene_path = "res://content/domains/motion/entities/physical_character.tscn"
 		var scene: PackedScene = load(scene_path) as PackedScene
 		var target: Entity = scene.instantiate() as Entity
-		var body: RigidBody3D = target as Node as RigidBody3D
-		body.freeze = true
+		var body: PhysicsBody3D = target as Node as PhysicsBody3D
+		if body is RigidBody3D:
+			(body as RigidBody3D).freeze = true
 		if index == 0:
 			var collision: CollisionShape3D = CollisionShape3D.new()
 			var shape: CapsuleShape3D = CapsuleShape3D.new()
@@ -55,6 +56,7 @@ func _physical_impacts() -> void:
 			collision.position.y = 0.85
 			body.add_child(collision)
 		EntityCompositionFixture.register(world, target)
+		body.set_physics_process(false)
 		body.global_position = Vector3(index * 5.0, 0, 0)
 		characters.append(target)
 	for target: Entity in characters:
@@ -130,7 +132,7 @@ func _customer_combat() -> void:
 		as E_NpcCharacter
 	)
 	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
-	var customer_body: RigidBody3D = customer as Node as RigidBody3D
+	var customer_body: CharacterBody3D = customer as Node as CharacterBody3D
 	customer_body.position = CustomerFlowQueries.counter().waiting_position()
 	_level.add_child(customer_body)
 	EntityCompositionFixture.register(ECS.world, customer, false)

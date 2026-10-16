@@ -38,7 +38,8 @@ static func reconcile_calendar(world: World, session: Entity) -> DistrictCalenda
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	var pending: DistrictCalendarReconcileRequest = (
 		district.lifecycle_request.get_ref() as DistrictCalendarReconcileRequest
-		if district.lifecycle_request != null else null
+		if district.lifecycle_request != null
+		else null
 	)
 	if district.lifecycle_day == cycle.day_index and district.lifecycle_phase == int(cycle.phase):
 		return pending
@@ -59,6 +60,7 @@ static func reconcile_calendar(world: World, session: Entity) -> DistrictCalenda
 #region Восстановление состояния движка
 ## Clears transient engine/AI participation before restore or explicit morning preparation.
 static func reset_brain(body: E_DistrictNpc) -> void:
+	body.clear_physical_motion(true)
 	NpcBrainService.set_participating(body, false)
 	NpcCommunityService.cancel_activity(body)
 	NpcDialogueService.end(body)

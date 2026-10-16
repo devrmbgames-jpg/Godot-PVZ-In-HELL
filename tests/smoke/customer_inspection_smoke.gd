@@ -64,7 +64,7 @@ func _exercise_inspection() -> void:
 	# Навигационный прогон с фиксированным FPS опережает аудиомикшер; звук проверяет владелец
 	# отдельно.
 	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
-	var body: RigidBody3D = customer as Node as RigidBody3D
+	var body: CharacterBody3D = customer as Node as CharacterBody3D
 	body.position = counter.waiting_position()
 	_level.add_child(body)
 	EntityCompositionFixture.register(ECS.world, customer, false)

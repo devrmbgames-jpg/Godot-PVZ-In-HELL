@@ -56,7 +56,6 @@ func before_each() -> void:
 	_person.placement = NpcRecord.Placement.STREET
 	(session.get_component(C_District) as C_District).people.append(_person)
 	_actor = BODY.instantiate() as E_DistrictNpc
-	_actor.gravity_scale = 0.0
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		_actor,
 		_world,
@@ -64,6 +63,7 @@ func before_each() -> void:
 	)
 	NpcConstructionService.configure_context(context, _person, DISTRICT)
 	assert_true(EntityCompositionService.try_register(context))
+	(_actor.get_component(C_CharacterBody) as C_CharacterBody).gravity_scale = 0.0
 	_actor.place_at(Vector3(0.0, 0.0, -3.0))
 	_constraint = _actor.get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
 	_decision = _actor.get_component(C_NpcDecision) as C_NpcDecision
@@ -179,13 +179,13 @@ func test_observation_cancels_attack_and_freezes_without_waiting_for_decision_bu
 	var generation: int = combat.execution_generation
 	var health: C_Health = _player.get_component(C_Health) as C_Health
 	var before: float = health.current
-	_actor.linear_velocity = Vector3.RIGHT * 2.0
+	_actor.velocity = Vector3.RIGHT * 2.0
 	NpcIntentService.move_to(_actor, Vector3.RIGHT * 4.0, 0.3)
 	_decision.scheduled_delta = 0.0
 	_sample()
 	assert_true(_constraint.observed)
-	assert_true(_actor.freeze)
-	assert_eq(_actor.linear_velocity, Vector3.ZERO)
+	assert_false(_actor.physical_motion_allowed())
+	assert_eq(_actor.velocity, Vector3.ZERO)
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
 	assert_eq(controller.direction_motion, Vector3.ZERO)
 	assert_eq(controller.direction_look, Vector3.ZERO)
@@ -231,7 +231,7 @@ func test_unobserved_frame_releases_body_and_requests_one_urgent_resample() -> v
 	await _sync_physics()
 	_automatic_steps = false
 	assert_false(_constraint.observed)
-	assert_false(_actor.freeze)
+	assert_true(_actor.physical_motion_allowed())
 	assert_true(_decision.wake_urgent)
 	assert_eq(_decision.lifecycle_generation, generation + 1)
 	_sample()
@@ -275,20 +275,30 @@ func test_reset_restore_and_dormant_participation_reconcile_native_freeze() -> v
 	await _sync_physics()
 	var variation: Dictionary = SaveDataCodec.encode(_person.variation) as Dictionary
 	_sample()
-	assert_true(_actor.freeze)
+	assert_false(_actor.physical_motion_allowed())
+	var config: C_CharacterBody = _actor.get_component(C_CharacterBody) as C_CharacterBody
+	config.impulse_velocity = Vector3.RIGHT
+	config.pending_rebound_velocity = Vector3.UP
+	config.incoming_bodies[1] = C_CharacterBody.BodyMotion.new()
 	DistrictPopulationService.reset_brain(_actor)
+	assert_eq(config.impulse_velocity, Vector3.ZERO)
+	assert_eq(config.pending_rebound_velocity, Vector3.ZERO)
+	assert_true(config.incoming_bodies.is_empty())
 	assert_false(_constraint.observed)
-	assert_false(_actor.freeze)
+	assert_true(_actor.physical_motion_allowed())
 	assert_eq(SaveDataCodec.encode(_person.variation), variation)
 	DistrictPopulationService.restore_participation()
 	assert_same(_constraint.rule, NpcGazeQueries.selected_rule(_person.rules_for()))
 	assert_false(_constraint.observed)
 	_sample()
-	assert_true(_actor.freeze)
+	assert_false(_actor.physical_motion_allowed())
 	_actor.set_participating(false)
 	_constraint.observed = false
 	_actor.sync_gaze_constraint()
-	assert_true(_actor.freeze, "Releasing observation cannot wake a dormant body")
+	assert_false(
+		_actor.physical_motion_allowed(),
+		"Releasing observation cannot wake a dormant body",
+	)
 #endregion
 
 
@@ -329,17 +339,16 @@ func test_native_body_consumes_combat_speed_policy_and_reset_clears_it() -> void
 	var motion: C_Motion = _actor.get_component(C_Motion) as C_Motion
 	var base_speed: float = motion.max_speed
 	motion.air_acceleration = 100.0
-	_actor.linear_damp = 0.0
 	assert_true(CombatService.bind_target(_actor, _player))
 	NpcIntentService.move_to(_actor, _actor.global_position + Vector3.RIGHT * 20.0, 0.3)
 	(_actor.get_component(C_NpcIntent) as C_NpcIntent).navigation_enabled = false
 	_automatic_steps = true
 	for frame: int in range(40):
 		await get_tree().physics_frame
-		if _actor.linear_velocity.length() > base_speed * 1.5:
+		if _actor.velocity.length() > base_speed * 1.5:
 			break
 	_automatic_steps = false
-	assert_gt(_actor.linear_velocity.length(), base_speed * 1.5)
+	assert_gt(_actor.velocity.length(), base_speed * 1.5)
 	assert_eq(motion.max_speed, base_speed)
 	DistrictPopulationService.reset_brain(_actor)
 	assert_eq(motion.control_speed_multiplier, 1.0)
@@ -430,4 +439,57 @@ func test_typed_capabilities_compose_and_reject_invalid_or_duplicate_tuning() ->
 	untyped.kind = DEF_NpcTrait.Kind.CAPABILITY
 	profile.rules = [untyped]
 	assert_false(NpcVariationRules.valid_archetype(profile))
+#endregion
+
+
+#region Native impact while observed
+func test_frozen_native_npc_receives_raw_impact_without_motion_or_stored_release() -> void:
+	_world.add_observer(O_Damage.new())
+	var impacts: S_Impact = S_Impact.new()
+	impacts.group = "GazeFixture"
+	_world.add_system(impacts)
+	await _sync_physics()
+	_sample()
+	assert_true(_constraint.observed)
+	# This physical freeze case uses the native Angel recipe with a nonimmune test receiver.
+	# The authored Angel resistance remains unchanged.
+	(
+		_actor.get_component(C_DamageResistance) as C_DamageResistance
+	).multipliers[DamageRequest.Type.IMPACT] = 1.0
+	var body: CharacterBody3D = _actor as Node as CharacterBody3D
+	var origin: Vector3 = body.global_position
+	var health: C_Health = _actor.get_component(C_Health) as C_Health
+	health.value = 100.0
+	health.current = 100.0
+	var projectile: RigidBody3D = RigidBody3D.new()
+	projectile.mass = 20.0
+	projectile.gravity_scale = 0.0
+	projectile.continuous_cd = true
+	projectile.collision_mask = 2
+	projectile.collision_layer = 4
+	var collision: CollisionShape3D = CollisionShape3D.new()
+	var shape: SphereShape3D = SphereShape3D.new()
+	shape.radius = 0.2
+	collision.shape = shape
+	projectile.add_child(collision)
+	_world.add_child(projectile)
+	projectile.position = origin + Vector3(-3.0, 0.85, 0.0)
+	projectile.linear_velocity = Vector3.RIGHT * 20.0
+	for frame: int in 45:
+		await get_tree().physics_frame
+		await get_tree().process_frame
+		_sample()
+	assert_lt(health.current, 100.0, "Observed NPC still receives real physical damage")
+	assert_true(_constraint.observed)
+	assert_eq(body.global_position, origin)
+	var config: C_CharacterBody = _actor.get_component(C_CharacterBody) as C_CharacterBody
+	assert_eq(config.impulse_velocity, Vector3.ZERO)
+	assert_eq(config.pending_rebound_velocity, Vector3.ZERO)
+	projectile.free()
+	_camera.rotation.y = PI
+	_sample()
+	assert_false(_constraint.observed)
+	for frame: int in 12:
+		await get_tree().physics_frame
+	assert_eq(body.global_position, origin, "Ending observation cannot release old impacts")
 #endregion

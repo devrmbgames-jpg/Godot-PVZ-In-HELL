@@ -224,6 +224,6 @@ func _stage_person(index: int, point: Vector3) -> E_DistrictNpc:
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
 	body.place_at(point)
-	body.freeze = true
+	body.set_physics_process(false)
 	return body
 #endregion

@@ -63,7 +63,7 @@ func _travel(index: int) -> E_DistrictNpc:
 	var person: NpcRecord = _district.people[index]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
-	body.freeze = true
+	body.set_physics_process(false)
 	body.place_at(Vector3(-8, 0, index * 3))
 	body.navigation_agent.set_navigation_map(_native_map)
 	NpcIntentService.move_to(body, Vector3(8, 0, index * 3), 0.3)

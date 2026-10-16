@@ -1,6 +1,8 @@
 extends GutTest
 ## Регрессии постоянства населения, календаря, окончательной смерти и отложенного заселения.
 
+const ENTITY_SCRIPT: Script = preload("res://addons/gecs/ecs/entity.gd")
+
 var _root: Node3D = null
 var _world: World = null
 var _district: C_District = null
@@ -22,7 +24,7 @@ func before_each() -> void:
 	_world.add_observer(O_WalletDay.new())
 
 	var owner_node: Node = Node.new()
-	owner_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
+	owner_node.set_script(ENTITY_SCRIPT)
 	var owner_entity: Entity = owner_node as Entity
 	_district = C_District.new()
 	_district.definition = (load(_district_definition_path()) as DEF_District)
@@ -91,7 +93,7 @@ func test_departure_and_return_keep_body_health_and_memory() -> void:
 	person.memories.append(memory)
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.OUTSIDE)
 	assert_false(body.enabled)
-	assert_eq((body as Node as RigidBody3D).collision_layer, 0)
+	assert_eq((body as Node as CharacterBody3D).collision_layer, 0)
 	var phase_receipt: NpcPhasePlanRequest = DistrictPopulationService.request_phase(
 		body,
 		2,
@@ -174,4 +176,48 @@ func test_two_deaths_start_delayed_one_per_morning_resettlement() -> void:
 	DistrictPopulationService.prepare_morning(4)
 	assert_eq(_district.people.size(), 14)
 	assert_eq(_district.replacement_morning, 0)
+#endregion
+
+
+#region Native CharacterBody footstep snapshots
+func test_footsteps_read_native_npc_and_player_velocity_instead_of_controller_intent() -> void:
+	var person: NpcRecord = _district.people[0]
+	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	cycle.phase = C_DayCycle.Phase.DAY
+	assert_true(DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.STREET))
+	actor.set_physics_process(false)
+	var body: CharacterBody3D = actor as Node as CharacterBody3D
+	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
+	controller.direction_motion = Vector3.ZERO
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	decision.scheduled_day = cycle.day_index
+	decision.scheduled_phase = int(cycle.phase)
+	decision.scheduled_delta = _district.definition.footstep_interval
+	_district.noises.clear()
+	_world.add_system(S_NpcFootsteps.new())
+	body.velocity = Vector3.RIGHT * 2.0
+	_world.process(_district.definition.footstep_interval)
+	assert_eq(_district.noises.size(), 1)
+	assert_same(_district.noises[0].source, actor)
+	assert_eq(_district.noises[0].radius, _district.definition.walking_noise_radius)
+	assert_false(_district.noises[0].investigate)
+
+	body.velocity = Vector3.ZERO
+	controller.direction_motion = Vector3.RIGHT
+	_world.process(_district.definition.footstep_interval)
+	assert_eq(_district.noises.size(), 1, "Intent without physical velocity emits no footstep")
+
+	# The same scheduled reader also supports the project's existing CharacterBody player.
+	var player_body: CharacterBody3D = CharacterBody3D.new()
+	player_body.set_script(ENTITY_SCRIPT)
+	var player: Entity = player_body as Node as Entity
+	player.component_resources = [C_PlayerInputController.new()]
+	_world.add_entity(player)
+	player_body.velocity = Vector3.RIGHT * 4.0
+	_world.process(_district.definition.footstep_interval)
+	assert_eq(_district.noises.size(), 2)
+	assert_same(_district.noises[1].source, player)
+	assert_eq(_district.noises[1].radius, _district.definition.running_noise_radius)
+	assert_true(_district.noises[1].investigate)
 #endregion

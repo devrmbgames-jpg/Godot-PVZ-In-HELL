@@ -31,10 +31,10 @@ func after_each() -> void:
 
 func _holder(position: Vector3) -> E_NpcCharacter:
 	var actor: E_NpcCharacter = NPC.instantiate() as E_NpcCharacter
-	var body: RigidBody3D = actor as Node as RigidBody3D
-	body.freeze = true
+	var body: CharacterBody3D = actor as Node as CharacterBody3D
 	body.position = position
 	EntityCompositionFixture.register(_world, actor)
+	body.set_physics_process(false)
 	return actor
 
 
@@ -103,7 +103,6 @@ func test_district_factory_publishes_the_carry_contract_alongside_roster_identit
 	var actor: E_DistrictNpc = (
 		load("res://content/domains/npc/entities/district_npc.tscn") as PackedScene
 	).instantiate() as E_DistrictNpc
-	actor.freeze = true
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		actor,
 		_world,
@@ -135,8 +134,9 @@ func test_standalone_customer_keeps_the_carry_contract_with_its_explicit_visit_t
 	var actor: E_NpcCharacter = (
 		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	).instantiate() as E_NpcCharacter
-	(actor as Node as RigidBody3D).freeze = true
+	actor.set_physics_process(false)
 	EntityCompositionFixture.register_visit(_world, actor, visit)
+	actor.set_physics_process(false)
 	assert_true(actor.has_component(C_CustomerAgent))
 	assert_true(actor.has_component(C_GrabControl))
 	assert_true(actor.has_component(C_CarryLoad))

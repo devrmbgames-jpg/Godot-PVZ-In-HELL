@@ -108,7 +108,7 @@ func test_blocked_activation_preserves_state_and_explicit_retry_uses_same_body()
 	assert_eq(body.id, old_id)
 	assert_eq(body.global_position, target)
 	assert_true(body.enabled)
-	assert_false(body.freeze)
+	assert_true(body.physical_motion_allowed())
 	assert_eq(decision.participation_generation, generation + 1)
 
 
@@ -149,7 +149,7 @@ func test_death_inside_enable_does_not_publish_active_participation() -> void:
 	assert_eq(person.placement, NpcRecord.Placement.DEAD)
 	assert_gt(person.death_day, 0)
 	assert_false(body.enabled)
-	assert_true(body.freeze)
+	assert_false(body.physical_motion_allowed())
 	assert_false((body.get_node("Brain") as BTPlayer).active)
 #endregion
 

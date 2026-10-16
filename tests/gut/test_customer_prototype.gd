@@ -38,7 +38,7 @@ func before_each() -> void:
 	_world.add_entity(counter)
 	CustomerFlowService.start_visit(flow, _visit, 1)
 	_customer = CustomerFlowQueries.customer_for(_visit.visit_id) as E_Customer
-	(_customer as Node as RigidBody3D).freeze = true
+	_customer.set_physics_process(false)
 	(_customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	_actor = Entity.new()
 	_actor.component_resources = [C_GrabControl.new()]
@@ -103,10 +103,10 @@ func test_authored_stationary_pose_preserves_walk_and_combat_animation_priority(
 	agent.phase = C_CustomerAgent.Phase.INSPECTING
 	_customer.call("_process", 0.0)
 	assert_eq(player.current_animation, "Inspect")
-	(_customer as Node as RigidBody3D).linear_velocity = Vector3.FORWARD
+	(_customer as Node as CharacterBody3D).velocity = Vector3.FORWARD
 	_customer.call("_process", 0.0)
 	assert_eq(player.current_animation, "Walk")
-	(_customer as Node as RigidBody3D).linear_velocity = Vector3.ZERO
+	(_customer as Node as CharacterBody3D).velocity = Vector3.ZERO
 	_customer.inspection_animation = &"UnassignedClip"
 	_customer.call("_process", 0.0)
 	assert_eq(player.current_animation, "Idle", "Missing authored clip safely uses Idle")

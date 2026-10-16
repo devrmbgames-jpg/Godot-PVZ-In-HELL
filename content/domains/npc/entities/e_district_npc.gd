@@ -19,7 +19,7 @@ var _gaze_animation_paused: bool = false
 #region Жизненный цикл движка
 func _ready() -> void:
 	super._ready()
-	var body: RigidBody3D = self as Node as RigidBody3D
+	var body: CharacterBody3D = self as Node as CharacterBody3D
 	_body_layer = body.collision_layer
 	_body_mask = body.collision_mask
 	_body_process_mode = process_mode
@@ -52,16 +52,14 @@ func participation_collision_mask() -> int:
 func set_participating(participating: bool) -> void:
 	if not participating:
 		NpcVeilService.reset(self)
-	var body: RigidBody3D = self as Node as RigidBody3D
+	var body: CharacterBody3D = self as Node as CharacterBody3D
 	# GECS stops root callbacks; the native mode also suspends inherited child animation work.
 	process_mode = _body_process_mode if participating else Node.PROCESS_MODE_DISABLED
-	body.freeze = not participating or NpcGazeQueries.frozen(self)
 	body.visible = participating
 	body.collision_layer = _body_layer if participating else 0
 	body.collision_mask = _body_mask if participating else 0
 	if not participating:
-		body.linear_velocity = Vector3.ZERO
-		body.angular_velocity = Vector3.ZERO
+		clear_physical_motion(true)
 	sync_navigation_lifecycle(participating)
 
 
@@ -70,16 +68,18 @@ func sync_gaze_constraint() -> void:
 	var gaze: C_NpcGazeFreeze = get_component(C_NpcGazeFreeze) as C_NpcGazeFreeze
 	if gaze == null or gaze.rule == null:
 		return
-	var body: RigidBody3D = self as Node as RigidBody3D
-	var health: C_Health = get_component(C_Health) as C_Health
-	var dead: bool = has_component(C_Death) or (health != null and health.depleted)
-	body.freeze = process_mode == Node.PROCESS_MODE_DISABLED or dead or gaze.observed
-	if gaze.observed:
-		body.linear_velocity = Vector3.ZERO
-		body.angular_velocity = Vector3.ZERO
+	if not physical_motion_allowed():
+		clear_physical_motion()
 
 
-## Death presentation and observation share the body's native freeze policy.
+func physical_motion_allowed() -> bool:
+	return (
+		super.physical_motion_allowed() and process_mode != Node.PROCESS_MODE_DISABLED
+		and not NpcGazeQueries.frozen(self)
+	)
+
+
+## Death presentation and observation share the same derived physical constraint.
 func sync_death_presentation() -> void:
 	super.sync_death_presentation()
 	var health: C_Health = get_component(C_Health) as C_Health
@@ -90,14 +90,10 @@ func sync_death_presentation() -> void:
 
 ## Разовая синхронизация при появлении, сне или загрузке; обычным движением владеет физика.
 func place_at(world_position: Vector3) -> void:
-	var body: RigidBody3D = self as Node as RigidBody3D
-	var was_frozen: bool = body.freeze
-	body.freeze = true
+	var body: CharacterBody3D = self as Node as CharacterBody3D
+	clear_physical_motion(true)
 	body.global_position = world_position
-	body.linear_velocity = Vector3.ZERO
-	body.angular_velocity = Vector3.ZERO
 	body.reset_physics_interpolation()
-	body.freeze = was_frozen
 
 
 ## Показывает постоянную личность независимо от активного заказа.

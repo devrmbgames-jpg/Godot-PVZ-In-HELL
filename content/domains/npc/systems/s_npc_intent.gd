@@ -127,7 +127,7 @@ func _apply(
 			if target != null:
 				position = target.global_position
 			var origin: Vector3 = body.global_position
-			var character: E_RigidBodyCharacter = actor as E_RigidBodyCharacter
+			var character: E_PhysicalCharacter = actor as E_PhysicalCharacter
 			if character != null and character.head_axis_x != null:
 				origin = character.head_axis_x.global_position
 			look_direction = position + intent.look_offset - origin

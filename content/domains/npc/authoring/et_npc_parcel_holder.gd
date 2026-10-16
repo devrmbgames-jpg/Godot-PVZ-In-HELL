@@ -12,7 +12,7 @@ class_name ET_NpcParcelHolder
 #region Native capability contract
 func _init() -> void:
 	trait_id = &"npc_parcel_holder"
-	required_root_class = &"RigidBody3D"
+	required_root_class = &"CharacterBody3D"
 	required_components = [C_Controller, C_Motion]
 	required_nodes = [NodePath("HandoffAnchor")]
 

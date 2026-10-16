@@ -4,7 +4,7 @@ extends GutTest
 
 var _world: World = null
 var _npc: E_NpcCharacter = null
-var _target: E_RigidBodyCharacter = null
+var _target: E_PhysicalCharacter = null
 var _state: C_NpcCombat = null
 var _health: C_Health = null
 
@@ -41,9 +41,10 @@ func after_each() -> void:
 	_health = null
 
 
-func _body(npc: bool) -> E_RigidBodyCharacter:
-	var body: RigidBody3D = RigidBody3D.new()
-	body.freeze = true
+func _body(npc: bool) -> E_PhysicalCharacter:
+	var body: PhysicsBody3D = CharacterBody3D.new() if npc else RigidBody3D.new()
+	if body is RigidBody3D:
+		(body as RigidBody3D).freeze = true
 	body.collision_layer = 2 if npc else 4
 	var body_script_path: String
 	if npc:
@@ -51,7 +52,7 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 	else:
 		body_script_path = "res://content/domains/motion/entities/e_rigid_body_character.gd"
 	body.set_script(load(body_script_path))
-	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
+	var entity: E_PhysicalCharacter = body as Node as E_PhysicalCharacter
 	var health: C_Health = C_Health.new()
 	health.current = 100.0
 	health.value = 100.0

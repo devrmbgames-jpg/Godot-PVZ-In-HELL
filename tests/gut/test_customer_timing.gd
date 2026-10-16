@@ -58,8 +58,7 @@ func _visit(id: StringName) -> CustomerVisit:
 
 
 func _leaving_customer(visit: CustomerVisit) -> E_NpcCharacter:
-	var body: RigidBody3D = RigidBody3D.new()
-	body.freeze = true
+	var body: CharacterBody3D = CharacterBody3D.new()
 	body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
 	var customer: E_NpcCharacter = body as Node as E_NpcCharacter
 	customer.component_resources = [C_CustomerAgent.new(), C_NpcIntent.new()]

@@ -610,6 +610,7 @@ static func restore(
 				kinematic.impulse_velocity = Vector3.ZERO
 				kinematic.pending_rebound_velocity = Vector3.ZERO
 				kinematic.contact_bodies.clear()
+				kinematic.incoming_bodies.clear()
 		if body != null:
 			body.linear_velocity = Vector3.ZERO
 			body.angular_velocity = Vector3.ZERO

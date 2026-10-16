@@ -8,7 +8,7 @@ const TERRAIN_MASK: int = 1
 
 
 #region Физический шаг
-## Applies native look/impulse/transport/slide motion and returns the callback-local contact sample.
+## Applies native impulse/transport/slide motion and returns the callback-local contact sample.
 ## Called by E_CharacterBodyCharacter with its native body and Components; delta is physics seconds.
 ## Consumes and clears pending impulse/rebound; body retains authoritative velocity/transform.
 static func step(
@@ -19,21 +19,30 @@ static func step(
 	config: C_CharacterBody,
 	delta: float,
 ) -> KinematicMotionSample:
-	_update_view(actor, body, control, config, delta)
 	var old_impulse: Vector3 = config.impulse_velocity
 	var impulse: Vector3 = motion.pending_impulse / maxf(config.mass_kg, MINIMUM_MASS)
 	motion.pending_impulse = Vector3.ZERO
-	config.impulse_velocity += Vector3(impulse.x, 0.0, impulse.z)
-	config.impulse_velocity = (
-		config.impulse_velocity.move_toward(Vector3.ZERO, config.impulse_decay_per_second * delta)
-	)
-
-	var controlled: Vector3 = body.velocity - old_impulse
-	controlled.y += impulse.y
 	var rebound: Vector3 = config.pending_rebound_velocity
 	config.pending_rebound_velocity = Vector3.ZERO
-	controlled.y += rebound.y
-	config.impulse_velocity += Vector3(rebound.x, 0.0, rebound.z)
+	var controlled: Vector3 = body.velocity - old_impulse
+	if config.bounded_external_motion:
+		# Combine every admitted contact/input with the retained response before one physical cap.
+		config.impulse_velocity = KinematicExternalMotionRules.limit_velocity(
+			old_impulse + impulse + rebound,
+			config,
+		)
+		config.impulse_velocity = config.impulse_velocity.move_toward(
+			Vector3.ZERO,
+			config.impulse_decay_per_second * delta,
+		)
+	else:
+		config.impulse_velocity += Vector3(impulse.x, 0.0, impulse.z)
+		config.impulse_velocity = config.impulse_velocity.move_toward(
+			Vector3.ZERO,
+			config.impulse_decay_per_second * delta,
+		)
+		controlled.y += impulse.y + rebound.y
+		config.impulse_velocity += Vector3(rebound.x, 0.0, rebound.z)
 	if body.is_on_floor() and controlled.y < 0.0:
 		controlled.y = 0.0
 	else:
@@ -56,6 +65,8 @@ static func step(
 	if not body.is_on_floor():
 		acceleration = motion.air_acceleration
 	planar = planar.move_toward(desired * speed, acceleration * delta)
+	if control.limit_motion_velocity and body.is_on_floor():
+		planar = desired * speed
 	controlled.x = planar.x
 	controlled.z = planar.z
 
@@ -66,8 +77,15 @@ static func step(
 	if config.impulse_velocity.is_zero_approx():
 		_lift_step(body, maxf(config.step_height, transport_step), delta)
 
+	var floor_layers: int = body.platform_floor_layers
+	var on_leave: CharacterBody3D.PlatformOnLeave = body.platform_on_leave
+	if config.bounded_external_motion and _held_support(actor, motion, config):
+		body.platform_floor_layers = 0
+		body.platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_DO_NOTHING
 	var incoming: Vector3 = body.velocity
 	body.move_and_slide()
+	body.platform_floor_layers = floor_layers
+	body.platform_on_leave = on_leave
 	return KinematicMotionSample.new(incoming, desired * speed)
 
 
@@ -91,7 +109,8 @@ static func update_support(
 
 
 #region Взгляд и движение с транспортом
-static func _update_view(
+## Применяет прямой взгляд игрока из Entity callback; delta в физических секундах.
+static func update_view(
 	actor: E_PhysicalCharacter,
 	body: CharacterBody3D,
 	control: C_Controller,
@@ -238,6 +257,27 @@ static func _lift_step(body: CharacterBody3D, height: float, delta: float) -> vo
 		body.move_and_collide(Vector3.UP * rise)
 
 
+static func _held_support(
+	actor: E_CharacterBodyCharacter,
+	motion: C_Motion,
+	config: C_CharacterBody,
+) -> bool:
+	# Inspect both the current ray and the previous native support before platform inheritance.
+	# The latter also suppresses launch during the first step leaving a held object.
+	if actor.ground_ray != null:
+		actor.ground_ray.force_raycast_update()
+		var support: PhysicsBody3D = actor.ground_ray.get_collider() as PhysicsBody3D
+		if support != null and GrabQueries.held_body_relationship(support) != null:
+			return true
+	for reference: WeakRef in config.contact_bodies.values():
+		var support: PhysicsBody3D = reference.get_ref() as PhysicsBody3D
+		if support == null or support.get_rid() != motion.floor_body_rid:
+			continue
+		if GrabQueries.held_body_relationship(support) != null:
+			return true
+	return false
+
+
 static func _push_support(
 	actor: E_CharacterBodyCharacter,
 	body: CharacterBody3D,
@@ -262,9 +302,8 @@ static func _push_support(
 	if rigid == null or rigid.freeze:
 		return
 
-	var support_entity: Entity = rigid as Node as Entity
-	var held: Relationship = GrabQueries.held_relationship(support_entity)
-	if held != null and held.target == actor:
+	var held: Relationship = GrabQueries.held_body_relationship(rigid)
+	if held != null and (held.target == actor or config.bounded_external_motion):
 		return
 
 	var planar: Vector3 = Vector3(body.velocity.x, 0.0, body.velocity.z).limit_length(1.0)
