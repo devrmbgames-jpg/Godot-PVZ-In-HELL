@@ -1,8 +1,8 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `1562b58a6df0dbb00e8d6d3f1a742de425c89d28`
-TARGET_SHA: `cc696412a8cf43ca4c88028719ce60cb42e15521`
+BASE_SHA: `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`
+TARGET_SHA: `4f2048eb19b76015072654cd4630f2c1098a0ada`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26_1_physical_items_and_effects.md).
@@ -33,14 +33,13 @@ payload через released. Passive restore получает selected_item до
 M2d.1 завершён после review: detached PackageShipmentPlan выбирает qty/packing/variant/full mass.
 Explicit quantity не изменяется; RNG purpose/canonical ordering обеспечивают retry.
 
-M2d.2 primary review нашёл RV-002/RV-003/P1; fixes подготовлены, targeted re-review pending.
+M2d.2 завершён после fix/re-review: RV-002/RV-003 FIXED, новых material findings нет.
 ReceivingBatch фиксирует quantity/packing paths до создания тела; C_PackageContents владеет составом.
 Compiler и saved preflight проверяют quantity/capacity/exact scene; fresh/reused restore не reroll.
 Native Trait allowlist и недостающий clothing cargo комнаты shy обновлены через editor/MCP.
 Schema20/PVZH1: явное решение владельца 2026-10-16 — «Отклонять старую схему, файл сохранять».
 Schema19 отвергается до World mutation, файл защищён от autosave overwrite; converter не нужен.
-UI/history ещё читают прежние физические факты; их перевод и owner QA обязательны.
-Исходный дефект целиком пока не закрыт.
+UI/history ещё читают прежние физические факты; их перевод и owner QA обязательны, задача IN_PROGRESS.
 ## Установленная поверхность и гипотеза причины
 
 - [ReceivingDeliveryService](../../content/domains/packages/services/receiving_delivery_service.gd)
@@ -149,7 +148,7 @@ M2d.1 checks:
   `cc696412a8cf43ca4c88028719ce60cb42e15521`: no material findings, architecture/style PASS,
   reviewer validation NOT_RUN. Triage: новых кандидатов нет. Visual QA NOT_RUN,0/8.
 
-M2d.2 validation: GUT149/149,4234 assertions across11 focused files; targeted review pending.
+M2d.2 validation: GUT149/149,4234 assertions across11 focused files; targeted review PASS.
 - entity_traits9/79 (`011602662`), contents21/305 (`014029406`), snapshot44/598 (`013924781`),
   receiving_limits22/161 (`011405337`), truck16/118 (`012632796`), roster10/846 (`011647070`),
   shipment7/141 (`011920650`), save_data6/40 (`011924899`), cargo3/129 (`012205035`),
@@ -163,16 +162,19 @@ M2d.2 validation: GUT149/149,4234 assertions across11 focused files; targeted re
 
 ### Review triage
 
+M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`.
 - RV-001 — **FIXED**, P1 source `ca0e1409eaca761988f8913cb242953baac36a4e`:
   native baseline2 FAIL/20 (`gut-20261016-003927943`): повторный rupture damage→destroy/leak→open.
   consume_catalog_rupture фиксирует released/empty mass до callbacks; intact opening сохраняется.
   Fix `f893cb3395dd3b86572009c58f55a558424e31cb`, native61/61/800 assertions/re-review PASS.
-- RV-002 — **ACCEPTED**, P1 source `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`:
+- RV-002 — **FIXED**, P1 source `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`:
   SnapshotGraphRules.valid_entities/STORED использовал legacy30kg вместо actual4kg в слоте max8kg.
-  Fix prepared: saved full/empty mass через общие PackageShipmentRules.mass_kg, без live state.
-- RV-003 — **ACCEPTED**, P1 same source: WorldSnapshotService.can_restore не сверял retained scene.
-  Fix prepared: preflight отвергает large-saved/small-live для одного ID до любых изменений.
-  Native baseline3 FAIL/44 (`gut-20261016-013751617`), fix44/44 (`013924781`), targeted review pending.
+  Fix TARGET_SHA: saved full/empty mass через общие PackageShipmentRules.mass_kg, без live state.
+- RV-003 — **FIXED**, P1 same source: WorldSnapshotService.can_restore не сверял retained scene.
+  Fix TARGET_SHA: preflight отвергает large-saved/small-live для одного ID до любых изменений.
+  Native baseline3 FAIL/44 (`gut-20261016-013751617`), fix44/44 (`013924781`).
+  Re-review BASE_SHA → TARGET_SHA: оба FIXED, no material findings, architecture/style PASS;
+  reviewer validation NOT_RUN. Repair/re-review1/2 завершён.
 
 ## План проверки будущей реализации
 
@@ -193,8 +195,7 @@ M2d.2 validation: GUT149/149,4234 assertions across11 focused files; targeted re
 
 ### Next
 
-Завершить targeted re-review RV-002/RV-003. Затем M2d.3: arrival projection/history и весь UI —
+M2d.3: arrival projection/history и весь UI —
 weight sort/detail терминала, stickers PackageConditionView, debug HUD, hazard icons. Они пока
-читают старые mass/tags/hazard hooks из DEF_Package; использовать единые факты состава и immutable
-arrival projection. Совместимость прежних файлов закрывается явным отказом по решению владельца.
+читают старые mass/tags/hazard hooks из DEF_Package; использовать факты состава и immutable arrival projection.
 Затем профильные native регрессии и обязательный owner QA; до всех acceptance задача не DONE.
