@@ -627,6 +627,68 @@ func test_busy_carry_returns_to_supported_clear_ground_without_replacing_the_occ
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 
 
+func test_carry_interact_routes_actual_demand_instead_of_dropping_the_occupant() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var other: Entity = SECOND_PARCEL.instantiate() as Entity
+	EntityCompositionFixture.register(_world, other)
+	(other as Node as Node3D).global_position = _actor.hold_anchor.global_position - (
+		_actor.hold_anchor.global_basis.z * 1.25
+	)
+	other.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	_obstacle(Vector3(0.0, -0.1, 0.0), Vector3(20.0, 0.2, 20.0))
+	var interactor: C_Interactor = C_Interactor.new()
+	_actor.add_component(interactor)
+	var ray: RayCast3D = RayCast3D.new()
+	_actor.add_child(ray)
+	_actor.interaction_ray_cast = ray
+	ray.global_position = (_actor as Node as Node3D).global_position + Vector3.UP * 1.5
+	ray.look_at((_customer as Node as Node3D).global_position + Vector3.UP * 1.5)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
+	assert_same(interactor.target, _customer, "Real ray reaches the NPC above the stolen parcel")
+	assert_same(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), other)
+	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.CARRY)
+	assert_true(DEMAND_ACTION.is_available(_actor, _customer, _customer))
+	var modal_token: int = InteractionControlFocus.acquire(
+		_actor,
+		self,
+		InteractionControlFocus.Priority.MODAL,
+	)
+	assert_null(InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT))
+	InteractionActionResolver.execute_slot(_actor, DEF_InteractionAction.Slot.INTERACT, true)
+	assert_eq(incident.demand_outcome, DEMAND.NONE)
+	assert_same(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), other)
+	InteractionControlFocus.release(_actor, modal_token)
+	var choice: InteractionActionChoice = InteractionActionResolver.resolve(
+		_actor,
+		DEF_InteractionAction.Slot.INTERACT,
+	)
+	assert_not_null(choice)
+	if choice == null:
+		return
+	assert_same(choice.action, DEMAND_ACTION, "Carry must expose the accepted native demand")
+	if choice.action != DEMAND_ACTION:
+		return
+	InteractionActionResolver.execute_slot(_actor, DEF_InteractionAction.Slot.INTERACT, true)
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_same(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), other)
+	assert_null(GrabQueries.held_relationship(_parcel))
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_false(DEMAND_ACTION.is_available(_actor, _customer, _customer))
+	var fallback: InteractionActionChoice = InteractionActionResolver.resolve(
+		_actor,
+		DEF_InteractionAction.Slot.INTERACT,
+	)
+	assert_not_null(fallback)
+	if fallback == null:
+		return
+	assert_true(fallback.action is DEF_GrabAction)
+	if fallback.action is DEF_GrabAction:
+		assert_eq((fallback.action as DEF_GrabAction).kind, DEF_GrabAction.Kind.RELEASE)
+
+
 func test_player_own_carry_does_not_occlude_native_pending_return_action() -> void:
 	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
 	var other: Entity = SECOND_PARCEL.instantiate() as Entity

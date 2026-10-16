@@ -1,7 +1,7 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **OWNER_QA**
-Technical: **COMPLETE**
+Technical: **IN_PROGRESS**
 Execution order: **20**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/automatic_parcel_handover_and_wrong_recipient_reactions.md.txt).
@@ -25,7 +25,8 @@ Source: [полное исходное ТЗ и доказательства](ref
 Последний reviewed TARGET_SHA: `427799387733b0aea057db9e77ff894405307040`.
 Исходный BASE_SHA: `6ac1ac6e1ffbb8e8bd43a11b989bb8c8152e5dd9`.
 RV-001–RV-006 исправлены; полные source/fix SHA и проверки сохранены в Source.
-Статус уточнён до OWNER_QA: новых PASS этот рефакторинг не создаёт.
+H4 начат: 5/8 случаев, 1/3 PASS, 2/4 INCONCLUSIVE, 5 приостановлен на H4-QA-001/P2.
+Подтверждённый дефект возвращает технический gate в IN_PROGRESS до ремонта и ревью.
 
 ## Work packages
 
@@ -34,7 +35,7 @@ RV-001–RV-006 исправлены; полные source/fix SHA и прове�
 | H1 | Автовыдача и отказ: M1a/b + M2a/b, выполнено и reviewed. |
 | H2 | Физические реакции и фактическое содержимое: M2c/d, выполнено и reviewed. |
 | H3 | Присвоение, возврат, запугивание и судьба заказа: M2e/f, выполнено и reviewed. |
-| H4 | Существующая восьмисценарная игровая приёмка: NOT_RUN, 0/8. |
+| H4 | Разрешено до8 случаев; начато5/8, 1/3 PASS, 2/4 INCONCLUSIVE, 5 требует ремонта ввода. |
 
 Не переделывать H1–H3 ради нового разбиения. Возврат к коду — только по конкретному
 дефекту либо изменившемуся контракту; проверять затронутые гарантии, не всю историю.
@@ -48,10 +49,11 @@ GrabService и save-codec, перечисленных в Source. H4 не бло�
 
 ## Next
 
-При исполнении backlog выполнить разрешённые случаи из
-[существующей QA-карточки](../../.qa/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md).
-Если нужная среда недоступна, записать причину и продолжить следующую готовую задачу.
-Повторно просить уже выданное разрешение на те же восемь случаев не требуется.
+Закончить H4-QA-001: scoped native проверки → отдельный коммит → read-only exact-SHA review/triage.
+Затем продолжить уже начатый случай5 и оставшиеся6–8 из
+[QA-карточки](../../.qa/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md).
+Не повторять завершённые случаи2/4 и не заменять их INCONCLUSIVE на PASS.
+Повторное разрешение на те же восемь случаев не требуется.
 
 ## Validation / review
 
@@ -63,8 +65,26 @@ Reviewer execution был NOT_RUN. Это историческая провер�
 
 ## Owner QA / blockers
 
-Разрешение от 2026-10-16: до 8 rendered/playtest случаев данной QA-карточки, результат 0/8.
+Разрешение от 2026-10-16: до 8 rendered/playtest случаев данной QA-карточки, начато5/8; подробные результаты и пределы evidence в QA-карточке.
 Оно не распространяется на другие NPC, произвольные визуальные проверки или новые сценарии.
 Holy precedence и абсолютные огненные исходы остаются отмеченными в Source авторскими
 defaults с Inspector overrides, не новым подтверждением владельца. DONE/архив — после
 полной обязательной приёмки; ожидание H4 не является основанием улучшать готовый код.
+
+## H4-QA-001 / P2 — Carry скрывает фактическое требование
+
+ACCEPTED: при наведении на присвоившего посылку Бугая с занятым Carry штатный resolver
+выбирает RELEASE вместо доступного DEF_CustomerParcelDemandAction. Native E отпускает
+собственную вещь. Evidence: `.artifacts/parcel-h4-ca63af48/05-input-reproducer.json`.
+Native red: `parcel_h4_carry_demand_red2.stdout.log`,12/13 assertions, точное несовпадение действия.
+Ремонт: явный readonly opt-in Definition позволяет доступному контекстному Interact
+опередить Carry release; включён только для прежнего размещения и parcel demand.
+Системы ввода, физическое владение, focus/modal, authored ресурсы/schema не меняются.
+Regression использует реальный луч/NPC, занятый Carry, native resolve/execute, modal и
+возврат к RELEASE после завершения demand. Ревью ремонта: REVIEW_PENDING до отдельного коммита.
+
+Ремонт native PASS: incidents45/45,538 assertions,stderr0 (`gut-20261016-165419082.*.log`),
+grab/input92/92,438 assertions,stderr0 (`gut-20261016-165505401.*.log`),
+оба Functional=PASS/diagnostics=CLEAN. MCP5 checked/empty; initial hot reload43 разрешён
+свежей path diagnostic/native execution. Formatter5/strict architecture0/structure/diff-check PASS.
+Rendered case5 ещё не продолжён. Reviewer execution NOT_RUN; main выполнил native проверки.

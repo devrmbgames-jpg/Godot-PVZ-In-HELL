@@ -7,6 +7,10 @@ const REACTIONS = preload("res://content/domains/customers/rules/customer_parcel
 
 
 #region Demand interaction
+func allows_carry_interaction() -> bool:
+	return true
+
+
 func caption_for(actor: Entity, source: Entity, _target: Entity) -> String:
 	var incident: CustomerParcelIncident = CustomerParcelDemandQueries.available(
 		actor,
