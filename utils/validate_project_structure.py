@@ -379,11 +379,24 @@ def _check_task_state_contract(errors: list[str]) -> None:
                 f"{_relative(task_path)}: missing normalized task status "
                 "(PLANNED/IN_PROGRESS/DEFERRED/BLOCKED/OWNER_QA/DONE)."
             )
-        if "## Task state" not in text:
-            errors.append(f"{_relative(task_path)}: missing authoritative '## Task state' block.")
-        for heading in ("### Goal", "### Current", "### Validation", "### Owner QA / blockers"):
-            if heading not in text:
-                errors.append(f"{_relative(task_path)}: task state is missing {heading!r}.")
+        if "## Task state" in text:
+            # Archived checkpoints retain the previous, nested task-state layout.
+            for heading in ("### Goal", "### Current", "### Validation", "### Owner QA / blockers"):
+                if heading not in text:
+                    errors.append(f"{_relative(task_path)}: task state is missing {heading!r}.")
+            continue
+
+        for heading in ("Goal", "Current", "Next", "Validation", "Owner QA / blockers"):
+            pattern: str = rf"^##[ \t]+{re.escape(heading)}(?:[ \t]+/[^\r\n]*)?[ \t]*$"
+            if re.search(pattern, text, re.MULTILINE) is None:
+                errors.append(f"{_relative(task_path)}: task card is missing '## {heading}'.")
+        if re.search(
+            r"^Technical:[ \t]*\*\*(?:NOT_STARTED|IN_PROGRESS|COMPLETE|BLOCKED|DEFERRED)\*\*[ \t]*$",
+            text, re.MULTILINE,
+        ) is None:
+            errors.append(f"{_relative(task_path)}: missing normalized Technical status.")
+        if re.search(r"^Execution order:[ \t]*\*\*[0-9]+\*\*[ \t]*$", text, re.MULTILINE) is None:
+            errors.append(f"{_relative(task_path)}: Execution order must be a nonnegative integer.")
 
 
 def _check_task_archive_contract(errors: list[str]) -> None:

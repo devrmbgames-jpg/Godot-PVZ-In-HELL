@@ -35,6 +35,80 @@ class ProjectStructureValidatorTest(unittest.TestCase):
         validator._check_private_member_naming(errors)
         return errors
 
+    @staticmethod
+    def _autonomous_card() -> str:
+        return (
+            "# Fixture task\nStatus: **IN_PROGRESS**\nTechnical: **IN_PROGRESS**\n"
+            "Execution order: **10**\n\n## Goal / acceptance\nGoal.\n"
+            "## Current\nCurrent.\n## Work packages\nPackage.\n"
+            "## Entry points / dependency gates\nOwner.\n## Next\nNext action.\n"
+            "## Validation / review\nNOT_RUN.\n## Owner QA / blockers\nOpen.\n"
+        )
+
+    def test_autonomous_cards_and_legacy_archives_remain_valid(self) -> None:
+        self._write(".agents/tasks/active.md", self._autonomous_card())
+        self._write(
+            ".agents/tasks/completed/legacy.md",
+            "Status: **DONE**\n## Task state\n### Goal / acceptance\n"
+            "### Current / evidence\n### Validation\n### Owner QA / blockers\n",
+        )
+        errors: list[str] = []
+        validator._check_task_state_contract(errors)
+        self.assertEqual([], errors)
+
+    def test_autonomous_cards_still_require_each_authoritative_section(self) -> None:
+        for heading in (
+            "## Goal / acceptance", "## Current", "## Next",
+            "## Validation / review", "## Owner QA / blockers",
+        ):
+            with self.subTest(heading=heading):
+                self._write(".agents/tasks/active.md", self._autonomous_card().replace(heading, ""))
+                errors: list[str] = []
+                validator._check_task_state_contract(errors)
+                self.assertTrue(errors, heading)
+                self.assertTrue(any(heading.split(" / ")[0] in error for error in errors))
+
+    def test_autonomous_cards_require_normalized_technical_status_and_execution_order(self) -> None:
+        for field, invalid in (
+            ("Technical: **IN_PROGRESS**", ""),
+            ("Technical: **IN_PROGRESS**", "Technical: **DONE**"),
+            ("Execution order: **10**", ""),
+            ("Execution order: **10**", "Execution order: **first**"),
+            ("Execution order: **10**", "Execution order: **-1**"),
+        ):
+            with self.subTest(field=field, invalid=invalid):
+                self._write(".agents/tasks/active.md", self._autonomous_card().replace(field, invalid))
+                errors: list[str] = []
+                validator._check_task_state_contract(errors)
+                self.assertTrue(any(field.split(":")[0] in error for error in errors), errors)
+
+    def test_legacy_state_blocks_keep_their_existing_required_headings(self) -> None:
+        self._write(
+            ".agents/tasks/legacy.md",
+            "Status: **IN_PROGRESS**\n## Task state\n### Current\n"
+            "### Validation\n### Owner QA / blockers\n",
+        )
+        errors: list[str] = []
+        validator._check_task_state_contract(errors)
+        self.assertEqual(1, len(errors))
+        self.assertIn("### Goal", errors[0])
+
+    def test_frozen_task_sources_and_readmes_are_not_active_cards(self) -> None:
+        self._write(".agents/tasks/README.md", "# Process\n")
+        self._write(".agents/tasks/references/original.md.txt", "Historical incomplete source.\n")
+        errors: list[str] = []
+        validator._check_task_state_contract(errors)
+        self.assertEqual([], errors)
+
+    def test_nested_legacy_headings_cannot_substitute_for_autonomous_sections(self) -> None:
+        self._write(
+            ".agents/tasks/active.md",
+            self._autonomous_card().replace("## Current", "### Current"),
+        )
+        errors: list[str] = []
+        validator._check_task_state_contract(errors)
+        self.assertTrue(any("## Current" in error for error in errors))
+
     def test_staged_companion_tools_are_allowed_but_vendored_addons_are_not(self) -> None:
         paths = ["addons/pvz_ai_tools/plugin.gd", "addons/project_entity_traits/plugin.gd",
                  "addons/gecs/ecs/entity.gd",
