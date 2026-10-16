@@ -150,6 +150,12 @@ func test_home_handoff_and_bonus_are_once() -> void:
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
+	# Home handoff uses the same physical reach as the counter; stage the real box at the door.
+	(_player as Node as Node3D).global_position = body.global_position + Vector3(0.0, 0.0, -1.0)
+	(_player as E_RigidBodyCharacter).hold_anchor.position = Vector3(0.0, 1.3, -0.5)
+	(parcel as Node as Node3D).global_position = (
+		body.hold_anchor.global_position - body.hold_anchor.global_basis.z * 0.35
+	)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _player))
 	assert_eq(
 		CustomerFlowService.confirm_direct_delivery(_player, body),
