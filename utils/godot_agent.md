@@ -9,8 +9,9 @@ For example:
 & utils/godot_agent.ps1 -Action ParseFiles -Paths res://content/domains/customers/observers/o_customer_npc_interruption.gd -TimeoutSeconds 60
 ```
 
-`-TimeoutSeconds` is optional; zero retains the previous unlimited wait. A timeout
-terminates only the process started by this invocation and fails the check. Offline
+`-TimeoutSeconds` is optional and Windows-only; zero retains the previous unlimited wait.
+A timeout terminates the owned wrapper/process tree, waits for captured child handles
+and fails the check. It does not target other editor/test processes. Offline
 scene/import operations still refuse to run beside this project's GUI editor.
 
 Every executed validation writes unchanged native `.stdout.log` and `.stderr.log`
@@ -36,6 +37,8 @@ with native exit 0 and verified completion. Missing/wrong shutdown callsite, mis
 completion or mixed errors cannot PASS. ObjectDB summaries do not identify retained
 classes, so they remain UNKNOWN. Unverified RID, StringName and PagedAllocator output
 also remains FAIL/UNKNOWN. Do not broaden classification by matching those words.
+Nonzero final GUT `Orphans` totals fail; interim per-test orphan reports remain UNKNOWN
+even if passing tests have a success marker. Neither is the deferred Resource category.
 The owner's broader engine policy can still support a separately evidenced manual
 classification; the runner does not investigate or alter ownership to remove warnings.
 

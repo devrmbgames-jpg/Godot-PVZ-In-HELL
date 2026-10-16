@@ -102,6 +102,52 @@ $result = Get-GodotValidationResult $success $stderr 'GUT' 0
 if ($result.FunctionalStatus -ne 'FAIL') { throw 'Unconfirmed error accepted' }
 """)
 
+    def test_real_gut_orphan_reports_cannot_pass_with_green_test_totals(self) -> None:
+        self.run_contract(r"""
+foreach ($name in @('Get-GodotDiagnostics', 'Get-GodotValidationResult')) {
+    $definition = $ast.Find({ param($node)
+        $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+        $node.Name -eq $name
+    }, $true)
+    Invoke-Expression $definition.Extent.Text
+}
+$success = @('Tests 2', 'Passing Tests 2', '---- All tests passed! ----')
+$known = @('ERROR: 12 resources still in use at exit (run with --verbose for details).',
+           '   at: clear (core/io/resource.cpp:822)')
+foreach ($report in @('Orphans             1', '    [Orphans]  1 Orphans', '    [Orphans]  2 orphans')) {
+    foreach ($stderr in @(@(), $known)) {
+        $result = Get-GodotValidationResult @($success + $report) $stderr 'GUT' 0
+        if ($result.FunctionalStatus -eq 'PASS' -or $result.DiagnosticStatus -eq 'CLEAN') {
+            throw "Live orphan report accepted: $report"
+        }
+    }
+}
+""")
+
+    def test_timeout_cleanup_targets_owned_pid_tree(self) -> None:
+        self.run_contract(r"""
+$definition = $ast.Find({ param($node)
+    $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+    $node.Name -eq 'Stop-GodotValidationProcess'
+}, $true)
+if ($null -eq $definition) { throw 'Missing owned process-tree cleanup' }
+Invoke-Expression $definition.Extent.Text
+$env:OS = 'Windows_NT'
+$script:observedArguments = @()
+function Get-CimInstance { @() }
+function taskkill.exe {
+    $script:observedArguments = @($args)
+    $global:LASTEXITCODE = 0
+}
+Stop-GodotValidationProcess ([pscustomobject]@{Id=12345; HasExited=$false})
+if (($script:observedArguments -join ' ') -ne '/PID 12345 /T /F') {
+    throw 'Cleanup did not target exactly the owned process tree'
+}
+$script:observedArguments = @()
+Stop-GodotValidationProcess ([pscustomobject]@{Id=12345; HasExited=$true})
+if ($script:observedArguments.Count -gt 0) { throw 'Already exited root was terminated again' }
+""")
+
     def test_changed_selection_includes_companion_and_excludes_vendor(self) -> None:
         self.run_contract(r"""
 $assignment = $ast.Find({ param($node)

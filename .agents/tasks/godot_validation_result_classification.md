@@ -13,7 +13,13 @@ Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 
 ## Current
 
-Q1 реализован у utils/godot_agent.ps1, validation/review checkpoint готовится.
+Q1 initial review BASE `03899632574c9f37bd2b0ae1dcd1843eb0491037`,
+TARGET `04110f3be1d6d48669e35e94fc946aa7327282e1`: два принятых findings.
+RV-001/P2: GUT Orphans при зелёных tests давали PASS/CLEAN. FIXED в repair checkpoint:
+final nonzero Orphans → FAIL, промежуточные reports → UNKNOWN, fixtures actual pinned formats.
+RV-002/P1: timeout убивал console wrapper, оставляя engine child. FIXED в repair checkpoint:
+только собственное дерево /PID /T, captured child handles awaited, отдельный editor не затронут.
+Q1 repair1/2 готов к targeted re-review; техническое закрытие ещё не объявлено.
 Новый pure result отделяет FunctionalStatus от DiagnosticStatus/Disposition; raw streams
 не переписываются, additive result.json хранит native exit/marker/timeout/log paths.
 Legacy CLI/expected-negative contract сохранён; optional TimeoutSeconds=0 сохраняет прежнее ожидание.
@@ -42,7 +48,7 @@ utils/godot_agent.ps1: Get-GodotDiagnostics и вызывающие его parse
 
 ## Next
 
-Закоммитить Q1/Q2 checkpoint, получить immutable read-only review/triage.
+Получить targeted re-review RV-001/RV-002 по repair checkpoint (цикл1/2).
 Пока reviewer работает — независимая подготовка актуальной QA-сборки C3/parcel;
 после terminal review закрыть эту техническую задачу и перейти к разрешённой H4/следующему task.
 
@@ -63,7 +69,13 @@ reverse19/187:2.419s, выгода47.1%. Одинаковые индивидуа
 все exit0/stderr0; явные boundary rolls без RNG, мутации Resources только через duplicates.
 NO_CHANGE общего batch API: существующий native multi-file путь достаточен для этой пары;
 результат не распространяется на ECS/lifecycle/save fixtures.
-Structure/diff-check PASS; staged agent gate pending. Review REVIEW_PENDING,repair0/2.
+Repair: PowerShell fixtures11/11 PASS (оба новых regression сначала FAIL).
+Actual timeout acceptance PASS: `.artifacts/godot_agent/runner_timeout_probe.json` и cli raw logs;
+wrapper20936/engine24400 оба отсутствуют до возврата, editor10784 alive, native logs существуют,
+runner exit1/Functional FAIL/TimedOut true; manifest `gut-20261016-161138382.result.json`.
+Первый запуск probe не дошёл до Godot из-за default ProjectRoot при nested -File;
+повтор с явным ProjectRoot прошёл. Непринятый launch stderr сохранён отдельно.
+Structure/diff-check PASS; staged agent gate pending. Targeted review REVIEW_PENDING,repair1/2.
 
 ## Owner QA / blockers
 

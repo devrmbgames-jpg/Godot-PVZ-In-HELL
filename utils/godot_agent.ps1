@@ -222,10 +222,12 @@ function Get-GodotValidationResult {
         $unknown.Add($line)
     }
     foreach ($line in $output) {
-        if ($line -match '^WARNING:|^Leaked instance:|^Orphan StringName:') { $unknown.Add($line) }
+        if ($line -match '^WARNING:|^Leaked instance:|^Orphan StringName:' -or
+            $line -match '(?i)^\s*(?:\[Orphans\]\s*)?[1-9][0-9]* Orphans\s*$') { $unknown.Add($line) }
     }
     $liveFailure = @($output + $errors | Where-Object {
-        $_ -match '(?i)(leak.*\bNodes?\b|\bNodes?\b.*leak|use.after.free|double.free|\[Failed\]|---- [1-9][0-9]* failing tests ----)'
+        $_ -match '(?i)(leak.*\bNodes?\b|\bNodes?\b.*leak|use.after.free|double.free|\[Failed\]|---- [1-9][0-9]* failing tests ----)' -or
+        $_ -match '^\s*Orphans\s+[1-9][0-9]*\s*$'
     }).Count -gt 0
     $diagnosticStatus = 'CLEAN'
     if ($diagnostics.Count -gt 0 -or $liveFailure) { $diagnosticStatus = 'FAIL' }
@@ -249,6 +251,45 @@ function Get-GodotValidationResult {
     }
 }
 
+function Stop-GodotValidationProcess {
+    # Only the Start-Process result from this runner may enter this ownership boundary.
+    param($Process)
+    if ($Process.HasExited) { return }
+    if ($env:OS -ne 'Windows_NT') { throw 'Bounded timeout cleanup requires Windows process-tree support.' }
+
+    $children = [Collections.Generic.List[Diagnostics.Process]]::new()
+    try {
+        $records = @(Get-CimInstance Win32_Process -Property ProcessId, ParentProcessId)
+        $ownedIds = [Collections.Generic.List[int]]::new()
+        $ownedIds.Add($Process.Id)
+        for ($index = 0; $index -lt $ownedIds.Count; $index++) {
+            foreach ($record in $records) {
+                if ($record.ParentProcessId -ne $ownedIds[$index] -or $ownedIds.Contains($record.ProcessId)) { continue }
+                $ownedIds.Add($record.ProcessId)
+                try {
+                    $child = [Diagnostics.Process]::GetProcessById($record.ProcessId)
+                    $null = $child.Handle
+                } catch [ArgumentException] { continue }
+                # An exited PID reused between enumeration and capture is not our child.
+                if ($child.StartTime -lt $Process.StartTime) { $child.Dispose(); continue }
+                $children.Add($child)
+            }
+        }
+        $killOutput = @(& taskkill.exe /PID $Process.Id /T /F 2>&1)
+        if ($LASTEXITCODE -ne 0 -and -not $Process.HasExited) {
+            throw ('Owned validation tree cleanup failed: ' + ($killOutput -join ' '))
+        }
+        foreach ($child in $children) {
+            if (-not $child.WaitForExit(10000)) { throw "Owned validation child did not exit: $($child.Id)" }
+        }
+    } finally {
+        foreach ($child in $children) { $child.Dispose() }
+    }
+}
+
+if ($TimeoutSeconds -gt 0 -and $env:OS -ne 'Windows_NT') {
+    throw 'TimeoutSeconds requires Windows process-tree support; use the default 0 elsewhere.'
+}
 $versionOutput = @(& $godot --version)
 if ($LASTEXITCODE -ne 0 -or -not (($versionOutput -join " ") -match '^4\.7\.1(\.|$)')) {
     throw "This project requires Godot 4.7.1, got: $($versionOutput -join ' ')"
@@ -341,7 +382,7 @@ if ($TimeoutSeconds -gt 0) {
     # Retain the native handle before waiting; Windows PowerShell can otherwise lose ExitCode.
     $null = $process.Handle
     $timedOut = -not $process.WaitForExit($TimeoutSeconds * 1000)
-    if ($timedOut) { $process.Kill() }
+    if ($timedOut) { Stop-GodotValidationProcess $process }
     $process.WaitForExit()
 }
 $stdoutLines = @()
