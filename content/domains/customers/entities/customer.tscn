@@ -1,22 +1,22 @@
 [gd_scene format=3 uid="uid://ceby1m7bivr66"]
 
-[ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Foundation"]
+[ext_resource type="Resource" uid="uid://w02glwluacrc" path="res://content/domains/npc/authoring/et_npc_parcel_holder.tres" id="6_3xify"]
+[ext_resource type="Script" uid="uid://d0k5q8orb4sl" path="res://content/shared/contracts/definition.gd" id="7_x65y4"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+[ext_resource type="Resource" path="res://content/domains/customers/authoring/et_customer_visit_customer_visit.tres" id="DirectTrait_1"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_2"]
 [ext_resource type="Script" uid="uid://c5d3qdy5m6sgl" path="res://content/domains/customers/entities/e_customer.gd" id="Entity"]
-
+[ext_resource type="PackedScene" uid="uid://b4280podjkilw" path="res://content/domains/npc/entities/npc_character.tscn" id="Foundation"]
 [ext_resource type="Resource" path="res://content/domains/customers/definitions/def_customer_visit_default.tres" id="Policy"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
-
-[ext_resource type="Resource" path="res://content/domains/customers/authoring/et_customer_visit_customer_visit.tres" id="DirectTrait_1"]
-
-[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_2"]
-
-[node name="Customer" instance=ExtResource("Foundation")]
+[node name="Customer" unique_id=525426601 instance=ExtResource("Foundation")]
 script = ExtResource("Entity")
-traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2")])
-definitions = {&"customer_policy": ExtResource("Policy")}
 inspection_animation = &""
 receiving_animation = &""
 dialogue_animation = &""
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2"), ExtResource("6_3xify")])
+definitions = Dictionary[StringName, ExtResource("7_x65y4")]({
+&"customer_policy": ExtResource("Policy")
+})
 
 [editable path="Body"]

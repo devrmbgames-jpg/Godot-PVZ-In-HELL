@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ET_NpcParcelHolder" format=3 uid="uid://w02glwluacrc"]
+
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="1_jv7ik"]
+[ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="2_lddu6"]
+[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/domains/interaction/components/c_controller.gd" id="3_w37td"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="4_1ql38"]
+[ext_resource type="Script" uid="uid://csse37ddki0tf" path="res://content/domains/npc/authoring/et_npc_parcel_holder.gd" id="5_k8xb6"]
+
+[resource]
+script = ExtResource("5_k8xb6")
+trait_id = &"npc_parcel_holder"
+required_components = Array[Script]([ExtResource("3_w37td"), ExtResource("4_1ql38")])
+required_root_class = &"RigidBody3D"
+required_nodes = Array[NodePath]([NodePath("HandoffAnchor")])

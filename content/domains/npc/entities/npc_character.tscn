@@ -1,5 +1,8 @@
 [gd_scene format=3 uid="uid://b4280podjkilw"]
 
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="3_0dgx5"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="4_jeck0"]
+[ext_resource type="Resource" uid="uid://w02glwluacrc" path="res://content/domains/npc/authoring/et_npc_parcel_holder.tres" id="5_e02i5"]
 [ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="9_s8kfq"]
 [ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="19_q7am6"]
 [ext_resource type="Script" uid="uid://dhgwcpds3v85h" path="res://content/domains/challenges/components/c_challenge.gd" id="Challenge"]
@@ -89,6 +92,7 @@ navigation_agent = NodePath("NavigationAgent3D")
 idle_animation = &"Idle"
 walk_animation = &"Walk"
 hold_anchor = NodePath("HandoffAnchor")
+traits = Array[ExtResource("3_0dgx5")]([ExtResource("4_jeck0"), ExtResource("5_e02i5")])
 ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Challenge"), SubResource("GazeChallenge"), SubResource("FloorChallenge"), SubResource("ImpactReceiver"), SubResource("Health"), SubResource("Living"), SubResource("Remains"), SubResource("Interactable")])
 

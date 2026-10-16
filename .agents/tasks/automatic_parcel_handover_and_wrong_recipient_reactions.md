@@ -1,12 +1,10 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
-BASE_SHA: `49dcfd6dee743e71afd40c24c4f7e5e5c390a6d2`
-TARGET_SHA: `8eba11969eaeb25b185376140bf962343db741b9` — M2b policy review PASS, repair0/2
+BASE_SHA: `4a351217fe45a971817cadd3cd68e5223eec5058`
+TARGET_SHA: pending M2c1 carry commit — REVIEW_PENDING
 
-Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
-[Жуткий](creepy_npc_unpredictable_stalking.md),
-[Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
+Created: 2026-10-15. Related: [согласованность посылок](package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
 ## Task state
 
@@ -32,6 +30,8 @@ M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: typed item holy/fire
 22 prefab effect agreement; no material findings, reviewer validation NOT_RUN, repair0/2.
 M2b policy закрыт по реализации/review: DEF_NpcParcelReaction CAPABILITY у4 архетипов и чистый chooser;
 rolls передаются явно; review no material findings, architecture/style PASS, validation NOT_RUN, repair0/2.
+M2c1 реализован, review pending: native ET_NpcParcelHolder добавлен базовому NPC и двум явным district/customer Trait lists.
+Свежие C_GrabControl/C_CarryLoad/C_Strength, authored Strength6/offset0.35 м; R_HeldBy, solver и cleanup прежние.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults, с явными Inspector overrides.
 RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, no other findings; reviewer validation NOT_RUN. Открытых P0/P1/P2 нет; visual NOT_RUN,0/8.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
@@ -168,12 +168,12 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 - M1b GUT106/106,815 assertions, stderr0: counter13/89 (`032611400`), handoff13/118 (`032352514`), inspection12/163 (`032430965`), service17/103 (`032506237`), queue51/342 (`032537132`); prefix `gut-20261016-` in `.artifacts/godot_agent/`.
 - Native ParseChanged9/0 (`20261016-033337292`), MCP9 checked/empty/scripts0; formatter9/role9/strict architecture0/structure/persistence inventory PASS. Новая вывеска стойки сохранена editor/MCP.
-- Counter native Jolt: падение/стабилизация, gap/скорости/стопка, source/receiver priority, stale receipts и осмотр PASS.
 - M2a GUT14/14,302 assertions, stderr0: capabilities4/69 (`034803629`), cargo_catalog3/129 (`034836853`), receiver_effect7/104 (`034855192`); prefix `gut-20261016-`.
 - M2a native ParseChanged2/0 (`20261016-034913378`), MCP2 checked/empty/scripts0 после guarded restart; formatter2/role2/strict architecture0/structure/persistence inventory PASS. Gameplay/visual NOT_RUN,0/8.
 - Native authoring `offlinescript-20261016-034709262`:16 saves/exit0, no compile errors; wrapper FAIL only shutdown retention KNOWN_ENGINE_LIMITATION/DEFERRED. Первоначальный ранний ECS compile error исправлен отложенной загрузкой ресурсов.
 - M2b GUT19/19,1387 assertions, stderr0: reaction_rules9/93 (`035837828`), archetype_catalog4/934 (`035927943`), variation6/360 (`035958958`); native ParseChanged3/0 (`20261016-040031502`), MCP3 checked/empty/scripts0; formatter3/role3 PASS.
 - M2b native/MCP создал4 typed .tres и добавил их4 архетипам с сохранением UID; strict architecture0/structure/persistence inventory PASS. Только выбор, не runtime reaction acceptance; visual0/8.
+- M2c1 GUT78/78,877 assertions, stderr0: holder6/41 (`041452327`), handoff14/124 (`041543725`), counter13/89 (`041656538`), world_snapshot45/623 (`041739066`); native ParseChanged2/0 (`20261016-041849211`), MCP2 checked/empty, formatter2/strict architecture0/structure/persistence PASS. Native3 scenes saved via MCP; visual0/8.
 - RV-001: focused handoff14/14,124 assertions, stderr0 (`gut-20261016-033859456`); native ParseChanged2/0 (`20261016-033946776`), MCP2 checked/empty, formatter2/role2/strict architecture0/structure PASS.
 - delivery_completion native write/restore PASS/PASS, exit0/0: `.artifacts/godot_agent/delivery_completion-m1b-{write,restore}.{stdout,stderr}.log`. Fixture проверяет arrival number/отдельный LOST и физическое поднесение. Wrapper FAIL: неизвестный phase marker и shutdown-only retention (KNOWN_ENGINE_LIMITATION/DEFERRED), не runtime PASS обёртки.
 - Одна коробка одновременно в Area и руках, два NPC и deferred устаревший запрос: ровно один commit,
@@ -196,5 +196,5 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-M2c: durable эпизоды/фиксация выбора, персональный deadline по GameClock.elapsed_ticks и physical effects;
+M2c1 carry: commit/review/triage; далее durable эпизоды/выбор, GameClock deadline и physical effects;
 затем присвоение/запугивание/save compatibility/регрессии -> owner QA. Runtime реакции ещё не реализованы; задача IN_PROGRESS.

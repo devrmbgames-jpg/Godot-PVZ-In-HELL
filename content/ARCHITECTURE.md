@@ -325,6 +325,10 @@ take/conditional-throw or fire probabilities; holy precedence and absolute/condi
 are explicit tuning. CustomerParcelReactionRules consumes the selected immutable capability,
 actual-cargo facts and captured rolls, returning only an outcome. It neither samples RNG nor
 executes a reaction; the operation owner must commit incident identity and choice before effects.
+ET_NpcParcelHolder supplies fresh C_GrabControl/C_CarryLoad/C_Strength recipes to the base NPC and
+both explicit district/customer Trait lists. Its native HandoffAnchor remains the physical grip
+origin. R_HeldBy/O_GrabLifecycle own binding/cache/cleanup; E_GrabbableBody and S_Grab keep their
+existing physics responsibilities. The Trait installs data and never runs a second hold loop.
 Market price and parcel accounting value remain separate contracts.
 
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances

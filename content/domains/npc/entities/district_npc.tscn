@@ -1,12 +1,13 @@
 [gd_scene format=3 uid="uid://d08rcl6qr8w3s"]
 
 [ext_resource type="Script" uid="uid://7ewwb1k83dml" path="res://content/domains/npc/presentation/npc_night_presentation.gd" id="8_dtgwa"]
+[ext_resource type="Resource" uid="uid://w02glwluacrc" path="res://content/domains/npc/authoring/et_npc_parcel_holder.tres" id="8_v0oo2"]
 [ext_resource type="Resource" uid="uid://d3s73ddmq0a52" path="res://content/domains/npc/definitions/def_npc_night_presentation.tres" id="9_eafli"]
 [ext_resource type="AudioStream" uid="uid://ddi58a60ftxny" path="res://content/domains/npc/presentation/night_presence.wav" id="10_ch0dj"]
 [ext_resource type="Texture2D" uid="uid://b1vm1dufpx08" path="res://content/domains/npc/presentation/night_shadow.svg" id="11_v0oo2"]
 [ext_resource type="PackedScene" uid="uid://nadvgogvro7m" path="res://content/domains/npc/presentation/npc_veil_presence.tscn" id="12_eafli"]
 [ext_resource type="PackedScene" uid="uid://drwdoqohgpuex" path="res://content/domains/npc/presentation/npc_signboard.tscn" id="13_ch0dj"]
-[ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Base"]
+[ext_resource type="PackedScene" uid="uid://b4280podjkilw" path="res://content/domains/npc/entities/npc_character.tscn" id="Base"]
 [ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 [ext_resource type="Resource" uid="uid://cgor7x3ikmr71" path="res://content/domains/npc/authoring/et_district_npc_npc_identity.tres" id="DirectTrait_1"]
 [ext_resource type="Resource" uid="uid://c0qw8fsya8w4c" path="res://content/domains/npc/authoring/et_district_npc_npc_brain_state.tres" id="DirectTrait_2"]
@@ -16,8 +17,7 @@
 
 [node name="DistrictNpc" unique_id=316302539 instance=ExtResource("Base")]
 script = ExtResource("Entity")
-traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2"), ExtResource("DirectTrait_3"), ExtResource("DirectTrait_4")])
-ancestor_entity_bindings = PackedStringArray()
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2"), ExtResource("DirectTrait_3"), ExtResource("DirectTrait_4"), ExtResource("8_v0oo2")])
 
 [node name="FurniturePickup" type="Marker3D" parent="." index="9" unique_id=177978350]
 editor_description = "Authored pickup origin for a spawned merchant; ordinary residents do not use it."

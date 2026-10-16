@@ -11292,15 +11292,22 @@
       "path": "content/domains/interaction/components/c_carry_load.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
-      "public_methods": [],
+      "public_methods": [
+        "new"
+      ],
       "sources": [
         "content/services/npc/npc_route_solver.gd",
-        "content/systems/motion/s_npc_intent.gd"
+        "content/systems/motion/s_npc_intent.gd",
+        "content/domains/npc/authoring/et_npc_parcel_holder.gd"
       ],
-      "method_rights": {},
-      "public_instance_methods": []
+      "method_rights": {
+        "new": "read"
+      },
+      "public_instance_methods": [],
+      "purpose": "Only the native NPC parcel-holder Trait constructs/configures fresh carry recipes; runtime NPC consumers read the ordinary grab/motion owners."
     },
     {
       "source_owner": "npc",
@@ -11634,15 +11641,22 @@
       "path": "content/domains/motion/components/c_strength.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
-      "public_methods": [],
+      "public_methods": [
+        "new"
+      ],
       "sources": [
         "content/services/npc/npc_route_solver.gd",
-        "content/systems/motion/s_npc_intent.gd"
+        "content/systems/motion/s_npc_intent.gd",
+        "content/domains/npc/authoring/et_npc_parcel_holder.gd"
       ],
-      "method_rights": {},
-      "public_instance_methods": []
+      "method_rights": {
+        "new": "read"
+      },
+      "public_instance_methods": [],
+      "purpose": "Only the native NPC parcel-holder Trait constructs/configures fresh carry recipes; runtime NPC consumers read the ordinary grab/motion owners."
     },
     {
       "source_owner": "npc",
@@ -20103,6 +20117,27 @@
         "content/domains/customers/rules/customer_parcel_reaction_rules.gd"
       ],
       "purpose": "Pure wrong-parcel choice consumes an immutable typed NPC capability; no mutable personality, lifetime or outcome authority."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "interaction",
+      "symbol": "C_GrabControl",
+      "path": "content/domains/interaction/components/c_grab_control.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "read"
+      },
+      "sources": [
+        "content/domains/npc/authoring/et_npc_parcel_holder.gd"
+      ],
+      "purpose": "Native NPC parcel-holder Trait constructs fresh grab data; R_HeldBy/O_GrabLifecycle remain the live binding and cache owners."
     }
   ],
   "legacy_decomposition": []
