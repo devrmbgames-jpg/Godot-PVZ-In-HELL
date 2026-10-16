@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DEF_PackagePacking" format=3 uid="uid://cqrm8762ht20o"]
+
+[ext_resource type="Script" uid="uid://dajifwq3xix0w" path="res://content/domains/packages/definitions/def_package_packing.gd" id="1_blx4r"]
+
+[resource]
+script = ExtResource("1_blx4r")
+scene_variants = Array[String](["res://content/domains/packages/entities/package_big.tscn"])
+inner_size_m = Vector3(1.14, 0.55, 0.84)
+usable_volume_ratio = 0.8
+maximum_quantity = 32
+minimum_small_quantity = 8
+single_item_minimum_length_m = 0.6
+empty_mass_kg = 2.0
+key = &"large"

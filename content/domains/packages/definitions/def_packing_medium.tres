@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DEF_PackagePacking" format=3 uid="uid://bjoc8h6xuu30o"]
+
+[ext_resource type="Script" uid="uid://dajifwq3xix0w" path="res://content/domains/packages/definitions/def_package_packing.gd" id="1_0op0y"]
+
+[resource]
+script = ExtResource("1_0op0y")
+scene_variants = Array[String](["res://content/domains/packages/entities/package.tscn"])
+inner_size_m = Vector3(0.77, 0.36, 0.55)
+usable_volume_ratio = 0.8
+maximum_gross_mass_kg = 20.0
+key = &"medium"

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DEF_PackagePacking" format=3 uid="uid://i778q3u4voj8"]
+
+[ext_resource type="Script" uid="uid://dajifwq3xix0w" path="res://content/domains/packages/definitions/def_package_packing.gd" id="1_olhro"]
+
+[resource]
+script = ExtResource("1_olhro")
+scene_variants = Array[String](["res://content/domains/packages/entities/package_b.tscn"])
+inner_size_m = Vector3(0.42, 0.37, 0.42)
+usable_volume_ratio = 0.8
+empty_mass_kg = 0.7
+maximum_gross_mass_kg = 10.0
+key = &"small_b"

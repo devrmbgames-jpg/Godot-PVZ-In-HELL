@@ -1,8 +1,7 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `8364a7ed7450c4b5b0da7fafb66c36fc27ab0d6d`
-TARGET_SHA: `d331a86c89547c3bf23be2392adfdc0f31cfc301`
+BASE_SHA: `b2f406ca172228e7ca49b62aa646f17a906cd5a4`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
@@ -34,6 +33,13 @@ Packages читает inventory cargo по узкому read-контракту 
 сохранения ещё не изменены. До интеграции M2 исходный дефект не считается исправленным.
 Новые immutable данные не являются вторым runtime authority. M1 review PASS; material findings
 отсутствуют, triage завершён без требуемых исправлений. Общая задача остаётся IN_PROGRESS.
+
+M2a подготовлен: через native editor/MCP сохранены package_barrel/package_long и шесть .tres
+профилей упаковки. Inner envelopes меньше реальных collision envelopes; сохранены унаследованный
+package compiler, Box_C/Marks/Condition и исходные сцены. Native-проверка всех 16 catalog envelopes
+подтверждает доступную упаковку для единичного груза, включая barrel/scythe, и toy ×8 → large.
+Поставки ещё используют прежний путь; authored profiles будут подключены в M2b вместе с shipment
+plan/quantity/cargo properties. M2a review REVIEW_PENDING; исходный gameplay-дефект ещё не исправлен.
 ## Установленная поверхность и гипотеза причины
 
 - [ReceivingDeliveryService](../../content/domains/packages/services/receiving_delivery_service.gd)
@@ -96,13 +102,19 @@ Packages читает inventory cargo по узкому read-контракту 
 - PASS M1: MCP4 scripts checked/empty, scripts_instantiated=0; native ParseFiles4/0,
   `parsefiles-20261015-235651420`, exit0/stderr empty. Formatter4, role validator3 production,
   strict architecture0 lexical findings и project structure PASS.
-- PASS M1 immutable-SHA review по BASE_SHA/TARGET_SHA: no material findings, architecture/style
-  PASS; reviewer validation NOT_RUN, проверки выше выполнены Main.
+- PASS M1 immutable-SHA review: `8364a7ed7450c4b5b0da7fafb66c36fc27ab0d6d` →
+  `d331a86c89547c3bf23be2392adfdc0f31cfc301`; no material findings, architecture/style PASS;
+  reviewer validation NOT_RUN, проверки выше выполнены Main.
 - PASS независимый native замер 16 catalog bodies и 4 оболочек: GUT1/1,40 assertions,
   `gut-20261015-235844827`, stderr empty. Значения PHYSICAL_CATALOG в stdout, fixture
   `.artifacts/package_physical_inventory_probe.gd`. Не использует M1 Rules или новый data contract.
   Подтверждено: реальные бочки 0.8×1.0×0.8 м не помещаются в package_big с узкой осью 0.588 м;
   коса 0.94×1.64×0.13 м требует отдельной длинной native упаковки. Нужны authored варианты.
+- PASS M2a native GUT4/4,119 assertions, `gut-20261016-000254104`, stderr empty; загружены
+  шесть .tres, реальные .tscn и все 16 catalog bodies; новые scene UID различны, compiler valid.
+  MCP1 checked/empty; native parser1/0, `parsefiles-20261016-000318383`, exit0/stderr empty.
+  Formatter1, role validator2 native сцены, strict architecture0 и structure PASS.
+- M2a immutable-SHA review REVIEW_PENDING. Изменение сцен выполнено в editor/MCP, а не raw rewrite.
 - Rendered/visual QA NOT_RUN,0/8.
 
 ## План проверки будущей реализации
@@ -126,7 +138,7 @@ Packages читает inventory cargo по узкому read-контракту 
 
 ### Next
 
-M1 завершён после review/triage. M2: по native замерам подготовить редактируемые cargo/packing
-профили и совместимые native сцены; один зафиксированный shipment plan до compiler,
-подключить receiving/contents/physics/history/UI и определить save-совместимость; затем профильные
-native регрессии и обязательный owner QA. До закрытия всех acceptance задача не DONE.
+M2a commit/review/triage до зависимых изменений. M2b: authored cargo profiles и once-committed
+shipment plan/quantity до compiler, подключение receiving/contents/physics/history/UI и явная
+save-совместимость; затем профильные native регрессии и обязательный owner QA. До закрытия всех
+acceptance задача не DONE.
