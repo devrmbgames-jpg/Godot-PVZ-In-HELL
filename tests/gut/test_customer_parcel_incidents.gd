@@ -622,6 +622,27 @@ func test_return_release_callback_preserves_a_replacement_owner() -> void:
 	assert_same(GrabQueries.held_object(_customer), _parcel)
 	assert_null(GrabQueries.held_object(_actor))
 	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.HELD)
+	var roll: float = incident.demand_roll
+	_world.remove_observer(observer)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_same(GrabQueries.held_object(_actor), _parcel)
+	assert_eq(incident.demand_roll, roll)
+	assert_eq(incident.demand_strength, 5.0)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+
+
+func test_return_callback_replacement_player_grip_keeps_the_incident_completed() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var observer: CaptureDuringRelease = CaptureDuringRelease.new()
+	observer.capture_root = self
+	observer.on_release = func() -> void:
+		_parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	_world.add_observer(observer)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_same(GrabQueries.held_object(_actor), _parcel)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
 	_world.remove_observer(observer)
 
 

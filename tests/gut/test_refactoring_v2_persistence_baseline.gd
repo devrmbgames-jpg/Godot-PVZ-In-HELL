@@ -15,6 +15,23 @@ var _dormant_id: StringName
 var _active_id: StringName
 
 
+## Restores the same physical owner inside the actual demand release callback.
+class RegripDuringDemand extends Observer:
+	## Borrowed native fixture endpoints, valid until this observer is explicitly removed.
+	var parcel: Entity
+	## Same persistent receiver; a replacement grip must keep its incident reconstructible.
+	var holder: E_DistrictNpc
+
+
+	func query() -> QueryBuilder:
+		return q.on_relationship_removed([R_HeldBy])
+
+
+	func each(_event: Variant, subject: Entity, _payload: Variant = null) -> void:
+		if subject == parcel:
+			parcel.add_relationship(Relationship.new(R_HeldBy.new(), holder))
+
+
 #region Isolated fixture construction
 ## Builds a deterministic authored session with real population and physical link endpoints.
 func before_each() -> void:
@@ -368,7 +385,13 @@ func test_attack_disk_roundtrip_preserves_captured_choice_without_replaying_comb
 	await _assert_stolen_parcel_roundtrip(DEMAND.ATTACK)
 
 
-func _assert_stolen_parcel_roundtrip(demand: REACTIONS.DemandOutcome) -> void:
+func test_same_npc_regrip_during_demand_survives_retained_and_fresh_disk_restore() -> void:
+	await _assert_stolen_parcel_roundtrip(DEMAND.RETURN, true)
+
+
+func _assert_stolen_parcel_roundtrip(
+	demand: REACTIONS.DemandOutcome, regrip_during_demand: bool = false,
+) -> void:
 	_fixture_world.add_observer(O_GrabLifecycle.new())
 	_fixture_world.add_observer(O_CustomerParcelIncidents.new())
 	var session: Entity = _fixture_world.query.with_all([C_DayCycle]).execute_one()
@@ -376,13 +399,23 @@ func _assert_stolen_parcel_roundtrip(demand: REACTIONS.DemandOutcome) -> void:
 	session.add_component(flow)
 	var parcel: Entity = PackageQueries.find_live_package("fixture/shipment/1")
 	var holder: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+	var holder_id: StringName = _active_id
+	if regrip_during_demand:
+		for person: NpcRecord in _district.people:
+			if person.profile.key == &"archetype/brute":
+				holder_id = person.npc_id
+				holder = NpcPopulationQueries.body_for(holder_id)
+				assert_true(DistrictPopulationService.set_placement(
+					person, holder, NpcRecord.Placement.STREET, &"demand_fixture", true,
+				))
+				break
 	(GrabQueries.physical_body(parcel)).freeze = false
 	var binding: Relationship = Relationship.new(R_HeldBy.new(), holder)
 	parcel.add_relationship(binding)
 	assert_true((binding.relation as R_HeldBy).lifecycle_applied)
 	var incident: CustomerParcelIncident = CustomerParcelIncident.new()
 	incident.sequence = 1
-	incident.npc_id = _active_id
+	incident.npc_id = holder_id
 	incident.package_id = "fixture/shipment/1"
 	incident.visit_id = &"fixture/wrong-offer"
 	incident.outcome = CustomerParcelReactionRules.Outcome.KEEP
@@ -396,6 +429,35 @@ func _assert_stolen_parcel_roundtrip(demand: REACTIONS.DemandOutcome) -> void:
 		incident.demand_tick = incident.created_tick
 	flow.parcel_incident_sequence = 2
 	flow.parcel_incidents.append(incident)
+	if regrip_during_demand:
+		var actor: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+		actor.add_component(C_PlayerInputController.new())
+		(actor.get_component(C_Strength) as C_Strength).value = 5.0
+		actor.global_position = Vector3(1000.0, 0.0, 998.0)
+		holder.global_position = Vector3(1000.0, 0.0, 1000.0)
+		(GrabQueries.physical_body(parcel)).global_position = holder.hold_anchor.global_position
+		var agent: C_CustomerAgent = C_CustomerAgent.new()
+		agent.visit_id = incident.visit_id
+		agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+		holder.add_component(agent)
+		var visit: CustomerVisit = CustomerVisit.new()
+		visit.visit_id = incident.visit_id
+		visit.customer_id = holder_id
+		visit.package_id = incident.package_id
+		visit.started = true
+		var schedule: DEF_CustomerSchedule = load(
+			"res://content/domains/customers/definitions/def_customer_schedule_default.tres"
+		) as DEF_CustomerSchedule
+		visit.definition = schedule.events[0].customer
+		flow.visits.append(visit)
+		var observer: RegripDuringDemand = RegripDuringDemand.new()
+		observer.parcel = parcel
+		observer.holder = holder
+		_fixture_world.add_observer(observer)
+		assert_false(CustomerParcelDemandService.demand(actor, holder))
+		_fixture_world.remove_observer(observer)
+		assert_same(GrabQueries.held_object(holder), parcel)
+		assert_eq(incident.phase, CustomerParcelIncident.Phase.HELD)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
 	assert_eq(AutosaveStore.write(snapshot, SLOT_PATH), OK)
@@ -416,7 +478,7 @@ func _assert_stolen_parcel_roundtrip(demand: REACTIONS.DemandOutcome) -> void:
 	await get_tree().process_frame
 	assert_true(WorldSnapshotService.can_restore(loaded, _fixture_root))
 	assert_true(WorldSnapshotService.restore(loaded, _fixture_root, true))
-	holder = NpcPopulationQueries.body_for(_active_id)
+	holder = NpcPopulationQueries.body_for(holder_id)
 	parcel = PackageQueries.find_live_package("fixture/shipment/1")
 	assert_same(GrabQueries.held_object(holder), parcel)
 	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad

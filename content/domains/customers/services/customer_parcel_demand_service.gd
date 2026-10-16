@@ -68,17 +68,38 @@ static func _return_parcel(
 			return false
 	var world: World = ECS.world
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
+	var receiver: C_NpcIdentity = customer.get_component(C_NpcIdentity) as C_NpcIdentity
+	var package_id: String = incident.package_id
+	var npc_id: StringName = incident.npc_id
+	var visit_id: StringName = incident.visit_id
+	var sequence: int = incident.sequence
 	GrabReleaseService.release(customer, parcel, false)
 	# Release publishes callbacks; preserve replacement ownership and recheck the full gate.
 	if (
 		ECS.world != world or CustomerFlowQueries.current() != flow
-		or not EntityAvailability.contains(parcel, world)
-		or parcel.get_component(C_Package) != identity or identity.package_id != incident.package_id
-		or GrabQueries.physical_body(parcel) != body
-		or GrabQueries.held_relationship(parcel) != null
-		or not CustomerParcelDemandQueries.participants_available(actor, customer)
-		or not CustomerParcelDemandQueries.contact_available(customer, incident)
 		or not flow.parcel_incidents.has(incident) or incident.demand_outcome != DEMAND.RETURN
+		or incident.package_id != package_id or incident.npc_id != npc_id
+		or incident.visit_id != visit_id or incident.sequence != sequence
+		or not EntityAvailability.contains(parcel, world)
+		or not EntityAvailability.contains(customer, world)
+		or parcel.get_component(C_Package) != identity or identity.package_id != package_id
+		or customer.get_component(C_NpcIdentity) != receiver
+		or receiver.npc_id != npc_id or GrabQueries.physical_body(parcel) != body
+	):
+		return false
+	var replacement: Relationship = GrabQueries.held_relationship(parcel)
+	if replacement != null:
+		# The same theft is still pending; preserve a genuinely different replacement owner.
+		var held: R_HeldBy = replacement.relation as R_HeldBy
+		if (
+			replacement.target == customer and held.slot == C_Grabbable.HoldSlot.CARRY
+			and held.lifecycle_applied and GrabQueries.holder_available(customer)
+		):
+			incident.phase = CustomerParcelIncident.Phase.HELD
+		return false
+	if (
+		not CustomerParcelDemandQueries.participants_available(actor, customer)
+		or not CustomerParcelDemandQueries.contact_available(customer, incident)
 		or not CustomerParcelDemandQueries.parcel_available(parcel)
 		or not CustomerParcelDemandGeometry.reachable(actor, customer, parcel)
 	):
