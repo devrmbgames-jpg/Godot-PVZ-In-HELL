@@ -293,6 +293,64 @@ static func threaten_passage(body: E_DistrictNpc, opponent: E_DistrictNpc) -> vo
 #endregion
 
 
+
+#region Personal death and finite return response
+## Снимок собственной смерти до cleanup; факты урона не становятся знанием о скрытом лице.
+static func remember_death(
+	person: NpcRecord,
+	body: E_DistrictNpc,
+	episode: NpcDeathRecord,
+) -> void:
+	episode.position = body.global_position
+	var death: C_Death = body.get_component(C_Death) as C_Death
+	if death == null or death.cause == null or death.cause.request == null:
+		return
+	var result: DamageResult = death.cause
+	var request: DamageRequest = result.request
+	if result.outcome != DamageResult.Outcome.HEALTH_DEPLETED or request.target != body:
+		return
+	episode.position = result.world_pose.origin
+	episode.damage_type = request.damage_type
+	var actor: Entity = (
+		request.instigator if is_instance_valid(request.instigator) else request.source
+	)
+	episode.actual_actor_id = identity_for(actor)
+	if request.combat_context == null:
+		return
+	if (
+		not episode.actual_actor_id.is_empty()
+		and NpcPerceptionService.can_see_at_death(body, actor, person, death)
+	):
+		episode.known_actor_id = episode.actual_actor_id
+		var reaction_random: RandomNumberGenerator = GameTimeQueries.decision(
+			String(person.npc_id), episode.day, "npc/death/%d" % episode.sequence,
+		)
+		episode.reaction = _choose(
+			person, NpcMemory.Kind.KILLING, reaction_random.randf(), true,
+			episode.known_actor_id,
+		)
+		return
+	var opponent: Entity = CombatQueries.target_for(body)
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	if awareness.has_last_seen and awareness.search_elapsed <= person.profile.search_seconds:
+		episode.suspected_actor_id = identity_for(opponent)
+
+
+## Подтверждает одну показанную реплику exact эпизода; UI не владеет once состоянием.
+static func note_return_response(body: E_DistrictNpc, sequence: int) -> bool:
+	var person: NpcRecord = NpcPopulationQueries.person_for(identity_for(body))
+	var episode: NpcDeathRecord = NpcLifeRules.pending_response(person)
+	if episode == null or episode.sequence != sequence:
+		return false
+	episode.response_given = true
+	if episode.known_actor_id.is_empty():
+		episode.reaction_applied = true
+	return true
+
+
+#endregion
+
+
 #region Подтверждённое насилие
 ## Свидетели воспринимают урон; неизвестный атакующий создаёт шум без раскрытия личности.
 static func observe_damage(damage_result: DamageResult) -> void:

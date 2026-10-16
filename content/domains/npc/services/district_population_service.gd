@@ -434,6 +434,7 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 		person.deaths.append(episode)
 		# Guard предшествует callback добычи/cleanup, чтобы одна смерть не создала два эпизода.
 		person.death_day = day_index
+		NpcSocialService.remember_death(person, body, episode)
 	NpcRemainsService.release(body)
 	body.request_role_cleanup(NpcRoleCleanupRequest.Kind.DEATH, day_index)
 	person.death_day = day_index

@@ -26,6 +26,9 @@ static func capability(person: NpcRecord) -> DEF_NpcGrudge:
 static func remembers_offender(person: NpcRecord, actor_id: StringName) -> bool:
 	if actor_id.is_empty() or capability(person) == null:
 		return false
+	for episode: NpcDeathRecord in person.deaths:
+		if episode.known_actor_id == actor_id:
+			return true
 	for memory: NpcMemory in person.memories:
 		if memory.actor_id != actor_id or memory.kind not in OFFENSES:
 			continue

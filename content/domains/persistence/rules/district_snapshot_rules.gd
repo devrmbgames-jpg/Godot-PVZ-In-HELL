@@ -90,6 +90,15 @@ static func valid(
 				or not NpcLifeRules.valid_history(person, morning_day)
 			):
 				return false
+			for episode: NpcDeathRecord in person.deaths:
+				for actor_id: StringName in [
+					episode.actual_actor_id, episode.known_actor_id, episode.suspected_actor_id,
+				]:
+					if (
+						not actor_id.is_empty() and actor_id != &"player"
+						and district.definition.person_for(actor_id) == null
+					):
+						return false
 			var card: DEF_NpcPerson = district.definition.person_for(person.npc_id)
 			if not NpcAuthoredPersonRules.matches(card, person):
 				return false

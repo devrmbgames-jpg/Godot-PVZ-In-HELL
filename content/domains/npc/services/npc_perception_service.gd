@@ -18,7 +18,6 @@ static func can_see(
 	person: NpcRecord,
 	allow_dead_target: bool = false,
 ) -> bool:
-	var profile: DEF_NpcArchetype = person.profile
 	var target_available: bool = (
 		(
 			is_instance_valid(target) and is_instance_valid(ECS.world)
@@ -30,9 +29,35 @@ static func can_see(
 	if observer == target or not target_available or not GrabQueries.holder_available(observer):
 		return false
 
+	return _visible_geometry(observer, target, person)
+
+
+## Последний взгляд только exact terminal marker до ухода тела в dormant; обычное зрение живых
+## не разрешает смотреть после смерти. Геометрия/FOV/свет остаются общими.
+static func can_see_at_death(
+	observer: Entity,
+	target: Entity,
+	person: NpcRecord,
+	death: C_Death,
+) -> bool:
+	if (
+		not EntityAvailability.contains(observer, ECS.world)
+		or observer.get_component(C_Death) != death or death == null or death.cause == null
+		or death.cause.outcome != DamageResult.Outcome.HEALTH_DEPLETED
+		or death.cause.request == null or death.cause.request.target != observer
+		or observer == target or not GrabQueries.holder_available(target)
+	):
+		return false
+	var health: C_Health = observer.get_component(C_Health) as C_Health
+	if health == null or not health.depleted or health.current > 0.0:
+		return false
+	return _visible_geometry(observer, target, person)
+
+
+static func _visible_geometry(observer: Entity, target: Entity, person: NpcRecord) -> bool:
 	if NpcVeilQueries.concealed(target):
 		return false
-
+	var profile: DEF_NpcArchetype = person.profile
 	var observer_body: PhysicsBody3D = observer as Node as PhysicsBody3D
 	var target_body: PhysicsBody3D = target as Node as PhysicsBody3D
 	if (

@@ -3,6 +3,62 @@ extends RefCounted
 class_name NpcCommunityService
 
 
+#region Finite personal return reaction
+## Только существующая idle ветка вызывает операцию; бой/опасность/роли имеют приоритет.
+## True означает применённую разовую реакцию; caller больше не использует captured actor.
+static func react_to_return(body: E_DistrictNpc, person: NpcRecord) -> bool:
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	if (
+		person.death_day != 0 or body.has_active_role()
+		or CombatQueries.target_for(body) != null or NpcDialogueService.participant(body) != null
+		or awareness.fleeing or awareness.hazard_distress or awareness.light_distress
+	):
+		return false
+	for episode: NpcDeathRecord in person.deaths:
+		if (
+			episode.returned_day == 0 or episode.reaction_applied
+			or episode.known_actor_id.is_empty()
+		):
+			continue
+		var player: bool = episode.known_actor_id == &"player"
+		if player and not episode.response_given:
+			continue
+		var target: Entity = (
+			ECS.world.query.with_all([C_PlayerInputController]).execute_one()
+			if player else NpcPopulationQueries.body_for(episode.known_actor_id)
+		)
+		if (
+			not GrabQueries.holder_available(target)
+			or body.global_position.distance_to((target as Node as Node3D).global_position)
+			> NpcPopulationQueries.current().definition.conversation_range
+			or not NpcPerceptionService.can_see(body, target, person)
+		):
+			continue
+		if not player and episode.reaction == NpcMemory.Reaction.ATTACK:
+			if person.profile.initiates_conflicts:
+				return NpcCommunityService.begin_conflict(body, person, target as E_DistrictNpc)
+			# Существующий запрет инициативных конфликтов сохраняется; упрёк не начинает бой.
+			episode.reaction_applied = true
+			body.show_message("Я помню, как ты меня убил. Второго раза не хочу.")
+			return true
+		episode.reaction_applied = true
+		var captured_world: World = ECS.world
+		var body_reference: WeakRef = weakref(body)
+		NpcSocialService.apply_reaction(body, target, episode.reaction)
+		# Social facts may retire the speaker before its optional personal bark.
+		var speaker: E_DistrictNpc = body_reference.get_ref() as E_DistrictNpc
+		if (
+			is_instance_valid(captured_world) and ECS.world == captured_world
+			and EntityAvailability.contains(speaker, captured_world)
+			and NpcPopulationQueries.person_for(person.npc_id) == person
+		):
+			speaker.show_message("Я вернулся. И я помню, кто меня убил.")
+		return true
+	return false
+
+#endregion
+
+
 #region Занятия сообщества
 ## При подходящем голоде запрашивает InventoryService.use для первой принадлежащей еды.
 ## True означает найденный предмет и вызов use; результат использования здесь не проверяется.
@@ -90,7 +146,10 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 		return false
 
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
-	var motive: bool = hunger.value >= district.definition.npc_attack_hunger
+	var motive: bool = (
+		hunger.value >= district.definition.npc_attack_hunger
+		or NpcLifeRules.pending_conflict(person, NpcSocialService.identity_for(target))
+	)
 	for memory: NpcMemory in person.memories:
 		if (
 			memory.actor_id == NpcSocialService.identity_for(target)
@@ -108,14 +167,33 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 		and DamageResistanceRules.effective(actor, 1.0, DamageRequest.Type.FIRE) > 0.0
 	):
 		return false
-	if NpcBloodQueries.calmed(actor) or not CombatService.bind_target(actor, target):
+	if NpcBloodQueries.calmed(actor):
+		return false
+	var death_motive: NpcDeathRecord = null
+	for episode: NpcDeathRecord in person.deaths:
+		if (
+			episode.returned_day > 0 and not episode.reaction_applied
+			and episode.known_actor_id == NpcSocialService.identity_for(target)
+			and episode.reaction == NpcMemory.Reaction.ATTACK
+		):
+			death_motive = episode
+			break
+	# Relationship callbacks must not spend this personal motive a second time.
+	if death_motive != null:
+		death_motive.reaction_applied = true
+	if not CombatService.bind_target(actor, target):
+		if death_motive != null:
+			death_motive.reaction_applied = false
 		return false
 
 	district.ambient_conflicts += 1
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.last_seen_position = target.global_position
 	awareness.has_last_seen = true
-	actor.show_message("Мне нужна добыча. Защищайся!")
+	actor.show_message(
+		"Ты меня убил. Я вернулся и помню об этом. Защищайся!"
+		if death_motive != null else "Мне нужна добыча. Защищайся!"
+	)
 	return true
 
 

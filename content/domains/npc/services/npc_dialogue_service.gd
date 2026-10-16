@@ -5,6 +5,7 @@ class_name NpcDialogueService
 
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 const DIALOGUE_PATH: String = "res://content/domains/npc/dialogue/npc_street.dialogue"
+const RETURN_DIALOGUE_PATH: String = "res://content/domains/npc/dialogue/npc_return.dialogue"
 
 
 #region Authored presentation

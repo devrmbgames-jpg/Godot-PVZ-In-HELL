@@ -5,6 +5,7 @@ class_name NpcDialogueContext
 ## Локальный кеш первого job ID; сам заказ каждый раз читается у HomeDeliveryQueries.
 var _delivery_job_id: StringName = &""
 var _closed: bool = false
+var _return_sequence: int = 0
 var _soul_confirmation_key: StringName = &""
 var _soul_result: SoulTradeResult = null
 var _blood_confirmation_key: StringName = &""
@@ -111,6 +112,74 @@ func apply_response_tags(_tags: PackedStringArray) -> bool:
 ## Проверяет, относится ли открытый UI к этому NPC, без создания новой живой связи.
 func speaks_with(_npc: Entity) -> bool:
 	return false
+#endregion
+
+
+
+#region First meaningful conversation after return
+## Reads the earliest unresolved personal episode without consuming it.
+func has_return_response() -> bool:
+	var person: NpcRecord = _dialogue_person()
+	return person != null and NpcLifeRules.pending_response(person) != null
+
+
+## Only the live panel calls this after rendering a tagged line; cancelled async reads do not count.
+func note_line_presented(tags: PackedStringArray) -> void:
+	if tags.has("return_memory") and is_valid() and _return_sequence > 0:
+		NpcSocialService.note_return_response(_delivery_npc(), _return_sequence)
+
+
+## Reads belief only; factual damage attribution is never a dialogue accusation.
+func return_blame() -> String:
+	var episode: NpcDeathRecord = _return_episode()
+	if episode == null:
+		return "unknown"
+	if episode.known_actor_id == &"player":
+		return "player"
+	if not episode.known_actor_id.is_empty():
+		return "npc"
+	if episode.suspected_actor_id == &"player":
+		return "suspected_player"
+	return "suspected_npc" if not episode.suspected_actor_id.is_empty() else "unknown"
+
+
+## Reads the already recognized person's name; unknown damage does not reveal a hidden identity.
+func return_actor_name() -> String:
+	var episode: NpcDeathRecord = _return_episode()
+	if episode == null:
+		return ""
+	var known_id: StringName = (
+		episode.known_actor_id
+		if not episode.known_actor_id.is_empty() else episode.suspected_actor_id
+	)
+	var other: NpcRecord = NpcPopulationQueries.person_for(known_id)
+	return other.display_name if other != null else ""
+
+
+## Existing authored personality selects expression, without assigning a new character type.
+func return_style() -> String:
+	var person: NpcRecord = _dialogue_person()
+	if person == null:
+		return ""
+	match person.profile.personality:
+		DEF_NpcProfile.Personality.TIMID:
+			return "timid"
+		DEF_NpcProfile.Personality.AGGRESSIVE:
+			return "aggressive"
+		DEF_NpcProfile.Personality.BRAZEN:
+			return "brazen"
+	return "cheerful"
+
+
+func _return_episode() -> NpcDeathRecord:
+	var person: NpcRecord = _dialogue_person()
+	if person == null:
+		return null
+	if _return_sequence == 0:
+		var pending: NpcDeathRecord = NpcLifeRules.pending_response(person)
+		if pending != null:
+			_return_sequence = pending.sequence
+	return NpcLifeRules.episode_for(person, _return_sequence)
 #endregion
 
 

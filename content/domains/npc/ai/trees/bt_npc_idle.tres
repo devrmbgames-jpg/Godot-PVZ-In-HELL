@@ -1,5 +1,6 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://bmc5t70coej8t"]
 
+[ext_resource type="BehaviorTree" uid="uid://ctovohr224ims" path="res://content/domains/npc/ai/trees/bt_npc_return_reaction.tres" id="1_kkuwg"]
 [ext_resource type="BehaviorTree" uid="uid://brmmh3rdl244c" path="res://content/domains/npc/ai/trees/bt_npc_gaze_aversion.tres" id="11_tq6rh"]
 [ext_resource type="BehaviorTree" uid="uid://dupwg0wxlgyia" path="res://content/domains/npc/ai/trees/bt_npc_light_comfort.tres" id="12_24vli"]
 [ext_resource type="Script" uid="uid://bt3g5ndvuexik" path="res://content/domains/npc/ai/tasks/bt_npc_merchant.gd" id="s1"]
@@ -17,6 +18,13 @@
 [ext_resource type="Script" uid="uid://b4s2wrlq3pfdo" path="res://content/domains/npc/ai/tasks/bt_npc_moving.gd" id="s13"]
 [ext_resource type="Script" uid="uid://bn4s0ilymptr2" path="res://content/domains/npc/ai/tasks/bt_npc_continue_walk.gd" id="s14"]
 [ext_resource type="Script" uid="uid://cqosq55nipqxp" path="res://content/domains/npc/ai/tasks/bt_npc_observe.gd" id="s15"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_toqlj"]
+
+[sub_resource type="BTSubtree" id="BTSubtree_14y8i"]
+subtree = ExtResource("1_kkuwg")
+blackboard_plan = SubResource("BlackboardPlan_toqlj")
+custom_name = "Личная реакция после возвращения"
 
 [sub_resource type="BTCondition" id="BTCondition_1"]
 custom_name = "Торговец"
@@ -186,7 +194,7 @@ script = ExtResource("s15")
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_38"]
 custom_name = "Свободное занятие"
-children = [SubResource("BTDynamicSequence_4"), SubResource("BTDynamicSequence_13"), SubResource("BTDynamicSequence_18"), SubResource("BTDynamicSequence_23"), SubResource("BTDynamicSequence_28"), SubResource("BTSubtree_kkuwg"), SubResource("BTSubtree_toqlj"), SubResource("BTDynamicSequence_33"), SubResource("BTDynamicSequence_36"), SubResource("BTAction_37")]
+children = [SubResource("BTSubtree_14y8i"), SubResource("BTDynamicSequence_4"), SubResource("BTDynamicSequence_13"), SubResource("BTDynamicSequence_18"), SubResource("BTDynamicSequence_23"), SubResource("BTDynamicSequence_28"), SubResource("BTSubtree_kkuwg"), SubResource("BTSubtree_toqlj"), SubResource("BTDynamicSequence_33"), SubResource("BTDynamicSequence_36"), SubResource("BTAction_37")]
 
 [resource]
 description = "Еда, добыча, ограниченный конфликт, слух, прогулка и наблюдение."

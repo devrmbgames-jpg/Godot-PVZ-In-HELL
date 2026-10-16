@@ -21,21 +21,23 @@ Source: [полное исходное ТЗ и доказательства](ref
 
 R1a/R1b provider reviewed: typed DEF_NpcPerson, three prototype cards, explicit ID/home/
 recipient/profile/scene, seed/reorder independence, strict retained/fresh/cold restore.
-Последний reviewed provider `2c0be0eae47131f0a3b41bcc23f1a5eced4ed015`.
-R2a реализован и локально проверен, **review ещё pending**: NpcRecord.deaths хранит
-NpcDeathRecord(sequence/day/returned_day), death_day остаётся текущей смертью.
-O_DistrictLifecycle вызывает явный return_due при подготовке утра/дискретной смене фазы;
-срок вычисляется как death_day + 2, безопасное место проверяется до новой жизни.
-Сохраняются то же тело/ID/дом/variation/вещи/старые авторские значения. HealthMutationService
-восстанавливает максимум HP только через explicit return; обычный сон не лечит.
-C_NpcRemains.released — guard текущей жизни, C_LootDrops — receipts по person/death sequence.
-Поздний callback сверяет captured C_Death и World; не может убить вернувшуюся личность.
-Native Lost guest preset создан через MCP, без дома; @tool NpcVariation позволяет авторить
-его фиксированный preset штатным Resource API. Resident-only и guest cold smokes PASS.
-Schema 29/closed codec/native golden согласованы; старые версии отклоняются, файлы сохраняются.
+Последний reviewed provider `5deafb36b509cb675f5144e4201c828e8fd5d9f0`.
+R2a reviewed: calendar +2, retained body, separate per-death loot receipts, stale callback
+identity, blocked-space retry, Night write retry и strict restore. R2b реализован и проверен,
+**REVIEW_PENDING**: NpcDeathRecord хранит actual actor/type/position отдельно от known/suspected
+actor, выбранную реакцию и два once guards. Источник фактического урона не обвиняет скрытое
+лицо. Exact terminal C_Death снимает собственное знание до cleanup по общему LOS/FOV/light.
+Первая уместная добровольная беседа street/service использует общий npc_return.dialogue;
+только показанная строка подтверждает response_given, cancelled async read не считается показом.
+Авторский idle BT subtree запрашивает разовую реакцию после возврата; бой/опасность/роли выше,
+NPC-нападение сохраняет разрешение профиля, риск и ambient limit. После конца поиска эпизод
+не запускает месть снова. NpcRecord.deaths — один владелец истории, UI хранит лишь borrowed номер.
+Schema30/codec/preflight/native golden согласованы; старые файлы отклоняются и сохраняются.
+Native MCP diagnostics по фактическим script paths CLEAN; transient anonymous reload43
+не выдаётся за ошибку runtime и не объявляется PASS без отдельной native проверки.
 
-Весь R1/R2 ещё IN_PROGRESS. R2b (знание виновника, память обстоятельств, персональная реакция)
-не реализован; голая календарная история не заменяет эти требования. Main/rooms всё ещё
+Весь R1/R2 ещё IN_PROGRESS: R2c (реальные вещи/выплаты/принятые обещания и их сроки) открыт.
+Main/rooms всё ещё
 используют profiles path: временная граница R1c, не принятая постоянная dual resident модель.
 Lost main сейчас placed merchant; перед guest-переводом нужны семь barter ролей. Девятый
 физический дом — provider physical_homes_and_privacy. Полные nine/lost/content/quests R3
@@ -48,6 +50,7 @@ Lost main сейчас placed merchant; перед guest-переводом ну
 | R1 | Авторская identity/home/recipient и пилот; main/rooms integration завершает R1c без live resident generation. |
 | R2a | Calendar +2, retained body, повторные смерти/партии, Night retry и save/load/cold restart. |
 | R2b | Воспринятый виновник/подозрение/неизвестность, память обстоятельств, персональное социальное продолжение после возврата. |
+| R2c | Сохранённые реальные вещи/выплаты/заказы, перенос личных сроков во время отсутствия; Source §§6–7. |
 | R3 | Девять жителей, Lost guest, девятый физический дом, привычки/интересы/желания, личные квесты и все диалоги Source. |
 
 R1/R2 включают собственные closed save/preflight и lifecycle gates. Никакой пакет не отменяет
@@ -65,55 +68,59 @@ API диалогов и социальный граф потребляются �
 
 ## Next
 
-Зафиксировать R2a coherent checkpoint, собрать immutable review/triage, исправить принятые
-P0/P1/P2. Затем R2b: причина/воспринятый виновник и социальная реакция без телепатии;
-существующий observe_damage пропускает C_Death, а обычный can_see требует живого observer.
-Использовать текущий O_DistrictLifecycle/captured terminal marker и существующего владельца
-NpcRecord/NpcSocial memory; не создавать второй death roster или Service tick.
+Зафиксировать R2b coherent checkpoint; review exact BASE
+`5deafb36b509cb675f5144e4201c828e8fd5d9f0` → новый TARGET, triage/fix P0/P1/P2.
+Пока pending — только независимый анализ Source §§6–7 и действующих owners обещаний/вещей.
+Затем R2c: source-required перенос личных сроков при временной смерти, реальные сохранённые
+предметы/деньги/заказы и отсутствие повторной награды. Без нового roster/Service tick.
 После verified R2 завершить R1c совместно с barter/physical-home provider contracts,
 проверить authored-roster placed merchant и убрать генерацию live residents.
 Отсутствующее утверждённое наполнение R3 остаётся открытым.
 
 ## Validation / review
 
-R2a текущие native проверки **PASS/CLEAN**, raw .artifacts/godot_agent/:
+R2b текущие actual native gates **PASS/CLEAN**, .artifacts/godot_agent/:
 
 | Gate | Tests/assertions | gut-20261016 timestamp |
 | --- | --- | --- |
-| authored life cycle, review repair | 16/310 | 230350002 |
-| schema29 baseline ordinary read | 15/805 | 224349068 |
-| schema29 golden generation | 15/804 | 224324109 |
-| district snapshot | 17/215 | 224413815 |
-| world snapshot | 47/642 | 224434861 |
-| legacy NPC remains | 7/76 | 224449305 |
+| death knowledge + real terminal/calendar + native BT + street panel | 25/464 | 232016876 |
+| real service return + existing dialogue memory/variants/delivery | 41/812 | 232356332 |
+| common geometry/FOV/light/hearing | 8/27 | 232211292 |
+| existing grudge/ranged contracts | 16/153 | 232248961 |
+| schema30 ordinary golden read | 15/805 | 232145738 |
+| schema30 native golden generation | 15/804 | 232110354 |
 
-Life suite: actual damage, days 1→3/7→9, две смерти и разные receipts, прежнее тело,
-blocked home/retry, old queued marker, no living-sleep heal, Night I/O retry, tamper rejection,
-Lost без дома и старый файл. Базовый World не хранит dormant structural signals; fixture
-переведена на production GameWorld и корректно завершает startup/первое утро.
-Ранние red logs сохранены: `221457690` (нет loot queue в fixture), `221549423`–`222448955`
-(ошибочный active-only lifetime guard и native World fixture), `222819837` (не подготовлено
-первое утро fixture). Исправлено до coherent checkpoint, не engine exception/waiver.
+Knowledge suite: actual recognized player/NPC, wall-hidden source, prior-seen suspicion,
+environment without blame, non-grudge memory, retained-body disk restore, all missing record
+fields/unknown actor rejection, native authored reaction leaf/ambient budget, finite pursuit,
+first actual panel line/reopen, cancelled read and no changed visit outcome. Prototype opt-in
+NPC conflict fixture changes only its detached test profile, not authored production cards.
+MCP reimport npc_return.dialogue PASS; path diagnostics 14 selected scripts CLEAN. Formatter/
+lint, strict architecture, structure, persistence baseline PASS; staged gate before commit.
+Raw earlier red logs retained: `231222480` (nonpersistable test player, Fire-resistant target,
+new dialogue not yet imported), `231309416` (test profile prohibited conflict), `232338405`
+(test used nonexistent enum constant). Fixture/API/import corrections preceded this checkpoint.
 
-Actual **двухпроцессные** smokes PASS; tests/artifacts/, combined logs без errors/warnings:
-- npc_guest_life write `20261017-085005957`, restore `20261017-085014061`;
-- npc_life_cycle write `20261017-085022215`, restore `20261017-085030281`;
-- npc_authored_people write `20261017-085038388`, restore `20261017-085046488`.
+Schema30 **two-process** smokes PASS, tests/artifacts/ combined logs:
+- npc_life_cycle write `20261017-092428846`, restore `20261017-092436956`;
+- npc_guest_life write `20261017-092445067`, restore `20261017-092453164`.
+They prove nondefault own-death position/pending response across process exit, environment
+without invented blame, days 1→3→5, two distinct batches, same body/identity/old author memory.
+Known-player disk restore and actual presentation are GUT evidence, not claimed cold/rendered QA.
+First smoke launch without explicit -GodotPath failed before engine start because runner reads
+JSONC as JSON; explicit verified .bin Godot console path succeeded. Runner scope not expanded.
+R2b **REVIEW_PENDING**, repair **0/2**; rendered **0/8**, Windows build for this internal step NOT_RUN.
 
-Cold life restores день 2/death 1, возвращает в 3, снова убивает/возвращает в 5,
-сохраняет ID/дом/scene/clock/HP/visited/quest_stage и две партии. Guest использует отдельный
-слот и не получает дом. Это manual snapshot/disk cold smoke; scheduled Night retry проверен GUT.
-Formatter/lint, strict architecture, structure, persistence baseline PASS; staged gate перед commit.
 R2a review BASE `2c0be0eae47131f0a3b41bcc23f1a5eced4ed015` →
 TARGET `30e6716aa696311581cd1be4145dbd1466d080cd`: два P2 приняты.
-RV-002: NpcDeathRecord не требовал exact fields; пропуски подменялись defaults.
-RV-003: pending authored death не сверялась с body.death/enabled.
-Оба исправлены в текущем repair: exact SAVE_FIELDS и terminal/disabled gate.
-Red `gut-20261016-230318246` воспроизвёл все шесть вариантов; green `230350002`
-16/310 PASS/CLEAN, live record/body не меняются. Targeted re-review **REVIEW_PENDING**, cycle **1/2**.
-MCP test edit diagnostics clean; production anonymous reload fallback code 43, editor log
-не содержит ошибки этих файлов. Actual native GUT загружает их CLEAN; live reload не объявлен PASS.
-Rendered **0/8**, Windows QA build этого внутреннего checkpoint NOT_RUN.
+RV-002 **FIXED** exact NpcDeathRecord.SAVE_FIELDS; RV-003 **FIXED** pending authored body
+requires death=true/enabled=false. Fix `5deafb36b509cb675f5144e4201c828e8fd5d9f0`;
+red `gut-20261016-230318246` reproduced six corruptions; green `230350002` 16/310 CLEAN.
+Targeted re-review BASE `30e6716aa696311581cd1be4145dbd1466d080cd` →
+TARGET `5deafb36b509cb675f5144e4201c828e8fd5d9f0`: PASS, cycle **1/2**, no new findings.
+R2a prior golden/district/world/remains PASS at `224349068`, `224413815`, `224434861`,
+`224449305`; new schema consumers use current results above. Old anonymous reload43 was
+independently checked CLEAN by native path diagnostics and Godot CLI, not waived.
 
 Принятый R1 RV-001 **FIXED**: production/test `83873c575b0db5cb6684b7ff90cdc6d1085fa0fd`,
 точный DEF_NpcPerson read edge `0b86da5ba79f028f62c77d34991472e74956ab95` (structure PASS).
@@ -130,7 +137,7 @@ TARGET `d143a897bcb0c508de1caa50f3eb4a9835d4723e`: PASS, native cards 8/89.
 сохранены: первый ECS compile при editor initialization/shutdown, оба aborted scan и mixed
 RID/ObjectDB/PagedAllocator shutdown. Output отдельно проверен CLEAN GUT, исключения не
 расширялись, standalone retention investigation не начато. Новые Guest assets/scenes — live MCP.
-R1c/authored placed merchant, R2b/social reactions, полный R3 и visual acceptance NOT_RUN.
+R1c/authored placed merchant, R2c/full obligations, полный R3 и visual acceptance NOT_RUN.
 
 ## Owner QA / blockers
 

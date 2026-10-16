@@ -67,8 +67,17 @@ including the dead. The current body retains Health, inventory and the per-life 
 the persistent loot queue owns receipts keyed by person ID and death sequence. Return clears
 the current death and resets that guard after checking native space, without copying starter
 items or recreating the person. Ordinary sleep does not receive resurrection healing.
-The authored-life GUT and two-process smoke cover this pilot; death attribution and personal
-responses, the full resident composition and physical homes remain open in the owning task.
+Schema 30 extends each closed death episode with actual damage type/position/actor, separately
+recognized or suspected actor, the once-selected reaction and presented/applied guards. The
+actual actor is audit data: dialogue, grudge and encounter motives read belief only. Terminal
+recognition uses the exact C_Death cause before dormancy and the same LOS/FOV/light rules as
+ordinary sight; a previously seen opponent can remain a suspicion, never proven blame.
+Preflight rejects missing fields, contradictory certainty, non-finite positions, premature
+acknowledgements and unknown authored actor IDs. The first rendered tagged dialogue line
+commits presentation; cancelled async reads do not. The native idle branch applies at most one
+primary reaction, preserving existing combat/role/danger priority and ambient conflict limits.
+Current schema30 rejects older files without conversion or replacement. Full resident/quest/
+physical-home rollout and final authored personal responses remain open in the owning task.
 
 ## Refactoring v2 identity contract
 

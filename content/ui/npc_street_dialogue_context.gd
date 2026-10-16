@@ -107,6 +107,8 @@ func can_continue() -> bool:
 ## Выбирает ветку провокатора по постоянной особенности личности.
 func dialogue_cue() -> String:
 	var person: NpcRecord = NpcPopulationQueries.person_for(_person_id)
+	if has_return_response():
+		return "return_memory"
 	if has_broken_promise():
 		return "broken_promise"
 	if can_offer_delivery():

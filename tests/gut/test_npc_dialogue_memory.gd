@@ -13,6 +13,35 @@ class WaitingStreetContext extends NpcStreetDialogueContext:
 
 
 #region Пять операций и жизненный цикл
+
+func test_real_service_panel_prioritizes_return_without_finishing_the_visit() -> void:
+	var person: NpcRecord = _lost_person()
+	var episode: NpcDeathRecord = NpcDeathRecord.new()
+	episode.returned_day = 3
+	person.deaths.append(episode)
+	DayPhaseQueries.current().day_index = 3
+	var body: E_DistrictNpc = _stage(person)
+	var visit: CustomerVisit = _case(person, "return_service")
+	visit.definition = DEF_Customer.new()
+	var actual_before: CustomerVisit.Actual = visit.actual
+	var context: CustomerDialogueContext = _service_context(body, visit)
+	assert_eq(context.dialogue_cue(), "return_memory")
+	context.end()
+	_resource(NpcDialogueService.RETURN_DIALOGUE_PATH)
+	assert_true(DialoguePanelRouter.open_customer(
+		_player, body, body.get_component(C_CustomerAgent) as C_CustomerAgent,
+	))
+	for frame: int in 16:
+		if episode.response_given:
+			break
+		await get_tree().process_frame
+	assert_true(episode.response_given)
+	assert_false(visit.finished)
+	assert_eq(visit.actual, actual_before)
+	assert_eq(visit.visit_count, 1)
+	assert_true(body.has_component(C_CustomerAgent))
+
+
 func test_runtime_object_value_keeps_identity_until_explicit_replacement() -> void:
 	var person: NpcRecord = _lost_person()
 	var street: NpcStreetDialogueContext = NpcStreetDialogueContext.new(_player, _stage(person))

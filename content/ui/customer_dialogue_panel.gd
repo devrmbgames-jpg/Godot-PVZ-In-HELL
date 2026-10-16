@@ -165,6 +165,7 @@ func _render_line() -> void:
 			first.grab_focus()
 	else:
 		_continue_button.grab_focus()
+	_context.note_line_presented(_line.tags)
 
 
 func _render_text() -> void:

@@ -36,14 +36,16 @@ static func open_customer(
 		and not visit.definition.dialogue_resource_path.is_empty()
 	):
 		path = visit.definition.dialogue_resource_path
+	var context: CustomerDialogueContext = CustomerDialogueContext.new(actor, customer)
+	var cue: String = context.dialogue_cue()
+	if cue == "return_memory":
+		path = NpcDialogueService.RETURN_DIALOGUE_PATH
 	var resource: DialogueResource = (
 		load(path) as DialogueResource if ResourceLoader.exists(path) else null
 	)
 	if resource == null:
 		push_error("Customer dialogue resource is unavailable: %s" % path)
 		return false
-	var context: CustomerDialogueContext = CustomerDialogueContext.new(actor, customer)
-	var cue: String = context.dialogue_cue()
 	if not resource.cues.has(cue):
 		push_warning("Customer dialogue has no '%s' cue: %s" % [cue, path])
 		return false
@@ -101,11 +103,13 @@ static func _open_parcel_demand(
 static func open_street(player: Entity, body: E_DistrictNpc) -> bool:
 	if not NpcDialogueService.can_start(player, body):
 		return false
+	var context: NpcStreetDialogueContext = NpcStreetDialogueContext.new(player, body)
 	var path: String = NpcDialogueService.dialogue_path_for(body)
+	if context.dialogue_cue() == "return_memory":
+		path = NpcDialogueService.RETURN_DIALOGUE_PATH
 	var resource: DialogueResource = (
 		load(path) as DialogueResource if ResourceLoader.exists(path) else null
 	)
-	var context: NpcStreetDialogueContext = NpcStreetDialogueContext.new(player, body)
 	if resource == null or not resource.cues.has(context.dialogue_cue()) or not context.begin():
 		return false
 

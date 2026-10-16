@@ -1,0 +1,20 @@
+## Prototype return responses use the existing authored personality; final personal lines belong to R3.
+~ return_memory
+if ctx.return_blame() == "player"
+	if ctx.return_style() == "timid"
+		{{ctx.speaker_name()}}: Я вернулся. Я помню, как ты меня убил. Пожалуйста, не подходи так близко. [#return_memory]
+	elif ctx.return_style() == "aggressive"
+		{{ctx.speaker_name()}}: Я снова здесь. Ты меня убил, и я это помню. Не рассчитывай, что всё забыто. [#return_memory]
+	elif ctx.return_style() == "brazen"
+		{{ctx.speaker_name()}}: Ну что, не ожидал снова меня увидеть? За мою смерть ещё поговорим. [#return_memory]
+	else
+		{{ctx.speaker_name()}}: Отличная встреча в прошлый раз: ты убил меня, а я потерял целый день. Возвращаться всё равно больно. [#return_memory]
+elif ctx.return_blame() == "npc"
+	{{ctx.speaker_name()}}: Я вернулся. Меня убил {{ctx.return_actor_name()}}. Возвращение всё равно не отменило боли. [#return_memory]
+elif ctx.return_blame() == "suspected_player"
+	{{ctx.speaker_name()}}: Перед смертью я видел тебя поблизости. Не знаю, ты ли меня убил, но подозрения остались. [#return_memory]
+elif ctx.return_blame() == "suspected_npc"
+	{{ctx.speaker_name()}}: Перед смертью рядом был {{ctx.return_actor_name()}}. Подозреваю его, но самого удара не видел. [#return_memory]
+else
+	{{ctx.speaker_name()}}: Я снова здесь. Возвращение привычное дело, а вот боль и потерянное время никуда не делись. Кто меня убил — не знаю. [#return_memory]
+- Я услышал. => END

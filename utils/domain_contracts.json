@@ -7359,7 +7359,8 @@
       ],
       "public_methods": [
         "identity_for",
-        "react"
+        "react",
+        "note_return_response"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
@@ -7368,7 +7369,8 @@
       ],
       "method_rights": {
         "identity_for": "request",
-        "react": "request"
+        "react": "request",
+        "note_return_response": "request"
       },
       "public_instance_methods": []
     },
@@ -20993,9 +20995,48 @@
       "public_instance_methods": [],
       "method_rights": {},
       "sources": [
-        "content/services/persistence/save_data_codec.gd"
+        "content/services/persistence/save_data_codec.gd",
+        "content/services/persistence/district_snapshot_rules.gd"
       ],
       "purpose": "Closed whitelist of the durable per-person death episode resource."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcDeathRecord",
+      "path": "content/domains/npc/contracts/npc_death_record.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/dialogue/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue reads the selected persistent death episode; no UI-owned history."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcLifeRules",
+      "path": "content/domains/npc/rules/npc_life_rules.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "pending_response",
+        "episode_for"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "pending_response": "query",
+        "episode_for": "query"
+      },
+      "sources": [
+        "content/dialogue/npc_dialogue_context.gd"
+      ],
+      "purpose": "Dialogue selects existing unresolved return history without mutation."
     }
   ],
   "legacy_decomposition": []

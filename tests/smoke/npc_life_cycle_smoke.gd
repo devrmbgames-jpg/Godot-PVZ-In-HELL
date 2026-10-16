@@ -58,6 +58,7 @@ func _kill(person: NpcRecord) -> void:
 	DamageRequestService.submit(request)
 	_check(body.has_component(C_Death), "real terminal damage")
 	_check(person.death_day == DayPhaseQueries.current().day_index, "current death committed")
+	_check(person.deaths.back().position == street, "own death position remembered")
 
 
 func _morning(day: int) -> void:
@@ -95,6 +96,15 @@ func _restore() -> void:
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	_check(person.death_day == 1 and person.deaths.size() == 1, "death survived process exit")
 	_check(person.deaths[0].returned_day == 0, "return not replayed early")
+	var origin: StringName = person.home_id if person.profile.resident else person.portal_id
+	_check(
+		person.deaths[0].position == NpcPopulationQueries.position_for(origin, true)
+		+ Vector3(0.0, 0.0, STREET_DEATH_DISTANCE),
+		"nondefault death position survived process exit",
+	)
+	_check(person.deaths[0].known_actor_id.is_empty(), "environment did not reveal a killer")
+	_check(person.deaths[0].suspected_actor_id.is_empty(), "environment did not invent suspicion")
+	_check(not person.deaths[0].response_given, "pending personal response survived cold restore")
 	_check(body.has_component(C_Death) and not body.enabled, "dead native participation")
 	_check(GameTimeQueries.current().world_seed == WRITE_SEED, "saved clock retained")
 	_check(LootDropService.current().committed_batches.size() == 1, "one persistent death batch")

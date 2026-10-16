@@ -1,0 +1,10 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://ctovohr224ims"]
+
+[ext_resource type="Script" uid="uid://srmwqyt7tfui" path="res://content/domains/npc/ai/tasks/bt_npc_return_reaction.gd" id="1_6al6k"]
+
+[sub_resource type="BTAction" id="BTAction_pjb4d"]
+custom_name = "Припомнить собственную смерть один раз"
+script = ExtResource("1_6al6k")
+
+[resource]
+root_task = SubResource("BTAction_pjb4d")

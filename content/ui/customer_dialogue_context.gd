@@ -182,6 +182,8 @@ func dialogue_cue() -> String:
 		and visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED
 	):
 		return "voluntary_refusal"
+	if has_return_response():
+		return "return_memory"
 	if has_broken_promise():
 		return "broken_promise"
 	if (
