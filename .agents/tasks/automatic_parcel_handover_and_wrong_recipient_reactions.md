@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `ee312efd776a266ce93b05d8c71a03af20ba4597`
-TARGET_SHA: pending M2a commit — REVIEW_PENDING
+TARGET_SHA: `81043b87741609aaf9d05368e047a838aab2cfd6` — M2a review PASS, repair0/2
 
 Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
 [Жуткий](creepy_npc_unpredictable_stalking.md),
@@ -28,9 +28,10 @@ Created: 2026-10-15. Основание: прямой запрос владел�
 Активный `/goal` авторизует выполнение задач; прежнее «только планирование» предшествует ему.
 M1a/b закрыты по реализации/автопроверкам/review: общий CustomerParcelOffer рук/стола, строгий<1 м/LOS,
 физическая опора, READY прежде WRONG, стабильный tie-break, резерв и повторный gate до _resolve_delivery.
-M2a реализован, review pending: DEF_InventoryItem.receiver_effect ссылается на native DEF_ReceiverEffect;
+M2a закрыт по данным/автопроверкам/review: DEF_InventoryItem.receiver_effect ссылается на native DEF_ReceiverEffect;
 holy определяется typed alignment. destroyed_by_fire — отдельная авторская пригодность материала, включая food/med.
 Native ResourceSaver обновил16 .tres с сохранением прежних UID; все22 item prefab проверяются на совпадение effect.
+M2a review: no material findings, architecture/style PASS; reviewer validation NOT_RUN; repair0/2.
 RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, no other findings; reviewer validation NOT_RUN. Открытых P0/P1/P2 нет; visual NOT_RUN,0/8.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
 запугивание меняет шансы атаки/возврата на5 процентных пунктов за Strength; блок персонален для пары.
@@ -196,5 +197,5 @@ RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): so
 
 ### Next
 
-M2a: commit и immutable-SHA review/triage; затем M2b фиксированные реакции/эпизоды -> присвоение/запугивание/физика;
+M2b: фиксированные реакции/эпизоды по typed-профилям, затем присвоение/запугивание/физика;
 затем персональный cooldown/save compatibility/регрессии -> owner QA. Общая задача IN_PROGRESS.
