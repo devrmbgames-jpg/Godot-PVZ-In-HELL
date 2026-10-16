@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `7de2d5c23f4aaf8722ea92262db0904bfd4c0dec`
-TARGET_SHA: `9cc2bf517589a1d3f682adbe75a6b83e163eb094` — RV-001 repair / re-review pending
+TARGET_SHA: `f7cc855c9e18149b2f2ebbd597c44b24f737feab` — M1b review PASS, repair1/2
 
 Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
 [Жуткий](creepy_npc_unpredictable_stalking.md),
@@ -27,12 +27,12 @@ Created: 2026-10-15. Основание: прямой запрос владел�
 
 Активный `/goal` авторизует выполнение задач; прежнее «только планирование» предшествует ему.
 M1a review PASS: `64b6c4eb57ee483a205a835afbeefd5fb64e2e8e`→`9ee5a479848d5adeed91c3e4d14627374ccae232`.
-M1b реализован, review RV-001: единый transient CustomerParcelOffer для рук/стола, READY прежде WRONG;
+M1b закрыт по реализации/автопроверкам/review: единый transient CustomerParcelOffer для рук/стола, READY прежде WRONG;
 дистанция с миллиметровыми сортировочными buckets, затем стабильный package_id; строгий<1 м/LOS сохранён.
 Стол требует native Area, допустимых скоростей и физической цепочки опоры до стойки, без хвата/слота/cargo.
 Резерв R_NpcServiceAt исключителен; district без него/домашние встречи не конкурируют за стойку.
 Commit повторно проверяет World/роль/визит/источник и после greeting; итог/осмотр остаются у _resolve_delivery.
-RV-001 [P2] ACCEPTED: can_receive разыменовывал отсутствующего customer до gate; добавлен entity_available перед _offer и null/retired/actor regression. Re-review pending, repair1/2; visual NOT_RUN,0/8.
+RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, no other findings; reviewer validation NOT_RUN. Открытых P0/P1/P2 нет; visual NOT_RUN,0/8.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
 запугивание меняет шансы атаки/возврата на5 процентных пунктов за Strength; блок персонален для пары.
 Приоритет святого символа и трактовка взаимоисключающих огненных исходов пока остаются предложениями.
@@ -196,5 +196,5 @@ RV-001 [P2] ACCEPTED: can_receive разыменовывал отсутству�
 
 ### Next
 
-M1b: commit RV-001 и узкий immutable-SHA re-review/triage до закрытия checkpoint;
-далее typed-реакции/эпизоды -> присвоение/запугивание/физика -> saves/регрессии -> owner QA.
+M2: typed cargo holy/fire capabilities и фиксированные реакции/эпизоды -> присвоение/запугивание/физика;
+затем персональный cooldown/save compatibility/регрессии -> owner QA. Общая задача IN_PROGRESS.
