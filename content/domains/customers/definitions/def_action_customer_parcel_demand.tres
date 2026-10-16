@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DEF_CustomerParcelDemandAction" format=3 uid="uid://cyxwkchu05b5y"]
+
+[ext_resource type="Script" uid="uid://bkcao7cnxpluo" path="res://content/domains/customers/definitions/def_customer_parcel_demand_action.gd" id="1_kmwu7"]
+
+[resource]
+script = ExtResource("1_kmwu7")
+action_id = &"customer_parcel_demand"
+slot = 0
+caption = "Эй, это не твоя посылка, а ну верни"
+priority = 10
+allow_interact_fallback = false

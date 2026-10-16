@@ -2,6 +2,13 @@ extends "res://tests/gut/test_customer_handoff.gd"
 ## Real wrong-offer commits, physical NPC ownership/throws and active-time pair idempotency.
 
 const REACTIONS = preload("res://content/domains/customers/rules/customer_parcel_reaction_rules.gd")
+const DEMAND = REACTIONS.DemandOutcome
+const DEMAND_ACTION: DEF_InteractionAction = preload(
+	"res://content/domains/customers/definitions/def_action_customer_parcel_demand.tres"
+)
+const SECOND_PARCEL: PackedScene = preload(
+	"res://content/domains/packages/entities/package_a.tscn"
+)
 const SUPPLY: DEF_Delivery = preload(
 	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
 )
@@ -86,6 +93,8 @@ func _native_receiver(key: StringName) -> void:
 	assert_not_null(person)
 	if person == null:
 		return
+	# World removal queues deletion; the old fixture must stop occluding this same-frame demand.
+	(_customer as Node as PhysicsBody3D).collision_layer = 0
 	_world.remove_entity(_customer)
 	var actor: E_DistrictNpc = (
 		load("res://content/domains/npc/entities/district_npc.tscn") as PackedScene
@@ -122,7 +131,11 @@ func _payload(item: DEF_InventoryItem) -> void:
 	(_parcel as Node as RigidBody3D).mass = PackageContentsService.full_mass_kg(_parcel)
 
 
-func _decision(outcome: REACTIONS.Outcome) -> void:
+func _decision(
+	outcome: REACTIONS.Outcome,
+	demand: REACTIONS.DemandOutcome = DEMAND.NONE,
+	strength: float = 5.0,
+) -> void:
 	var rule: DEF_NpcParcelReaction = CustomerParcelIncidentQueries.rule_for(_customer)
 	var contents: C_PackageContents = _parcel.get_component(C_PackageContents) as C_PackageContents
 	var item: DEF_InventoryItem = PackagePayloadRules.remaining_item(
@@ -144,9 +157,49 @@ func _decision(outcome: REACTIONS.Outcome) -> void:
 			random.randf(),
 		)
 		if selected == outcome:
+			if demand != DEMAND.NONE:
+				var demand_random: RandomNumberGenerator = GameTimeQueries.decision(
+					String(_visit.customer_id), 1,
+					"customer/parcel-demand/" + (
+						_parcel.get_component(C_Package) as C_Package
+					).package_id,
+					sequence,
+				)
+				if REACTIONS.choose_demand(strength, demand_random.randf()) != demand:
+					continue
 			_flow.parcel_incident_sequence = sequence
 			return
 	fail_test("Authored decision fixture has no requested outcome")
+
+
+func _stolen_for_demand(outcome: REACTIONS.DemandOutcome) -> CustomerParcelIncident:
+	_native_receiver(&"archetype/brute")
+	_decision(REACTIONS.Outcome.KEEP, outcome)
+	(_actor.get_component(C_Strength) as C_Strength).value = 5.0
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_true(
+		CustomerParcelDemandQueries.participants_available(_actor, _customer as E_DistrictNpc),
+		"Demand participants available",
+	)
+	assert_true(CustomerParcelDemandQueries.parcel_available(_parcel), "Demand parcel available")
+	assert_true(
+		CustomerParcelDemandGeometry.reachable(_actor, _customer as E_DistrictNpc, _parcel),
+		"Demand physical reach available",
+	)
+	assert_not_null(CustomerParcelDemandQueries.available(_actor, _customer as E_DistrictNpc))
+	return _flow.parcel_incidents[0]
+
+
+func _obstacle(position: Vector3, size: Vector3) -> StaticBody3D:
+	var body: StaticBody3D = StaticBody3D.new()
+	var collision: CollisionShape3D = CollisionShape3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = size
+	collision.shape = shape
+	body.add_child(collision)
+	body.position = position
+	_world.add_child(body)
+	return body
 #endregion
 
 
@@ -420,4 +473,210 @@ func test_incident_codec_is_closed_and_transaction_guard_rejects_capture() -> vo
 	_flow.parcel_reaction_in_progress = true
 	assert_true(WorldSnapshotService.capture(self, 1).is_empty())
 	_flow.parcel_reaction_in_progress = false
+#endregion
+
+
+#region Committed intimidation and safe return
+func test_native_demand_action_is_authored_once_and_only_available_for_actual_theft() -> void:
+	_native_receiver(&"archetype/brute")
+	var actions: C_InteractionActionSet = (
+		_customer.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	)
+	assert_eq(actions.actions.count(DEMAND_ACTION), 1)
+	assert_eq(DEMAND_ACTION.slot, DEF_InteractionAction.Slot.INTERACT)
+	assert_gt(DEMAND_ACTION.priority, 5)
+	assert_false(DEMAND_ACTION.is_available(_actor, _customer, _customer))
+	_decision(REACTIONS.Outcome.KEEP)
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_true(DEMAND_ACTION.is_available(_actor, _customer, _customer))
+	assert_eq(DEMAND_ACTION.caption_for(_actor, _customer, _customer), DEMAND_ACTION.caption)
+
+
+func test_demand_attack_commits_one_memory_and_normal_combat_target_without_reroll() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.ATTACK)
+	var elapsed: float = _agent.elapsed
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(incident.demand_outcome, DEMAND.ATTACK)
+	assert_eq(incident.demand_strength, 5.0)
+	assert_eq(incident.demand_tick, _cycle.clock.elapsed_ticks)
+	assert_same(CombatQueries.target_for(_customer), _actor)
+	assert_same(GrabQueries.held_object(_customer), _parcel)
+	var person: NpcRecord = NpcPopulationQueries.person_for(_visit.customer_id)
+	var memories: int = person.memories.size()
+	assert_eq(memories, 1)
+	var roll: float = incident.demand_roll
+	incident = SaveDataCodec.decode(SaveDataCodec.encode(incident)) as CustomerParcelIncident
+	_flow.parcel_incidents[0] = incident
+	CombatService.end_combat(_customer)
+	(_actor.get_component(C_Strength) as C_Strength).value = 100.0
+	assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(person.memories.size(), memories)
+	assert_null(CombatQueries.target_for(_customer))
+	assert_eq(incident.demand_roll, roll)
+	assert_eq(incident.demand_strength, 5.0)
+	assert_eq(_agent.elapsed, elapsed)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+
+
+func test_demand_return_transfers_one_actual_grip_and_starts_the_pair_block() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	_cycle.clock.elapsed_ticks += GameTimeRules.duration_ticks(200.0)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	assert_same(GrabQueries.held_object(_actor), _parcel)
+	assert_null(GrabQueries.held_object(_customer))
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_eq(incident.next_eligible_tick, _cycle.clock.elapsed_ticks + (
+		CustomerParcelIncidentService.BLOCK_TICKS
+	))
+	assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_null(CustomerHandoffService.select_offer(_actor, _customer, _visit))
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+
+
+func test_busy_hands_without_support_keep_pending_return_and_allow_claim_without_reroll() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var other: Entity = SECOND_PARCEL.instantiate() as Entity
+	EntityCompositionFixture.register(_world, other)
+	other.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	assert_same(GrabQueries.held_object(_actor), other)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_same(GrabQueries.held_object(_customer), _parcel)
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.HELD)
+	var roll: float = incident.demand_roll
+	incident = SaveDataCodec.decode(SaveDataCodec.encode(incident)) as CustomerParcelIncident
+	_flow.parcel_incidents[0] = incident
+	assert_eq(DEMAND_ACTION.caption_for(_actor, _customer, _customer), "Забрать посылку")
+	assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	(_actor.get_component(C_Strength) as C_Strength).value = 1.0
+	GrabReleaseService.release(_actor, other)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_same(GrabQueries.held_object(_actor), _parcel)
+	assert_eq(incident.demand_strength, 5.0)
+	assert_eq(incident.demand_roll, roll)
+
+
+func test_busy_carry_returns_to_supported_clear_ground_without_replacing_the_occupant() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var other: Entity = SECOND_PARCEL.instantiate() as Entity
+	EntityCompositionFixture.register(_world, other)
+	(other as Node as Node3D).position = Vector3(5.0, 1.0, 0.0)
+	other.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	_obstacle(Vector3(0.0, -0.1, 0.0), Vector3(20.0, 0.2, 20.0))
+	await get_tree().physics_frame
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_null(GrabQueries.held_relationship(_parcel))
+	assert_same(GrabQueries.held_object(_actor), other)
+	var body: RigidBody3D = _parcel as Node as RigidBody3D
+	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	assert_true(solver.prepare(body))
+	assert_gt(solver.bounds_at(body.global_transform).position.y, 0.0)
+	assert_eq(body.linear_velocity, Vector3.ZERO)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+
+
+func test_demand_rechecks_distance_and_los_without_committing_a_choice() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var original: Vector3 = (_actor as Node as Node3D).position
+	(_actor as Node as Node3D).position.x += 10.0
+	assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(incident.demand_outcome, DEMAND.NONE)
+	(_actor as Node as Node3D).position = original
+	var wall: StaticBody3D = _obstacle(Vector3(0.0, 1.0, -1.0), Vector3(4.0, 3.0, 0.1))
+	await get_tree().physics_frame
+	assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(incident.demand_outcome, DEMAND.NONE)
+	wall.position.x += 10.0
+	await get_tree().physics_frame
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+
+
+func test_return_release_callback_cannot_capture_half_transfer_or_reroll_the_incident() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var observer: CaptureDuringRelease = CaptureDuringRelease.new()
+	observer.capture_root = self
+	observer.on_release = func() -> void:
+		assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+		assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	_world.add_observer(observer)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(observer.snapshots.size(), 1)
+	if not observer.snapshots.is_empty():
+		assert_true(observer.snapshots[0].is_empty())
+	assert_same(GrabQueries.held_object(_actor), _parcel)
+	assert_false(_flow.parcel_reaction_in_progress)
+	_world.remove_observer(observer)
+
+
+func test_return_release_callback_preserves_a_replacement_owner() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var observer: CaptureDuringRelease = CaptureDuringRelease.new()
+	observer.capture_root = self
+	observer.on_release = func() -> void:
+		_parcel.add_relationship(Relationship.new(R_HeldBy.new(), _customer))
+	_world.add_observer(observer)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_same(GrabQueries.held_object(_customer), _parcel)
+	assert_null(GrabQueries.held_object(_actor))
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	_world.remove_observer(observer)
+
+
+func test_demand_window_uses_native_patience_and_departure_without_resetting_the_clock() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	_agent.elapsed = _visit.definition.patience_seconds
+	assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(incident.demand_outcome, DEMAND.NONE)
+	_agent.phase = C_CustomerAgent.Phase.LEAVING
+	_agent.elapsed = 0.0
+	assert_true(DEMAND_ACTION.is_available(_actor, _customer, _customer))
+	_agent.elapsed = maxf(DEF_Customer.MINIMUM_LEAVING_SECONDS, _visit.definition.leaving_seconds)
+	assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(incident.demand_outcome, DEMAND.NONE)
+	assert_eq(_agent.elapsed, _visit.definition.leaving_seconds)
+	_agent.elapsed = 0.0
+	_visit.finished = true
+	assert_false(DEMAND_ACTION.complete(_actor, _customer, _customer))
+
+
+func test_return_callback_filling_carry_without_floor_preserves_pending_npc_grip() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var other: Entity = SECOND_PARCEL.instantiate() as Entity
+	EntityCompositionFixture.register(_world, other)
+	(other as Node as Node3D).position = Vector3(5.0, 1.0, 0.0)
+	var observer: CaptureDuringRelease = CaptureDuringRelease.new()
+	observer.capture_root = self
+	observer.on_release = func() -> void:
+		other.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	_world.add_observer(observer)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_same(GrabQueries.held_object(_actor), other)
+	assert_same(GrabQueries.held_object(_customer), _parcel)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.HELD)
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	_world.remove_observer(observer)
+	GrabReleaseService.release(_actor, other)
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_same(GrabQueries.held_object(_actor), _parcel)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+
+
+func test_return_callback_moving_player_away_cannot_acquire_the_stale_player_grip() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var observer: CaptureDuringRelease = CaptureDuringRelease.new()
+	observer.capture_root = self
+	observer.on_release = func() -> void:
+		(_actor as Node as Node3D).position.x += 10.0
+	_world.add_observer(observer)
+	var pose: Transform3D = (_parcel as Node as Node3D).global_transform
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_null(GrabQueries.held_relationship(_parcel))
+	assert_eq((_parcel as Node as Node3D).global_transform, pose)
+	assert_true(EntityAvailability.contains(_parcel, _world))
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+	_world.remove_observer(observer)
 #endregion

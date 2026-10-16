@@ -3619,12 +3619,14 @@
         "identity_for",
         "react",
         "remember",
-        "remember_promise"
+        "remember_promise",
+        "escalate_parcel_demand"
       ],
       "sources": [
         "content/services/npc/npc_delivery_offer_service.gd",
         "content/services/npc/npc_home_delivery_service.gd",
-        "content/services/npc/npc_service_role.gd"
+        "content/services/npc/npc_service_role.gd",
+        "content/domains/customers/services/customer_parcel_demand_service.gd"
       ],
       "method_rights": {
         "distrusts_player": "request",
@@ -3632,7 +3634,8 @@
         "react": "request",
         "remember": "request",
         "remember_promise": "request",
-        "apply_reaction": "request"
+        "apply_reaction": "request",
+        "escalate_parcel_demand": "request"
       },
       "public_instance_methods": []
     },
@@ -20418,6 +20421,121 @@
         "content/domains/persistence/rules/customer_parcel_incident_snapshot_rules.gd"
       ],
       "purpose": "Validate closed outcome enums and captured intimidation facts through the pure chooser; never execute or reroll a reaction."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "interaction",
+      "symbol": "C_GrabControl",
+      "path": "content/domains/interaction/components/c_grab_control.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_parcel_demand_queries.gd",
+        "content/domains/customers/rules/customer_parcel_demand_geometry.gd"
+      ],
+      "purpose": "Explicit parcel demand eligibility or read-only safe return geometry; no scheduled work or foreign state mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "interaction",
+      "symbol": "C_CarryLoad",
+      "path": "content/domains/interaction/components/c_carry_load.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_parcel_demand_queries.gd"
+      ],
+      "purpose": "Explicit parcel demand eligibility or read-only safe return geometry; no scheduled work or foreign state mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "interaction",
+      "symbol": "C_Interactable",
+      "path": "content/domains/interaction/components/c_interactable.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_parcel_demand_queries.gd"
+      ],
+      "purpose": "Explicit parcel demand eligibility or read-only safe return geometry; no scheduled work or foreign state mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcBloodQueries",
+      "path": "content/domains/npc/services/npc_blood_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "calmed"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "calmed": "query"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_parcel_demand_queries.gd"
+      ],
+      "purpose": "Explicit parcel demand eligibility or read-only safe return geometry; no scheduled work or foreign state mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "DEF_ItemPlacement",
+      "path": "content/shared/definitions/def_item_placement.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/rules/customer_parcel_demand_geometry.gd"
+      ],
+      "purpose": "Explicit parcel demand eligibility or read-only safe return geometry; no scheduled work or foreign state mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "ItemPlacementSolver",
+      "path": "content/shared/solvers/item_placement_solver.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [
+        "prepare",
+        "find"
+      ],
+      "method_rights": {
+        "new": "read"
+      },
+      "sources": [
+        "content/domains/customers/rules/customer_parcel_demand_geometry.gd",
+        "content/domains/customers/services/customer_parcel_demand_service.gd"
+      ],
+      "purpose": "Explicit parcel demand eligibility or read-only safe return geometry; no scheduled work or foreign state mutation."
     }
   ],
   "legacy_decomposition": []

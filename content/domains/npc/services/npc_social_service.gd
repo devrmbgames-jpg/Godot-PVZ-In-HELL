@@ -69,6 +69,13 @@ static func escalate_toy(body: E_DistrictNpc, actor: Entity, incident: StringNam
 	_commit_forced_offense(body, actor, incident)
 
 
+## Applies the already chosen parcel-demand attack once through normal memory/combat ownership.
+static func escalate_parcel_demand(
+	body: E_DistrictNpc, actor: Entity, incident: StringName,
+) -> void:
+	_commit_forced_offense(body, actor, incident)
+
+
 static func _commit_forced_offense(
 	body: E_DistrictNpc,
 	actor: Entity,
