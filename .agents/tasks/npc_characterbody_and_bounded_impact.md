@@ -1,7 +1,7 @@
 # НПЦ — CharacterBody3D и ограниченное отбрасывание
 
-Status: **IN_PROGRESS**
-Technical: **IN_PROGRESS**
+Status: **OWNER_QA**
+Technical: **COMPLETE**
 Execution order: **50**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/npc_characterbody_and_bounded_impact.md.txt).
@@ -43,8 +43,9 @@ both body velocity and retained response. Recovery queries only report contacts.
 proves no converted own-motion residue with zero own intent/gravity/deceleration; mixed wall
 pressure preserves gravity and recovers own8mps after release. Final native21/1016 also proves
 solid narrow passage/end geometry and authored Walk/Idle chosen from actual velocity rather
-than intent. No remaining runtime implementation finding; final matrix/test review and QA
-handoff are open. Rendered cases have not started (0/8).
+than intent. Final source-matrix/test review collected PASS at
+`d6f599dafc85af4d25f2b788a94aa75f5540a6ea`; no unresolved P0/P1/P2.
+Windows QA artifact and headless menu/level are ready; rendered cases have not started (0/8).
 
 ## Work packages
 
@@ -67,10 +68,9 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-Commit/review final matrix and two remaining source regressions. Prepare current Windows QA
-build and fill [.qa card](../../.qa/tasks/npc_characterbody_and_bounded_impact.md), then request
-task-specific approval for its six rendered cases (0/8). Preserve source identity/save/roles
-and explicit prototype tuning. Do not claim DONE or export QA PASS prematurely.
+Request task-specific approval for the six cases in the [.qa card](../../.qa/tasks/npc_characterbody_and_bounded_impact.md),
+then execute only that finite authorized budget. Preserve identity/save/roles and prototype
+tuning; no DONE until mandatory feel acceptance. Continue independent D2 while approval is pending.
 
 ## Validation / review
 
@@ -127,28 +127,26 @@ Focused district_population rerun7/64 PASS/CLEAN (`202431799`) includes the fina
 and duplicated-load cleanup. Scene migration remains reviewed; this is test isolation only.
 Fixture checkpoint review BASE `5a2cf2a66030b53d9faed4fc9d2fcf2e966316b2`,
 TARGET `41243ae7956505d6fceb008500e84403fc2b220a`: no findings, ARCHITECTURE/STYLE PASS,
-reviewer execution NOT_RUN. Current final test-only source-coverage checkpoint review NOT_RUN.
+reviewer execution NOT_RUN. Final source-coverage review BASE
+`f7dd1812540e9bfbba0bfdb7d95341743b188b44`, TARGET
+`d6f599dafc85af4d25f2b788a94aa75f5540a6ea`: no findings, ARCHITECTURE/STYLE PASS,
+reviewer execution NOT_RUN. Detailed Source matrix is in the QA card; no criterion was waived.
 Initial red runs and authoring failures retained in artifacts; not counted as acceptance.
 Scene/Traits migration used native PackedScene/ResourceSaver with no-write preflight and editor
 closed; incoming ShapeCast authored/saved with live MCP. Editor restarted through guarded launcher.
 No schema change: same recipe/identity paths; active/dormant on-disk reconstruction passes.
 
-### Source matrix reconciliation
+### Windows QA handoff
 
-| Mandatory contract | Actual technical evidence |
-| --- | --- |
-| All live NPC/customer/trader roots and Traits | Native room6/1452 across all ten archetypes, handoff14/125, remains7/76; native authoring preflight and reviewed scene diff. |
-| One shared callback; no copied player input | Foundation reviewed003af971; migration23e26a25 plus targeted5a2cf2a6; unbounded player8/41 unchanged branch. |
-| Combined caps, heavy/light/raw/barrel/throw damage | Final impact21/1016 plus contact6/40 and attribution4/18; real native impacts and committed actor receipts. |
-| Held spring, held support, release/throw | Final impact actual authored/raw grip cases, ordinary unheld platform retained; final shared carry92/438. |
-| Wall/corner/ceiling/narrow geometry; no latent launch | Final impact21/1016 checks real colliders, falling multi-normal corner, cache/body decomposition, release after blocked pressure. |
-| Freeze and stationary damage | Gaze16/122; physical hit fixture explicitly nonimmune, authored Angel immunity unchanged. |
-| Own speed, head look, terrain, delta, path/avoidance | Final impact actual12mps, independent head, step/slope, 60/120Hz; intent6/22, traffic12/81, final native navigation smoke. |
-| Actual animation/footsteps/attack callbacks | Final impact Walk/Idle against opposite intent; district7/64 and inherited fixture; attacks22/160. |
-| Dormancy/activation, death, placement/reset | Activation12/119, remains7/76, gaze transition/reset caches; no parallel mutable freeze owner. |
-| Stable identity/recipes, active/dormant restore | Disk participation snapshot9/162; no save schema change; incoming cache explicitly transient and cleared. |
-| Handoff/parcel slots/outcomes | Native handoff14/125 and parcel holder7/48; current dialogue demand48/614 independently passes. |
-| Subjective short push and held-wall stability | NOT_RUN, dedicated QA card,0/8; task-specific owner approval required. |
+Reviewed runtime SHA `d6f599dafc85af4d25f2b788a94aa75f5540a6ea`:
+`.export/windows/20261016-204405Z-d6f599da-npc-characterbody-bounded-verified/PVZInHell.exe`.
+`utils/export_windows.ps1` command PASS; exported menu/level120 frames each PASS, stderr0;
+`.export/LATEST.cmd` updated. Dirty flag is the preserved pre-existing addons/gecs metadata.
+First export's editor hot-reload DLL-copy error is absent after clean editor shutdown/re-export.
+Exporter shutdown Resource/RID category follows owner DEFERRED policy; generic ObjectDB and
+PagedAllocator remain UNKNOWN/mixed, not a diagnostic PASS. Raw export logs retained; no new
+retention investigation or engine-policy expansion. QA may target the reviewed native MCP runtime;
+exporter shutdown diagnostics are not evidence of a runtime Source-contract failure.
 
 ## Owner QA / blockers
 
