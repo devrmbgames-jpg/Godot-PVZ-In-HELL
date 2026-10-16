@@ -112,7 +112,7 @@ R1b настоящий cold process restart: **write/restore PASS**, изоли�
 creation seed 999 вместо write seed 11, затем восстановлены clock/IDs/name/home/scene/HP/
 visited/quest_stage. Native scene создана/сохранена через MCP. Логи tests/artifacts/:
 `npc_authored_people-write-20261017-080434055.log`,
-`npc_authored_people-restore-20261017-080442164.log`; stderr пустой.
+`npc_authored_people-restore-20261017-080442164.log`; combined logs без ошибок/предупреждений.
 Это ручной snapshot/disk smoke, не новая проверка scheduled Night pipeline.
 Новый smoke checkpoint ждёт отдельного immutable review.
 
