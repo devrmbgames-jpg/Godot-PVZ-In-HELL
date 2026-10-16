@@ -1,7 +1,7 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **OWNER_QA**
-Technical: **IN_PROGRESS**
+Technical: **COMPLETE**
 Execution order: **20**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/automatic_parcel_handover_and_wrong_recipient_reactions.md.txt).
@@ -25,9 +25,9 @@ Source: [полное исходное ТЗ и доказательства](ref
 Последний reviewed TARGET_SHA: `427799387733b0aea057db9e77ff894405307040`.
 Исходный BASE_SHA: `6ac1ac6e1ffbb8e8bd43a11b989bb8c8152e5dd9`.
 RV-001–RV-006 исправлены; полные source/fix SHA и проверки сохранены в Source.
-H4 начат: 5/8 случаев, 1/3 PASS, 2/4 INCONCLUSIVE, 5 приостановлен до H4-D01 review.
+H4: 5/8 случаев; 1/3/5 PASS, 2/4 INCONCLUSIVE, 6–8 NOT_RUN.
 H4-QA-001 исправлен/reviewed, затем владелец уточнил обязательный dialogue-only UX.
-Текущий технический gate IN_PROGRESS: перенос требования в диалог до продолжения H4.
+H4-D01 технически COMPLETE/reviewed; текущая игровая приёмка остаётся OWNER_QA.
 
 ## Work packages
 
@@ -36,7 +36,7 @@ H4-QA-001 исправлен/reviewed, затем владелец уточни�
 | H1 | Автовыдача и отказ: M1a/b + M2a/b, выполнено и reviewed. |
 | H2 | Физические реакции и фактическое содержимое: M2c/d, выполнено и reviewed. |
 | H3 | Присвоение, возврат, запугивание и судьба заказа: M2e/f, выполнено и reviewed. |
-| H4 | Разрешено до8 случаев; начато5/8, 1/3 PASS, 2/4 INCONCLUSIVE, 5 требует ремонта ввода. |
+| H4 | Разрешено до8 случаев; начато5/8, 1/3/5 PASS, 2/4 INCONCLUSIVE, остаются6–8. |
 
 Не переделывать H1–H3 ради нового разбиения. Возврат к коду — только по конкретному
 дефекту либо изменившемуся контракту; проверять затронутые гарантии, не всю историю.
@@ -50,8 +50,7 @@ GrabService и save-codec, перечисленных в Source. H4 не бло�
 
 ## Next
 
-Завершить H4-D01: dialog-only migration → native gates → отдельный коммит → exact-SHA review/triage.
-После этого продолжить уже начатый случай5 и оставшиеся6–8 из
+Выполнить оставшиеся разрешённые случаи6–8 из
 [QA-карточки](../../.qa/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md).
 Не повторять завершённые случаи2/4 и не заменять их INCONCLUSIVE на PASS.
 Повторное разрешение на те же восемь случаев не требуется.
@@ -91,7 +90,11 @@ TARGET `823faf152b67ce30ae682aac38a4c37f76664a26`, PASS/no findings; новый 
 ATTACK/RETURN, pending claim/codec without reroll, departure clock, stale Component rejection.
 Финальная native проверка48/48,614 assertions,stderr0 (`gut-20261016-171241352.*.log`);
 обычный customer_dialogue15/15,272 assertions,stderr0 (`gut-20261016-171100325.*.log`).
-Финальные lifecycle guards включены в этот запуск. Review: REVIEW_PENDING до отдельного коммита.
+Финальные lifecycle guards включены в этот запуск. Review terminal PASS/no findings: BASE `823faf152b67ce30ae682aac38a4c37f76664a26`,
+TARGET `085f14111a20078d393e0ad4556bf782a4309ec3`; reviewer execution NOT_RUN.
 MCP8 checked/empty; formatter8/strict architecture0/structure PASS. Domain edges объявлены явно.
-H4 case5 в продолжении, не PASS; попытка подготовки с ошибочным QA-only API остановлена.
-Новых завершённых rendered случаев нет: 5/8 started, C4 0/8. Не повторять2/4.
+H4 case5 PASS: native F/Talk + mouse response, retained Carry/one incident/RETURN,
+actual settled floor support/minY≈−2e−7/native shape0 obstacles, velocity≈0; no payment/order
+resolution. Evidence `.artifacts/parcel-h4-ca63af48/05-dialogue-{observation.json,choice.png,return.png}`.
+Историческая подготовка с ошибочным QA-only API остановлена, это не gameplay failure.
+5/8 started:1/3/5 PASS,2/4 INCONCLUSIVE;6–8 NOT_RUN. C4 0/8. Не повторять2/4.
