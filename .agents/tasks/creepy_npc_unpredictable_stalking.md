@@ -1,7 +1,7 @@
 # Жуткий — скрытное сближение и сервисный контакт
 
 Status: **OWNER_QA**
-Technical: **IN_PROGRESS**
+Technical: **COMPLETE**
 Execution order: **10**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/creepy_npc_unpredictable_stalking.md.txt).
@@ -49,7 +49,7 @@ CustomerVisit.stalking_visit_count — durable; C_Agent/target Relationship/rout
 | C1 | M1/M2: свободные эпизоды, сохранённые паузы/выборы, отмены. COMPLETE, не повторять. |
 | C2 | M3a: безопасная native вставка в BT через companion MCP. COMPLETE, не переизобретать. |
 | C3 | Закончить существующий M3b целиком: rear SERVICE → arrive → обнаружение/номер → handoff/осмотр → сохранение/загрузка. COMPLETE. |
-| C4 | Использовано7/8; case8 ещё разрешён/NOT_RUN. Case1 PASS только skip; cases2–6 INCONCLUSIVE в целом. Case7 обнаружил RV-002, номер после реального обнаружения не объявлен. |
+| C4 | Лимит8/8 исчерпан. Case1 PASS только skip; cases2–8 INCONCLUSIVE в целом. Технические RV-002/RV-003 исправлены/reviewed; полная owner acceptance открыта. |
 
 C3 — один согласованный пакет реализации/проверок/ревью, не отдельное ревью каждого
 поля schema или leaf. Не добавлять новые хоррор-механики и не переписывать C1/C2 без дефекта.
@@ -64,10 +64,10 @@ C3 использует технически принятый [общий handof
 
 ## Next
 
-Выполнить разрешённые C4 случаи по
-[QA-карточке](../../.qa/tasks/creepy_npc_unpredictable_stalking.md): собрать targeted cycle2 review
-RV-003 (dialogue-only traits) до зависимого case8; RV-002 default MANUAL regression PASS.
-Остался один разрешённый rendered case; расширять бюджет/повторять закрытые случаи нельзя.
+Продолжить независимую [CharacterBody migration P1](npc_characterbody_and_bounded_impact.md).
+C4 закончился в пределах разрешённых8/8; дополнительные rendered случаи требуют нового разрешения.
+Сохранить OWNER_QA: surprise/variation, дальний поворот, полный cooldown reload, rear handoff/inspection
+и прямое прерывание активного обхода не доказаны этим bounded run; полный scope не отменяется.
 Parcel dialogue migration085f14111a20078d393e0ad4556bf782a4309ec3 reviewed PASS/no findings;
 финальный H4 использовал8/8, повторять нельзя. Runner Q1/Q2 archived. Не объявлять task DONE до C4.
 
@@ -95,12 +95,13 @@ Comment-only MCP hot reload initially returned43; subsequent native path diagnos
 C3 baseline review: RV-001 FIXED; targeted re-review PASS/no findings,repair1/2 (SHA выше).
 QA docs review BASE `d7fbb8f6a06d2cd30acbe5235bb7098364200e92`, TARGET
 `4ba8dddc15225808e09b0ef3558a805203ea7145`: PASS/no findings, execution NOT_RUN.
-Rendered C4:7/8 использовано; полная приёмка остаётся открытой, RV-002 блокирует disclosure.
+Rendered C4:8/8 использовано; полная приёмка остаётся открытой, блокирующих technical findings нет.
 
-RV-002 — ACCEPTED P1, CustomerGreetingService.announce_order: uses_quick_visit отклоняет
-реальный default MANUAL визит после заднего контакта/обнаружения. Case7: физический контакт,
-дистанция1.41м, memory1, pending=false, зарегистрированный номер4, order_announced=false,
-message="Хрип · за посылкой". `.artifacts/creepy-c4-085f/07-observation.json`.
+RV-002 — FIXED P1 в `b123ea89aad16f5952d9264f214c07eed0e9155a`: CustomerGreetingService
+отклонял default MANUAL без dialogue-only traits после обнаруженного заднего контакта;
+это отдельно доказала red native regression. Уточнение case7: seed1 детерминированно выбирает
+RIDDLE/trait_6, поэтому исходная тишина этого экземпляра корректна и не доказывает RV-002.
+Raw evidence и correction сохранены в `.artifacts/creepy-c4-085f/07-observation.json`.
 Исправление использует существующий достигнутый service_contact_position и visibility guard
 rear_contact_pending; обычный manual visit остаётся без автообъявления, registry/once guards сохранены.
 Red native39:38PASS/1FAIL (новая default policy проверка, `gut-20261016-175904455.*.log`).
@@ -108,20 +109,25 @@ Green native39/336,stderr0 PASS (`gut-20261016-180035798.*.log`), MCP2 checked/e
 formatter2, strict architecture0, structure/diff PASS. Reload43 был transient; native path diagnostic
 и fresh-process GUT чистые. Review BASE `4ba8dddc15225808e09b0ef3558a805203ea7145`, TARGET
 `02dc58cac23f35a43d00620b606f4853abf0dbb0`: R1 P2 ACCEPTED как RV-003; execution NOT_RUN.
-Technical IN_PROGRESS; targeted repair/re-review cycle2/2, REVIEW_PENDING.
+Targeted review cycle2/2 собран: BASE `02dc58cac23f35a43d00620b606f4853abf0dbb0`, TARGET
+`b123ea89aad16f5952d9264f214c07eed0e9155a`: PASS/no findings; reviewer execution NOT_RUN.
 
-RV-003 — ACCEPTED P2: исключение finite-contact обходило authored RIDDLE/PROVOCATEUR,
+RV-003 — FIXED P2 в том же b123ea89: исключение finite-contact обходило authored RIDDLE/PROVOCATEUR,
 могло расходовать order_announced на загадке или раскрывать номер до провокационного диалога.
 CustomerPresentation теперь разрешает rear-исключение только для MANUAL без dialogue-only traits;
 существующие quick/trait правила используют общий predicate, pending/phase/registry/once сохранены.
 Native регрессии выбрали реальные RIDDLE и PROVOCATEUR definitions в собственном fixture profile;
 обычный/скрытый/обнаруженный контакт сохраняет их исключения и не расходует order_announced.
 Native GUT41/367 PASS/stderr0 (`gut-20261016-180510998.*.log`), MCP3 checked/empty,
-formatter3/strict architecture0/structure/diff PASS. Re-review pending, cycle2/2.
+formatter3/strict architecture0/structure/diff/staged PASS. Re-review PASS, cycle2/2.
+Windows QA build `20261016-181256Z-b123ea89-creepy-rear-manual-policy`: export exit0,
+menu120/level120 headless PASS; exported player_qa=PENDING. Export shutdown output remains
+UNKNOWN/mixed (ObjectDB422/Resource152/PagedAllocator + dummy Texture RID12), raw logs retained;
+functional PASS is not diagnostics CLEAN. Link/build metadata in QA-карточке.
 
 ## Owner QA / blockers
 
-Владелец разрешил до8 C4 rendered/playtest случаев 2026-10-17; использовано7/8.
+Владелец разрешил до8 C4 rendered/playtest случаев 2026-10-17; использовано8/8, повторов не запускать.
 Case1 PASS только ветки пропуска; case2 INCONCLUSIVE в целом, ограниченность подхода и отсутствие reroll подтверждены.
 Бюджет отдельный от parcel H4. Приёмка остаётся открытой до фактических результатов.
 После C3 установить OWNER_QA и перейти к следующей готовой задаче, не объявляя весь task DONE.
@@ -134,5 +140,8 @@ notice=-1/memories0. Вариативность между opportunities и су
 Case4: actual mouse detection/TALK/cooldown и native Esc pause подтверждены; save/reload/30s
 не доказаны из-за QA seed/reset fixture ошибок. Cases5–7 используют корректный seed до генерации,
 variation mismatches0; case6 full can_restore PASS. Очередь/source once подтверждены частично;
-case6 не достиг контакта, case7 достиг и обнаружил RV-002. Подробности `04–07-observation.json`
-и QA-карточка. Все rendered cases ограничены общим бюджетом8; подготовка не выдаётся за PASS.
+case6 не достиг контакта, case7 достиг; его номер скрывал выбранный RIDDLE, классификация исправлена.
+Case8 seed2/traits empty: реальный E/диалог/Esc после отменённого обхода, тот же role/visit,
+reservation1/source1/sequence1, orders0/payment0, can_restore PASS; прямое rear interruption не доказано.
+Подробности `04–08-observation.json`, просмотренный `08-dialogue.png` и QA-карточка.
+Весь task остаётся OWNER_QA, не DONE; budget8 исчерпан, подготовка не выдаётся за PASS.
