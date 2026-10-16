@@ -43,6 +43,11 @@ Missing authoring data permits labelled reversible prototypes, not invented fina
 
 ## Scope control
 
+For substantial gameplay features, use [modular-gameplay-design](../modular-gameplay-design/SKILL.md)
+before defining work packages. Each package names its observable result, state owner,
+required provider contracts, affected consumers, exclusions and acceptance checks.
+Map every original requirement to a package; do not create a second task/plan authority.
+
 Goal and full acceptance remain binding, including preserved source requirements.
 One coherent behavior package includes its required lifetime/persistence checks;
 do not split a single transaction into unchecked partial layers or reopen accepted
