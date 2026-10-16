@@ -335,6 +335,22 @@ func test_response_prefixes_preserve_authored_text_and_routing_tags() -> void:
 
 ## Авторский ресурс содержит прямую выдачу, отказы и загадки; тест освобождает ссылки строк на
 ## ресурс.
+func test_legacy_customer_speaker_reads_authored_name_and_closed_context_is_empty() -> void:
+	_visit.definition.display_name = "Именной посетитель"
+	var resource: DialogueResource = load(CustomerDialogueService.DIALOGUE_PATH) as DialogueResource
+	var first: DialogueLine = await resource.get_next_dialogue_line("direct", [{ "ctx": _context }])
+	assert_eq(first.character, "Именной посетитель")
+	_visit.definition.display_name = "Другое имя посетителя"
+	var refreshed: DialogueLine = await resource.get_next_dialogue_line(
+		"direct",
+		[{ "ctx": _context }],
+	)
+	assert_eq(refreshed.character, "Другое имя посетителя")
+	_context.invalidate()
+	assert_eq(_context.speaker_name(), "")
+	DialogueResourceLifecycle.release_runtime_references(resource)
+
+
 func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	var resource: DialogueResource = load(CustomerDialogueService.DIALOGUE_PATH) as DialogueResource
 	assert_not_null(resource)
@@ -343,7 +359,7 @@ func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 		[{ "ctx": _context }],
 	)
 	assert_not_null(direct)
-	assert_eq(direct.character, "Клиент")
+	assert_eq(direct.character, _visit.definition.display_name)
 	var deny_start: DialogueLine = (
 		await resource.get_next_dialogue_line("deny_start", [{ "ctx": _context }])
 	)

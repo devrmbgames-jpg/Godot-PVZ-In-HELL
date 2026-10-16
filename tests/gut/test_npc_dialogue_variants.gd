@@ -110,6 +110,66 @@ func test_legacy_actor_and_empty_committed_path_keep_role_fallback() -> void:
 #endregion
 
 
+#region Dynamic personal speaker names
+func test_all_authored_speaker_resources_compile_with_the_pinned_dialogue_manager() -> void:
+	var paths: Array[String] = [
+		CustomerDialogueService.DIALOGUE_PATH,
+		CustomerDialogueService.PARCEL_DIALOGUE_PATH,
+		"res://content/domains/customers/dialogue/customer_prototype.dialogue",
+	]
+	var root: String = "res://content/domains/npc/dialogue/archetypes"
+	for archetype: String in DirAccess.get_directories_at(root):
+		for variant: String in ["variant_a.dialogue", "variant_b.dialogue"]:
+			paths.append(root.path_join(archetype).path_join(variant))
+	assert_eq(paths.size(), 23)
+	# Headless compiler fixtures register the two real source imports without editor-wide scanning.
+	DMCache.add_file(NpcDialogueService.DIALOGUE_PATH)
+	DMCache.add_file(CustomerDialogueService.DIALOGUE_PATH)
+	for path: String in paths:
+		var compiled: DMCompilerResult = DMCompiler.compile_string(
+			FileAccess.get_file_as_string(path),
+			path,
+		)
+		assert_eq(compiled.errors.size(), 0, path)
+		var resource: DialogueResource = _resource(path)
+		assert_not_null(resource)
+		assert_eq(resource.get_meta("dialogue_manager_version"), "4.1.0")
+
+
+func test_same_archetype_people_keep_their_names_across_street_and_service_branches() -> void:
+	var profile: DEF_NpcArchetype = load(LOST_PATH) as DEF_NpcArchetype
+	var names: Array[String] = ["Первый сосед", "Второй сосед"]
+	for index: int in 2:
+		var person: NpcRecord = _district.people[index]
+		person.profile = profile
+		person.variation = NpcVariationRules.create(profile, 1234, person.npc_id, 1)
+		person.variation.display_name = names[index]
+		var body: E_DistrictNpc = _stage(person)
+		var street: NpcStreetDialogueContext = NpcStreetDialogueContext.new(_player, body)
+		assert_true(street.begin())
+		var resource: DialogueResource = _resource(profile.dialogue_variants[0])
+		for cue: String in ["street", "neighborhood", "goods"]:
+			var line: DialogueLine = await _line(resource, street, cue)
+			assert_eq(line.character, names[index])
+		assert_eq(street.sn(), names[index], "Preserve the existing authored alias")
+		street.end()
+		assert_eq(street.speaker_name(), "")
+		var visit: CustomerVisit = _case(person, "speaker_%d" % index)
+		visit.definition = DEF_Customer.new()
+		visit.definition.display_name = "Общее имя клиента"
+		var service: CustomerDialogueContext = _service_context(body, visit)
+		for cue: String in ["direct", "deny_start"]:
+			var line: DialogueLine = await _line(resource, service, cue)
+			assert_eq(line.character, names[index])
+		person.variation.display_name += "!"
+		var refreshed: DialogueLine = await _line(resource, service, "direct")
+		assert_eq(refreshed.character, names[index] + "!")
+		service.end()
+		assert_eq(service.speaker_name(), "")
+		NpcServiceRole.release(body, visit.visit_id)
+#endregion
+
+
 #region Real context flows and panel routing
 func test_unregistered_customer_variants_require_scanning_without_outcome_mutation() -> void:
 	var person: NpcRecord = _lost_person()

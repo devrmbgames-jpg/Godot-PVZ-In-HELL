@@ -1,5 +1,5 @@
 ~ parcel_demand
-Клиент: Чего тебе?
+{{ctx.speaker_name()}}: Чего тебе?
 - Эй, это не твоя посылка, а ну верни. [if not ctx.parcel_return_pending() /] => demand
 - Забрать посылку. [if ctx.parcel_return_pending() /] => demand
 - Закончить разговор. => END

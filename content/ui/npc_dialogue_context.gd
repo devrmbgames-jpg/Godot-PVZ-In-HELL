@@ -41,6 +41,17 @@ func can_continue() -> bool:
 	return false
 
 
+## Читает актуальное имя постоянной личности; закрытый контекст или отсутствие личности дают "".
+## Конкретный адаптер обычного клиента предоставляет имя из его авторских данных.
+func speaker_name() -> String:
+	if not is_valid():
+		return ""
+	var person: NpcRecord = NpcPopulationQueries.person_for(
+		NpcSocialService.identity_for(_delivery_npc()),
+	)
+	return person.display_name if person != null else ""
+
+
 ## Сохраняет авторский текст, пока конкретный адаптер не изменяет восприятие игрока.
 func perceived_text(actual_text: String) -> String:
 	return actual_text

@@ -50,6 +50,11 @@ func is_valid() -> bool:
 	)
 
 
+## Разрешает текущего физического собеседника для общего read-only имени личности.
+func _delivery_npc() -> E_DistrictNpc:
+	return _customer_reference.get_ref() as E_DistrictNpc
+
+
 func can_continue() -> bool:
 	return is_valid()
 

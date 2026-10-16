@@ -106,6 +106,16 @@ func is_customer_service() -> bool:
 	return true
 
 
+## Читает имя текущей районной личности или авторское имя обычного клиента без записи.
+func speaker_name() -> String:
+	if not is_valid():
+		return ""
+	if _customer is E_DistrictNpc:
+		return super.speaker_name()
+	var visit: CustomerVisit = _visit()
+	return visit.definition.display_name if visit.definition != null else ""
+
+
 ## Читает интересы постоянной личности или правила старого клиента.
 func interests_text() -> String:
 	var visit: CustomerVisit = _visit()
