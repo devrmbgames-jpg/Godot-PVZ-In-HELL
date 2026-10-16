@@ -7,6 +7,13 @@ const PILOT_PATH: String = (
 const SAVE_PATH: String = "user://gut_npc_authored_population.pvzh"
 const ENTITY_SCRIPT: Script = preload("res://addons/gecs/ecs/entity.gd")
 
+
+## Минимальный level contract исключает доступ к обычному autosave при GameWorld startup.
+class FixtureLevel extends Node3D:
+	## Пустой слот отключает загрузку пользовательской кампании.
+	var autosave_path: String = ""
+
+
 var _root: Node3D
 var _world: World
 var _district: C_District
@@ -14,12 +21,12 @@ var _district: C_District
 
 #region Real district fixture
 func before_each() -> void:
-	_root = Node3D.new()
+	_root = FixtureLevel.new()
 	add_child(_root)
 	var marker: Node3D = Node3D.new()
 	marker.name = "District"
 	_root.add_child(marker)
-	_world = World.new()
+	_world = _make_world()
 	_root.add_child(_world)
 	ECS.world = _world
 	DialogueUiFixture.install()
@@ -36,6 +43,16 @@ func before_each() -> void:
 	_world.add_entity(owner)
 	_district = owner.get_component(C_District) as C_District
 	assert_true(DistrictPopulationService.initialize())
+	if _world is GameWorld:
+		var production_world: GameWorld = _world as GameWorld
+		production_world.finish_startup()
+		assert_true(production_world.composition_ready())
+		assert_true(DistrictPopulationService.prepare_morning(1).succeeded)
+
+
+## Простые contract-тесты используют native World; lifecycle suites выбирают GameWorld.
+func _make_world() -> World:
+	return World.new()
 
 
 func after_each() -> void:

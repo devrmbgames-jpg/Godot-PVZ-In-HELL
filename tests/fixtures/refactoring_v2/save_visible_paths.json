@@ -1,5 +1,5 @@
 {
-  "schema": 28,
+  "schema": 29,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -325,6 +325,10 @@
     {
       "symbol": "NpcRecord",
       "path": "res://content/domains/npc/contracts/npc_record.gd"
+    },
+    {
+      "symbol": "NpcDeathRecord",
+      "path": "res://content/domains/npc/contracts/npc_death_record.gd"
     },
     {
       "symbol": "NpcVariation",

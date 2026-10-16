@@ -43,6 +43,7 @@ static var _component_fields: Dictionary = {
 static var _record_types: Array[Script] = [
 	GameClock,
 	NpcRecord,
+	NpcDeathRecord,
 	NpcVariation,
 	NpcMemory,
 	NpcHomeDelivery,

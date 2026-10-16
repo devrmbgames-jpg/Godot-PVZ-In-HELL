@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bljfosythvvec"]
+
+[ext_resource type="Script" path="res://tests/smoke/npc_guest_life_smoke.gd" id="1_vdnpx"]
+
+[node name="NpcGuestLifeSmoke" type="Node" unique_id=306976809]
+script = ExtResource("1_vdnpx")

@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="DEF_District" format=3 uid="uid://d0q5mlx4ipndk"]
+
+[ext_resource type="Script" uid="uid://c560octi1xf2f" path="res://content/domains/npc/definitions/def_npc_person.gd" id="1_f5blv"]
+[ext_resource type="Resource" uid="uid://3t04cnvpk0a7" path="res://content/domains/npc/definitions/def_npc_person_lost_life_prototype.tres" id="2_yd21f"]
+[ext_resource type="Script" uid="uid://3jqx0cuvmvqq" path="res://content/domains/npc/definitions/def_district_place.gd" id="3_yhpyb"]
+[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="4_cwrut"]
+[ext_resource type="Resource" uid="uid://dunp6n0tle7cv" path="res://content/domains/npc/definitions/def_npc_archetype_lost_visitor.tres" id="5_rseex"]
+[ext_resource type="Script" uid="uid://hvheqqr7idk0" path="res://content/domains/npc/definitions/def_district.gd" id="6_71d2n"]
+
+[sub_resource type="Resource" id="Resource_chf6p"]
+script = ExtResource("3_yhpyb")
+kind = 1
+position = Vector3(66, 0, 8)
+neighbours = PackedStringArray()
+key = &"portal_east"
+
+[sub_resource type="Resource" id="Resource_p53g3"]
+script = ExtResource("3_yhpyb")
+kind = 1
+position = Vector3(56, 0, -12)
+neighbours = PackedStringArray()
+key = &"portal_north"
+
+[resource]
+script = ExtResource("6_71d2n")
+replacement_names = PackedStringArray("Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник")
+shade_route = PackedStringArray()
+profiles = Array[ExtResource("4_cwrut")]([ExtResource("5_rseex")])
+authored_people = Array[ExtResource("1_f5blv")]([ExtResource("2_yd21f")])
+places = Array[ExtResource("3_yhpyb")]([SubResource("Resource_chf6p"), SubResource("Resource_p53g3")])
+resident_count = 0
+visitor_count = 1
+terminal_delivery_minimum = 0
+terminal_delivery_maximum = 0
+personal_delivery_probability = 0.0
+personal_delivery_daily_minimum = 0
+key = &"lost_life_prototype"

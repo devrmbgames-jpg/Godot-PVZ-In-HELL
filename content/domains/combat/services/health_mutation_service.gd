@@ -3,6 +3,20 @@ extends RefCounted
 class_name HealthMutationService
 
 
+#region Explicit life restoration
+## Явная новая жизнь восстанавливает текущий максимум; обычное лечение истощение не снимает.
+## Календарь и удаление C_Death остаются у вызывающего lifecycle owner.
+static func restore_life(health: C_Health) -> bool:
+	if not is_finite(health.value) or health.value <= 0.0:
+		return false
+	health.begin_transaction()
+	health.depleted = false
+	health.current = health.value
+	health.end_transaction()
+	return true
+#endregion
+
+
 #region Common Health calculation
 ## Synchronously validates/resolves one request against the caller's World and live C_Health.
 ## Mutates health and fills result before return; rejection fills reason without changing HP.
@@ -38,8 +52,8 @@ static func apply(
 		return
 
 	if (
-		not is_finite(request.minimum_health_fraction)
-		or request.minimum_health_fraction < 0.0 or request.minimum_health_fraction > 1.0
+		not is_finite(request.minimum_health_fraction) or request.minimum_health_fraction < 0.0
+		or request.minimum_health_fraction > 1.0
 		or (
 			request.operation != DamageRequest.Operation.DAMAGE
 			and request.minimum_health_fraction != 0.0
@@ -74,7 +88,8 @@ static func apply(
 	)
 	var signed_amount: float = effective_amount if is_heal else -effective_amount
 	var lower_bound: float = minf(
-		result.previous_value, health.value * request.minimum_health_fraction,
+		result.previous_value,
+		health.value * request.minimum_health_fraction,
 	)
 	result.current_value = clampf(result.previous_value + signed_amount, lower_bound, health.value)
 	result.applied_amount = absf(result.current_value - result.previous_value)

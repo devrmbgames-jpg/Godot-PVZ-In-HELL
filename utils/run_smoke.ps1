@@ -156,6 +156,8 @@ foreach ($scene in $selectedScenes) {
 		"trader_purchase" = "Trader purchase smoke"
 		"night_persistence" = "Night persistence smoke"
 		"npc_authored_people" = "Authored people smoke"
+		"npc_life_cycle" = "NPC life smoke"
+		"npc_guest_life" = "NPC guest life smoke"
 		"morning_truck" = "Morning truck smoke"
 		"district_release" = "District release smoke"
 	}

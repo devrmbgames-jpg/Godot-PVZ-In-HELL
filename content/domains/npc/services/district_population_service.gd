@@ -426,12 +426,19 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 	if person.death_day != 0:
 		return
 
+	var district: C_District = NpcPopulationQueries.current()
+	if not district.definition.authored_people.is_empty():
+		var episode: NpcDeathRecord = NpcDeathRecord.new()
+		episode.sequence = person.deaths.size() + 1
+		episode.day = day_index
+		person.deaths.append(episode)
+		# Guard предшествует callback добычи/cleanup, чтобы одна смерть не создала два эпизода.
+		person.death_day = day_index
 	NpcRemainsService.release(body)
 	body.request_role_cleanup(NpcRoleCleanupRequest.Kind.DEATH, day_index)
 	person.death_day = day_index
 	person.phase_complete = true
 	set_placement(person, body, NpcRecord.Placement.DEAD)
-	var district: C_District = NpcPopulationQueries.current()
 	if not district.definition.authored_people.is_empty():
 		return
 	var living_residents: int = 0
@@ -446,9 +453,65 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 		district.replacement_morning = day_index + district.definition.replacement_delay_days
 
 
+## Разовая календарная операция: возвращает due личности в прежние тела при свободном месте.
+## Не вызывается System tick; O_DistrictLifecycle затем назначает обязательства актуальной фазы.
+static func return_due(district: C_District, day_index: int) -> Array[NpcRecord]:
+	var returned: Array[NpcRecord] = []
+	if district.definition.authored_people.is_empty():
+		return returned
+	var world: World = ECS.world
+	for person: NpcRecord in district.people:
+		if not NpcLifeRules.return_due(person, day_index):
+			continue
+		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+		assert(body != null, "Authored return requires the retained physical body")
+		var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+		if decision.participation_committing:
+			continue
+		var origin: StringName = person.home_id if person.profile.resident else person.portal_id
+		var position: Vector3 = NpcPopulationQueries.position_for(origin, true)
+		if not NpcActivationSolver.available(body, position):
+			continue
+		var health: C_Health = body.get_component(C_Health) as C_Health
+		if not HealthMutationService.restore_life(health):
+			continue
+		# Attribute callbacks are a real lifetime boundary before publishing the new life.
+		if ECS.world != world or NpcPopulationQueries.current() != district:
+			return returned
+		# Dormant bodies are disabled; active-only contains() does not describe their lifetime.
+		if (
+			not is_instance_valid(body) or not body.is_inside_tree()
+			or body.is_queued_for_deletion() or not world.entity_to_archetype.has(body)
+			or body.get_component(C_Health) != health
+		):
+			continue
+		reset_brain(body)
+		person.deaths.back().returned_day = day_index
+		person.death_day = 0
+		person.planned_day = 0
+		person.planned_phase = -1
+		person.goal_id = &""
+		person.phase_complete = false
+		body.remove_component(C_Death)
+		var motion: C_Motion = body.get_component(C_Motion) as C_Motion
+		motion.control_enabled = true
+		var hunger: C_Hunger = body.get_component(C_Hunger) as C_Hunger
+		hunger.value = district.definition.npc_start_hunger
+		var remains: C_NpcRemains = body.get_component(C_NpcRemains) as C_NpcRemains
+		remains.released = false
+		body.sync_death_presentation()
+		var placement: NpcRecord.Placement = (
+			NpcRecord.Placement.HOME if person.profile.resident else NpcRecord.Placement.OUTSIDE
+		)
+		set_placement(person, body, placement, &"calendar_return", false, position)
+		NpcBrainService.bind_engine(body)
+		returned.append(person)
+	return returned
+
+
 ## Materializes one bounded replacement wave for an explicitly supplied future morning.
 static func replace_vacancies(district: C_District, morning_day: int) -> void:
-	# Авторскому составу нельзя создавать случайного преемника; календарный возврат — R2.
+	# Авторские личности возвращаются через return_due; случайный преемник им не назначается.
 	if not district.definition.authored_people.is_empty():
 		return
 	var locals_alive: int = 0

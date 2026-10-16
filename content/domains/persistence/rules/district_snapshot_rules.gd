@@ -85,6 +85,11 @@ static func valid(
 		):
 			return false
 		if authored:
+			if (
+				not identities.has(person.npc_id)
+				or not NpcLifeRules.valid_history(person, morning_day)
+			):
+				return false
 			var card: DEF_NpcPerson = district.definition.person_for(person.npc_id)
 			if not NpcAuthoredPersonRules.matches(card, person):
 				return false
@@ -97,7 +102,7 @@ static func valid(
 				):
 					return false
 		elif (
-			not district.definition.profiles.has(person.profile)
+			not person.deaths.is_empty() or not district.definition.profiles.has(person.profile)
 			or not NpcVariationRules.valid_variation(
 				person.profile,
 				person.variation,

@@ -53,7 +53,7 @@ class_name DEF_District
 ## Постоянные дома, проходы, занятия и узлы маршрутов.
 @export var places: Array[DEF_DistrictPlace] = []
 ## Целевое количество местных жителей.
-@export_range(1, 64) var resident_count: int = 8
+@export_range(0, 64) var resident_count: int = 8
 ## Целевое количество постоянных приезжих.
 @export_range(0, 64) var visitor_count: int = 4
 ## Количество вакансий для запуска местного заселения.

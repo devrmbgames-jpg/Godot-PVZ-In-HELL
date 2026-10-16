@@ -22,6 +22,7 @@ const SAVE_FIELDS: Array[String] = [
 	"blood_offer_sequence",
 	"blood_offers",
 	"death_day",
+	"deaths",
 	"activity_sequence",
 	"cadence_sample_tick",
 	"cadence_elapsed_ticks",
@@ -76,8 +77,10 @@ var display_name: String:
 @export var blood_offer_sequence: int = 1
 ## Personal durable blood offers/receipts; no live participant references or duplicate HP state.
 @export var blood_offers: Array[BloodConsentRecord] = []
-## День окончательной смерти; у живой личности равен нулю.
+## День текущей смерти; между жизнями ноль, завершённые эпизоды остаются в deaths.
 @export var death_day: int = 0
+## Последовательные эпизоды авторской жизни; DistrictPopulationService — writer календаря.
+@export var deaths: Array[NpcDeathRecord] = []
 ## Последовательность занятий сохраняет выбор при перезагрузке.
 @export var activity_sequence: int = 0
 
@@ -87,7 +90,6 @@ var display_name: String:
 ## Retained active AI interval in microsecond ticks; S_NpcCadence owns accumulation/consumption.
 @export var cadence_elapsed_ticks: int = 0
 #endregion
-
 
 #region Durable stalking opportunities
 ## Last committed opportunity, including skipped/interrupted attempts; never reset by the brain.

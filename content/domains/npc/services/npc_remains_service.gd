@@ -60,7 +60,16 @@ static func release(npc: Entity) -> void:
 		)
 
 	state.released = true
-	LootDropService.enqueue(queue, "npc/" + npc.id + "/remains", items, template, origins)
+	var batch_key: String = "npc/" + npc.id + "/remains"
+	var identity: C_NpcIdentity = npc.get_component(C_NpcIdentity) as C_NpcIdentity
+	var district: C_District = NpcPopulationQueries.current()
+	if (
+		identity != null and district != null
+		and district.definition.person_for(identity.npc_id) != null
+	):
+		var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
+		batch_key = "%s/death/%d/remains" % [person.npc_id, NpcLifeRules.death_sequence_for(person)]
+	LootDropService.enqueue(queue, batch_key, items, template, origins)
 	var character: E_NpcCharacter = npc as E_NpcCharacter
 	if character != null:
 		character.sync_death_presentation()

@@ -10,6 +10,13 @@ const RESTORE_CREATION_SEED: int = 999
 const EXPECTED_HEALTH: float = 41.0
 const ENTITY_SCRIPT: Script = preload("res://addons/gecs/ecs/entity.gd")
 
+
+## Пустой startup slot отделяет fixture от сохранения обычной кампании.
+class FixtureLevel extends Node3D:
+	## Gameplay-пути пользователя здесь не читаются.
+	var autosave_path: String = ""
+
+
 var _failed: bool = false
 var _root: Node3D
 var _world: World
@@ -34,7 +41,8 @@ func _run() -> void:
 	if restoring:
 		_cleanup_slot()
 	print(
-		"Authored people smoke ",
+		_completion_prefix(),
+		" ",
 		"restore" if restoring else "write",
 		": ",
 		"FAIL" if _failed else "PASS",
@@ -43,12 +51,12 @@ func _run() -> void:
 
 
 func _create_world(world_seed: int) -> void:
-	_root = Node3D.new()
+	_root = FixtureLevel.new()
 	add_child(_root)
 	var marker: Node3D = Node3D.new()
 	marker.name = "District"
 	_root.add_child(marker)
-	_world = World.new()
+	_world = _make_world()
 	_root.add_child(_world)
 	ECS.world = _world
 	DialogueUiFixture.install()
@@ -60,13 +68,22 @@ func _create_world(world_seed: int) -> void:
 	session_node.set_script(ENTITY_SCRIPT)
 	var session: Entity = session_node as Entity
 	var district_recipe: C_District = C_District.new()
-	district_recipe.definition = load(PILOT_PATH)
+	district_recipe.definition = load(_pilot_path())
 	var calendar_recipe: C_DayCycle = C_DayCycle.new()
 	calendar_recipe.clock.world_seed = world_seed
 	session.component_resources = [district_recipe, calendar_recipe]
 	_world.add_entity(session)
 	_check(DistrictPopulationService.initialize(), "native pilot construction")
-	_check(NpcPopulationQueries.current().people.size() == 3, "three authored people")
+	if _world is GameWorld:
+		var production_world: GameWorld = _world as GameWorld
+		production_world.finish_startup()
+		_check(production_world.composition_ready(), "complete GameWorld startup")
+		_check(DistrictPopulationService.prepare_morning(1).succeeded, "prepared first Morning")
+	_check(
+		NpcPopulationQueries.current().people.size()
+		== district_recipe.definition.authored_people.size(),
+		"complete authored roster",
+	)
 	_check(GameTimeQueries.current().world_seed == world_seed, "requested creation seed")
 
 
@@ -80,13 +97,13 @@ func _write() -> void:
 	_check(WorldSnapshotService.can_restore(snapshot, _root), "complete authored snapshot")
 	if _failed:
 		return
-	_check(AutosaveStore.write(snapshot, SAVE_PATH) == OK, "isolated disk write")
+	_check(AutosaveStore.write(snapshot, _save_path()) == OK, "isolated disk write")
 
 
 func _restore() -> void:
 	var before: NpcRecord = NpcPopulationQueries.person_for(&"npc/3")
 	_check(before.dialogue_tags.is_empty(), "new process has no inherited author memory")
-	var snapshot: Dictionary = AutosaveStore.read(SAVE_PATH)
+	var snapshot: Dictionary = AutosaveStore.read(_save_path())
 	_check(not snapshot.is_empty(), "cold native disk read")
 	_check(WorldSnapshotService.restore(snapshot, _root), "cold authored restore")
 	if _failed:
@@ -122,13 +139,30 @@ func _dispose_world() -> void:
 
 
 func _cleanup_slot() -> void:
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+	var path: String = _save_path()
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+
+func _make_world() -> World:
+	return World.new()
+
+
+func _pilot_path() -> String:
+	return PILOT_PATH
+
+
+func _save_path() -> String:
+	return SAVE_PATH
+
+
+func _completion_prefix() -> String:
+	return "Authored people smoke"
 
 
 func _check(condition: bool, message: String) -> void:
 	if condition:
 		return
 	_failed = true
-	push_error("Authored people smoke: " + message)
+	push_error(_completion_prefix() + ": " + message)
 #endregion

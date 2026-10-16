@@ -1,3 +1,4 @@
+@tool
 extends Resource
 ## Detached creation result; roster integration owns its one durable commit and subsequent reads.
 class_name NpcVariation
@@ -15,7 +16,7 @@ const SAVE_FIELDS: Array[String] = [
 
 ## Stable authored archetype key; matches the person's base definition.
 @export var archetype_key: StringName = &""
-## Canonical creation seed derived from durable world seed, NPC ID and creation day.
+## Generated seed derives from world/ID/day; fixed authored presets use zero.
 @export var seed: int = 0
 ## Calendar day used for the named creation decision; never rerolled at scene load.
 @export var creation_day: int = 1

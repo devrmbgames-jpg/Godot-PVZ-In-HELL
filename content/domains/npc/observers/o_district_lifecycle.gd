@@ -98,7 +98,8 @@ func _on_reconstruction(_event: Variant, _session: Entity, _payload: Variant = n
 
 
 func _on_death(_event: Variant, body: Entity, _payload: Variant = null) -> void:
-	cmd.add_custom(_reconcile_death.bind(weakref(body)))
+	var death: C_Death = body.get_component(C_Death) as C_Death
+	cmd.add_custom(_reconcile_death.bind(weakref(body), death))
 
 
 func _on_morning(_event: Variant, session: Entity, payload: Variant = null) -> void:
@@ -146,6 +147,7 @@ func _reconcile_day(
 	if district.lifecycle_day == day_index and district.lifecycle_phase == int(phase):
 		return
 	if district.definition != null and phase != C_DayCycle.Phase.NIGHT:
+		DistrictPopulationService.return_due(district, day_index)
 		var phase_key: StringName = StringName("%d/%d" % [day_index, phase])
 		if district.conflict_phase != phase_key:
 			district.conflict_phase = phase_key
@@ -170,15 +172,18 @@ func _reconcile_day(
 	district.lifecycle_phase = int(phase)
 
 
-func _reconcile_death(entity_reference: WeakRef) -> void:
+func _reconcile_death(entity_reference: WeakRef, captured_death: C_Death) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var entity: Entity = entity_reference.get_ref() as Entity
 
-	if not _retains_body(entity):
+	if ECS.world != _world or not _retains_body(entity):
+		return
+	if entity.get_component(C_Death) != captured_death:
 		return
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	# Night preserves the existing reconciliation boundary; morning entry handles its bodies.
-	if cycle.phase == C_DayCycle.Phase.NIGHT:
+	# Generated fixtures retain their old Night boundary; authored deaths keep the actual day.
+	var district: C_District = NpcPopulationQueries.current()
+	if cycle.phase == C_DayCycle.Phase.NIGHT and district.definition.authored_people.is_empty():
 		return
 	var identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity
 	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
@@ -213,6 +218,10 @@ func _prepare_morning(
 			district.noises.clear()
 			district.pending_routes.clear()
 			district.lighting_context = null
+			var returned: Array[NpcRecord] = DistrictPopulationService.return_due(
+				district,
+				request.day_index,
+			)
 			DistrictPopulationService.replace_vacancies(district, request.day_index)
 
 			for person: NpcRecord in district.people:
@@ -221,8 +230,9 @@ func _prepare_morning(
 				var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 				if body == null:
 					continue
-				DistrictPopulationService.reset_brain(body)
-				NpcBrainService.bind_engine(body)
+				if not returned.has(person):
+					DistrictPopulationService.reset_brain(body)
+					NpcBrainService.bind_engine(body)
 				_plan_phase(
 					district,
 					person,

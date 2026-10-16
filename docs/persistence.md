@@ -56,8 +56,19 @@ The district definition resolves each immutable card by permanent NPC ID; no sec
 card/name/home registry is introduced. Preflight rejects modified fixed variation, home,
 recipient, missing/extra people and replacement waves for an authored roster. Creation uses
 explicit IDs and reserves the next free number. The three-person pilot exercises this path;
-the main district migration and resurrection remain unfinished in the owning resident task.
+the main district migration and complete social consequences remain unfinished in the resident task.
 Previous schemas are rejected without conversion or replacement of their files.
+
+Schema 29 adds the closed `NpcDeathRecord` history in `NpcRecord.deaths`. Each actual death
+has a consecutive sequence, calendar day and actual returned day; zero means still absent.
+The return deadline is derived from the current death day plus two, without a saved timer.
+Preflight checks ordered episodes and requires the physical record of every authored person,
+including the dead. The current body retains Health, inventory and the per-life remains guard;
+the persistent loot queue owns receipts keyed by person ID and death sequence. Return clears
+the current death and resets that guard after checking native space, without copying starter
+items or recreating the person. Ordinary sleep does not receive resurrection healing.
+The authored-life GUT and two-process smoke cover this pilot; death attribution and personal
+responses, the full resident composition and physical homes remain open in the owning task.
 
 ## Refactoring v2 identity contract
 
