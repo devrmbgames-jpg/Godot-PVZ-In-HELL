@@ -48,7 +48,11 @@ D3 авторская документация/пример в [docs/dialogue_me
 D2/D3 checkpoint `45cb14b55fddea92bf6d1bbc694c856b24fb2b64`
 reviewed от BASE `4c91c7137806be85cddb42059a38d144397d5bb6`: no material findings,
 ARCHITECTURE/STYLE PASS; reviewer execution NOT_RUN. Triage: принятых P0/P1/P2 нет.
-Technical COMPLETE; обязательная rendered UI приёмка открыта, задача не DONE.
+Technical COMPLETE. Rendered UI acceptance **3/3 PASS**, использовано3/8,
+[QA card](../../.qa/tasks/npc_dialogue_dynamic_speakers_and_memory_api.md).
+Street/service actual имя, focus и authored choices подтверждены; новый ctx помнит visited,
+закрытый ctx не пишет; Angel показывает native sign без panel/modal.
+Завершающее review и Windows artifact ещё открыты; задача не DONE.
 
 ## Work packages / boundaries
 
@@ -56,7 +60,7 @@ Technical COMPLETE; обязательная rendered UI приёмка откр
 | --- | --- |
 | D1 | Динамические NPC headers и сохранённые player/narrator/sign cues — reviewed. |
 | D2 | Единая постоянная память, пять операций, codec/preflight/schema, retained/fresh restore — reviewed PASS. |
-| D3 | Русская документация/compiled examples готовы; обязательный rendered UI gate открыт. |
+| D3 | Русская документация/compiled examples готовы; rendered UI3/3 PASS. |
 
 [Постоянные жители](district_authored_residents_and_resurrection.md) используют проверенный D2,
 не требуют заранее готового личного канона. holds_grudge читает существующий NpcGrudgeRules;
@@ -97,12 +101,14 @@ D1 Import wrapper FAIL из-за mixed shutdown diagnostics сохранён; ac
 
 ## Next
 
-Подготовить и выполнить bounded dialogue UI acceptance на reviewed source:
-актуальное имя в street/service, compiled example memory в настоящей панели и Angel sign mode.
-NPC CharacterBody QA завершено в выданном объёме6/6; повторов этой задачи не запускать.
+Собрать Windows QA artifact на reviewed source; собрать docs/QA review по точным SHAs.
+После PASS/triage и готового artifact завершить/архивировать эту карточку с исправлением
+входящих ссылок, затем продолжить district_authored_residents_and_resurrection (order70).
+NPC CharacterBody остаётся OWNER_QA с3 PASS/3 INCONCLUSIVE и исчерпанным6/6.
 Не объявлять milestone DONE при pending review или открытой обязательной приёмке.
 ## Owner QA / blockers
 
 Владелец 2026-10-17 разрешил дальнейшие проверки без повторных вопросов при
 неисчерпанном соответствующем лимите; максимум8 на milestone, уже меньшие лимиты сохранены.
+Dialogue UI acceptance выполнена; оставшиеся gates — review и Windows artifact.
 Имена/реплики примеров не становятся каноном; addon/панель не заменяются.
