@@ -1,8 +1,8 @@
 # Terminal package row — orphan Node lifetime
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 BASE_SHA: `6843e23e94c1ffb8f8d4784660f6783f09f67e22`
-TARGET_SHA: fixture cleanup checkpoint pending commit/review
+TARGET_SHA: `14c2294cfb1f35c71d3c03711c21479270e2d42e`
 
 ## Task state
 
@@ -15,7 +15,7 @@ TARGET_SHA: fixture cleanup checkpoint pending commit/review
 
 ### Current / evidence
 
-Independent finding while verifying [Creepy M2](creepy_npc_unpredictable_stalking.md).
+Independent finding while verifying [Creepy M2](../creepy_npc_unpredictable_stalking.md).
 The real terminal-reader case in `tests/gut/test_npc_stalking.gd` reports **46 Orphans**,
 including a `PanelContainer` with `ui_terminal_package_line.gd` and45 descendants.
 The same count exists before M2: `.artifacts/godot_agent/gut-20261016-073531451.stdout.log`;
@@ -37,14 +37,15 @@ lifecycle, without asserting general gameplay memory acceptance.
 - Lifecycle probe exit0/stderr empty:
   `.artifacts/godot_agent/terminal_row_lifetime_probe.{stdout,stderr}.log`.
 - MCP1 checked/empty/scripts_instantiated0; incremental formatter1 PASS; diff whitespace PASS.
-- Independent immutable-SHA review pending. No engine-warning exemption was used.
+- Immutable BASE/TARGET above reviewed: no material findings; architecture/style PASS, reviewer execution NOT_RUN. Main triage: nothing accepted/outstanding, repair0/2. No engine-warning exemption was used.
 
 ### Owner QA / blockers
 
 No owner decision is currently required; headless native lifecycle investigation is authorized.
 Rendered QA is NOT_RUN and unnecessary for establishing Node ownership.
 
-### Next
+### Completion
 
-Commit the fixture-only fix with this evidence; collect immutable-SHA review and triage.
-Archive this existing task only after review passes, updating the incoming Creepy link.
+All declared fixture lifecycle gates and independent review/triage are complete.
+The measured product lifecycle had no surviving row; only premature fixture measurement required
+correction. No runtime/UI edit or owner gameplay/visual acceptance is required for this scope.
