@@ -1,29 +1,69 @@
 ---
 name: task-lifecycle
-description: Use when creating, resuming, updating or completing durable .agents/tasks/*.md work spanning sessions or milestones.
+description: Use when creating, resuming, updating or completing durable .agents/tasks/*.md work spanning sessions or milestones, including autonomous backlog execution.
 ---
 
 # Durable task lifecycle
 
-Use for persistent task state, not for every plan, Fix or quick code change. If a user identifies an existing task, continue it rather than creating another record. A Plan Mode plan or Goal does not require a repository task file.
+Use one existing owning task for interruptible/multi-session work. A small Fix, session
+plan or Plan Mode does not require a repository task. Current project safety remains in AGENTS.md.
 
 ## Single source of truth
 
-- Use one owning `.agents/tasks/<task>.md` for its goal, acceptance, current status, latest checkpoint, next action, validation evidence and unresolved findings.
-- Do not create a separate queue, CURRENT_WORK file, activity log or task-history source of truth. Git commits document implementation history; `docs/` documents product contracts; `.qa/tasks/` owns remaining manual acceptance.
-- Keep the file as current state, not a chronological stream. Replace stale Current/Next, old validation summaries and redundant review checkpoints. Preserve *unique* evidence via concise results and links to manifests or reproducible commands.
-- Use **full Git SHAs** for base, target, review and fix checkpoints. Short hashes alone do not identify review evidence reliably.
-- Aim for at most **200 lines** per active task file. Exceptions require indispensable current contracts/evidence, not migrated activity logs or repeated test runs. Do not move the same log to an auxiliary report.
+The owning task holds goal/acceptance, current status, decisions, one next action,
+actual validation and unresolved findings. A parent owns overall status; child cards
+own only stage details. No separate queue/current-work file/activity/completion log.
+Replace obsolete state/evidence rather than appending action history. Keep unique proof
+via concise results, full 40-character base/target/review/fix SHAs and artifact references.
+Aim at <=200 lines and <=12 KiB of working state; preserve indispensable requirements,
+not long log lines disguised as a short document.
+
+For owner-requested non-destructive refactors, immutable source snapshots may preserve
+original requirements/history. They are NOT another live task/status source. Read only
+the relevant requirement sections; never replay their historical Current/Next. See
+[task README](../../tasks/README.md) and its source manifest for precedence and routing.
+Do not append new reports/logs to frozen sources or keep copying them forward.
+
+## Autonomous backlog execution
+
+For an owner request to implement the whole backlog, use the selection/continuation
+loop in [task README](../../tasks/README.md). Read root headers, then the current package;
+exclude completed/references and route children through their parent.
+A finished work package is a checkpoint, not a request for another permission to continue.
+Proceed to the next permitted package/task while work remains runnable. Preserve exact
+resume state before context/session interruption; do not promise a daemon or self-restart.
+
+Separate technical completion from required owner acceptance. OWNER_QA or unavailable
+review blocks only affected gates; continue independent work without false DONE/PASS.
+Dependencies name a specific verified provider contract, not a cycle of full-task DONEs.
+Do not implement a second owner just because the provider task is not globally closed.
+A broad execution request supersedes old planning-only creation text, not explicit owner
+DEFERRED/fallback decisions, rendered-QA restrictions or Git/destructive permissions.
+Missing authoring data permits labelled reversible prototypes, not invented final canon.
 
 ## Scope control
 
-- The declared goal and acceptance define completion. Investigate suspected regressions with comparable baseline/current observations before expanding implementation.
-- An independent defect must have its own owner, reproduction, evidence and acceptance in a separate task; link it from the original when needed. A moved defect does not waive a mandatory original acceptance criterion.
-- If fulfilling acceptance requires a changed decision, identify the exact owner decision and leave that criterion open. Do not silently alter scope, redefine PASS or keep inventing related work.
-- Preserve statuses honestly: pending review, engine/tool blockers, missing evidence and owner gameplay/visual QA are not DONE.
+Goal and full acceptance remain binding, including preserved source requirements.
+One coherent behavior package includes its required lifetime/persistence checks;
+do not split a single transaction into unchecked partial layers or reopen accepted
+packages merely to match a new plan. Compare baseline/current evidence for new defects.
+Independent defects need their own owner/reproduction/evidence/acceptance and link;
+this does not waive an original mandatory acceptance criterion.
+If a changed product decision is required, keep its exact criterion open. Do not quietly
+redefine PASS, accept unapproved balance or invent adjacent work to prolong the task.
+Record a concrete blocker and next independent task instead of idle waiting/retry loops.
 
 ## Complete and archive
 
-When all required implementation, review/triage and verification gates pass, move the **existing** task file to `.agents/tasks/completed/<original relative path>` in the same completion batch. Preserve original subdirectory layout, final status and concise evidence. Update incoming links and relative links in the moved file; do not leave a duplicate or forwarding file in the active directory.
+Use [validation-workflow](../validation-workflow/SKILL.md) and
+[review-orchestration](../review-orchestration/SKILL.md) for actual gates.
+Review pending/unavailable, required engine checks NOT_RUN and open owner acceptance
+are not DONE. At most two targeted repair cycles per checkpoint; preserve unresolved
+findings and continue only independent scopes when blocked.
 
-Tasks with blockers, unfinished implementation, REVIEW_PENDING or required owner acceptance remain active under their actual status. Use [review-orchestration](../review-orchestration/SKILL.md) when a committed milestone needs formal triage; use [validation-workflow](../validation-workflow/SKILL.md) for test evidence.
+Only after full required implementation, validation, review/triage and owner acceptance
+(or explicit owner deferral of specified manual scope), set DONE and move the EXISTING
+file to .agents/tasks/completed/<original-relative-path> in the same completion batch.
+Preserve evidence/layout; fix incoming links and relative source/QA links. No active
+copy or forwarding stub. Lasting product contracts belong in docs/; manual checklists
+may live in .qa/tasks/ but do not themselves waive the owning task's acceptance.

@@ -1,75 +1,57 @@
-# PVZ-A01 — Нативная сцена торговой панели
+# PVZ-A01 — нативная сцена торговой панели
 
 Status: **OWNER_QA**
-Priority: **P2**
-Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
-BASE_SHA: `160ab9c9caa872ccb748ab0fc1d64bdd21c15b7b`
-TARGET_SHA: `01af39e1a126e0d1326e474e164efe10d24bfe1b`
+Technical: **COMPLETE**
+Execution order: **30**
+Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
+Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/pvz_a01_commerce_panel_scene_first.md.txt).
 
-## Task state
-
-### Goal
-
-Перенести постоянный макет CommercePanel из GDScript в редактируемую Godot-сцену, сохранив поведение торговли, заказов, заданий и модального ввода. Это исправление scene-first, а не редизайн интерфейса.
-
-## Evidence / scope
-
-- [commerce_panel.gd](../../content/ui/commerce_panel.gd): `_ready()` создаёт постоянные Root/Center/Panel, заголовок, статус, ScrollContainer, блок задания и кнопку закрытия.
-- [commerce_panel_factory.gd](../../content/ui/commerce_panel_factory.gd): `open()` создаёт панель через `CommercePanel.new()`.
-- Новый результат: `content/ui/commerce_panel.tscn`; связанные тесты и все реальные места создания CommercePanel входят в scope.
-- Динамические строки товаров/заданий и данные каталога не обязаны становиться постоянными узлами. Другие панели, включая settings_menu, не входят в эту задачу.
-
-## Required approach
-
-1. Перед изменениями прочитать [scene authoring](../skills/godot-scene-authoring/SKILL.md), [GDScript style](../skills/gdscript-style/SKILL.md), [validation](../skills/validation-workflow/SKILL.md). Проверить текущее состояние затронутых файлов: baseline — доказательство аудита, не разрешение перезаписать новые изменения.
-2. Инвентаризировать постоянные узлы, включая ConfirmationDialog и статические кнопки, их свойства, размеры, anchors, focus, темы и сигналы. Создать нативную `.tscn` с тем же классом корня, CanvasLayer.layer и устойчивыми именами узлов. Не менять тексты, размеры и UX ради рефакторинга.
-3. Перевести ссылки на постоянные узлы в приватные типизированные `@onready`/явные scene bindings. `_ready()` оставляет связывание и начальную настройку сеанса, но не строит постоянный макет. Не добавлять fallback, заново собирающий отсутствующую сцену кодом.
-4. В фабрике и остальных production/test callers использовать PackedScene.instantiate(); сохранить проверки актёра/торговца, единственность панели, порядок add_child → open_for и удаление заготовки при отказе.
-5. Сохранить контракты InteractionControlFocus, `_capture`, `_release()`, предыдущего режима мыши, закрытия по menu, отказа при исчезновении участника, подтверждения/отмены покупки и очистки при выходе из дерева. Переподключение сигналов не должно удваивать операции.
-6. Повторяемые строки каталога допустимо создавать динамически; фиксированная оболочка и purchase dialog принадлежат сцене. UI не получает экономическую authority и не переводится в ECS.
-7. Обновить документацию/тесты только изменённого контракта. Сохранить существующие UID, публичные методы и внешние вызовы; новый scene UID создать нативно. Удалить старый путь построения в этой же задаче.
-
-## Acceptance
-
-- [ ] Постоянный макет, включая диалог подтверждения, доступен в Scene dock без исполнения `_ready()`.
-- [ ] Production создаёт одну панель из `.tscn`; нет параллельного конструктора макета или runtime-генерации `.gd`/`.tscn`.
-- [ ] Работают режим торговли и режим заказа, переменное число предложений, состояние задания, подтверждение и отмена покупки.
-- [ ] Повторный open отклоняется; неуспешный open, menu, удаление актёра/торговца и выход из дерева корректно освобождают сеанс и ввод.
-- [ ] Один пользовательский сигнал создаёт не более одной операции; повторные открытия не накапливают обработчики/узлы.
-- [ ] Нет изменения экономических правил, gameplay state authority или публичного API без необходимой миграции всех callers.
-
-### Validation
-
-После связного набора правок: native Godot parser изменённых скриптов и загрузка новой сцены; focused GUT на фабрику, scene bindings, оба режима, сигналы и lifecycle. На завершении — один подходящий non-visual integration/smoke сценарий, а не полный прогон после каждой мелкой правки.
-
-Применить существующие formatter и structure/architecture gates по validation-workflow; проверить отсутствие production `CommercePanel.new()` и фиксированной сборки макета. Не создавать глобальный запрет на Control.new(): динамические элементы допустимы.
-
-Открытая сцена редактируется через editor/MCP. При отсутствии MCP не переписывать editor-owned сцену извне; для offline authoring сначала закрыть редактор по проектному безопасному контракту. Godot CLI остаётся доступной альтернативой для невизуальных проверок.
-
-Ручная приёмка владельца: соответствие прежнему макету, читаемость, фокус/навигация и отсутствие регрессии управления на целевых устройствах. Агент не запускает rendered/visual QA без разрешения; headless PASS её не заменяет. До обязательной ручной приёмки — OWNER_QA, если владелец явно не отложил её.
+Эта карточка владеет текущим исполнением. Полный объём требований сохранён в Source;
+правила чтения и автономного продолжения — в [README](README.md).
 
 
-### Current
-Постоянный макет создан/сохранён native MCP в commerce_panel.tscn: CanvasLayer 95, full-rect Margin 32, Center/Panel 720×450, Title/Status, Scroll 200, Offers/Quest, Close и FurniturePurchase. Диалог и авторские DeliveryButton/DeliverySpacer доступны без ready. Типизированные приватные @onready bindings заменили конструктор макета; фабрика и оба прямых quest-test callers используют PackedScene. Динамические строки остались у UI, операции — у прежних сервисов.
+## Goal / acceptance
 
-AcceptDialog создаёт собственный внутренний ряд кнопок, не являющийся авторским узлом сцены. Ready привязывает к нему уже существующие DeliveryButton/DeliverySpacer без new() и сохраняет custom_action. Native headless сравнение с исходным script из BASE_SHA подтвердило равенство rect, dialog size/min_size, порядка/текста/flags/mouse_filter всех кнопок и распорок. Это проверка свойств, не визуальная приёмка.
+Редактируемая CommercePanel.tscn вместо постоянного макета из GDScript, без редизайна
+и изменения экономики. Все scene bindings, оба режима, подтверждение/отмена, focus,
+единственность панели и cleanup из Source остаются обязательными.
 
-### Next
-Обязательная ручная приёмка владельца: прежний вид/читаемость, keyboard/gamepad focus/navigation и управление на целевых устройствах. До неё не объявлять DONE и не архивировать. Независимая ConfigFile миграция продолжается.
+## Current
 
-### Dependencies / exclusions
-Независима от остальных исправлений аудита. Финальная проверка комментариев входит также в [качество документации](completed/pvz_code_documentation_quality.md), но документация изменённого API обязательна уже здесь. Не включать NPC performance, social/traffic refactor и другие панели.
+Техническая реализация и read-only review приняты по записанным evidence.
+BASE_SHA: `160ab9c9caa872ccb748ab0fc1d64bdd21c15b7b`.
+TARGET_SHA: `01af39e1a126e0d1326e474e164efe10d24bfe1b`.
+Native scene, factory/quest callers и onready bindings уже перенесены; динамические строки допустимы.
+Нельзя повторно строить эту панель только потому, что общий Status не DONE.
 
-### Owner QA / blockers
+## Work packages
 
-- **PASS**: focused TraderPurchase 29/29 (386 assertions), RefusalQuest 14/14 (137 assertions): 43 теста, 523 assertions. Native request → CommercePanel → NightReset integration входит в TraderPurchase. Final logs: `.artifacts/godot_agent/gut-20261015-161746609.stdout.log` и `gut-20261015-161754841.stdout.log`.
-- **PASS**: MCP native path diagnostics трёх изменённых scripts, ошибок нет. Макет и UID созданы/сохранены через editor MCP.
-- **PASS**: native layout properties comparator с BASE_SHA, `.artifacts/godot_agent/commerce-layout-compare.stdout.log`, `equal=true`, exit 0. Initial explicit reset_size менял hidden dialog size и удалён до checkpoint.
-- Первый GUT: 28/29 — test ожидал MOUSE_MODE_HIDDEN, который headless backend не применяет. Assertion исправлен на возврат фактически принятого режима; production input код не менялся. Первичный log `.artifacts/godot_agent/gut-20261015-161313184.stdout.log` сохранён.
-- Gameplay/visual **NOT_RUN**, 0/8. Обязательная owner QA: прежний вид/читаемость, keyboard/gamepad focus/navigation и управление на целевых устройствах. Headless assertions это не заменяют.
-- Review **PASS**: `/root/review_cal01`, immutable BASE_SHA/TARGET_SHA выше; все 7 файлов проверены read-only. Architecture/style PASS, material findings нет. Main triage: принятых P0/P1/P2 не осталось. Reviewer validation NOT_RUN; локальные проверки перечислены отдельно. Owner QA не закрыта техническим review.
-- **PASS**: final formatter/lint, agent smells, strict architecture, полный structure gate, отсутствие CommercePanel.new() в content/tests; native parser `.artifacts/godot_agent/parsechanged-20261015-161721024.stdout.log`.
-- Editor штатно закрыт после MCP ownership check без dirty scenes. Только доказанные собственные 8 пустых BlackboardPlan и 1 UID annotation отменены точным inverse patch; исходные планы и пользовательские изменения сохранены. Patch `.artifacts/commerce_editor_resave_sideeffects.patch`; эти ресурсы не входят в checkpoint.
+| Пакет | Состояние |
+| --- | --- |
+| U1 | Scene-first перенос, callers, input/lifecycle и технические проверки: COMPLETE/review PASS. |
+| U2 | Прежний вид/читаемость, keyboard/gamepad focus и целевые устройства: OWNER_QA. |
 
-### Completion
-Работать по [AGENTS.md](../../AGENTS.md) и [task lifecycle](../skills/task-lifecycle/SKILL.md). GitHub Actions/gh не использовать. После реализации зафиксировать полные base/target/review/fix SHA, реально выполненные PASS/FAIL/NOT_RUN и unresolved findings в этом файле; reviewer работает read-only, не более одного child agent одновременно. После всех обязательных проверок/приёмки перенести этот же файл в `completed/`, обновив ссылки, без дубликата и журнала действий.
+## Entry points / dependency gates
+
+content/ui/commerce_panel.gd, commerce_panel.tscn, commerce_panel_factory.gd,
+существующие TraderPurchase/RefusalQuest fixtures. Другие панели и редизайн вне scope.
+Технический U1 доступен задачам торговли; U2 не является глобальным блокером.
+
+## Next
+
+Без task-specific разрешения/owner evidence оставить U2 открытым и продолжить
+независимую задачу. При разрешённой приёмке выполнить исходную матрицу; исправлять
+только подтверждённую регрессию, не проводить новый архитектурный проход панели.
+
+## Validation / review
+
+Импортировано: TraderPurchase 29/29 + RefusalQuest 14/14, 523 assertions;
+native layout compare equal=true/exit 0, parser/MCP/formatter/architecture/structure PASS.
+Read-only review указанного BASE→TARGET PASS, reviewer execution NOT_RUN.
+Это evidence исторического checkpoint, не повторно выполненные проверки текущего HEAD.
+Новые runtime/visual проверки данного рефакторинга: NOT_RUN.
+
+## Owner QA / blockers
+
+Обязательная ручная приёмка открыта, recorded visual 0/8. Автовыдача не даёт разрешения U2.
+До её выполнения/явного решения владельца не DONE и не архивировать.
