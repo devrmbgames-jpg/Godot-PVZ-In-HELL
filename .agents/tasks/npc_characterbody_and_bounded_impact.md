@@ -27,7 +27,14 @@ production migration ещё NOT_IMPLEMENTED. Нативный baseline actual HE
 реальный contact_seen=true, HP100→75 через S_Impact/O_Damage. Лёгкий proxy2кг/30м/с:
 peak0.660м/с, displacement0.019м, HP100→75. Это baseline, не PASS будущего clamp.
 Подозрение о pending_rebound_velocity остаётся отдельным риском кинематического пути,
-а не установленной причиной текущего RigidBody-симптома. Held/support/corner baseline ещё NOT_RUN.
+а не установленной причиной текущего RigidBody-симптома.
+Baseline дополнен настоящей blood_barrel scene18кг/20м/с: peak4.254м/с, displacement0.784м,
+HP100→75. Реальный R_HeldBy/GrabService и медленный нажим пружиной: contact=true, grip retained,
+peak0.277м/с, displacement0.336м, HP100. Нативная опора на удерживаемой бочке:
+floor RID подтверждён, grip retained; подъём0.574м, peak upward0.904м/с; после настоящего release
+peak upward0.589м/с. Стена сохранила capsule z0.5200001 (contact boundary с FP epsilon0.0001м),
+после её удаления peak≈1.9e−9м/с. Это исходные метрики, не доказательство будущих ограничений.
+Corner/ceiling и gaze-specific guarantees остаются частью будущей implementation matrix.
 Новая focused regression `test_npc_impact_motion.gd` использует настоящую NPC scene/native Jolt;
 контакт копируется из inbox до consumption владельцем S_Impact. Она пока фиксирует старый body type,
 который должен быть заменён вместе с миграцией; это не постоянный второй runtime-путь.
@@ -55,7 +62,7 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-Дособрать focused held/support/corner baseline, затем обобщить существующий CharacterBody callback
+Собрать exact-SHA review расширенного baseline, затем обобщить существующий CharacterBody callback
 для E_PhysicalCharacter, сохранив player input и отдельный независимый NPC look/intent.
 `E_CharacterBodyPlayer` сейчас владеет общим callback и ground_ray; solver typed к player только
 в step/update_support/_push_support. NPC/trader наследуют rigid foundation; legacy rigid player
@@ -67,9 +74,12 @@ MCP node_manage не поддерживает смену root type. Для со�
 
 ## Validation / review
 
-Baseline focused native GUT2/2,4 assertions, stderr0 PASS:
-`.artifacts/godot_agent/gut-20261016-181848280.{stdout,stderr}.log`, measured JSON lines retained there.
-MCP new/changed script checked/empty. Implementation parser/GUT/runtime/review ещё NOT_RUN.
+Baseline initial2/4 review BASE `97ff746acc84576a3be98dc8102565d31c391230`, TARGET
+`c407a2d82fc55dd331c5ea240c20328ee78dd918`: PASS/no findings, reviewer execution NOT_RUN.
+Final extended native GUT6/6,17 assertions, stderr0 PASS:
+`.artifacts/godot_agent/gut-20261016-182942880.{stdout,stderr}.log`, measured JSON lines retained there.
+MCP changed script checked/empty; formatter PASS. Extended-baseline review REVIEW_PENDING.
+Implementation parser/GUT/runtime/review ещё NOT_RUN.
 Проверять total clamp, повторные контакты,
 held/free переход, неподвижного/замороженного NPC, стены/опоры, player regression и fresh restore.
 Один согласованный набор evidence на пакет; общий migration check на P3, не после каждого cast.
