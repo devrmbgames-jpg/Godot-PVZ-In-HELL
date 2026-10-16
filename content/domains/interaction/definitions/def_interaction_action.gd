@@ -32,11 +32,6 @@ func caption_for(_actor: Entity, _source: Entity, _target: Entity) -> String:
 	return caption
 
 
-## Разрешает доступному контекстному Interact опередить обычное отпускание Carry.
-func allows_carry_interaction() -> bool:
-	return false
-
-
 ## Проверяет доступность; обработчик не хранит состояние, изменяемые данные принадлежат Components.
 func is_available(_actor: Entity, _source: Entity, _target: Entity) -> bool:
 	return false

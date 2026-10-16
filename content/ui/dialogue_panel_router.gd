@@ -13,6 +13,11 @@ static func open_customer(
 ) -> bool:
 	if not CustomerDialogueService.can_start(actor, customer):
 		return false
+	if (
+		customer is E_DistrictNpc
+		and CustomerParcelDemandQueries.available(actor, customer as E_DistrictNpc) != null
+	):
+		return _open_parcel_demand(actor, customer as E_DistrictNpc, captured_agent)
 	if captured_agent.phase == C_CustomerAgent.Phase.WAITING:
 		CustomerFlowService.greet(customer)
 	if (
@@ -61,6 +66,33 @@ static func open_customer(
 		panel.close_dialogue()
 		return false
 	return CustomerDialogueService.mark_opened(customer, captured_agent)
+
+
+static func _open_parcel_demand(
+	actor: Entity,
+	customer: E_DistrictNpc,
+	captured_agent: C_CustomerAgent,
+) -> bool:
+	var resource: DialogueResource = load(
+		CustomerDialogueService.PARCEL_DIALOGUE_PATH,
+	) as DialogueResource
+	if resource == null or not resource.cues.has("parcel_demand"):
+		return false
+	var context: CustomerParcelDialogueContext = CustomerParcelDialogueContext.new(
+		actor,
+		customer,
+		captured_agent,
+	)
+	if not context.begin():
+		return false
+	var panel: CustomerDialoguePanel = _create_panel(customer.get_tree())
+	if not panel.open_for(actor, context, resource, "parcel_demand"):
+		panel.close_dialogue()
+		return false
+	if not context.can_continue():
+		panel.close_dialogue()
+		return false
+	return true
 #endregion
 
 

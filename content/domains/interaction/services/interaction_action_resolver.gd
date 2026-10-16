@@ -74,14 +74,9 @@ static func resolve(
 	var carry: Entity = GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
 	if focus == InteractionControlFocus.Priority.CARRY:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
-			var contextual: InteractionActionChoice = _from_source(
-				actor,
-				target,
-				target,
-				input_slot,
-			)
-			if contextual != null and contextual.action.allows_carry_interaction():
-				return contextual
+			var placement: InteractionActionChoice = _from_source(actor, target, target, input_slot)
+			if placement != null and placement.action is DEF_CarryPlacementAction:
+				return placement
 			return _physical(actor, carry, DEF_GrabAction.Kind.RELEASE)
 
 		if input_slot == DEF_InteractionAction.Slot.PRIMARY:

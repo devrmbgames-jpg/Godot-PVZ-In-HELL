@@ -25,8 +25,9 @@ Source: [полное исходное ТЗ и доказательства](ref
 Последний reviewed TARGET_SHA: `427799387733b0aea057db9e77ff894405307040`.
 Исходный BASE_SHA: `6ac1ac6e1ffbb8e8bd43a11b989bb8c8152e5dd9`.
 RV-001–RV-006 исправлены; полные source/fix SHA и проверки сохранены в Source.
-H4 начат: 5/8 случаев, 1/3 PASS, 2/4 INCONCLUSIVE, 5 приостановлен на H4-QA-001/P2.
-Подтверждённый дефект возвращает технический gate в IN_PROGRESS до ремонта и ревью.
+H4 начат: 5/8 случаев, 1/3 PASS, 2/4 INCONCLUSIVE, 5 приостановлен до H4-D01 review.
+H4-QA-001 исправлен/reviewed, затем владелец уточнил обязательный dialogue-only UX.
+Текущий технический gate IN_PROGRESS: перенос требования в диалог до продолжения H4.
 
 ## Work packages
 
@@ -49,8 +50,8 @@ GrabService и save-codec, перечисленных в Source. H4 не бло�
 
 ## Next
 
-Закончить H4-QA-001: scoped native проверки → отдельный коммит → read-only exact-SHA review/triage.
-Затем продолжить уже начатый случай5 и оставшиеся6–8 из
+Завершить H4-D01: dialog-only migration → native gates → отдельный коммит → exact-SHA review/triage.
+После этого продолжить уже начатый случай5 и оставшиеся6–8 из
 [QA-карточки](../../.qa/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md).
 Не повторять завершённые случаи2/4 и не заменять их INCONCLUSIVE на PASS.
 Повторное разрешение на те же восемь случаев не требуется.
@@ -71,20 +72,26 @@ Holy precedence и абсолютные огненные исходы остаю
 defaults с Inspector overrides, не новым подтверждением владельца. DONE/архив — после
 полной обязательной приёмки; ожидание H4 не является основанием улучшать готовый код.
 
-## H4-QA-001 / P2 — Carry скрывает фактическое требование
+## Current repair / H4-D01
 
-ACCEPTED: при наведении на присвоившего посылку Бугая с занятым Carry штатный resolver
-выбирает RELEASE вместо доступного DEF_CustomerParcelDemandAction. Native E отпускает
-собственную вещь. Evidence: `.artifacts/parcel-h4-ca63af48/05-input-reproducer.json`.
-Native red: `parcel_h4_carry_demand_red2.stdout.log`,12/13 assertions, точное несовпадение действия.
-Ремонт: явный readonly opt-in Definition позволяет доступному контекстному Interact
-опередить Carry release; включён только для прежнего размещения и parcel demand.
-Системы ввода, физическое владение, focus/modal, authored ресурсы/schema не меняются.
-Regression использует реальный луч/NPC, занятый Carry, native resolve/execute, modal и
-возврат к RELEASE после завершения demand. Ревью ремонта: REVIEW_PENDING до отдельного коммита.
-
-Ремонт native PASS: incidents45/45,538 assertions,stderr0 (`gut-20261016-165419082.*.log`),
-grab/input92/92,438 assertions,stderr0 (`gut-20261016-165505401.*.log`),
-оба Functional=PASS/diagnostics=CLEAN. MCP5 checked/empty; initial hot reload43 разрешён
-свежей path diagnostic/native execution. Formatter5/strict architecture0/structure/diff-check PASS.
-Rendered case5 ещё не продолжён. Reviewer execution NOT_RUN; main выполнил native проверки.
+Владелец 2026-10-17: «Эй, это не твоя посылка» — ответ в диалоговой системе,
+не отдельное интерактивное действие. Это решение уточняет Source/UI acceptance.
+Штатное Поговорить открывает authored Dialogue Manager branch; контекст читает фактический
+инцидент. Выбор ответа закрывает modal, повторно проверяет тот же incident/роль/участников
+и вызывает прежний CustomerParcelDemandService. RETURN/ATTACK, RNG, ownership, save schema26
+и истинный получатель остаются у прежних владельцев. Отмена/начало/конец разговора не
+меняют service phase/elapsed и не продлевают окно. Pending RETURN предлагает Забрать посылку.
+Native Interact demand и Carry opt-in удаляются целиком; обычное Carry release/placement прежние.
+Каноническая авторская ветка: `content/domains/customers/dialogue/customer_parcel_demand.dialogue`.
+Ремонт H4-QA-001 исторически reviewed: BASE `a2fc9dce7c7a66077b6c3c4bf30f08d8075b70c4`,
+TARGET `823faf152b67ce30ae682aac38a4c37f76664a26`, PASS/no findings; новый UX supersedes этот opt-in.
+Исходный runtime repro: `.artifacts/parcel-h4-ca63af48/05-input-reproducer.json`;
+исходный red `parcel_h4_carry_demand_red2.stdout.log`,12/13 assertions.
+Новые regression checks: реальный ray/USE/Carry → UI response; cancel, modal closure before
+ATTACK/RETURN, pending claim/codec without reroll, departure clock, stale Component rejection.
+Финальная native проверка48/48,614 assertions,stderr0 (`gut-20261016-171241352.*.log`);
+обычный customer_dialogue15/15,272 assertions,stderr0 (`gut-20261016-171100325.*.log`).
+Финальные lifecycle guards включены в этот запуск. Review: REVIEW_PENDING до отдельного коммита.
+MCP8 checked/empty; formatter8/strict architecture0/structure PASS. Domain edges объявлены явно.
+H4 case5 в продолжении, не PASS; попытка подготовки с ошибочным QA-only API остановлена.
+Новых завершённых rendered случаев нет: 5/8 started, C4 0/8. Не повторять2/4.

@@ -4,6 +4,9 @@ class_name CustomerDialogueService
 
 const DIALOGUE_PATH: String = "res://content/domains/customers/dialogue/customer_service.dialogue"
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
+const PARCEL_DIALOGUE_PATH: String = (
+	"res://content/domains/customers/dialogue/customer_parcel_demand.dialogue"
+)
 
 
 #region Запуск разговора
@@ -34,8 +37,15 @@ static func can_start(actor: Entity, customer: E_NpcCharacter) -> bool:
 		)
 	):
 		return false
+	var parcel_demand: bool = (
+		customer is E_DistrictNpc
+		and CustomerParcelDemandQueries.available(actor, customer as E_DistrictNpc) != null
+	)
 	return (
-		agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]
+		(parcel_demand or agent.phase in [
+			C_CustomerAgent.Phase.WAITING,
+			C_CustomerAgent.Phase.WAITING_FOR_PACKAGE,
+		])
 		and customer.get_tree().get_nodes_in_group(ACTIVE_GROUP).is_empty()
 	)
 

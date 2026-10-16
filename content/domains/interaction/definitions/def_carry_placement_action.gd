@@ -3,11 +3,6 @@ extends DEF_InteractionAction
 class_name DEF_CarryPlacementAction
 
 
-#region Размещение Carry
-func allows_carry_interaction() -> bool:
-	return true
-
-
 ## Проверяет размещение Carry в площадку source через общий сервис.
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	return CarryPlacementService.can_place(actor, source as E_PlacementArea)
@@ -21,4 +16,3 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 ## Выполняет размещение и возвращает его фактический результат для длительного действия.
 func complete(actor: Entity, source: Entity, _target: Entity) -> bool:
 	return CarryPlacementService.place(actor, source as E_PlacementArea)
-#endregion

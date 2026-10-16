@@ -12,7 +12,6 @@
 [ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="11_t1rwp"]
 [ext_resource type="Script" uid="uid://bxbv407ok36pq" path="res://content/domains/npc/components/c_npc_pride.gd" id="12_b88ha"]
 [ext_resource type="Script" uid="uid://dl616op7ehd61" path="res://content/domains/npc/components/c_npc_stalking.gd" id="13_a4djs"]
-[ext_resource type="Resource" uid="uid://cyxwkchu05b5y" path="res://content/domains/customers/definitions/def_action_customer_parcel_demand.tres" id="19_vta1a"]
 [ext_resource type="Script" uid="uid://bx06h57gdvgkb" path="res://content/domains/npc/authoring/et_npc_brain_state.gd" id="Brain"]
 [ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_handoff.tres" id="Customer_handoff"]
 [ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_request.tres" id="Customer_request"]
@@ -54,7 +53,7 @@ script = ExtResource("Roles")
 hunger_policy = ExtResource("Hunger_policy")
 street_action = ExtResource("Street_action")
 trade_action = ExtResource("Trade_action")
-additional_actions = Array[ExtResource("11_t1rwp")]([ExtResource("Customer_request"), ExtResource("Customer_handoff"), ExtResource("19_vta1a")])
+additional_actions = Array[ExtResource("11_t1rwp")]([ExtResource("Customer_request"), ExtResource("Customer_handoff")])
 trader_profile = ExtResource("Trader_profile")
 trait_id = &"npc_roles"
 required_components = Array[Script]([ExtResource("5_yoo7p")])

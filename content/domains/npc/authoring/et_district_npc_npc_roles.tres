@@ -1,6 +1,5 @@
 [gd_resource type="Resource" script_class="ET_NpcRoles" format=3 uid="uid://nllxiovv21p6"]
 
-[ext_resource type="Resource" uid="uid://cyxwkchu05b5y" path="res://content/domains/customers/definitions/def_action_customer_parcel_demand.tres" id="4_81y36"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="5_alr7o"]
 [ext_resource type="Script" uid="uid://dlwax2x6w3y5q" path="res://content/domains/npc/components/c_npc_identity.gd" id="5_yoo7p"]
 [ext_resource type="Script" uid="uid://2yaavdod56ox" path="res://content/shared/contracts/entity_initial_binding.gd" id="7_4qkgp"]
@@ -18,7 +17,7 @@ script = ExtResource("Roles")
 hunger_policy = ExtResource("Hunger_policy")
 street_action = ExtResource("Street_action")
 trade_action = ExtResource("Trade_action")
-additional_actions = Array[ExtResource("11_t1rwp")]([ExtResource("Customer_request"), ExtResource("Customer_handoff"), ExtResource("4_81y36")])
+additional_actions = Array[ExtResource("11_t1rwp")]([ExtResource("Customer_request"), ExtResource("Customer_handoff")])
 trader_profile = ExtResource("Trader_profile")
 trait_id = &"npc_roles"
 required_components = Array[Script]([ExtResource("5_yoo7p")])

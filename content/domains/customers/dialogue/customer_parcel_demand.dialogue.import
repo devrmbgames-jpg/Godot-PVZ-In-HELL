@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://dasufijqkvfix"
+path="res://.godot/imported/customer_parcel_demand.dialogue-630594b8916f9f3f62a9c7ce0ace2d6a.tres"
+
+[deps]
+
+source_file="res://content/domains/customers/dialogue/customer_parcel_demand.dialogue"
+dest_files=["res://.godot/imported/customer_parcel_demand.dialogue-630594b8916f9f3f62a9c7ce0ace2d6a.tres"]
+
+[params]
+
+defaults=true

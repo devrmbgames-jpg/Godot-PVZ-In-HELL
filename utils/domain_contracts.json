@@ -7183,13 +7183,15 @@
         "uses_signboard",
         "has_grudge_against",
         "has_respect_for",
-        "has_stalking_notice"
+        "has_stalking_notice",
+        "close_for"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
         "content/dialogue/npc_street_dialogue_context.gd",
         "content/ui/dialogue_panel_router.gd",
-        "content/ui/npc_dialogue_context.gd"
+        "content/ui/npc_dialogue_context.gd",
+        "content/ui/customer_parcel_dialogue_context.gd"
       ],
       "method_rights": {
         "end": "request",
@@ -7202,7 +7204,8 @@
         "uses_signboard": "query",
         "has_grudge_against": "query",
         "has_respect_for": "query",
-        "has_stalking_notice": "query"
+        "has_stalking_notice": "query",
+        "close_for": "request"
       },
       "public_instance_methods": []
     },
@@ -20704,6 +20707,83 @@
         "content/scenes/main_level.gd"
       ],
       "purpose": "Explicit native World composition of the service episode observation owner."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerParcelDemandQueries",
+      "path": "content/domains/customers/services/customer_parcel_demand_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "available",
+        "available_in_dialogue"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "available": "query",
+        "available_in_dialogue": "query"
+      },
+      "sources": [
+        "content/ui/customer_parcel_dialogue_context.gd",
+        "content/ui/dialogue_panel_router.gd"
+      ],
+      "purpose": "Read the actual appropriation and physical demand eligibility; dialogue modal reads do not execute the transaction."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerParcelIncident",
+      "path": "content/domains/customers/contracts/customer_parcel_incident.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/customer_parcel_dialogue_context.gd"
+      ],
+      "purpose": "Read the captured incident identity and pending outcome; the journal remains the sole mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerParcelReactionRules",
+      "path": "content/domains/customers/rules/customer_parcel_reaction_rules.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/customer_parcel_dialogue_context.gd"
+      ],
+      "purpose": "Read the closed RETURN enum for the authored claim response; dialogue never draws outcomes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerParcelDemandService",
+      "path": "content/domains/customers/services/customer_parcel_demand_service.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "demand"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "demand": "request"
+      },
+      "sources": [
+        "content/ui/customer_parcel_dialogue_context.gd"
+      ],
+      "purpose": "Submit the same captured demand after closing modal UI and rechecking role, incident and participants."
     }
   ],
   "legacy_decomposition": []

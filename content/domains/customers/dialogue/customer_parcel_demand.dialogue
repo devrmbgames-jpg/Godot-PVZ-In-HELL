@@ -1,0 +1,9 @@
+~ parcel_demand
+Клиент: Чего тебе?
+- Эй, это не твоя посылка, а ну верни. [if not ctx.parcel_return_pending() /] => demand
+- Забрать посылку. [if ctx.parcel_return_pending() /] => demand
+- Закончить разговор. => END
+
+~ demand
+$> ctx.request_parcel_return()
+=> END

@@ -10,6 +10,21 @@ const REACTIONS = preload("res://content/domains/customers/rules/customer_parcel
 static func available(actor: Entity, customer: E_DistrictNpc) -> CustomerParcelIncident:
 	if not participants_available(actor, customer):
 		return null
+	return _available(actor, customer)
+
+
+## Reads a live conversation without treating its modal presentation as a physical refusal.
+## Actual execution still uses available() after the dialogue releases its input capture.
+static func available_in_dialogue(actor: Entity, customer: E_DistrictNpc) -> CustomerParcelIncident:
+	if (
+		NpcDialogueService.participant(customer) != actor
+		or not _physical_participants_available(actor, customer)
+	):
+		return null
+	return _available(actor, customer)
+
+
+static func _available(actor: Entity, customer: E_DistrictNpc) -> CustomerParcelIncident:
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null or flow.parcel_reaction_in_progress:
 		return null
@@ -63,12 +78,18 @@ static func contact_available(customer: E_DistrictNpc, incident: CustomerParcelI
 
 ## Explicit demand commands have the same physical/control gate as the contextual action.
 static func participants_available(actor: Entity, customer: E_DistrictNpc) -> bool:
+	return (
+		InteractionControlFocus.current(actor) <= InteractionControlFocus.Priority.CARRY
+		and _physical_participants_available(actor, customer)
+	)
+
+
+static func _physical_participants_available(actor: Entity, customer: E_DistrictNpc) -> bool:
 	if (
 		not GrabQueries.holder_available(actor) or not GrabQueries.holder_available(customer)
 		or not actor.has_component(C_PlayerInputController) or actor.has_component(C_Death)
 		or customer.has_component(C_Death) or (customer as Node).get_tree().paused
 		or bool(Console.is_visible())
-		or InteractionControlFocus.current(actor) > InteractionControlFocus.Priority.CARRY
 		or CombatQueries.target_for(customer) != null or CombatQueries.target_for(actor) != null
 	):
 		return false
