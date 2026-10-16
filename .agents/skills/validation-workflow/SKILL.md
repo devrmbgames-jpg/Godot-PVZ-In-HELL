@@ -77,5 +77,9 @@ Preserve wrapper FAIL when reporting the raw command and separately document the
 justified engine classification; do not relabel an unmodified runner as fixed.
 Unknown/mixed diagnostics, nonzero exit, missing completion, runtime growth/live Nodes,
 use-after-free/double-free still block affected work. Never blanket-ignore ERROR or RID.
-The [runner task](../../tasks/godot_validation_result_classification.md) covers actual
-classification changes/tests. Until it is implemented, do not claim a new CLI mode exists.
+The [runner contract](../../../utils/godot_agent.md) documents separate functional and
+diagnostic results in additive `.result.json` manifests, unchanged raw streams and the
+optional `-TimeoutSeconds`. Its automatic shutdown exception is narrower than the owner
+policy: exact terminal Resource summary plus native cleanup callsite and verified success.
+Ambiguous ObjectDB summaries and unverified RID/StringName/PagedAllocator output remain
+FAIL/UNKNOWN. Do not treat those as a new investigation or silently broaden the classifier.

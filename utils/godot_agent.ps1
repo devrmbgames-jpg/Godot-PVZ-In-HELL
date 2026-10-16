@@ -6,7 +6,9 @@ param(
     [string]$GodotPath = "",
     [string[]]$Paths = @(),
     [string]$TestPath = "",
-    [string]$ScriptPath = ""
+    [string]$ScriptPath = "",
+    [ValidateRange(0, 2147483)]
+    [int]$TimeoutSeconds = 0
 )
 
 # One real-Godot CLI runner for Codex and VS Code, independent of any MCP bridge.
@@ -156,6 +158,97 @@ function Get-GodotDiagnostics {
     }
 }
 
+function Get-GodotValidationResult {
+    param(
+        [string[]]$StdoutLines, [string[]]$StderrLines, [string]$Action,
+        [Nullable[int]]$ExitCode, [bool]$TimedOut = $false
+    )
+
+    $ansi = '\x1B\[[0-?]*[ -/]*[@-~]'
+    $output = @($StdoutLines | ForEach-Object { $_ -replace $ansi, '' })
+    $errors = @($StderrLines | ForEach-Object { $_ -replace $ansi, '' })
+    $complete = $false
+    $requiresMarker = $Action -in @('GUT', 'ParseFiles', 'ParseChanged')
+    if ($Action -eq 'GUT') {
+        $markers = @($output | Where-Object { $_ -match '^---- All tests passed! ----\s*$' })
+        $totals = @($output | Where-Object { $_ -match '^Tests\s+[1-9][0-9]*\s*$' })
+        $passing = @($output | Where-Object { $_ -match '^Passing Tests\s+[1-9][0-9]*\s*$' })
+        $complete = $markers.Count -eq 1 -and $totals.Count -eq 1 -and $passing.Count -eq 1
+        if ($complete) {
+            $totalCount = ($totals[0] -split '\s+')[-1]
+            $passingCount = ($passing[0] -split '\s+')[-1]
+            $complete = $totalCount -eq $passingCount
+        }
+    } elseif ($Action -in @('ParseFiles', 'ParseChanged')) {
+        $markers = @($output | Where-Object {
+            $_ -match '^Changed-script parser: PASS \([1-9][0-9]* files, 0 failures\)\s*$'
+        })
+        $complete = $markers.Count -eq 1
+    }
+
+    # Recognize only an exact engine shutdown message AND its native shutdown callsite.
+    # ObjectDB summaries cannot distinguish retained scripts from live Nodes. Keep them UNKNOWN.
+    # Unverified RID/StringName/PagedAllocator messages also remain actionable, never word-filtered.
+    $remainingErrors = [Collections.Generic.List[string]]::new()
+    $known = [Collections.Generic.List[string]]::new()
+    for ($index = 0; $index -lt $errors.Count; $index++) {
+        if ($errors[$index] -match '^ERROR: [1-9][0-9]* resources still in use at exit \(run with --verbose for details\)\.$' -and
+            $index + 1 -lt $errors.Count -and
+            $errors[$index + 1] -match '^   at: clear \(core/io/resource\.cpp:[1-9][0-9]*\)$') {
+            $known.Add($errors[$index])
+            $index++
+        } else {
+            $remainingErrors.Add($errors[$index])
+        }
+    }
+
+    $diagnostics = @(Get-GodotDiagnostics $output $remainingErrors.ToArray() $Action $ExitCode)
+    $unknown = [Collections.Generic.List[string]]::new()
+    $expectedConfigContext = $false
+    foreach ($line in $remainingErrors) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        if ($diagnostics -contains $line) { $expectedConfigContext = $false; continue }
+        if ($line -match '^ERROR: ConfigFile parse error at user://.+?:\d+:.*$') {
+            # The legacy exact/count-matched expected-negative contract already accepted this line.
+            $expectedConfigContext = $true
+            continue
+        }
+        if ($expectedConfigContext -and $line -match '^   at: _parse \(core/io/config_file\.cpp:\d+\)$') {
+            $expectedConfigContext = $false
+            continue
+        }
+        if ($line -eq 'ERROR: Failed to read the root certificate store.') { continue }
+        $expectedConfigContext = $false
+        $unknown.Add($line)
+    }
+    foreach ($line in $output) {
+        if ($line -match '^WARNING:|^Leaked instance:|^Orphan StringName:') { $unknown.Add($line) }
+    }
+    $liveFailure = @($output + $errors | Where-Object {
+        $_ -match '(?i)(leak.*\bNodes?\b|\bNodes?\b.*leak|use.after.free|double.free|\[Failed\]|---- [1-9][0-9]* failing tests ----)'
+    }).Count -gt 0
+    $diagnosticStatus = 'CLEAN'
+    if ($diagnostics.Count -gt 0 -or $liveFailure) { $diagnosticStatus = 'FAIL' }
+    elseif ($unknown.Count -gt 0 -or ($known.Count -gt 0 -and
+        (-not $complete -or $null -eq $ExitCode -or $ExitCode -ne 0 -or $TimedOut))) { $diagnosticStatus = 'UNKNOWN' }
+    elseif ($known.Count -gt 0) { $diagnosticStatus = 'KNOWN_ENGINE_LIMITATION' }
+
+    $functionalStatus = 'PASS'
+    if ($TimedOut -or ($null -ne $ExitCode -and $ExitCode -ne 0) -or $diagnosticStatus -eq 'FAIL') { $functionalStatus = 'FAIL' }
+    elseif ($null -eq $ExitCode) { $functionalStatus = 'UNKNOWN' }
+    elseif (($requiresMarker -and -not $complete) -or $diagnosticStatus -eq 'UNKNOWN') { $functionalStatus = 'UNKNOWN' }
+    [pscustomobject]@{
+        FunctionalStatus = $functionalStatus
+        DiagnosticStatus = $diagnosticStatus
+        DiagnosticDisposition = $(if ($diagnosticStatus -eq 'KNOWN_ENGINE_LIMITATION') { 'DEFERRED' } else { $diagnosticStatus })
+        CompletionVerified = $complete
+        TimedOut = $TimedOut
+        Diagnostics = @($diagnostics)
+        UnknownDiagnostics = @($unknown.ToArray())
+        KnownShutdownDiagnostics = @($known.ToArray())
+    }
+}
+
 $versionOutput = @(& $godot --version)
 if ($LASTEXITCODE -ne 0 -or -not (($versionOutput -join " ") -match '^4\.7\.1(\.|$)')) {
     throw "This project requires Godot 4.7.1, got: $($versionOutput -join ' ')"
@@ -228,6 +321,7 @@ New-Item -ItemType Directory -Path $logDir -Force | Out-Null
 $stamp = [DateTime]::UtcNow.ToString("yyyyMMdd-HHmmssfff")
 $stdout = Join-Path $logDir "$label-$stamp.stdout.log"
 $stderr = Join-Path $logDir "$label-$stamp.stderr.log"
+$resultPath = Join-Path $logDir "$label-$stamp.result.json"
 $launch = @{
     FilePath = $godot
     ArgumentList = [string[]]$arguments
@@ -240,22 +334,37 @@ $launch = @{
 if ($env:OS -eq "Windows_NT") {
     $launch.WindowStyle = "Hidden"
 }
+$timedOut = $false
+if ($TimeoutSeconds -gt 0) { $launch.Wait = $false }
 $process = Start-Process @launch
+if ($TimeoutSeconds -gt 0) {
+    # Retain the native handle before waiting; Windows PowerShell can otherwise lose ExitCode.
+    $null = $process.Handle
+    $timedOut = -not $process.WaitForExit($TimeoutSeconds * 1000)
+    if ($timedOut) { $process.Kill() }
+    $process.WaitForExit()
+}
 $stdoutLines = @()
 $stderrLines = @()
 if (Test-Path -LiteralPath $stdout) { $stdoutLines = @(Get-Content -Encoding UTF8 -LiteralPath $stdout) }
 if (Test-Path -LiteralPath $stderr) { $stderrLines = @(Get-Content -Encoding UTF8 -LiteralPath $stderr) }
-$lines = @($stdoutLines + $stderrLines)
-$diagnostics = @(Get-GodotDiagnostics -StdoutLines $stdoutLines -StderrLines $stderrLines -Action $Action -ExitCode $process.ExitCode)
-$failed = $process.ExitCode -ne 0 -or $diagnostics.Count -gt 0
-if ($Action -in @("ParseFiles", "ParseChanged") -and
-    -not ($lines -match 'Changed-script parser: PASS')) {
-    $failed = $true
-}
+$result = Get-GodotValidationResult $stdoutLines $stderrLines $Action $process.ExitCode $timedOut
+[ordered]@{
+    schema = 1
+    action = $Action
+    engine_version = ($versionOutput -join ' ')
+    native_exit_code = $process.ExitCode
+    stdout = $stdout
+    stderr = $stderr
+    result = $result
+} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $resultPath -Encoding UTF8
+$failed = $result.FunctionalStatus -ne 'PASS'
 if ($failed) {
     Write-Output "FAIL: $Action (exit $($process.ExitCode)); logs: $stdout ; $stderr"
-    $diagnostics | Select-Object -Unique -First 18 | ForEach-Object { Write-Output "  $_" }
+    Write-Output "  Functional=$($result.FunctionalStatus); diagnostics=$($result.DiagnosticStatus); result: $resultPath"
+    @($result.Diagnostics + $result.UnknownDiagnostics) | Select-Object -Unique -First 18 | ForEach-Object { Write-Output "  $_" }
     exit 1
 }
 Write-Output "PASS: $Action (Godot 4.7.1); logs: $stdout ; $stderr"
+Write-Output "  Functional=PASS; diagnostics=$($result.DiagnosticStatus)/$($result.DiagnosticDisposition); result: $resultPath"
 exit 0

@@ -30,6 +30,78 @@ if ($parseErrors.Count -ne 0) { throw ($parseErrors.Message -join '; ') }
     def test_runner_parses_with_native_powershell(self) -> None:
         self.run_contract("")
 
+    def test_result_classifies_completion_and_exact_terminal_resource_diagnostics(self) -> None:
+        self.run_contract(r"""
+foreach ($name in @('Get-GodotDiagnostics', 'Get-GodotValidationResult')) {
+    $definition = $ast.Find({ param($node)
+        $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+        $node.Name -eq $name
+    }, $true)
+    if ($null -eq $definition) { throw "Missing result contract: $name" }
+    Invoke-Expression $definition.Extent.Text
+}
+$success = @('Tests                 2', 'Passing Tests         2', '---- All tests passed! ----')
+$known = @('ERROR: 12 resources still in use at exit (run with --verbose for details).',
+           '   at: clear (core/io/resource.cpp:822)')
+foreach ($case in @(
+    @{Out=$success; Err=@(); Action='GUT'; Functional='PASS'; Diagnostic='CLEAN'},
+    @{Out=$success; Err=$known; Action='GUT'; Functional='PASS'; Diagnostic='KNOWN_ENGINE_LIMITATION'},
+    @{Out=@('Changed-script parser: PASS (2 files, 0 failures)'); Err=$known;
+      Action='ParseFiles'; Functional='PASS'; Diagnostic='KNOWN_ENGINE_LIMITATION'},
+    @{Out=$success; Err=@('WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).',
+      '   at: cleanup (core/object/object.cpp:2536)'); Action='GUT'; Functional='UNKNOWN'; Diagnostic='UNKNOWN'},
+    @{Out=$success; Err=@('WARNING: live Node leaked'); Action='GUT'; Functional='FAIL'; Diagnostic='FAIL'},
+    @{Out=$success; Err=@('WARNING: unexplained runtime state'); Action='GUT'; Functional='UNKNOWN'; Diagnostic='UNKNOWN'},
+    @{Out=$success; Err=@('RID'); Action='GUT'; Functional='UNKNOWN'; Diagnostic='UNKNOWN'},
+    @{Out=@(); Err=$known; Action='GUT'; Functional='UNKNOWN'; Diagnostic='UNKNOWN'},
+    @{Out=@('Tests 2', 'Passing Tests 1', '---- All tests passed! ----'); Err=@();
+      Action='GUT'; Functional='UNKNOWN'; Diagnostic='CLEAN'},
+    @{Out=@('---- All tests passed! ----'); Err=@(); Action='GUT'; Functional='UNKNOWN'; Diagnostic='CLEAN'},
+    @{Out=@('Import complete'); Err=$known; Action='Import'; Functional='UNKNOWN'; Diagnostic='UNKNOWN'},
+    @{Out=$success; Err=@('ERROR: 12 resources still in use at exit (run with --verbose for details).',
+      '   at: arbitrary_runtime_call (res://actor.gd:4)'); Action='GUT'; Functional='FAIL'; Diagnostic='FAIL'},
+    @{Out=$success; Err=@($known + 'SCRIPT ERROR: Broken call'); Action='GUT'; Functional='FAIL'; Diagnostic='FAIL'},
+    @{Out=$success; Err=@($known + 'ERROR: live RID pool corrupted'); Action='GUT'; Functional='FAIL'; Diagnostic='FAIL'}
+)) {
+    $result = Get-GodotValidationResult $case.Out $case.Err $case.Action 0
+    if ($result.FunctionalStatus -ne $case.Functional -or $result.DiagnosticStatus -ne $case.Diagnostic) {
+        throw ('Wrong classification: ' + ($case | ConvertTo-Json -Compress) + ' => ' + ($result | ConvertTo-Json -Compress))
+    }
+}
+foreach ($mode in @('exit', 'timeout')) {
+    $exitCode = if ($mode -eq 'exit') { 1 } else { 0 }
+    $result = Get-GodotValidationResult $success $known 'GUT' $exitCode ($mode -eq 'timeout')
+    if ($result.FunctionalStatus -ne 'FAIL') { throw "Accepted $mode failure" }
+}
+$result = Get-GodotValidationResult $success @() 'GUT' $null
+if ($result.FunctionalStatus -ne 'UNKNOWN') { throw 'Missing native exit code became success' }
+""")
+
+    def test_result_keeps_expected_negative_contract_local_and_preserves_input(self) -> None:
+        self.run_contract(r"""
+foreach ($name in @('Get-GodotDiagnostics', 'Get-GodotValidationResult')) {
+    $definition = $ast.Find({ param($node)
+        $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+        $node.Name -eq $name
+    }, $true)
+    if ($null -eq $definition) { throw "Missing result contract: $name" }
+    Invoke-Expression $definition.Extent.Text
+}
+$success = @('Tests 1', 'Passing Tests 1', '---- All tests passed! ----')
+$confirmation = "[ExpectedError]Expected engine error containing 'ConfigFile parse error at user://slot'."
+$native = 'ERROR: ConfigFile parse error at user://slot:2: EOF.'
+$stdout = @($success + $confirmation)
+$stderr = @($native, '   at: _parse (core/io/config_file.cpp:298)')
+$before = @($stdout, $stderr) | ConvertTo-Json -Depth 4 -Compress
+$result = Get-GodotValidationResult $stdout $stderr 'GUT' 0
+if ($result.FunctionalStatus -ne 'PASS') { throw 'Expected-negative fixture rejected' }
+if ((@($stdout, $stderr) | ConvertTo-Json -Depth 4 -Compress) -ne $before) { throw 'Raw input mutated' }
+$result = Get-GodotValidationResult $stdout @($stderr + 'ERROR: different failure') 'GUT' 0
+if ($result.FunctionalStatus -ne 'FAIL') { throw 'Expected fixture hid an unrelated error' }
+$result = Get-GodotValidationResult $success $stderr 'GUT' 0
+if ($result.FunctionalStatus -ne 'FAIL') { throw 'Unconfirmed error accepted' }
+""")
+
     def test_changed_selection_includes_companion_and_excludes_vendor(self) -> None:
         self.run_contract(r"""
 $assignment = $ast.Find({ param($node)
