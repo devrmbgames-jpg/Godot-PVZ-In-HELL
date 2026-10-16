@@ -45,7 +45,7 @@ Q2 — ограниченный эксперимент, не обязатель�
 
 utils/godot_agent.ps1: Get-GodotDiagnostics и вызывающие его parser/GUT/manifest/exit-code ветки;
 существующие тесты/fixtures и validation-workflow/references/memory-lifetime.md.
-Ни исправление движка, ни исследование [cold retention](cold_snapshot_resource_retention.md)
+Ни исправление движка, ни исследование [cold retention](../cold_snapshot_resource_retention.md)
 не требуются и не разрешаются этой задачей. Игровой код, addon, версия Godot — вне scope.
 
 ## Next
