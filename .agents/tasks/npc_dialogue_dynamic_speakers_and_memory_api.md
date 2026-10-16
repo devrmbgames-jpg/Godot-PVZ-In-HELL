@@ -1,7 +1,7 @@
 # Диалоги — динамический говорящий и пять операций памяти
 
-Status: **IN_PROGRESS**
-Technical: **IN_PROGRESS**
+Status: **OWNER_QA**
+Technical: **COMPLETE**
 Execution order: **60**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ](references/task-refactor-2026-10-17/npc_dialogue_dynamic_speakers_and_memory_api.md.txt).
@@ -45,15 +45,17 @@ D3 авторская документация/пример в [docs/dialogue_me
 компилируется/исполняется native DMCompiler/runtime; пример денег предполагает
 подтверждённую передачу, не выполняет списание и не вводит cost_mone.
 
-D2/D3 технический checkpoint ожидает immutable-SHA review: **REVIEW_PENDING**.
-Technical не COMPLETE, задача не DONE.
+D2/D3 checkpoint `45cb14b55fddea92bf6d1bbc694c856b24fb2b64`
+reviewed от BASE `4c91c7137806be85cddb42059a38d144397d5bb6`: no material findings,
+ARCHITECTURE/STYLE PASS; reviewer execution NOT_RUN. Triage: принятых P0/P1/P2 нет.
+Technical COMPLETE; обязательная rendered UI приёмка открыта, задача не DONE.
 
 ## Work packages / boundaries
 
 | Пакет | Результат |
 | --- | --- |
 | D1 | Динамические NPC headers и сохранённые player/narrator/sign cues — reviewed. |
-| D2 | Единая постоянная память, пять операций, codec/preflight/schema, retained/fresh restore — реализован, review pending. |
+| D2 | Единая постоянная память, пять операций, codec/preflight/schema, retained/fresh restore — reviewed PASS. |
 | D3 | Русская документация/compiled examples готовы; обязательный rendered UI gate открыт. |
 
 [Постоянные жители](district_authored_residents_and_resurrection.md) используют проверенный D2,
@@ -83,7 +85,7 @@ Two-process native `run_smoke -Name night_persistence` **PASS**:
 Проверяет новую игру с пустыми коллекциями, Night и реальный restart с null/typed values
 и независимыми счётчиками двух NPC. Это не rendered QA.
 Formatter/lint13, architecture(strict), project structure, persistence baseline PASS.
-Staged agent validator и diff-check PASS; read-only review — после commit.
+Staged agent validator и diff-check PASS; read-only review collected PASS.
 Ранние красные fixture-прогоны сохранены, не считаются приёмкой. Full snapshot tests
 используют реальный district fixture; dialogue-only fixture имеет inline duplicated Definition.
 Старый baseline assertion RigidBody исправлен на текущий CharacterBody контракт.
@@ -95,10 +97,9 @@ D1 Import wrapper FAIL из-за mixed shutdown diagnostics сохранён; ac
 
 ## Next
 
-Зафиксировать D2/D3 и запустить reviewer
-от BASE `4c91c7137806be85cddb42059a38d144397d5bb6` на точный TARGET_SHA.
-После triage и исправления принятых P0/P1/P2 выполнить разрешённые шесть случаев NPC
-CharacterBody, затем подготовить и выполнить bounded dialogue UI acceptance.
+Подготовить и выполнить bounded dialogue UI acceptance на reviewed source:
+актуальное имя в street/service, compiled example memory в настоящей панели и Angel sign mode.
+NPC CharacterBody QA завершено в выданном объёме6/6; повторов этой задачи не запускать.
 Не объявлять milestone DONE при pending review или открытой обязательной приёмке.
 ## Owner QA / blockers
 

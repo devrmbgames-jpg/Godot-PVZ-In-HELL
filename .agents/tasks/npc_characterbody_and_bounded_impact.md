@@ -45,7 +45,12 @@ pressure preserves gravity and recovers own8mps after release. Final native21/10
 solid narrow passage/end geometry and authored Walk/Idle chosen from actual velocity rather
 than intent. Final source-matrix/test review collected PASS at
 `d6f599dafc85af4d25f2b788a94aa75f5540a6ea`; no unresolved P0/P1/P2.
-Windows QA artifact and headless menu/level are ready; rendered cases have not started (0/8).
+Windows QA artifact and headless menu/level are ready.
+Rendered reviewed runtime `45cb14b55fddea92bf6d1bbc694c856b24fb2b64`:
+**3 PASS / 3 INCONCLUSIVE**, выданные6/6 исчерпаны. Подробности/артефакты в QA-карточке.
+PASS: native held support+release, два удара в passage/corner/ceiling, observed Angel.
+INCONCLUSIVE: свободный сильный бросок, полный10s held press, ходьба после удара.
+Ошибки подготовки/timeout не считаются игровыми дефектами или PASS.
 
 ## Work packages
 
@@ -152,8 +157,8 @@ exporter shutdown diagnostics are not evidence of a runtime Source-contract fail
 
 Числа ограничений/затухания — обратимые Inspector-настройки прототипа, не утверждённый баланс.
 Разрешение владельца 2026-10-17 получено: до6 rendered случаев по QA-карточке,
-использовано0/6 (общий milestone ceiling8). Повторно спрашивать внутри лимита не требуется.
-После D2 review выполнить эти шесть случаев на reviewed source.
+использовано6/6 (общий milestone ceiling8), этот меньший лимит исчерпан. Повторно спрашивать внутри лимита не требуется.
+Повторные rendered проверки этой задачи не запускать без нового разрешения.
 Последний handoff review BASE `d6f599dafc85af4d25f2b788a94aa75f5540a6ea`,
 TARGET `4c91c7137806be85cddb42059a38d144397d5bb6`: no findings,
 ARCHITECTURE/STYLE PASS; reviewer execution NOT_RUN. Технически готовый пакет может разблокировать
