@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `2d4dd560f314f722652911ad19e050fa9192ab9e`
-TARGET_SHA: pending M2c2 fire consumption commit — REVIEW_PENDING
+TARGET_SHA: `a3a3f8a593ab77e0f4fc192674d25852ca5793f6` — REVIEW_PASS
 
 Created: 2026-10-15. Related: [согласованность посылок](package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
@@ -28,7 +28,7 @@ M1a/b reviewed: общий CustomerParcelOffer рук/стола, строгий
 M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: item holy/fire metadata,16 .tres/22 prefab agreement; reviewer validation NOT_RUN, repair0/2.
 M2b reviewed: DEF_NpcParcelReaction CAPABILITY у4 архетипов, чистый chooser с переданными rolls; architecture/style PASS, validation NOT_RUN, repair0/2.
 M2c1 carry reviewed, RV-002/003 fixed; fresh C_GrabControl/C_CarryLoad/C_Strength, Strength6/offset0.35 м, existing R_HeldBy/solver/cleanup; architecture/style PASS, reviewer validation NOT_RUN.
-M2c2 fire implemented, review pending: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without re-emission from empty shells; catalog quantity/history unchanged, schema22 unchanged. Unknown legacy stubs have no invented item/fire metadata.
+M2c2 fire reviewed: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without repeat from empty shells; catalog quantity/history/schema22 unchanged. Unknown legacy stubs remain unknown. No material findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults, с явными Inspector overrides.
 RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
 RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
@@ -196,5 +196,5 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-M2c2: collect immutable review/triage; then durable incidents/selection, GameClock deadline and physical effects;
+M2c1/c2 closed. Next: wire wrong-parcel reactions with durable pair incidents, GameClock180s deadline and physical effects;
 затем присвоение/запугивание/save compatibility/регрессии -> owner QA. Runtime реакции ещё не реализованы; задача IN_PROGRESS.
