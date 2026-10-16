@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://tdn76kfm8lx4"]
+
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="1_ah8kc"]
+
+[resource]
+script = ExtResource("1_ah8kc")
+unit_mass_kg = 3.0
+unit_size_m = Vector3(0.94, 1.64, 0.13)
+key = &"cargo_scythe"

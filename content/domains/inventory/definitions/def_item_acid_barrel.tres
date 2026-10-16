@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://cjy1tvnkoghrr"]
 
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_e0igt"]
+[ext_resource type="Resource" uid="uid://dq0x1nqqewu4f" path="res://content/domains/inventory/definitions/def_cargo_acid_barrel.tres" id="1_pdf1y"]
 
 [resource]
 script = ExtResource("1_e0igt")
@@ -8,6 +9,7 @@ categories = 8
 market_price = 100
 display_name = "Бочка с кислотой"
 world_pickup_scene = "res://content/domains/hazards/entities/acid_barrel.tscn"
+cargo_profile = ExtResource("1_pdf1y")
 kind = 5
 maximum_stack = 1
 key = &"acid_barrel"

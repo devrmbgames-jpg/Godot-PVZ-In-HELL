@@ -96,8 +96,13 @@ func _measure_cargo(item: DEF_InventoryItem) -> DEF_ItemCargo:
 	var body: RigidBody3D = autofree(scene.instantiate()) as RigidBody3D
 	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
 	assert_true(solver.prepare(body), String(item.key))
-	var cargo: DEF_ItemCargo = DEF_ItemCargo.new()
-	cargo.unit_mass_kg = body.mass
-	cargo.unit_size_m = solver.bounds_at(Transform3D(body.transform.basis, Vector3.ZERO)).size
+	var cargo: DEF_ItemCargo = item.cargo_profile
+	assert_not_null(cargo, "Every authored catalog item declares its physical cargo facts")
+	assert_true(PackagePackingRules.valid_cargo(cargo))
+	assert_almost_eq(cargo.unit_mass_kg, body.mass, 0.000001, String(item.key))
+	var measured_size: Vector3 = (
+		solver.bounds_at(Transform3D(body.transform.basis, Vector3.ZERO)).size
+	)
+	assert_eq(cargo.unit_size_m, measured_size, String(item.key))
 	return cargo
 #endregion

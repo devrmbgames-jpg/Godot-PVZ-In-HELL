@@ -113,6 +113,15 @@ func test_invalid_cargo_and_quantities_reject() -> void:
 	cargo.unit_size_m = Vector3.ONE
 	cargo.hazards = 8
 	assert_false(PackagePackingRules.valid_cargo(cargo))
+	cargo.hazards = DEF_ItemCargo.Hazard.NONE
+	cargo.maximum_shipment_quantity = 0
+	assert_false(PackagePackingRules.valid_cargo(cargo))
+	cargo.maximum_shipment_quantity = 100
+	assert_false(PackagePackingRules.valid_cargo(cargo))
+	cargo.maximum_shipment_quantity = 1
+	cargo.unit_size_m = Vector3(0.1, 0.1, 0.1)
+	assert_true(PackagePackingRules.accepts(shell, cargo, 1))
+	assert_false(PackagePackingRules.accepts(shell, cargo, 2), "Cargo's own unit limit is binding")
 
 
 ## Malformed tuning, duplicate scene paths and excessive catalogs fail without materialization.
@@ -143,6 +152,7 @@ func test_invalid_profiles_and_bounded_catalog_reject() -> void:
 #region Explicit authored-data fixtures
 func _cargo(size_m: Vector3, mass_kg: float) -> DEF_ItemCargo:
 	var cargo: DEF_ItemCargo = DEF_ItemCargo.new()
+	cargo.maximum_shipment_quantity = PackagePackingRules.MAX_QUANTITY
 	cargo.unit_size_m = size_m
 	cargo.unit_mass_kg = mass_kg
 	return cargo

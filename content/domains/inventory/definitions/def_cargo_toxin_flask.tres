@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://vci5a2k6c45"]
+
+[ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_area.tscn" id="1_yb22i"]
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="2_ubryr"]
+
+[resource]
+script = ExtResource("2_ubryr")
+phase = 1
+unit_mass_kg = 0.4
+unit_size_m = Vector3(0.3, 0.3, 0.3)
+hazards = 1
+fragile = true
+maximum_shipment_quantity = 4
+rupture_hazard = ExtResource("1_yb22i")
+key = &"cargo_toxin_flask"

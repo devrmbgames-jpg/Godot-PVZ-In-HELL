@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://c307oevikd2cw"]
+
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="1_dr6a7"]
+
+[resource]
+script = ExtResource("1_dr6a7")
+unit_mass_kg = 1.2
+unit_size_m = Vector3(0.98, 0.36, 0.18)
+key = &"cargo_spiked_chains"

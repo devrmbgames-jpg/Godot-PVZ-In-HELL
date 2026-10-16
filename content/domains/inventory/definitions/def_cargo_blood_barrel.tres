@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://dq2baagmtkfuq"]
+
+[ext_resource type="PackedScene" uid="uid://d2eb0mvcuwq3x" path="res://content/domains/hazards/entities/blood_pool.tscn" id="1_f6q0f"]
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="2_c4lcf"]
+
+[resource]
+script = ExtResource("2_c4lcf")
+phase = 1
+unit_mass_kg = 18.0
+unit_size_m = Vector3(0.8, 1, 0.8)
+rupture_hazard = ExtResource("1_f6q0f")
+key = &"cargo_blood_barrel"

@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://cvgyjdxiqmply"]
 
+[ext_resource type="Resource" uid="uid://b0o7i2jslhw6g" path="res://content/domains/inventory/definitions/def_cargo_toy_block.tres" id="1_b07vo"]
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_gw2if"]
 
 [resource]
@@ -8,6 +9,7 @@ categories = 16
 market_price = 10
 display_name = "Игрушечный кубик"
 world_pickup_scene = "res://content/domains/interaction/entities/toy_block.tscn"
+cargo_profile = ExtResource("1_b07vo")
 kind = 5
 maximum_stack = 1
 key = &"toy_block"

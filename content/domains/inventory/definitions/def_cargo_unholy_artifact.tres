@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://fwots3baxdur"]
+
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="1_40spk"]
+
+[resource]
+script = ExtResource("1_40spk")
+unit_mass_kg = 0.6
+unit_size_m = Vector3(0.36, 0.36, 0.36)
+key = &"cargo_unholy_artifact"

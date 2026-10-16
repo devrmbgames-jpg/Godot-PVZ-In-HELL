@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://d4k38ln3m18ia"]
 
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_8uss7"]
+[ext_resource type="Resource" uid="uid://bghlsr5y2uc5c" path="res://content/domains/inventory/definitions/def_cargo_axe.tres" id="1_rghip"]
 
 [resource]
 script = ExtResource("1_8uss7")
@@ -8,6 +9,7 @@ categories = 1
 market_price = 60
 display_name = "Топор"
 world_pickup_scene = "res://content/domains/combat/entities/axe.tscn"
+cargo_profile = ExtResource("1_rghip")
 kind = 5
 maximum_stack = 1
 key = &"axe"

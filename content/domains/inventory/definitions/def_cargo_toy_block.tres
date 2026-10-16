@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://b0o7i2jslhw6g"]
+
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="1_e0q7r"]
+
+[resource]
+script = ExtResource("1_e0q7r")
+unit_mass_kg = 0.5
+unit_size_m = Vector3(0.3, 0.3, 0.3)
+maximum_shipment_quantity = 8
+key = &"cargo_toy_block"

@@ -16,6 +16,7 @@ static func valid_cargo(cargo: DEF_ItemCargo) -> bool:
 		and is_finite(cargo.unit_mass_kg) and cargo.unit_mass_kg > 0.0
 		and _positive_size(cargo.unit_size_m) and is_finite(_volume(cargo.unit_size_m))
 		and _volume(cargo.unit_size_m) > 0.0 and cargo.hazards >= 0
+		and cargo.maximum_shipment_quantity >= 1 and cargo.maximum_shipment_quantity <= MAX_QUANTITY
 		and (
 			cargo.hazards
 			& ~(
@@ -54,8 +55,8 @@ static func valid_profile(profile: DEF_PackagePacking) -> bool:
 ## Bounded envelope/volume classes, not universal 3D packing; rotation ignores author axis order.
 static func accepts(profile: DEF_PackagePacking, cargo: DEF_ItemCargo, quantity: int) -> bool:
 	if (
-		not valid_cargo(cargo) or not valid_profile(profile)
-		or quantity < 1 or quantity > profile.maximum_quantity
+		not valid_cargo(cargo) or not valid_profile(profile) or quantity < 1
+		or quantity > profile.maximum_quantity or quantity > cargo.maximum_shipment_quantity
 	):
 		return false
 	var unit_axes: Array[float] = _axes(cargo.unit_size_m)

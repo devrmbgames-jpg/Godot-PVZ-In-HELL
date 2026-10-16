@@ -26,4 +26,8 @@ enum Hazard {
 @export_flags("Toxic:1", "Flammable:2", "Explosive:4") var hazards: int = Hazard.NONE
 ## Requires fragile handling regardless of whether the payload is liquid.
 @export var fragile: bool = false
+## Maximum units allowed in one shipment; this caps the initial order before choosing a shell.
+@export_range(1, 99) var maximum_shipment_quantity: int = 1
+## Native autonomous effect of this actual payload when containment fails; null means no effect.
+@export var rupture_hazard: PackedScene = null
 #endregion

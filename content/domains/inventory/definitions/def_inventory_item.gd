@@ -34,6 +34,8 @@ var categories: int = 0
 @export var icon: Texture2D = null
 ## Строковый путь сцены избегает рекурсивной зависимости Definition → scene → Definition.
 @export_file("*.tscn") var world_pickup_scene: String = ""
+## Immutable physical facts for shipment planning; non-orderable inventory entries may omit them.
+@export var cargo_profile: DEF_ItemCargo = null
 ## Вид эффекта и способ хранения; мебель создаётся физически.
 @export var kind: Kind = Kind.FOOD
 ## Авторский признак крупной мебели, для которой торговец предлагает доставку.

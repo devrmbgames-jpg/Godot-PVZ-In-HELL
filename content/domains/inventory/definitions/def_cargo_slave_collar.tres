@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://swshfo7uktwb"]
+
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="1_nm1y0"]
+
+[resource]
+script = ExtResource("1_nm1y0")
+unit_mass_kg = 0.3
+unit_size_m = Vector3(0.36, 0.08, 0.36)
+maximum_shipment_quantity = 4
+key = &"cargo_slave_collar"

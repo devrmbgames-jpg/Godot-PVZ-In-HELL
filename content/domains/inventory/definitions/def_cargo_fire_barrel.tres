@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://bfc7fcjlnesl8"]
+
+[ext_resource type="PackedScene" uid="uid://bbij2ca62dgik" path="res://content/domains/hazards/entities/fire_spill.tscn" id="1_lbine"]
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="2_4ocff"]
+
+[resource]
+script = ExtResource("2_4ocff")
+phase = 1
+unit_mass_kg = 18.0
+unit_size_m = Vector3(0.8, 1, 0.8)
+hazards = 2
+rupture_hazard = ExtResource("1_lbine")
+key = &"cargo_fire_barrel"

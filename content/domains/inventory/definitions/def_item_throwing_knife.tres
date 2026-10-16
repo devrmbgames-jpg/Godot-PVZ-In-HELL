@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://cx1n4uytruadx"]
 
+[ext_resource type="Resource" uid="uid://dn23jdr613cof" path="res://content/domains/inventory/definitions/def_cargo_throwing_knife.tres" id="1_pbscs"]
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_w8hve"]
 
 [resource]
@@ -8,6 +9,7 @@ categories = 1
 market_price = 35
 display_name = "Метательный нож"
 world_pickup_scene = "res://content/domains/combat/entities/throwing_knife.tscn"
+cargo_profile = ExtResource("1_pbscs")
 kind = 5
 maximum_stack = 1
 key = &"throwing_knife"

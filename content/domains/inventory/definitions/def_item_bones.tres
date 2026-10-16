@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://bhmjsqk8birom"]
 
+[ext_resource type="Resource" uid="uid://js28pj40rn31" path="res://content/domains/inventory/definitions/def_cargo_bones.tres" id="1_5ky6a"]
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_riew4"]
 
 [resource]
@@ -8,6 +9,7 @@ categories = 32
 market_price = 10
 display_name = "Кости"
 world_pickup_scene = "res://content/domains/inventory/entities/bones_pickup.tscn"
+cargo_profile = ExtResource("1_5ky6a")
 kind = 4
 maximum_stack = 20
 key = &"bones"

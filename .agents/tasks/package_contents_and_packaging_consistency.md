@@ -1,8 +1,7 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `b2f406ca172228e7ca49b62aa646f17a906cd5a4`
-TARGET_SHA: `53a58f95e3dbff26f969e8100b3abb2047110fb7`
+BASE_SHA: `ee8c23b2c3f4140ff2749fb7dcffa55c6c2c7100`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
@@ -42,6 +41,15 @@ package compiler, Box_C/Marks/Condition и исходные сцены. Native-�
 Поставки ещё используют прежний путь; authored profiles будут подключены в M2b вместе с shipment
 plan/quantity/cargo properties. M2a review PASS, material findings нет, triage завершён без
 требуемых исправлений; исходный gameplay-дефект ещё не исправлен, общая задача IN_PROGRESS.
+
+M2b подготовлен: 16 native .tres cargo-профилей привязаны к immutable DEF_InventoryItem через
+editor/MCP. Массы/габариты совпадают с native телами; rupture_hazard совпадает с их реальным
+C_HazardEmitter, включая разные blood_spill у колбы и blood_pool у бочки. Максимальное количество
+единиц — авторский cap перед выбором оболочки, не увеличение количества после выбора. Capacity
+Rules проверяет этот cap. Все 224 прежних native свойства и 16 UID item definitions сохранены.
+Receiving/история/codec ещё не подключены к новому cargo contract; исходный дефект пока не закрыт.
+M2b review REVIEW_PENDING. Вопрос обработки несовместимых schema19 задан владельцу; до решения
+load/schema не меняются. Независимая подготовка и проверки cargo завершены.
 ## Установленная поверхность и гипотеза причины
 
 - [ReceivingDeliveryService](../../content/domains/packages/services/receiving_delivery_service.gd)
@@ -116,8 +124,17 @@ plan/quantity/cargo properties. M2a review PASS, material findings нет, triag
   шесть .tres, реальные .tscn и все 16 catalog bodies; новые scene UID различны, compiler valid.
   MCP1 checked/empty; native parser1/0, `parsefiles-20261016-000318383`, exit0/stderr empty.
   Formatter1, role validator2 native сцены, strict architecture0 и structure PASS.
-- PASS M2a immutable-SHA review по BASE_SHA/TARGET_SHA: no material findings, architecture/style
-  PASS, reviewer validation NOT_RUN. Изменение сцен выполнено в editor/MCP, а не raw rewrite.
+- PASS M2a immutable-SHA review: `b2f406ca172228e7ca49b62aa646f17a906cd5a4` →
+  `53a58f95e3dbff26f969e8100b3abb2047110fb7`; no material findings, architecture/style PASS,
+  reviewer validation NOT_RUN. Изменение сцен выполнено в editor/MCP, а не raw rewrite.
+- PASS M2b GUT14/14,360 assertions: packing_rules8/53 (`gut-20261016-001149130`),
+  packing_assets4/187 (`001152518`), cargo_catalog2/120 (`001259114`), stderr empty.
+- PASS M2b native preservation probe1/1,225 assertions (`001332620`), stderr empty;
+  `.artifacts/cargo_authoring_preservation_probe.gd` сравнивает все прежние native properties
+  с `.artifacts/cargo_native_baseline.json`. Отдельно 16 прежних resource UID сохранены.
+- PASS M2b MCP6 checked/empty, scripts_instantiated=0; native parser6/0
+  (`parsefiles-20261016-001436777`), formatter6, role3, strict architecture0 и structure PASS.
+  M2b immutable-SHA review REVIEW_PENDING.
 - Rendered/visual QA NOT_RUN,0/8.
 
 ## План проверки будущей реализации
@@ -141,8 +158,8 @@ plan/quantity/cargo properties. M2a review PASS, material findings нет, triag
 
 ### Next
 
-M2b: authored cargo profiles и once-committed
-shipment plan/quantity до compiler, подключение receiving/contents/physics/history/UI и явная
-save-совместимость. При restore compiler сейчас запускается до saved overlay; construction
+M2b commit/review/triage. M2c: once-committed shipment plan/quantity до compiler, подключение
+receiving/contents/physics/history/UI и явная save-совместимость после решения владельца о schema19.
+При restore compiler сейчас запускается до saved overlay; construction
 context должен получить выбранный plan заранее, а preflight — проверить его до мутации World.
 Затем профильные native регрессии и обязательный owner QA. До закрытия всех acceptance задача не DONE.

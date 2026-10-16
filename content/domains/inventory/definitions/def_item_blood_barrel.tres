@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://b44jiwbnhykfs"]
 
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_1dfsa"]
+[ext_resource type="Resource" uid="uid://dq2baagmtkfuq" path="res://content/domains/inventory/definitions/def_cargo_blood_barrel.tres" id="1_4dpnp"]
 
 [resource]
 script = ExtResource("1_1dfsa")
@@ -8,6 +9,7 @@ categories = 8
 market_price = 100
 display_name = "Бочка крови"
 world_pickup_scene = "res://content/domains/hazards/entities/blood_barrel.tscn"
+cargo_profile = ExtResource("1_4dpnp")
 kind = 5
 maximum_stack = 1
 key = &"blood_barrel"

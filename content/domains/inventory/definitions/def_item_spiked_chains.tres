@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://6rhfab5j220x"]
 
+[ext_resource type="Resource" uid="uid://c307oevikd2cw" path="res://content/domains/inventory/definitions/def_cargo_spiked_chains.tres" id="1_csin5"]
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_xxsdq"]
 
 [resource]
@@ -8,6 +9,7 @@ categories = 32
 market_price = 45
 display_name = "Цепи с шипами"
 world_pickup_scene = "res://content/domains/combat/entities/spiked_chains.tscn"
+cargo_profile = ExtResource("1_csin5")
 kind = 5
 maximum_stack = 1
 key = &"spiked_chains"

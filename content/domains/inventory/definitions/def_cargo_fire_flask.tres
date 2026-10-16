@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://bmagho55hxsh1"]
+
+[ext_resource type="PackedScene" uid="uid://bbij2ca62dgik" path="res://content/domains/hazards/entities/fire_spill.tscn" id="1_q4tkn"]
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="2_sxqiu"]
+
+[resource]
+script = ExtResource("2_sxqiu")
+phase = 1
+unit_mass_kg = 0.4
+unit_size_m = Vector3(0.3, 0.3, 0.3)
+hazards = 2
+fragile = true
+maximum_shipment_quantity = 4
+rupture_hazard = ExtResource("1_q4tkn")
+key = &"cargo_fire_flask"

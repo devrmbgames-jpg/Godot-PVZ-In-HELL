@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://cdrxyvq5qi52m"]
 
+[ext_resource type="Resource" uid="uid://b6ov84eq0h6p5" path="res://content/domains/inventory/definitions/def_cargo_blood_flask.tres" id="1_7x6xb"]
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_ljv27"]
 
 [resource]
@@ -8,6 +9,7 @@ categories = 8
 market_price = 30
 display_name = "Колба крови"
 world_pickup_scene = "res://content/domains/hazards/entities/blood_flask.tscn"
+cargo_profile = ExtResource("1_7x6xb")
 kind = 5
 maximum_stack = 1
 key = &"blood_flask"

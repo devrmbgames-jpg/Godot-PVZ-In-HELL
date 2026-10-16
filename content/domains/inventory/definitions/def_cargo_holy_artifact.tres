@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://dv5x0ohs1b13o"]
+
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="1_wwfec"]
+
+[resource]
+script = ExtResource("1_wwfec")
+unit_mass_kg = 0.6
+unit_size_m = Vector3(0.35, 0.5, 0.12)
+maximum_shipment_quantity = 4
+key = &"cargo_holy_artifact"
