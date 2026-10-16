@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `56de5e76f1df0a489e2853c19c3a1fec17c26f44`
-TARGET_SHA: pending M2d runtime incident commit — REVIEW_PENDING
+TARGET_SHA: `308b32ee913b73d4b73d50f44166619984e0892f`; repair checkpoint pending — REVIEW_PENDING
 
 Created: 2026-10-15. Related: [согласованность посылок](package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
@@ -29,16 +29,15 @@ M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: item holy/fire metad
 M2b reviewed: DEF_NpcParcelReaction CAPABILITY у4 архетипов, чистый chooser с переданными rolls; architecture/style PASS, validation NOT_RUN, repair0/2.
 M2c1 carry reviewed, RV-002/003 fixed; fresh C_GrabControl/C_CarryLoad/C_Strength, Strength6/offset0.35 м, existing R_HeldBy/solver/cleanup; architecture/style PASS, reviewer validation NOT_RUN.
 M2c2 fire reviewed: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without repeat from empty shells; catalog quantity/history/schema22 unchanged. Unknown legacy stubs remain unknown. No material findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
-M2d runtime implemented/review pending: common wrong-offer commit, native KEEP/throw/fire, GameClock pair180s block, closed incident codec/schema23 and held reconstruction. Capture excludes reaction callbacks; no outcome/payment for wrong orders. Intimidation remains open.
+M2d runtime implemented: common wrong-offer commit, native KEEP/throw/fire, GameClock pair180s block, closed incident codec/schema23 and held reconstruction. Immutable review found RV-004/005; repair1/2 implemented, targeted re-review pending. Intimidation remains open.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults с Inspector overrides; отдельного подтверждения владельца по двум пересечениям не было.
 RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
 RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
 RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, reviewer validation NOT_RUN; RV-002/003 fixed; visual NOT_RUN,0/8.
+RV-004 [P1] ACCEPTED, source M2d TARGET above: release callback could invalidate reach/LOS/WRONG/source identity before NPC grip. Repair shares the full offer gate after release, preserves package/body/visit identity and automatic policy; real move-away/reassignment regressions pass. Fix SHA/re-review pending.
+RV-005 [P2] ACCEPTED, same source: MANUAL FIRE outlived the synchronous reaction guard. Repair rejects capture with pending/executing buffers, including detached native batches; Night explicitly certifies its drained enclosing batch, restore still cancels obsolete queues. Pinned GECS depth adapter documented; targeted re-review pending.
 Владелец подтвердил: Бугай сначала25% присвоить, затем50% бросить при неприсвоении; запугивание5 процентных пунктов за Strength; блок персонален для пары.
 
-- E_DeliveryCounter читает native Area; CustomerFlowService.confirm_delivery — ручной вход в тот же offer/commit.
-- PackageDeliveryCheck различает причины отказа; _resolve_delivery снимает хват после READY и запускает осмотр/итог.
-- GrabReleaseService снимает хват; ThrowContext владеет атрибуцией броска; чужое не считается выдачей.
 - CustomerFireOpeningService открывает свой заказ; чужая реакция использует существующие damage/hazard owners.
 
 ## Единый контур автоматического предложения
@@ -175,6 +174,7 @@ Native default holy_rejection_first=true даёт приоритет свято�
 - M2c2 GUT44/44,510 assertions, stderr0: contents29/356 (`043453283`), receipts_loss15/154 (`043356625`); native ParseChanged6/0 (`20261016-043535910`), MCP6 checked/empty/scripts0, formatter6/strict architecture0/structure/persistence PASS; visual0/8. First new-fixture failures corrected (non-orderable food/legacy stub), final native PASS.
 - M2d GUT183/183,1424 assertions/stderr0: incidents23/190 (`050630752`), counter14/94 (`050201833`), grab92/438 (`050434418`), world_snapshot45/623 (`050712862`), package_traits9/79 (`051018663`); golden7/428 (`050024721`) native exit0, wrapper FAIL only shutdown retention. Prefix `gut-20261016-`.
 - M2d native ParseFiles15/0/exit0 (`20261016-051107199`) and isolated golden parser1/0; wrappers FAIL only known shutdown retention (full ParseChanged20 reports artificial1 failure, `050821609`), KNOWN_ENGINE_LIMITATION/DEFERRED. MCP20 checked/empty/scripts0; formatter20/strict architecture0/structure/persistence PASS; native game_world Observer saved via MCP, visual0/8.
+- M2d repair: GUT74/74,876 assertions/stderr0: snapshot47/642 (`gut-20261016-053116726`), incidents27/234 including MANUAL BURN (`gut-20261016-053256656`). Native ParseFiles7/0/exit0 (`parsefiles-20261016-053211174`), wrapper FAIL only known shutdown retention/DEFERRED; MCP7 checked/empty/scripts0, formatter7/strict architecture0/structure/persistence PASS.
 - RV-001: focused handoff14/14,124 assertions, stderr0 (`gut-20261016-033859456`); native ParseChanged2/0 (`20261016-033946776`), MCP2 checked/empty, formatter2/role2/strict architecture0/structure PASS.
 - delivery_completion native write/restore PASS/PASS, exit0/0: `.artifacts/godot_agent/delivery_completion-m1b-{write,restore}.{stdout,stderr}.log`. Fixture проверяет arrival number/отдельный LOST и физическое поднесение. Wrapper FAIL: неизвестный phase marker и shutdown-only retention (KNOWN_ENGINE_LIMITATION/DEFERRED), не runtime PASS обёртки.
 - Одна коробка одновременно в Area и руках, два NPC и deferred устаревший запрос: ровно один commit,
@@ -197,5 +197,4 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-M2d: collect immutable review and triage. Then intimidation action, one committed attack/return choice and safe physical return;
-then final lifecycle/complaints regressions and separately authorized NPC gameplay QA. Runtime reactions implemented; task remains IN_PROGRESS.
+M2d: commit RV-004/005 repairs and collect targeted immutable review (cycle1/2); no DONE while pending. Then intimidation action, committed attack/return and safe return; final lifecycle/complaints regressions and separately authorized NPC gameplay QA. Cargo QA separately approved6, executed0/6; NPC visual0/8. Task remains IN_PROGRESS.

@@ -19929,13 +19929,18 @@
       "symbol": "CommandBufferBarrier",
       "path": "content/shared/services/command_buffer_barrier.gd",
       "rights": [
-        "request"
+        "request",
+        "read"
       ],
       "public_methods": [
-        "drain_pending"
+        "drain_pending",
+        "is_quiescent",
+        "is_executing"
       ],
       "method_rights": {
-        "drain_pending": "request"
+        "drain_pending": "request",
+        "is_quiescent": "read",
+        "is_executing": "read"
       },
       "public_instance_methods": [],
       "sources": [

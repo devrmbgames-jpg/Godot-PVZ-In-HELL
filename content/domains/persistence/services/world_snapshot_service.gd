@@ -17,12 +17,17 @@ static func _snapshot_transaction_in_progress() -> bool:
 
 ## Снимает постоянные сущности, включая отключённых NPC; копия цикла всегда задаёт указанное утро.
 ## Caller owns the safe boundary: this does not settle outcomes, prepare Night or drain commands.
-## Returns {} for unavailable context/raw inventory or an active cargo transaction; run can_restore
-## before writing. S_NightSave retains its own detached copy for immutable I/O retries.
-static func capture(root: Node, morning_day: int) -> Dictionary:
+## Returns {} for unavailable context/raw inventory, pending/executing commands or a transaction;
+## run can_restore before writing. S_NightSave retains its detached copy for immutable I/O retries.
+## enclosing_batch_settled is reserved for S_NightSave after its mutation and explicit command
+## drain. Pending commands and domain transaction guards still reject that capture.
+static func capture(
+	root: Node, morning_day: int, enclosing_batch_settled: bool = false,
+) -> Dictionary:
 	if (
-		not is_instance_valid(ECS.world) or root == null
-		or morning_day < 1 or _snapshot_transaction_in_progress()
+		not is_instance_valid(ECS.world) or root == null or morning_day < 1
+		or _snapshot_transaction_in_progress()
+		or not CommandBufferBarrier.is_quiescent(ECS.world, enclosing_batch_settled)
 	):
 		return { }
 
@@ -426,6 +431,8 @@ static func _retained_package_scenes_match(records: Array, root: Node) -> bool:
 static func restore(
 	snapshot: Dictionary, root: Node, defer_reconciliation: bool = false
 ) -> bool:
+	if is_instance_valid(ECS.world) and CommandBufferBarrier.is_executing(ECS.world):
+		return false
 	if not can_restore(snapshot, root):
 		return false
 

@@ -107,7 +107,7 @@ func _advance(
 	# detached value graph, even if unrelated live state changes meanwhile.
 	if state.prepared_snapshot.is_empty():
 		var root: Node = _world.get_parent()
-		var snapshot: Dictionary = WorldSnapshotService.capture(root, night_day + 1)
+		var snapshot: Dictionary = WorldSnapshotService.capture(root, night_day + 1, true)
 		if not WorldSnapshotService.can_restore(snapshot, root):
 			_retry(state, ERR_INVALID_DATA)
 			return

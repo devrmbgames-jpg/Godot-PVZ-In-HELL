@@ -65,7 +65,7 @@ static func react(offer: CustomerParcelOffer, automatic: bool) -> bool:
 	flow.parcel_reaction_in_progress = true
 	flow.parcel_incident_sequence += 1
 	flow.parcel_incidents.append(incident)
-	_apply(offer, incident, rule)
+	_apply(offer, incident, rule, automatic)
 	flow.parcel_reaction_in_progress = false
 	return true
 
@@ -84,10 +84,11 @@ static func _apply(
 	offer: CustomerParcelOffer,
 	incident: CustomerParcelIncident,
 	rule: DEF_NpcParcelReaction,
+	automatic: bool,
 ) -> void:
 	match incident.outcome:
 		OUTCOME.KEEP:
-			if _take(offer):
+			if _take(offer, automatic):
 				incident.phase = CustomerParcelIncident.Phase.HELD
 				offer.customer.show_message("Спасибо за подарок.")
 				return
@@ -102,7 +103,7 @@ static func _apply(
 					offer.customer,
 					offer.actor,
 				)
-			if not direction.is_zero_approx() and _take(offer):
+			if not direction.is_zero_approx() and _take(offer, automatic):
 				GrabService.throw_in_direction(offer.customer, offer.parcel, direction)
 		OUTCOME.BURN, OUTCOME.DAMAGE:
 			var request: DamageRequest = DamageRequest.new()
@@ -113,53 +114,47 @@ static func _apply(
 			request.incident_id = StringName("parcel-reaction/%d" % incident.sequence)
 			request.damage_type = DamageRequest.Type.FIRE
 			var health: C_Health = offer.parcel.get_component(C_Health) as C_Health
-			request.amount = (
-				health.current
-				if incident.outcome
-				== REACTIONS \
-						.Outcome \
-						.BURN
-				else rule.damage_amount
-			)
+			var burn: bool = incident.outcome == OUTCOME.BURN
+			request.amount = health.current if burn else rule.damage_amount
 			DamageRequestService.submit(request)
 	if EntityAvailability.contains(offer.customer, offer.world):
 		offer.customer.show_message("Это не моя посылка.")
 
 
-static func _take(offer: CustomerParcelOffer) -> bool:
+static func _can_take(offer: CustomerParcelOffer) -> bool:
 	if GrabQueries.held_in_slot(offer.customer, C_Grabbable.HoldSlot.CARRY) != null:
 		return false
 	var body: RigidBody3D = GrabQueries.physical_body(offer.parcel)
 	var strength: C_Strength = offer.customer.get_component(C_Strength) as C_Strength
 	if not GrabQueries.can_carry_body(body, strength):
 		return false
-	if not GrabQueries.profile_slot_allowed(
+	return GrabQueries.profile_slot_allowed(
 		GrabQueries.profile_for(offer.parcel),
 		C_Grabbable.HoldSlot.CARRY,
-	):
+	)
+
+
+static func _take(offer: CustomerParcelOffer, automatic: bool) -> bool:
+	if not _can_take(offer):
 		return false
+	var identity: C_Package = offer.parcel.get_component(C_Package) as C_Package
+	var package_id: String = identity.package_id
+	var body: RigidBody3D = GrabQueries.physical_body(offer.parcel)
+	var customer_id: StringName = offer.visit.customer_id
+	var visit_id: StringName = offer.visit.visit_id
 	if offer.source == CustomerParcelOffer.Source.HELD:
 		GrabReleaseService.release(offer.actor, offer.parcel)
-	# Release publishes callbacks; captured owners/role must still be current before a new grip.
+	# Release publishes callbacks; recheck the full physical/role/assignment contract afterwards.
+	var check: PackageDeliveryCheck = CustomerHandoffService.evaluate_released_offer(
+		offer,
+		automatic,
+	)
 	if (
-		offer.world != ECS.world or not EntityAvailability.contains(offer.parcel, offer.world)
-		or not GrabQueries.holder_available(offer.customer)
-		or not GrabQueries.holder_available(offer.actor)
+		check.result != PackageDeliveryCheck.Result.WRONG_PACKAGE
+		or offer.parcel.get_component(C_Package) != identity or identity.package_id != package_id
+		or GrabQueries.physical_body(offer.parcel) != body or offer.visit.customer_id != customer_id
+		or offer.visit.visit_id != visit_id or not _can_take(offer)
 	):
-		return false
-	var visit: CustomerVisit = offer.visit
-	var agent: C_CustomerAgent = offer.agent
-	if (
-		offer.customer.get_component(C_CustomerAgent) != agent or agent.visit_id != visit.visit_id
-		or CustomerFlowQueries.find_visit(visit.visit_id) != visit or visit.finished
-		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
-		or agent.phase
-		not in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]
-		or (offer.customer as Node).get_tree().paused or bool(Console.is_visible())
-		or InteractionControlFocus.current(offer.actor) > InteractionControlFocus.Priority.CARRY
-	):
-		return false
-	if GrabQueries.held_relationship(offer.parcel) != null:
 		return false
 	var binding: Relationship = Relationship.new(R_HeldBy.new(), offer.customer)
 	offer.parcel.add_relationship(binding)

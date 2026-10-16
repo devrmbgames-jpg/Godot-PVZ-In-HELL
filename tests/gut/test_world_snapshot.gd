@@ -260,8 +260,8 @@ func test_quest_variant_slot_roundtrip_and_pending_outcome_do_not_double_pay() -
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.MORNING
 	CustomerFlowQueries.find_visit(record.visit_id).actual = CustomerVisit.Actual.PLAYER_DENIED
-	_world.process(0.0)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	_world.process(0.0)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
 	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
 	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
@@ -1276,7 +1276,9 @@ func _ordered_package(
 	parcel.package_id = "fixture/catalog_order"
 	(parcel as Node as RigidBody3D).mass = shipment.gross_mass_kg()
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
-		parcel, _world, GECSIO.uuid()
+		parcel,
+		_world,
+		GECSIO.uuid(),
 	)
 	context.initial_fields[C_PackageContents as Script] = shipment.contents_fields()
 	assert_true(EntityCompositionService.try_register(context))
@@ -1478,6 +1480,44 @@ func test_fresh_anchored_furniture_publishes_complete_physical_snapshot_once() -
 		publications[0].get_component(C_PlayerAnchored) as C_PlayerAnchored
 	)
 	assert_same(retained.snapshot, observed_snapshots[0], "Fresh restore never replaces the marker")
+#endregion
+
+
+#region Snapshot command completion boundary
+func test_pending_damage_blocks_new_capture_but_old_snapshot_restore_cancels_it() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	var damage: O_Damage = O_Damage.new()
+	damage.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(damage)
+	var request: DamageRequest = DamageRequest.new()
+	request.target = _actor
+	request.amount = 1.0
+	assert_true(DamageRequestService.submit(request))
+	assert_true(damage.has_pending_commands())
+	assert_true(WorldSnapshotService.capture(_root, 2).is_empty())
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_false(damage.has_pending_commands())
+	assert_true(CommandBufferBarrier.drain_pending(_world))
+	assert_false(WorldSnapshotService.capture(_root, 2).is_empty())
+
+
+func test_detached_executing_command_blocks_capture_and_reentrant_restore() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	var damage: O_Damage = O_Damage.new()
+	damage.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(damage)
+	damage.cmd.add_custom(
+		func() -> void:
+			assert_false(damage.has_pending_commands())
+			assert_true(WorldSnapshotService.capture(_root, 2).is_empty())
+			assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+			assert_false(WorldSnapshotService.restore(snapshot, _root)),
+	)
+	damage.cmd.execute()
+	assert_false(WorldSnapshotService.capture(_root, 2).is_empty())
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
 #endregion
 
 

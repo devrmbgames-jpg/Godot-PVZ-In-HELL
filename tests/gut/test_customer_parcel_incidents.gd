@@ -23,6 +23,8 @@ class CaptureDuringRelease extends Observer:
 	var snapshots: Array[Dictionary] = []
 	## Journal size visible inside the physical ownership transition.
 	var committed_count: int = 0
+	## Optional real release mutation used to exercise the post-callback offer gate.
+	var on_release: Callable
 
 
 	func query() -> QueryBuilder:
@@ -30,7 +32,25 @@ class CaptureDuringRelease extends Observer:
 
 
 	func each(_event: Variant, _entity: Entity, _payload: Variant = null) -> void:
+		if on_release.is_valid():
+			on_release.call()
 		committed_count = CustomerFlowQueries.current().parcel_incidents.size()
+		snapshots.append(WorldSnapshotService.capture(capture_root, 1))
+
+
+## Reads a snapshot inside native command execution, after its pending queue was detached.
+class CaptureDuringDamage extends Observer:
+	## Borrowed test root for capture and retained callback results.
+	var capture_root: Node
+	## Captures made while damage resolution still owns the native batch.
+	var snapshots: Array[Dictionary] = []
+
+
+	func query() -> QueryBuilder:
+		return q.on_event(DamageResult.EVENT)
+
+
+	func each(_event: Variant, _entity: Entity, _payload: Variant = null) -> void:
 		snapshots.append(WorldSnapshotService.capture(capture_root, 1))
 
 
@@ -266,6 +286,93 @@ func test_release_callback_sees_committed_choice_and_cannot_capture_half_a_react
 	if not observer.snapshots.is_empty():
 		assert_true(observer.snapshots[0].is_empty())
 	assert_false(_flow.parcel_reaction_in_progress)
+
+
+func test_keep_rechecks_reach_after_real_player_release_callback() -> void:
+	_native_receiver(&"archetype/brute")
+	_decision(REACTIONS.Outcome.KEEP)
+	var observer: CaptureDuringRelease = CaptureDuringRelease.new()
+	observer.capture_root = self
+	observer.on_release = func() -> void:
+		(_parcel as Node as Node3D).global_position += Vector3(10.0, 0.0, 0.0)
+	_world.add_observer(observer)
+	var offer: CustomerParcelOffer = _wrong_offer()
+	assert_true(CustomerParcelIncidentService.react(offer, true))
+	assert_null(GrabQueries.held_relationship(_parcel))
+	assert_eq(_flow.parcel_incidents.size(), 1)
+	assert_eq(_flow.parcel_incidents[0].phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_false(CustomerParcelIncidentService.react(offer, true))
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+
+
+func test_keep_rechecks_wrong_assignment_after_real_player_release_callback() -> void:
+	_native_receiver(&"archetype/brute")
+	_decision(REACTIONS.Outcome.KEEP)
+	var observer: CaptureDuringRelease = CaptureDuringRelease.new()
+	observer.capture_root = self
+	observer.on_release = func() -> void:
+		_visit.package_id = (_parcel.get_component(C_Package) as C_Package).package_id
+		CustomerParcelAssignment.bind_parcel(_customer, _visit)
+	_world.add_observer(observer)
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_null(GrabQueries.held_relationship(_parcel))
+	assert_eq(_flow.parcel_incidents.size(), 1)
+	assert_eq(_flow.parcel_incidents[0].phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+
+
+func test_manual_fire_excludes_snapshot_until_damage_and_package_commands_complete() -> void:
+	_native_receiver(&"archetype/fire_elemental")
+	_payload(TOY)
+	_decision(REACTIONS.Outcome.DAMAGE)
+	var damage: O_Damage = O_Damage.new()
+	damage.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(damage)
+	var capture: CaptureDuringDamage = CaptureDuringDamage.new()
+	capture.capture_root = self
+	_world.add_observer(capture)
+	var package_damage: O_PackageDamage = O_PackageDamage.new()
+	package_damage.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(package_damage)
+	var health: C_Health = _parcel.get_component(C_Health) as C_Health
+	var previous: float = health.current
+	var amount: float = CustomerParcelIncidentQueries.rule_for(_customer).damage_amount
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_false(_flow.parcel_reaction_in_progress)
+	assert_eq(health.current, previous)
+	assert_true(WorldSnapshotService.capture(self, 1).is_empty())
+	damage.cmd.execute()
+	assert_eq(capture.snapshots.size(), 1)
+	assert_true(capture.snapshots[0].is_empty())
+	assert_false(damage.has_pending_commands())
+	assert_true(package_damage.has_pending_commands())
+	assert_true(WorldSnapshotService.capture(self, 1).is_empty())
+	assert_true(CommandBufferBarrier.drain_pending(_world))
+	assert_eq(health.current, previous - amount)
+	assert_false(WorldSnapshotService.capture(self, 1).is_empty())
+	assert_true(CommandBufferBarrier.drain_pending(_world))
+	assert_eq(health.current, previous - amount)
+	assert_eq(_flow.parcel_incidents.size(), 1)
+
+
+func test_manual_burn_blocks_capture_until_the_actual_payload_is_consumed_once() -> void:
+	_native_receiver(&"archetype/fire_elemental")
+	_payload(TOY)
+	_decision(REACTIONS.Outcome.BURN)
+	for observer: Observer in [O_Damage.new(), O_PackageDamage.new(), O_PackageDestruction.new()]:
+		observer.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+		_world.add_observer(observer)
+	var contents: C_PackageContents = _parcel.get_component(C_PackageContents) as C_PackageContents
+	assert_true(CustomerParcelIncidentService.react(_wrong_offer(), true))
+	assert_false(contents.released)
+	assert_true(WorldSnapshotService.capture(self, 1).is_empty())
+	assert_true(CommandBufferBarrier.drain_pending(_world))
+	assert_true(contents.released)
+	assert_eq(_world.query.with_all([C_Package]).execute().size(), 0)
+	assert_false(WorldSnapshotService.capture(self, 1).is_empty())
+	assert_true(CommandBufferBarrier.drain_pending(_world))
+	assert_eq(_flow.parcel_incidents.size(), 1)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 
 
 func test_incident_codec_is_closed_and_transaction_guard_rejects_capture() -> void:

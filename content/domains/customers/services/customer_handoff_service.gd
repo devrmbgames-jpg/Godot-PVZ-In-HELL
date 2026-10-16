@@ -54,7 +54,24 @@ static func select_offer(
 ## Rechecks the exact World, role, visit, physical source and assignment before synchronous commit.
 ## The captured check/score is advisory; an old receipt never grants permission to hand over.
 static func evaluate_offer(
-	offer: CustomerParcelOffer, automatic: bool = true,
+	offer: CustomerParcelOffer,
+	automatic: bool = true,
+) -> PackageDeliveryCheck:
+	return _evaluate_offer(offer, automatic, false)
+
+
+## Rechecks an intentionally vacated player grip; every other offer gate still applies.
+static func evaluate_released_offer(
+	offer: CustomerParcelOffer,
+	automatic: bool,
+) -> PackageDeliveryCheck:
+	return _evaluate_offer(offer, automatic, true)
+
+
+static func _evaluate_offer(
+	offer: CustomerParcelOffer,
+	automatic: bool,
+	source_released: bool,
 ) -> PackageDeliveryCheck:
 	var missing: PackageDeliveryCheck = PackageDeliveryCheck.new()
 	if offer == null or offer.world != ECS.world:
@@ -68,9 +85,8 @@ static func evaluate_offer(
 		or visit == null or CustomerFlowQueries.find_visit(visit.visit_id) != visit
 		or visit.definition == null or visit.finished or offer.agent.visit_id != visit.visit_id
 		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
-		or offer.agent.phase not in [
-			C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE,
-		]
+		or offer.agent.phase
+		not in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]
 		or (automatic and not visit.definition.automatic_handoff)
 		or NpcDeliveryScenarioService.armed_for(customer as E_DistrictNpc) != null
 	):
@@ -89,14 +105,22 @@ static func evaluate_offer(
 		return missing
 	if offer.source == CustomerParcelOffer.Source.HELD:
 		var grip: Relationship = GrabQueries.held_relationship(parcel)
-		if grip == null or grip.target != actor:
-			return missing
-		var slot: int = (grip.relation as R_HeldBy).slot
-		if slot not in [
-			C_Grabbable.HoldSlot.CARRY, C_Grabbable.HoldSlot.RIGHT_HAND,
-			C_Grabbable.HoldSlot.LEFT_HAND,
-		] or GrabQueries.held_in_slot(actor, slot) != parcel:
-			return missing
+		if source_released:
+			if grip != null:
+				return missing
+		else:
+			if grip == null or grip.target != actor:
+				return missing
+			var slot: int = (grip.relation as R_HeldBy).slot
+			if (
+				slot not in [
+					C_Grabbable.HoldSlot.CARRY,
+					C_Grabbable.HoldSlot.RIGHT_HAND,
+					C_Grabbable.HoldSlot.LEFT_HAND,
+				]
+				or GrabQueries.held_in_slot(actor, slot) != parcel
+			):
+				return missing
 	elif offer.source == CustomerParcelOffer.Source.COUNTER:
 		if not _counter_source_available(offer):
 			return missing
