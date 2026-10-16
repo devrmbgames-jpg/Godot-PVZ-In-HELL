@@ -1,0 +1,96 @@
+[gd_resource type="Resource" script_class="DEF_NpcPerson" format=3 uid="uid://cbcdgb3d3k5su"]
+
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="1_py5qk"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="2_agvjh"]
+[ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="3_ouili"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_6.tres" id="4_vr6nn"]
+[ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="5_l0i2x"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_5.tres" id="6_x1ldo"]
+[ext_resource type="Resource" uid="uid://b7d3tf2o4qxlu" path="res://content/domains/npc/definitions/def_npc_soul_trade.tres" id="7_ulq85"]
+[ext_resource type="Resource" uid="uid://b5gi7f3x7e3fg" path="res://content/domains/npc/definitions/def_npc_parcel_reaction_chain_devil.tres" id="8_bipme"]
+[ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="9_3bxce"]
+[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="10_5bhhn"]
+[ext_resource type="Script" uid="uid://c560octi1xf2f" path="res://content/domains/npc/definitions/def_npc_person.gd" id="11_np4cc"]
+[ext_resource type="Script" uid="uid://cy76mt8lqrdse" path="res://content/domains/npc/contracts/npc_variation.gd" id="12_0q0mp"]
+
+[sub_resource type="Resource" id="Resource_f3bsm"]
+script = ExtResource("3_ouili")
+rule = ExtResource("4_vr6nn")
+
+[sub_resource type="Resource" id="Resource_tbjbv"]
+script = ExtResource("9_3bxce")
+weekdays = PackedInt32Array(0)
+morning = 2
+day = 0
+evening = 2
+key = &"schedule/chain_devil"
+
+[sub_resource type="Resource" id="Resource_8gsqw"]
+script = ExtResource("10_5bhhn")
+name_variants = PackedStringArray("Азгар", "Мальх")
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/chain_devil/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/chain_devil/variant_b.dialogue")
+optional_traits = Array[ExtResource("3_ouili")]([SubResource("Resource_f3bsm")])
+maximum_optional_traits = 1
+move_speed_variation = Vector2(0.9, 1.1)
+aggression_variation = Vector2(0.9, 1.1)
+aggressive_speed_multiplier = 1.0
+item_category_weights = Dictionary[int, float]({
+1: 4.0,
+2: 1.0,
+4: 4.0
+})
+combat_preference = 0
+receiver_traits = 11
+damage_multipliers = Dictionary[int, float]({
+7: 0.0
+})
+presentation_cues = PackedStringArray()
+melee_attacks = Array[ExtResource("1_py5qk")]([ExtResource("2_agvjh")])
+ranged_attacks = Array[ExtResource("1_py5qk")]([])
+display_name = "Цепной дьявол"
+resident = true
+merchant = false
+recipient_key = &"visitor_1"
+personality = 1
+schedule = SubResource("Resource_tbjbv")
+rules = Array[ExtResource("5_l0i2x")]([ExtResource("6_x1ldo"), ExtResource("7_ulq85"), ExtResource("8_bipme")])
+npc_scene_path = "res://content/domains/npc/entities/district_npc.tscn"
+interests = PackedStringArray()
+preferred_activities = PackedInt32Array(0, 1, 2, 3)
+retreat_speed = 1.5
+retreat_seconds = 0.8
+high_attack_probability = 0.75
+low_flee_probability = 0.1
+joke_acceptance_probability = 0.9
+timid_flee_probability = 0.8
+timid_attack_probability = 0.05
+move_speed = 1.8
+near_recognition_range = 1.5
+hearing_range = 20.0
+vision_range = 16.0
+vision_angle = 110.0
+dark_vision_fraction = 0.15
+search_seconds = 12.0
+search_point_count = 3
+pursuit_health_reserve = 0.35
+initiates_conflicts = false
+body_color = Color(0.4745098, 0.27058825, 0.30588236, 1)
+key = &"archetype/chain_devil"
+
+[sub_resource type="Resource" id="Resource_l56e0"]
+script = ExtResource("12_0q0mp")
+archetype_key = &"archetype/chain_devil"
+display_name = "Азгар"
+dialogue_path = "res://content/domains/npc/dialogue/archetypes/chain_devil/variant_a.dialogue"
+
+[resource]
+script = ExtResource("11_np4cc")
+prototype = true
+profile = SubResource("Resource_8gsqw")
+npc_scene_path = "res://content/domains/npc/entities/district_npc.tscn"
+variation = SubResource("Resource_l56e0")
+recipient_key = &"resident_chain_devil"
+home_id = &"home_2"
+portal_id = &"portal_east"
+exit_id = &"portal_north"
+key = &"npc/9"

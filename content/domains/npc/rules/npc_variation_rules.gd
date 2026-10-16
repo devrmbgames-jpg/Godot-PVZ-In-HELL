@@ -189,9 +189,24 @@ static func valid_variation(
 	npc_id: StringName,
 ) -> bool:
 	if (
-		not valid_archetype(archetype) or variation == null or npc_id.is_empty()
+		not valid_selection(archetype, variation) or npc_id.is_empty()
+		or not archetype.name_variants.has(variation.display_name)
+	):
+		return false
+	return variation.seed == DecisionRandomRules.seed_for(
+		world_seed,
+		String(npc_id),
+		variation.creation_day,
+		CREATION_DECISION,
+	)
+
+
+## Проверяет совместимость фиксированного набора; авторское имя не обязано входить в RNG-пул.
+static func valid_selection(archetype: DEF_NpcArchetype, variation: NpcVariation) -> bool:
+	if (
+		not valid_archetype(archetype) or variation == null
 		or variation.archetype_key != archetype.key or variation.seed < 0
-		or variation.creation_day < 1 or not archetype.name_variants.has(variation.display_name)
+		or variation.creation_day < 1 or variation.display_name.strip_edges().is_empty()
 		or variation.optional_trait_keys.size() > archetype.maximum_optional_traits
 		or not is_finite(variation.move_speed_multiplier)
 		or variation.move_speed_multiplier < archetype.move_speed_variation.x
@@ -199,13 +214,6 @@ static func valid_variation(
 		or not is_finite(variation.aggression_multiplier)
 		or variation.aggression_multiplier < archetype.aggression_variation.x
 		or variation.aggression_multiplier > archetype.aggression_variation.y
-	):
-		return false
-	if variation.seed != DecisionRandomRules.seed_for(
-		world_seed,
-		String(npc_id),
-		variation.creation_day,
-		CREATION_DECISION,
 	):
 		return false
 	if archetype.dialogue_variants.is_empty():

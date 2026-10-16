@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DEF_NpcPerson" format=3 uid="uid://ctslrrj46uod2"]
+
+[ext_resource type="Resource" uid="uid://crb14sp8dt46a" path="res://content/domains/npc/definitions/def_npc_archetype_hag.tres" id="1_hj3eg"]
+[ext_resource type="Script" uid="uid://c560octi1xf2f" path="res://content/domains/npc/definitions/def_npc_person.gd" id="2_di6fu"]
+[ext_resource type="Script" uid="uid://cy76mt8lqrdse" path="res://content/domains/npc/contracts/npc_variation.gd" id="3_1s1ri"]
+
+[sub_resource type="Resource" id="Resource_mvbih"]
+script = ExtResource("3_1s1ri")
+archetype_key = &"archetype/hag"
+display_name = "Морана"
+dialogue_path = "res://content/domains/npc/dialogue/archetypes/hag/variant_a.dialogue"
+
+[resource]
+script = ExtResource("2_di6fu")
+prototype = true
+profile = ExtResource("1_hj3eg")
+npc_scene_path = "res://content/domains/npc/entities/district_npc.tscn"
+variation = SubResource("Resource_mvbih")
+recipient_key = &"resident_hag"
+home_id = &"home_6"
+portal_id = &"portal_east"
+exit_id = &"portal_north"
+key = &"npc/6"
