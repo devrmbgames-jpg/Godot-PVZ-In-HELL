@@ -35,6 +35,7 @@ monitorable = false
 shape = SubResource("SphereShape3D_bmqb2")
 
 [node name="Visual" type="MeshInstance3D" parent="." unique_id=450389345]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 material_override = SubResource("StandardMaterial3D_46d7h")
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_d1q4c")

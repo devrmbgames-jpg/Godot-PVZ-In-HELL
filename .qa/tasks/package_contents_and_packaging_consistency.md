@@ -1,6 +1,6 @@
 # Посылки — фактический состав, упаковка, история и UI
 
-Результат: **IN_PROGRESS**. Все6 случаев начаты: body/terminal/detail/history/isolated restore проверены. Opening/rupture/repeat guard и финальная приёмка ещё не завершены.
+Результат: **IN_PROGRESS**. Все6 случаев начаты: body/terminal/detail/history, opening1/1/1/1/8/1, repeat0, empty destruction without new hazards, isolated full/empty restore и unsupported-schema preservation PASS. Case2 blood visual/review ещё не завершён.
 Владелец разрешил до **6** проверок по этой карточке; начато **6/6**, завершено0/6. Дополнительные случаи не запускать. Разрешение не охватывает визуальную приёмку реакций NPC.
 Программный checkpoint: `b0bee51b3a9c7c6dbacd59de1a304554f42a99a7`, независимое review PASS.
 Owning task: [package_contents_and_packaging_consistency](../../.agents/tasks/package_contents_and_packaging_consistency.md).
@@ -36,4 +36,5 @@ Owning task: [package_contents_and_packaging_consistency](../../.agents/tasks/pa
 Результат по случаям 1–6 (PASS / FAIL / NOT_RUN):
 
 Замечания: package_id/history_id, шаги воспроизведения, ожидаемое и фактическое поведение.
-QA-001: `qa/cargo/fd0dda76/holy_artifact`, №006, UID1-06-NM00D. Authored hidden title fixed/reviewed in `865db6c21469e9b4475a54c1fd5e89f701018247`, visual visibility PASS. Height180 instead140 needed for icon rows to contain visible title; native fix/targeted review pending. Evidence `.artifacts/cargo-qa-fd0dda76/{01..06}-*-{body,terminal}.png`, history `01-holy-history.png`, initial failure `01-holy-terminal-hidden-title.png`. All6 native shipments retained in isolated slot; scythe placement succeeded after unloading5 old boxes. A diagnostic eval invalid Entity/Node3D type check stopped helper; restart restores retained fixtures, no production code change.
+QA-001 FIXED: authored title visibility `865db6c21469e9b4475a54c1fd5e89f701018247`, row height180 `5694fab2edd8d1fb5976acd7b85ac9c06f5002fd`, both review/visual PASS. All6 labels contained; sort20.5/6/5.5/1.3/1.1/1.1kg. Evidence `.artifacts/cargo-qa-fd0dda76/{01..06}-*-{body,terminal,opened}.png`, `05-weight-sort-layout-fixed.png`, `06-archive-after-opened-restore.png`, `observations.json`. All6 native shipments retained in isolated slots; scythe placement succeeded after unloading5 old boxes. Diagnostic eval type error required helper restart, no production script change.
+QA-002/P2: native blood rupture produces exactly1 blood_spill, but body_y=-0.01429 and disc half-height0.01 put its top below floor0. Native Visual-only +0.03m fix/review pending; collision sphere/stimulus/gameplay unchanged. Blood and fire rupture receipts each1 matching scene, repeats rejected; empty-shell destruction spawned0 hazards.

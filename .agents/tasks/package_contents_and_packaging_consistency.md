@@ -1,8 +1,8 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `865db6c21469e9b4475a54c1fd5e89f701018247`
-TARGET_SHA: pending native cargo row-height fix — REVIEW_PENDING
+BASE_SHA: `5694fab2edd8d1fb5976acd7b85ac9c06f5002fd`
+TARGET_SHA: pending native blood-spill visual fix — REVIEW_PENDING
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26_1_physical_items_and_effects.md).
@@ -19,7 +19,7 @@ Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26
 
 ### Current
 
-Cargo QA-001/P2: title visibility fixed/reviewed in BASE above (architecture/style PASS, reviewer execution NOT_RUN); terminal GUT7/28 (`054013512`). All6 body/terminal/history projections and slot restore observed. Rows with icons still need height180 instead140 to contain the newly exposed title; native MCP fix/targeted review pending. Cargo presentation GUT native PASS (`gut-20261016-054748440`), strict architecture/structure/agent validators PASS. Isolated QA slot `user://qa_cargo_fd0dda76_manual.pvzh`; no regular-slot writes.
+Cargo QA-001/P2 FIXED: title visibility `865db6c21469e9b4475a54c1fd5e89f701018247`, height180 BASE above; both review architecture/style PASS, reviewer execution NOT_RUN. Native terminal7/28 (`054013512`), cargo presentation5/101 (`054748440`); visual names/containment/sorting PASS. All6 native opening counts1/1/1/1/8/1, repeat0, empty mass/labels and disk restore PASS; old schema rejected/bytes+World unchanged. QA-002/P2: blood disc at body_y=-0.01429 has top_y=-0.00429, hidden below floor0. Native Visual-only +0.03m fix/review pending; physical-payload GUT PASS (`055548519`), strict architecture/structure/agent PASS. Evidence `.artifacts/cargo-qa-fd0dda76/observations.json`; isolated QA slots only.
 
 Выполнение авторизовано текущим `/goal` по `.agents/tasks`; прежняя пометка «ждать отдельную
 команду» относилась к исходному планированию до этого goal. UID-1-TL08C — пример владельца;
@@ -197,4 +197,4 @@ M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac
 
 ### Next
 
-Собрать targeted immutable review высоты QA-001, затем завершить opening/rupture/idempotency и итоговый save/reload6 разрешённых cargo случаев. Все6 начаты, не завершены; до приёмки задача IN_PROGRESS. Разрешение не относится к реакциям NPC.
+Собрать immutable review QA-002 и закончить blood визуал внутри разрешённого case2; остальные5 случаев проверены. Все6 начаты, дополнительных случаев не запускать; до финальной приёмки задача IN_PROGRESS. Разрешение не относится к реакциям NPC.
