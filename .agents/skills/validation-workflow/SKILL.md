@@ -5,47 +5,77 @@ description: Use when verifying code/scene changes or closing implementation mil
 
 # Scoped change validation
 
-Choose the cheapest check capable of falsifying the changed behavior, then run a broader acceptance surface only at an appropriate milestone. Run checks after a coherent edit batch, not after every tiny patch. Do not trade correctness for fewer tool calls.
+Choose the cheapest check capable of falsifying the changed behavior, then a broader
+acceptance surface at a coherent milestone. Do not trade correctness for fewer calls.
+Docs/prompt/config-only changes need relevant text/link/schema checks, not gameplay/GUT.
+Non-visual local Godot/disposable tests are allowed; rendered gameplay/visual QA needs
+explicit task-specific approval. Preserve already recorded approval without expanding it.
 
-Docs/prompt/config-only edits need relevant text/link/schema checks, not gameplay/GUT runs. Non-visual headless Godot and local disposable tests are allowed when relevant; gameplay/rendered/visual QA needs explicit owner approval.
+## Engine checks, independent of MCP
 
-## Required engine fallback (MCP-independent)
+After a coherent .gd/.tscn/.tres batch, verify the changed surface with actual Godot.
+On Windows use utils/godot_agent.ps1 or the matching VS Code task:
+- -Action ParseChanged, or -Action ParseFiles -Paths ...: actual load/parser.
+- -Action GUT -TestPath res://tests/gut/<focused_test>.gd: native focused tests.
+- -Action Import / OfflineScript -ScriptPath res://...: only after closing the live
+  project editor; offline scripts extend SceneTree/MainLoop, not EditorScript.
+- utils/run_smoke.ps1 -Name <focused_smoke>: bounded relevant headless smoke.
 
-After a coherent .gd/.tscn/.tres implementation batch, verify the relevant
-changed surface with actual Godot, regardless of MCP availability. On Windows
-use `utils/godot_agent.ps1` or the matching VS Code task:
+Missing executable/runner means NOT_RUN, never static PASS as substitute. MCP failure
+alone does not waive engine checks. Problems lists/formatter/filesystem scans do not
+prove runtime acceptance. Prefer MCP script_patch/script_create diagnostics for live
+editor edits and resolve relevant reload warnings, but do not repeatedly validate
+identical code with MCP and CLI merely to produce additional green labels.
+The runner must not launch rendered gameplay, overwrite open scenes or force-restart
+an editor simply to satisfy a check. Editor ownership rules remain mandatory.
 
-- `-Action ParseChanged` (or `-Action ParseFiles -Paths ...`) — actual GDScript load/parser.
-- `-Action GUT -TestPath res://tests/gut/<focused_test>.gd` — focused native tests.
-- `-Action Import` / `-Action OfflineScript -ScriptPath res://...` —
-  offline editor-owned operations, **only after closing the live project editor**.
-  Offline CLI scripts extend `SceneTree`/`MainLoop`, not `EditorScript`.
-- `utils/run_smoke.ps1 -Name <focused_smoke>` — bounded headless gameplay smoke.
+## GDScript and static gates
 
-If the runner or Godot executable is missing, mark required engine checks
-`NOT_RUN`, do not claim a static check as equivalent. Never skip parser or
-native regressions solely because MCP failed. A VS Code Problems list or a
-formatter pass is useful feedback but not a substitute for Godot parser/GUT.
+Before a coherent project .gd commit run python utils/check_gdscript_format.py --changed;
+it checks changed lines/new files, not mass-formatting legacy code. Missing GDQuest
+formatter exit 2 is NOT_RUN. For committed scope use --base <revision>; --strict only
+for declared full-file/style migration. Validate changed scripts near batch completion.
 
-The runner must never open rendered gameplay, overwrite an open scene or
-force-restart a live editor merely to satisfy validation.
+For substantial code/scene changes run python utils/validate_agent_changes.py,
+python -B utils/validate_architecture.py --strict and python utils/validate_project_structure.py,
+plus structure/persistence-specific checks whose contracts changed.
+validate_agent_changes.py --staged checks the index; --report-only is not accepted PASS.
+Static gates supplement, never replace, architecture review and native regressions.
 
-## GDScript
+## Coherent validation packages
 
-- Before a coherent commit of project-owned `.gd`, run `python utils/check_gdscript_format.py --changed`. The wrapper checks changed lines and new files without mass-rewriting legacy source. Missing GDQuest `gdscript-formatter` returns exit 2 = **NOT_RUN**, not PASS.
-- When checking an already committed milestone, use `--base <revision>`; use `--strict` only when the declared Phase 3/full-file migration requires it.
-- Validate changed project-owned `.gd` with the Godot parser near the end of the batch; resolve newly introduced parse **and relevant reload warnings**. Prefer Godot AI MCP `script_patch`/`script_create` diagnostics when editor access exists. `filesystem_manage(scan)` alone does not prove parser cleanliness. Without MCP, use available headless Godot/static checks and say what could not run.
+A local fix gets its reproducer and affected guarantees. A completed large gameplay
+package normally gets focused native GUT and one suitable headless smoke/runtime check,
+unless its acceptance defines a more specific surface. Use gut-testing for test design.
+Do not rerun the entire suite/export after each small edit. Native parser and runtime
+cover different guarantees; avoid redundant launches without dropping required gates.
+Record the tested SHA/scope and commands. Reuse evidence only for unchanged relevant
+inputs; changes to a provider invalidate affected consumer checks, not every past test.
+Group tests only with demonstrated state isolation and individual results. Do not
+assume multi-file GUT support or speedup; the runner task must implement/measure it first.
 
-## Structure, integration and regressions
+Review substantial committed checkpoints on immutable full SHAs via review-orchestration;
+resolve accepted P0/P1/P2 before that milestone is complete. Fix review is targeted to
+finding/fix/affected consumers, not another repository-wide investigation. Unavailable
+review is REVIEW_PENDING/NOT_RUN; self-review is NON_INDEPENDENT.
+Runnable .export/ Windows QA builds belong to completed large gameplay milestones,
+not documentation/config changes or every internal step.
 
-- For substantial code/scene edits run `python utils/validate_agent_changes.py`, `python -B utils/validate_architecture.py --strict` and `python utils/validate_project_structure.py`; use structure-specific checks when their contracts change.
-- `validate_agent_changes.py --staged` checks the Git index. `--report-only` is **not** an accepted PASS. Static validators supplement, not replace, architecture review.
-- For a completed large gameplay milestone, normally run one relevant focused GUT surface and one relevant headless smoke/runtime check, unless the task has a more specific acceptance contract. Use [gut-testing](../gut-testing/SKILL.md) for authoring/execution. Avoid running all tests after each edit.
-- Review substantive committed checkpoints against immutable SHAs via [review-orchestration](../review-orchestration/SKILL.md), triage findings and resolve accepted P0/P1/P2 before DONE.
-- Runnable Windows QA builds under `.export/` are for completed large gameplay milestones, not documentation/config-only changes.
+## Evidence, shutdown diagnostics and unavailable gates
 
-## Evidence and exceptions
+Report command, scope and actual PASS/FAIL/NOT_RUN with raw failure logs preserved.
+Never claim filesystem writes, headless assertions or a successful formatter prove
+runtime correctness or visual feel. An unavailable mandatory gate stays open;
+[task lifecycle](../task-lifecycle/SKILL.md) permits independent backlog work meanwhile.
 
-- Report command/check, relevant scope and PASS, FAIL or NOT_RUN. Never report a check as passed merely because an edit or filesystem write succeeded. Keep console output compact; preserve failure details and relevant logs.
-- A project should not be declared verified if required parser/runtime checks were unavailable; report the blocker or unverified surface honestly. Never claim headless validation proves visual/gameplay feel.
-- Shutdown retention is not automatically a gameplay leak. If a task genuinely involves memory growth, orphan Objects/Resources or shutdown diagnostics, read [memory/lifetime diagnostics](references/memory-lifetime.md). Do not load that reference for routine code verification.
+For genuine memory/retention questions read
+[memory/lifetime diagnostics](references/memory-lifetime.md), not on every routine edit.
+Native test result and shutdown diagnostic classification are distinct. Known shutdown-only
+GDScript/GDScriptNativeClass/Resource/StringName/RID retention on the pinned engine follows
+owner policy, not a new investigation or automatic acceptance of arbitrary stderr.
+Preserve wrapper FAIL when reporting the raw command and separately document the narrowly
+justified engine classification; do not relabel an unmodified runner as fixed.
+Unknown/mixed diagnostics, nonzero exit, missing completion, runtime growth/live Nodes,
+use-after-free/double-free still block affected work. Never blanket-ignore ERROR or RID.
+The [runner task](../../tasks/godot_validation_result_classification.md) covers actual
+classification changes/tests. Until it is implemented, do not claim a new CLI mode exists.

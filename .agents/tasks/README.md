@@ -1,79 +1,116 @@
-# Durable agent tasks
+# Durable agent tasks — autonomous execution
 
-This directory is only for implementation state that must survive the current Codex/VS Code session.
+Здесь находятся долгие задачи, которые должны пережить смену сессии.
+Одна задача владеет своим статусом, требованиями, решениями, Current/Next и evidence.
+README описывает процесс, а не вторую очередь со скопированными статусами.
 
-## When to create a file
+## Autonomous backlog contract
 
-Create or reuse `.agents/tasks/<task>.md` when at least one is true:
-- the work is genuinely long/interruptible and is expected to continue in another session/thread;
-- several future sessions need durable decisions/milestones;
-- the user explicitly asks for repository-tracked task state.
+Команда владельца «выполнить все задачи» означает пройти все разрешённые готовые
+пакеты, а не закончить один и спрашивать «продолжать?». Рефакторинг ТЗ сам по себе
+не означает, что игровая реализация или её проверки уже выполнены.
+При такой команде старое planning-only на момент создания ТЗ не требует нового
+подтверждения каждой реализации. Явные DEFERRED решения владельца, ограничения на
+rendered QA, destructive operations, push/merge/PR сохраняются по AGENTS.md.
 
-Do **not** create a task file for a local Fix, a normal single-session Task, or merely because Plan Mode was used. Session Plan + Goal are the normal execution state.
+1. Сначала actual branch/HEAD/worktree; сохранить чужие изменения. Читать заголовки
+   активных root `*.md` (кроме README), не все источники/архивы. Дочерние карточки
+   исполняются через owning parent, не как дубликаты корневых задач.
+2. Продолжить уже начатый безопасный пакет. Между готовыми пакетами `Execution order`
+   задаёт рекомендуемый порядок; инструкция владельца приоритетнее. Маленькая runner
+   задача с order 5 предпочтительна перед тяжёлым validation, но не глобальный blocker.
+3. Открыть одну рабочую карточку и только относящиеся к пакету разделы Source/кода/skills.
+   Найти владельца, действующий контракт и ближайшую regression surface; прекратить
+   обзор репозитория, когда они понятны. Не перечитывать всю историю на каждом resume.
+4. Реализовать законченный результат, включая необходимые persistence/lifecycle и
+   проверки. Несколько затронутых файлов/слоёв не означают несколько задач или reviews.
+5. Выполнить соразмерные проверки, зафиксировать coherent checkpoint; substantive
+   checkpoint проходит review/triage по review-orchestration. После исправления —
+   targeted re-review найденного дефекта, не полный новый аудит всего проекта.
+6. Заменить Current/Next/текущую evidence, не дописывать журнал. Продолжить следующий
+   пакет, а после технического завершения — следующую готовую задачу без вопроса.
+7. При блокере указать конкретный gate/owner/причину/способ разблокирования и выбрать
+   независимую работу. Завершать общий проход только когда нет разрешённых готовых
+   пакетов, весь scope принят, владелец остановил работу либо среда реально прервала сессию.
 
-## Ownership
+Это порядок работы доступного агента, не daemon, автоперезапуск или обещание работы
+после завершения сессии. Перед вынужденным выходом сохранить точный resume checkpoint.
 
-A durable task file is the single repository source for its own:
-- goal and constraints;
-- optional milestones;
-- durable decisions;
-- exact checkpoint / next action;
-- validation actually performed;
-- remaining blockers or owner QA.
+## Status and dependency gates
 
-Do not maintain a separate queue index, current-work file, or completed-task history log. If supporting milestone files exist, the root task remains the only owner of overall status/current/next.
+`Status`: PLANNED, IN_PROGRESS, OWNER_QA, BLOCKED, DEFERRED, DONE.
+`Technical`: NOT_STARTED, IN_PROGRESS, COMPLETE, BLOCKED, DEFERRED.
+COMPLETE технической части требует её actual проверок и обязательного review/triage;
+это не финальный DONE, если обязательная owner acceptance открыта.
+При недоступном review отметить REVIEW_PENDING/NOT_RUN в Validation, не изображать PASS.
 
-Task files are current snapshots, not action journals. Replace obsolete Current/Next and validation
-when a checkpoint advances; retain only relevant evidence, open findings and durable decisions.
-Do not list every test run/experiment or copy implementation history already available in Git.
-Aim for at most 200 lines; justify indispensable current detail if exceeding that recommendation.
-Use concise links to manifests/reproductions rather than a second report containing the same log.
-Independent defects belong to separate tasks; an existing acceptance gate remains open until fixed
-or explicitly changed by the owner. See [task-lifecycle](../skills/task-lifecycle/SKILL.md)
-and [AGENTS.md](../../AGENTS.md#completion-and-review).
+Зависимость — конкретный реализованный/проверенный контракт или пакет производителя,
+а не обязательно полный DONE задачи. Проверить provider на actual HEAD один раз;
+старое evidence засчитывать только для неизменившейся поверхности с установленным SHA.
+Последующее изменение provider запускает его затронутые consumer regressions, не весь backlog.
+Нельзя зависеть от несуществующего planned API или заменять integration-only gate mock-ом.
+Спецификация будущего consumer не является обратной runtime-зависимостью производителя.
 
-For a substantive reviewed milestone, accepted findings belong to the **same existing task** under `## Review findings`; only Main assigns RV-001 and updates status. Keep full 40-character Git SHAs for baseline, target, review and fix, priority, evidence, fix owner, verification and final disposition. No new global `REVIEW_QUEUE.md`. If the task is single-session and has no durable task file, keep triage in the session. See [review-orchestration](../skills/review-orchestration/SKILL.md).
+OWNER_QA не блокирует независимую работу. Разрешённую QA выполнять только в её объёме;
+уже записанное разрешение не запрашивать повторно. Неразрешённую не запускать и не считать
+пройденной. Новые субъективные сценарии не наследуют разрешения соседней карточки.
+ConfigFile B01 и cold retention остаются DEFERRED по явным решениям владельца.
 
-Suggested compact header:
+Недостающие имена/цены/рецепты: готовить обратимые явно прототипные данные и технические
+тесты без объявления канона. Сохранять полный authoring scope и конкретные открытые
+решения. Незакрытая обязательная приёмка не становится DONE из-за такой подстановки.
 
-```md
-# Rxx — Task name
-Status: **PLANNED | IN_PROGRESS | DEFERRED | BLOCKED | OWNER_QA**
+## Non-destructive source refactor
 
-## Task state
+[Source snapshot](references/task-refactor-2026-10-17/README.md) сохраняет исходные ТЗ
+побайтно через прежние Git blob SHA. Исходные пути задач остаются рабочими карточками;
+ни одна задача не удалена. `*.md.txt` намеренно не попадают в поиск активных Markdown-задач.
 
-### Goal
-...
+Source Goal/Acceptance, игровые контракты, таблицы, edge cases и явные решения владельца
+сохраняют весь объём требований. Рабочая карточка — маршрут исполнения, НЕ сокращённое ТЗ.
+Исторические Current/Next, planning-only и Validation в Source не являются текущими
+командами/статусами. При конфликте применить самое позднее явное решение владельца,
+отмеченное в активной карточке; не считать наши design proposals подтверждённым решением.
+Не читать весь snapshot по умолчанию: выбрать относящиеся к пакету разделы по заголовкам.
+Относительные ссылки внутри frozen текста относятся к его исходному пути на pinned commit;
+использовать ссылку на оригинал в source manifest, а не интерпретировать их от references/.
+Новые требования/уточнения писать у owning task; frozen sources не дополнять логами.
 
-### Constraints / acceptance
-...
+## Validation and review efficiency
 
-### Current
-...
+Следовать [validation-workflow](../skills/validation-workflow/SKILL.md).
+После локального fix — проверка нарушенной гарантии; после завершённого поведения —
+его integration surface. Повторять проверку только при изменении её inputs/контракта,
+новой диагностике или обязательном итоговом gate. Parser/GUT/MCP не три обязательных
+повторения одной проверки: настоящий Godot обязателен, MCP — дополнительный editor-контекст.
+Полный suite/экспорт не запускать после каждого маленького edit. Одна QA-сборка на
+готовую игровую механику, а не на каждый технический шаг. Docs-only не требуют игры.
 
-### Next
-...
+Сначала один раз определить persistent/transient поля и владельцев для текущего пакета;
+codec/preflight/golden обновлять согласованно. Не резервировать номера schema из старого
+ТЗ и не сохранять несовместимые структуры под одной версией ради ускорения.
+До scene/tooling-heavy пакета проверить нужные MCP capabilities. Недостающий инструмент
+выделить в минимальную зависимость с критерием готовности, не скрытый бесконечный refactor.
+Известную shutdown-категорию классифицировать по engine policy, не общим ignore stderr.
+Runner-код этим docs refactor не исправлен: отдельная [задача](godot_validation_result_classification.md).
 
-### Validation
-...
+Main — единственный writer; не более одного native child одновременно. Read-only reviewer
+использует immutable полные SHA, не текущую worktree; независимая работа main допустима
+без конкуренции за editor и без зависимости от неотсмотренной архитектуры.
+Максимум два targeted repair/re-review цикла на checkpoint; затем BLOCKED затронутого
+scope и переход к независимому, а не сброс счётчика или бесконечное повторение.
 
-### Owner QA / blockers
-...
-```
+## Task shape and completion
 
-## Completion and archive
+Рабочая карточка: короткий header, Goal/acceptance, Current, Work packages,
+Entry points/dependency gates, один Next, актуальная Validation/review и Owner QA/blockers.
+Ориентир до 200 строк и 12 KiB; превышение объясняется незаменимым текущим контрактом,
+не упаковкой длинного журнала в одну строку. Подробные требования не удалять ради лимита.
+Не создавать задачу для обычного single-session fix лишь потому, что использован Plan Mode.
+Независимый дефект получает отдельный evidenced scope, не отменяя исходную acceptance.
 
-When the required implementation, validation, review/triage and owner acceptance are complete, set the task to DONE and move its existing file to `.agents/tasks/completed/<original relative path>` in the same completion batch. For example, `.agents/tasks/refactoring_v2/<task>.md` becomes `.agents/tasks/completed/refactoring_v2/<task>.md`. Explicitly deferred manual scope must record the owner decision; a separate QA checklist alone does not authorize completion.
-
-Preserve the task's completion status and evidence, keep its original subdirectory structure, and update both incoming links and relative links inside the archived file. Keep one authoritative file; do not leave an active copy or forwarding stub. The completed directory stores the original task records, without a separate completion log or queue.
-
-Unfinished implementation, pending review and unresolved acceptance keep a task active under its actual status. Lasting product contracts belong in `docs/`; separate remaining manual scenarios belong in `.qa/tasks/`.
-
-## Reading archived records
-
-`completed/` records describe acceptance at their pinned historical checkpoints. Old paths,
-schema numbers, commands and intermediate failures are evidence of that milestone, not current
-implementation instructions. Start new work from the active task and its current code owners;
-preserve historical results and use the current [project policy](../../AGENTS.md) and skills.
-An unresolved required owner acceptance keeps the owning task active; a separate QA checklist
-does not waive it. A documented transfer is valid only for explicitly deferred manual scope.
+DONE только после полного scope, обязательных проверок/review и owner acceptance либо
+явного решения владельца об отсрочке конкретной manual части. Затем переместить существующий
+файл в completed/ с сохранением относительной структуры, evidence и исправлением ссылок;
+не оставлять активный дубликат/forwarder и не создавать completion log.
+При этом рефакторинге завершённые задачи не открывались и ни одна активная не объявлялась DONE.
