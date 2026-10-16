@@ -22,6 +22,29 @@ const HOLY: DEF_InventoryItem = preload(
 var _flow: C_CustomerFlow
 
 
+## Retains only durable facts from destruction, after physical ownership cleanup.
+class CaptureDestruction extends Observer:
+	## Destroyed package IDs observed through the actual lifecycle channel.
+	var package_ids: Array[String] = []
+	## Captured attribution IDs; no borrowed actor survives the event.
+	var actor_ids: Array[String] = []
+	## Whether a physical grip still existed when each destruction fact arrived.
+	var held: Array[bool] = []
+
+
+	func query() -> QueryBuilder:
+		return q.on_event(PackageLifecycleEvent.EVENT)
+
+
+	func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
+		var fact: PackageLifecycleEvent = payload as PackageLifecycleEvent
+		if fact.kind != PackageLifecycleEvent.Kind.DESTROYED:
+			return
+		package_ids.append(fact.package_id)
+		actor_ids.append(fact.actor_id)
+		held.append(GrabQueries.held_relationship(entity) != null)
+
+
 ## Observes the actual synchronous release callback, not a manually toggled transaction flag.
 class CaptureDuringRelease extends Observer:
 	## Borrowed test root for the real snapshot operation.
@@ -200,6 +223,32 @@ func _obstacle(position: Vector3, size: Vector3) -> StaticBody3D:
 	body.position = position
 	_world.add_child(body)
 	return body
+
+
+## Registers the stolen physical parcel and a separate, still-waiting rightful order.
+func _rightful_order() -> CustomerVisit:
+	var session: Entity = _world.query.with_all([C_CustomerFlow]).execute_one()
+	session.add_component(C_Wallet.new())
+	WalletService.current().policy = DEF_Economy.new()
+	_world.add_observer(O_CustomerOutcomes.new())
+	assert_eq(
+		PackageRegistrationService.register_package(_parcel).outcome,
+		PackageScanResult.Outcome.REGISTERED,
+	)
+	var rightful: CustomerVisit = CustomerVisit.new()
+	rightful.visit_id = &"rightful/stolen-parcel"
+	rightful.customer_id = &"fixture/rightful-recipient"
+	rightful.package_id = (_parcel.get_component(C_Package) as C_Package).package_id
+	rightful.package_history_id = (_parcel.get_component(C_Package) as C_Package).history_id
+	rightful.definition = DEF_Customer.new()
+	rightful.definition.healthy_satisfaction = 100
+	rightful.definition.unresolved_complaint_probability = 1.0
+	rightful.definition.max_followup_visits = 0
+	rightful.payment = 100
+	rightful.accounting_value = 100
+	rightful.complaint_roll = 0.0
+	_flow.visits.append(rightful)
+	return rightful
 #endregion
 
 
@@ -735,4 +784,112 @@ func test_return_callback_moving_player_away_cannot_acquire_the_stale_player_gri
 	assert_eq(incident.demand_outcome, DEMAND.RETURN)
 	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
 	_world.remove_observer(observer)
+#endregion
+
+
+#region Rightful order and physical destruction integration
+func test_returned_stolen_parcel_delivers_and_pays_only_its_rightful_order_once() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var rightful: CustomerVisit = _rightful_order()
+	var record: PackageRegistrationRecord = PackageHistoryService.record_for(rightful.package_id)
+	var history_id: String = record.history_id
+	var number: int = record.number
+	assert_true(CustomerParcelDemandService.demand(_actor, _customer as E_DistrictNpc))
+	assert_eq(GrabQueries.held_object(_actor), _parcel)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_false(rightful.settlement_committed)
+
+	# A different real recipient receives the recovered box through the ordinary auto-handoff.
+	var recipient: E_NpcCharacter = (
+		load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	).instantiate() as E_NpcCharacter
+	(recipient as Node as RigidBody3D).freeze = true
+	(recipient as Node as Node3D).position = Vector3(5.0, 0.0, -1.0)
+	rightful.started = true
+	EntityCompositionFixture.register_visit(_world, recipient, rightful)
+	var agent: C_CustomerAgent = recipient.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	CustomerParcelAssignment.bind_parcel(recipient, rightful)
+	(_actor as Node as Node3D).position = Vector3(5.0, 0.0, -2.0)
+	_parcel.global_position = recipient.hold_anchor.global_position - Vector3(0.0, 0.0, 0.35)
+	assert_true(CustomerFlowService.try_automatic_handoff(recipient, rightful))
+	assert_eq(rightful.actual, CustomerVisit.Actual.DELIVERED)
+	assert_null(GrabQueries.held_object(_actor))
+	assert_true(CustomerFlowService.declare(rightful.visit_id, CustomerVisit.Declaration.TAKEN))
+	assert_true(CustomerFlowService.declare(rightful.visit_id, CustomerVisit.Declaration.TAKEN))
+	assert_false(CustomerFlowService.try_automatic_handoff(recipient, rightful))
+	var wallet: C_Wallet = WalletService.current()
+	assert_eq(wallet.balance, 100)
+	assert_eq(wallet.operations.size(), 1)
+	assert_eq(wallet.operations[0].reason, MoneyOperation.Reason.PAYMENT)
+	assert_eq(record.history_id, history_id)
+	assert_eq(record.number, number)
+	assert_eq(rightful.package_history_id, history_id)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(_visit.declaration, CustomerVisit.Declaration.NONE)
+	assert_false(_visit.settlement_committed)
+
+
+func test_destroyed_stolen_parcel_keeps_history_and_manual_loss_settles_complaint_once() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var rightful: CustomerVisit = _rightful_order()
+	var record: PackageRegistrationRecord = PackageHistoryService.record_for(rightful.package_id)
+	var history_id: String = record.history_id
+	var number: int = record.number
+	var capture: CaptureDestruction = CaptureDestruction.new()
+	_world.add_observer(capture)
+	_world.add_observer(O_Damage.new())
+	_world.add_observer(O_PackageDamage.new())
+	_world.add_observer(O_PackageDestruction.new())
+	var request: DamageRequest = DamageRequest.new()
+	request.target = _parcel
+	request.source = _customer
+	request.instigator = _customer
+	request.amount = (_parcel.get_component(C_Health) as C_Health).current
+	_cycle.clock.elapsed_ticks += GameTimeRules.duration_ticks(3.0)
+	assert_true(DamageRequestService.submit(request))
+	assert_eq(capture.package_ids, [rightful.package_id])
+	assert_eq(capture.actor_ids, [_customer.id])
+	assert_eq(capture.held, [false])
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.COMPLETED)
+	assert_eq(incident.next_eligible_tick, _cycle.clock.elapsed_ticks + (
+		CustomerParcelIncidentService.BLOCK_TICKS
+	))
+	assert_null(GrabQueries.held_object(_customer))
+	assert_null(PackageQueries.find_live_package(rightful.package_id))
+	assert_eq(record.history_id, history_id)
+	assert_eq(record.number, number)
+	assert_true(record.active)
+	assert_eq(rightful.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(rightful.declaration, CustomerVisit.Declaration.NONE)
+	assert_eq(rightful.loss_cause, CustomerVisit.LossCause.NONE)
+	assert_false(rightful.finished)
+	assert_true(WalletService.current().operations.is_empty())
+
+	# The terminal's existing declaration closes an unstarted order; destruction itself did not.
+	assert_true(CustomerFlowService.declare(rightful.visit_id, CustomerVisit.Declaration.LOST))
+	assert_true(rightful.finished)
+	assert_true(rightful.settlement_committed)
+	assert_eq(rightful.loss_cause, CustomerVisit.LossCause.DECLARED_LOST)
+	assert_true(CustomerVisitLifecycle.create_complaint(rightful, _cycle.day_index))
+	var complaint: CustomerComplaint = rightful.complaint
+	CustomerOutcomeService.resolve_complaint(
+		rightful, WalletService.current(), complaint.resolve_day,
+	)
+	assert_eq(complaint.outcome, CustomerComplaint.Outcome.ALREADY_SETTLED)
+	assert_true(CustomerFlowService.declare(rightful.visit_id, CustomerVisit.Declaration.LOST))
+	assert_true(CustomerVisitLifecycle.create_complaint(rightful, _cycle.day_index))
+	CustomerOutcomeService.resolve_complaint(
+		rightful, WalletService.current(), complaint.resolve_day + 1,
+	)
+	assert_eq(complaint.resolved_day, complaint.resolve_day)
+	var wallet: C_Wallet = WalletService.current()
+	assert_eq(wallet.balance, -120)
+	assert_eq(wallet.operations.size(), 1)
+	assert_eq(wallet.operations[0].reason, MoneyOperation.Reason.LOST)
+	assert_eq(rightful.complaint, complaint)
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_false(_visit.settlement_committed)
+	assert_eq(PackageHistoryService.record_for(rightful.package_id), record)
+	_world.remove_observer(capture)
 #endregion
