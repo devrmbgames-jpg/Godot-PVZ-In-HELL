@@ -216,33 +216,19 @@ static func greet(customer: E_NpcCharacter) -> void:
 ## Проверяет коробку на стойке и применяет общую выдачу или начало осмотра.
 ## READY включает начатый осмотр и отказ получателя; actual и settlement читать отдельно.
 static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck.Result:
-	var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer()
+	var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer(station)
 	if customer == null:
 		return PackageDeliveryCheck.Result.MISSING
 
-	var parcels: Array[Entity] = station.parcels()
-	if parcels.size() != 1:
-		var delivery_status: PackageDeliveryCheck.Result = (
-			PackageDeliveryCheck.Result.MISSING
-			if parcels.is_empty()
-			else PackageDeliveryCheck.Result.MULTIPLE
-		)
-		station.show_message(CustomerPresentation.check_text(delivery_status))
-		return delivery_status
-
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
-	var delivery_status: PackageDeliveryCheck.Result = _resolve_delivery(
-		customer,
-		visit,
-		parcels[0],
-		null,
+	var actor: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
+	var offer: CustomerParcelOffer = CustomerHandoffService.select_offer(
+		actor, customer, visit, false, CustomerParcelOffer.Source.COUNTER, station,
 	)
+	var delivery_status: PackageDeliveryCheck.Result = confirm_offer(offer, false)
 	if delivery_status != PackageDeliveryCheck.Result.READY:
 		station.show_message(CustomerPresentation.check_text(delivery_status))
-		return delivery_status
-
-	station.show_message("Выдача обработана. Отметьте исход в терминале.")
 	return delivery_status
 
 
@@ -271,24 +257,10 @@ static func direct_handoff_package(
 	if (visit == null or visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED):
 		return null
 
-	var fallback: Entity = null
-	for slot_index: int in [
-		C_Grabbable.HoldSlot.CARRY,
-		C_Grabbable.HoldSlot.RIGHT_HAND,
-		C_Grabbable.HoldSlot.LEFT_HAND,
-	]:
-		var held: Entity = GrabQueries.held_in_slot(actor, slot_index)
-		if held == null:
-			continue
-
-		var identity: C_Package = held.get_component(C_Package) as C_Package
-		if identity == null:
-			continue
-		if fallback == null:
-			fallback = held
-		if identity.package_id == visit.package_id:
-			return held
-	return fallback
+	var offer: CustomerParcelOffer = CustomerHandoffService.select_offer(
+		actor, customer, visit, false, CustomerParcelOffer.Source.HELD,
+	)
+	return offer.parcel if offer != null else null
 
 
 ## Автоприём проходит те же правила выдачи/осмотра; ошибочные предложения не меняют мир.
@@ -299,24 +271,33 @@ static func try_automatic_handoff(customer: E_NpcCharacter, visit: CustomerVisit
 		return false
 
 	var actor: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
-	var parcel: Entity = direct_handoff_package(actor, customer, true)
-	if not GrabQueries.entity_available(parcel):
-		return false
-	if (
-		not CustomerHandoffService.can_receive(
-			actor,
-			customer,
-			visit,
-			parcel,
-			CustomerFlowQueries.assigned(parcel, customer, visit),
-		)
-	):
-		return false
+	var offer: CustomerParcelOffer = CustomerHandoffService.select_offer(actor, customer, visit)
+	return confirm_offer(offer) == PackageDeliveryCheck.Result.READY
 
-	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	if agent.phase == C_CustomerAgent.Phase.WAITING:
-		greet(customer)
-	return confirm_direct_delivery(actor, customer) == PackageDeliveryCheck.Result.READY
+
+## Revalidates a selected offer after any synchronous greeting; there is one delivery commit path.
+## Wrong-parcel reactions are a later explicit operation, never a successful delivery here.
+static func confirm_offer(
+	offer: CustomerParcelOffer, automatic: bool = true,
+) -> PackageDeliveryCheck.Result:
+	var check: PackageDeliveryCheck = CustomerHandoffService.evaluate_offer(offer, automatic)
+	if check.result != PackageDeliveryCheck.Result.READY:
+		return check.result
+	if offer.agent.phase == C_CustomerAgent.Phase.WAITING:
+		greet(offer.customer)
+	check = CustomerHandoffService.evaluate_offer(offer, automatic)
+	if check.result != PackageDeliveryCheck.Result.READY:
+		return check.result
+	var result: PackageDeliveryCheck.Result = _resolve_delivery(
+		offer.customer, offer.visit, offer.parcel,
+		offer.actor if offer.source == CustomerParcelOffer.Source.HELD else null,
+	)
+	if (
+		offer.source == CustomerParcelOffer.Source.COUNTER
+		and result == PackageDeliveryCheck.Result.READY
+	):
+		offer.counter.show_message("Выдача обработана. Отметьте исход в терминале.")
+	return result
 
 
 ## Проверяет передачу из рук с теми же правилами назначения и принятия.
@@ -328,18 +309,14 @@ static func confirm_direct_delivery(
 	if NpcDeliveryScenarioService.armed_for(customer as E_DistrictNpc) != null:
 		return PackageDeliveryCheck.Result.UNASSIGNED
 
-	var parcel: Entity = direct_handoff_package(actor, customer)
-	if parcel == null:
-		return PackageDeliveryCheck.Result.MISSING
-
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
-	var delivery_status: PackageDeliveryCheck.Result = _resolve_delivery(
-		customer,
-		visit,
-		parcel,
-		actor,
+	var visit: CustomerVisit = (
+		CustomerFlowQueries.find_visit(agent.visit_id) if agent != null else null
 	)
+	var offer: CustomerParcelOffer = CustomerHandoffService.select_offer(
+		actor, customer, visit, false, CustomerParcelOffer.Source.HELD,
+	)
+	var delivery_status: PackageDeliveryCheck.Result = confirm_offer(offer, false)
 	if delivery_status != PackageDeliveryCheck.Result.READY:
 		customer.show_message(CustomerPresentation.check_text(delivery_status))
 	return delivery_status

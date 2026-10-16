@@ -5,6 +5,7 @@ class_name CustomerHandoffGeometry
 ## Automatic handover is strictly inside one metre; authored policies may reduce this distance.
 const MAX_REACH_METERS: float = 1.0
 const ORTHOGONALITY_EPSILON: float = 0.0001
+const SUPPORT_MIN_UP_NORMAL: float = 0.7
 
 
 #region Native parcel surface
@@ -48,4 +49,66 @@ static func _valid_pose(pose: Transform3D) -> bool:
 		and absf(right.dot(back)) <= ORTHOGONALITY_EPSILON
 		and absf(up.dot(back)) <= ORTHOGONALITY_EPSILON
 	)
+#endregion
+
+
+#region Native counter support
+## Reads a downward physical support chain through the supplied stable parcels to the counter.
+## The caller filters hands/slots/cargo and velocities; the chain is bounded by this finite set.
+static func counter_supported(
+	counter: PhysicsBody3D, parcel: RigidBody3D, stable: Array[RigidBody3D], tolerance: float,
+	mask: int,
+) -> bool:
+	var space: PhysicsDirectSpaceState3D = counter.get_world_3d().direct_space_state
+	var current: RigidBody3D = parcel
+	var excluded: Array[RID] = []
+	for depth: int in stable.size() + 1:
+		if excluded.has(current.get_rid()):
+			return false
+		excluded.append(current.get_rid())
+		var bounds: AABB = _box_bounds(current)
+		if not bounds.size.is_finite() or bounds.size.length_squared() <= 0.0:
+			return false
+		var bottom: Vector3 = Vector3(
+			bounds.get_center().x, bounds.position.y, bounds.get_center().z,
+		)
+		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+			bounds.get_center(), bottom - Vector3.UP * tolerance,
+			mask, excluded,
+		)
+		# Jolt's resting contact can slightly penetrate the authored box volume.
+		# Start inside the excluded parcel, above the contact, to read its real upward normal.
+		ray.hit_from_inside = true
+		var hit: Dictionary = space.intersect_ray(ray)
+		if hit.is_empty():
+			return false
+		var normal: Vector3 = hit.normal
+		if normal.dot(Vector3.UP) < SUPPORT_MIN_UP_NORMAL:
+			return false
+		if hit.collider == counter:
+			return true
+		var support: RigidBody3D = hit.collider as RigidBody3D
+		if support == null or not stable.has(support):
+			return false
+		current = support
+	return false
+
+
+static func _box_bounds(body: RigidBody3D) -> AABB:
+	var result: AABB = AABB()
+	var first: bool = true
+	for owner_id: int in body.get_shape_owners():
+		if body.is_shape_owner_disabled(owner_id):
+			continue
+		var pose: Transform3D = body.global_transform * body.shape_owner_get_transform(owner_id)
+		if not _valid_pose(pose):
+			return AABB()
+		for index: int in body.shape_owner_get_shape_count(owner_id):
+			var shape: BoxShape3D = body.shape_owner_get_shape(owner_id, index) as BoxShape3D
+			if shape == null:
+				return AABB()
+			var bounds: AABB = pose * AABB(-shape.size * 0.5, shape.size)
+			result = bounds if first else result.merge(bounds)
+			first = false
+	return result
 #endregion

@@ -2873,7 +2873,8 @@
         "release"
       ],
       "sources": [
-        "content/services/customers/customer_inspection_service.gd"
+        "content/services/customers/customer_inspection_service.gd",
+        "content/domains/customers/services/customer_handoff_service.gd"
       ],
       "method_rights": {
         "attach": "request",
@@ -3218,7 +3219,8 @@
         "content/services/npc/npc_delivery_offer_service.gd",
         "content/services/npc/npc_delivery_scenario_service.gd",
         "content/services/npc/npc_home_delivery_service.gd",
-        "content/services/npc/npc_service_role.gd"
+        "content/services/npc/npc_service_role.gd",
+        "content/domains/customers/services/customer_flow_queries.gd"
       ],
       "method_rights": {
         "place_at": "request",
@@ -4049,7 +4051,9 @@
         "content/systems/gameplay/s_customer_flow.gd",
         "content/systems/gameplay/s_customer_greeting.gd",
         "content/systems/gameplay/s_customer_inspection.gd",
-        "content/systems/gameplay/s_customer_waiting.gd"
+        "content/systems/gameplay/s_customer_waiting.gd",
+        "content/domains/customers/services/customer_handoff_service.gd",
+        "content/domains/customers/services/customer_flow_queries.gd"
       ],
       "method_rights": {
         "contains": "request"
@@ -20024,6 +20028,42 @@
         "content/domains/persistence/rules/package_order_snapshot_rules.gd"
       ],
       "purpose": "Validates immutable arrival projection facts against the encoded history before World mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "interaction",
+      "symbol": "CartCargoQueries",
+      "path": "content/domains/interaction/services/cart_cargo_queries.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "relationship"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "relationship": "query"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_handoff_service.gd"
+      ],
+      "purpose": "Reads live cargo bindings to exclude secured cart parcels from physical handover offers."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "interaction",
+      "symbol": "R_HeldBy",
+      "path": "content/domains/interaction/relationships/r_held_by.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_handoff_service.gd"
+      ],
+      "purpose": "Reads the live hand/carry slot to revalidate the exact physical offer; no binding mutation."
     }
   ],
   "legacy_decomposition": []

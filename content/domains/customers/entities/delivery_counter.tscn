@@ -1,11 +1,12 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://152rb30livdw"]
 
-[ext_resource type="Script" path="res://content/domains/customers/entities/e_delivery_counter.gd" id="Entity"]
-[ext_resource type="Script" path="res://content/domains/customers/components/c_delivery_counter.gd" id="Counter"]
-[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
-[ext_resource type="Script" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
-[ext_resource type="Script" path="res://content/domains/customers/definitions/def_delivery_action.gd" id="Action"]
-[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="5_pqsi2"]
+[ext_resource type="Script" uid="uid://du12ic3haj0u8" path="res://content/domains/customers/definitions/def_delivery_action.gd" id="Action"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" uid="uid://r6s8n3j1mfow" path="res://content/domains/customers/components/c_delivery_counter.gd" id="Counter"]
+[ext_resource type="Script" uid="uid://c482lhq24a7f2" path="res://content/domains/customers/entities/e_delivery_counter.gd" id="Entity"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
 
 [sub_resource type="Resource" id="Counter"]
 script = ExtResource("Counter")
@@ -20,51 +21,52 @@ caption = "Подтвердить выдачу"
 
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("Actions")
-actions = [SubResource("Action")]
+actions = Array[ExtResource("5_pqsi2")]([SubResource("Action")])
 
 [sub_resource type="StandardMaterial3D" id="Material"]
 albedo_color = Color(0.25, 0.5, 0.3, 1)
 
 [sub_resource type="BoxMesh" id="Mesh"]
 material = SubResource("Material")
-size = Vector3(1.8, 0.9, 1.0)
+size = Vector3(1.8, 0.9, 1)
 
 [sub_resource type="BoxShape3D" id="Shape"]
-size = Vector3(1.8, 0.9, 1.0)
+size = Vector3(1.8, 0.9, 1)
 
 [sub_resource type="BoxShape3D" id="AreaShape"]
 size = Vector3(1.7, 1.1, 0.9)
 
-[node name="DeliveryCounter" type="StaticBody3D"]
-collision_layer = 1
+[node name="DeliveryCounter" type="StaticBody3D" unique_id=144181252]
 script = ExtResource("Entity")
+ancestor_entity_bindings = PackedStringArray()
 component_resources = Array[ExtResource("Component")]([SubResource("Counter"), SubResource("Interactable"), SubResource("Actions")])
 
-[node name="Desk" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.45, 0)
+[node name="Desk" type="MeshInstance3D" parent="." unique_id=579040726]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 mesh = SubResource("Mesh")
 
-[node name="Collision" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.45, 0)
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1994836607]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 shape = SubResource("Shape")
 
-[node name="DeliveryArea" type="Area3D" parent="."]
-position = Vector3(0, 1.45, 0)
+[node name="DeliveryArea" type="Area3D" parent="." unique_id=1281518402]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
 collision_layer = 0
 collision_mask = 15
 
-[node name="Shape" type="CollisionShape3D" parent="DeliveryArea"]
+[node name="Shape" type="CollisionShape3D" parent="DeliveryArea" unique_id=1145070218]
 shape = SubResource("AreaShape")
 
-[node name="Sign" type="Label3D" parent="."]
-position = Vector3(0, 2.1, 0)
-billboard = 1
-font_size = 28
+[node name="Sign" type="Label3D" parent="." unique_id=195402986]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
 pixel_size = 0.003
-text = "ВЫДАЧА\nПоложите одну коробку и нажмите F"
+billboard = 1
+text = "ВЫДАЧА
+Оставьте коробку на стойке"
+font_size = 28
 
-[node name="Entry" type="Marker3D" parent="."]
-position = Vector3(1, 0, 3.5)
+[node name="Entry" type="Marker3D" parent="." unique_id=2057979800]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 3.5)
 
-[node name="Waiting" type="Marker3D" parent="."]
-position = Vector3(0, 0, 1.2)
+[node name="Waiting" type="Marker3D" parent="." unique_id=19764733]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2)

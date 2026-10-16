@@ -1,8 +1,8 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
-BASE_SHA: `64b6c4eb57ee483a205a835afbeefd5fb64e2e8e`
-TARGET_SHA: `9ee5a479848d5adeed91c3e4d14627374ccae232` — M1a review PASS
+BASE_SHA: `7de2d5c23f4aaf8722ea92262db0904bfd4c0dec`
+TARGET_SHA: pending M1b commit — REVIEW_PENDING
 
 Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
 [Жуткий](creepy_npc_unpredictable_stalking.md),
@@ -26,27 +26,25 @@ Created: 2026-10-15. Основание: прямой запрос владел�
 ### Current / authorization
 
 Активный `/goal` авторизует выполнение задач; прежнее «только планирование» предшествует ему.
-M1a завершён: HandoffAnchor → box surface, строгий<1 м, LOS/overlap/holder/pause; policy>1 м ограничены.
-BASE_SHA→TARGET_SHA review: no material findings, architecture/style PASS; reviewer validation NOT_RUN.
-Main triage: нет открытых принятых P0/P1/P2; repair0/2. Native evidence ниже, visual NOT_RUN,0/8.
-M1b ещё открыт: стол без F и общий выбор кандидатов; руки используют прежний _resolve_delivery.
+M1a review PASS: `64b6c4eb57ee483a205a835afbeefd5fb64e2e8e`→`9ee5a479848d5adeed91c3e4d14627374ccae232`.
+M1b реализован, review pending: единый transient CustomerParcelOffer для рук/стола, READY прежде WRONG;
+дистанция с миллиметровыми сортировочными buckets, затем стабильный package_id; строгий<1 м/LOS сохранён.
+Стол требует native Area, допустимых скоростей и физической цепочки опоры до стойки, без хвата/слота/cargo.
+Резерв R_NpcServiceAt исключителен; district без него/домашние встречи не конкурируют за стойку.
+Commit повторно проверяет World/роль/визит/источник и после greeting; итог/осмотр остаются у _resolve_delivery.
+Main triage M1a: нет открытых принятых P0/P1/P2; M1b repair0/2; visual NOT_RUN,0/8.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
 запугивание меняет шансы атаки/возврата на5 процентных пунктов за Strength; блок персонален для пары.
 Приоритет святого символа и трактовка взаимоисключающих огненных исходов пока остаются предложениями.
 
 ## Что уже есть
 
-- [E_DeliveryCounter](../../content/domains/customers/entities/e_delivery_counter.gd) читает native Area;
-  [CustomerFlowService](../../content/domains/customers/services/customer_flow_service.gd).confirm_delivery пока требует ручного вызова.
-- [CustomerHandoffService](../../content/domains/customers/services/customer_handoff_service.gd) вызывается waiting/native BT;
-  M1a использует реальную поверхность вместо центров. Все шесть native упаковок имеют Box colliders.
-- direct_handoff_package предпочитает свой заказ, иначе первую чужую; can_receive пока только READY.
-- [PackageDeliveryCheck](../../content/domains/customers/contracts/package_delivery_check.gd) различает причины отказа;
-  _resolve_delivery снимает хват после READY и запускает осмотр/итог. Чужое не считается выдачей.
-- [GrabReleaseService](../../content/domains/interaction/services/grab_release_service.gd) снимает хват;
-  [ThrowContext](../../content/domains/combat/services/throw_context.gd) владеет атрибуцией броска.
-- [CustomerFireOpeningService](../../content/domains/customers/services/customer_fire_opening_service.gd) открывает свой заказ;
-  чужая реакция использует существующие damage/hazard owners, без второго огня.
+- E_DeliveryCounter читает native Area; CustomerFlowService.confirm_delivery — ручной вход в тот же offer/commit.
+- CustomerHandoffService вызывается waiting/native BT; direct_handoff_package использует общий selector рук.
+- Все шесть native упаковок имеют Box colliders; reach использует их реальную поверхность.
+- PackageDeliveryCheck различает причины отказа; _resolve_delivery снимает хват после READY и запускает осмотр/итог.
+- GrabReleaseService снимает хват; ThrowContext владеет атрибуцией броска; чужое не считается выдачей.
+- CustomerFireOpeningService открывает свой заказ; чужая реакция использует существующие damage/hazard owners.
 
 ## Единый контур автоматического предложения
 
@@ -171,8 +169,10 @@ M1b ещё открыт: стол без F и общий выбор кандид
 
 ### Validation
 
-- M1a GUT106/106,828 assertions, stderr0: handoff13/118 (`024734766`), inspection12/163 (`024432252`), service17/103 (`024444708`), queue51/342 (`024512209`), identity13/102 (`024608040`); prefix `gut-20261016-`. Baseline6/72 (`022800966`).
-- Native ParseChanged4/0 (`20261016-024804403`), MCP4 checked/empty/scripts0; formatter4/role4/strict architecture0/structure/persistence inventory PASS. Native anchor through editor/MCP; visual0/8.
+- M1b GUT106/106,815 assertions, stderr0: counter13/89 (`032611400`), handoff13/118 (`032352514`), inspection12/163 (`032430965`), service17/103 (`032506237`), queue51/342 (`032537132`); prefix `gut-20261016-` in `.artifacts/godot_agent/`.
+- Native ParseChanged9/0 (`20261016-033337292`), MCP9 checked/empty/scripts0; formatter9/role9/strict architecture0/structure/persistence inventory PASS. Новая вывеска стойки сохранена editor/MCP.
+- Counter native Jolt: настоящее падение/стабилизация, unsupported gap/скорости, стопка, смешанные источники, свой приоритет, stable wrong tie, stale role/visit/pose/grip, резерв и штатный осмотр PASS.
+- delivery_completion native write/restore PASS/PASS, exit0/0: `.artifacts/godot_agent/delivery_completion-m1b-{write,restore}.{stdout,stderr}.log`. Fixture проверяет arrival number/отдельный LOST и физическое поднесение. Wrapper FAIL: неизвестный phase marker и shutdown-only retention (KNOWN_ENGINE_LIMITATION/DEFERRED), не runtime PASS обёртки.
 
 - Native/GUT: стол без F; коробка ещё в руках/пролетает над столом; несколько коробок/получателей,
   одна корректная выдача; <1 м захват, ровно1 м/дальше — нет; стенка/большая коробка/занятые слоты.
@@ -196,5 +196,5 @@ M1b ещё открыт: стол без F и общий выбор кандид
 
 ### Next
 
-M1b: единый кандидат рук/стола и автоматический стол, повторная проверка перед общим commit;
-затем typed-реакции/эпизоды -> присвоение/запугивание/физика -> saves/регрессии -> owner QA.
+M1b: commit и immutable-SHA review/triage до закрытия checkpoint;
+далее typed-реакции/эпизоды -> присвоение/запугивание/физика -> saves/регрессии -> owner QA.

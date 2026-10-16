@@ -73,16 +73,59 @@ static func customer_for(visit_id: StringName) -> E_NpcCharacter:
 	return null
 
 
-## Выбирает ожидающего коробку клиента стойки; домашняя встреча не участвует.
-static func waiting_customer() -> E_NpcCharacter:
-	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
-		if HomeMeetingQueries.meeting_for(customer) != null:
+## Reads the station's exclusive reservation, otherwise one stable isolated ready participant.
+## District actors require R_NpcServiceAt; home meetings never compete for a counter.
+static func waiting_customer(station: E_DeliveryCounter = null) -> E_NpcCharacter:
+	if station == null:
+		station = counter()
+	if (
+		not EntityAvailability.contains(station, ECS.world)
+		or not station.has_component(C_DeliveryCounter)
+	):
+		return null
+	var reserved: E_NpcCharacter = null
+	var isolated: Array[E_NpcCharacter] = []
+	for entity: Entity in ECS.world.entities:
+		if not EntityAvailability.contains(entity, ECS.world) or entity.has_component(C_Death):
 			continue
-
+		var customer: E_NpcCharacter = entity as E_NpcCharacter
+		if customer == null or HomeMeetingQueries.meeting_for(customer) != null:
+			continue
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-		if agent.phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
-			return customer as E_NpcCharacter
-	return null
+		if agent == null:
+			continue
+		for link: Relationship in customer.relationships:
+			if (
+				link.relation is R_NpcServiceAt and link.target == station
+				and (link.relation as R_NpcServiceAt).visit_id == agent.visit_id
+			):
+				if reserved != null and reserved != customer:
+					return null
+				reserved = customer
+		if not customer is E_DistrictNpc and _ready_counter_customer(customer):
+			isolated.append(customer)
+	if reserved != null:
+		return reserved if _ready_counter_customer(reserved) else null
+	isolated.sort_custom(func(first: E_NpcCharacter, second: E_NpcCharacter) -> bool:
+		var first_visit: CustomerVisit = visit_for(first)
+		var second_visit: CustomerVisit = visit_for(second)
+		return (
+			first_visit.queue_order < second_visit.queue_order
+			if first_visit.queue_order != second_visit.queue_order
+			else String(first_visit.visit_id) < String(second_visit.visit_id)
+		)
+	)
+	return isolated[0] if not isolated.is_empty() else null
+
+
+static func _ready_counter_customer(customer: E_NpcCharacter) -> bool:
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	var visit: CustomerVisit = find_visit(agent.visit_id)
+	return (
+		agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]
+		and visit != null and not visit.finished
+		and visit.actual == CustomerVisit.Actual.NOT_RESOLVED
+	)
 
 
 ## Считает незавершённые визиты, назначенные не позднее указанного дня.

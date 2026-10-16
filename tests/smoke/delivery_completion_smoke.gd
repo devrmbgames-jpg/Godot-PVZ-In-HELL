@@ -48,6 +48,8 @@ func _run() -> void:
 		)
 		if not _failed:
 			_prepare_deliveries(level)
+	level.free()
+	ECS.world = null
 	print(
 		"Delivery completion smoke ",
 		"restore" if restoring else "write",
@@ -69,21 +71,13 @@ func _prepare_deliveries(level: Node3D) -> void:
 	district.terminal_offer_target = 0
 	district.delivery_considered.clear()
 	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
-	var unregistered: CustomerVisit = flow.visits.back()
 	for visit: CustomerVisit in flow.visits:
-		var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
-		if person != null and not person.profile.resident:
-			unregistered = visit
-			break
-	for visit: CustomerVisit in flow.visits:
-		if visit != unregistered:
-			_check(
-				PackageRegistrationService
-				.register_package(PackageQueries.find_live_package(visit.package_id))
-				.outcome
-				== PackageScanResult.Outcome.REGISTERED,
-				"real parcel registered",
-			)
+		var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
+		var record: PackageRegistrationRecord = PackageHistoryService.record_for(visit.package_id)
+		_check(
+			parcel != null and record != null and record.number > 0,
+			"real parcel automatically numbered at arrival",
+		)
 	_check(district.home_deliveries.size() >= 3, "three actual local delivery offers available")
 	if district.home_deliveries.size() < 3:
 		return
@@ -91,6 +85,17 @@ func _prepare_deliveries(level: Node3D) -> void:
 	var delivered: NpcHomeDelivery = district.home_deliveries[0]
 	var refused: NpcHomeDelivery = district.home_deliveries[1]
 	var missed: NpcHomeDelivery = district.home_deliveries[2]
+	var missing_visit: CustomerVisit = null
+	for visit: CustomerVisit in flow.visits:
+		if visit.package_id not in [delivered.package_id, refused.package_id, missed.package_id]:
+			missing_visit = visit
+			break
+	_check(
+		missing_visit != null,
+		"manual loss uses a separate receipt from the three delivery jobs",
+	)
+	if missing_visit == null:
+		return
 	_check(
 		NpcDeliveryOfferService.negotiate(delivered.job_id) == NpcHomeDelivery.Bargain.ACCEPTED,
 		"private bonus negotiated once",
@@ -113,17 +118,18 @@ func _prepare_deliveries(level: Node3D) -> void:
 		"ordinary payment and bonus use two operations",
 	)
 
-	var missing_box: Entity = PackageQueries.find_live_package(unregistered.package_id)
+	var missing_box: Entity = PackageQueries.find_live_package(missing_visit.package_id)
+	var missing_number: int = PackageHistoryService.record_for(missing_visit.package_id).number
 	ECS.world.remove_entity(missing_box)
 	_check(
-		unregistered.declaration == CustomerVisit.Declaration.NONE,
-		"missing unregistered box is not automatically LOST",
+		missing_visit.declaration == CustomerVisit.Declaration.NONE,
+		"missing box is not automatically declared LOST",
 	)
 	var panel: TerminalPanel = level.get_node("Entityes/Terminal/TerminalPanel") as TerminalPanel
-	panel.set("_selected_package_id", unregistered.package_id)
+	panel.set("_selected_package_id", missing_visit.package_id)
 	panel.open_for(player)
 	panel.call("_refresh", true)
-	var missing_row: UI_TerminalButtonPackage = _row(panel, unregistered.package_id)
+	var missing_row: UI_TerminalButtonPackage = _row(panel, missing_visit.package_id)
 	_check(missing_row != null, "missing receipt remains a real terminal row")
 	if missing_row == null:
 		panel.close_panel()
@@ -133,12 +139,12 @@ func _prepare_deliveries(level: Node3D) -> void:
 		panel.get_node("%PackageDetailInfo") as UI_TerminalPackageDetailInfo
 	)
 	_check(
-		unregistered.declaration == CustomerVisit.Declaration.LOST,
-		"real terminal action declares unregistered loss",
+		missing_visit.declaration == CustomerVisit.Declaration.LOST,
+		"real terminal action declares the missing parcel lost",
 	)
 	_check(
-		PackageHistoryService.record_for(unregistered.package_id).number == 0,
-		"manual loss never assigns pickup number",
+		PackageHistoryService.record_for(missing_visit.package_id).number == missing_number,
+		"manual loss preserves the arrival number",
 	)
 	panel.call("_on_package_selected", missed.package_id)
 	var editor: TextEdit = detail.get_node("MarginContainer/VBoxContainer/TextEdit") as TextEdit
@@ -170,6 +176,11 @@ func _handoff(job: NpcHomeDelivery, player: Entity, decline: bool) -> void:
 	_tick(body)
 	var parcel: Entity = PackageQueries.find_live_package(job.package_id)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), player))
+	# A live grip alone does not teleport the physical parcel to the recipient.
+	var parcel_body: RigidBody3D = GrabQueries.physical_body(parcel)
+	parcel_body.global_position = GrabQueries.hold_anchor(body).global_position
+	parcel_body.linear_velocity = Vector3.ZERO
+	parcel_body.angular_velocity = Vector3.ZERO
 	_check(
 		CustomerFlowService.confirm_direct_delivery(player, body)
 		== PackageDeliveryCheck.Result.READY,
@@ -294,8 +305,8 @@ func _check_restored(level: Node3D) -> void:
 		if visit.declaration == CustomerVisit.Declaration.LOST:
 			lost_count += 1
 			_check(
-				visit.finished and PackageHistoryService.record_for(visit.package_id).number == 0,
-				"manual unregistered loss remains closed without pickup number",
+				visit.finished and PackageHistoryService.record_for(visit.package_id).number > 0,
+				"manual loss remains closed with its arrival number",
 			)
 	_check(lost_count == 1, "only explicitly declared case is LOST")
 	var wallet: C_Wallet = WalletService.current()

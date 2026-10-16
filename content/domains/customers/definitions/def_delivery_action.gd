@@ -5,7 +5,9 @@ class_name DEF_DeliveryAction
 
 ## Проверяет наличие обслуживаемого клиента у стойки.
 func is_available(_actor: Entity, source: Entity, _target: Entity) -> bool:
-	return source is E_DeliveryCounter and CustomerFlowQueries.waiting_customer() != null
+	return source is E_DeliveryCounter and CustomerFlowQueries.waiting_customer(
+		source as E_DeliveryCounter,
+	) != null
 
 
 ## Передаёт стойку сервису, который проверяет коробку и результат выдачи.
