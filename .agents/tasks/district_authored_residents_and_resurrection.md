@@ -66,7 +66,7 @@ API диалогов и социальный граф потребляются �
 
 ## Next
 
-Собрать targeted re-review RV-001, записать fix SHA и финальный triage. Затем R1c: перевести основной authored
+Собрать review cold-restart smoke checkpoint. Затем R1c: перевести основной authored
 состав и rooms на постоянные карточки, удалить генерацию именно live residents, не ломая
 guest/isolated fixtures. Проверить native construction/placed merchant, текущий schema round-trip
 и отдельный process restart. Потом R2: календарный возврат +2, повторная смерть/добыча,
@@ -92,7 +92,13 @@ valid/restore принимали подмену, live NpcRecord заменялс
 Исправленный authored suite **7/87 PASS/CLEAN** (`gut-20261016-220033299.*`), существующий
 placed bootstrap **11/124 PASS/CLEAN** (`gut-20261016-220043973.*`). Последний проверяет
 общий placed contract, не отдельный authored-roster merchant case — это ещё R1c.
-Статус fix/re-review: **REVIEW_PENDING**, repair cycle **1/2**; R1 не COMPLETE/DONE.
+RV-001 **FIXED**: production/test fix `83873c575b0db5cb6684b7ff90cdc6d1085fa0fd`,
+точный immutable definition read/query edge `0b86da5ba79f028f62c77d34991472e74956ab95`.
+Structure gate на 83873 был FAIL (недостающий DEF_NpcPerson edge), на 0b86 PASS;
+не считать промежуточный failed gate успешным.
+Targeted re-review BASE `11d735a284aa0b4211608735266ea597c77de338` →
+TARGET `0b86da5ba79f028f62c77d34991472e74956ab95`: PASS, findings нет, repair **1/2**.
+R1 не COMPLETE/DONE.
 Rendered **0/8**.
 
 Native ResourceSaver сохранил cards/pilot, но оба offline wrapper **FAIL** после save:
@@ -102,7 +108,15 @@ Native ResourceSaver сохранил cards/pilot, но оба offline wrapper *
 Их output отдельно загружен и проверен чистыми native runtime GUT; одноразовые scripts в .artifacts/.
 Первый guest fixture GUT 7/8 FAIL (не задан dialogue_path) исправлен до R1a checkpoint.
 
-R1c/process restart/visual и R2 NOT_RUN. R2 обязательные случаи: day 1 → day 3,
+R1b настоящий cold process restart: **write/restore PASS**, изолированный slot, новый
+creation seed 999 вместо write seed 11, затем восстановлены clock/IDs/name/home/scene/HP/
+visited/quest_stage. Native scene создана/сохранена через MCP. Логи tests/artifacts/:
+`npc_authored_people-write-20261017-080434055.log`,
+`npc_authored_people-restore-20261017-080442164.log`; stderr пустой.
+Это ручной snapshot/disk smoke, не новая проверка scheduled Night pipeline.
+Новый smoke checkpoint ждёт отдельного immutable review.
+
+R1c/visual и R2 NOT_RUN. R2 обязательные случаи: day 1 → day 3,
 повторный callback, две реальные смерти, старые заказы/награды, отсутствующее тело,
 гость и защита старого файла. Документный PASS не runtime PASS.
 
