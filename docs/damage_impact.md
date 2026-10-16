@@ -27,6 +27,8 @@ will supply it through combat, while Health remains the sole HP authority.
 
 `E_CharacterBodyCharacter` composes `KinematicImpactCapture` after native slide/push for both
 player and live NPCs. Stationary/frozen NPCs use native recovery contacts without moving.
+Bounded NPC response reconciliation belongs to the motion solver immediately after slide;
+capture's extra recovery contacts report damage without modifying retained velocity.
 Kinematic contacts estimate impulse from closing speed and reduced mass; rigid callbacks supply
 measured native impulse. The bounded NPC foundation's authored ShapeCast retains a one-tick
 weak velocity sample only for raw/custom bodies without their own `C_ImpactInbox` reporter.

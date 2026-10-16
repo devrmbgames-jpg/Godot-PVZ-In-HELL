@@ -20,8 +20,8 @@ Source: [полное исходное ТЗ и доказательства](ref
 
 ## Current
 
-P1/P2 implementation is in the working tree from reviewed foundation
-`003af971102c4c6f40c4a478eeb9a35b63bd20f4`; not yet committed/reviewed.
+P1/P2 migration committed at `23e26a2541dab773a2a4db3cdc29e234c7ce657b` from foundation
+`003af971102c4c6f40c4a478eeb9a35b63bd20f4`. Review collected; RV-001 repair in progress.
 All live NPC/customer/trader prefabs now inherit the shared native CharacterBody foundation;
 legacy rigid player/physical items keep their original bodies. Existing NPC scene UID, paths,
 head/navigation/animation/parcel anchors and identity/visit contracts are retained.
@@ -42,7 +42,11 @@ continuous-drive protocol, so those displacements are not a direct before/after 
 Walls/corner/ceiling, held support, raw hold/release, ordinary platform and real throw actor
 receipt checks pass. Native step/slope, actual 60/120 Hz decay, navigation/avoidance and player
 regression pass. Raw velocity fallback excludes authored native inbox reporters.
-Implementation review and final source-matrix reconciliation remain open.
+RV-001 repair moves bounded contact reconciliation into the motion solver immediately after
+native slide. Native floor response retains planar velocity; one uniform projected cap adjusts
+both body velocity and retained response. Recovery queries only report contacts. Native red/green
+proves no converted own-motion residue with zero own intent/gravity/deceleration; mixed wall
+pressure preserves gravity and recovers own8mps after release. Targeted re-review remains open.
 
 ## Work packages
 
@@ -65,8 +69,8 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-Commit the coherent migration and request one exact-SHA read-only review from BASE
-`003af971102c4c6f40c4a478eeb9a35b63bd20f4`. Collect/triage accepted P0/P1/P2 before closing.
+Commit RV-001 native red/green repair and request targeted exact-SHA re-review (cycle1/2).
+Do not close before collecting and triaging that result.
 Reconcile remaining source-matrix coverage, then prepare the task QA card and Windows build;
 rendered feel QA has
 no task-specific approval yet (0/8). Do not claim P3/DONE or export QA PASS prematurely.
@@ -78,14 +82,20 @@ Baseline reviews PASS/no findings: BASE `97ff746acc84576a3be98dc8102565d31c39123
 `c407a2d82fc55dd331c5ea240c20328ee78dd918` -> `1f54cd6dba8355ade27c38a5271e1d5fb2029afa`.
 Foundation review PASS/no findings: BASE `1f54cd6dba8355ade27c38a5271e1d5fb2029afa`,
 TARGET `003af971102c4c6f40c4a478eeb9a35b63bd20f4`; reviewer execution NOT_RUN.
-Accepted P0/P1/P2 findings: none. Current implementation review NOT_RUN.
+Migration review BASE `003af971102c4c6f40c4a478eeb9a35b63bd20f4`,
+TARGET `23e26a2541dab773a2a4db3cdc29e234c7ce657b`: one P2, STYLE PASS, execution NOT_RUN.
+RV-001 ACCEPTED: post-slide oblique projection may exceed planar/upward external caps.
+Native red reproduced cache up1.416>1 and accumulating actual planar speed, log
+`gut-20261016-200127909.*.log`. Repair cycle1/2 implemented, re-review REVIEW_PENDING.
+Green `gut-20261016-200854084.*.log`: native floor/corner/ceiling/oblique wall/own speed/gravity,
+no converted residual, all impact regressions PASS/CLEAN. Source-matrix reconciliation remains open.
 Native commands use `utils/godot_agent.ps1 -Action GUT -TestPath res://tests/gut/<suite>.gd`.
 Logs below share prefix `.artifacts/godot_agent/gut-20261016-` and suffix `.*.log`.
 All listed final runs are Functional PASS, stderr0 and CLEAN:
 
 | Suite | Tests/assertions | Log timestamp |
 | --- | --- | --- |
-| npc_impact_motion | 16/410 | 195331072 |
+| npc_impact_motion | 18/677 | 200854084 |
 | npc_gaze_freeze (nonimmune physical fixture; authored Angel immunity retained) | 16/122 | 192621089 |
 | characterbody_physics | 8/41 | 194831926 |
 | npc_activation | 12/119 | 191142241 |

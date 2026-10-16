@@ -621,6 +621,87 @@ func test_native_npc_retains_floor_support_on_a_walkable_slope() -> void:
 	assert_eq(_health.current, 100.0)
 
 
+## Native oblique contacts cannot convert bounded external motion into an untracked launch.
+func test_oblique_contacts_preserve_external_caps_and_decay_without_controlled_residue() -> void:
+	var slope: StaticBody3D = StaticBody3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3(12.0, 0.5, 8.0)
+	slope.add_child(_collider(shape))
+	slope.position = Vector3(0.0, 0.8, 0.0)
+	slope.rotation.z = deg_to_rad(45.0)
+	_world.add_child(slope)
+	var motion: C_Motion = _npc.get_component(C_Motion) as C_Motion
+	var config: C_CharacterBody = _npc.get_component(C_CharacterBody) as C_CharacterBody
+	motion.floor_max_angle_degrees = 60.0
+	motion.ground_deceleration = 0.0
+	motion.air_acceleration = 0.0
+	config.gravity_scale = 0.0
+	config.step_height = 0.0
+	for incoming: Vector3 in [Vector3.RIGHT * 30.0, Vector3.DOWN * 30.0]:
+		_npc.clear_physical_motion(true)
+		_body.global_position = Vector3(0.0, 1.2, 0.0)
+		var contacted: bool = false
+		for frame: int in 20:
+			motion.pending_impulse = incoming * config.mass_kg
+			await _tick()
+			contacted = contacted or config.contact_bodies.has(slope.get_instance_id())
+			assert_lte(config.impulse_velocity.y, 1.0 + POSITION_EPSILON)
+			assert_lte(
+				Vector2(config.impulse_velocity.x, config.impulse_velocity.z).length(),
+				3.0 + POSITION_EPSILON,
+			)
+			assert_lte(_body.velocity.y, 1.0 + POSITION_EPSILON)
+			assert_lte(Vector2(_body.velocity.x, _body.velocity.z).length(), 3.0 + POSITION_EPSILON)
+		assert_true(contacted, "The actual native oblique collider must participate")
+		for frame: int in 45:
+			await _tick()
+		assert_almost_eq(config.impulse_velocity.length(), 0.0, POSITION_EPSILON)
+		assert_almost_eq(
+			_body.velocity.length(),
+			0.0,
+			POSITION_EPSILON,
+			"No converted response remains as own locomotion",
+		)
+
+
+## Native wall blocking may stop motion; release must recover own speed without a stored launch.
+func test_oblique_wall_resolves_mixed_motion_and_gravity_without_delayed_launch() -> void:
+	var wall: StaticBody3D = StaticBody3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3(0.4, 12.0, 20.0)
+	wall.add_child(_collider(shape))
+	wall.position = Vector3(0.75, 1.0, 0.0)
+	wall.rotation.z = deg_to_rad(20.0)
+	_world.add_child(wall)
+	var motion: C_Motion = _npc.get_component(C_Motion) as C_Motion
+	var config: C_CharacterBody = _npc.get_component(C_CharacterBody) as C_CharacterBody
+	var control: C_Controller = _npc.get_component(C_Controller) as C_Controller
+	motion.max_speed = 8.0
+	motion.ground_deceleration = 0.0
+	control.direction_motion = Vector3.FORWARD
+	_body.velocity = Vector3.FORWARD * 8.0
+	var contacted: bool = false
+	for frame: int in 24:
+		motion.pending_impulse = Vector3(30.0, 30.0, 0.0) * config.mass_kg
+		await _tick()
+		contacted = contacted or config.contact_bodies.has(wall.get_instance_id())
+		assert_lte(config.impulse_velocity.y, 1.0 + POSITION_EPSILON)
+		assert_lte(
+			Vector2(config.impulse_velocity.x, config.impulse_velocity.z).length(),
+			3.0 + POSITION_EPSILON,
+		)
+		assert_lte(_body.velocity.y, 1.0 + POSITION_EPSILON)
+		assert_lte(_body.velocity.z, POSITION_EPSILON, "The wall cannot reverse own motion")
+	assert_true(contacted, "The tilted collider must be a native wall contact")
+	wall.free()
+	for frame: int in 45:
+		await _tick()
+	assert_almost_eq(config.impulse_velocity.length(), 0.0, POSITION_EPSILON)
+	assert_almost_eq(_body.velocity.x, 0.0, POSITION_EPSILON, "No delayed wall launch")
+	assert_lt(_body.velocity.z, -7.9)
+	assert_lte(_body.velocity.y, 0.0)
+
+
 func test_external_decay_uses_native_delta_at_60_and_120_physics_hz() -> void:
 	var motion: C_Motion = _npc.get_component(C_Motion) as C_Motion
 	var config: C_CharacterBody = _npc.get_component(C_CharacterBody) as C_CharacterBody

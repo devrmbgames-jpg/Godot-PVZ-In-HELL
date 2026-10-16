@@ -75,8 +75,8 @@ static func _capture_collisions(
 			var id: int = other.get_instance_id()
 			current_bodies[id] = weakref(other)
 			var normal: Vector3 = collision.get_normal(contact_index).normalized()
-			config.impulse_velocity = config.impulse_velocity.slide(normal)
 			if not config.bounded_external_motion:
+				config.impulse_velocity = config.impulse_velocity.slide(normal)
 				config.impulse_velocity.y = 0.0
 			var grip: Relationship = GrabQueries.held_body_relationship(other)
 			if grip != null and grip.target == actor:

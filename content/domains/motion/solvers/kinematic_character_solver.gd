@@ -5,6 +5,8 @@ class_name KinematicCharacterSolver
 const MINIMUM_MASS: float = 0.01
 const MINIMUM_STEP: float = 0.0001
 const TERRAIN_MASK: int = 1
+## Godot 4.7 grounded floor/ceiling classification tolerance, in radians.
+const NATIVE_FLOOR_ANGLE_TOLERANCE: float = 0.01
 
 
 #region Физический шаг
@@ -84,9 +86,52 @@ static func step(
 		body.platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_DO_NOTHING
 	var incoming: Vector3 = body.velocity
 	body.move_and_slide()
+	if config.bounded_external_motion:
+		_retain_external_velocity(body, config, incoming)
 	body.platform_floor_layers = floor_layers
 	body.platform_on_leave = on_leave
 	return KinematicMotionSample.new(incoming, desired * speed)
+
+
+## Reconciles only the external contribution with native grounded velocity semantics.
+## Native floor slide preserves planar velocity; projecting its cache in 3D invents own motion.
+static func _retain_external_velocity(
+	body: CharacterBody3D,
+	config: C_CharacterBody,
+	incoming: Vector3,
+) -> void:
+	var external: Vector3 = config.impulse_velocity
+	if body.velocity.is_zero_approx():
+		external = Vector3.ZERO
+	else:
+		for index: int in body.get_slide_collision_count():
+			var collision: KinematicCollision3D = body.get_slide_collision(index)
+			var normal: Vector3 = collision.get_normal()
+			var angle: float = normal.angle_to(body.up_direction)
+			if angle <= body.floor_max_angle + NATIVE_FLOOR_ANGLE_TOLERANCE:
+				continue
+			if angle >= PI - body.floor_max_angle - NATIVE_FLOOR_ANGLE_TOLERANCE:
+				if incoming.dot(body.up_direction) > 0.0 and body.slide_on_ceiling:
+					external = external.slide(normal)
+				else:
+					external = body.up_direction * external.dot(body.up_direction)
+			elif body.floor_block_on_wall:
+				var horizontal_normal: Vector3 = normal.slide(body.up_direction).normalized()
+				if incoming.slide(body.up_direction).dot(horizontal_normal) > 0.0:
+					continue
+				if incoming.dot(body.up_direction) > 0.0:
+					var vertical: Vector3 = body.up_direction * external.dot(body.up_direction)
+					external = vertical + external.slide(normal).slide(body.up_direction)
+				else:
+					external = external.slide(horizontal_normal)
+		if body.is_on_floor() and incoming.dot(body.up_direction) <= 0.0:
+			external = external.slide(body.up_direction)
+
+	# Apply the same removal to native velocity and the retained contribution. The difference
+	# remains native own motion; a removed response cannot become controlled motion next frame.
+	var limited: Vector3 = KinematicExternalMotionRules.limit_projected_velocity(external, config)
+	body.velocity += limited - external
+	config.impulse_velocity = limited
 
 
 ## Samples actual support after independent push/impact contributions; called by the physical Entity

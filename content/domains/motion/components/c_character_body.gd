@@ -35,7 +35,7 @@ class_name C_CharacterBody
 @export_range(0.0, 5.0, 0.1, "or_greater") var maximum_external_upward_speed: float = 1.0
 
 ## Мировая скорость внешних импульсов в м/с, не полная скорость body.
-## KinematicCharacterSolver затухает её; KinematicImpactCapture проецирует по контактам.
+## KinematicCharacterSolver затухает её и согласует с native slide; capture только пишет контакты.
 var impulse_velocity: Vector3 = Vector3.ZERO
 ## Мировая скорость отскока в м/с: KinematicImpactCapture накапливает,
 ## KinematicCharacterSolver забирает и обнуляет при следующем шаге тела.

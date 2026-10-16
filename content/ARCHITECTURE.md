@@ -108,8 +108,11 @@ The main-level root schedules `Input → Interaction → Physics → GamePlay`; 
 Live NPCs author bounded external motion in `C_CharacterBody`: retained response, pending impulse
 and contact rebound share one planar/upward cap before time-based decay. Own locomotion and
 ordinary platform transport remain separate. Held bodies contribute no NPC rebound or platform
-carry; their native grab spring yields against the capsule. Native collisions remove blocked
-external velocity. The player's existing unbounded impulse policy is preserved.
+carry; their native grab spring yields against the capsule. Immediately after native slide,
+the motion solver reconciles retained external velocity with grounded floor/wall/ceiling
+semantics and enforces both caps again, applying the same removed delta to native velocity.
+This preserves the difference representing native own motion. Damage-only recovery queries
+never project bounded motion. The player's existing unbounded impulse policy is preserved.
 
 NPC motion permission derives from death, participation and existing gaze state. A frozen live
 NPC still captures native incoming contacts for damage. Placement, brain reset, death, dormancy
