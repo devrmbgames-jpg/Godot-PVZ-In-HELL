@@ -283,15 +283,20 @@ static func enter_counter(body: E_DistrictNpc) -> void:
 
 
 ## Фиксирует прибытие к стойке либо к двери без смены экономического исхода.
-static func arrive(body: E_DistrictNpc) -> void:
+static func arrive(body: E_DistrictNpc, silent_contact: bool = false) -> void:
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	_restore_walk_speed(body, agent)
 	var waiting_phase: C_CustomerAgent.Phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	if HomeMeetingQueries.meeting_for(body) == null:
 		waiting_phase = C_CustomerAgent.Phase.WAITING
+	if silent_contact:
+		# The ordinary parcel/patience branch remains active while the player has not seen us.
+		waiting_phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	agent.phase = waiting_phase
 	agent.elapsed = 0.0
 	NpcIntentService.stop(body)
+	if silent_contact:
+		return
 	var greeting: String = "Здравствуйте!"
 	if agent.phase != C_CustomerAgent.Phase.WAITING:
 		greeting = CustomerPresentation.request_text(CustomerFlowQueries.visit_for(body))
@@ -322,6 +327,16 @@ static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void
 ## Снимает роль и только её живые связи с коробкой и стойкой.
 ## Не закрывает visit и не снимает home/inspection bindings; вызывающий владеет их cleanup.
 static func release(body: Entity, visit_id: StringName) -> void:
+	var captured_agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	var world: World = ECS.world
+	CustomerStalkingBindings.release(body)
+	# Rear-binding callbacks may replace the role or retire the native actor synchronously.
+	if (
+		not is_instance_valid(body) or not is_instance_valid(world) or ECS.world != world
+		or not world.entity_to_archetype.has(body)
+		or body.get_component(C_CustomerAgent) != captured_agent
+	):
+		return
 	_restore_walk_speed(body, body.get_component(C_CustomerAgent) as C_CustomerAgent)
 	var district: C_District = NpcPopulationQueries.current()
 	if district != null:

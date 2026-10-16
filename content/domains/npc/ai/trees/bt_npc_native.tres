@@ -15,6 +15,8 @@
 [ext_resource type="BehaviorTree" uid="uid://5vw2iauto3l7" path="res://content/domains/npc/ai/trees/bt_npc_ranged_combat.tres" id="7_ynpne"]
 [ext_resource type="BehaviorTree" uid="uid://ddypvhdob1fg4" path="res://content/domains/npc/ai/trees/bt_npc_stalking.tres" id="12_2yune"]
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_0wc2e"]
+
 [sub_resource type="BTCondition" id="Inactive"]
 custom_name = "Не участвует / погиб"
 script = ExtResource("6_inactive")
@@ -117,4 +119,5 @@ children = [SubResource("Terminal"), SubResource("BTSubtree_ynpne"), SubResource
 
 [resource]
 description = "Native NPC: emergency, combat/search, conversation, phase schedule, free activity."
+blackboard_plan = SubResource("BlackboardPlan_0wc2e")
 root_task = SubResource("BTDynamicSelector_nseog")

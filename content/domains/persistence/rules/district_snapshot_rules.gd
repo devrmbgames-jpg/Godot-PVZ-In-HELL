@@ -195,6 +195,8 @@ static func _deliveries_valid(
 	var visits: Dictionary[StringName, CustomerVisit] = { }
 	if flow != null:
 		for visit: CustomerVisit in flow.visits:
+			if visit.stalking_visit_count < 0 or visit.stalking_visit_count > visit.visit_count:
+				return false
 			visits[visit.visit_id] = visit
 	var considered: Dictionary[String, bool] = { }
 	for visit_id: String in district.delivery_considered:

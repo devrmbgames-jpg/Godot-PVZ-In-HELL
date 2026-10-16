@@ -150,10 +150,18 @@ func _synchronize_speed_policy(actor: Entity) -> void:
 		return
 	var stalking: C_NpcStalking = actor.get_component(C_NpcStalking) as C_NpcStalking
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-	if (
+	var free_approach: bool = (
 		stalking != null and stalking.episode_sequence > 0 and stalking.approach_task_id != 0
 		and decision.active_task_id == stalking.approach_task_id
 		and decision.intent_owner == C_NpcDecision.Owner.IDLE
+	)
+	var service_approach: bool = (
+		stalking != null and stalking.service_approach_task_id != 0
+		and decision.active_task_id == stalking.service_approach_task_id
+		and decision.intent_owner == C_NpcDecision.Owner.SERVICE
+	)
+	if (
+		(free_approach or service_approach) and not stalking.observed
 	):
 		motion.control_speed_multiplier = stalking.rule.approach_speed_multiplier
 	var target: Entity = CombatQueries.target_for(actor)

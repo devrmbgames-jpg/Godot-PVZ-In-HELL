@@ -11,7 +11,7 @@ static func announce_order(customer: E_NpcCharacter, visit: CustomerVisit) -> vo
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if (
-		agent == null or agent.order_announced
+		agent == null or agent.order_announced or agent.rear_contact_pending
 		or agent.phase
 		not in [
 			C_CustomerAgent.Phase.APPROACHING,

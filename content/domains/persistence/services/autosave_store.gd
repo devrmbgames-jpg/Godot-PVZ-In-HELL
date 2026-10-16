@@ -5,7 +5,7 @@ class_name AutosaveStore
 const DEFAULT_PATH: String = "user://autosave.pvzh"
 const MAGIC: String = "PVZH1"
 ## Версия закрытой схемы; прежний формат отклоняется без миграции и удаления.
-const SCHEMA_VERSION: int = 25
+const SCHEMA_VERSION: int = 26
 ## Writer limits payload bytes; read limits the whole file, including header overhead.
 ## The 64 MiB edge mismatch is documented in docs/persistence.md; this is not a unified file limit.
 const MAX_BYTES: int = 64 * 1024 * 1024

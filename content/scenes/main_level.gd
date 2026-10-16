@@ -56,6 +56,7 @@ func _ready() -> void:
 		S_CustomerCleanup,
 		S_CustomerClock,
 		S_CustomerGreeting,
+		S_CustomerStalkingWitness,
 		S_CustomerApproach,
 		S_CustomerWaiting,
 		S_CustomerInspection,

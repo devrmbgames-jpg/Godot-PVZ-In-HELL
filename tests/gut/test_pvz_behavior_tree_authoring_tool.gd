@@ -7,6 +7,7 @@ const AuthoringTool = preload("res://addons/pvz_ai_tools/behavior_tree_authoring
 #region Nested native insertion
 func _nested_params() -> Dictionary:
 	var path: String = AuthoringTool.CUSTOMER_TREE_DIRECTORY + "bt_npc_service.tres"
+	var tree: BehaviorTree = load(path) as BehaviorTree
 	return {
 		"op": "insert_nested",
 		"path": path,
@@ -14,9 +15,7 @@ func _nested_params() -> Dictionary:
 		"task_path": [1, 1, 3, 1],
 		"subtree": AuthoringTool.TREE_DIRECTORY + "bt_npc_stalking.tres",
 		"index": 0,
-		"expected_children": [
-			"Место выдачи достигнуто", "Не удалось добраться", "Идти к стойке или двери",
-		],
+		"expected_children": AuthoringTool.child_names(_arrival_selector(tree)),
 		"name": "Prepared rear service",
 	}
 
@@ -37,14 +36,16 @@ func test_nested_insert_preserves_cached_tree_siblings_and_native_properties() -
 	var selector: BTTask = _arrival_selector(tree)
 	assert_not_same(tree, cached)
 	assert_not_same(selector, original)
-	assert_eq(selector.get_child_count(), 4)
+	assert_eq(selector.get_child_count(), original.get_child_count() + 1)
 	assert_eq(selector.get_child(0).get_custom_name(), "Prepared rear service")
 	assert_same(
 		(selector.get_child(0) as BTSubtree).subtree, load(params.subtree) as BehaviorTree,
 	)
 	assert_eq(AuthoringTool.child_names(original), params.expected_children)
 	assert_eq(selector.get_child(1).get_custom_name(), original.get_child(0).get_custom_name())
-	var retained_timeout: BTTask = selector.get_child(2).get_child(0)
+	var timeout_index: int = (params.expected_children as Array).find("Не удалось добраться")
+	assert_gte(timeout_index, 0)
+	var retained_timeout: BTTask = selector.get_child(timeout_index + 1).get_child(0)
 	assert_eq(retained_timeout.get("seconds_property"), &"approach_timeout")
 	assert_eq(
 		tree.get_root_task().get_child(0).get_custom_name(),

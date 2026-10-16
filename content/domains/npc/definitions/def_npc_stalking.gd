@@ -15,6 +15,10 @@ class_name DEF_NpcStalking
 @export_range(0.0, 1.0) var opportunity_probability: float = 0.6
 ## Maximum active duration of one free approach after its selected delay, in seconds.
 @export_range(1.0, 15.0) var episode_seconds: float = 8.0
+## Maximum rear service detour, in active seconds; the normal approach clock keeps running.
+@export_range(4.0, 6.0) var service_seconds: float = 5.0
+## Player must remain this close to the reserved counter's waiting point, in metres.
+@export_range(2.5, 12.0) var service_player_range: float = 6.0
 ## Upper bound of the once-selected initial delay, in active seconds.
 @export_range(0.0, 5.0) var delay_seconds: float = 2.0
 ## Minimum interval after a skipped/interrupted opportunity, in active seconds.
@@ -56,6 +60,7 @@ func valid_configuration() -> bool:
 	for value: float in [
 		opportunity_probability, episode_seconds, delay_seconds, retry_seconds,
 		success_extra_seconds, approach_speed_multiplier, replan_seconds, replan_distance,
+		service_seconds, service_player_range,
 	]:
 		if not is_finite(value):
 			return false
@@ -68,6 +73,8 @@ func valid_configuration() -> bool:
 		or approach_speed_multiplier < 1.0 or approach_speed_multiplier > 2.0
 		or replan_seconds < 0.2 or replan_seconds > 3.0
 		or replan_distance < 0.2 or replan_distance > 3.0 or max_replans < 0 or max_replans > 3
+		or service_seconds < 4.0 or service_seconds > 6.0
+		or service_player_range < 2.5 or service_player_range > 12.0
 	):
 		return false
 	for offset: Vector3 in sample_offsets:

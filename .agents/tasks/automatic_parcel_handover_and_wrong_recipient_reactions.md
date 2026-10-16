@@ -194,6 +194,9 @@ Native default holy_rejection_first=true даёт приоритет свято�
   NPC fire/pride, delivery completion, новые typed-reaction/cooldown проверки и save/restore.
 ### Owner QA / blockers
 
+Owner authorization received2026-10-16: up to8 rendered/playtest cases from the existing QA card. Execution remains0/8; no new permission request required.
+
+
 - Owner QA: плавно положить/поднести посылку, убрать отвергнутую, пережить бросок, вернуть украденную;
   отсутствие спама, ощущения непроизвольного захвата у прохожих и необходимости целиться в NPC.
   Субъективная удобность/физика требуют отдельного разрешённого gameplay QA; сейчас **NOT_RUN**.

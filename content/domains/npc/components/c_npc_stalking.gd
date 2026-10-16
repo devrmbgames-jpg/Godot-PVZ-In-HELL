@@ -38,6 +38,8 @@ var next_replan_tick: int = 0
 var replans_left: int = 0
 ## Native approach leaf token; sensing can suppress only that leaf's current movement.
 var approach_task_id: int = 0
+## Customer rear-approach leaf's transient speed token; no personal episode/role authority.
+var service_approach_task_id: int = 0
 ## Last sampled camera-owner incarnation for diagnostics; R_NpcStalkingTarget owns the live binding.
 var sampled_player_instance_id: int = 0
 
@@ -52,6 +54,7 @@ func reset_transient_state() -> void:
 	opportunity_available = false
 	opportunity_expires_tick = 0
 	sampled_player_instance_id = 0
+	service_approach_task_id = 0
 	reset_episode()
 
 

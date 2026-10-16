@@ -11,6 +11,8 @@
 [ext_resource type="Script" uid="uid://c3kgnumtnfi7l" path="res://content/domains/npc/ai/tasks/bt_npc_attack.gd" id="s9"]
 [ext_resource type="Script" uid="uid://xljlcu8ik6tu" path="res://content/domains/npc/ai/tasks/bt_npc_chase.gd" id="s10"]
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_anfxq"]
+
 [sub_resource type="BTCondition" id="BTCondition_1"]
 custom_name = "Есть связанная цель"
 script = ExtResource("s1")
@@ -99,4 +101,5 @@ children = [SubResource("BTCondition_1"), SubResource("BTDynamicSelector_19")]
 
 [resource]
 description = "Видимость, поиск, завершение и физическое исполнение атак."
+blackboard_plan = SubResource("BlackboardPlan_anfxq")
 root_task = SubResource("BTDynamicSequence_20")

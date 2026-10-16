@@ -5,6 +5,8 @@
 [ext_resource type="Script" uid="uid://d266h8hm03ov3" path="res://content/domains/npc/ai/tasks/bt_npc_stalking_wait.gd" id="3_w8lst"]
 [ext_resource type="Script" uid="uid://di0osdghjgs6x" path="res://content/domains/npc/ai/tasks/bt_npc_stalking_approach.gd" id="4_s6aru"]
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_ohueh"]
+
 [sub_resource type="BTCondition" id="BTCondition_ohueh"]
 custom_name = "Свободен; возможность или эпизод допустимы"
 script = ExtResource("1_ohueh")
@@ -30,4 +32,5 @@ custom_name = "Жуткий: ограниченная скрытая возмо�
 children = [SubResource("BTCondition_ohueh"), SubResource("BTSequence_ad5wt")]
 
 [resource]
+blackboard_plan = SubResource("BlackboardPlan_ohueh")
 root_task = SubResource("BTDynamicSequence_33fww")

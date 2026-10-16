@@ -1,7 +1,7 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://cxukae1fn0ugy"]
 
+[ext_resource type="BehaviorTree" uid="uid://cx3gu76rgr7qq" path="res://content/domains/customers/ai/trees/bt_npc_rear_service.tres" id="17_0u1wy"]
 [ext_resource type="BehaviorTree" path="res://content/domains/customers/ai/trees/bt_npc_delivery_ambush.tres" id="delivery_ambush"]
-
 [ext_resource type="Script" uid="uid://be5uu13bhrqtv" path="res://content/domains/npc/ai/tasks/bt_npc_conversation.gd" id="queue_talk"]
 [ext_resource type="Script" uid="uid://cusve7ao2sa6a" path="res://content/domains/customers/ai/tasks/bt_npc_service_phase.gd" id="s1"]
 [ext_resource type="Script" uid="uid://cryp040iyuik3" path="res://content/domains/customers/ai/tasks/bt_npc_inspection_missing.gd" id="s2"]
@@ -33,6 +33,13 @@
 [ext_resource type="Script" uid="uid://cm7o4pvqdwgly" path="res://content/domains/customers/ai/tasks/bt_npc_finish_service.gd" id="s28"]
 [ext_resource type="Script" uid="uid://c4wrf544c3fyk" path="res://content/domains/customers/ai/tasks/bt_npc_depart_service.gd" id="s29"]
 [ext_resource type="Script" uid="uid://b7qw8a0yb17na" path="res://content/domains/npc/ai/tasks/bt_npc_has_conversation.gd" id="s30"]
+
+[sub_resource type="BlackboardPlan" id="DeliveryAmbushPlan"]
+
+[sub_resource type="BTSubtree" id="DeliveryAmbush"]
+subtree = ExtResource("delivery_ambush")
+blackboard_plan = SubResource("DeliveryAmbushPlan")
+custom_name = "Авторская домашняя ловушка"
 
 [sub_resource type="BTCondition" id="BTCondition_33"]
 custom_name = "Есть активный случай"
@@ -157,6 +164,13 @@ custom_name = "Фаза: Прибытие"
 script = ExtResource("s1")
 phases = Array[int]([0])
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_tcd7t"]
+
+[sub_resource type="BTSubtree" id="BTSubtree_w8sjy"]
+subtree = ExtResource("17_0u1wy")
+blackboard_plan = SubResource("BlackboardPlan_tcd7t")
+custom_name = "Жуткий: скрытый сервисный обход"
+
 [sub_resource type="BTCondition" id="BTCondition_57"]
 custom_name = "Движение завершено"
 script = ExtResource("s4")
@@ -191,7 +205,7 @@ intent_owner = 2
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_64"]
 custom_name = "Прибытие или невозможность пройти"
-children = [SubResource("BTDynamicSequence_59"), SubResource("BTDynamicSequence_62"), SubResource("BTAction_63")]
+children = [SubResource("BTSubtree_w8sjy"), SubResource("BTDynamicSequence_59"), SubResource("BTDynamicSequence_62"), SubResource("BTAction_63")]
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_65"]
 custom_name = "Прибытие"
@@ -556,13 +570,6 @@ intent_owner = 2
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_112"]
 custom_name = "Уличный разговор"
 children = [SubResource("BTCondition_110"), SubResource("BTAction_111")]
-
-[sub_resource type="BlackboardPlan" id="DeliveryAmbushPlan"]
-
-[sub_resource type="BTSubtree" id="DeliveryAmbush"]
-custom_name = "Авторская домашняя ловушка"
-subtree = ExtResource("delivery_ambush")
-blackboard_plan = SubResource("DeliveryAmbushPlan")
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_113"]
 custom_name = "Обслуживание / разговор"

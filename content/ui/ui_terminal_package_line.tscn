@@ -219,15 +219,18 @@ stretch_mode = 5
 [node name="LabelPrice" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=190322725]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 20
 text = "1000"
 
 [node name="Control" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=994002741]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 1
 
 [node name="VSeparator" type="VSeparator" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=1437329280]
 layout_mode = 2
+mouse_filter = 1
 
 [node name="DeliveryControl" type="HBoxContainer" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=1428291450]
 unique_name_in_owner = true
@@ -243,12 +246,14 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1807274989]
 layout_mode = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 20
 text = "Доставка"
 
 [node name="Control3" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1888312446]
 custom_minimum_size = Vector2(6.335, 0)
 layout_mode = 2
+mouse_filter = 1
 
 [node name="TextureRect2" type="TextureRect" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=63335919]
 custom_minimum_size = Vector2(26.03, 32)
@@ -259,12 +264,14 @@ stretch_mode = 5
 
 [node name="Label2" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=277089608]
 layout_mode = 2
+mouse_filter = 1
 theme_override_font_sizes/font_size = 20
 text = "+1000"
 
 [node name="Control2" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1930093320]
 custom_minimum_size = Vector2(6.335, 0)
 layout_mode = 2
+mouse_filter = 1
 
 [node name="ButtonDeliveryOK" type="Button" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=444318195]
 unique_name_in_owner = true
@@ -277,6 +284,7 @@ expand_icon = true
 [node name="Control" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=21894501]
 custom_minimum_size = Vector2(6.335, 0)
 layout_mode = 2
+mouse_filter = 1
 
 [node name="ButtonDeloveryCancel" type="Button" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1417032479]
 unique_name_in_owner = true

@@ -192,6 +192,8 @@ static func destination(customer: E_NpcCharacter) -> Vector3:
 			if link.relation is R_InspectingAt:
 				return (link.target as Node3D).global_position
 	var door: Entity = HomeMeetingQueries.door_for(customer)
+	if door == null and agent.service_contact_position.is_finite():
+		return agent.service_contact_position
 	return (
 		(door as Node as Node3D).global_position
 		if door != null
@@ -214,7 +216,7 @@ static func _return(customer: E_NpcCharacter, agent: C_CustomerAgent, visit: Cus
 	if counter != null:
 		NpcIntentService.move_to(
 			customer,
-			counter.waiting_position(),
+			destination(customer),
 			visit.definition.arrival_distance,
 		)
 		NpcIntentService.look_along_movement(customer)

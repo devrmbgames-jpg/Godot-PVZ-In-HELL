@@ -193,6 +193,8 @@ static func greet(customer: E_NpcCharacter) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or CustomerFlowQueries.find_visit(agent.visit_id) == null:
 		return
+	if agent.rear_contact_pending:
+		return
 	if (
 		agent.phase != C_CustomerAgent.Phase.WAITING
 		and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE

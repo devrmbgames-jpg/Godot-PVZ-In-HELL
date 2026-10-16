@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://rp1y5lwq2otk" path="res://content/domains/npc/ai/tasks/bt_npc_toy_witnessed.gd" id="1_34um2"]
 [ext_resource type="Script" uid="uid://2ut8c5t21h75" path="res://content/domains/npc/ai/tasks/bt_npc_attack_toy_witness.gd" id="2_2mbdt"]
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_34um2"]
+
 [sub_resource type="BTCondition" id="BTCondition_hsu00"]
 custom_name = "Новая видимая игрушка / игрок не доказал силу"
 script = ExtResource("1_34um2")
@@ -17,4 +19,5 @@ custom_name = "Игрушка замечена без уважения → не�
 children = [SubResource("BTCondition_hsu00"), SubResource("BTAction_h5lgb")]
 
 [resource]
+blackboard_plan = SubResource("BlackboardPlan_34um2")
 root_task = SubResource("BTSequence_qkem0")

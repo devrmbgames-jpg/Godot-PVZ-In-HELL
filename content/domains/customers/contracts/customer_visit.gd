@@ -131,6 +131,8 @@ enum Feedback {
 @export var finished_day: int = 0
 ## Количество реальных появлений по этому заказу, включая встречу у двери.
 @export var visit_count: int = 0
+## Last appearance that closed its rear opportunity, including watched/cooldown skips; never replayed.
+@export var stalking_visit_count: int = 0
 ## Возрастающий номер появления для порядка очереди района.
 @export var queue_order: int = 0
 ## Число назначенных обычных повторных визитов по нерешённому заказу.

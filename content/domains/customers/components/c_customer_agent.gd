@@ -29,6 +29,18 @@ var phase: Phase = Phase.APPROACHING
 var elapsed: float = 0.0
 ## Номер уже объявлен в этом физическом визите; временная защита от повторной реплики.
 var order_announced: bool = false
+## Shared personal stalking sequence captured by this role; zero means no pending observation.
+var stalking_sequence: int = 0
+## Absolute GameClock end of the one bounded rear approach; never advances/reset the phase clock.
+var stalking_deadline_tick: int = 0
+## Once-selected addition above the minimum successful stalking cooldown, in GameClock ticks.
+var stalking_extra_ticks: int = 0
+## Fixed rear destination for this physical appearance; INF means none.
+var stalking_destination: Vector3 = Vector3.INF
+## Rear arrival awaits actual camera detection; suppress automatic greeting/number until then.
+var rear_contact_pending: bool = false
+## Reached physical service contact; retained through inspection and never follows the player.
+var service_contact_position: Vector3 = Vector3.INF
 ## Автоматическое знакомство уже открывало диалог в этом визите.
 var dialogue_started: bool = false
 ## В этом осмотре уже была попытка открыть содержимое.

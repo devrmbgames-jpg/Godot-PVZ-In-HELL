@@ -5,6 +5,8 @@
 [ext_resource type="Script" uid="uid://dkx2bgx0dny7w" path="res://content/domains/npc/ai/tasks/bt_npc_finish_schedule.gd" id="s3"]
 [ext_resource type="Script" uid="uid://1cmhvfnyhy3p" path="res://content/domains/npc/ai/tasks/bt_npc_move_schedule.gd" id="s4"]
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_ydtw1"]
+
 [sub_resource type="BTCondition" id="BTCondition_1"]
 custom_name = "Фаза не завершена"
 script = ExtResource("s1")
@@ -37,4 +39,5 @@ children = [SubResource("BTCondition_1"), SubResource("BTDynamicSelector_6")]
 
 [resource]
 description = "Обязательная цель, прибытие к порталу и временное отсутствие."
+blackboard_plan = SubResource("BlackboardPlan_ydtw1")
 root_task = SubResource("BTDynamicSequence_7")

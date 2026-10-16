@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://chabd21xn0khq" path="res://content/domains/npc/ai/tasks/bt_npc_invisible_flee.gd" id="6_p51il"]
 [ext_resource type="Script" uid="uid://b24xe2ibdugkd" path="res://content/domains/npc/ai/tasks/bt_npc_cloud_flee.gd" id="7_236sw"]
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_hwb0j"]
+
 [sub_resource type="BTCondition" id="BTCondition_uwxsq"]
 custom_name = "Авторская способность ухода"
 script = ExtResource("1_hwb0j")
@@ -82,4 +84,5 @@ custom_name = "Условная скрытая форма"
 children = [SubResource("BTCondition_uwxsq"), SubResource("BTDynamicSelector_nvppv")]
 
 [resource]
+blackboard_plan = SubResource("BlackboardPlan_hwb0j")
 root_task = SubResource("BTDynamicSequence_37gu0")

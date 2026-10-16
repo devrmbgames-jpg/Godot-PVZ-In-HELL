@@ -5,6 +5,8 @@
 [ext_resource type="Script" uid="uid://bkwoe8vl2mv" path="res://content/domains/npc/ai/tasks/bt_npc_blood_retain.gd" id="3_jtpyg"]
 [ext_resource type="Script" uid="uid://bmhevjusul8om" path="res://content/domains/npc/ai/tasks/bt_npc_blood_approach.gd" id="4_cfype"]
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_mpsww"]
+
 [sub_resource type="BTCondition" id="BTCondition_d5o6i"]
 custom_name = "Воспринятая живая зона крови"
 script = ExtResource("1_mpsww")
@@ -36,4 +38,5 @@ custom_name = "Кровь успокаивает вампира"
 children = [SubResource("BTCondition_d5o6i"), SubResource("BTDynamicSelector_lqvxi")]
 
 [resource]
+blackboard_plan = SubResource("BlackboardPlan_mpsww")
 root_task = SubResource("BTDynamicSequence_lybn4")

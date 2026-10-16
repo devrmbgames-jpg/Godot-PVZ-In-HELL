@@ -19,6 +19,8 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	assert(payload is CustomerGreetingRequest)
 	var customer: E_NpcCharacter = entity as E_NpcCharacter
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent.rear_contact_pending:
+		return
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	CustomerGreetingService.announce_order(customer, visit)
 	if (

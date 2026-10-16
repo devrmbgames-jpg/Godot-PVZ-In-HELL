@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://be5uu13bhrqtv" path="res://content/domains/npc/ai/tasks/bt_npc_conversation.gd" id="conversation"]
 [ext_resource type="Script" uid="uid://b7qw8a0yb17na" path="res://content/domains/npc/ai/tasks/bt_npc_has_conversation.gd" id="has_conversation"]
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_6js5i"]
+
 [sub_resource type="BTCondition" id="Participants"]
 custom_name = "Участники связаны"
 script = ExtResource("has_conversation")
@@ -18,4 +20,5 @@ children = [SubResource("Participants"), SubResource("Conversation")]
 
 [resource]
 description = "Native conversation without Customer role branches."
+blackboard_plan = SubResource("BlackboardPlan_6js5i")
 root_task = SubResource("Root")

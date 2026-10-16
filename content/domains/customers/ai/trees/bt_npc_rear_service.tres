@@ -1,0 +1,27 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://cx3gu76rgr7qq"]
+
+[ext_resource type="Script" uid="uid://jcyiae26hcm6" path="res://content/domains/customers/ai/tasks/bt_npc_rear_service_begin.gd" id="1_h8km4"]
+[ext_resource type="Script" uid="uid://cmbevxkiexr4x" path="res://content/domains/customers/ai/tasks/bt_npc_rear_service_approach.gd" id="2_wcem7"]
+[ext_resource type="Script" uid="uid://xu033uwbu6bh" path="res://content/domains/customers/ai/tasks/bt_npc_rear_service_arrive.gd" id="3_0pjmk"]
+
+[sub_resource type="BTAction" id="BTAction_3etav"]
+custom_name = "Выбрать один обход для прихода"
+script = ExtResource("1_h8km4")
+intent_owner = 2
+
+[sub_resource type="BTAction" id="BTAction_t5y1n"]
+custom_name = "Достичь фиксированной задней точки за ограниченное время"
+script = ExtResource("2_wcem7")
+intent_owner = 2
+
+[sub_resource type="BTAction" id="BTAction_t04jk"]
+custom_name = "Прибыть без преждевременного объявления номера"
+script = ExtResource("3_0pjmk")
+intent_owner = 2
+
+[sub_resource type="BTSequence" id="BTSequence_61sng"]
+custom_name = "Жуткий: один сервисный обход"
+children = [SubResource("BTAction_3etav"), SubResource("BTAction_t5y1n"), SubResource("BTAction_t04jk")]
+
+[resource]
+root_task = SubResource("BTSequence_61sng")

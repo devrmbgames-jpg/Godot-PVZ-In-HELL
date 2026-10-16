@@ -1,5 +1,7 @@
 # Выдача и чужие посылки — оставшаяся gameplay QA
 
+Owner authorized up to8 rendered/playtest cases on2026-10-16. Executed0/8; evidence/results pending.
+
 Owner task: [automatic_parcel_handover_and_wrong_recipient_reactions](../../.agents/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md).
 
 Status: **NOT_RUN**. Rendered/gameplay authorization for this task is not granted; cargo task's six approved checks were completed separately.

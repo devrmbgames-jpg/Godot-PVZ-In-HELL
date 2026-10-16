@@ -20539,6 +20539,171 @@
         "content/domains/customers/services/customer_parcel_demand_service.gd"
       ],
       "purpose": "Explicit parcel demand eligibility or read-only safe return geometry; no scheduled work or foreign state mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcStalkingChoice",
+      "path": "content/domains/npc/contracts/npc_stalking_choice.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_stalking_service.gd"
+      ],
+      "purpose": "Read the shared once-committed personal choice; Customer role owns its route and live binding."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcStalkingRules",
+      "path": "content/domains/npc/rules/npc_stalking_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "opportunity_due",
+        "close_success"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "opportunity_due": "query",
+        "close_success": "query"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_stalking_queries.gd",
+        "content/domains/customers/services/customer_stalking_service.gd",
+        "content/domains/customers/ai/tasks/bt_npc_rear_service_approach.gd"
+      ],
+      "purpose": "Read pure opportunity/distance contracts without writing personal history."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcGazeAversionSolver",
+      "path": "content/domains/npc/solvers/npc_gaze_aversion_solver.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "camera_for"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "camera_for": "query"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_stalking_queries.gd"
+      ],
+      "purpose": "Resolve the actual player camera before authorizing a service detour."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcStalkingSolver",
+      "path": "content/domains/npc/solvers/npc_stalking_solver.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "observed",
+        "destination"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "observed": "query",
+        "destination": "query"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_stalking_queries.gd",
+        "content/domains/customers/services/customer_stalking_service.gd",
+        "content/domains/customers/ai/tasks/bt_npc_rear_service_approach.gd"
+      ],
+      "purpose": "Reuse actual camera/LOS and bounded native hidden-route calculations; physical motion stays with native intent/body owners."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcStalkingService",
+      "path": "content/domains/npc/services/npc_stalking_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "choose",
+        "remember_notice",
+        "claim_service_motion",
+        "release_service_motion"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "choose": "request",
+        "remember_notice": "request",
+        "claim_service_motion": "request",
+        "release_service_motion": "request"
+      },
+      "sources": [
+        "content/domains/customers/services/customer_stalking_service.gd",
+        "content/domains/customers/services/customer_stalking_bindings.gd",
+        "content/domains/customers/ai/tasks/bt_npc_rear_service_approach.gd"
+      ],
+      "purpose": "Explicit shared personal history and motion-token operations; Customers never write NPC history, decision or speed-token fields directly."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "C_NpcStalking",
+      "path": "content/domains/npc/components/c_npc_stalking.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/services/customer_stalking_queries.gd",
+        "content/domains/customers/services/customer_stalking_service.gd",
+        "content/domains/customers/services/customer_stalking_bindings.gd",
+        "content/domains/customers/ai/tasks/bt_npc_rear_service_approach.gd",
+        "content/domains/customers/systems/s_customer_stalking_witness.gd"
+      ],
+      "purpose": "Read selected capability, actual sampled observation and owned speed token. NPC service alone writes its token; Customer role owns rear episode state."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "S_NpcStalkingWitness",
+      "path": "content/domains/npc/systems/s_npc_stalking_witness.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/systems/s_customer_stalking_witness.gd"
+      ],
+      "purpose": "Declare scheduling after actual camera sensing; no imperative System calls."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "S_CustomerStalkingWitness",
+      "path": "content/domains/customers/systems/s_customer_stalking_witness.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Explicit native World composition of the service episode observation owner."
     }
   ],
   "legacy_decomposition": []

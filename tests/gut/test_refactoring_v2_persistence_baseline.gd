@@ -5,6 +5,9 @@ const SLOT_PATH: String = "user://gut_refactoring_v2_phase1.pvzh"
 const SNAPSHOT_PATH: String = "res://tests/fixtures/refactoring_v2/current_snapshot.variant"
 const MANIFEST_PATH: String = "res://tests/fixtures/refactoring_v2/save_visible_paths.json"
 const MORNING_DAY: int = 2
+const CUSTOMER_SCHEDULE: DEF_CustomerSchedule = preload(
+	"res://content/domains/customers/definitions/def_customer_schedule_default.tres"
+)
 const REACTIONS = preload("res://content/domains/customers/rules/customer_parcel_reaction_rules.gd")
 const DEMAND = REACTIONS.DemandOutcome
 
@@ -240,6 +243,52 @@ func after_each() -> void:
 
 
 #region Current-format roundtrip and rejection
+## The per-appearance choice is durable; replayed morning reconstruction cannot erase it.
+func test_rear_service_choice_disk_roundtrip_and_invalid_count_rejection() -> void:
+	var session: Entity = _fixture_world.query.with_all([C_District]).execute_one()
+	var flow: C_CustomerFlow = C_CustomerFlow.new()
+	session.add_component(flow)
+	var visit: CustomerVisit = CustomerVisit.new()
+	visit.visit_id = &"fixture/rear-choice"
+	visit.customer_id = _active_id
+	visit.package_id = "fixture/shipment/1"
+	visit.requires_registered_package = false
+	visit.definition = CUSTOMER_SCHEDULE.events[0].customer
+	visit.visit_count = 2
+	visit.stalking_visit_count = 2
+	visit.last_visit_day = MORNING_DAY
+	visit.finished = true
+	visit.finished_day = MORNING_DAY
+	flow.visits.append(visit)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+	assert_eq(AutosaveStore.write(snapshot, SLOT_PATH), OK)
+	var stored: Dictionary = AutosaveStore.read(SLOT_PATH)
+	assert_eq(stored, snapshot)
+	var retained: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+	assert_true(WorldSnapshotService.restore(stored, _fixture_root))
+	assert_same(NpcPopulationQueries.body_for(_active_id), retained)
+	assert_eq(CustomerFlowQueries.find_visit(visit.visit_id).stalking_visit_count, 2)
+	assert_eq(CustomerFlowQueries.find_visit(visit.visit_id).visit_count, 2)
+	var retained_instance_id: int = retained.get_instance_id()
+	_fixture_world.remove_entity(retained)
+	await get_tree().process_frame
+	assert_true(WorldSnapshotService.restore(stored, _fixture_root))
+	assert_ne(NpcPopulationQueries.body_for(_active_id).get_instance_id(), retained_instance_id)
+	assert_eq(CustomerFlowQueries.find_visit(visit.visit_id).stalking_visit_count, 2)
+	assert_eq(CustomerFlowQueries.find_visit(visit.visit_id).visit_count, 2)
+	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(SLOT_PATH)
+	for invalid: int in [-1, 3]:
+		var malformed: Dictionary = stored.duplicate(true)
+		for record: Dictionary in malformed.entities:
+			for component: Dictionary in record.components:
+				if String(component.type) == (C_CustomerFlow as Script).resource_path:
+					component.fields.visits[0].fields.stalking_visit_count = invalid
+		assert_false(WorldSnapshotService.restore(malformed, _fixture_root))
+		assert_eq(CustomerFlowQueries.find_visit(visit.visit_id).stalking_visit_count, 2)
+		assert_eq(FileAccess.get_file_as_bytes(SLOT_PATH), bytes)
+
+
 ## Reads the committed native-Variant fixture, writes an isolated slot and restores real
 ## links/bodies.
 func test_valid_snapshot_cannot_capture_or_restore_during_cargo_transaction() -> void:
@@ -463,10 +512,7 @@ func _assert_stolen_parcel_roundtrip(
 		visit.customer_id = holder_id
 		visit.package_id = incident.package_id
 		visit.started = true
-		var schedule: DEF_CustomerSchedule = load(
-			"res://content/domains/customers/definitions/def_customer_schedule_default.tres"
-		) as DEF_CustomerSchedule
-		visit.definition = schedule.events[0].customer
+		visit.definition = CUSTOMER_SCHEDULE.events[0].customer
 		flow.visits.append(visit)
 		var observer: RegripDuringDemand = RegripDuringDemand.new()
 		observer.parcel = parcel
