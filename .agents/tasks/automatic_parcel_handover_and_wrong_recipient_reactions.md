@@ -1,8 +1,8 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
-BASE_SHA: `f7cbd1e6cca18f9dd52f58b7697fcb87b43bb02c`
-TARGET_SHA: `91d5e63a06baf7d0987e6532c3b041f83cfd24c2` - occupied-hands LOS review PASS; task IN_PROGRESS
+BASE_SHA: `6ac1ac6e1ffbb8e8bd43a11b989bb8c8152e5dd9`
+TARGET_SHA: `427799387733b0aea057db9e77ff894405307040` - M2f integration review PASS; task IN_PROGRESS
 
 Created: 2026-10-15. Related: [согласованность посылок](completed/package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
@@ -29,9 +29,9 @@ M2c1 carry reviewed, RV-002/003 fixed; fresh C_GrabControl/C_CarryLoad/C_Strengt
 M2c2 fire reviewed: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without repeat from empty shells; catalog quantity/history/schema22 unchanged. Unknown legacy stubs remain unknown. No material findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
 M2d runtime reviewed: common wrong-offer commit, native KEEP/throw/fire, GameClock pair180s block, closed incident codec/schema23 and held reconstruction. RV-004/005 fixed in `fd0dda76885715ec13d1a27a96c70c631f5394b1`; targeted architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Intimidation remains open.
 M2e1 review PASS `905db54ec1cd99c60dbf58eca0f568634a984668` (BASE `d6ac88d3aca65756d651af5aff96149802fbc6ea`): pure single-roll chooser and closed captured outcome/Strength/roll/tick, schema24/native golden; completed history and pending RETURN/ATTACK preserve data without replay. No findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2. Independent lifecycle regressions review PASS `411598f5a71f9c2b756ca0f2256c3ac2bf328d49`: disable/remove thief preserves physical parcel, closes pair once, no false order settlement; no findings, architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
-M2e2 runtime `6ded6ad04670e07f653f5ceea6f798343aeae8cb` reviewed; RV-006 fixed/targeted review PASS in BASE above, architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Native demand/committed attack/physical return and unchanged phase clocks/schema24 are implemented. M2e3 scoped occupied-hands LOS parity: confirmed own held body blocked demand despite native targeting exclusion; reach now excludes own hand/Carry bodies while placement retains them as obstacles. M2e3 review PASS in TARGET above: no findings, architecture/style PASS, reviewer execution NOT_RUN, repair0/2; visual0/8.
+M2e2 runtime `6ded6ad04670e07f653f5ceea6f798343aeae8cb` reviewed; RV-006 fixed/targeted review PASS in `f7cbd1e6cca18f9dd52f58b7697fcb87b43bb02c`, architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Native demand/committed attack/physical return and unchanged phase clocks/schema24 are implemented. M2e3 scoped occupied-hands LOS parity: confirmed own held body blocked demand despite native targeting exclusion; reach now excludes own hand/Carry bodies while placement retains them as obstacles. M2e3 review PASS `91d5e63a06baf7d0987e6532c3b041f83cfd24c2`: no findings, architecture/style PASS, reviewer execution NOT_RUN, repair0/2; visual0/8.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults с Inspector overrides; отдельного подтверждения владельца по двум пересечениям не было.
-M2f integration implemented without runtime changes: returned theft reaches only the rightful recipient/payment; actual destruction releases the thief before its typed fact, preserves registration/history, and leaves LOST manual. Explicit LOST closes the unstarted rightful order; complaint replay adds no second charge. Review pending for this test checkpoint; task IN_PROGRESS.
+M2f integration reviewed PASS in TARGET above, no findings; architecture/style PASS, reviewer execution NOT_RUN, repair0/2. Returned theft reaches only the rightful recipient/payment; actual destruction releases the thief before its typed fact, preserves registration/history, and leaves LOST manual. Explicit LOST closes the unstarted rightful order; complaint replay adds no second charge. Runtime unchanged; task IN_PROGRESS.
 RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
 RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
 RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, reviewer validation NOT_RUN; RV-002/003 fixed; visual NOT_RUN,0/8.
@@ -162,7 +162,7 @@ Native default holy_rejection_first=true даёт приоритет свято�
   их локальные планы ссылаются на этот единый контракт, без собственного дубля выдачи.
 
 ### Validation
-- M2f native incidents44/44,513 assertions, stderr0/PASS (`gut-20261016-072137887`); native ParseFiles1/0/PASS (`20261016-072224723`), MCP1 checked/empty; incremental formatter/strict architecture0/structure/agent changes PASS. Existing receipt/manual-loss15/154 remains PASS (`gut-20261016-065659875`); visual0/8.
+- M2f native incidents44/44,513 assertions, stderr0/PASS (`gut-20261016-072137887`); native ParseFiles1/0/PASS (`20261016-072224723`), MCP1 checked/empty; formatter/strict architecture0/structure/agent changes PASS. Windows QA `.export/windows/20261016-072343Z-42779938-parcel-handover-m2f/`: export/menu120frames/level120frames PASS; dirty=true includes preserved unrelated edits. Export shutdown-only DummyTexture RID warning retained/DEFERRED; startup logs clean. Visual0/8.
 - M1b GUT106/106,815 assertions, stderr0: counter13/89 (`032611400`), handoff13/118 (`032352514`), inspection12/163 (`032430965`), service17/103 (`032506237`), queue51/342 (`032537132`); prefix `gut-20261016-` in `.artifacts/godot_agent/`.
 - Native ParseChanged9/0 (`20261016-033337292`), MCP9 checked/empty/scripts0; formatter9/role9/strict architecture0/structure/persistence inventory PASS. Новая вывеска стойки сохранена editor/MCP.
 - M2a GUT14/14,302 assertions, stderr0: capabilities4/69 (`034803629`), cargo_catalog3/129 (`034836853`), receiver_effect7/104 (`034855192`); prefix `gut-20261016-`.
@@ -199,4 +199,4 @@ Native default holy_rejection_first=true даёт приоритет свято�
   Субъективная удобность/физика требуют отдельного разрешённого gameplay QA; сейчас **NOT_RUN**.
 
 ### Next
-Collect immutable-SHA M2f test review, then prepare runnable QA build and separately authorized NPC gameplay checks. [QA card](../../.qa/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md) has8 NOT_RUN cases; cargo QA6/6 PASS/task archived; NPC visual0/8; task IN_PROGRESS.
+Await task-specific owner gameplay authorization requested for the reviewed build, then execute the [8-case QA card](../../.qa/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md) or retain owner QA as open. M2f review terminal PASS; cargo QA6/6 PASS/task archived; NPC visual0/8; task IN_PROGRESS.
