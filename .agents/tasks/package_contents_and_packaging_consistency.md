@@ -1,8 +1,7 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `ee8c23b2c3f4140ff2749fb7dcffa55c6c2c7100`
-TARGET_SHA: `82e6ea5a6ad7b2ba91dbd98fef8c8ff104fb09b9`
+BASE_SHA: `5bc785f40485f99cd1c1d0a7e7335dd254e71f11`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
@@ -24,41 +23,31 @@ Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
 команду» относилась к исходному планированию до этого goal. UID-1-TL08C — пример владельца;
 его точная запись текущей игровой сессии пока не восстановлена.
 
-Минимальная эквивалентная комбинация воспроизведена штатным native GUT: выбранный holy_artifact
-при compilation bottles получает C_LiquidTilt и массу 30 кг, тогда как presentation убирает LIQUID.
-M1 реализован: DEF_ItemCargo хранит фазу, unit mass/envelope, hazards и fragile; DEF_PackagePacking
-хранит native варианты, внутренние габариты, padding ratio, лимиты количества/массы и явный порог
-bulk/single-large. PackagePackingRules выбирает минимальную подходящую оболочку канонически,
-проверяя поворот единицы, общий объём и массу; не меняет количество и не использует global RNG.
-Packages читает inventory cargo по узкому read-контракту только для этого Rules. Текущие поставки и
-сохранения ещё не изменены. До интеграции M2 исходный дефект не считается исправленным.
-Новые immutable данные не являются вторым runtime authority. M1 review PASS; material findings
-отсутствуют, triage завершён без требуемых исправлений. Общая задача остаётся IN_PROGRESS.
+M1/M2a/M2b завершены после независимых review/triage: typed cargo/capacity Rules, шесть native
+packing .tres, сцены barrel/long и cargo references всех 16 catalog items. Уникальные SHA и native
+evidence сохранены ниже; item UID и 224 прежних свойства сохранены. Общая задача IN_PROGRESS.
 
-M2a завершён после verification/review: через native editor/MCP сохранены package_barrel/package_long и шесть .tres
-профилей упаковки. Inner envelopes меньше реальных collision envelopes; сохранены унаследованный
-package compiler, Box_C/Marks/Condition и исходные сцены. Native-проверка всех 16 catalog envelopes
-подтверждает доступную упаковку для единичного груза, включая barrel/scythe, и toy ×8 → large.
-Поставки ещё используют прежний путь; authored profiles будут подключены в M2b вместе с shipment
-plan/quantity/cargo properties. M2a review PASS, material findings нет, triage завершён без
-требуемых исправлений; исходный gameplay-дефект ещё не исправлен, общая задача IN_PROGRESS.
+M2c подготовлен: ET_PackageState/PackageLiquidRules выводят C_LiquidTilt из selected_item.cargo,
+а не из прежнего содержимого shell. Для catalog liquids S_LiquidTilt больше не отключён; собственные
+пороги/урон заданы DEF_ItemCargo. Разрыв использует native rupture_hazard фактического груза;
+destruction захватывает эффект до публикации обломков. Нормальное вскрытие выпускает целое тело.
 
-M2b завершён после verification/review: 16 native .tres cargo-профилей привязаны к immutable DEF_InventoryItem через
-editor/MCP. Массы/габариты совпадают с native телами; rupture_hazard совпадает с их реальным
-C_HazardEmitter, включая разные blood_spill у колбы и blood_pool у бочки. Максимальное количество
-единиц — авторский cap перед выбором оболочки, не увеличение количества после выбора. Capacity
-Rules проверяет этот cap. Все 224 прежних native свойства и 16 UID item definitions сохранены.
-Receiving/история/codec ещё не подключены к новому cargo contract; исходный дефект пока не закрыт.
-M2b review PASS, material findings нет, triage завершён без требуемых исправлений.
-Вопрос обработки несовместимых schema19 задан владельцу; до решения
-load/schema не меняются. Независимая подготовка и проверки cargo завершены.
+Passive restore получает уже сохранённый selected_item до compilation и package-owned операция
+восстанавливает derived liquid capability на reused bodies, сбрасывая только transient timer.
+Новые saved поля/версия не вводятся: schema19/PVZH1 сохранены; preflight проверяет cargo profile.
+Это исправляет существующий material-phase контракт без изменения геометрии или номеров.
+M2c review REVIEW_PENDING. Точные native регрессии и headless main-level smoke PASS.
+
+Полный once-committed plan количества/массы/упаковки и UI/history ещё не подключён. Вопрос
+несовместимых старых коробок при будущем изменении схемы задан владельцу и остаётся открытым;
+миграция/отказ schema19 не реализуются до решения. Исходный дефект целиком пока не закрыт.
 ## Установленная поверхность и гипотеза причины
 
 - [ReceivingDeliveryService](../../content/domains/packages/services/receiving_delivery_service.gd)
   выбирает сцену коробки и selected_item разными решениями. Подобранный артефакт может оказаться
   в исходном рецепте bottles с LIQUID и чужими описанием, массой и опасностями.
-- [ET_PackageState](../../content/domains/packages/authoring/et_package_state.gd) создаёт C_LiquidTilt
-  по definition.tags; selected_item сам по себе этот рецепт не заменяет.
+- [ET_PackageState](../../content/domains/packages/authoring/et_package_state.gd) теперь создаёт
+  жидкостную capability по фактическому selected cargo; прежний shell tag больше её не определяет.
 - [PackageHistoryService](../../content/domains/packages/services/package_history_service.gd)
   сохраняет ordered_item отдельно, но массу/класс опасности читает из DEF_Package; размер — из коллайдера.
   [PackageSceneRules](../../content/domains/packages/rules/package_scene_rules.gd) выбирает вариант
@@ -136,9 +125,21 @@ load/schema не меняются. Независимая подготовка �
   с `.artifacts/cargo_native_baseline.json`. Отдельно 16 прежних resource UID сохранены.
 - PASS M2b MCP6 checked/empty, scripts_instantiated=0; native parser6/0
   (`parsefiles-20261016-001436777`), formatter6, role3, strict architecture0 и structure PASS.
-  M2b immutable-SHA review по BASE_SHA/TARGET_SHA PASS: no material findings, architecture/style
-  PASS; reviewer validation NOT_RUN, native проверки выполнены Main.
+  M2b immutable-SHA review `ee8c23b2c3f4140ff2749fb7dcffa55c6c2c7100` →
+  `82e6ea5a6ad7b2ba91dbd98fef8c8ff104fb09b9` PASS: no material findings, architecture/style PASS;
+  reviewer validation NOT_RUN, native проверки выполнены Main.
 - Rendered/visual QA NOT_RUN,0/8.
+
+M2c checks:
+- PASS GUT81/81,1097 assertions: entity_package_traits8/70 (`gut-20261016-002823692`),
+  package_contents18/268 (`003130104`), world_snapshot40/505 (`002616825`),
+  package_order_rules7/201 (`002636252`), package_packing_rules8/53 (`002702683`); stderr empty.
+- PASS MCP15 checked/empty, scripts_instantiated=0; ParseChanged15/0 (`002941078`), final
+  S_LiquidTilt ParseFiles1/0 (`003248017`). Formatter15, role12, strict architecture0,
+  project structure и persistence baseline PASS. Saved fields/schema не менялись.
+- PASS headless main-level receiving_scan, `tests/artifacts/receiving_scan-20261016-103250197.log`,
+  exit0/explicit PASS/no errors. Регистрация, сканер, терминал и второе утро сохранены.
+- M2c immutable-SHA review REVIEW_PENDING; вся задача остаётся IN_PROGRESS.
 
 ## План проверки будущей реализации
 
@@ -161,7 +162,7 @@ load/schema не меняются. Независимая подготовка �
 
 ### Next
 
-M2c: once-committed shipment plan/quantity до compiler, подключение
+M2c commit/review/triage. M2d: once-committed shipment plan/quantity до compiler, подключение
 receiving/contents/physics/history/UI и явная save-совместимость после решения владельца о schema19.
 При restore compiler сейчас запускается до saved overlay; construction
 context должен получить выбранный plan заранее, а preflight — проверить его до мутации World.

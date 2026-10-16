@@ -155,7 +155,7 @@ func test_native_package_registration_publishes_complete_profile_without_default
 	assert_eq(published_item, [ordered_item], "Selected contents exist before native publication")
 	assert_eq(delivered.count(C_Health as Script), 1)
 	assert_eq(delivered.count(C_PackageContents as Script), 1)
-	assert_eq(delivered.count(C_LiquidTilt as Script), 1)
+	assert_eq(delivered.count(C_LiquidTilt as Script), 0, "The selected axe is solid")
 	assert_true((parcel.get_component(C_Package) as C_Package).condition_initialized)
 	assert_same(
 		(parcel.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile,
@@ -167,6 +167,49 @@ func test_native_package_registration_publishes_complete_profile_without_default
 
 
 #region Pure compilation fixture
+## A liquid catalog order uses its own physical tuning even when the old shell had dry contents.
+func test_selected_liquid_uses_cargo_tilt_tuning_without_mutating_shared_definitions() -> void:
+	var source: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_blood_flask.tres"
+	) as DEF_InventoryItem
+	var item: DEF_InventoryItem = source.duplicate() as DEF_InventoryItem
+	item.cargo_profile = source.cargo_profile.duplicate() as DEF_ItemCargo
+	item.cargo_profile.liquid_maximum_angle_degrees = 15.0
+	item.cargo_profile.liquid_tilt_seconds = 0.5
+	item.cargo_profile.liquid_tilt_damage = 0.0
+	var parcel: E_Package = autofree(_PACKAGE.instantiate()) as E_Package
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		parcel, null, "fixture/package/liquid_cargo"
+	)
+	context.initial_fields[C_PackageContents as Script] = { &"selected_item": item }
+	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+	assert_true(plan.valid())
+	var tilt: C_LiquidTilt = _recipe(plan.component_recipes, C_LiquidTilt) as C_LiquidTilt
+	assert_not_null(tilt)
+	assert_eq(tilt.maximum_angle_degrees, 15.0)
+	assert_eq(tilt.duration_seconds, 0.5)
+	assert_eq(tilt.damage_amount, 0.0)
+	assert_eq(source.cargo_profile.liquid_maximum_angle_degrees, 60.0)
+	assert_eq(source.cargo_profile.liquid_tilt_seconds, 8.0)
+	assert_true(parcel.components.is_empty())
+
+
+## Invalid authored cargo cannot publish a native liquid handler with non-finite thresholds.
+func test_invalid_cargo_tilt_tuning_rejects_before_component_installation() -> void:
+	var item: DEF_InventoryItem = DEF_InventoryItem.new()
+	item.cargo_profile = DEF_ItemCargo.new()
+	item.cargo_profile.liquid_tilt_seconds = NAN
+	var parcel: E_Package = autofree(_PACKAGE.instantiate()) as E_Package
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		parcel, null, "fixture/package/invalid_liquid_cargo"
+	)
+	context.initial_fields[C_PackageContents as Script] = { &"selected_item": item }
+	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+	assert_false(plan.valid())
+	assert_true(parcel.components.is_empty())
+	assert_eq(parcel.id, "")
+
+
 func _compile(parcel: E_Package) -> EntityBuildPlan:
 	parcel.package_id = "fixture/package"
 	var authoring: E_TraitedEntity = (parcel as E_TraitedEntity)

@@ -292,9 +292,15 @@ PackageRegistrationRecord receives an arrival projection for terminal/search/arc
 The ledger projection owns no second mutable order state. Snapshot preflight checks completeness,
 physical item definitions and agreement with live parcel data before mutation; retry/restore never
 rerolls. Missing categories fall back to available categories, and absent catalog entries retain
-authored legacy contents. Catalog bodies own their native effects instead of inheriting the old
-payload's leak/opening/destruction hazards. Package IDs, recipients, events and physical tuning
-keep their existing owners; market price and parcel accounting value remain separate contracts.
+authored legacy contents. Catalog liquid capability and tilt tuning come from immutable
+DEF_ItemCargo, before native publication. A solid item never inherits the old liquid recipe;
+liquids keep their own native rupture effect on leak/damage/destruction. Normal opening releases
+an intact catalog body without firing its rupture effect. Destruction captures its selected
+effect before replacing the package. Passive restore supplies the saved selected_item before
+compilation and rebuilds the derived liquid capability on retained bodies without replaying leak
+facts or timers. The storage format remains schema19/PVZH1. Package IDs and recipients retain
+their owners; physical size/quantity/mass integration remains the active packaging task.
+Market price and parcel accounting value remain separate contracts.
 
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances
 microsecond ticks/remainder; calendar transitions retain their existing player-driven authority.

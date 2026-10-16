@@ -1051,14 +1051,59 @@ func test_catalog_order_rejects_missing_and_invalid_payload_before_live_mutation
 		assert_same(InventoryService.owner_for(_item), _actor)
 
 
-func _ordered_package() -> E_Package:
+## Saved catalog phase is supplied before compilation and rebuilt on fresh and retained bodies.
+func test_catalog_liquid_recipe_survives_fresh_restore_and_resets_transient_tilt() -> void:
+	var item_path: String = (
+		"res://content/domains/inventory/definitions/def_item_blood_flask.tres"
+	)
+	var parcel: E_Package = _ordered_package(item_path)
+	var tilt: C_LiquidTilt = parcel.get_component(C_LiquidTilt) as C_LiquidTilt
+	assert_not_null(tilt)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	tilt.unsafe_seconds = 100.0
+	tilt.triggered = true
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(tilt.unsafe_seconds, 0.0)
+	assert_false(tilt.triggered)
+	_world.remove_entity(parcel)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: Entity = _world.query.with_all([C_Package]).execute_one()
+	assert_true(restored.has_component(C_LiquidTilt))
+	assert_true(PackageContentsService.is_liquid(restored))
+	var selected: DEF_InventoryItem = load(item_path) as DEF_InventoryItem
+	assert_eq(
+		(restored.get_component(C_LiquidTilt) as C_LiquidTilt).duration_seconds,
+		selected.cargo_profile.liquid_tilt_seconds,
+	)
+
+
+## Passive restoration removes obsolete liquid state from a retained solid catalog parcel.
+func test_catalog_solid_restore_removes_legacy_liquid_component() -> void:
+	var parcel: E_Package = _ordered_package(ORDER_ITEM_PATH, 1)
+	assert_false(parcel.has_component(C_LiquidTilt))
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	parcel.add_component(C_LiquidTilt.new())
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_false(parcel.has_component(C_LiquidTilt))
+	assert_false(PackageContentsService.is_liquid(parcel))
+	_world.remove_entity(parcel)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: Entity = _world.query.with_all([C_Package]).execute_one()
+	assert_false(restored.has_component(C_LiquidTilt))
+
+
+func _ordered_package(item_path: String = ORDER_ITEM_PATH, source_index: int = 0) -> E_Package:
 	var parcel: E_Package = (load(_PACKAGE_SCENE_PATH) as PackedScene).instantiate() as E_Package
 	var supply: DEF_Delivery = load(ORDER_SUPPLY_PATH) as DEF_Delivery
-	parcel.package_definition = supply.packages[0]
+	parcel.package_definition = supply.packages[source_index]
 	parcel.package_id = "fixture/catalog_order"
-	EntityCompositionFixture.register(_world, parcel)
-	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
-	contents.selected_item = load(ORDER_ITEM_PATH) as DEF_InventoryItem
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		parcel, _world, GECSIO.uuid()
+	)
+	context.initial_fields[C_PackageContents as Script] = {
+		&"selected_item": load(item_path) as DEF_InventoryItem,
+	}
+	assert_true(EntityCompositionService.try_register(context))
 	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
 	return parcel
 

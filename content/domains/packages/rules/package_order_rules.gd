@@ -82,6 +82,7 @@ static func choose(
 static func is_orderable(item: DEF_InventoryItem) -> bool:
 	if (
 		item == null or item.key == &"" or item.categories <= 0
+		or not PackagePackingRules.valid_cargo(item.cargo_profile)
 		or not GameplayResourcePaths.is_definition_path(item.resource_path)
 		or not GameplayResourcePaths.is_entity_scene_path(item.world_pickup_scene)
 		or not ResourceLoader.exists(item.world_pickup_scene, "PackedScene")

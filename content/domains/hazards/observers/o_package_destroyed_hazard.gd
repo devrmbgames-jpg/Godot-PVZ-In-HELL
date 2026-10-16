@@ -14,9 +14,12 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var event: PackageDebrisSpawnedEvent = payload as PackageDebrisSpawnedEvent
 	if event == null or event.definition == null:
 		return
-	if event.contents_released or event.catalog_order:
+	if event.contents_released:
 		return
-	if event.definition.hazard_on_destroyed == null:
+	var scene: PackedScene = event.definition.hazard_on_destroyed
+	if event.catalog_order:
+		scene = event.catalog_rupture_hazard
+	if scene == null:
 		return
 	if not EntityAvailability.contains(event.debris, _world):
 		return
@@ -32,7 +35,6 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 			else:
 				actor = null
 
-	var scene: PackedScene = event.definition.hazard_on_destroyed
 	var scene_key: String = (
 		scene.resource_path if not scene.resource_path.is_empty() else str(scene.get_instance_id())
 	)

@@ -24,14 +24,18 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var definition: DEF_Package = identity.definition if identity != null else null
 	if definition == null:
 		return
-	if PackageContentsService.is_empty(entity) or PackageContentsService.has_catalog_order(entity):
+	if PackageContentsService.is_empty(entity):
 		return
 	# При распаковке эффект переносит сервис извлечения на реальное содержимое.
 	if event.kind == PackageLifecycleEvent.Kind.OPENED and definition.unpack_scene != null:
 		return
 
 	var scene: PackedScene
-	if event.kind == PackageLifecycleEvent.Kind.OPENED:
+	if PackageContentsService.has_catalog_order(entity):
+		if event.kind == PackageLifecycleEvent.Kind.OPENED:
+			return
+		scene = PackageContentsService.catalog_rupture_hazard(entity)
+	elif event.kind == PackageLifecycleEvent.Kind.OPENED:
 		scene = definition.hazard_on_opened
 	else:
 		scene = definition.hazard_on_damaged

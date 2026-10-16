@@ -7,7 +7,7 @@ class_name S_LiquidTilt
 ## Выбирает включённые посылки с состоянием содержимого и данными наклона.
 func query() -> QueryBuilder:
 	return q.enabled().with_all([C_Package, C_PackageState, C_LiquidTilt]).iterate(
-		[C_PackageState, C_LiquidTilt]
+		[C_Package, C_PackageState, C_LiquidTilt]
 	)
 
 
@@ -15,14 +15,21 @@ func query() -> QueryBuilder:
 ## сбрасывает таймер.
 ## Authored GamePlay group получает gameplay delta; triggered отмечает приём command, не leaking.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
-	var conditions: Array = components[0]
-	var tilts: Array = components[1]
+	var identities: Array = components[0]
+	var conditions: Array = components[1]
+	var tilts: Array = components[2]
 	for index: int in entities.size():
+		var identity: C_Package = identities[index]
 		var condition: C_PackageState = conditions[index]
 		var tilt: C_LiquidTilt = tilts[index]
+		var contents: C_PackageContents = (
+			entities[index].get_component(C_PackageContents) as C_PackageContents
+		)
 		if (
-			PackageContentsService.is_empty(entities[index])
-			or PackageContentsService.has_catalog_order(entities[index])
+			(contents != null and contents.released)
+			or not PackageLiquidRules.is_liquid(
+				identity.definition, contents.selected_item if contents != null else null
+			)
 		):
 			tilt.unsafe_seconds = 0.0
 			continue
@@ -61,7 +68,7 @@ func _commit_leak(entity_reference: WeakRef, condition: C_PackageState, amount: 
 		or entity.get_component(C_PackageState) != condition or condition.leaking
 	):
 		return
-	if PackageContentsService.is_empty(entity) or PackageContentsService.has_catalog_order(entity):
+	if PackageContentsService.is_empty(entity) or not PackageContentsService.is_liquid(entity):
 		return
 	if condition.damage == C_PackageState.Damage.DESTROYED:
 		return

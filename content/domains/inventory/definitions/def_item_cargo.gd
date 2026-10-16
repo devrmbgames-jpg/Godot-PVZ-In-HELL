@@ -30,4 +30,10 @@ enum Hazard {
 @export_range(1, 99) var maximum_shipment_quantity: int = 1
 ## Native autonomous effect of this actual payload when containment fails; null means no effect.
 @export var rupture_hazard: PackedScene = null
+## Maximum safe tilt for a liquid shipment, in degrees from world up.
+@export_range(0.0, 180.0) var liquid_maximum_angle_degrees: float = 60.0
+## Continuous unsafe tilt before containment fails, in gameplay seconds.
+@export_range(0.0, 30.0) var liquid_tilt_seconds: float = 8.0
+## One-time LIQUID damage on containment failure; zero keeps only the leak fact/effect.
+@export_range(0.0, 10000.0) var liquid_tilt_damage: float = 10.0
 #endregion

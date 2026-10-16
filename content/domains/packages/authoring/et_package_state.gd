@@ -1,6 +1,6 @@
 @tool
 extends EntityTrait
-## Compiles package condition/content/liquid capability defaults from the scene's package Profile.
+## Compiles shell defaults and liquid capability from the actual selected cargo before publication.
 class_name ET_PackageState
 
 
@@ -13,12 +13,18 @@ func _init() -> void:
 	initial_field_names[C_PackageContents as Script] = PackedStringArray(["selected_item"])
 
 
-## Validates the existing scene export as the single immutable package tuning owner.
+## Validates the shell Profile and optional selected physical cargo before producing recipes.
 func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 	if not context.actor is E_Package:
 		return PackedStringArray(["Package state requires an E_Package scene instance"])
 	if _definition(context) == null:
 		return PackedStringArray(["Package state requires package_definition"])
+	var selected_item: DEF_InventoryItem = _selected_item(context)
+	if selected_item != null:
+		if _definition(context).unpack_scene == null:
+			return PackedStringArray(["Catalog cargo requires an unpack-capable package"])
+		if not PackagePackingRules.valid_cargo(selected_item.cargo_profile):
+			return PackedStringArray(["Catalog cargo requires a valid physical profile"])
 	return PackedStringArray()
 #endregion
 
@@ -32,11 +38,8 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 	var recipes: Array[Component] = []
 	if definition.unpack_scene != null:
 		recipes.append(C_PackageContents.new())
-	if definition.tags & DEF_Package.Tag.LIQUID:
-		var tilt: C_LiquidTilt = C_LiquidTilt.new()
-		tilt.maximum_angle_degrees = definition.liquid_maximum_angle_degrees
-		tilt.duration_seconds = definition.liquid_tilt_seconds
-		tilt.damage_amount = definition.liquid_tilt_damage
+	var tilt: C_LiquidTilt = PackageLiquidRules.recipe_for(definition, _selected_item(context))
+	if tilt != null:
 		recipes.append(tilt)
 	return recipes
 
@@ -61,4 +64,9 @@ func configuration_for(context: EntitySpawnContext) -> Dictionary[Script, Dictio
 func _definition(context: EntitySpawnContext) -> DEF_Package:
 	var parcel: E_Package = context.actor as E_Package
 	return parcel.package_definition if parcel != null else null
+
+
+func _selected_item(context: EntitySpawnContext) -> DEF_InventoryItem:
+	var fields: Dictionary = context.initial_fields.get(C_PackageContents as Script, { })
+	return fields.get(&"selected_item") as DEF_InventoryItem
 #endregion

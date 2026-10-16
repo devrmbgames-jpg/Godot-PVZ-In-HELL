@@ -4,6 +4,9 @@ extends GutTest
 const DEF_DELIVERY_MORNING_SUPPLY_PATH: String = (
 	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
 )
+const BLOOD_ITEM: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_blood_flask.tres"
+)
 var _root: Node3D
 var _world: World
 var _actor: E_RigidBodyCharacter
@@ -278,13 +281,104 @@ func test_selected_catalog_weapon_releases_real_contents_without_legacy_bottle_h
 	assert_eq(_world.query.with_all([C_ToxicArea]).execute().size(), 0)
 
 
-func _catalog_package(definition: DEF_Package) -> E_Package:
+## Solid catalog cargo does not compile a liquid recipe or inherit legacy bottle hazards.
+func test_catalog_artifact_has_no_liquid_capability_or_legacy_rupture() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_PackageHazard.new())
+	_world.add_observer(O_PackageDestruction.new())
+	_world.add_observer(O_PackageDestroyedHazard.new())
+	_world.add_system(S_LiquidTilt.new())
+	var artifact: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_holy_artifact.tres"
+	) as DEF_InventoryItem
+	var parcel: E_Package = _catalog_package(_supply_definition(&"bottles"), artifact)
+	assert_false(parcel.has_component(C_LiquidTilt))
+	assert_false(PackageContentsService.is_liquid(parcel))
+	(parcel as Node as Node3D).rotation.z = PI / 2.0
+	_world.process(30.0)
+	assert_false((parcel.get_component(C_PackageState) as C_PackageState).leaking)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.DAMAGED, _actor)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.DESTROYED, _actor)
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 0)
+
+
+## A liquid ordered in a formerly dry shell leaks once using its actual native effect.
+func test_catalog_liquid_leaks_with_its_native_effect_under_dry_legacy_definition() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_PackageHazard.new())
+	_world.add_system(S_LiquidTilt.new())
+	var blood: DEF_InventoryItem = BLOOD_ITEM
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), blood)
+	var tilt: C_LiquidTilt = parcel.get_component(C_LiquidTilt) as C_LiquidTilt
+	assert_not_null(tilt)
+	assert_true(PackageContentsService.is_liquid(parcel))
+	assert_eq(tilt.duration_seconds, blood.cargo_profile.liquid_tilt_seconds)
+	(parcel as Node as Node3D).rotation.z = PI / 2.0
+	_world.process(tilt.duration_seconds + 0.1)
+	assert_true((parcel.get_component(C_PackageState) as C_PackageState).leaking)
+	var effects: Array[Entity] = _world.query.with_all([C_Hazard]).execute()
+	assert_eq(effects.size(), 1)
+	assert_eq(effects[0].scene_file_path, blood.cargo_profile.rupture_hazard.resource_path)
+	_world.process(30.0)
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 1)
+
+
+## Destruction captures the payload effect before replacement and never uses the old book recipe.
+func test_catalog_acid_destruction_uses_actual_payload_effect_on_debris() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_PackageDestruction.new())
+	_world.add_observer(O_PackageDestroyedHazard.new())
+	var acid: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_acid_barrel.tres"
+	) as DEF_InventoryItem
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), acid)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.DESTROYED, _actor)
+	var effects: Array[Entity] = _world.query.with_all([C_Hazard]).execute()
+	assert_eq(effects.size(), 1)
+	assert_eq(effects[0].scene_file_path, acid.cargo_profile.rupture_hazard.resource_path)
+	assert_eq(_world.query.with_all([C_Package]).execute().size(), 0)
+
+
+## Normal opening releases an intact catalog item; its own damage produces the effect later.
+func test_catalog_liquid_opening_does_not_rupture_its_intact_native_item() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_HazardEmitter.new())
+	_world.add_observer(O_PackageHazard.new())
+	var blood: DEF_InventoryItem = BLOOD_ITEM
+	var parcel: E_Package = _catalog_package(_supply_definition(&"bottles"), blood)
+	var items: Array[Entity] = PackageContentsService.release(parcel, _actor)
+	assert_eq(items.size(), 1)
+	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 0)
+	assert_false((items[0].get_component(C_HazardEmitter) as C_HazardEmitter).fired)
+	var request: DamageRequest = DamageRequest.new()
+	request.target = items[0]
+	request.source = _actor
+	request.instigator = _actor
+	request.amount = 100.0
+	assert_true(DamageRequestService.submit(request))
+	var effects: Array[Entity] = _world.query.with_all([C_Hazard]).execute()
+	assert_eq(effects.size(), 1)
+	assert_eq(effects[0].scene_file_path, blood.cargo_profile.rupture_hazard.resource_path)
+
+
+func _catalog_package(
+	definition: DEF_Package,
+	selected: DEF_InventoryItem = null,
+) -> E_Package:
 	var scene: PackedScene = load(definition.scene_variants[0]) as PackedScene
 	var parcel: E_Package = scene.instantiate() as E_Package
 	parcel.package_definition = definition
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(5, 1, 5)
-	EntityCompositionFixture.register(_world, parcel)
+	if selected == null:
+		EntityCompositionFixture.register(_world, parcel)
+	else:
+		parcel.package_id = GECSIO.uuid()
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			parcel, _world, GECSIO.uuid()
+		)
+		context.initial_fields[C_PackageContents as Script] = { &"selected_item": selected }
+		assert_true(EntityCompositionService.try_register(context))
 	(parcel.get_component(C_PackageState) as C_PackageState).opening = C_PackageState.Opening.OPENED
 	return parcel
 

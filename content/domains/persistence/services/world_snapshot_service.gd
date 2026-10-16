@@ -589,6 +589,7 @@ static func restore(
 				else:
 					restored_mass = definition.mass_kg
 				body.mass = restored_mass
+				PackageContentsService.restore_liquid_capability(entity)
 
 		if record.death and not entity.has_component(C_Death):
 			entity.add_component(C_Death.new())
@@ -877,6 +878,15 @@ static func _prepare_fresh_recipes(
 			String(record.entity_id),
 			candidates,
 		)
+		if entity is E_Package:
+			for saved: Dictionary in record.components:
+				if SaveDataCodec.component_script(String(saved.type)) == C_PackageContents:
+					var selected: Variant = SaveDataCodec.decode(
+						(saved.fields as Dictionary).selected_item
+					)
+					context.initial_fields[C_PackageContents as Script] = {
+						&"selected_item": selected,
+					}
 		if entity is E_DistrictNpc:
 			var saved_id: StringName = &""
 			for saved: Dictionary in record.components:

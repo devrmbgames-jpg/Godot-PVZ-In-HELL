@@ -8844,14 +8844,16 @@
       ],
       "public_methods": [
         "is_empty",
-        "has_catalog_order"
+        "has_catalog_order",
+        "catalog_rupture_hazard"
       ],
       "sources": [
         "content/observers/gameplay/o_package_hazard.gd"
       ],
       "method_rights": {
         "is_empty": "query",
-        "has_catalog_order": "query"
+        "has_catalog_order": "query",
+        "catalog_rupture_hazard": "query"
       },
       "public_instance_methods": []
     },
@@ -15427,7 +15429,8 @@
       ],
       "public_methods": [],
       "sources": [
-        "content/services/persistence/save_data_codec.gd"
+        "content/services/persistence/save_data_codec.gd",
+        "content/domains/persistence/services/world_snapshot_service.gd"
       ],
       "purpose": "Prevalidated passive reconstruction of the declared SAVE_FIELDS/links; gameplay writers resume after fixup. This grants no live gameplay mutation.",
       "method_rights": {},
@@ -15581,13 +15584,15 @@
         "request"
       ],
       "public_methods": [
-        "is_empty"
+        "is_empty",
+        "restore_liquid_capability"
       ],
       "sources": [
         "content/services/persistence/world_snapshot_service.gd"
       ],
       "method_rights": {
-        "is_empty": "query"
+        "is_empty": "query",
+        "restore_liquid_capability": "request"
       },
       "public_instance_methods": []
     },
@@ -18738,7 +18743,9 @@
         "content/domains/packages/components/c_package_contents.gd",
         "content/domains/packages/contracts/package_registration_record.gd",
         "content/domains/packages/rules/package_order_rules.gd",
-        "content/domains/packages/services/receiving_delivery_service.gd"
+        "content/domains/packages/services/receiving_delivery_service.gd",
+        "content/domains/packages/rules/package_liquid_rules.gd",
+        "content/domains/packages/authoring/et_package_state.gd"
       ],
       "purpose": "Reads immutable catalog data and retains the once-selected definition in the package and arrival projection; no inventory mutation.",
       "method_rights": {}
@@ -19903,7 +19910,8 @@
       "public_methods": [],
       "public_instance_methods": [],
       "sources": [
-        "content/domains/packages/rules/package_packing_rules.gd"
+        "content/domains/packages/rules/package_packing_rules.gd",
+        "content/domains/packages/rules/package_liquid_rules.gd"
       ],
       "purpose": "Reads immutable unit mass, phase, hazards and packing envelope; no inventory or live payload writes.",
       "method_rights": {}

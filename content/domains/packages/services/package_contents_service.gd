@@ -18,10 +18,50 @@ static func is_empty(package: Entity) -> bool:
 	return contents != null and contents.released
 
 
-## Catalog payload effects belong to its native body, replacing legacy contents hazards.
+## Identifies the committed catalog payload, whose own profile replaces legacy contents facts.
 static func has_catalog_order(package: Entity) -> bool:
 	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
 	return contents != null and contents.selected_item != null
+
+
+## Requires a package identity; reads the payload phase without treating all catalog items as solid.
+static func is_liquid(package: Entity) -> bool:
+	var identity: C_Package = package.get_component(C_Package) as C_Package
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	return PackageLiquidRules.is_liquid(
+		identity.definition, contents.selected_item if contents != null else null
+	)
+
+
+## Returns the actual catalog payload effect; null is meaningful for a safe solid or empty shell.
+static func catalog_rupture_hazard(package: Entity) -> PackedScene:
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	if contents == null or contents.released or contents.selected_item == null:
+		return null
+	return contents.selected_item.cargo_profile.rupture_hazard
+
+
+## Rebuilds derived liquid capability after validated passive overlay, before World readiness.
+## Saved leak facts remain untouched; transient timers never replay across restore.
+static func restore_liquid_capability(package: Entity) -> void:
+	var identity: C_Package = package.get_component(C_Package) as C_Package
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	var recipe: C_LiquidTilt = PackageLiquidRules.recipe_for(
+		identity.definition, contents.selected_item if contents != null else null
+	)
+	var tilt: C_LiquidTilt = package.get_component(C_LiquidTilt) as C_LiquidTilt
+	if recipe == null:
+		if tilt != null:
+			package.remove_component(C_LiquidTilt)
+		return
+	if tilt == null:
+		package.add_component(recipe)
+		return
+	tilt.maximum_angle_degrees = recipe.maximum_angle_degrees
+	tilt.duration_seconds = recipe.duration_seconds
+	tilt.damage_amount = recipe.damage_amount
+	tilt.unsafe_seconds = 0.0
+	tilt.triggered = false
 
 
 ## Фиксирует состав открытой целой коробки один раз; возвращает только безопасно размещённые тела.

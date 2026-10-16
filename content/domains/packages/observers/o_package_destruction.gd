@@ -53,6 +53,8 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 			angular_velocity,
 			event.cause,
 			PackageContentsService.is_empty(package),
+			PackageContentsService.has_catalog_order(package),
+			PackageContentsService.catalog_rupture_hazard(package),
 		)
 	)
 
@@ -72,6 +74,8 @@ func _replace_with_debris(
 	angular_velocity: Vector3,
 	cause: DamageResult,
 	contents_released: bool,
+	catalog_order: bool,
+	catalog_rupture_hazard: PackedScene,
 ) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var package: Entity = package_reference.get_ref() as Entity
@@ -118,7 +122,8 @@ func _replace_with_debris(
 	spawned.cause = cause
 	spawned.world_pose = world_pose
 	spawned.contents_released = contents_released or PackageContentsService.is_empty(package)
-	spawned.catalog_order = PackageContentsService.has_catalog_order(package)
+	spawned.catalog_order = catalog_order
+	spawned.catalog_rupture_hazard = catalog_rupture_hazard
 	_world.emit_event(PackageDebrisSpawnedEvent.EVENT, debris, spawned)
 
 	_world.remove_entity(package)

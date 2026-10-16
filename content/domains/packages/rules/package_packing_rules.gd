@@ -17,6 +17,11 @@ static func valid_cargo(cargo: DEF_ItemCargo) -> bool:
 		and _positive_size(cargo.unit_size_m) and is_finite(_volume(cargo.unit_size_m))
 		and _volume(cargo.unit_size_m) > 0.0 and cargo.hazards >= 0
 		and cargo.maximum_shipment_quantity >= 1 and cargo.maximum_shipment_quantity <= MAX_QUANTITY
+		and is_finite(cargo.liquid_maximum_angle_degrees)
+		and cargo.liquid_maximum_angle_degrees >= 0.0
+		and cargo.liquid_maximum_angle_degrees <= 180.0
+		and is_finite(cargo.liquid_tilt_seconds) and cargo.liquid_tilt_seconds >= 0.0
+		and is_finite(cargo.liquid_tilt_damage) and cargo.liquid_tilt_damage >= 0.0
 		and (
 			cargo.hazards
 			& ~(
