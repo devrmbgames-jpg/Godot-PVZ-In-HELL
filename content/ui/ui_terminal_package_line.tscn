@@ -38,7 +38,7 @@ theme_override_constants/margin_bottom = 10
 
 [node name="Button" type="Button" parent="MarginContainer" unique_id=112444276]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(700, 140)
+custom_minimum_size = Vector2(700, 180)
 layout_mode = 2
 toggle_mode = true
 button_group = ExtResource("1_iqip0")
