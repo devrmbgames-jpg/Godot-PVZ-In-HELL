@@ -1,8 +1,8 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
-BASE_SHA: `4a351217fe45a971817cadd3cd68e5223eec5058`
-TARGET_SHA: `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f` — REVIEW_PENDING
+BASE_SHA: `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`
+TARGET_SHA: `6c7e9778124c63bb5432e02a0bcdf88dde203016` - REVIEW_PASS (targeted repair1/2)
 
 Created: 2026-10-15. Related: [согласованность посылок](package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
@@ -28,12 +28,12 @@ M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: typed item holy/fire
 22 prefab effect agreement; no material findings, reviewer validation NOT_RUN, repair0/2.
 M2b policy закрыт по реализации/review: DEF_NpcParcelReaction CAPABILITY у4 архетипов и чистый chooser;
 rolls передаются явно; review no material findings, architecture/style PASS, validation NOT_RUN, repair0/2.
-M2c1 carry implemented; review found RV-002/003 below. Repair1/2 implemented, targeted re-review pending.
+M2c1 carry reviewed with RV-002/003 fixed; targeted architecture/style PASS, no other findings, reviewer validation NOT_RUN.
 Свежие C_GrabControl/C_CarryLoad/C_Strength, authored Strength6/offset0.35 м; R_HeldBy, solver и cleanup прежние.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults, с явными Inspector overrides.
-RV-002 [P1] ACCEPTED/repair pending review: source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
-RV-003 [P2] ACCEPTED/repair pending review: same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
-RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, reviewer validation NOT_RUN; RV-002/003 awaiting targeted review; visual NOT_RUN,0/8.
+RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
+RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
+RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, reviewer validation NOT_RUN; RV-002/003 fixed; visual NOT_RUN,0/8.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
 запугивание меняет шансы атаки/возврата на5 процентных пунктов за Strength; блок персонален для пары.
 Эти defaults реализуют таблицу плана; отдельного подтверждения владельца по двум пересечениям не было.
@@ -173,7 +173,7 @@ Native default holy_rejection_first=true даёт приоритет свято�
 - Native authoring `offlinescript-20261016-034709262`:16 saves/exit0, no compile errors; wrapper FAIL only shutdown retention KNOWN_ENGINE_LIMITATION/DEFERRED. Первоначальный ранний ECS compile error исправлен отложенной загрузкой ресурсов.
 - M2b GUT19/19,1387 assertions, stderr0: reaction_rules9/93 (`035837828`), archetype_catalog4/934 (`035927943`), variation6/360 (`035958958`); native ParseChanged3/0 (`20261016-040031502`), MCP3 checked/empty/scripts0; formatter3/role3 PASS.
 - M2b native/MCP создал4 typed .tres и добавил их4 архетипам с сохранением UID; strict architecture0/structure/persistence inventory PASS. Только выбор, не runtime reaction acceptance; visual0/8.
-- M2c1 GUT78/78,877 assertions, stderr0: holder6/41 (`041452327`), handoff14/124 (`041543725`), counter13/89 (`041656538`), world_snapshot45/623 (`041739066`); native ParseChanged2/0 (`20261016-041849211`), MCP2 checked/empty, formatter2/strict architecture0/structure/persistence PASS. Native3 scenes saved via MCP; visual0/8. Repairs: holder7/48 (`042516967`), live_roster10/899 (`042537376`), MCP4 checked/empty; schema22 golden5/365 (`042654370`) native exit0, wrapper FAIL only deferred shutdown retention.
+- M2c1 GUT78/78,877 assertions, stderr0: holder6/41 (`041452327`), handoff14/124 (`041543725`), counter13/89 (`041656538`), world_snapshot45/623 (`041739066`); native ParseChanged2/0 (`20261016-041849211`), MCP2 checked/empty, formatter2/strict architecture0/structure/persistence PASS. Native3 scenes saved via MCP; visual0/8. Repairs: holder7/48 (`042516967`), live_roster10/899 (`042537376`), MCP4 checked/empty; schema22 golden5/365 (`042654370`) native exit0, wrapper FAIL only deferred shutdown retention. Repair native ParseChanged4/0 (`20261016-042749699`), formatter4/strict architecture0/structure/persistence/staged PASS.
 - RV-001: focused handoff14/14,124 assertions, stderr0 (`gut-20261016-033859456`); native ParseChanged2/0 (`20261016-033946776`), MCP2 checked/empty, formatter2/role2/strict architecture0/structure PASS.
 - delivery_completion native write/restore PASS/PASS, exit0/0: `.artifacts/godot_agent/delivery_completion-m1b-{write,restore}.{stdout,stderr}.log`. Fixture проверяет arrival number/отдельный LOST и физическое поднесение. Wrapper FAIL: неизвестный phase marker и shutdown-only retention (KNOWN_ENGINE_LIMITATION/DEFERRED), не runtime PASS обёртки.
 - Одна коробка одновременно в Area и руках, два NPC и deferred устаревший запрос: ровно один commit,
@@ -196,5 +196,5 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-M2c1: finish RV-002/003 targeted re-review; then durable incidents/selection, GameClock deadline and physical effects;
+M2c1 closed. Next: actual fire payload consumption; then durable incidents/selection, GameClock deadline and physical effects;
 затем присвоение/запугивание/save compatibility/регрессии -> owner QA. Runtime реакции ещё не реализованы; задача IN_PROGRESS.
