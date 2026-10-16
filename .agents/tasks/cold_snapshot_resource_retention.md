@@ -49,5 +49,5 @@ lifecycle дефекты не подпадают под эту отсрочку 
 ## Owner QA / blockers
 
 DEFERRED; не менять typing/WeakRef/free/GECS ради исчезновения предупреждений.
-[Задача runner](godot_validation_result_classification.md) классифицирует доказанный
+[Задача runner](completed/godot_validation_result_classification.md) классифицирует доказанный
 результат проверки отдельно от диагностики, но не исправляет движок и не скрывает raw logs.

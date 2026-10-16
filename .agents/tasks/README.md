@@ -92,7 +92,7 @@ codec/preflight/golden обновлять согласованно. Не рез�
 До scene/tooling-heavy пакета проверить нужные MCP capabilities. Недостающий инструмент
 выделить в минимальную зависимость с критерием готовности, не скрытый бесконечный refactor.
 Известную shutdown-категорию классифицировать по engine policy, не общим ignore stderr.
-Runner-код этим docs refactor не исправлен: отдельная [задача](godot_validation_result_classification.md).
+Runner-код этим docs refactor не исправлен: отдельная [задача](completed/godot_validation_result_classification.md).
 
 Main — единственный writer; не более одного native child одновременно. Read-only reviewer
 использует immutable полные SHA, не текущую worktree; независимая работа main допустима

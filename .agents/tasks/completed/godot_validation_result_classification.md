@@ -1,7 +1,7 @@
 # Runner — результат проверки отдельно от shutdown-диагностики
 
-Status: **IN_PROGRESS**
-Technical: **IN_PROGRESS**
+Status: **DONE**
+Technical: **COMPLETE**
 Execution order: **5**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 
@@ -19,7 +19,9 @@ RV-001/P2: GUT Orphans при зелёных tests давали PASS/CLEAN. FIXE
 final nonzero Orphans → FAIL, промежуточные reports → UNKNOWN, fixtures actual pinned formats.
 RV-002/P1: timeout убивал console wrapper, оставляя engine child. FIXED в repair checkpoint:
 только собственное дерево /PID /T, captured child handles awaited, отдельный editor не затронут.
-Q1 repair1/2 готов к targeted re-review; техническое закрытие ещё не объявлено.
+Q1/Q2 COMPLETE. RV-001/RV-002 FIXED: `ca63af489f9f93e4b709f0968bcbac42edca4f51`.
+Targeted re-review PASS/no findings, BASE `04110f3be1d6d48669e35e94fc946aa7327282e1`,
+TARGET `ca63af489f9f93e4b709f0968bcbac42edca4f51`, цикл1/2. Reviewer execution NOT_RUN.
 Новый pure result отделяет FunctionalStatus от DiagnosticStatus/Disposition; raw streams
 не переписываются, additive result.json хранит native exit/marker/timeout/log paths.
 Legacy CLI/expected-negative contract сохранён; optional TimeoutSeconds=0 сохраняет прежнее ожидание.
@@ -28,7 +30,7 @@ exit0 и complete marker. ObjectDB без class proof и неизвестные/
 Это сознательная строгая граница, а не исследование DEFERRED engine retention.
 Q2 измерен: native GUT уже поддерживает проверенную pure пару. Runner batch API: NO_CHANGE;
 изоляция World/save/physics fixtures не доказана, отдельные процессы сохраняются.
-Публичный контракт: [utils/godot_agent.md](../../utils/godot_agent.md).
+Публичный контракт: [utils/godot_agent.md](../../../utils/godot_agent.md).
 
 ## Work packages
 
@@ -48,9 +50,8 @@ utils/godot_agent.ps1: Get-GodotDiagnostics и вызывающие его parse
 
 ## Next
 
-Получить targeted re-review RV-001/RV-002 по repair checkpoint (цикл1/2).
-Пока reviewer работает — независимая подготовка актуальной QA-сборки C3/parcel;
-после terminal review закрыть эту техническую задачу и перейти к разрешённой H4/следующему task.
+Нет незакрытых пакетов этой задачи. Продолжить разрешённую H4 parcel QA и общий backlog.
+Новые непроверенные диагностические формы остаются FAIL/UNKNOWN по публичному контракту.
 
 ## Validation / review
 
@@ -75,7 +76,7 @@ wrapper20936/engine24400 оба отсутствуют до возврата, ed
 runner exit1/Functional FAIL/TimedOut true; manifest `gut-20261016-161138382.result.json`.
 Первый запуск probe не дошёл до Godot из-за default ProjectRoot при nested -File;
 повтор с явным ProjectRoot прошёл. Непринятый launch stderr сохранён отдельно.
-Structure/diff-check PASS; staged agent gate pending. Targeted review REVIEW_PENDING,repair1/2.
+Structure/diff-check/staged agent gate PASS. Targeted review PASS/no findings,repair1/2 (SHA выше).
 
 ## Owner QA / blockers
 
