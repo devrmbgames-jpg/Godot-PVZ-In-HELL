@@ -1,6 +1,8 @@
 # Terminal package row — orphan Node lifetime
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
+BASE_SHA: `6843e23e94c1ffb8f8d4784660f6783f09f67e22`
+TARGET_SHA: fixture cleanup checkpoint pending commit/review
 
 ## Task state
 
@@ -18,14 +20,24 @@ The real terminal-reader case in `tests/gut/test_npc_stalking.gd` reports **46 O
 including a `PanelContainer` with `ui_terminal_package_line.gd` and45 descendants.
 The same count exists before M2: `.artifacts/godot_agent/gut-20261016-073531451.stdout.log`;
 M2 observation: `.artifacts/godot_agent/gut-20261016-080613272.stdout.log`.
-No terminal runtime/layout edits were made by M2. Product-vs-fixture ownership and repeated
-runtime growth are **NOT_YET_PROVEN**. This Node observation is not covered by the owner's
-shutdown-only GDScript/Resource/RID limitation.
+The product queues its detached designer row correctly. The fixture ended in that same frame,
+before the deletion queue ran. Its teardown now awaits one process frame after freeing its root.
+Product runtime and authored layout are unchanged; the owner's mouse-filter edits remain unstaged.
+
+A native headless probe repeated real terminal create/register/open/close/remove55 times in one
+process. After5 warmup cycles, all50 settled orphan samples were0; all55 detached rows were queued
+and every captured WeakRef was null after two frames. This proves no surviving row in that measured
+lifecycle, without asserting general gameplay memory acceptance.
 
 ### Validation
 
-Only existing native GUT orphan reports were compared. Focused settled lifecycle checks,
-product-vs-fixture diagnosis and independent review are NOT_RUN.
+- Native GUT27/27,245 assertions PASS, no orphan report, stderr empty:
+  `.artifacts/godot_agent/gut-20261016-083822816.{stdout,stderr}.log`.
+- Native ParseFiles1/0 PASS: `parsefiles-20261016-083852835.{stdout,stderr}.log`.
+- Lifecycle probe exit0/stderr empty:
+  `.artifacts/godot_agent/terminal_row_lifetime_probe.{stdout,stderr}.log`.
+- MCP1 checked/empty/scripts_instantiated0; incremental formatter1 PASS; diff whitespace PASS.
+- Independent immutable-SHA review pending. No engine-warning exemption was used.
 
 ### Owner QA / blockers
 
@@ -34,6 +46,5 @@ Rendered QA is NOT_RUN and unnecessary for establishing Node ownership.
 
 ### Next
 
-Read the row/terminal creation and teardown owners, reproduce a focused headless lifecycle,
-then fix the proven owner and commit/review separately. Preserve the owner's unrelated
-`content/ui/ui_terminal_package_line.tscn` mouse-filter changes.
+Commit the fixture-only fix with this evidence; collect immutable-SHA review and triage.
+Archive this existing task only after review passes, updating the incoming Creepy link.

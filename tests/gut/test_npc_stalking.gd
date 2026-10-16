@@ -125,6 +125,8 @@ func after_each() -> void:
 	_world.purge(false)
 	ECS.world = null
 	_root.free()
+	# The terminal's detached designer row belongs to the deferred deletion queue.
+	await get_tree().process_frame
 
 
 func _sync_physics() -> void:
