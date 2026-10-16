@@ -1,11 +1,11 @@
 # Выдача и чужие посылки — оставшаяся gameplay QA
 
-Owner authorized up to8 rendered/playtest cases on2026-10-16. Started5/8; cases1/3/5 PASS, cases2/4 INCONCLUSIVE.
+Owner authorized up to8 rendered/playtest cases on2026-10-16. Completed8/8 authorized cases:1/3/5/6/7/8 PASS,2/4 INCONCLUSIVE. Budget exhausted.
 
 Owner task: [automatic_parcel_handover_and_wrong_recipient_reactions](../../.agents/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md).
 
-Status: **IN_PROGRESS**. Task-specific approval: up to8 rendered/playtest cases, granted by owner and retained across sessions; cargo checks used a separate approval.
-Budget: **5/8 cases** (cases1/3/5 PASS; cases2/4 INCONCLUSIVE) for this milestone. Headless GUT and MCP script diagnostics are separate evidence and do not establish gameplay feel.
+Status: **OWNER_QA**. Task-specific approval: up to8 rendered/playtest cases, granted by owner and retained across sessions; cargo checks used a separate approval.
+Budget: **8/8 cases** (1/3/5/6/7/8 PASS;2/4 INCONCLUSIVE) for this milestone. Headless GUT and MCP script diagnostics are separate evidence and do not establish gameplay feel.
 Before execution: record the reviewed code SHA and runnable build path here, use the existing task-specific authorization, then count each prepared case once. Use an isolated QA save; preserve owner saves and unrelated editor changes.
 
 Reviewed code: `427799387733b0aea057db9e77ff894405307040` (BASE `6ac1ac6e1ffbb8e8bd43a11b989bb8c8152e5dd9`), terminal review PASS/no findings; reviewer validation NOT_RUN. Native incidents44/44,513 assertions and parser/MCP/style/static PASS.
@@ -20,9 +20,9 @@ Runnable build: [PVZInHell.exe](../../.export/windows/20261016-072343Z-42779938-
 | 3 | Ordinary receiver offered a wrong registered parcel | Hear one refusal, remove and offer the parcel again. No message/grab spam within the pair's 180 active seconds; player can manipulate it immediately. Pause must not consume the block. | PASS: one REFUSE incident, block180 active seconds; pause unchanged; native pickup/release succeeds; repeated handoff false, count1 and sentinel message unchanged; rightful visit unresolved. `03-observation.json`, `03-refusal.png`. |
 | 4 | Brute actually appropriated a wrong parcel; prepared RETURN outcome; player hands free | Open ordinary Talk and choose the authored demand response. The same parcel returns through one physical grip, with no payment or legal-recipient change. Repeated input cannot reroll or steal it back. | INCONCLUSIVE: actual Brute theft, native demand prompt/E event and RETURN to player observed; wallet0 and both orders unresolved. Repeat result lost to QA-only unsupported wildcard assertion. `04-observation.json`. |
 | 5 | Same actual appropriation and RETURN outcome; player's Carry occupied; clear supported ground nearby | Choose the demand dialogue response. Existing player item stays held; returned parcel is placed in reachable clear space, above support, without overlap or passing through solid geometry. | PASS: reviewed085f1411, native F/Talk → authored demand response → native mouse choice → RETURN. Carry retained; one incident, no payment/order resolution. After physical settling floor support, minY≈−2e−7 (contact tolerance), velocity≈0, native full-shape query excluding only self/support reports0 obstacles. `05-dialogue-observation.json`, `05-dialogue-choice.png`, `05-dialogue-return.png`. |
-| 6 | Actual Brute appropriation; prepared ATTACK outcome | Choose the demand dialogue response and defend/retreat. Ordinary combat starts once, parcel remains physical, and repeated input or subsequent load cannot start another demand attack. | NOT_RUN |
-| 7 | Chain Devil offered a wrong parcel; prepared throw outcome | Observe a real throw toward the captured player position, with a possible miss/obstacle and normal impact behavior. The parcel remains recoverable and is not counted as delivered. | NOT_RUN |
-| 8 | Actual appropriation; RETURN outcome; occupied player Carry and no safe supported placement | Choose the demand dialogue response: NPC keeps the real parcel and the next conversation offers a claim response. Clear hands/space and claim again; captured outcome remains RETURN. Action must not prolong the normal service/departure clock. | NOT_RUN |
+| 6 | Actual Brute appropriation; prepared ATTACK outcome | Choose the demand dialogue response and defend/retreat. Ordinary combat starts once, parcel remains physical, and repeated input or subsequent load cannot start another demand attack. | PASS: native Talk/response starts ATTACK once, native backward retreat, original parcel remains held. Isolated save/preflight/write OK, full game process restarted, startup restored; same roll0.188151001930237/sequence7/one offense. Repeated demand false and no new combat. `06-observation.json`, `06-attack.png`. |
+| 7 | Chain Devil offered a wrong parcel; prepared throw outcome | Observe a real throw toward the captured player position, with a possible miss/obstacle and normal impact behavior. The parcel remains recoverable and is not counted as delivered. | PASS: native automatic THROW_AT_PLAYER, one incident; captured trajectory moves toward original player position (initial sampled vx−4.063m/s), collision/settling response; original physical parcel unheld, undestroyed, neither visit resolved. `07-observation.json`, `07-throw.png`. |
+| 8 | Actual appropriation; RETURN outcome; occupied player Carry and no safe supported placement | Choose the demand dialogue response: NPC keeps the real parcel and the next conversation offers a claim response. Clear hands/space and claim again; captured outcome remains RETURN. Action must not prolong the normal service/departure clock. | PASS: ordinary counter geometry has no safe floor destination; occupied Carry retained, NPC keeps actual parcel/RETURN, next dialogue offers Забрать посылку. Native Esc/E release then E/Talk/claim transfers original parcel with exactly1 grip; same roll0.283122301101685, one incident. Phase unchanged, elapsed23.8→24.8→52.2, both orders unresolved. `08-observation.json`, `08-pending-claim.png`, `08-claimed.png`. |
 
 Probability distribution, holy/fire metadata and persistent record validation have focused native regressions in the owner task. These manual cases cover interaction and physical feel; do not present their NOT_RUN status as PASS or close the owner task before required acceptance is resolved.
 
@@ -37,3 +37,17 @@ Case1 note: initial long eval exceeded the MCP8s guard before completion; restar
 Owner steering2026-10-17 / H4-D01: demand is an authored dialogue response reached through
 ordinary Talk. Prior interaction action is being removed. Cases4 (old input evidence) and2
 remain INCONCLUSIVE; case5 completed after migration review; no extra case was started.
+
+Current terminal H4 result:8/8 cases consumed; six PASS and2/4 INCONCLUSIVE.
+No additional rendered H4 checks authorized within this milestone; owner acceptance remains open.
+Case8 setup note: an elevated temporary-footing preparation released the carried proxy at its
+native teleport boundary; no demand was executed there. Discarded setup, not a production finding.
+Final case8 used the ordinary authored counter and native blocked floor query, without relocation.
+
+Updated runnable build: `.export/windows/20261016-171857Z-049a5983-parcel-demand-dialogue/PVZInHell.exe`,
+reviewed gameplay085f1411, bookkept049a5983; Godot4.7.1, dirty=true(existing addon metadata),
+menu120/level120 headless PASS. Live MCP was the rendered QA target; exported player_qa remains PENDING.
+Export process completed exit0 but raw shutdown diagnostics include ObjectDB422/Resource152,
+PagedAllocator BucketSmall and12 dummy-texture RIDs. Preserve `export.log{,.stderr}`;
+aggregate diagnostic classification UNKNOWN/mixed, not CLEAN or blanket KNOWN_ENGINE_LIMITATION.
+Owner-deferred specified shutdown categories do not authorize an unrelated leak investigation.
