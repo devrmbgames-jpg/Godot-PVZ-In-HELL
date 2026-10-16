@@ -1,7 +1,7 @@
 # Жуткий — скрытное сближение и сервисный контакт
 
-Status: **IN_PROGRESS**
-Technical: **IN_PROGRESS**
+Status: **OWNER_QA**
+Technical: **COMPLETE**
 Execution order: **10**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/creepy_npc_unpredictable_stalking.md.txt).
@@ -28,7 +28,10 @@ Review BASE `e45ca4d8251ffc43fdce1ab111a8afc32ac85722`, TARGET
 RV-001: watchdog достижимого, но физически застрявшего rear-route откладывал весь визит.
 Исправление у O_CustomerNpcInterruption различает точный активный rear motion token,
 освобождает только обход и будит обычный подход, сохраняя elapsed/резерв/историю источника.
-C3 ещё IN_PROGRESS до targeted re-review этого repair checkpoint (цикл1/2).
+C3 технически COMPLETE. RV-001 FIXED: `d1b19fc4abbf2ccc27b8d7e89a7dc639fb05b348`,
+GUT38/320 и targeted re-review PASS/no findings (цикл1/2), BASE
+`dccea7c57b4cf6fbb3b7e63285023d1432a27322`, TARGET `d1b19fc4abbf2ccc27b8d7e89a7dc639fb05b348`.
+Reviewer execution NOT_RUN; native gates выполнил main. C4 остаётся обязательным OWNER_QA.
 Отдельный structure compatibility fix `dccea7c57b4cf6fbb3b7e63285023d1432a27322`
 reviewed PASS/no findings по BASE `c6c850f6d28d3ea75e6575548808bc9053b2be87`.
 
@@ -45,7 +48,7 @@ CustomerVisit.stalking_visit_count — durable; C_Agent/target Relationship/rout
 | --- | --- |
 | C1 | M1/M2: свободные эпизоды, сохранённые паузы/выборы, отмены. COMPLETE, не повторять. |
 | C2 | M3a: безопасная native вставка в BT через companion MCP. COMPLETE, не переизобретать. |
-| C3 | Закончить существующий M3b целиком: rear SERVICE → arrive → обнаружение/номер → handoff/осмотр → сохранение/загрузка. IN_PROGRESS. |
+| C3 | Закончить существующий M3b целиком: rear SERVICE → arrive → обнаружение/номер → handoff/осмотр → сохранение/загрузка. COMPLETE. |
 | C4 | Обязательная отдельная игровая приёмка Жуткого. NOT_RUN. |
 
 C3 — один согласованный пакет реализации/проверок/ревью, не отдельное ревью каждого
@@ -61,10 +64,9 @@ C3 использует технически принятый [общий handof
 
 ## Next
 
-Получить targeted re-review RV-001: только observer/focused regressions по repair SHA.
-После terminal PASS — техническое закрытие C3 и OWNER_QA для C4; перейти к runner Q1.
-Разрешённую H4 parcel QA выполнить в её8 случаях, не заимствуя разрешение для C4.
-Не запускать rendered C4 без task-specific разрешения и не объявлять всю задачу DONE.
+Продолжить независимый runner Q1/order5; после его coherent package подготовить одну
+актуальную Windows QA-сборку C3. C4 требует отдельного разрешения на готовую карточку.
+Разрешённую H4 parcel QA выполнить в её8 случаях; не объявлять всю задачу DONE до C4.
 
 ## Validation / review
 
@@ -87,7 +89,7 @@ Repair: native GUT38/38,320 assertions,stderr0 PASS (`gut-20261016-155557405.*.l
 Repair MCP2 checked/empty; formatter2,strict architecture0,structure,diff-check PASS.
 Comment-only MCP hot reload initially returned43; subsequent native path diagnostic checked/empty,
 а свежий native parser PASS. Эти transient diagnostics не классифицировались как shutdown.
-C3 baseline review: FAIL/RV-001 accepted and repaired; targeted re-review REVIEW_PENDING,repair1/2. Rendered C4: NOT_RUN,0/8.
+C3 baseline review: RV-001 FIXED; targeted re-review PASS/no findings,repair1/2 (SHA выше). Rendered C4: NOT_RUN,0/8.
 
 ## Owner QA / blockers
 

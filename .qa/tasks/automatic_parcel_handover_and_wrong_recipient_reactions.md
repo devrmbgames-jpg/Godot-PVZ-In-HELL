@@ -4,12 +4,12 @@ Owner authorized up to8 rendered/playtest cases on2026-10-16. Executed0/8; evide
 
 Owner task: [automatic_parcel_handover_and_wrong_recipient_reactions](../../.agents/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md).
 
-Status: **NOT_RUN**. Rendered/gameplay authorization for this task is not granted; cargo task's six approved checks were completed separately.
+Status: **NOT_RUN**. Task-specific approval: up to8 rendered/playtest cases, granted by owner and retained across sessions; cargo checks used a separate approval.
 Budget: **0/8 cases** for this milestone. Headless GUT and MCP script diagnostics are separate evidence and do not establish gameplay feel.
-Before execution: record the reviewed code SHA and runnable build path here, obtain task-specific authorization, then count each prepared case once. Use an isolated QA save; preserve owner saves and unrelated editor changes.
+Before execution: record the reviewed code SHA and runnable build path here, use the existing task-specific authorization, then count each prepared case once. Use an isolated QA save; preserve owner saves and unrelated editor changes.
 
 Reviewed code: `427799387733b0aea057db9e77ff894405307040` (BASE `6ac1ac6e1ffbb8e8bd43a11b989bb8c8152e5dd9`), terminal review PASS/no findings; reviewer validation NOT_RUN. Native incidents44/44,513 assertions and parser/MCP/style/static PASS.
-Runnable build: [PVZInHell.exe](../../.export/windows/20261016-072343Z-42779938-parcel-handover-m2f/PVZInHell.exe). `build_info.json` records dev/42779938/Godot4.7.1, menu+level headless120frames PASS each, isolated QA user directory, `working_tree_dirty=true` (preserved unrelated owner edits included). Rendered QA remains NOT_RUN; task-specific permission requested.
+Runnable build: [PVZInHell.exe](../../.export/windows/20261016-072343Z-42779938-parcel-handover-m2f/PVZInHell.exe). `build_info.json` records dev/42779938/Godot4.7.1, menu+level headless120frames PASS each, isolated QA user directory, `working_tree_dirty=true` (preserved unrelated owner edits included). Rendered QA remains NOT_RUN; task-specific permission granted; execution pending.
 
 ## Cases
 
