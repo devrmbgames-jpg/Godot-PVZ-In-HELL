@@ -55,6 +55,7 @@ static func destination(
 	person: NpcRecord,
 	player: Entity,
 	rule: DEF_NpcStalking,
+	candidate_offset: int = 0,
 ) -> Vector3:
 	var camera: Camera3D = NpcGazeAversionSolver.camera_for(player)
 	var map: RID = actor.navigation_agent.get_navigation_map()
@@ -66,9 +67,8 @@ static func destination(
 		return Vector3.INF
 	forward = forward.normalized()
 	var origin: Vector3 = (player as Node as Node3D).global_position
-	var selected: Vector3 = Vector3.INF
-	var nearest: float = INF
-	for angle: float in BEHIND_ANGLES:
+	for index: int in BEHIND_ANGLES.size():
+		var angle: float = BEHIND_ANGLES[(index + candidate_offset) % BEHIND_ANGLES.size()]
 		var behind: Vector3 = forward.rotated(Vector3.UP, deg_to_rad(angle))
 		var proposed: Vector3 = origin + behind * rule.behind_distance
 		proposed.y = actor.global_position.y
@@ -84,9 +84,6 @@ static func destination(
 		)
 		if not hidden_path(actor, player, path, rule):
 			continue
-		var distance: float = actor.global_position.distance_squared_to(candidate)
-		if distance < nearest:
-			nearest = distance
-			selected = candidate
-	return selected
+		return candidate
+	return Vector3.INF
 #endregion

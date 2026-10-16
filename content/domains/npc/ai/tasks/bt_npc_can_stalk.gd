@@ -1,6 +1,6 @@
 @tool
 extends "res://content/domains/npc/ai/tasks/bt_npc_condition.gd"
-## Enables the native branch only before this player has noticed the selected capability.
+## Enables one due opportunity or its still-valid captured episode; memory is historical only.
 
 
 #region Read-only decision guard

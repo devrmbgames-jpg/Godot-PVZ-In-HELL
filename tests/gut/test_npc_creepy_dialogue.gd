@@ -100,7 +100,7 @@ func test_both_roles_read_actor_specific_notice_without_creating_detection_or_mo
 				var saved: Dictionary = SaveDataCodec.encode(person) as Dictionary
 				var visit_before: Variant = SaveDataCodec.encode(visit)
 				var position: Vector3 = body.global_position
-				var exposure: float = state.exposure_seconds
+				var episode: int = state.episode_sequence
 				var observed: bool = state.observed
 				for repeat: int in range(2):
 					assert_eq(context.stalking_noticed(), recognized)
@@ -111,7 +111,7 @@ func test_both_roles_read_actor_specific_notice_without_creating_detection_or_mo
 				assert_eq(SaveDataCodec.encode(person), saved)
 				assert_eq(SaveDataCodec.encode(visit), visit_before)
 				assert_eq(body.global_position, position)
-				assert_eq(state.exposure_seconds, exposure)
+				assert_eq(state.episode_sequence, episode)
 				assert_eq(state.observed, observed)
 				assert_null(CombatQueries.target_for(body))
 			context.end()

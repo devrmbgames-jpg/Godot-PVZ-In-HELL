@@ -655,6 +655,55 @@ func test_manifest_covers_runtime_codec_script_paths() -> void:
 
 
 #region Time snapshot rejection
+## Real active bindings are transient: disk restore clears them without replaying the decision.
+func test_active_stalking_disk_restore_keeps_deadline_without_reviving_the_episode() -> void:
+	var person: NpcRecord = _district.people[3]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	assert_eq(person.profile.key, &"archetype/creepy")
+	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
+	person.phase_complete = true
+	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+	actor.add_component(C_PlayerInputController.new())
+	actor.place_at(Vector3(1000.0, 0.0, 1000.0))
+	var camera: Camera3D = Camera3D.new()
+	camera.position.y = NpcPerceptionService.EYE_HEIGHT
+	actor.add_child(camera)
+	camera.make_current()
+	body.place_at(actor.global_position + Vector3(0.0, 0.0, 1.8))
+	(body.get_component(C_NpcAwareness) as C_NpcAwareness).player_visible = true
+	var state: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
+	state.rule = state.rule.duplicate() as DEF_NpcStalking
+	state.rule.opportunity_probability = 1.0
+	var sensing: S_NpcStalkingWitness = S_NpcStalkingWitness.new()
+	sensing.group = "StalkingDiskFixture"
+	_fixture_world.add_system(sensing)
+	_fixture_world.process(0.0, sensing.group)
+	assert_true(NpcStalkingService.begin(body, actor))
+	assert_same(NpcStalkingQueries.target_for(body), actor)
+	var deadline: int = person.stalking_next_eligible_tick
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+	assert_eq(AutosaveStore.write(snapshot, SLOT_PATH), OK)
+	var loaded: Dictionary = AutosaveStore.read(SLOT_PATH)
+	assert_true(WorldSnapshotService.restore(loaded, _fixture_root))
+	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
+	assert_null(NpcStalkingQueries.binding(body))
+	assert_eq(state.episode_sequence, 0)
+	assert_eq(NpcPopulationQueries.person_for(person.npc_id).stalking_sequence, 1)
+	assert_eq(NpcPopulationQueries.person_for(person.npc_id).stalking_next_eligible_tick, deadline)
+	_fixture_world.remove_entity(body)
+	await get_tree().process_frame
+	assert_true(WorldSnapshotService.restore(loaded, _fixture_root))
+	body = NpcPopulationQueries.body_for(person.npc_id)
+	assert_null(NpcStalkingQueries.binding(body))
+	assert_eq((body.get_component(C_NpcStalking) as C_NpcStalking).episode_sequence, 0)
+	assert_eq(NpcPopulationQueries.person_for(person.npc_id).stalking_sequence, 1)
+	assert_eq(NpcPopulationQueries.person_for(person.npc_id).stalking_next_eligible_tick, deadline)
+	assert_false(NpcStalkingRules.opportunity_due(
+		NpcPopulationQueries.person_for(person.npc_id), GameTimeQueries.current().elapsed_ticks,
+	))
+
+
 ## Disk restoration and brain reset retain eligibility, even when the physical NPC is recreated.
 func test_stalking_clock_survives_reset_and_fresh_body_disk_restore() -> void:
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
@@ -688,7 +737,7 @@ func test_stalking_clock_survives_reset_and_fresh_body_disk_restore() -> void:
 	)
 	var state: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
 	assert_false(state.observed)
-	assert_eq(state.exposure_seconds, 0.0)
+	assert_eq(state.episode_sequence, 0)
 	assert_eq(state.approach_task_id, 0)
 
 

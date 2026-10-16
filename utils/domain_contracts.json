@@ -19431,7 +19431,8 @@
         "reading": "query"
       },
       "sources": [
-        "content/domains/npc/services/npc_stalking_queries.gd"
+        "content/domains/npc/services/npc_stalking_queries.gd",
+        "content/domains/npc/systems/s_npc_stalking_witness.gd"
       ],
       "purpose": "Read exact native terminal reader for authored stalking range; never access global UI."
     },

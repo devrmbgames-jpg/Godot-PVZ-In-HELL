@@ -1,8 +1,8 @@
 # Жуткий — скрытное сближение и неожиданный испуг без поломки выдачи
 
 Status: **IN_PROGRESS**
-BASE_SHA: `738767d150923d868c3090387f85609c2bbc1185`
-TARGET_SHA: `673e57f0d51e0c1fa49c360307f78048a534cc25` - M1 contract review PASS; task IN_PROGRESS
+BASE_SHA: `405ab8dac765f70dfd616c38e5937dbdd3cc1cfc`
+TARGET_SHA: M2 free episodes checkpoint pending commit/review; task IN_PROGRESS
 
 Created: 2026-10-15. Автор: запрос владельца. Related: [R26.2](completed/r26_2_npc_archetypes_and_variation.md), [R26.3](completed/r26_3_npc_behavior_trees.md), [R27.5](completed/r27_test_lab_and_npc_rooms.md).
 
@@ -23,32 +23,20 @@ Created: 2026-10-15. Автор: запрос владельца. Related: [R26.
 
 ### Current / authorization
 
-Активный `/goal` разрешает реализацию задач и предшествующее ограничение «только план» больше не действует.
-M1 reviewed PASS in TARGET above: no findings, architecture/style PASS, reviewer execution NOT_RUN, repair0/2. NpcRecord owns sequence/decision/last-success timestamps/captured eligibility deadline; pure strict2.5m/30active-second/overflow/episode-ID contracts, closed schema25/native golden. Post-success deadline cannot be shortened below30s in a valid snapshot. Historical fixed memories remain valid for dialogue; new episode receipts are bounded by the committed sequence. Runtime opportunity/notice/approach wiring remains open.
-Save/load/reset preserves these durable fields; unsupported schema24 is rejected with original bytes retained, no migration. Existing permanent-memory runtime gate remains until M2 replaces it with the episode contract; this is not completed behavioral acceptance.
-Gameplay/visual QA NOT_RUN,0/8. Prototype numbers below, except owner-defined2.5m/minimum30s, remain authored tuning hypotheses.
+Активный `/goal` разрешает реализацию задач; прежнее «только план» больше не действует.
+M1 review PASS `673e57f0d51e0c1fa49c360307f78048a534cc25` (BASE `738767d150923d868c3090387f85609c2bbc1185`): no findings, architecture/style PASS, reviewer execution NOT_RUN, repair0/2. Closed schema25 owns sequence/decision/last-success/eligibility timestamps; unsupported24 rejects with original bytes retained. No migration.
+M2 free episodes implemented, review pending: sensed new-context/terminal-reading opportunity with TTL; one keyed choice/skip and captured delay/sector/extra cooldown; native BT exposes begin → wait → fixed hidden approach. R_NpcStalkingTarget owns the real player incarnation. World/reset/departure/death/role/combat/camera loss cancel only that episode; saved eligibility remains. Immediate actual visibility ends it, with neutral episode memory only at strict<2.5m and minimum30active seconds after success.
+Expiry alone and reset/load do not create another desire; a new suitable sensed window is required. Routes have8s default budget, at most2 meaningful replans and a range leash. S_NpcIntent owns transient speed1.5x; physical body/max_speed authority remains. Old permanent-memory veto,0.5s exposure and stationary visible hold paths removed. Historical fixed memories still drive dialogue.
+Prototype defaults remain unverified tuning; service rear approach/arrive/number announcement (M3), final save/service acceptance and authorized rendered QA remain open,0/8. Owner's unrelated empty BlackboardPlan metadata is preserved in the working tree and excluded from the behavior commit. The separate parcel QA approval remains pending.
 
-## Что установлено в коде
+## Current owners
 
-- [NpcStalkingQueries](../../content/domains/npc/services/npc_stalking_queries.gd) допускает попытку только
-  после задачи фазы, при воспринятом игроке; активная роль клиента запрещает stalking целиком.
-- [NpcStalkingRules](../../content/domains/npc/rules/npc_stalking_rules.gd) использует постоянную память
-  STALKING_NOTICED как пожизненный запрет повторных попыток против этого игрока.
-- [NpcStalkingService](../../content/domains/npc/services/npc_stalking_service.gd) фиксирует обнаружение
-  после экспозиции камеры; проверки близости 2.5 м и временной паузы сейчас нет.
-- [DEF_NpcStalking](../../content/domains/npc/definitions/def_npc_stalking.gd): радиус8 м,
-  бонус терминала4 м, цель сзади1.8 м, экспозиция0.5 с.
-- [NpcStalkingSolver](../../content/domains/npc/solvers/npc_stalking_solver.gd) уже проверяет настоящую
-  камеру/LOS, три задние точки и видимость сегментов маршрута. Переиспользовать эти гарантии.
-- [Скрытное дерево](../../content/domains/npc/ai/trees/bt_npc_stalking.tres) останавливает НПЦ под взглядом,
-  иначе ищет цель сзади; нет ограниченного эпизода, желания поговорить или ритма повторных попыток.
-- [NpcDialogueService](../../content/domains/npc/services/npc_dialogue_service.gd) начинает уличный
-  разговор по действию игрока. Отдельное намерение НПЦ поговорить требуется определить явно.
-- [NpcServiceRole](../../content/domains/customers/services/npc_service_role.gd) владеет допуском очереди
-  и резервом стойки. District-прибытие выполняется нативным сервисным деревом; обычный
-  S_CustomerApproach исключает C_NpcIdentity и не является владельцем district-подхода.
-- В сервисном дереве завершение движения ведёт к arrive. Для задней точки нужен явный допустимый
-  сервисный контакт: его завершение должно штатно завершать подход, сохраняя остальные гарантии.
+- [NpcStalkingQueries](../../content/domains/npc/services/npc_stalking_queries.gd) observes role/phase/perception/real target/opportunity/clock gates; [Rules](../../content/domains/npc/rules/npc_stalking_rules.gd) owns pure distance/history arithmetic.
+- [Witness](../../content/domains/npc/systems/s_npc_stalking_witness.gd) owns recurring real-camera sampling and bounded sensed desire; [Service](../../content/domains/npc/services/npc_stalking_service.gd) explicitly commits/consumes/releases one episode, with callback revalidation.
+- [DEF_NpcStalking](../../content/domains/npc/definitions/def_npc_stalking.gd) holds immutable authored defaults; [native tree](../../content/domains/npc/ai/trees/bt_npc_stalking.tres) exposes eligibility and non-restarting begin/wait/approach sequence, below existing higher-priority branches.
+- [Solver](../../content/domains/npc/solvers/npc_stalking_solver.gd) uses actual camera/frustum/LOS, bounded segment samples, native navigation and three rear sectors; intent/navigation/physics owners execute motion.
+- [NpcDialogueService](../../content/domains/npc/services/npc_dialogue_service.gd) retains conversation authority; STALKING_NOTICED is historical dialogue data, not a permanent behavior ban.
+- [NpcServiceRole](../../content/domains/customers/services/npc_service_role.gd) still owns queue/counter/service arrival. Active roles forbid free episodes; M3 must add a bounded SERVICE strategy without moving the free branch above service or duplicating arrive/handoff.
 
 ## Исследование и выводы для проекта
 
@@ -172,7 +160,8 @@ Grip подчёркивает окружение, звук и выводы иг�
   Native сцены/деревья и ресурсы редактировать по editor-ownership; сторонние addons не менять.
 
 ### Validation
-- M1 native GUT71/71,1925 assertions/stderr0/PASS: rules8/54 (`074357096`), baseline13/748 (`074400372`), stalking14/111 (`073531451`), creepy_dialogue36/1012 (`074441039`); prefix `gut-20261016-` in `.artifacts/godot_agent/`. Native ParseFiles5/0/PASS (`20261016-074546279`); heavy baseline isolated parser1/0/exit0 (`creepy_m1_isolated_parser.{stdout,stderr}.log`), shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED; combined6 wrapper had FAIL only warning classification (`20261016-073708383`). MCP6 checked/empty/scripts0; formatter6/strict architecture0/structure/persistence inventory/agent changes PASS. Rendered0/8. Inherited home fixture corrected separately in BASE above, reviewed PASS/no findings; see parcel QA card for red/green evidence.
+- M1 native GUT71/71,1925 assertions/stderr0/PASS: rules8/54 (`074357096`), baseline13/748 (`074400372`), stalking14/111 (`073531451`), creepy_dialogue36/1012 (`074441039`); prefix `gut-20261016-` in `.artifacts/godot_agent/`. Native ParseFiles5/0/PASS (`20261016-074546279`); heavy baseline isolated parser1/0/exit0 (`creepy_m1_isolated_parser.{stdout,stderr}.log`), shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED; combined6 wrapper had FAIL only warning classification (`20261016-073708383`). MCP6 checked/empty/scripts0; formatter6/strict architecture0/structure/persistence inventory/agent changes PASS. Rendered0/8. Home fixture fix `738767d150923d868c3090387f85609c2bbc1185` reviewed PASS; see parcel QA card.
+- M2 native GUT93/93,2237 assertions/PASS: stalking27/245 (`082042439`), district_snapshot16/205 (`082121026`), creepy_dialogue36/1012 (`082153700`), baseline13/748 (`082242320`), all stderr0; active retained/fresh binary restore1/27/exit0 (`creepy_m2_active_disk.stdout.log`). Native ParseFiles16/0/PASS (`20261016-082737973`); other3 heavy fixtures compiled/executed by GUT. MCP19 unique scripts checked/empty/scripts0; formatter19/strict architecture0/structure/persistence inventory PASS. Native BT saved through MCP with UID preserved. Delay token/publication cleanup/opportunity-expiry red probes retained; final fixes PASS. Existing terminal fixture46 orphan Nodes match prior baseline; independent [scope](terminal_package_row_orphans.md), not shutdown-only DEFERRED. Rendered0/8; M2 review pending.
 
 ## План проверки будущей реализации
 
@@ -196,5 +185,5 @@ Grip подчёркивает окружение, звук и выводы иг�
 
 ### Next
 
-M2: wire captured opportunities and bounded free hidden episodes, replace permanent recognition veto, preserve physical/intent ownership and interruption. Follow with service approach/arrival/number announcement and real handoff integration. M1 review/triage terminal PASS, no accepted findings remain.
+Finish native M2 gates and collect immutable-SHA review/triage; then M3: bounded rear SERVICE approach, ordinary arrival, number announcement only after real detection, and real handoff/queue/timeout/save integration. M1 review is terminal PASS; do not mark DONE with M2 review or M3/QA open.
 Gameplay QA requires task-specific authorization and remains open; parcel-handover QA permission is separately pending. Do not mark this task DONE before runtime/service/save acceptance and required owner QA.

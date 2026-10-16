@@ -148,6 +148,14 @@ func _synchronize_speed_policy(actor: Entity) -> void:
 	motion.control_speed_multiplier = 1.0
 	if actor.has_component(C_Death) or NpcGazeQueries.frozen(actor):
 		return
+	var stalking: C_NpcStalking = actor.get_component(C_NpcStalking) as C_NpcStalking
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	if (
+		stalking != null and stalking.episode_sequence > 0 and stalking.approach_task_id != 0
+		and decision.active_task_id == stalking.approach_task_id
+		and decision.intent_owner == C_NpcDecision.Owner.IDLE
+	):
+		motion.control_speed_multiplier = stalking.rule.approach_speed_multiplier
 	var target: Entity = CombatQueries.target_for(actor)
 	if (not EntityAvailability.contains(target, ECS.world) or target.has_component(C_Death)):
 		return

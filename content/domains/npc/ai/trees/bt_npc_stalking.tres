@@ -1,41 +1,33 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://ddypvhdob1fg4"]
 
 [ext_resource type="Script" uid="uid://clrfvqjg1rncp" path="res://content/domains/npc/ai/tasks/bt_npc_can_stalk.gd" id="1_ohueh"]
-[ext_resource type="Script" uid="uid://yvcrar5voom4" path="res://content/domains/npc/ai/tasks/bt_npc_stalker_observed.gd" id="2_w8lst"]
-[ext_resource type="Script" uid="uid://qqe8sushmx0d" path="res://content/domains/npc/ai/tasks/bt_npc_stalking_hold.gd" id="3_v6ov1"]
+[ext_resource type="Script" uid="uid://bw12mll58wrwm" path="res://content/domains/npc/ai/tasks/bt_npc_stalking_begin.gd" id="2_ohueh"]
+[ext_resource type="Script" uid="uid://d266h8hm03ov3" path="res://content/domains/npc/ai/tasks/bt_npc_stalking_wait.gd" id="3_w8lst"]
 [ext_resource type="Script" uid="uid://di0osdghjgs6x" path="res://content/domains/npc/ai/tasks/bt_npc_stalking_approach.gd" id="4_s6aru"]
 
-[sub_resource type="BTCondition" id="BTCondition_ad5wt"]
-custom_name = "Игрок воспринят; обнаружения ещё не было"
+[sub_resource type="BTCondition" id="BTCondition_ohueh"]
+custom_name = "Свободен; возможность или эпизод допустимы"
 script = ExtResource("1_ohueh")
 
-[sub_resource type="BTCondition" id="BTCondition_33fww"]
-custom_name = "Виден настоящей камере"
-script = ExtResource("2_w8lst")
+[sub_resource type="BTAction" id="BTAction_w8lst"]
+custom_name = "Однократно выбрать попытку или пропуск"
+script = ExtResource("2_ohueh")
 
-[sub_resource type="BTAction" id="BTAction_m7ujr"]
-custom_name = "Остановиться под взглядом"
-script = ExtResource("3_v6ov1")
+[sub_resource type="BTAction" id="BTAction_v6ov1"]
+custom_name = "Дождаться выбранного момента GameClock"
+script = ExtResource("3_w8lst")
 
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_iphxx"]
-custom_name = "Попал в обзор"
-children = [SubResource("BTCondition_33fww"), SubResource("BTAction_m7ujr")]
-
-[sub_resource type="BTAction" id="BTAction_m3afr"]
-custom_name = "Подкрасться по скрытому маршруту"
+[sub_resource type="BTAction" id="BTAction_s6aru"]
+custom_name = "Скрытый подход к фиксированной точке"
 script = ExtResource("4_s6aru")
 
-[sub_resource type="BTAction" id="BTAction_vyb6e"]
-custom_name = "Ждать скрытого маршрута"
-script = ExtResource("3_v6ov1")
+[sub_resource type="BTSequence" id="BTSequence_ad5wt"]
+custom_name = "Выбранный эпизод без перезапуска задержки"
+children = [SubResource("BTAction_w8lst"), SubResource("BTAction_v6ov1"), SubResource("BTAction_s6aru")]
 
-[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_m3pik"]
-custom_name = "Обзор → остановка; скрытый маршрут → приближение"
-children = [SubResource("BTDynamicSequence_iphxx"), SubResource("BTAction_m3afr"), SubResource("BTAction_vyb6e")]
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_nj3dd"]
-custom_name = "Жуткий: скрытное приближение до обнаружения"
-children = [SubResource("BTCondition_ad5wt"), SubResource("BTDynamicSelector_m3pik")]
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_33fww"]
+custom_name = "Жуткий: ограниченная скрытая возможность"
+children = [SubResource("BTCondition_ohueh"), SubResource("BTSequence_ad5wt")]
 
 [resource]
-root_task = SubResource("BTDynamicSequence_nj3dd")
+root_task = SubResource("BTDynamicSequence_33fww")

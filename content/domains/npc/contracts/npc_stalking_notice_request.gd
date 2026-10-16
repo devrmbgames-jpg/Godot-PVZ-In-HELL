@@ -14,6 +14,8 @@ var state: C_NpcStalking
 var rule: DEF_NpcStalking
 ## Brain reset generation captured before publication.
 var lifecycle_generation: int
+## Exact hidden episode observed; a later episode cannot inherit a queued old notice.
+var episode_sequence: int
 
 
 #region Captured synchronous sample
@@ -23,4 +25,5 @@ func _init(body: E_DistrictNpc, player: Entity, sampled: C_NpcStalking) -> void:
 	state = sampled
 	rule = sampled.rule
 	lifecycle_generation = (body.get_component(C_NpcDecision) as C_NpcDecision).lifecycle_generation
+	episode_sequence = sampled.episode_sequence
 #endregion

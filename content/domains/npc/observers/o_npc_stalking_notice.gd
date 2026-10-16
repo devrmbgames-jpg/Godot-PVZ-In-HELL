@@ -25,7 +25,8 @@ func _commit(request: NpcStalkingNoticeRequest) -> void:
 		or (body.get_component(C_NpcDecision) as C_NpcDecision).lifecycle_generation
 		!= request.lifecycle_generation
 		or not request.state.observed
-		or request.state.exposure_seconds < request.rule.notice_seconds
+		or request.episode_sequence == 0
+		or request.state.episode_sequence != request.episode_sequence
 	):
 		return
 	NpcStalkingService.notice(body, player)

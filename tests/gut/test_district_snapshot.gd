@@ -425,7 +425,7 @@ func test_stalking_detection_roundtrip_rejects_malformed_receipts_before_mutatio
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(npc_id)
 	var state: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
 	state.observed = true
-	state.exposure_seconds = 0.3
+	state.episode_sequence = 1
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
 	for invalid: String in ["actor", "victim", "incident", "reaction"]:
@@ -453,7 +453,7 @@ func test_stalking_detection_roundtrip_rejects_malformed_receipts_before_mutatio
 	state = body.get_component(C_NpcStalking) as C_NpcStalking
 	assert_true(NpcStalkingRules.noticed(NpcPopulationQueries.person_for(npc_id), &"player"))
 	assert_false(state.observed)
-	assert_eq(state.exposure_seconds, 0.0)
+	assert_eq(state.episode_sequence, 0)
 	_world.remove_entity(body)
 	await get_tree().process_frame
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
