@@ -110,3 +110,10 @@ Export shutdown diagnostics UNKNOWN/mixed (ObjectDB/Resource/PagedAllocator/dumm
 сохранены; не CLEAN и не blanket exemption. Gameplay/runtime failure не установлен.
 QA checkpoint049a59834a28c69e0b5dfe231f4fd4e5664a962b reviewed PASS/no findings по BASE
 085f14111a20078d393e0ad4556bf782a4309ec3; reviewer execution NOT_RUN.
+
+Native Dialogue Manager editor import зарегистрировал только новый dialogue в
+ProjectSettings internationalization/locale/translations_pot_files. MCP native read подтвердил
+регистрацию; старые элементы сохранены. Это editor-owned изменение project.godot,
+не внешний rewrite. Runtime/QA behavior от POT source registration не меняется.
+Финальный H4 evidence checkpoint d5c532c068802586387fede2fd669f15338ac394 reviewed PASS/no findings,
+BASE049a59834a28c69e0b5dfe231f4fd4e5664a962b; reviewer execution NOT_RUN.
