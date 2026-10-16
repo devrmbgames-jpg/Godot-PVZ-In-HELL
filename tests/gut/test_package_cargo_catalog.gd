@@ -16,6 +16,25 @@ const PROFILES: Array[DEF_PackagePacking] = [
 
 
 #region Native immutable cargo definitions
+## The isolated clothing room uses a physical order whose authored envelope matches the real body.
+func test_room_clothing_has_physical_cargo_and_compatible_unit_and_bulk_packing() -> void:
+	var item: DEF_InventoryItem = _item("work_clothes")
+	assert_true(PackageOrderRules.is_orderable(item))
+	var cargo: DEF_ItemCargo = item.cargo_profile
+	assert_not_null(cargo)
+	assert_eq(cargo.phase, DEF_ItemCargo.Phase.SOLID)
+	assert_eq(cargo.hazards, DEF_ItemCargo.Hazard.NONE)
+	var body: RigidBody3D = autofree(
+		(load(item.world_pickup_scene) as PackedScene).instantiate()
+	) as RigidBody3D
+	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	assert_true(solver.prepare(body))
+	assert_eq(solver.bounds_at(Transform3D.IDENTITY).size, cargo.unit_size_m)
+	assert_eq(body.mass, cargo.unit_mass_kg)
+	assert_not_null(PackagePackingRules.choose(PROFILES, cargo, 1))
+	assert_not_null(PackagePackingRules.choose(PROFILES, cargo, cargo.maximum_shipment_quantity))
+
+
 ## Profiles carry independent identities and the actual native rupture scene, without new effects.
 func test_catalog_profiles_preserve_native_hazard_ownership_and_fit_their_quantity_cap() -> void:
 	var paths: Dictionary[String, bool] = { }

@@ -23,11 +23,23 @@ static func create(
 	day_index: int,
 	package_index: int,
 	physical_scene: String = "",
+	shipment: PackageShipmentPlan = null,
 ) -> E_Package:
-	if zone == null or definition == null or definition.scene_variants.is_empty():
+	if zone == null or definition == null:
+		return null
+	if shipment == null and definition.scene_variants.is_empty():
 		return null
 
-	if not physical_scene.is_empty() and physical_scene not in definition.scene_variants:
+	if shipment != null:
+		if (
+			definition.unpack_scene == null or physical_scene != shipment.scene_path()
+			or not PackageOrderRules.is_orderable(shipment.item())
+			or not PackageShipmentRules.valid(
+				shipment.item(), shipment.quantity(), shipment.packing(), physical_scene,
+			)
+		):
+			return null
+	elif not physical_scene.is_empty() and physical_scene not in definition.scene_variants:
 		return null
 	var package_scene_path: String = physical_scene
 	if package_scene_path.is_empty():
@@ -52,7 +64,7 @@ static func create(
 		parcel.free()
 		return null
 
-	if not configure_recipe(parcel, definition, package_id):
+	if not configure_recipe(parcel, definition, package_id, shipment):
 		parcel.free()
 		return null
 	parcel.name = "Parcel_%03d_%02d" % [day_index, package_index + 1]
@@ -66,13 +78,18 @@ static func configure_recipe(
 	parcel: E_Package,
 	definition: DEF_Package,
 	package_id: String,
+	shipment: PackageShipmentPlan = null,
+	contents_released: bool = false,
 ) -> bool:
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	if body == null:
 		return false
 	parcel.package_id = package_id
 	parcel.package_definition = definition
-	body.mass = definition.mass_kg
+	if shipment != null:
+		body.mass = shipment.empty_mass_kg() if contents_released else shipment.gross_mass_kg()
+	else:
+		body.mass = definition.empty_mass_kg if contents_released else definition.mass_kg
 
 	return true
 

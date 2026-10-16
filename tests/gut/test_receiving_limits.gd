@@ -55,6 +55,10 @@ func test_daily_batch_is_limited_rotates_and_does_not_accumulate() -> void:
 	assert_eq(decoded.package_keys, receiving.pending[0].package_keys)
 	assert_eq(decoded.order_item_paths, receiving.pending[0].order_item_paths)
 	assert_eq(decoded.order_item_paths.size(), decoded.package_keys.size())
+	assert_eq(decoded.order_quantities, receiving.pending[0].order_quantities)
+	assert_eq(decoded.order_packing_paths, receiving.pending[0].order_packing_paths)
+	assert_eq(decoded.order_quantities.size(), decoded.package_keys.size())
+	assert_eq(decoded.order_packing_paths.size(), decoded.package_keys.size())
 	for path: String in decoded.order_item_paths:
 		assert_false(
 			path.is_empty(),
@@ -74,6 +78,9 @@ func test_prepared_orders_survive_changed_catalog_and_recipient_preferences() ->
 	var chosen: DEF_InventoryItem = load(first_path) as DEF_InventoryItem
 	assert_true(bool(chosen.categories & DEF_InventoryItem.Category.WEAPON))
 	var committed: PackedStringArray = receiving.pending[0].order_item_paths.duplicate()
+	var quantities: PackedInt32Array = receiving.pending[0].order_quantities.duplicate()
+	var packings: PackedStringArray = receiving.pending[0].order_packing_paths.duplicate()
+	var scenes: PackedStringArray = receiving.pending[0].package_scenes.duplicate()
 	person.profile.item_category_weights = { DEF_InventoryItem.Category.REAGENT: 1.0 }
 	supply.order_catalog = []
 	ReceivingDeliveryService.prepare_batch(supply, receiving, 1)
@@ -81,6 +88,9 @@ func test_prepared_orders_survive_changed_catalog_and_recipient_preferences() ->
 	var copied: C_Receiving = C_Receiving.new()
 	assert_true(SaveDataCodec.apply_fields(copied, SaveDataCodec.component_data(receiving).fields))
 	assert_eq(copied.pending[0].order_item_paths, committed)
+	assert_eq(copied.pending[0].order_quantities, quantities)
+	assert_eq(copied.pending[0].order_packing_paths, packings)
+	assert_eq(copied.pending[0].package_scenes, scenes)
 
 
 ## Остаток лимита сокращает партию; пятьдесят ожидающих полностью останавливают поставку.

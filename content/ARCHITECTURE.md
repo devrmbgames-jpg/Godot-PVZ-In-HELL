@@ -300,8 +300,13 @@ rupture or materialize an intact replacement. Normal opening instead transfers t
 an intact native body without firing its effect. Destruction captures the committed one-shot
 effect before replacing the package. Passive restore supplies the saved selected_item before
 compilation and rebuilds the derived liquid capability on retained bodies without replaying leak
-facts or timers. The storage format remains schema19/PVZH1. Package IDs and recipients retain
-their owners; physical size/quantity/mass integration remains the active packaging task.
+facts or timers. ReceivingBatch also freezes quantity and packing-definition paths before spawning;
+C_PackageContents owns their live values. Native scenes come from that packing profile, not from
+an unrelated content recipe. Full/empty physical mass and extraction count use this composition.
+Snapshot preflight verifies the retained quantity, capacity and exact native scene before mutation;
+fresh compilation receives the saved composition and mass before publication. Schema20/PVZH1 rejects
+previous schemas while preserving their files. Package IDs and recipients retain their owners;
+arrival history/UI physical-fact integration remains the active packaging task.
 Market price and parcel accounting value remain separate contracts.
 
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances

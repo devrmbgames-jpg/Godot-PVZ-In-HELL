@@ -10,7 +10,9 @@ func _init() -> void:
 	required_root_class = &"RigidBody3D"
 	required_components = [C_Package, C_Health, C_ImpactReceiver, C_Grabbable]
 	initial_field_names[C_Package as Script] = PackedStringArray(["delivery_day", "supply_key"])
-	initial_field_names[C_PackageContents as Script] = PackedStringArray(["selected_item"])
+	initial_field_names[C_PackageContents as Script] = PackedStringArray(
+		["selected_item", "quantity", "packing_profile"]
+	)
 
 
 ## Validates the shell Profile and optional selected physical cargo before producing recipes.
@@ -25,6 +27,13 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 			return PackedStringArray(["Catalog cargo requires an unpack-capable package"])
 		if not PackagePackingRules.valid_cargo(selected_item.cargo_profile):
 			return PackedStringArray(["Catalog cargo requires a valid physical profile"])
+	var fields: Dictionary = context.initial_fields.get(C_PackageContents as Script, { })
+	var quantity: int = int(fields.get(&"quantity", 0))
+	var packing: DEF_PackagePacking = fields.get(&"packing_profile") as DEF_PackagePacking
+	if not PackageShipmentRules.valid(
+		selected_item, quantity, packing, context.actor.scene_file_path,
+	):
+		return PackedStringArray(["Catalog cargo requires compatible quantity and packing"])
 	return PackedStringArray()
 #endregion
 

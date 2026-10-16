@@ -32,22 +32,37 @@ static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_inde
 			supply.packages[(start_index + offset) % supply.packages.size()]
 		)
 		if (
-			definition == null or definition.scene_variants.is_empty()
-			or not _has_recipient(definition)
+			definition == null or not _has_recipient(definition)
 		):
 			continue
-		batch.package_keys.append(String(definition.key))
 		var package_id: String = "%s:%s" % [receiving.batch_id, definition.key]
-		batch.package_scenes.append(
-			PackageSceneRules.variant_for(
+		var ordered_item: DEF_InventoryItem = _order_item(supply, definition, package_id, day_index)
+		var shipment: PackageShipmentPlan = null
+		var scene_path: String = ""
+		if ordered_item != null:
+			shipment = PackageShipmentRules.choose(
+				ordered_item, supply.packing_profiles, GameTimeQueries.current().world_seed,
+				package_id, day_index,
+			)
+			if shipment == null:
+				continue
+			scene_path = shipment.scene_path()
+		else:
+			if definition.scene_variants.is_empty():
+				continue
+			scene_path = PackageSceneRules.variant_for(
 				definition,
 				package_id,
 				day_index,
 				GameTimeQueries.current().world_seed,
 			)
-		)
-		var ordered_item: DEF_InventoryItem = _order_item(supply, definition, package_id, day_index)
+		batch.package_keys.append(String(definition.key))
+		batch.package_scenes.append(scene_path)
 		batch.order_item_paths.append(ordered_item.resource_path if ordered_item != null else "")
+		batch.order_quantities.append(shipment.quantity() if shipment != null else 0)
+		batch.order_packing_paths.append(
+			shipment.packing().resource_path if shipment != null else ""
+		)
 		receiving.incoming_package_ids.append("%s:%s" % [receiving.batch_id, definition.key])
 		if batch.package_keys.size() >= limit:
 			break
@@ -183,6 +198,11 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 	var package_scene: String = ""
 	if batch.next_package < batch.package_scenes.size():
 		package_scene = batch.package_scenes[batch.next_package]
+	var shipment: PackageShipmentPlan = _retained_shipment(batch)
+	if not batch.order_item_paths[batch.next_package].is_empty() and shipment == null:
+		receiving.blocked = true
+		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
+		return
 	var parcel: E_Package = ReceivingPackageFactory.create(
 		zone,
 		definition,
@@ -190,6 +210,7 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 		batch.day_index,
 		batch.next_package,
 		package_scene,
+		shipment,
 	)
 	if parcel == null:
 		receiving.blocked = true
@@ -200,15 +221,8 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 		&"delivery_day": batch.day_index,
 		&"supply_key": zone.supply.key,
 	}
-	var item_path: String = batch.order_item_paths[batch.next_package]
-	if not item_path.is_empty():
-		var ordered_item: DEF_InventoryItem = load(item_path) as DEF_InventoryItem
-		if definition.unpack_scene == null or not PackageOrderRules.is_orderable(ordered_item):
-			parcel.free()
-			receiving.blocked = true
-			receiving.retry_remaining = BLOCKED_RETRY_SECONDS
-			return
-		initial_fields[C_PackageContents as Script] = { &"selected_item": ordered_item }
+	if shipment != null:
+		initial_fields[C_PackageContents as Script] = shipment.contents_fields()
 	if not ReceivingPackageFactory.try_place(zone, parcel, initial_fields):
 		parcel.free()
 		receiving.blocked = true
@@ -245,6 +259,31 @@ static func reset_context(receiving: C_Receiving) -> void:
 	receiving.last_spawn_tick = -1
 	receiving.reservation_frame = -1
 	receiving.reservations.clear()
+
+
+## Rehydrates committed values only; catalog/preferences and decision RNG are not consulted.
+static func _retained_shipment(batch: ReceivingBatch) -> PackageShipmentPlan:
+	var index: int = batch.next_package
+	var item_path: String = batch.order_item_paths[index]
+	if item_path.is_empty():
+		return null
+	var packing_path: String = batch.order_packing_paths[index]
+	if (
+		not GameplayResourcePaths.is_definition_path(item_path)
+		or not GameplayResourcePaths.is_definition_path(packing_path)
+		or not ResourceLoader.exists(item_path) or not ResourceLoader.exists(packing_path)
+	):
+		return null
+	var item: DEF_InventoryItem = load(item_path) as DEF_InventoryItem
+	var packing: DEF_PackagePacking = load(packing_path) as DEF_PackagePacking
+	var quantity: int = batch.order_quantities[index]
+	var path: String = batch.package_scenes[index]
+	if (
+		not PackageOrderRules.is_orderable(item)
+		or not PackageShipmentRules.valid(item, quantity, packing, path)
+	):
+		return null
+	return PackageShipmentPlan.new(item, quantity, packing, path)
 
 
 static func _advance(receiving: C_Receiving, batch: ReceivingBatch) -> void:

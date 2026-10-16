@@ -38,6 +38,15 @@ func scene_path() -> String:
 	return _scene_path
 
 
+## Detached values for the existing compiler's C_PackageContents initial-field boundary.
+func contents_fields() -> Dictionary:
+	return {
+		&"selected_item": _item,
+		&"quantity": _quantity,
+		&"packing_profile": _packing,
+	}
+
+
 ## Captured shell mass in kilograms, for the eventual empty-body transition.
 func empty_mass_kg() -> float:
 	return _empty_mass_kg

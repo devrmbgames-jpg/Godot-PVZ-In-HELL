@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_ItemCargo" format=3 uid="uid://btosl775gob43"]
+
+[ext_resource type="Script" uid="uid://bdd3ktsailqdk" path="res://content/domains/inventory/definitions/def_item_cargo.gd" id="1_oqk44"]
+
+[resource]
+script = ExtResource("1_oqk44")
+unit_mass_kg = 0.5
+unit_size_m = Vector3(0.45, 0.12, 0.35)
+maximum_shipment_quantity = 4
+key = &"work_clothes"

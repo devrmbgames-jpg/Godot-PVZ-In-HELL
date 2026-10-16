@@ -15,5 +15,5 @@ required_components = Array[Script]([ExtResource("5_sto5l"), ExtResource("6_sj6j
 required_root_class = &"RigidBody3D"
 initial_field_names = Dictionary[Script, PackedStringArray]({
 ExtResource("5_sto5l"): PackedStringArray("delivery_day", "supply_key"),
-ExtResource("4_a8cgk"): PackedStringArray("selected_item")
+ExtResource("4_a8cgk"): PackedStringArray("selected_item", "quantity", "packing_profile")
 })

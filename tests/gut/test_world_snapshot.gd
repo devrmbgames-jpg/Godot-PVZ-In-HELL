@@ -916,6 +916,8 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 	batch.package_keys = ["fixture_package"]
 	batch.package_scenes = ["res://content/domains/packages/entities/package.tscn"]
 	batch.order_item_paths = [""]
+	batch.order_quantities = [0]
+	batch.order_packing_paths = [""]
 	receiving.pending.append(batch)
 	_session.add_component(receiving)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
@@ -962,6 +964,9 @@ func test_catalog_order_roundtrip_restores_live_contents_and_history_after_fresh
 		return
 	var contents: C_PackageContents = restored.get_component(C_PackageContents) as C_PackageContents
 	assert_same(contents.selected_item, selected)
+	assert_eq(contents.quantity, 1)
+	assert_has(contents.packing_profile.scene_variants, restored.scene_file_path)
+	assert_eq((restored as Node as RigidBody3D).mass, PackageContentsService.full_mass_kg(restored))
 	var arrival: PackageRegistrationRecord = PackageHistoryService.record_for(
 		"fixture/catalog_order"
 	)
@@ -1024,6 +1029,10 @@ func test_catalog_order_rejects_missing_and_invalid_payload_before_live_mutation
 		"missing_item",
 		"wrong_definition",
 		"archive_mismatch",
+		"zero_quantity",
+		"excess_quantity",
+		"missing_packing",
+		"wrong_scene",
 	]:
 		var invalid: Dictionary = snapshot.duplicate(true)
 		for record: Dictionary in invalid.entities:
@@ -1038,6 +1047,14 @@ func test_catalog_order_rejects_missing_and_invalid_payload_before_live_mutation
 						data.fields.selected_item = SaveDataCodec.encode(load(ORDER_SUPPLY_PATH))
 					elif fault == "archive_mismatch":
 						data.fields.selected_item = null
+					elif fault == "zero_quantity":
+						data.fields.quantity = 0
+					elif fault == "excess_quantity":
+						data.fields.quantity = PackagePackingRules.MAX_QUANTITY + 1
+					elif fault == "missing_packing":
+						data.fields.packing_profile = null
+					elif fault == "wrong_scene":
+						record.scene = _PACKAGE_SCENE_PATH
 		assert_false(WorldSnapshotService.restore(invalid, _root), fault)
 		assert_same(
 			(parcel.get_component(C_PackageContents) as C_PackageContents).selected_item,
@@ -1104,7 +1121,7 @@ func test_consumed_catalog_payload_restore_cannot_release_or_rupture_again() -> 
 	var condition: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DAMAGED
 	condition.leaking = true
-	var empty_mass: float = parcel.package_definition.empty_mass_kg
+	var empty_mass: float = PackageContentsService.empty_mass_kg(parcel)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_true(PackageContentsService.is_empty(parcel))
@@ -1118,20 +1135,23 @@ func test_consumed_catalog_payload_restore_cannot_release_or_rupture_again() -> 
 	assert_true(PackageContentsService.release(restored).is_empty())
 	PackageLifecycle.publish(restored, PackageLifecycleEvent.Kind.DAMAGED, _actor)
 	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 0)
-	assert_eq((restored as Node as RigidBody3D).mass, empty_mass)
+	assert_almost_eq((restored as Node as RigidBody3D).mass, empty_mass, 0.0001)
 
 
 func _ordered_package(item_path: String = ORDER_ITEM_PATH, source_index: int = 0) -> E_Package:
-	var parcel: E_Package = (load(_PACKAGE_SCENE_PATH) as PackedScene).instantiate() as E_Package
 	var supply: DEF_Delivery = load(ORDER_SUPPLY_PATH) as DEF_Delivery
+	var selected: DEF_InventoryItem = load(item_path) as DEF_InventoryItem
+	var shipment: PackageShipmentPlan = PackageShipmentRules.for_quantity(
+		selected, 1, supply.packing_profiles, 1, "fixture/catalog_order", 1,
+	)
+	var parcel: E_Package = (load(shipment.scene_path()) as PackedScene).instantiate() as E_Package
 	parcel.package_definition = supply.packages[source_index]
 	parcel.package_id = "fixture/catalog_order"
+	(parcel as Node as RigidBody3D).mass = shipment.gross_mass_kg()
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		parcel, _world, GECSIO.uuid()
 	)
-	context.initial_fields[C_PackageContents as Script] = {
-		&"selected_item": load(item_path) as DEF_InventoryItem,
-	}
+	context.initial_fields[C_PackageContents as Script] = shipment.contents_fields()
 	assert_true(EntityCompositionService.try_register(context))
 	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
 	return parcel

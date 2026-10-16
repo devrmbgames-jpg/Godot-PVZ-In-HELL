@@ -4,6 +4,22 @@ class_name PackageShipmentRules
 
 
 #region Quantity and shell decisions
+## Validates committed catalog data and the exact native scene without rerolling a decision.
+## An empty item/count/packing triple explicitly denotes non-catalog authored contents.
+static func valid(
+	item: DEF_InventoryItem,
+	quantity: int,
+	packing: DEF_PackagePacking,
+	scene_path: String,
+) -> bool:
+	if item == null:
+		return quantity == 0 and packing == null
+	return (
+		PackagePackingRules.accepts(packing, item.cargo_profile, quantity)
+		and scene_path in packing.scene_variants
+	)
+
+
 ## Selects uniformly among feasible quantities for an already chosen item, then packs that count.
 ## Unsupported gaps are excluded; this operation never substitutes a different catalog item.
 static func choose(

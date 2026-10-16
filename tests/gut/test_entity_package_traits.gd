@@ -5,6 +5,12 @@ const _PACKAGE: PackedScene = preload("res://content/domains/packages/entities/p
 const _TEMPLATE: DEF_EntityTemplate = preload(
 	"res://content/domains/packages/definitions/def_entity_package.tres"
 )
+const _SUPPLY: DEF_Delivery = preload(
+	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
+)
+const _BLOOD_ITEM: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_blood_flask.tres"
+)
 
 
 #region Profile-derived package capabilities
@@ -105,8 +111,16 @@ func test_authored_contents_and_production_trait_conflict_is_not_silently_overri
 func test_native_package_registration_publishes_complete_profile_without_default_observer() -> void:
 	var world: World = World.new()
 	add_child(world)
-	var parcel: E_Package = _PACKAGE.instantiate() as E_Package
-	var definition: DEF_Package = parcel.package_definition.duplicate() as DEF_Package
+	var ordered_item: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_axe.tres"
+	) as DEF_InventoryItem
+	var shipment: PackageShipmentPlan = PackageShipmentRules.for_quantity(
+		ordered_item, 1, _SUPPLY.packing_profiles, 1, "fixture/package/native", 1,
+	)
+	var parcel: E_Package = (load(shipment.scene_path()) as PackedScene).instantiate() as E_Package
+	var source: E_Package = _PACKAGE.instantiate() as E_Package
+	var definition: DEF_Package = source.package_definition.duplicate() as DEF_Package
+	source.free()
 	definition.maximum_health = 73.0
 	definition.throw_velocity = 5.5
 	definition.tags |= DEF_Package.Tag.LIQUID
@@ -118,9 +132,6 @@ func test_native_package_registration_publishes_complete_profile_without_default
 	var published_throw: Array[float] = []
 	var published_supply: Array[StringName] = []
 	var published_item: Array[DEF_InventoryItem] = []
-	var ordered_item: DEF_InventoryItem = load(
-		"res://content/domains/inventory/definitions/def_item_axe.tres"
-	) as DEF_InventoryItem
 	parcel.component_added.connect(
 		func(_actor: Entity, component: Component) -> void:
 			delivered.append(component.get_script() as Script),
@@ -145,7 +156,7 @@ func test_native_package_registration_publishes_complete_profile_without_default
 		&"delivery_day": 11,
 		&"supply_key": &"fixture_supply",
 	}
-	context.initial_fields[C_PackageContents as Script] = { &"selected_item": ordered_item }
+	context.initial_fields[C_PackageContents as Script] = shipment.contents_fields()
 	assert_true(EntityCompositionService.try_register(context))
 	assert_eq(world.entities.size(), 1)
 	assert_eq(published_health, [73.0])
@@ -169,9 +180,7 @@ func test_native_package_registration_publishes_complete_profile_without_default
 #region Pure compilation fixture
 ## A liquid catalog order uses its own physical tuning even when the old shell had dry contents.
 func test_selected_liquid_uses_cargo_tilt_tuning_without_mutating_shared_definitions() -> void:
-	var source: DEF_InventoryItem = load(
-		"res://content/domains/inventory/definitions/def_item_blood_flask.tres"
-	) as DEF_InventoryItem
+	var source: DEF_InventoryItem = _BLOOD_ITEM
 	var item: DEF_InventoryItem = source.duplicate() as DEF_InventoryItem
 	item.cargo_profile = source.cargo_profile.duplicate() as DEF_ItemCargo
 	item.cargo_profile.liquid_maximum_angle_degrees = 15.0
@@ -181,7 +190,9 @@ func test_selected_liquid_uses_cargo_tilt_tuning_without_mutating_shared_definit
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		parcel, null, "fixture/package/liquid_cargo"
 	)
-	context.initial_fields[C_PackageContents as Script] = { &"selected_item": item }
+	context.initial_fields[C_PackageContents as Script] = {
+		&"selected_item": item, &"quantity": 1, &"packing_profile": _SUPPLY.packing_profiles[2],
+	}
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 	assert_true(plan.valid())
 	var tilt: C_LiquidTilt = _recipe(plan.component_recipes, C_LiquidTilt) as C_LiquidTilt
@@ -208,6 +219,24 @@ func test_invalid_cargo_tilt_tuning_rejects_before_component_installation() -> v
 	assert_false(plan.valid())
 	assert_true(parcel.components.is_empty())
 	assert_eq(parcel.id, "")
+
+
+## Missing or incompatible planned fields reject before installing any live package state.
+func test_catalog_quantity_and_native_shell_are_required_before_publication() -> void:
+	var item: DEF_InventoryItem = _BLOOD_ITEM
+	for fields: Dictionary in [
+		{ &"selected_item": item },
+		{ &"selected_item": item, &"quantity": 0, &"packing_profile": _SUPPLY.packing_profiles[2] },
+		{ &"selected_item": item, &"quantity": 1, &"packing_profile": _SUPPLY.packing_profiles[0] },
+	]:
+		var parcel: E_Package = autofree(_PACKAGE.instantiate()) as E_Package
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			parcel, null, "fixture/package/incomplete_shipment",
+		)
+		context.initial_fields[C_PackageContents as Script] = fields
+		assert_false(EntityCompositionService.build_plan(context).valid())
+		assert_true(parcel.components.is_empty())
+		assert_eq(parcel.id, "")
 
 
 func _compile(parcel: E_Package) -> EntityBuildPlan:

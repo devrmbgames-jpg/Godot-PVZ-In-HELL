@@ -34,6 +34,8 @@ The file consists of a `PVZH1` line, a SHA-256 hexadecimal digest line, then the
 
 Changes to persisted identity, type/resource paths, field shape or interpretation bump the supported schema and update guards and current-format fixtures together. Ownership changes can retain the version only when serialized identity, paths, shape and meaning stay identical. No legacy converter or identity aliases are required. Unsupported files are preserved.
 
+Schema 20 adds frozen catalog quantity and packing to `C_PackageContents` and parallel quantity/packing paths to `ReceivingBatch`. Preflight validates their complete shape, capacity and native scene before changing the World. Fresh compilation receives that composition before publication; fresh and reused bodies restore full or empty mass from the chosen packing and actual payload. Schema 19 is unsupported and remains protected from automatic replacement after rejection. This change retains the PVZH1 storage envelope; it does not convert earlier inconsistent boxes or rewrite archived arrival facts.
+
 ## Refactoring v2 identity contract
 
 This heading retains incoming historical links; the rules below describe the implemented runtime.

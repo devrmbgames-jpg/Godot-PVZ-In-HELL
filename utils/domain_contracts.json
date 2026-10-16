@@ -15585,6 +15585,8 @@
       ],
       "public_methods": [
         "is_empty",
+        "full_mass_kg",
+        "empty_mass_kg",
         "restore_liquid_capability"
       ],
       "sources": [
@@ -15592,6 +15594,8 @@
       ],
       "method_rights": {
         "is_empty": "query",
+        "full_mass_kg": "query",
+        "empty_mass_kg": "query",
         "restore_liquid_capability": "request"
       },
       "public_instance_methods": []
@@ -19918,6 +19922,59 @@
       ],
       "purpose": "Reads immutable unit mass, phase, hazards and packing envelope; no inventory or live payload writes.",
       "method_rights": {}
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "packages",
+      "symbol": "PackageShipmentRules",
+      "path": "content/domains/packages/rules/package_shipment_rules.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "valid"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "valid": "query"
+      },
+      "sources": [
+        "content/domains/persistence/rules/receiving_snapshot_rules.gd",
+        "content/domains/persistence/rules/package_order_snapshot_rules.gd"
+      ],
+      "purpose": "Validates frozen quantity, packing capacity and native scene before World mutation; never chooses or rerolls."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "packages",
+      "symbol": "DEF_PackagePacking",
+      "path": "content/domains/packages/definitions/def_package_packing.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/receiving_snapshot_rules.gd"
+      ],
+      "purpose": "Reads the immutable retained packing profile during offline recipe preflight."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "packages",
+      "symbol": "PackageShipmentPlan",
+      "path": "content/domains/packages/contracts/package_shipment_plan.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/services/world_snapshot_service.gd"
+      ],
+      "purpose": "Detached reconstruction of an already validated saved composition before native package compilation."
     }
   ],
   "legacy_decomposition": []

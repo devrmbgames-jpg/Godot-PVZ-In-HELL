@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://dj2ypo2l583ac"]
 
+[ext_resource type="Resource" uid="uid://btosl775gob43" path="res://content/domains/inventory/definitions/def_cargo_work_clothes.tres" id="1_4i0mm"]
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_ftjj7"]
 
 [resource]
@@ -7,6 +8,7 @@ script = ExtResource("1_ftjj7")
 categories = 2
 display_name = "Рабочая одежда"
 world_pickup_scene = "res://content/domains/interaction/entities/cloth_sample.tscn"
+cargo_profile = ExtResource("1_4i0mm")
 kind = 5
 maximum_stack = 1
 key = &"work_clothes"

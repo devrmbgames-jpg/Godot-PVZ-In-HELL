@@ -262,6 +262,28 @@ func test_authored_upper_slot_stacks_on_real_box() -> void:
 
 
 #region Постоянный состав и история
+## Planned catalog geometry comes entirely from packing, including recipes without legacy variants.
+func test_planned_factory_uses_packing_without_a_legacy_scene_whitelist() -> void:
+	var item: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_scythe.tres"
+	) as DEF_InventoryItem
+	var shipment: PackageShipmentPlan = PackageShipmentRules.for_quantity(
+		item, 1, _zone.supply.packing_profiles, 1, "fixture/native_packing", 1,
+	)
+	var definition: DEF_Package = _zone.supply.packages[0].duplicate() as DEF_Package
+	definition.scene_variants = []
+	var parcel: E_Package = ReceivingPackageFactory.create(
+		_zone, definition, "fixture/native_packing", 1, 0, shipment.scene_path(), shipment,
+	)
+	assert_not_null(parcel)
+	if parcel == null:
+		return
+	assert_eq(parcel.scene_file_path, shipment.scene_path())
+	assert_eq((parcel as Node as RigidBody3D).mass, shipment.gross_mass_kg())
+	assert_true(parcel.components.is_empty(), "Factory returns a detached unregistered body")
+	parcel.free()
+
+
 ## Blocked truck delivery retains selected contents through restore and catalog changes.
 func test_catalog_order_retries_restore_one_real_parcel_with_the_committed_contents() -> void:
 	var session: Entity = _world.query.with_all([C_DayCycle]).execute_one()
@@ -321,6 +343,11 @@ func test_catalog_order_retries_restore_one_real_parcel_with_the_committed_conte
 		(parcel.get_component(C_PackageContents) as C_PackageContents).selected_item,
 		chosen,
 	)
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	assert_eq(contents.quantity, 1)
+	assert_has(contents.packing_profile.scene_variants, parcel.scene_file_path)
+	assert_eq((parcel as Node as RigidBody3D).mass, PackageContentsService.full_mass_kg(parcel))
+	assert_eq((parcel as Node as RigidBody3D).mass, contents.packing_profile.empty_mass_kg + 2.0)
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
 	assert_eq(identity.package_id, "base_supply:1:books")
 	assert_eq(identity.delivery_day, 1)

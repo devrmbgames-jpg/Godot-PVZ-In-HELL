@@ -7,6 +7,15 @@ class_name DEF_Delivery
 @export var packages: Array[DEF_Package] = []
 ## Immutable orderable item catalog; recipient category weights select once per prepared parcel.
 @export var order_catalog: Array[DEF_InventoryItem] = []
+## Native packing catalog for ordinary supply and isolated NPC rooms; never mutated at runtime.
+@export var packing_profiles: Array[DEF_PackagePacking] = [
+	preload("res://content/domains/packages/definitions/def_packing_small_a.tres"),
+	preload("res://content/domains/packages/definitions/def_packing_small_b.tres"),
+	preload("res://content/domains/packages/definitions/def_packing_medium.tres"),
+	preload("res://content/domains/packages/definitions/def_packing_large.tres"),
+	preload("res://content/domains/packages/definitions/def_packing_barrel.tres"),
+	preload("res://content/domains/packages/definitions/def_packing_long.tres"),
+]
 ## Максимальное количество новых коробок за одну утреннюю поставку.
 @export_range(1, 50) var maximum_batch_packages: int = 5
 ## Лимит коробок, за которыми ещё должен прийти живой получатель.

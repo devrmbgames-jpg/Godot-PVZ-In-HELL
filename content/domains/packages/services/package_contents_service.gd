@@ -24,6 +24,27 @@ static func has_catalog_order(package: Entity) -> bool:
 	return contents != null and contents.selected_item != null
 
 
+## Full payload plus shell mass in kilograms, read from the committed composition.
+static func full_mass_kg(package: Entity) -> float:
+	var identity: C_Package = package.get_component(C_Package) as C_Package
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	if contents == null or contents.selected_item == null:
+		return identity.definition.mass_kg
+	return (
+		contents.packing_profile.empty_mass_kg
+		+ contents.selected_item.cargo_profile.unit_mass_kg * contents.quantity
+	)
+
+
+## Shell-only mass in kilograms; consuming contents never restores an unrelated legacy shell mass.
+static func empty_mass_kg(package: Entity) -> float:
+	var identity: C_Package = package.get_component(C_Package) as C_Package
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	if contents == null or contents.selected_item == null:
+		return identity.definition.empty_mass_kg
+	return contents.packing_profile.empty_mass_kg
+
+
 ## Requires a package identity; reads the payload phase without treating all catalog items as solid.
 static func is_liquid(package: Entity) -> bool:
 	var identity: C_Package = package.get_component(C_Package) as C_Package
@@ -42,10 +63,9 @@ static func consume_catalog_rupture(package: Entity) -> PackedScene:
 	var scene: PackedScene = contents.selected_item.cargo_profile.rupture_hazard
 	if scene == null:
 		return null
-	var identity: C_Package = package.get_component(C_Package) as C_Package
 	var body: RigidBody3D = package as Node as RigidBody3D
 	contents.released = true
-	body.mass = identity.definition.empty_mass_kg
+	body.mass = empty_mass_kg(package)
 	GrabService.refresh_carry_mass(package)
 	return scene
 
@@ -103,20 +123,21 @@ static func release(
 
 	var definition: DEF_Package = identity.definition
 	var content_scene: PackedScene = definition.unpack_scene
+	var quantity: int = definition.content_quantity
 	if state.selected_item != null:
 		if not PackageOrderRules.is_orderable(state.selected_item):
 			return []
 		content_scene = load(state.selected_item.world_pickup_scene) as PackedScene
+		quantity = state.quantity
 	if (
-		content_scene == null or definition.content_quantity < 1
-		or definition.content_quantity > DEF_Package.MAX_CONTENT_QUANTITY
+		content_scene == null or quantity < 1 or quantity > DEF_Package.MAX_CONTENT_QUANTITY
 	):
 		return []
 	var queue: C_LootDrops = LootDropService.current()
 	if queue == null:
 		return []
 	var scenes: Array[PackedScene] = []
-	for index: int in definition.content_quantity:
+	for index: int in quantity:
 		scenes.append(content_scene)
 	var items: Array[Entity] = LootDropService.prepare(scenes)
 	if items.is_empty():
@@ -143,7 +164,7 @@ static func release(
 	# Guard и состав фиксируются до регистрации тел; повтор события не создаёт вторую партию.
 	state.released = true
 	condition.leaking = false
-	body.mass = definition.empty_mass_kg
+	body.mass = empty_mass_kg(package)
 	GrabService.refresh_carry_mass(package)
 	return (
 		LootDropService.enqueue(

@@ -10,6 +10,8 @@ const SAVE_FIELDS: Array[String] = [
 	"package_keys",
 	"package_scenes",
 	"order_item_paths",
+	"order_quantities",
+	"order_packing_paths",
 ]
 
 enum Source {
@@ -29,3 +31,7 @@ enum Source {
 @export var package_scenes: PackedStringArray = []
 ## Parallel committed item-definition paths; an empty entry explicitly retains legacy contents.
 @export var order_item_paths: PackedStringArray = []
+## Parallel frozen unit counts; zero explicitly retains non-catalog authored contents.
+@export var order_quantities: PackedInt32Array = []
+## Parallel immutable packing paths; empty only for non-catalog authored contents.
+@export var order_packing_paths: PackedStringArray = []

@@ -111,6 +111,8 @@ func before_each() -> void:
 	batch.package_keys = [String(supply.packages[0].key)]
 	batch.package_scenes = [String(supply.packages[0].scene_variants[0])]
 	batch.order_item_paths = [""]
+	batch.order_quantities = [0]
+	batch.order_packing_paths = [""]
 	(session.get_component(C_Receiving) as C_Receiving).pending.append(batch)
 	var receiving: C_Receiving = session.get_component(C_Receiving) as C_Receiving
 	receiving.last_started_day = MORNING_DAY

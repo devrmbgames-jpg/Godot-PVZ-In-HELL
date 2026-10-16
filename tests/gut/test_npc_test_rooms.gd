@@ -88,10 +88,18 @@ func test_real_shift_and_sleep_reach_next_morning_without_save_slot() -> void:
 				var body: RigidBody3D = today[index] as Node as RigidBody3D
 				body.freeze = true
 				body.global_position = Vector3(0, 1, 6 + index * 2)
+				var identity: C_Package = today[index].get_component(C_Package) as C_Package
+				assert_true(CustomerFlowService.declare(
+					StringName("visit/" + identity.package_id), CustomerVisit.Declaration.LOST,
+				))
 			await get_tree().physics_frame
 			if not await _room_transition(DayTransitionRequest.Kind.START_SHIFT):
 				return
 			assert_eq(cycle.phase, C_DayCycle.Phase.DAY, String(key))
+			# Complete appearances through their owner for this isolated calendar fixture.
+			for visit: CustomerVisit in CustomerFlowQueries.current().visits.duplicate():
+				if CustomerFlowQueries.visit_due(visit, day):
+					CustomerVisitLifecycle.finish(visit, day)
 			if not await _room_transition(DayTransitionRequest.Kind.FINISH_SHIFT):
 				return
 			assert_eq(cycle.phase, C_DayCycle.Phase.EVENING, String(key))
@@ -138,6 +146,9 @@ func test_room_orders_follow_resident_preferences() -> void:
 			assert_eq(receiving.pending.size(), 1, String(key))
 			var orders: PackedStringArray = receiving.pending[0].order_item_paths
 			assert_eq(orders.size(), 2, "%s day%d" % [key, day])
+			assert_true(
+				ReceivingSnapshotRules.valid(receiving, zone), "%s day%d packing" % [key, day],
+			)
 			if day == 1:
 				first_orders = orders.duplicate()
 			for item_path: String in orders:
@@ -240,15 +251,19 @@ func test_three_daily_native_supplies_assign_both_registered_cases_to_the_only_r
 					var condition: C_PackageState = parcel.get_component(C_PackageState)
 					condition.opening = C_PackageState.Opening.OPENED
 					var released: Array[Entity] = PackageContentsService.release(parcel)
-					assert_eq(released.size(), 1, "%s: physical unpacking" % key)
-					if released.size() == 1:
+					assert_eq(
+						released.size() + LootDropService.current().pending.size(),
+						contents.quantity,
+						"%s: actual physical quantity" % key,
+					)
+					for item: Entity in released:
 						assert_eq(
-							released[0].scene_file_path, contents.selected_item.world_pickup_scene,
+							item.scene_file_path, contents.selected_item.world_pickup_scene,
 						)
-						var inventory: C_InventoryItem = released[0].get_component(C_InventoryItem)
+						var inventory: C_InventoryItem = item.get_component(C_InventoryItem)
 						assert_same(inventory.definition, contents.selected_item)
 				var receipt: PackageScanResult = PackageRegistrationService.register_package(parcel)
-				assert_eq(receipt.outcome, PackageScanResult.Outcome.REGISTERED)
+				assert_eq(receipt.outcome, PackageScanResult.Outcome.ALREADY_REGISTERED)
 				var visit: CustomerVisit = CustomerFlowQueries.find_visit(
 					StringName("visit/" + identity.package_id)
 				)
@@ -258,6 +273,10 @@ func test_three_daily_native_supplies_assign_both_registered_cases_to_the_only_r
 				assert_eq(visit.customer_id, district.people[0].npc_id)
 				assert_eq(visit.arrival_day, day)
 				assert_true(CustomerFlowQueries.arrival_allowed(visit))
+				# Unload the real box to storage before the next day's physical receiving test.
+				var stored_body: RigidBody3D = parcel as Node as RigidBody3D
+				stored_body.freeze = true
+				stored_body.global_position = Vector3(6 + (todays - 1) * 3, 1, 4 + day * 3)
 			assert_eq(todays, 2, "%s day%d: both cases available for the same NPC" % [key, day])
 			assert_eq(world.query.with_all([C_NpcIdentity]).execute().size(), 1)
 		root.free()

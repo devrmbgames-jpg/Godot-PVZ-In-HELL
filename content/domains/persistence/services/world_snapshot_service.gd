@@ -350,7 +350,7 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 		and RawPhysicsSnapshot.valid_receipts(snapshot.raw_actors as Array, all_components)
 		and DistrictSnapshotRules.valid(records, all_components, int(snapshot.morning_day))
 		and LootSnapshotRules.valid(records, all_components)
-		and PackageOrderSnapshotRules.valid(all_components)
+		and PackageOrderSnapshotRules.valid(all_components, records)
 	)
 
 
@@ -580,14 +580,11 @@ static func restore(
 			body.linear_velocity = Vector3.ZERO
 			body.angular_velocity = Vector3.ZERO
 			if entity is E_Package:
-				var definition: DEF_Package = (
-					(entity.get_component(C_Package) as C_Package).definition
-				)
 				var restored_mass: float = 0.0
 				if PackageContentsService.is_empty(entity):
-					restored_mass = definition.empty_mass_kg
+					restored_mass = PackageContentsService.empty_mass_kg(entity)
 				else:
-					restored_mass = definition.mass_kg
+					restored_mass = PackageContentsService.full_mass_kg(entity)
 				body.mass = restored_mass
 				PackageContentsService.restore_liquid_capability(entity)
 
@@ -861,6 +858,22 @@ static func _prepare_fresh_recipes(
 
 		# Configure only detached instances. A failed recipe cannot affect the live registry/state.
 		if entity is E_Package:
+			var shipment: PackageShipmentPlan = null
+			var contents_released: bool = false
+			for saved: Dictionary in record.components:
+				if SaveDataCodec.component_script(String(saved.type)) != C_PackageContents:
+					continue
+				var fields: Dictionary = saved.fields as Dictionary
+				contents_released = bool(fields.released)
+				var selected: DEF_InventoryItem = SaveDataCodec.decode(
+					fields.selected_item
+				) as DEF_InventoryItem
+				if selected != null:
+					shipment = PackageShipmentPlan.new(
+						selected, int(fields.quantity),
+						SaveDataCodec.decode(fields.packing_profile) as DEF_PackagePacking,
+						String(record.scene),
+					)
 			for saved: Dictionary in record.components:
 				if SaveDataCodec.component_script(String(saved.type)) == C_Package:
 					var definition: DEF_Package = SaveDataCodec.decode(
@@ -870,6 +883,8 @@ static func _prepare_fresh_recipes(
 						entity as E_Package,
 						definition,
 						String((saved.fields as Dictionary).package_id),
+						shipment,
+						contents_released,
 					):
 						return false
 		var context: EntitySpawnContext = EntityCompositionService.context_for(
@@ -886,6 +901,10 @@ static func _prepare_fresh_recipes(
 					)
 					context.initial_fields[C_PackageContents as Script] = {
 						&"selected_item": selected,
+						&"quantity": int((saved.fields as Dictionary).quantity),
+						&"packing_profile": SaveDataCodec.decode(
+							(saved.fields as Dictionary).packing_profile
+						),
 					}
 		if entity is E_DistrictNpc:
 			var saved_id: StringName = &""

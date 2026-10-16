@@ -123,7 +123,7 @@ func test_all_live_archetypes_restore_as_native_bodies_without_reroll_or_health_
 		)
 		(body.get_component(C_NpcRoute) as C_NpcRoute).refuge_direction_offset = 7
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
-	assert_eq(snapshot.version, 19)
+	assert_eq(snapshot.version, AutosaveStore.SCHEMA_VERSION)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
 	for npc_id: StringName in identities:
 		_world.remove_entity(NpcPopulationQueries.body_for(npc_id))
@@ -160,7 +160,7 @@ func test_previous_schema_rejects_before_live_roster_mutation() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
-	snapshot.version = 18
+	snapshot.version = AutosaveStore.SCHEMA_VERSION - 1
 	assert_false(WorldSnapshotService.can_restore(snapshot, _root))
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_same(NpcPopulationQueries.person_for(person.npc_id), person)

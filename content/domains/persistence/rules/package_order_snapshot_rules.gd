@@ -6,7 +6,9 @@ class_name PackageOrderSnapshotRules
 #region Committed order preflight
 ## Selected items require contents capability and must agree with existing ledger projections.
 ## Reads already decoded snapshot Components; neither reconstructs parcels nor commits fulfillment.
-static func valid(components: Dictionary[String, Dictionary]) -> bool:
+static func valid(
+	components: Dictionary[String, Dictionary], records: Dictionary[String, Dictionary],
+) -> bool:
 	var arrivals: Dictionary[String, PackageRegistrationRecord] = { }
 	for key: String in components:
 		var types: Dictionary = components[key]
@@ -31,6 +33,11 @@ static func valid(components: Dictionary[String, Dictionary]) -> bool:
 			return false
 		var contents: C_PackageContents = types[C_PackageContents] as C_PackageContents
 		var package: C_Package = types[C_Package] as C_Package
+		if not PackageShipmentRules.valid(
+			contents.selected_item, contents.quantity, contents.packing_profile,
+			String(records[key].scene),
+		):
+			return false
 		if contents.selected_item != null:
 			if (
 				package.definition.unpack_scene == null

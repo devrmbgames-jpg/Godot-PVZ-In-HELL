@@ -256,12 +256,11 @@ func test_selected_catalog_weapon_releases_real_contents_without_legacy_bottle_h
 	_world.add_observer(O_PackageDestruction.new())
 	_world.add_observer(O_PackageDestroyedHazard.new())
 	_world.add_system(S_LiquidTilt.new())
-	var parcel: E_Package = _catalog_package(_supply_definition(&"bottles"))
 	var selected: DEF_InventoryItem = load(
 		"res://content/domains/inventory/definitions/def_item_axe.tres"
 	) as DEF_InventoryItem
+	var parcel: E_Package = _catalog_package(_supply_definition(&"bottles"), selected)
 	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
-	contents.selected_item = selected
 	(parcel as Node as Node3D).rotation.z = PI / 2.0
 	_world.process(30.0)
 	assert_false((parcel.get_component(C_PackageState) as C_PackageState).leaking)
@@ -356,7 +355,9 @@ func test_one_catalog_payload_cannot_rupture_again_on_destruction_after_damage()
 	assert_true(DamageRequestService.submit(request))
 	assert_eq(_world.query.with_all([C_Hazard]).execute().size(), 1)
 	assert_true(contents.released, "The native rupture consumes this payload before callbacks")
-	assert_eq((parcel as Node as RigidBody3D).mass, parcel.package_definition.empty_mass_kg)
+	assert_almost_eq(
+		(parcel as Node as RigidBody3D).mass, PackageContentsService.empty_mass_kg(parcel), 0.0001,
+	)
 	request = DamageRequest.new()
 	request.target = parcel
 	request.source = _actor
@@ -412,13 +413,43 @@ func test_catalog_liquid_opening_does_not_rupture_its_intact_native_item() -> vo
 	assert_eq(effects[0].scene_file_path, blood.cargo_profile.rupture_hazard.resource_path)
 
 
+## Real bulk emits exactly the committed unit count, even when the old recipe specified one.
+func test_catalog_bulk_releases_committed_quantity_and_keeps_empty_packing_mass() -> void:
+	var toy: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_toy_block.tres"
+	) as DEF_InventoryItem
+	var parcel: E_Package = _catalog_package(_supply_definition(&"books"), toy, 8)
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	assert_eq(contents.quantity, 8)
+	assert_eq(contents.packing_profile.key, &"large")
+	assert_almost_eq((parcel as Node as RigidBody3D).mass, 6.0, 0.0001)
+	var items: Array[Entity] = PackageContentsService.release(parcel, _actor)
+	var queue: C_LootDrops = LootDropService.current()
+	assert_eq(items.size() + queue.pending.size(), 8)
+	for item: Entity in items:
+		assert_same((item.get_component(C_InventoryItem) as C_InventoryItem).definition, toy)
+	assert_almost_eq((parcel as Node as RigidBody3D).mass, 2.0, 0.0001)
+	assert_true(PackageContentsService.release(parcel, _actor).is_empty())
+	assert_eq(items.size() + queue.pending.size(), 8, "Reopening cannot duplicate payload")
+
+
 func _catalog_package(
 	definition: DEF_Package,
 	selected: DEF_InventoryItem = null,
+	quantity: int = 1,
 ) -> E_Package:
-	var scene: PackedScene = load(definition.scene_variants[0]) as PackedScene
+	var supply: DEF_Delivery = load(DEF_DELIVERY_MORNING_SUPPLY_PATH) as DEF_Delivery
+	var shipment: PackageShipmentPlan = null
+	if selected != null:
+		shipment = PackageShipmentRules.for_quantity(
+			selected, quantity, supply.packing_profiles, 1, "fixture/contents", 1,
+		)
+	var path: String = shipment.scene_path() if shipment != null else definition.scene_variants[0]
+	var scene: PackedScene = load(path) as PackedScene
 	var parcel: E_Package = scene.instantiate() as E_Package
 	parcel.package_definition = definition
+	if shipment != null:
+		(parcel as Node as RigidBody3D).mass = shipment.gross_mass_kg()
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(5, 1, 5)
 	if selected == null:
@@ -428,8 +459,17 @@ func _catalog_package(
 		var context: EntitySpawnContext = EntityCompositionService.context_for(
 			parcel, _world, GECSIO.uuid()
 		)
-		context.initial_fields[C_PackageContents as Script] = { &"selected_item": selected }
-		assert_true(EntityCompositionService.try_register(context))
+		context.initial_fields[C_PackageContents as Script] = shipment.contents_fields()
+		var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+		var issues: PackedStringArray = []
+		for issue: EntityBuildPlan.Issue in plan.issues:
+			issues.append(issue.message)
+		assert_true(plan.valid(), "; ".join(issues))
+		var registered: bool = EntityCompositionService.register_plan(context, plan)
+		assert_true(registered)
+		if not registered:
+			parcel.free()
+			return null
 	(parcel.get_component(C_PackageState) as C_PackageState).opening = C_PackageState.Opening.OPENED
 	return parcel
 

@@ -571,6 +571,8 @@
 "day_index": 2,
 "next_package": 0,
 "order_item_paths": PackedStringArray(""),
+"order_packing_paths": PackedStringArray(""),
+"order_quantities": PackedInt32Array(0),
 "package_keys": PackedStringArray("books"),
 "package_scenes": PackedStringArray("res://content/domains/packages/entities/package_b.tscn"),
 "source": 0
@@ -1404,7 +1406,9 @@
 }, {
 "fields": {
 "released": false,
-"selected_item": null
+"selected_item": null,
+"quantity": 0,
+"packing_profile": null
 },
 "type": "res://content/domains/packages/components/c_package_contents.gd"
 }, {
@@ -1486,5 +1490,5 @@
 }]),
 "morning_day": 2,
 "raw_actors": Array[Dictionary]([]),
-"version": 19
+"version": 20
 }

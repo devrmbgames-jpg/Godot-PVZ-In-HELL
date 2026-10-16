@@ -1,5 +1,5 @@
 {
-  "schema": 19,
+  "schema": 20,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -141,7 +141,9 @@
       "path": "res://content/domains/packages/components/c_package_contents.gd",
       "fields": [
         "released",
-        "selected_item"
+        "selected_item",
+        "quantity",
+        "packing_profile"
       ]
     },
     {

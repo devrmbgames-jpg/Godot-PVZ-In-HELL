@@ -54,20 +54,36 @@ static func valid(receiving: C_Receiving, actor: Entity) -> bool:
 			return false
 		if batch.package_keys.size() != batch.order_item_paths.size():
 			return false
+		if (
+			batch.package_keys.size() != batch.order_quantities.size()
+			or batch.package_keys.size() != batch.order_packing_paths.size()
+		):
+			return false
 		for index: int in batch.package_keys.size():
 			var key: String = batch.package_keys[index]
 			var path: String = batch.package_scenes[index]
 			var item_path: String = batch.order_item_paths[index]
+			var packing_path: String = batch.order_packing_paths[index]
+			var item: DEF_InventoryItem = null
+			var packing: DEF_PackagePacking = null
 			if not item_path.is_empty():
 				if (
 					not GameplayResourcePaths.is_definition_path(item_path)
 					or item_path.simplify_path() != item_path
 					or not ResourceLoader.exists(item_path)
+					or not GameplayResourcePaths.is_definition_path(packing_path)
+					or packing_path.simplify_path() != packing_path
+					or not ResourceLoader.exists(packing_path)
 				):
 					return false
-				var item: DEF_InventoryItem = load(item_path) as DEF_InventoryItem
+				item = load(item_path) as DEF_InventoryItem
+				packing = load(packing_path) as DEF_PackagePacking
 				if not PackageOrderRules.is_orderable(item):
 					return false
+			elif not packing_path.is_empty():
+				return false
+			if not PackageShipmentRules.valid(item, batch.order_quantities[index], packing, path):
+				return false
 			if key.is_empty() or not path.begins_with("res://content/domains/packages/entities/"):
 				return false
 			if path.simplify_path() != path or not ResourceLoader.exists(path, "PackedScene"):
@@ -82,9 +98,12 @@ static func valid(receiving: C_Receiving, actor: Entity) -> bool:
 					for candidate: DEF_Package in zone.supply.packages:
 						if String(candidate.key) == key:
 							definition = candidate
-				compatible = definition != null and path in definition.scene_variants
-				if compatible and not item_path.is_empty():
-					compatible = definition.unpack_scene != null
+				compatible = definition != null
+				if compatible:
+					compatible = (
+						definition.unpack_scene != null if item != null
+						else path in definition.scene_variants
+					)
 			instance.free()
 			if not compatible:
 				return false
