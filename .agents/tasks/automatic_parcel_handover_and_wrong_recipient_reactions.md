@@ -1,8 +1,8 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
-BASE_SHA: `56de5e76f1df0a489e2853c19c3a1fec17c26f44`
-TARGET_SHA: `308b32ee913b73d4b73d50f44166619984e0892f`; repair checkpoint pending — REVIEW_PENDING
+BASE_SHA: `308b32ee913b73d4b73d50f44166619984e0892f`
+TARGET_SHA: `fd0dda76885715ec13d1a27a96c70c631f5394b1` — targeted review PASS
 
 Created: 2026-10-15. Related: [согласованность посылок](package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
@@ -29,13 +29,13 @@ M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: item holy/fire metad
 M2b reviewed: DEF_NpcParcelReaction CAPABILITY у4 архетипов, чистый chooser с переданными rolls; architecture/style PASS, validation NOT_RUN, repair0/2.
 M2c1 carry reviewed, RV-002/003 fixed; fresh C_GrabControl/C_CarryLoad/C_Strength, Strength6/offset0.35 м, existing R_HeldBy/solver/cleanup; architecture/style PASS, reviewer validation NOT_RUN.
 M2c2 fire reviewed: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without repeat from empty shells; catalog quantity/history/schema22 unchanged. Unknown legacy stubs remain unknown. No material findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
-M2d runtime implemented: common wrong-offer commit, native KEEP/throw/fire, GameClock pair180s block, closed incident codec/schema23 and held reconstruction. Immutable review found RV-004/005; repair1/2 implemented, targeted re-review pending. Intimidation remains open.
+M2d runtime reviewed: common wrong-offer commit, native KEEP/throw/fire, GameClock pair180s block, closed incident codec/schema23 and held reconstruction. RV-004/005 fixed in TARGET; targeted architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Intimidation remains open.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults с Inspector overrides; отдельного подтверждения владельца по двум пересечениям не было.
 RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
 RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
 RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, reviewer validation NOT_RUN; RV-002/003 fixed; visual NOT_RUN,0/8.
-RV-004 [P1] ACCEPTED, source M2d TARGET above: release callback could invalidate reach/LOS/WRONG/source identity before NPC grip. Repair shares the full offer gate after release, preserves package/body/visit identity and automatic policy; real move-away/reassignment regressions pass. Fix SHA/re-review pending.
-RV-005 [P2] ACCEPTED, same source: MANUAL FIRE outlived the synchronous reaction guard. Repair rejects capture with pending/executing buffers, including detached native batches; Night explicitly certifies its drained enclosing batch, restore still cancels obsolete queues. Pinned GECS depth adapter documented; targeted re-review pending.
+RV-004 [P1] FIXED(`fd0dda76885715ec13d1a27a96c70c631f5394b1`, targeted review PASS): source BASE above, release callbacks invalidated reach/LOS/WRONG/identity before NPC grip. Shared post-release gate preserves package/body/visit identity and automatic policy; real move-away/reassignment regressions pass.
+RV-005 [P2] FIXED(same TARGET, targeted review PASS): source BASE above, MANUAL FIRE outlived synchronous guard. Capture rejects pending/executing buffers; Night certifies its drained enclosing batch, restore cancels obsolete queues. Adapter matches pinned GECS `14d4282e5c1cb2713c187706ba2f5ff4e315d36e`; MANUAL DAMAGE/BURN/executing-callback regressions pass.
 Владелец подтвердил: Бугай сначала25% присвоить, затем50% бросить при неприсвоении; запугивание5 процентных пунктов за Strength; блок персонален для пары.
 
 - CustomerFireOpeningService открывает свой заказ; чужая реакция использует существующие damage/hazard owners.
@@ -197,4 +197,4 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-M2d: commit RV-004/005 repairs and collect targeted immutable review (cycle1/2); no DONE while pending. Then intimidation action, committed attack/return and safe return; final lifecycle/complaints regressions and separately authorized NPC gameplay QA. Cargo QA separately approved6, executed0/6; NPC visual0/8. Task remains IN_PROGRESS.
+M2e: intimidation action, committed attack/return and safe return; final lifecycle/complaints regressions and separately authorized NPC gameplay QA. M2d review closed after cycle1/2. Cargo QA separately approved6, executed0/6; NPC visual0/8. Task remains IN_PROGRESS.
