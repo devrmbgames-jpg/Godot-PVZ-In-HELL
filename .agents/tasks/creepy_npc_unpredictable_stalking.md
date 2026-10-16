@@ -23,11 +23,14 @@ Source: [полное исходное ТЗ и доказательства](ref
 
 M1/M2 свободного поведения и M3a инструмента nested BT insertion приняты; не открывать заново.
 C3 runtime/schema26 сохранён в `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`.
-На текущем HEAD runtime/tests совпадают с этим snapshot; после resume исправлен только
-перенос длинного комментария CustomerVisit. Повтор всей принятой матрицы не требуется.
-Review BASE: `e45ca4d8251ffc43fdce1ab111a8afc32ac85722`; TARGET — closing checkpoint pending commit.
-C3 ещё IN_PROGRESS: независимое review/triage открыто, общий structure gate пока FAIL
-из-за старого task-layout validator после owner task refactor; это отдельный compatibility fix.
+Review BASE `e45ca4d8251ffc43fdce1ab111a8afc32ac85722`, TARGET
+`c6c850f6d28d3ea75e6575548808bc9053b2be87`: одно принятое P2 RV-001, других findings нет.
+RV-001: watchdog достижимого, но физически застрявшего rear-route откладывал весь визит.
+Исправление у O_CustomerNpcInterruption различает точный активный rear motion token,
+освобождает только обход и будит обычный подход, сохраняя elapsed/резерв/историю источника.
+C3 ещё IN_PROGRESS до targeted re-review этого repair checkpoint (цикл1/2).
+Отдельный structure compatibility fix `dccea7c57b4cf6fbb3b7e63285023d1432a27322`
+reviewed PASS/no findings по BASE `c6c850f6d28d3ea75e6575548808bc9053b2be87`.
 
 Rear SERVICE использует обычный резерв и фиксированную точку,5s budget,1.5x intent speed;
 физикой/выдачей/оплатой владеют прежние подсистемы. Достижение точки до очередного BT-такта
@@ -58,9 +61,9 @@ C3 использует технически принятый [общий handof
 
 ## Next
 
-Закоммитить closing C3 checkpoint и получить immutable review/triage по указанному BASE.
-Параллельно исправить независимый validator compatibility gate; затем техническое закрытие C3,
-OWNER_QA для C4 и следующий готовый пакет. Разрешённую H4 parcel QA выполнить в её8 случаях.
+Получить targeted re-review RV-001: только observer/focused regressions по repair SHA.
+После terminal PASS — техническое закрытие C3 и OWNER_QA для C4; перейти к runner Q1.
+Разрешённую H4 parcel QA выполнить в её8 случаях, не заимствуя разрешение для C4.
 Не запускать rendered C4 без task-specific разрешения и не объявлять всю задачу DONE.
 
 ## Validation / review
@@ -76,11 +79,15 @@ Native ParseFiles23/0 PASS: `parsefiles-20261016-154457946.{stdout,stderr}.log` 
 Two-process headless delivery/save PASS: `creepy_c3_delivery_20261017.json` и phase raw logs;
 оба native exit0, completion markers, stderr0. Старый smoke wrapper вернул FAIL из-за отсутствия
 restart registration/несовпадения generic marker; это не runtime failure и не исправленный runner.
-Formatter26/strict architecture0/persistence inventory PASS. Structure — FAIL: все новые root
-карточки отвергнуты старым проверяющим layout; scoped compatibility correction pending.
+Formatter26/strict architecture0/persistence inventory PASS для C3 baseline.
+Structure compatibility теперь PASS; tooling regressions18/18 PASS.
+RV-001 red: native reachable/stalled watchdog снял роль (raw `creepy_c3_rv001_red.*.log`).
+Repair: native GUT38/38,320 assertions,stderr0 PASS (`gut-20261016-155557405.*.log`);
+включает две новые проверки настоящего route owner/observer: rear fallback и ordinary defer.
+Repair MCP2 checked/empty; formatter2,strict architecture0,structure,diff-check PASS.
 Comment-only MCP hot reload initially returned43; subsequent native path diagnostic checked/empty,
 а свежий native parser PASS. Эти transient diagnostics не классифицировались как shutdown.
-C3 immutable review: REVIEW_PENDING, repair0/2. Rendered C4: NOT_RUN,0/8.
+C3 baseline review: FAIL/RV-001 accepted and repaired; targeted re-review REVIEW_PENDING,repair1/2. Rendered C4: NOT_RUN,0/8.
 
 ## Owner QA / blockers
 

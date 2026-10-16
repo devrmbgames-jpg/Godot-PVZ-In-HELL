@@ -361,6 +361,64 @@ func test_rear_budget_expiry_falls_back_without_reset_or_retry() -> void:
 	assert_eq(_rear_visit.visit_count, 1)
 
 
+func test_route_watchdog_abandons_only_the_rear_detour() -> void:
+	await _rear_fixture()
+	_district.definition.route_timeout = 1.0
+	_rear_step(0.4)
+	var sequence: int = _rear_person.stalking_sequence
+	var eligible_tick: int = _rear_person.stalking_next_eligible_tick
+	var reservation: Relationship = _rear_body.get_relationships(
+		Relationship.new(R_NpcServiceAt.new(), CustomerFlowQueries.counter())
+	)[0]
+	var route: C_NpcRoute = _rear_body.get_component(C_NpcRoute) as C_NpcRoute
+	NpcAiFixture.route(_rear_body, _rear_person, 0.1)
+	NpcAiFixture.plan_routes(_district)
+	assert_true(route.reachable, "A physically stalled rear route still has a native path")
+	assert_false(_rear_intent().navigation_blocked)
+	NpcAiFixture.route(_rear_body, _rear_person, 1.1)
+	assert_true(_rear_body.has_component(C_CustomerAgent), "The watchdog must retain the visit")
+	if not _rear_body.has_component(C_CustomerAgent):
+		return
+	assert_same(CustomerFlowQueries.visit_for(_rear_body), _rear_visit)
+	assert_false(_rear_visit.finished)
+	assert_eq(_rear_visit.deferred_day, 0)
+	assert_eq(_rear_agent.phase, C_CustomerAgent.Phase.APPROACHING)
+	assert_almost_eq(_rear_agent.elapsed, 0.4, 0.001)
+	assert_eq(_rear_visit.visit_count, 1)
+	assert_eq(_rear_visit.stalking_visit_count, 1)
+	assert_eq(_rear_person.stalking_sequence, sequence)
+	assert_eq(_rear_person.stalking_next_eligible_tick, eligible_tick)
+	assert_true(_rear_body.relationships.has(reservation))
+	assert_null(CustomerStalkingQueries.binding(_rear_body))
+	assert_eq(_rear_agent.stalking_sequence, 0)
+	assert_eq(_rear_state.service_approach_task_id, 0)
+	_rear_step()
+	assert_eq(_rear_intent().move_position, CustomerFlowQueries.counter().waiting_position())
+	assert_eq(_rear_person.stalking_sequence, sequence)
+
+
+func test_route_watchdog_still_defers_a_blocked_ordinary_counter_approach() -> void:
+	await _rear_fixture()
+	_district.definition.route_timeout = 1.0
+	_rear_rule.opportunity_probability = 0.0
+	_rear_step(0.4)
+	assert_eq(_rear_agent.stalking_sequence, 0)
+	assert_eq(_rear_intent().move_position, CustomerFlowQueries.counter().waiting_position())
+	var route: C_NpcRoute = _rear_body.get_component(C_NpcRoute) as C_NpcRoute
+	NpcAiFixture.route(_rear_body, _rear_person, 0.1)
+	NpcAiFixture.plan_routes(_district)
+	assert_true(route.reachable)
+	NpcAiFixture.route(_rear_body, _rear_person, 1.1)
+	assert_false(_rear_body.has_component(C_CustomerAgent))
+	assert_eq(_rear_visit.deferred_day, 1)
+	assert_eq(_rear_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_true(_rear_visit.finished)
+	assert_eq(_rear_body.get_relationships(Relationship.new(
+			R_NpcServiceAt.new(),
+			CustomerFlowQueries.counter(),
+		)).size(), 0)
+
+
 func test_distant_camera_detection_aborts_detour_without_success_memory() -> void:
 	await _rear_fixture()
 	_rear_step()

@@ -36,7 +36,29 @@ func each(_event: Variant, subject: Entity, payload: Variant = null) -> void:
 						CustomerFlowQueries.counter(),
 					)).is_empty()
 				):
-					NpcServiceRole.defer_visit(body, visit, "Путь к ПВЗ недоступен")
+					var stalking: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
+					var rear_motion: bool = (
+						agent.stalking_sequence > 0 and stalking != null
+						and stalking.service_approach_task_id != 0
+						and stalking.service_approach_task_id == decision.active_task_id
+					)
+					if rear_motion:
+						# The failed alternative keeps its consumed choice and ordinary reservation.
+						CustomerStalkingBindings.release(body)
+						# Releasing Relationships can synchronously replace the role or actor.
+						if (
+							EntityAvailability.contains(body, ECS.world)
+							and body.get_component(C_CustomerAgent) == agent
+							and body.get_component(C_NpcDecision) == decision
+							and agent.stalking_sequence == 0
+						):
+							NpcDecisionService.request_wake(
+								body,
+								&"rear_service_route_blocked",
+								true,
+							)
+					else:
+						NpcServiceRole.defer_visit(body, visit, "Путь к ПВЗ недоступен")
 		NpcRoleInterruptionRequest.Kind.EMERGENCY:
 			CustomerRoleInterruptionService.suspend(body)
 #endregion
