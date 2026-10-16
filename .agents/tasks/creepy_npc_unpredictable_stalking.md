@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `738767d150923d868c3090387f85609c2bbc1185`
-TARGET_SHA: M1 contract checkpoint pending commit/review
+TARGET_SHA: `673e57f0d51e0c1fa49c360307f78048a534cc25` - M1 contract review PASS; task IN_PROGRESS
 
 Created: 2026-10-15. Автор: запрос владельца. Related: [R26.2](completed/r26_2_npc_archetypes_and_variation.md), [R26.3](completed/r26_3_npc_behavior_trees.md), [R27.5](completed/r27_test_lab_and_npc_rooms.md).
 
@@ -24,7 +24,7 @@ Created: 2026-10-15. Автор: запрос владельца. Related: [R26.
 ### Current / authorization
 
 Активный `/goal` разрешает реализацию задач и предшествующее ограничение «только план» больше не действует.
-M1 implemented: NpcRecord owns sequence/decision/last-success timestamps/captured eligibility deadline; pure strict2.5m/30active-second/overflow/episode-ID contracts, closed schema25/native golden. Post-success deadline cannot be shortened below30s in a valid snapshot. Historical fixed memories remain valid for dialogue; new episode receipts are bounded by the committed sequence. Runtime opportunity/notice/approach wiring remains open; M1 review pending.
+M1 reviewed PASS in TARGET above: no findings, architecture/style PASS, reviewer execution NOT_RUN, repair0/2. NpcRecord owns sequence/decision/last-success timestamps/captured eligibility deadline; pure strict2.5m/30active-second/overflow/episode-ID contracts, closed schema25/native golden. Post-success deadline cannot be shortened below30s in a valid snapshot. Historical fixed memories remain valid for dialogue; new episode receipts are bounded by the committed sequence. Runtime opportunity/notice/approach wiring remains open.
 Save/load/reset preserves these durable fields; unsupported schema24 is rejected with original bytes retained, no migration. Existing permanent-memory runtime gate remains until M2 replaces it with the episode contract; this is not completed behavioral acceptance.
 Gameplay/visual QA NOT_RUN,0/8. Prototype numbers below, except owner-defined2.5m/minimum30s, remain authored tuning hypotheses.
 
@@ -196,5 +196,5 @@ Grip подчёркивает окружение, звук и выводы иг�
 
 ### Next
 
-Collect M1 immutable-SHA review/triage, then M2: wire captured opportunities and bounded free hidden episodes, replace permanent recognition veto, preserve physical/intent ownership and interruption. Follow with service approach/arrival/number announcement and real handoff integration.
+M2: wire captured opportunities and bounded free hidden episodes, replace permanent recognition veto, preserve physical/intent ownership and interruption. Follow with service approach/arrival/number announcement and real handoff integration. M1 review/triage terminal PASS, no accepted findings remain.
 Gameplay QA requires task-specific authorization and remains open; parcel-handover QA permission is separately pending. Do not mark this task DONE before runtime/service/save acceptance and required owner QA.
