@@ -20,4 +20,7 @@ class_name DEF_PackagePacking
 @export_range(0.001, 100.0, 0.001) var empty_mass_kg: float = 1.0
 ## Maximum safe combined payload and shell mass in kilograms.
 @export_range(0.001, 1000.0, 0.001, "or_greater") var maximum_gross_mass_kg: float = 100.0
+## Gross mass above which the shipment receives a heavy handling mark, in kilograms.
+## This authored warning threshold does not replace the holder's Strength/carry policy.
+@export_range(0.001, 1000.0, 0.001, "or_greater") var heavy_mark_mass_kg: float = 10.0
 #endregion

@@ -971,6 +971,9 @@ func test_catalog_order_roundtrip_restores_live_contents_and_history_after_fresh
 		"fixture/catalog_order"
 	)
 	assert_same(arrival.ordered_item, selected)
+	assert_eq(arrival.ordered_quantity, contents.quantity)
+	assert_same(arrival.packing_profile, contents.packing_profile)
+	var arrival_mass: float = PackageOrderPresentation.mass_kg(arrival)
 	assert_eq(PackageOrderPresentation.title(arrival), selected.display_name)
 	assert_gt(arrival.number, 0, "A pre-automatic live arrival gains a number on restore")
 	var retained_number: int = arrival.number
@@ -991,6 +994,42 @@ func test_catalog_order_roundtrip_restores_live_contents_and_history_after_fresh
 		selected.display_name,
 		"Archive survives body removal",
 	)
+	assert_eq(archived.ordered_quantity, 1)
+	assert_eq(PackageOrderPresentation.mass_kg(archived), arrival_mass)
+
+
+## Detached arrival records reject invalid composition/diagnostics without changing the live ledger.
+func test_archive_composition_preflight_rejects_corruption_without_a_physical_body() -> void:
+	var parcel: E_Package = _ordered_package()
+	var arrival: PackageRegistrationRecord = PackageHistoryService.record_for(parcel.package_id)
+	_world.remove_entity(parcel)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	for fault: String in ["zero_quantity", "missing_packing", "wrong_mass", "wrong_hazard"]:
+		var invalid: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in invalid.entities:
+			for component: Dictionary in record.components:
+				if component.type != C_PackageLedger.resource_path:
+					continue
+				var ledger: C_PackageLedger = C_PackageLedger.new()
+				assert_true(SaveDataCodec.apply_fields(ledger, component.fields as Dictionary))
+				var saved: PackageRegistrationRecord = ledger.records[0]
+				match fault:
+					"zero_quantity":
+						saved.ordered_quantity = 0
+					"missing_packing":
+						saved.packing_profile = null
+					"wrong_mass", "wrong_hazard":
+						var identity: PackageHistoryId = PackageHistoryId.parse(saved.history_id)
+						if fault == "wrong_mass":
+							identity.mass_tenths_kg += 1
+						else:
+							identity.hazard_class = DEF_Package.HazardClass.TOXIC
+						saved.history_id = identity.serialize()
+				component.fields = SaveDataCodec.component_data(ledger).fields
+		assert_false(WorldSnapshotService.restore(invalid, _root), fault)
+		assert_same(PackageHistoryService.record_for(arrival.package_id), arrival)
+		assert_eq(DayPhaseQueries.current().day_index, 1)
 
 
 ## A new receiving number survives real slot I/O and Morning restoration without any scanner.

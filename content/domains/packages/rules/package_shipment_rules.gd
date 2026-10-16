@@ -13,7 +13,9 @@ static func mass_kg(
 	var shell_mass: float = contents.packing_profile.empty_mass_kg
 	return (
 		shell_mass if empty
-		else shell_mass + contents.selected_item.cargo_profile.unit_mass_kg * contents.quantity
+		else PackagePackingRules.gross_mass_kg(
+			contents.packing_profile, contents.selected_item.cargo_profile, contents.quantity,
+		)
 	)
 
 
@@ -25,12 +27,18 @@ static func valid(
 	packing: DEF_PackagePacking,
 	scene_path: String,
 ) -> bool:
+	return valid_contents(item, quantity, packing) and (
+		item == null or scene_path in packing.scene_variants
+	)
+
+
+## Capacity validation for an immutable arrival record after the live scene has departed.
+static func valid_contents(
+	item: DEF_InventoryItem, quantity: int, packing: DEF_PackagePacking,
+) -> bool:
 	if item == null:
 		return quantity == 0 and packing == null
-	return (
-		PackagePackingRules.accepts(packing, item.cargo_profile, quantity)
-		and scene_path in packing.scene_variants
-	)
+	return PackagePackingRules.accepts(packing, item.cargo_profile, quantity)
 
 
 ## Selects uniformly among feasible quantities for an already chosen item, then packs that count.

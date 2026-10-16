@@ -317,7 +317,7 @@ func _update_package_debug(target: Variant) -> void:
 		return
 
 	_package_debug_panel.visible = true
-	_package_type_label.text = _package_debug_text(package.definition)
+	_package_type_label.text = _package_debug_text(entity, package.definition)
 
 	var health: C_Health = entity.get_component(C_Health) as C_Health
 	var has_health: bool = health != null
@@ -339,24 +339,27 @@ func _update_health_bar(bar: ProgressBar, health: C_Health) -> Vector2:
 	return Vector2(current, maximum)
 
 
-func _package_debug_text(definition: DEF_Package) -> String:
+func _package_debug_text(package: Entity, definition: DEF_Package) -> String:
 	if definition == null:
 		return "ПОСЫЛКА: нет definition"
 
 	var tags: PackedStringArray = []
-	if (definition.tags & DEF_Package.Tag.NORMAL) != 0:
+	var handling_tags: int = PackageContentsService.handling_tags(package)
+	if (handling_tags & DEF_Package.Tag.NORMAL) != 0:
 		tags.append("Обычная")
-	if (definition.tags & DEF_Package.Tag.FRAGILE) != 0:
+	if (handling_tags & DEF_Package.Tag.FRAGILE) != 0:
 		tags.append("Хрупкая")
-	if (definition.tags & DEF_Package.Tag.HEAVY) != 0:
+	if (handling_tags & DEF_Package.Tag.HEAVY) != 0:
 		tags.append("Тяжёлая")
-	if (definition.tags & DEF_Package.Tag.LIQUID) != 0:
+	if (handling_tags & DEF_Package.Tag.LIQUID) != 0:
 		tags.append("Жидкость")
 	if tags.is_empty():
 		tags.append("Без тегов")
 
-	var damaged_hazard: String = _hazard_scene_name(definition.hazard_on_damaged)
-	var destroyed_hazard: String = _hazard_scene_name(definition.hazard_on_destroyed)
+	var damage_scene: PackedScene = PackageContentsService.rupture_scene(package, false)
+	var destroyed_scene: PackedScene = PackageContentsService.rupture_scene(package, true)
+	var damaged_hazard: String = _hazard_scene_name(damage_scene)
+	var destroyed_hazard: String = _hazard_scene_name(destroyed_scene)
 	return "ПОСЫЛКА: %s\nHAZARD DAMAGE: %s\nHAZARD DESTROYED: %s" % [
 		" · ".join(tags),
 		damaged_hazard,

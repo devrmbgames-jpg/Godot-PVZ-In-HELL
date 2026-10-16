@@ -219,30 +219,16 @@ static func number_text(record: PackageRegistrationRecord) -> String:
 
 #region Иконки и запросы действий
 func _set_status_icons(record: PackageRegistrationRecord) -> void:
-	var definition: DEF_Package = record.definition
-	var has_definition: bool = definition != null
-	var legacy_contents: bool = has_definition and record.ordered_item == null
-	var hazard_class: DEF_Package.HazardClass = (
-		definition.history_hazard_class
-		if legacy_contents
-		else DEF_Package.HazardClass.NORMAL
-	)
+	var has_definition: bool = record.definition != null
+	var hazard_class: int = PackageOrderPresentation.hazard_class(record)
 	var tags: int = PackageOrderPresentation.tags(record)
-	_icon_status_explotion.visible = (
-		has_definition and hazard_class == DEF_Package.HazardClass.EXPLOSIVE
-	)
-	_icon_status_toxic.visible = has_definition and hazard_class == DEF_Package.HazardClass.TOXIC
+	_icon_status_explotion.visible = PackageOrderPresentation.is_explosive(record)
+	_icon_status_toxic.visible = PackageOrderPresentation.is_toxic(record)
 	_icon_status_psico.visible = false
-	_icon_status_fire.visible = false
+	_icon_status_fire.visible = PackageOrderPresentation.is_flammable(record)
 
 	_icon_status_weight.visible = has_definition and bool(tags & DEF_Package.Tag.HEAVY)
-	_icon_status_anomaly.visible = (
-		legacy_contents
-		and (
-			hazard_class == DEF_Package.HazardClass.OTHER
-			or definition.hazard_on_damaged != null or definition.hazard_on_destroyed != null
-		)
-	)
+	_icon_status_anomaly.visible = PackageOrderPresentation.has_unclassified_hazard(record)
 
 	_icon_status_light.visible = false
 	_icon_status_fragile.visible = (
@@ -261,6 +247,7 @@ func _set_status_icons(record: PackageRegistrationRecord) -> void:
 		_icon_status_explotion.visible or _icon_status_toxic.visible
 		or _icon_status_weight.visible or _icon_status_anomaly.visible
 		or _icon_status_fragile.visible or _icon_status_fluid.visible
+		or _icon_status_fire.visible
 	)
 
 

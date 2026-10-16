@@ -18,10 +18,27 @@ static func valid(
 		for record: PackageRegistrationRecord in ledger.records:
 			if record == null or arrivals.has(record.package_id):
 				return false
+			if not PackageShipmentRules.valid_contents(
+				record.ordered_item, record.ordered_quantity, record.packing_profile,
+			):
+				return false
 			if record.ordered_item != null:
 				if (
 					record.definition == null or record.definition.unpack_scene == null
 					or not PackageOrderRules.is_orderable(record.ordered_item)
+				):
+					return false
+				var history: PackageHistoryId = PackageHistoryId.parse(record.history_id)
+				var full_mass: float = PackageCargoRules.full_mass_kg(
+					record.definition, record.ordered_item, record.ordered_quantity,
+					record.packing_profile,
+				)
+				if (
+					history == null
+					or history.mass_tenths_kg != roundi(full_mass * PackageHistoryId.MASS_SCALE)
+					or history.hazard_class != PackageCargoRules.hazard_class(
+						record.definition, record.ordered_item,
+					)
 				):
 					return false
 			arrivals[record.package_id] = record
@@ -45,7 +62,13 @@ static func valid(
 			):
 				return false
 		var arrival: PackageRegistrationRecord = arrivals.get(package.package_id)
-		if arrival != null and arrival.ordered_item != contents.selected_item:
-			return false
+		if arrival != null:
+			if (
+				arrival.ordered_item != contents.selected_item
+				or arrival.ordered_quantity != contents.quantity
+				or arrival.packing_profile != contents.packing_profile
+				or arrival.definition != package.definition
+			):
+				return false
 	return true
 #endregion

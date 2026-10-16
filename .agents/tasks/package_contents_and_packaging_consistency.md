@@ -1,8 +1,8 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`
-TARGET_SHA: `4f2048eb19b76015072654cd4630f2c1098a0ada`
+BASE_SHA: `58b3e2a7fc7cdad7cabb774161aa6654a7e96463`
+TARGET_SHA: pending checkpoint commit; review NOT_RUN
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26_1_physical_items_and_effects.md).
@@ -37,20 +37,20 @@ M2d.2 завершён после fix/re-review: RV-002/RV-003 FIXED, новых
 ReceivingBatch фиксирует quantity/packing paths до создания тела; C_PackageContents владеет составом.
 Compiler и saved preflight проверяют quantity/capacity/exact scene; fresh/reused restore не reroll.
 Native Trait allowlist и недостающий clothing cargo комнаты shy обновлены через editor/MCP.
-Schema20/PVZH1: явное решение владельца 2026-10-16 — «Отклонять старую схему, файл сохранять».
-Schema19 отвергается до World mutation, файл защищён от autosave overwrite; converter не нужен.
-UI/history ещё читают прежние физические факты; их перевод и owner QA обязательны, задача IN_PROGRESS.
+Schema21/PVZH1: решение владельца 2026-10-16 — «Отклонять старую схему, файл сохранять».
+M2d.3 implemented: arrival projection фиксирует количество/packing; общие PackageCargoRules дают
+массу/теги/hazards для history ID, terminal detail/sort/icons, stickers и debug HUD.
+Preflight проверяет capacity/live agreement/ID mass и hazard, в том числе без физического тела.
+Native/static проверки и review ниже; owner QA обязателен, задача IN_PROGRESS.
 ## Установленная поверхность и гипотеза причины
 
 - [ReceivingDeliveryService](../../content/domains/packages/services/receiving_delivery_service.gd)
   в baseline выбирал коробку и selected_item независимо. M2d.2 теперь подбирает сцену по грузу;
-  описание/arrival projection старого рецепта ещё требуют следующего этапа.
+  arrival projection сохраняет фактические item/quantity/packing.
 - [ET_PackageState](../../content/domains/packages/authoring/et_package_state.gd) теперь создаёт
   жидкостную capability по фактическому selected cargo; прежний shell tag больше её не определяет.
 - [PackageHistoryService](../../content/domains/packages/services/package_history_service.gd)
-  сохраняет ordered_item отдельно, но массу/класс опасности читает из DEF_Package; размер — из коллайдера.
-  [PackageSceneRules](../../content/domains/packages/rules/package_scene_rules.gd) выбирает вариант
-  без проверки совместимости с выбранным предметом и количеством.
+  формирует новый ID из actual full mass/hazard и native bounds; прежние ID не переписывает.
 - Baseline расхождение подтверждено; точная UID-1-TL08C остаётся критерием воспроизведения, не PASS.
 - Не путать признак LIQUID с буквами диагностического ID: по текущему PackageHistoryId
   T — токсичный класс, следующая L — большой размер. Сам этот фрагмент не доказывает жидкое содержимое.
@@ -95,7 +95,6 @@ UI/history ещё читают прежние физические факты; �
 - PASS baseline reproduction: GUT1/1,7 assertions, `gut-20261015-235404960`, stderr empty.
   Disposable fixture сохранён в `.artifacts/package_content_baseline_probe.gd`; это наблюдение
   прежнего дефекта, не регрессия правильного поведения. UID-1-TL08C не объявляется проверенным.
-- Более ранние standalone probes имели compile/runtime errors и не являются PASS evidence.
 - PASS M1 native GUT8/8,49 assertions (`gut-20261015-235704192`), stderr empty: quantity/capacity,
   rotation/mass/phase/ties. MCP4 checked/empty; ParseFiles4/0 (`parsefiles-20261015-235651420`),
   formatter4, role3, strict architecture0/structure PASS.
@@ -160,6 +159,16 @@ M2d.2 validation: GUT149/149,4234 assertions across11 focused files; targeted re
 - Headless receiving_scan PASS (`tests/artifacts/receiving_scan-20261016-111822092.log`); visual0/8.
 - Fix native65/65,903 assertions; ParseChanged5/0 (`014043013`), MCP5/formatter5/role4/static PASS.
 
+M2d.3 native:112/112,1629 assertions; prefix `gut-20261016-`:
+- presentation5/101 (`020025477`), snapshot45/623 (`020140814`), terminal7/28 (`020215492`),
+  debug3/22 (`020221914`), history2/14 (`020231243`), packing8/53 (`020234505`),
+  contents21/305 (`020237783`), truck16/118 (`020250112`), golden5/365 (`020259375`).
+- Golden assertions PASS/exit0; wrapper FAIL only on shutdown Resource/RID retention.
+  Smoke explicit receiving→scan→terminal→next-day PASS; wrapper FAIL only shutdown Resource:
+  `tests/artifacts/receiving_scan-20261016-120352319.log`. KNOWN_ENGINE_LIMITATION / DEFERRED.
+- Native ParseChanged18/0 (`20261016-020327332`), MCP15 checked/empty, scripts_instantiated0;
+  formatter18/role16/strict architecture0/structure/persistence baseline PASS. Visual0/8.
+
 ### Review triage
 
 M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`.
@@ -169,25 +178,13 @@ M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac
   Fix `f893cb3395dd3b86572009c58f55a558424e31cb`, native61/61/800 assertions/re-review PASS.
 - RV-002 — **FIXED**, P1 source `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`:
   SnapshotGraphRules.valid_entities/STORED использовал legacy30kg вместо actual4kg в слоте max8kg.
-  Fix TARGET_SHA: saved full/empty mass через общие PackageShipmentRules.mass_kg, без live state.
+  Fix `4f2048eb19b76015072654cd4630f2c1098a0ada`: saved full/empty mass через PackageShipmentRules.
 - RV-003 — **FIXED**, P1 same source: WorldSnapshotService.can_restore не сверял retained scene.
-  Fix TARGET_SHA: preflight отвергает large-saved/small-live для одного ID до любых изменений.
+  Тот же fix: preflight отвергает large-saved/small-live для одного ID до любых изменений.
   Native baseline3 FAIL/44 (`gut-20261016-013751617`), fix44/44 (`013924781`).
-  Re-review BASE_SHA → TARGET_SHA: оба FIXED, no material findings, architecture/style PASS;
+  Re-review `2c4ac66dac66ae32db12f66914413ce7f2eb2df9` → fix: оба FIXED, no material findings;
   reviewer validation NOT_RUN. Repair/re-review1/2 завершён.
 
-## План проверки будущей реализации
-
-- Минимальная эквивалентная комбинация: артефакт в прежнем bottles; сравнить UI/историю/physics/unpack.
-- Параметризованные native/GUT: твёрдый артефакт не LIQUID, без наклонной утечки/чужого разлива;
-  настоящие жидкости сохраняют свои эффекты. Масса/класс опасности соответствуют реальному грузу.
-- Упаковка: один мелкий предмет, один крупный (бочка), партия мелких и неподходящая вместимость;
-  физическая сцена и количество извлечённых предметов соответствуют согласованному плану.
-- Реальные поставки дней/NPC-комнат: единые размер/теги/описание, предпочтения и число посылок.
-- Повтор размещения/регистрация/save-load: нет повторного выбора, потерянных UID или номеров;
-  старые сохранения и архивные записи обрабатываются по явно выбранной совместимой политике.
-- Поверхность: test_package_order_rules, test_package_contents, test_entity_package_traits,
-  test_package_history_id, test_receiving_limits, test_npc_test_rooms и профильные restore-тесты.
 ### Owner QA / blockers
 
 - Owner QA: осмотреть/вскрыть артефакт, жидкость, бочку и партию мелких; сравнить фактическую
@@ -195,7 +192,5 @@ M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac
 
 ### Next
 
-M2d.3: arrival projection/history и весь UI —
-weight sort/detail терминала, stickers PackageConditionView, debug HUD, hazard icons. Они пока
-читают старые mass/tags/hazard hooks из DEF_Package; использовать факты состава и immutable arrival projection.
-Затем профильные native регрессии и обязательный owner QA; до всех acceptance задача не DONE.
+Закончить native/static проверки M2d.3, commit и immutable-SHA review/triage.
+Затем обязательный owner QA; до всех acceptance задача не DONE. Visual QA NOT_RUN,0/8.

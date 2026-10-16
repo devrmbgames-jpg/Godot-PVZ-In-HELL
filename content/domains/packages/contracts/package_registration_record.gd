@@ -16,6 +16,8 @@ const SAVE_FIELDS: Array[String] = [
 	"number",
 	"definition",
 	"ordered_item",
+	"ordered_quantity",
+	"packing_profile",
 	"active",
 	"departure",
 ]
@@ -38,6 +40,10 @@ const SAVE_FIELDS: Array[String] = [
 @export var definition: DEF_Package = null
 ## Arrival-time immutable order projection for archive display after the physical parcel leaves.
 @export var ordered_item: DEF_InventoryItem = null
+## Arrival-time unit count; zero only for non-catalog authored contents, never live remaining units.
+@export var ordered_quantity: int = 0
+## Arrival-time immutable packing reference; retained after opening, rupture or physical departure.
+@export var packing_profile: DEF_PackagePacking = null
 ## Подтверждённого ухода со склада нет; резервируется только положительный номер.
 @export var active: bool = true
 

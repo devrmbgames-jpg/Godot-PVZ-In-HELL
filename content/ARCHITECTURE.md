@@ -304,9 +304,14 @@ facts or timers. ReceivingBatch also freezes quantity and packing-definition pat
 C_PackageContents owns their live values. Native scenes come from that packing profile, not from
 an unrelated content recipe. Full/empty physical mass and extraction count use this composition.
 Snapshot preflight verifies the retained quantity, capacity and exact native scene before mutation;
-fresh compilation receives the saved composition and mass before publication. Schema20/PVZH1 rejects
-previous schemas while preserving their files. Package IDs and recipients retain their owners;
-arrival history/UI physical-fact integration remains the active packaging task.
+fresh compilation receives the saved composition and mass before publication. Arrival records retain
+the selected item, quantity and immutable packing profile after consumption or departure. Pure
+PackageCargoRules supplies actual full mass, handling tags and independent hazard flags to both live
+views and archive presentation; empty bodies hide cargo warnings without changing arrival facts.
+New diagnostic IDs use actual full mass/hazard and native collision bounds. Terminal weight sorting,
+detail, quantity labels, hazard icons, physical stickers and debug HUD read these shared facts.
+Schema21/PVZH1 validates projection capacity, live agreement and diagnostic mass/hazard, rejecting
+previous schemas while preserving their files. Package IDs and recipients retain their owners.
 Market price and parcel accounting value remain separate contracts.
 
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances

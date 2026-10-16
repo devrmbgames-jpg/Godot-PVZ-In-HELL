@@ -7665,13 +7665,18 @@
         "subscribe"
       ],
       "public_methods": [
-        "is_empty"
+        "is_empty",
+        "handling_tags",
+        "rupture_scene"
       ],
       "sources": [
-        "content/ui/package_condition_view.gd"
+        "content/ui/package_condition_view.gd",
+        "content/ui/interaction_hud.gd"
       ],
       "method_rights": {
-        "is_empty": "query"
+        "is_empty": "query",
+        "handling_tags": "query",
+        "rupture_scene": "query"
       },
       "public_instance_methods": []
     },
@@ -13301,7 +13306,8 @@
       "sources": [
         "content/services/gameplay/loot_drop_service.gd",
         "content/services/packages/package_contents_service.gd",
-        "content/services/packages/receiving_package_factory.gd"
+        "content/services/packages/receiving_package_factory.gd",
+        "content/domains/packages/services/package_history_service.gd"
       ],
       "method_rights": {
         "new": "read",
@@ -18751,7 +18757,8 @@
         "content/domains/packages/rules/package_shipment_rules.gd",
         "content/domains/packages/services/receiving_delivery_service.gd",
         "content/domains/packages/rules/package_liquid_rules.gd",
-        "content/domains/packages/authoring/et_package_state.gd"
+        "content/domains/packages/authoring/et_package_state.gd",
+        "content/domains/packages/rules/package_cargo_rules.gd"
       ],
       "purpose": "Reads immutable catalog data and retains the once-selected definition in the package and arrival projection; no inventory mutation.",
       "method_rights": {}
@@ -18807,7 +18814,13 @@
       "public_methods": [
         "title",
         "comment",
-        "tags"
+        "tags",
+        "mass_kg",
+        "hazard_class",
+        "is_explosive",
+        "is_toxic",
+        "is_flammable",
+        "has_unclassified_hazard"
       ],
       "public_instance_methods": [],
       "sources": [
@@ -18819,7 +18832,13 @@
       "method_rights": {
         "title": "query",
         "comment": "query",
-        "tags": "query"
+        "tags": "query",
+        "mass_kg": "query",
+        "hazard_class": "query",
+        "is_explosive": "query",
+        "is_toxic": "query",
+        "is_flammable": "query",
+        "has_unclassified_hazard": "query"
       }
     },
     {
@@ -19918,7 +19937,8 @@
       "sources": [
         "content/domains/packages/rules/package_packing_rules.gd",
         "content/domains/packages/rules/package_shipment_rules.gd",
-        "content/domains/packages/rules/package_liquid_rules.gd"
+        "content/domains/packages/rules/package_liquid_rules.gd",
+        "content/domains/packages/rules/package_cargo_rules.gd"
       ],
       "purpose": "Reads immutable unit mass, phase, hazards and packing envelope; no inventory or live payload writes.",
       "method_rights": {}
@@ -19933,12 +19953,14 @@
       ],
       "public_methods": [
         "valid",
-        "mass_kg"
+        "mass_kg",
+        "valid_contents"
       ],
       "public_instance_methods": [],
       "method_rights": {
         "valid": "query",
-        "mass_kg": "query"
+        "mass_kg": "query",
+        "valid_contents": "query"
       },
       "sources": [
         "content/domains/persistence/rules/receiving_snapshot_rules.gd",
@@ -19978,6 +20000,28 @@
         "content/domains/persistence/services/world_snapshot_service.gd"
       ],
       "purpose": "Detached reconstruction of an already validated saved composition before native package compilation."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "packages",
+      "symbol": "PackageCargoRules",
+      "path": "content/domains/packages/rules/package_cargo_rules.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "full_mass_kg",
+        "hazard_class"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "full_mass_kg": "query",
+        "hazard_class": "query"
+      },
+      "sources": [
+        "content/domains/persistence/rules/package_order_snapshot_rules.gd"
+      ],
+      "purpose": "Validates immutable arrival projection facts against the encoded history before World mutation."
     }
   ],
   "legacy_decomposition": []

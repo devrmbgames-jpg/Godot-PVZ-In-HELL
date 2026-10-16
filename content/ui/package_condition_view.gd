@@ -21,6 +21,7 @@ var _opening: int = -1
 var _leaking: bool = false
 var _empty: bool = false
 var _definition: DEF_Package = null
+var _handling_tags: int = -1
 var _stickers: Array[Label3D] = []
 @onready var _package: Entity = get_parent() as Entity
 
@@ -77,10 +78,14 @@ func _process(_delta: float) -> void:
 		visible = false
 		return
 
+	var handling_tags: int = (
+		PackageContentsService.handling_tags(_package) if package_data.definition != null else 0
+	)
 	var unchanged: bool = (
 		_damage == condition.damage and _opening == condition.opening
 		and _leaking == condition.leaking and _definition == package_data.definition
 		and _empty == PackageContentsService.is_empty(_package)
+		and _handling_tags == handling_tags
 	)
 	if unchanged:
 		return
@@ -90,6 +95,7 @@ func _process(_delta: float) -> void:
 	_leaking = condition.leaking
 	_definition = package_data.definition
 	_empty = PackageContentsService.is_empty(_package)
+	_handling_tags = handling_tags
 
 	var lines: PackedStringArray = []
 	modulate = opened_color
@@ -109,11 +115,11 @@ func _process(_delta: float) -> void:
 
 	var marking: PackedStringArray = []
 	if _definition != null and not _empty:
-		if _definition.tags & DEF_Package.Tag.FRAGILE:
+		if _handling_tags & DEF_Package.Tag.FRAGILE:
 			marking.append("ХРУПКОЕ")
-		if _definition.tags & DEF_Package.Tag.HEAVY:
+		if _handling_tags & DEF_Package.Tag.HEAVY:
 			marking.append("ТЯЖЁЛОЕ")
-		if _definition.tags & DEF_Package.Tag.LIQUID:
+		if _handling_tags & DEF_Package.Tag.LIQUID:
 			marking.append("ЖИДКОСТЬ")
 	marking.append_array(lines)
 	for sticker: Label3D in _stickers:

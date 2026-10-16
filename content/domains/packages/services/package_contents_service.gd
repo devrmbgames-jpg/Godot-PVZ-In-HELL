@@ -38,6 +38,30 @@ static func empty_mass_kg(package: Entity) -> float:
 	return PackageShipmentRules.mass_kg(identity.definition, contents, true)
 
 
+## Current handling marks disappear from an empty shell; the arrival record keeps its full facts.
+static func handling_tags(package: Entity) -> int:
+	var identity: C_Package = package.get_component(C_Package) as C_Package
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	if contents != null and contents.released:
+		return 0
+	return PackageCargoRules.tags(
+		identity.definition, contents.selected_item if contents != null else null,
+		contents.quantity if contents != null else 0,
+		contents.packing_profile if contents != null else null,
+	)
+
+
+## Read-only native effect identity for debug display; does not consume or emit the payload.
+static func rupture_scene(package: Entity, destroyed: bool) -> PackedScene:
+	var identity: C_Package = package.get_component(C_Package) as C_Package
+	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
+	if contents != null and contents.released:
+		return null
+	return PackageCargoRules.rupture_scene(
+		identity.definition, contents.selected_item if contents != null else null, destroyed,
+	)
+
+
 ## Requires a package identity; reads the payload phase without treating all catalog items as solid.
 static func is_liquid(package: Entity) -> bool:
 	var identity: C_Package = package.get_component(C_Package) as C_Package

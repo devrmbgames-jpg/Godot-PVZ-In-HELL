@@ -51,7 +51,7 @@ func present(
 		var comment: String = PackageOrderPresentation.comment(record)
 		if not comment.is_empty():
 			lines.append(comment)
-		lines.append("Вес: %.1f кг" % definition.mass_kg)
+		lines.append("Вес: %.1f кг" % PackageOrderPresentation.mass_kg(record))
 		lines.append("Учётная стоимость: %d" % definition.accounting_value)
 	if record.received_day > 0:
 		lines.append("Дата поступления: день %d" % record.received_day)

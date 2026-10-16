@@ -47,6 +47,7 @@ static func valid_profile(profile: DEF_PackagePacking) -> bool:
 		or profile.single_item_minimum_length_m < 0.0 or not is_finite(profile.empty_mass_kg)
 		or profile.empty_mass_kg <= 0.0 or not is_finite(profile.maximum_gross_mass_kg)
 		or profile.maximum_gross_mass_kg <= profile.empty_mass_kg
+		or not is_finite(profile.heavy_mark_mass_kg) or profile.heavy_mark_mass_kg <= 0.0
 	):
 		return false
 	var paths: Dictionary[String, bool] = { }
@@ -77,7 +78,7 @@ static func accepts(profile: DEF_PackagePacking, cargo: DEF_ItemCargo, quantity:
 			return false
 	var payload_volume: float = _volume(cargo.unit_size_m) * quantity
 	var capacity: float = _volume(profile.inner_size_m) * profile.usable_volume_ratio
-	var gross_mass: float = profile.empty_mass_kg + cargo.unit_mass_kg * quantity
+	var gross_mass: float = gross_mass_kg(profile, cargo, quantity)
 	return (
 		is_finite(payload_volume) and payload_volume <= capacity
 		and (is_finite(gross_mass) and gross_mass <= profile.maximum_gross_mass_kg)
@@ -86,6 +87,11 @@ static func accepts(profile: DEF_PackagePacking, cargo: DEF_ItemCargo, quantity:
 
 
 #region Canonical smallest compatible shell
+## Combined mass in kilograms for already validated authored capacity and an explicit unit count.
+static func gross_mass_kg(profile: DEF_PackagePacking, cargo: DEF_ItemCargo, count: int) -> float:
+	return profile.empty_mass_kg + cargo.unit_mass_kg * count
+
+
 ## Chooses the smallest adequate shell; equal capacities use the unique authored key as tie-break.
 ## Missing/ambiguous profiles reject rather than making an order depend on catalog array order.
 static func choose(

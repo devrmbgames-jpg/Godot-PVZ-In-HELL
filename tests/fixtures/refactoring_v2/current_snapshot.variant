@@ -537,6 +537,8 @@
 "note": "",
 "number": 0,
 "ordered_item": null,
+"ordered_quantity": 0,
+"packing_profile": null,
 "package_id": "fixture/shipment/1",
 "read_event_ids": PackedStringArray(),
 "received_day": 1
@@ -1490,5 +1492,5 @@
 }]),
 "morning_day": 2,
 "raw_actors": Array[Dictionary]([]),
-"version": 20
+"version": 21
 }

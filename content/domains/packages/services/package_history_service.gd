@@ -61,6 +61,9 @@ static func record_arrival(parcel: Entity, day_index: int) -> PackageRegistratio
 	record.definition = identity.definition
 	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
 	record.ordered_item = contents.selected_item if contents != null else null
+	if record.ordered_item != null:
+		record.ordered_quantity = contents.quantity
+		record.packing_profile = contents.packing_profile
 	registry.records.append(record)
 	return record
 
@@ -78,11 +81,12 @@ static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	if not identity.history_id.is_empty():
 		return identity.history_id if PackageHistoryId.parse(identity.history_id) != null else ""
 
-	var mass_tenths: int = roundi(identity.definition.mass_kg * PackageHistoryId.MASS_SCALE)
+	var mass_kg: float = PackageContentsService.full_mass_kg(parcel)
+	var mass_tenths: int = roundi(mass_kg * PackageHistoryId.MASS_SCALE)
 	if mass_tenths < 0 or mass_tenths > PackageHistoryId.MAX_MASS_TENTHS:
 		push_error(
 			"Package mass cannot be represented in history ID: %.2f kg"
-			% identity.definition.mass_kg
+			% mass_kg
 		)
 		return ""
 
@@ -92,7 +96,10 @@ static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	if history.number < 1:
 		return ""
 
-	history.hazard_class = identity.definition.history_hazard_class
+	var contents: C_PackageContents = parcel.get_component(C_PackageContents) as C_PackageContents
+	history.hazard_class = PackageCargoRules.hazard_class(
+		identity.definition, contents.selected_item if contents != null else null,
+	)
 	history.size_class = _size_class(parcel)
 	history.mass_tenths_kg = mass_tenths
 	identity.history_id = history.serialize()
@@ -128,27 +135,14 @@ static func _ledger() -> C_PackageLedger:
 
 
 static func _size_class(parcel: Entity) -> PackageHistoryId.SizeClass:
-	var node: Node = parcel as Node
-	if node == null:
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	if body == null:
 		return PackageHistoryId.SizeClass.MEDIUM
-
-	var collision: CollisionShape3D = node.get_node_or_null("CollisionShape3D") as CollisionShape3D
-	if collision == null or collision.shape == null:
+	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	if not solver.prepare(body):
 		return PackageHistoryId.SizeClass.MEDIUM
-
-	var longest: float = MEDIUM_MAX_METERS
-	if collision.shape is BoxShape3D:
-		var box: BoxShape3D = collision.shape as BoxShape3D
-		longest = maxf(box.size.x, maxf(box.size.y, box.size.z))
-	elif collision.shape is SphereShape3D:
-		var sphere: SphereShape3D = collision.shape as SphereShape3D
-		longest = sphere.radius * 2.0
-	elif collision.shape is CapsuleShape3D:
-		var capsule: CapsuleShape3D = collision.shape as CapsuleShape3D
-		longest = maxf(capsule.radius * 2.0, capsule.height)
-	elif collision.shape is CylinderShape3D:
-		var cylinder: CylinderShape3D = collision.shape as CylinderShape3D
-		longest = maxf(cylinder.radius * 2.0, cylinder.height)
+	var size: Vector3 = solver.bounds_at(Transform3D.IDENTITY).size
+	var longest: float = maxf(size.x, maxf(size.y, size.z))
 
 	if longest <= SMALL_MAX_METERS:
 		return PackageHistoryId.SizeClass.SMALL

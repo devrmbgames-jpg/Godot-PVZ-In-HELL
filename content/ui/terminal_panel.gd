@@ -309,8 +309,8 @@ func _compare_records(first: PackageRegistrationRecord, second: PackageRegistrat
 	match _sort_mode:
 		SortMode.WEIGHT:
 			return _compare_float(
-				first_definition.mass_kg if first_definition != null else 0.0,
-				second_definition.mass_kg if second_definition != null else 0.0,
+				PackageOrderPresentation.mass_kg(first),
+				PackageOrderPresentation.mass_kg(second),
 			)
 		SortMode.NUMBER:
 			return _compare_int(first.number, second.number)

@@ -19,7 +19,7 @@ func _init(item: DEF_InventoryItem, count: int, shell: DEF_PackagePacking, path:
 	_packing = shell
 	_scene_path = path
 	_empty_mass_kg = shell.empty_mass_kg
-	_gross_mass_kg = _empty_mass_kg + item.cargo_profile.unit_mass_kg * count
+	_gross_mass_kg = PackagePackingRules.gross_mass_kg(shell, item.cargo_profile, count)
 
 
 func item() -> DEF_InventoryItem:
