@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `49dcfd6dee743e71afd40c24c4f7e5e5c390a6d2`
-TARGET_SHA: pending M2b policy commit — REVIEW_PENDING
+TARGET_SHA: `8eba11969eaeb25b185376140bf962343db741b9` — M2b policy review PASS, repair0/2
 
 Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
 [Жуткий](creepy_npc_unpredictable_stalking.md),
@@ -30,8 +30,8 @@ M1a/b закрыты по реализации/автопроверкам/review
 физическая опора, READY прежде WRONG, стабильный tie-break, резерв и повторный gate до _resolve_delivery.
 M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: typed item holy/fire metadata,16 native .tres,
 22 prefab effect agreement; no material findings, reviewer validation NOT_RUN, repair0/2.
-M2b policy реализован, review pending: DEF_NpcParcelReaction CAPABILITY у4 архетипов и чистый chooser;
-вероятности берутся из typed-профилей, rolls передаются явно; runtime incident/физика ещё не реализованы.
+M2b policy закрыт по реализации/review: DEF_NpcParcelReaction CAPABILITY у4 архетипов и чистый chooser;
+rolls передаются явно; review no material findings, architecture/style PASS, validation NOT_RUN, repair0/2.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults, с явными Inspector overrides.
 RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, no other findings; reviewer validation NOT_RUN. Открытых P0/P1/P2 нет; visual NOT_RUN,0/8.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
@@ -196,5 +196,5 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-M2b policy: commit/review/triage; затем M2c durable эпизоды, фиксация выбора и physical effects;
-затем персональный cooldown/save compatibility/регрессии -> owner QA. Общая задача IN_PROGRESS.
+M2c: durable эпизоды/фиксация выбора, персональный deadline по GameClock.elapsed_ticks и physical effects;
+затем присвоение/запугивание/save compatibility/регрессии -> owner QA. Runtime реакции ещё не реализованы; задача IN_PROGRESS.
