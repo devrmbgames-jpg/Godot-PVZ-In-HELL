@@ -65,8 +65,8 @@ C3 использует технически принятый [общий handof
 ## Next
 
 Выполнить разрешённые C4 случаи по
-[QA-карточке](../../.qa/tasks/creepy_npc_unpredictable_stalking.md): собрать exact-SHA review исправления
-RV-002 у CustomerGreetingService до зависимого case8. Native default MANUAL regression теперь PASS.
+[QA-карточке](../../.qa/tasks/creepy_npc_unpredictable_stalking.md): собрать targeted cycle2 review
+RV-003 (dialogue-only traits) до зависимого case8; RV-002 default MANUAL regression PASS.
 Остался один разрешённый rendered case; расширять бюджет/повторять закрытые случаи нельзя.
 Parcel dialogue migration085f14111a20078d393e0ad4556bf782a4309ec3 reviewed PASS/no findings;
 финальный H4 использовал8/8, повторять нельзя. Runner Q1/Q2 archived. Не объявлять task DONE до C4.
@@ -106,7 +106,18 @@ rear_contact_pending; обычный manual visit остаётся без авт
 Red native39:38PASS/1FAIL (новая default policy проверка, `gut-20261016-175904455.*.log`).
 Green native39/336,stderr0 PASS (`gut-20261016-180035798.*.log`), MCP2 checked/empty,
 formatter2, strict architecture0, structure/diff PASS. Reload43 был transient; native path diagnostic
-и fresh-process GUT чистые. Review REVIEW_PENDING; Technical IN_PROGRESS до triage. Repair cycle1/2.
+и fresh-process GUT чистые. Review BASE `4ba8dddc15225808e09b0ef3558a805203ea7145`, TARGET
+`02dc58cac23f35a43d00620b606f4853abf0dbb0`: R1 P2 ACCEPTED как RV-003; execution NOT_RUN.
+Technical IN_PROGRESS; targeted repair/re-review cycle2/2, REVIEW_PENDING.
+
+RV-003 — ACCEPTED P2: исключение finite-contact обходило authored RIDDLE/PROVOCATEUR,
+могло расходовать order_announced на загадке или раскрывать номер до провокационного диалога.
+CustomerPresentation теперь разрешает rear-исключение только для MANUAL без dialogue-only traits;
+существующие quick/trait правила используют общий predicate, pending/phase/registry/once сохранены.
+Native регрессии выбрали реальные RIDDLE и PROVOCATEUR definitions в собственном fixture profile;
+обычный/скрытый/обнаруженный контакт сохраняет их исключения и не расходует order_announced.
+Native GUT41/367 PASS/stderr0 (`gut-20261016-180510998.*.log`), MCP3 checked/empty,
+formatter3/strict architecture0/structure/diff PASS. Re-review pending, cycle2/2.
 
 ## Owner QA / blockers
 

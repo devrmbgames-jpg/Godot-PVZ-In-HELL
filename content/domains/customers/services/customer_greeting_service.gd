@@ -24,7 +24,10 @@ static func announce_order(customer: E_NpcCharacter, visit: CustomerVisit) -> vo
 	# rear_contact_pending above keeps the hidden arrival silent until actual observation.
 	if (
 		not CustomerPresentation.uses_quick_visit(visit)
-		and not agent.service_contact_position.is_finite()
+		and not (
+			agent.service_contact_position.is_finite()
+			and CustomerPresentation.uses_rear_announcement(visit)
+		)
 	):
 		return
 	if CustomerPresentation.registered_number(visit) < 0:

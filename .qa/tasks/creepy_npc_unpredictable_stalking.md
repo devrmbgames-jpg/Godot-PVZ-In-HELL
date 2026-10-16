@@ -6,8 +6,9 @@ Status: **IN_PROGRESS**. Owner approved up to8 C4 rendered/playtest cases on2026
 Budget: **7/8 cases consumed**; case8 remains authorized and NOT_RUN.
 Case1 PASS only for skip; cases2–6 INCONCLUSIVE overall, with limited confirmed behavior.
 Case7 exposed P1 RV-002: reached rear contact + actual close detection did not announce
-the registered number for the default manual visit. Repair implemented, native39/336 PASS;
-immutable-SHA review pending, dependent case8 NOT_RUN.
+the registered number for the default manual visit. Native regression reproduced the MANUAL-only
+defect. Initial repair39/336 PASS; review R1/P2 accepted as RV-003 because it bypassed composed
+RIDDLE/PROVOCATEUR policy. Narrowed repair41/367 PASS, targeted cycle2 review pending; case8 NOT_RUN.
 
 Runtime/schema26 reviewed through `d1b19fc4abbf2ccc27b8d7e89a7dc639fb05b348`,
 BASE `dccea7c57b4cf6fbb3b7e63285023d1432a27322`; targeted RV-001 repair review PASS.
@@ -55,4 +56,7 @@ cadence assertion is QA misuse, not evidence of a production reset regression. N
 RV-002 red/green: actual default policy native regression failed before the guard repair
 (38/39 PASS), then39/39/336 assertions,stderr0 PASS. Ordinary manual arrival and hidden contact
 remain silent; actual rear detection announces the existing registered number once. Current fix
-is REVIEW_PENDING; rendered confirmation has not run and no additional case is claimed.
+is narrowed to MANUAL without dialogue-only traits after RV-003 triage. Selected real RIDDLE and
+PROVOCATEUR native regressions keep their exclusions and order_announced=false at ordinary,
+hidden and observed rear contacts. Final41/367 PASS/stderr0; targeted cycle2 REVIEW_PENDING.
+Rendered confirmation has not run and no additional case is claimed.

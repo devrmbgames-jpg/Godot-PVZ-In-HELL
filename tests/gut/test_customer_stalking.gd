@@ -4,6 +4,9 @@ extends "res://tests/gut/test_district_service.gd"
 const CREEPY_PROFILE: DEF_NpcArchetype = preload(
 	"res://content/domains/npc/definitions/def_npc_archetype_creepy.tres"
 )
+const MANUAL_VISIT_POLICY: DEF_Customer = preload(
+	"res://content/domains/customers/definitions/def_customer_visit_default.tres"
+)
 const SERVICE_TREE: String = "res://content/domains/customers/ai/trees/bt_npc_service.tres"
 
 var _rear_body: E_DistrictNpc
@@ -524,9 +527,7 @@ func test_hidden_rear_arrival_waits_for_real_detection_then_announces_own_number
 
 func test_default_manual_visit_announces_number_only_after_rear_detection() -> void:
 	await _rear_fixture()
-	_rear_visit.definition = load(
-		"res://content/domains/customers/definitions/def_customer_visit_default.tres"
-	) as DEF_Customer
+	_rear_visit.definition = MANUAL_VISIT_POLICY
 	assert_false(CustomerPresentation.uses_quick_visit(_rear_visit))
 	CustomerGreetingService.announce_order(_rear_body, _rear_visit)
 	assert_false(_rear_agent.order_announced, "Ordinary manual arrival still requires dialogue")
@@ -544,6 +545,41 @@ func test_default_manual_visit_announces_number_only_after_rear_detection() -> v
 	assert_eq((_rear_body.get_node("Message") as Label3D).text, message)
 	assert_eq(_rear_person.memories.size(), 1)
 	assert_true(get_tree().get_nodes_in_group(NpcDialogueService.ACTIVE_GROUP).is_empty())
+
+
+func _assert_rear_contact_keeps_dialogue_trait(rule: DEF_NpcTrait) -> void:
+	await _rear_fixture()
+	_rear_visit.definition = MANUAL_VISIT_POLICY
+	_rear_person.profile = _rear_person.profile.duplicate(true) as DEF_NpcArchetype
+	_rear_person.profile.rules.append(rule)
+	assert_same(_rear_person.rule_for(rule.kind), rule)
+	assert_false(CustomerPresentation.uses_quick_visit(_rear_visit))
+	CustomerGreetingService.announce_order(_rear_body, _rear_visit)
+	assert_false(_rear_agent.order_announced)
+	_reach_rear()
+	CustomerGreetingService.announce_order(_rear_body, _rear_visit)
+	assert_false(_rear_agent.order_announced)
+	_look_at_rear_contact()
+	_sense(0.1)
+	assert_false(_rear_agent.rear_contact_pending)
+	assert_false(
+		_rear_agent.order_announced, "A rear contact must not consume dialogue-only policy"
+	)
+	assert_false((_rear_body.get_node("Message") as Label3D).text.contains("003"))
+	assert_eq(_rear_person.memories.size(), 1)
+
+
+func test_rear_contact_preserves_selected_riddle_introduction() -> void:
+	await _assert_rear_contact_keeps_dialogue_trait(
+		load("res://content/domains/npc/definitions/def_npc_trait_6.tres") as DEF_NpcTrait
+	)
+	assert_false(_rear_visit.riddle_solved)
+
+
+func test_rear_contact_preserves_selected_provocateur_introduction() -> void:
+	await _assert_rear_contact_keeps_dialogue_trait(
+		load("res://content/domains/npc/definitions/def_npc_trait_5.tres") as DEF_NpcTrait
+	)
 
 
 func test_rear_arrival_does_not_invent_an_unregistered_number() -> void:

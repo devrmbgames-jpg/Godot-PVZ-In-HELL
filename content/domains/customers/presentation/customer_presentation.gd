@@ -87,10 +87,27 @@ static func uses_quick_visit(visit: CustomerVisit) -> bool:
 		return (
 			visit.definition != null
 			and visit.definition.introduction == DEF_Customer.Introduction.ANNOUNCE_ORDER
-			and person.rule_for(DEF_NpcTrait.Kind.RIDDLE) == null
-			and person.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) == null
+			and not _requires_order_dialogue(person)
 		)
 	return uses_quick_order(visit.definition)
+
+
+## A reached, observed rear contact may replace manual introduction, retaining dialogue-only traits.
+## The caller still owns the real-contact, visibility, phase and registered-number gates.
+static func uses_rear_announcement(visit: CustomerVisit) -> bool:
+	var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
+	return (
+		person != null and visit.definition != null
+		and visit.definition.introduction == DEF_Customer.Introduction.MANUAL
+		and not _requires_order_dialogue(person)
+	)
+
+
+static func _requires_order_dialogue(person: NpcRecord) -> bool:
+	return (
+		person.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null
+		or person.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null
+	)
 
 
 ## Сохраняет авторское знакомство в сценах без районной сессии.
