@@ -20080,6 +20080,29 @@
         "content/domains/inventory/definitions/def_inventory_item.gd"
       ],
       "purpose": "Shares the native immutable receiver-effect definition with item material metadata; no effect execution or mutable combat state."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "DEF_NpcParcelReaction",
+      "path": "content/domains/npc/definitions/def_npc_parcel_reaction.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "valid_configuration"
+      ],
+      "public_instance_methods": [
+        "valid_configuration"
+      ],
+      "method_rights": {
+        "valid_configuration": "query"
+      },
+      "sources": [
+        "content/domains/customers/rules/customer_parcel_reaction_rules.gd"
+      ],
+      "purpose": "Pure wrong-parcel choice consumes an immutable typed NPC capability; no mutable personality, lifetime or outcome authority."
     }
   ],
   "legacy_decomposition": []

@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://by2rxwys8vivp" path="res://content/domains/npc/definitions/def_npc_feeding.tres" id="8_ucgtc"]
 [ext_resource type="Resource" uid="uid://c4lwn1xshrnjk" path="res://content/domains/npc/definitions/def_npc_light_comfort.tres" id="9_7fx3v"]
 [ext_resource type="Resource" uid="uid://dcmt3al5mb5ax" path="res://content/domains/npc/definitions/def_npc_veil.tres" id="10_va3pa"]
+[ext_resource type="Resource" uid="uid://cdatq7owm74i3" path="res://content/domains/npc/definitions/def_npc_parcel_reaction_vampire.tres" id="11_0itk0"]
 
 [sub_resource type="Resource" id="Resource_rbum6"]
 script = ExtResource("3_ucgtc")
@@ -41,7 +42,7 @@ resident = false
 recipient_key = &"visitor_2"
 personality = 1
 schedule = SubResource("Resource_gwyun")
-rules = Array[ExtResource("6_0itk0")]([ExtResource("7_a5nvi"), ExtResource("8_ucgtc"), ExtResource("9_7fx3v"), ExtResource("10_va3pa")])
+rules = Array[ExtResource("6_0itk0")]([ExtResource("7_a5nvi"), ExtResource("8_ucgtc"), ExtResource("9_7fx3v"), ExtResource("10_va3pa"), ExtResource("11_0itk0")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.34117648, 0.22352941, 0.2901961, 1)

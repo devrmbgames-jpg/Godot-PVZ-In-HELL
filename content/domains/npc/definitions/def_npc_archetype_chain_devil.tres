@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_5.tres" id="6_q3msj"]
 [ext_resource type="Resource" uid="uid://b7d3tf2o4qxlu" path="res://content/domains/npc/definitions/def_npc_soul_trade.tres" id="7_cjcgr"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_nu0xv"]
+[ext_resource type="Resource" uid="uid://b5gi7f3x7e3fg" path="res://content/domains/npc/definitions/def_npc_parcel_reaction_chain_devil.tres" id="8_dbphk"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_efetb"]
 
 [sub_resource type="Resource" id="Resource_w54bj"]
@@ -43,7 +44,7 @@ resident = false
 recipient_key = &"visitor_1"
 personality = 1
 schedule = SubResource("Resource_axyi5")
-rules = Array[ExtResource("5_77mij")]([ExtResource("6_q3msj"), ExtResource("7_cjcgr")])
+rules = Array[ExtResource("5_77mij")]([ExtResource("6_q3msj"), ExtResource("7_cjcgr"), ExtResource("8_dbphk")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.4745098, 0.27058825, 0.30588236, 1)

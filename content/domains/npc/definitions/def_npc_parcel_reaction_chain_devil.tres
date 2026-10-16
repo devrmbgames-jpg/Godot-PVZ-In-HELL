@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DEF_NpcParcelReaction" format=3 uid="uid://b5gi7f3x7e3fg"]
+
+[ext_resource type="Script" uid="uid://db8kmt4md2772" path="res://content/domains/npc/definitions/def_npc_parcel_reaction.gd" id="1_427qc"]
+
+[resource]
+script = ExtResource("1_427qc")
+mode = 1
+rejects_holy = true
+throw_after_not_taken_probability = 0.5
+kind = 7
+key = &"parcel_reaction/chain_devil"

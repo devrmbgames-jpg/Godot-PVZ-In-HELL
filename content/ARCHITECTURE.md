@@ -319,6 +319,12 @@ key or shopping category. DEF_InventoryItem.destroyed_by_fire is independent aut
 material eligibility, including virtual supplies; it is neither a flammability flag nor a damage
 operation. Reaction consumers must validate actual remaining contents before using these facts.
 Effect execution, damage and content consumption retain their existing domain owners.
+
+DEF_NpcParcelReaction is a typed CAPABILITY in the existing NPC trait set. Its mode owns authored
+take/conditional-throw or fire probabilities; holy precedence and absolute/conditional fire damage
+are explicit tuning. CustomerParcelReactionRules consumes the selected immutable capability,
+actual-cargo facts and captured rolls, returning only an outcome. It neither samples RNG nor
+executes a reaction; the operation owner must commit incident identity and choice before effects.
 Market price and parcel accounting value remain separate contracts.
 
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances

@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="5_5m8ff"]
 [ext_resource type="Resource" uid="uid://cuhy4qwx18m2a" path="res://content/domains/npc/definitions/def_npc_trait_2.tres" id="6_ko05t"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_mqme8"]
+[ext_resource type="Resource" uid="uid://6yqikrewrgc1" path="res://content/domains/npc/definitions/def_npc_parcel_reaction_fire_elemental.tres" id="7_pse57"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_eiiya"]
 
 [sub_resource type="Resource" id="Resource_pqpcj"]
@@ -36,7 +37,7 @@ display_name = "Огненный элементаль"
 recipient_key = &"customer_02"
 personality = 0
 schedule = SubResource("Resource_hjpov")
-rules = Array[ExtResource("5_5m8ff")]([ExtResource("6_ko05t")])
+rules = Array[ExtResource("5_5m8ff")]([ExtResource("6_ko05t"), ExtResource("7_pse57")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.92941177, 0.3882353, 0.1764706, 1)

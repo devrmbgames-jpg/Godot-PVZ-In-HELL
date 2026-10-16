@@ -1,8 +1,8 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
-BASE_SHA: `ee312efd776a266ce93b05d8c71a03af20ba4597`
-TARGET_SHA: `81043b87741609aaf9d05368e047a838aab2cfd6` — M2a review PASS, repair0/2
+BASE_SHA: `49dcfd6dee743e71afd40c24c4f7e5e5c390a6d2`
+TARGET_SHA: pending M2b policy commit — REVIEW_PENDING
 
 Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
 [Жуткий](creepy_npc_unpredictable_stalking.md),
@@ -28,16 +28,15 @@ Created: 2026-10-15. Основание: прямой запрос владел�
 Активный `/goal` авторизует выполнение задач; прежнее «только планирование» предшествует ему.
 M1a/b закрыты по реализации/автопроверкам/review: общий CustomerParcelOffer рук/стола, строгий<1 м/LOS,
 физическая опора, READY прежде WRONG, стабильный tie-break, резерв и повторный gate до _resolve_delivery.
-M2a закрыт по данным/автопроверкам/review: DEF_InventoryItem.receiver_effect ссылается на native DEF_ReceiverEffect;
-holy определяется typed alignment. destroyed_by_fire — отдельная авторская пригодность материала, включая food/med.
-Native ResourceSaver обновил16 .tres с сохранением прежних UID; все22 item prefab проверяются на совпадение effect.
-M2a review: no material findings, architecture/style PASS; reviewer validation NOT_RUN; repair0/2.
+M2a review PASS `81043b87741609aaf9d05368e047a838aab2cfd6`: typed item holy/fire metadata,16 native .tres,
+22 prefab effect agreement; no material findings, reviewer validation NOT_RUN, repair0/2.
+M2b policy реализован, review pending: DEF_NpcParcelReaction CAPABILITY у4 архетипов и чистый chooser;
+вероятности берутся из typed-профилей, rolls передаются явно; runtime incident/физика ещё не реализованы.
+Holy precedence/абсолютные огненные исходы — выбранные авторские defaults, с явными Inspector overrides.
 RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): source `9cc2bf517589a1d3f682adbe75a6b83e163eb094` разыменовывал customer до gate. Targeted re-review architecture/style PASS, no other findings; reviewer validation NOT_RUN. Открытых P0/P1/P2 нет; visual NOT_RUN,0/8.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
 запугивание меняет шансы атаки/возврата на5 процентных пунктов за Strength; блок персонален для пары.
-Приоритет святого символа и трактовка взаимоисключающих огненных исходов пока остаются предложениями.
-
-## Что уже есть
+Эти defaults реализуют таблицу плана; отдельного подтверждения владельца по двум пересечениям не было.
 
 - E_DeliveryCounter читает native Area; CustomerFlowService.confirm_delivery — ручной вход в тот же offer/commit.
 - PackageDeliveryCheck различает причины отказа; _resolve_delivery снимает хват после READY и запускает осмотр/итог.
@@ -71,7 +70,7 @@ RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): so
 
 Сначала валидность/доступность, затем принадлежность. Правильный заказ не проходит таблицу чужих.
 Далее особый случай святого символа, затем последовательность решений по профилю, затем отказ.
-Приоритет святого символа над броском в игрока/присвоением — предлагаемое разрешение пересечения правил.
+Native default holy_rejection_first=true даёт приоритет святому над броском/присвоением; авторский override явный.
 
 | NPC / содержимое чужой коробки | Порядок решения и итоговые исходы |
 | --- | --- |
@@ -85,7 +84,7 @@ RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): so
 
 - У Бугая первая проверка25%; вторая50% выполняется только после неприсвоения:0.75*0.5=37.5%
   броска и37.5% отказа. Каждый результат фиксируется один раз; это не прежние50/25/25%.
-  Для Элементаля предложены абсолютные25%/15%/60%, без дополнительного броска после неудачи25%.
+  Для Элементаля native default — абсолютные25%/15%/60%; damage_after_not_burned=false, без второго броска.
 - Признаки содержимого читаются из фактического manifest/количества/typed-свойств предметов,
   не из имени, текста описания или устаревшего bottles-рецепта. Святой символ определяется
   реальной holy-возможностью содержимого, а не классом «любой артефакт».
@@ -169,14 +168,14 @@ RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): so
 
 - M1b GUT106/106,815 assertions, stderr0: counter13/89 (`032611400`), handoff13/118 (`032352514`), inspection12/163 (`032430965`), service17/103 (`032506237`), queue51/342 (`032537132`); prefix `gut-20261016-` in `.artifacts/godot_agent/`.
 - Native ParseChanged9/0 (`20261016-033337292`), MCP9 checked/empty/scripts0; formatter9/role9/strict architecture0/structure/persistence inventory PASS. Новая вывеска стойки сохранена editor/MCP.
-- Counter native Jolt: настоящее падение/стабилизация, unsupported gap/скорости, стопка, смешанные источники, свой приоритет, stable wrong tie, stale role/visit/pose/grip, резерв и штатный осмотр PASS.
+- Counter native Jolt: падение/стабилизация, gap/скорости/стопка, source/receiver priority, stale receipts и осмотр PASS.
 - M2a GUT14/14,302 assertions, stderr0: capabilities4/69 (`034803629`), cargo_catalog3/129 (`034836853`), receiver_effect7/104 (`034855192`); prefix `gut-20261016-`.
 - M2a native ParseChanged2/0 (`20261016-034913378`), MCP2 checked/empty/scripts0 после guarded restart; formatter2/role2/strict architecture0/structure/persistence inventory PASS. Gameplay/visual NOT_RUN,0/8.
 - Native authoring `offlinescript-20261016-034709262`:16 saves/exit0, no compile errors; wrapper FAIL only shutdown retention KNOWN_ENGINE_LIMITATION/DEFERRED. Первоначальный ранний ECS compile error исправлен отложенной загрузкой ресурсов.
+- M2b GUT19/19,1387 assertions, stderr0: reaction_rules9/93 (`035837828`), archetype_catalog4/934 (`035927943`), variation6/360 (`035958958`); native ParseChanged3/0 (`20261016-040031502`), MCP3 checked/empty/scripts0; formatter3/role3 PASS.
+- M2b native/MCP создал4 typed .tres и добавил их4 архетипам с сохранением UID; strict architecture0/structure/persistence inventory PASS. Только выбор, не runtime reaction acceptance; visual0/8.
 - RV-001: focused handoff14/14,124 assertions, stderr0 (`gut-20261016-033859456`); native ParseChanged2/0 (`20261016-033946776`), MCP2 checked/empty, formatter2/role2/strict architecture0/structure PASS.
 - delivery_completion native write/restore PASS/PASS, exit0/0: `.artifacts/godot_agent/delivery_completion-m1b-{write,restore}.{stdout,stderr}.log`. Fixture проверяет arrival number/отдельный LOST и физическое поднесение. Wrapper FAIL: неизвестный phase marker и shutdown-only retention (KNOWN_ENGINE_LIMITATION/DEFERRED), не runtime PASS обёртки.
-- Native/GUT: стол без F; коробка ещё в руках/пролетает над столом; несколько коробок/получателей,
-  одна корректная выдача; <1 м захват, ровно1 м/дальше — нет; стенка/большая коробка/занятые слоты.
 - Одна коробка одновременно в Area и руках, два NPC и deferred устаревший запрос: ровно один commit,
   нет потерянного хвата/двойного получения. Pause/modal/смерть/уход/осмотр не дают фонового захвата.
 - Все строки таблицы, приоритет holy, порядок25%→50% и итоги25/37.5/37.5% Бугая, фиксированные seed;
@@ -197,5 +196,5 @@ RV-001 [P2] FIXED(`f7cc855c9e18149b2f2ebbd597c44b24f737feab`, handoff14/124): so
 
 ### Next
 
-M2b: фиксированные реакции/эпизоды по typed-профилям, затем присвоение/запугивание/физика;
+M2b policy: commit/review/triage; затем M2c durable эпизоды, фиксация выбора и physical effects;
 затем персональный cooldown/save compatibility/регрессии -> owner QA. Общая задача IN_PROGRESS.

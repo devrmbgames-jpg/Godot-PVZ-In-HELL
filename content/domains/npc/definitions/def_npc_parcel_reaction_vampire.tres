@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_NpcParcelReaction" format=3 uid="uid://cdatq7owm74i3"]
+
+[ext_resource type="Script" uid="uid://db8kmt4md2772" path="res://content/domains/npc/definitions/def_npc_parcel_reaction.gd" id="1_xu7pc"]
+
+[resource]
+script = ExtResource("1_xu7pc")
+rejects_holy = true
+kind = 7
+key = &"parcel_reaction/vampire"

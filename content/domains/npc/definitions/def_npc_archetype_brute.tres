@@ -9,6 +9,7 @@
 [ext_resource type="Resource" uid="uid://bue18fdtfmpq6" path="res://content/domains/npc/definitions/def_npc_strength_pride.tres" id="7_3clps"]
 [ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="7_pmogq"]
 [ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="8_td2xk"]
+[ext_resource type="Resource" uid="uid://bt5pflv4gn8dh" path="res://content/domains/npc/definitions/def_npc_parcel_reaction_brute.tres" id="8_wwjdq"]
 
 [sub_resource type="Resource" id="Resource_tpbao"]
 script = ExtResource("3_wwjdq")
@@ -35,7 +36,7 @@ display_name = "Бугай"
 recipient_key = &"customer_05"
 personality = 1
 schedule = SubResource("Resource_y0rw4")
-rules = Array[ExtResource("5_7ea56")]([ExtResource("6_iff2w"), ExtResource("7_3clps")])
+rules = Array[ExtResource("5_7ea56")]([ExtResource("6_iff2w"), ExtResource("7_3clps"), ExtResource("8_wwjdq")])
 interests = PackedStringArray()
 preferred_activities = PackedInt32Array(0, 1, 2, 3)
 body_color = Color(0.5882353, 0.39607844, 0.29803923, 1)
