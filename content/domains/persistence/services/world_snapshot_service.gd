@@ -362,6 +362,8 @@ static func can_restore(snapshot: Dictionary, root: Node) -> bool:
 		return false
 	if not valid(snapshot, root):
 		return false
+	if not _retained_package_scenes_match(snapshot.entities as Array, root):
+		return false
 
 	var placed: Dictionary[String, Entity] = PlacedIdentityRules.resolver(root)
 	var entities: Dictionary[String, Entity] = { }
@@ -395,6 +397,22 @@ static func can_restore(snapshot: Dictionary, root: Node) -> bool:
 
 
 #region Восстановление мира
+## A committed package identity cannot receive saved cargo on a different retained native shell.
+## This read-only check precedes all reconstruction, registration and passive field writes.
+static func _retained_package_scenes_match(records: Array, root: Node) -> bool:
+	if not is_instance_valid(ECS.world):
+		return true
+	var retained: Dictionary[String, E_Package] = { }
+	for entity: Entity in ECS.world.entities:
+		if entity is E_Package:
+			retained[ActorIdentityRules.key_for(entity, root)] = entity as E_Package
+	for record: Dictionary in records:
+		var package: E_Package = retained.get(String(record.key)) as E_Package
+		if package != null and package.scene_file_path != String(record.scene):
+			return false
+	return true
+
+
 ## После полной проверки восстанавливает данные, позы и связи, затем отключение и участие района.
 ## Startup passes defer_reconciliation until global readiness; in-place restore reconciles here.
 ## Preflight failure leaves the live World intact; a later failure is not generic rollback.

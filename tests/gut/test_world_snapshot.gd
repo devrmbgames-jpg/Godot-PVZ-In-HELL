@@ -1138,11 +1138,99 @@ func test_consumed_catalog_payload_restore_cannot_release_or_rupture_again() -> 
 	assert_almost_eq((restored as Node as RigidBody3D).mass, empty_mass, 0.0001)
 
 
-func _ordered_package(item_path: String = ORDER_ITEM_PATH, source_index: int = 0) -> E_Package:
+## Slot capacity must use the frozen full payload, even when the old recipe was much heavier.
+func test_stored_catalog_full_mass_roundtrips_fresh_and_reused_bodies() -> void:
+	_assert_stored_catalog_roundtrip(ORDER_ITEM_PATH, false)
+
+
+## Consumed cargo retains its actual empty packing mass through both slot restore paths.
+func test_stored_catalog_consumed_mass_roundtrips_fresh_and_reused_bodies() -> void:
+	_assert_stored_catalog_roundtrip(
+		"res://content/domains/inventory/definitions/def_item_blood_flask.tres", true,
+	)
+
+
+func _assert_stored_catalog_roundtrip(item_path: String, consumed: bool) -> void:
+	var slot: E_PhysicalSlot = (
+		(load(PHYSICAL_SLOT_PATH) as PackedScene).instantiate() as E_PhysicalSlot
+	)
+	slot.name = "CatalogSlot"
+	_root.add_child(slot)
+	slot.owner = _root
+	FixturePlacedIdentity.assign(_root, slot, &"CatalogSlot")
+	_world.add_entity(slot, null, false)
+	var config: C_PhysicalSlot = slot.get_component(C_PhysicalSlot) as C_PhysicalSlot
+	config.filter = null
+	var parcel: E_Package = _ordered_package(item_path, 1)
+	if consumed:
+		assert_not_null(PackageContentsService.consume_catalog_rupture(parcel))
+	var expected_mass: float = (
+		PackageContentsService.empty_mass_kg(parcel) if consumed
+		else PackageContentsService.full_mass_kg(parcel)
+	)
+	assert_gt(parcel.package_definition.mass_kg, config.maximum_mass)
+	assert_lt(expected_mass, config.maximum_mass)
+	var binding: Relationship = Relationship.new(R_StoredIn.new(), slot)
+	parcel.add_relationship(binding)
+	assert_true(PhysicalSlotService.attach(parcel, binding))
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root), "Saved payload fits slot")
+	(parcel as Node as RigidBody3D).mass = config.maximum_mass + 1.0
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_same(PhysicalSlotService.occupant(slot), parcel)
+	assert_almost_eq((parcel as Node as RigidBody3D).mass, expected_mass, 0.0001)
+	binding = PhysicalSlotService.relationship(parcel)
+	PhysicalSlotService.detach(parcel, binding)
+	parcel.remove_relationship(binding)
+	_world.remove_entity(parcel)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: Entity = PackageQueries.find_live_package("fixture/catalog_order")
+	assert_not_null(restored)
+	if restored == null:
+		return
+	assert_same(PhysicalSlotService.occupant(slot), restored)
+	assert_almost_eq((restored as Node as RigidBody3D).mass, expected_mass, 0.0001)
+	assert_eq(PackageContentsService.is_empty(restored), consumed)
+	var invalid: Dictionary = snapshot.duplicate(true)
+	config.maximum_mass = expected_mass * 0.5
+	assert_false(WorldSnapshotService.can_restore(invalid, _root), "Saved overweight must reject")
+	assert_false(WorldSnapshotService.restore(invalid, _root))
+	assert_same(PhysicalSlotService.occupant(slot), restored)
+
+
+## A valid saved bulk plan cannot overwrite a retained small native shell with the same package ID.
+func test_retained_catalog_scene_disagreement_rejects_before_live_mutation() -> void:
+	var item_path: String = "res://content/domains/inventory/definitions/def_item_toy_block.tres"
+	var bulk: E_Package = _ordered_package(item_path, 0, 8)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	_world.remove_entity(bulk)
+	var replacement: E_Package = _ordered_package(item_path, 0, 1)
+	var contents: C_PackageContents = (
+		replacement.get_component(C_PackageContents) as C_PackageContents
+	)
+	var before_mass: float = (replacement as Node as RigidBody3D).mass
+	var before_scene: String = replacement.scene_file_path
+	var before_id: String = replacement.id
+	var before_count: int = _world.entities.size()
+	assert_false(WorldSnapshotService.can_restore(snapshot, _root))
+	assert_false(WorldSnapshotService.restore(snapshot, _root))
+	assert_same(PackageQueries.find_live_package("fixture/catalog_order"), replacement)
+	assert_eq(contents.quantity, 1)
+	assert_eq(contents.packing_profile.key, &"small_b")
+	assert_eq(replacement.scene_file_path, before_scene)
+	assert_eq(replacement.id, before_id)
+	assert_eq((replacement as Node as RigidBody3D).mass, before_mass)
+	assert_eq(_world.entities.size(), before_count)
+
+
+func _ordered_package(
+	item_path: String = ORDER_ITEM_PATH, source_index: int = 0, quantity: int = 1,
+) -> E_Package:
 	var supply: DEF_Delivery = load(ORDER_SUPPLY_PATH) as DEF_Delivery
 	var selected: DEF_InventoryItem = load(item_path) as DEF_InventoryItem
 	var shipment: PackageShipmentPlan = PackageShipmentRules.for_quantity(
-		selected, 1, supply.packing_profiles, 1, "fixture/catalog_order", 1,
+		selected, quantity, supply.packing_profiles, 1, "fixture/catalog_order", 1,
 	)
 	var parcel: E_Package = (load(shipment.scene_path()) as PackedScene).instantiate() as E_Package
 	parcel.package_definition = supply.packages[source_index]

@@ -153,15 +153,7 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 					):
 						return false
 
-					var mass: float = body.mass
-					for saved: Dictionary in record.components:
-						if SaveDataCodec.component_script(String(saved.type)) == C_Package:
-							mass = (
-								(
-									SaveDataCodec.decode((saved.fields as Dictionary).definition)
-									as DEF_Package
-								).mass_kg
-							)
+					var mass: float = _saved_mass_kg(record, body.mass)
 					if not is_finite(mass) or mass > config.maximum_mass:
 						return false
 					if (
@@ -180,6 +172,26 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 					):
 						return false
 	return true
+
+
+## Slot limits use the saved full/empty payload, independent of the current retained body state.
+static func _saved_mass_kg(record: Dictionary, default_mass: float) -> float:
+	var definition: DEF_Package = null
+	var contents: C_PackageContents = null
+	for saved: Dictionary in record.components:
+		var script: Script = SaveDataCodec.component_script(String(saved.type))
+		if script == C_Package:
+			var encoded_definition: Variant = (saved.fields as Dictionary).definition
+			definition = SaveDataCodec.decode(encoded_definition) as DEF_Package
+		elif script == C_PackageContents:
+			contents = C_PackageContents.new()
+			if not SaveDataCodec.apply_fields(contents, saved.fields as Dictionary):
+				return NAN
+	if definition == null:
+		return default_mass
+	return PackageShipmentRules.mass_kg(
+		definition, contents, contents != null and contents.released,
+	)
 
 
 static func _component(entity: Entity, script: Script) -> Component:

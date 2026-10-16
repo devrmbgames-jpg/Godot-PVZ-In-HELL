@@ -28,21 +28,14 @@ static func has_catalog_order(package: Entity) -> bool:
 static func full_mass_kg(package: Entity) -> float:
 	var identity: C_Package = package.get_component(C_Package) as C_Package
 	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
-	if contents == null or contents.selected_item == null:
-		return identity.definition.mass_kg
-	return (
-		contents.packing_profile.empty_mass_kg
-		+ contents.selected_item.cargo_profile.unit_mass_kg * contents.quantity
-	)
+	return PackageShipmentRules.mass_kg(identity.definition, contents, false)
 
 
 ## Shell-only mass in kilograms; consuming contents never restores an unrelated legacy shell mass.
 static func empty_mass_kg(package: Entity) -> float:
 	var identity: C_Package = package.get_component(C_Package) as C_Package
 	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
-	if contents == null or contents.selected_item == null:
-		return identity.definition.empty_mass_kg
-	return contents.packing_profile.empty_mass_kg
+	return PackageShipmentRules.mass_kg(identity.definition, contents, true)
 
 
 ## Requires a package identity; reads the payload phase without treating all catalog items as solid.

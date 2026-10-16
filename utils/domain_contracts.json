@@ -19932,15 +19932,18 @@
         "query"
       ],
       "public_methods": [
-        "valid"
+        "valid",
+        "mass_kg"
       ],
       "public_instance_methods": [],
       "method_rights": {
-        "valid": "query"
+        "valid": "query",
+        "mass_kg": "query"
       },
       "sources": [
         "content/domains/persistence/rules/receiving_snapshot_rules.gd",
-        "content/domains/persistence/rules/package_order_snapshot_rules.gd"
+        "content/domains/persistence/rules/package_order_snapshot_rules.gd",
+        "content/domains/persistence/rules/snapshot_graph_rules.gd"
       ],
       "purpose": "Validates frozen quantity, packing capacity and native scene before World mutation; never chooses or rerolls."
     },

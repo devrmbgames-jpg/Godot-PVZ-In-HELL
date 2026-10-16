@@ -4,6 +4,19 @@ class_name PackageShipmentRules
 
 
 #region Quantity and shell decisions
+## Pure mass projection from validated composition; both live queries and saved preflight use it.
+static func mass_kg(
+	definition: DEF_Package, contents: C_PackageContents, empty: bool,
+) -> float:
+	if contents == null or contents.selected_item == null:
+		return definition.empty_mass_kg if empty else definition.mass_kg
+	var shell_mass: float = contents.packing_profile.empty_mass_kg
+	return (
+		shell_mass if empty
+		else shell_mass + contents.selected_item.cargo_profile.unit_mass_kg * contents.quantity
+	)
+
+
 ## Validates committed catalog data and the exact native scene without rerolling a decision.
 ## An empty item/count/packing triple explicitly denotes non-catalog authored contents.
 static func valid(
