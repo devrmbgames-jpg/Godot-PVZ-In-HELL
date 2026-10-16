@@ -40,8 +40,8 @@ const MINIMUM_LEAVING_SECONDS: float = 181.0
 @export_range(0.5, 5.0, 0.1) var auto_dialogue_distance: float = 2.0
 ## Клиент принимает свой зарегистрированный заказ из рук игрока вблизи, вне диалога.
 @export var automatic_handoff: bool = true
-## Дистанция автоматического получения коробки из рук, в метрах.
-@export_range(0.2, 3.0, 0.1) var automatic_handoff_distance: float = 1.5
+## Строгая дистанция точки захвата до поверхности коробки, в метрах; не более 1 м.
+@export_range(0.2, 1.0, 0.1) var automatic_handoff_distance: float = 1.0
 ## Изменения удовлетворённости и вероятностей по смыслу ответа игрока.
 @export var dialogue_reactions: Array[DEF_CustomerDialogueReaction] = []
 ## Сценарное испытание обычного клиента; постоянные NPC используют собственные особенности.

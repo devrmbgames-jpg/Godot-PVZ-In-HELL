@@ -2740,7 +2740,8 @@
         "held_relationship",
         "holder_available",
         "physical_body",
-        "held_object"
+        "held_object",
+        "hold_anchor"
       ],
       "sources": [
         "content/services/customers/customer_dialogue_service.gd",
@@ -2756,7 +2757,8 @@
         "held_relationship": "request",
         "holder_available": "request",
         "physical_body": "request",
-        "held_object": "query"
+        "held_object": "query",
+        "hold_anchor": "query"
       },
       "public_instance_methods": []
     },

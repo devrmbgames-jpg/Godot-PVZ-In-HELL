@@ -1,6 +1,8 @@
 # Выдача посылок — автоматический захват и реакции на чужой заказ
 
 Status: **IN_PROGRESS**
+BASE_SHA: `64b6c4eb57ee483a205a835afbeefd5fb64e2e8e`
+TARGET_SHA: pending M1a checkpoint; review NOT_RUN
 
 Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
 [Жуткий](creepy_npc_unpredictable_stalking.md),
@@ -24,31 +26,27 @@ Created: 2026-10-15. Основание: прямой запрос владел�
 ### Current / authorization
 
 Активный `/goal` авторизует выполнение задач; прежнее «только планирование» предшествует ему.
-M1 подготовка: CustomerHandoffService измеряет actor↔customer (default1.5 м), LOS тоже между ними.
-Стол требует confirm_delivery; руки уже идут через общий _resolve_delivery, без новой выдачи.
-Native baseline6/6,72 assertions (`gut-20261016-022800966`), stderr0; новая реализация ещё NOT_RUN.
+M1a implemented: authored NPC HandoffAnchor → native box surface, строгий<1 м, LOS/overlap gate.
+Реальный holder и pause проверяются до выдачи; старые большие policy distance не расширяют предел.
+Native reach13/118 PASS; целевые integration/parser/review ниже. Marker создан/сохранён через MCP.
+M1b ещё открыт: стол без F и общий выбор кандидатов; руки используют прежний _resolve_delivery.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
 запугивание меняет шансы атаки/возврата на5 процентных пунктов за Strength; блок персонален для пары.
 Приоритет святого символа и трактовка взаимоисключающих огненных исходов пока остаются предложениями.
 
 ## Что уже есть
 
-- [E_DeliveryCounter](../../content/domains/customers/entities/e_delivery_counter.gd) возвращает коробки
-  в native DeliveryArea; [CustomerFlowService](../../content/domains/customers/services/customer_flow_service.gd)
-  подтверждает выдачу со стола отдельным вызовом confirm_delivery и проверяет несколько коробок.
-- Автоприём из рук уже вызывается ожиданием/native BT. Но
-  [CustomerHandoffService](../../content/domains/customers/services/customer_handoff_service.gd) проверяет
-  расстояние между персонажами (default1.5 м), а не близость предлагаемой коробки к захвату NPC.
-- direct_handoff_package предпочитает назначенный заказ, затем возвращает первую чужую коробку;
-  текущий can_receive пропускает только READY, поэтому не выполняет новые реакции на WRONG_PACKAGE.
-- [PackageDeliveryCheck](../../content/domains/customers/contracts/package_delivery_check.gd) различает
-  неправильный/неназначенный/незарегистрированный/закрытый заказ. _resolve_delivery освобождает
-  хват лишь после READY и вызывает осмотр/завершение. Чужую реакцию нельзя объявлять успешной выдачей.
-- [GrabReleaseService](../../content/domains/interaction/services/grab_release_service.gd) владеет снятием
-  хвата; [ThrowContext](../../content/domains/combat/services/throw_context.gd) — атрибуцией броска.
-- [CustomerFireOpeningService](../../content/domains/customers/services/customer_fire_opening_service.gd)
-  относится к вскрытию собственного заказа и его эффектам; новые реакции на чужую коробку — другой
-  явный сценарий, использующий существующие damage/hazard owners, без второй реализации огня.
+- [E_DeliveryCounter](../../content/domains/customers/entities/e_delivery_counter.gd) читает native Area;
+  [CustomerFlowService](../../content/domains/customers/services/customer_flow_service.gd).confirm_delivery пока требует ручного вызова.
+- [CustomerHandoffService](../../content/domains/customers/services/customer_handoff_service.gd) вызывается waiting/native BT;
+  M1a использует реальную поверхность вместо центров. Все шесть native упаковок имеют Box colliders.
+- direct_handoff_package предпочитает свой заказ, иначе первую чужую; can_receive пока только READY.
+- [PackageDeliveryCheck](../../content/domains/customers/contracts/package_delivery_check.gd) различает причины отказа;
+  _resolve_delivery снимает хват после READY и запускает осмотр/итог. Чужое не считается выдачей.
+- [GrabReleaseService](../../content/domains/interaction/services/grab_release_service.gd) снимает хват;
+  [ThrowContext](../../content/domains/combat/services/throw_context.gd) владеет атрибуцией броска.
+- [CustomerFireOpeningService](../../content/domains/customers/services/customer_fire_opening_service.gd) открывает свой заказ;
+  чужая реакция использует существующие damage/hazard owners, без второго огня.
 
 ## Единый контур автоматического предложения
 
@@ -165,14 +163,16 @@ Native baseline6/6,72 assertions (`gut-20261016-022800966`), stderr0; новая
   Не делать Service.tick и не переносить подсчёт исходов в Area callback или визуальную анимацию.
 - Отдельный стабильный incident_id и единственный commit защищают ledger, деньги, жалобы, броски
   и разрушение от повторов. В physics/deferred callback повторно проверяется актуальность роли/Entity.
-- Native Area/точки захвата/стол/слоты — .tscn; профили вероятностей и метаданные содержимого — typed .tres.
-  Не хардкодить display_name архетипа. Закрытый save-codec требует явной совместимости новых полей.
+- Native Area/точки/стол/слоты — .tscn, профили/метаданные — typed .tres; без display_name checks, новые save-поля требуют совместимости codec.
 - План согласованности посылок обеспечивает корректные holy/fire/состав/размер. Автоматическое
   назначение номера при поступлении — другая задача; этот план не меняет регистрацию получателя.
 - Общая автоматическая выдача применяется к альтернативному контакту Жуткого и визиту Скромника;
   их локальные планы ссылаются на этот единый контракт, без собственного дубля выдачи.
 
 ### Validation
+
+- M1a GUT106/106,828 assertions, stderr0: handoff13/118 (`024734766`), inspection12/163 (`024432252`), service17/103 (`024444708`), queue51/342 (`024512209`), identity13/102 (`024608040`); prefix `gut-20261016-`. Baseline6/72 (`022800966`).
+- Native ParseChanged4/0 (`20261016-024804403`), MCP4 checked/empty/scripts0; formatter4/role4/strict architecture0/structure/persistence inventory PASS. Native anchor through editor/MCP; visual0/8.
 
 - Native/GUT: стол без F; коробка ещё в руках/пролетает над столом; несколько коробок/получателей,
   одна корректная выдача; <1 м захват, ровно1 м/дальше — нет; стенка/большая коробка/занятые слоты.
@@ -196,5 +196,5 @@ Native baseline6/6,72 assertions (`gut-20261016-022800966`), stderr0; новая
 
 ### Next
 
-M1: native grab-point→parcel-surface distance строго<1 м + LOS, единый кандидат рук/стола;
+M1a native reach → commit/review/triage; M1b единый кандидат рук/стола и автоматический стол;
 затем typed-реакции/эпизоды -> присвоение/запугивание/физика -> saves/регрессии -> owner QA.

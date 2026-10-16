@@ -77,6 +77,7 @@ func before_each() -> void:
 			.REGISTERED
 	CustomerParcelAssignment.bind_parcel(_customer, _visit)
 	_parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	(_parcel as Node as Node3D).global_position = _actor.hold_anchor.global_position
 
 
 ## Удаляет World и даёт отложенным удалениям завершиться перед следующим тестом.
@@ -93,6 +94,145 @@ func _expect_held() -> void:
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(GrabQueries.held_object(_actor), _parcel)
 
+
+func _can_receive() -> bool:
+	return CustomerHandoffService.can_receive(_actor, _customer, _visit, _parcel, true)
+
+
+func _known_box(size: Vector3 = Vector3(0.4, 0.4, 0.4)) -> CollisionShape3D:
+	var collision: CollisionShape3D = _parcel.get_node("CollisionShape3D") as CollisionShape3D
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = size
+	collision.shape = shape
+	collision.transform = Transform3D.IDENTITY
+	return collision
+
+#endregion
+
+
+#region Exact grip-to-surface reach
+func test_strict_one_metre_boundary_ignores_larger_legacy_distance() -> void:
+	_known_box()
+	var customer_body: Node3D = _customer as Node as Node3D
+	customer_body.global_transform = Transform3D.IDENTITY
+	_customer.hold_anchor.position = Vector3.ZERO
+	assert_eq(_customer.hold_anchor.global_position, Vector3.ZERO)
+	_visit.definition.automatic_handoff_distance = 3.0
+	var body: RigidBody3D = _parcel as Node as RigidBody3D
+	for gap: float in [1.001, 1.0, 0.9999]:
+		body.global_position = Vector3(0.0, 0.0, -gap - 0.2)
+		assert_eq(_can_receive(), gap < 1.0, "Surface gap %.4f m" % gap)
+		_expect_held()
+
+
+func test_long_parcel_is_reachable_by_surface_even_with_distant_centres() -> void:
+	_known_box(Vector3(0.4, 0.4, 2.0))
+	var origin: Vector3 = _customer.hold_anchor.global_position
+	var body: RigidBody3D = _parcel as Node as RigidBody3D
+	body.global_position = origin + Vector3(0.0, 0.2, -1.7)
+	var actor_body: Node3D = _actor as Node as Node3D
+	actor_body.global_position = body.global_position - _actor.hold_anchor.position
+	var customer_body: Node3D = _customer as Node as Node3D
+	assert_gt(actor_body.global_position.distance_to(customer_body.global_position), 1.0)
+	assert_gt(origin.distance_to(body.global_position), 1.0)
+	assert_true(_can_receive())
+	assert_true(CustomerFlowService.try_automatic_handoff(_customer, _visit))
+	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
+
+
+func test_rotated_scaled_offset_shape_uses_its_surface_instead_of_world_aabb() -> void:
+	var collision: CollisionShape3D = _known_box()
+	var body: RigidBody3D = _parcel as Node as RigidBody3D
+	body.global_transform = Transform3D(Basis(Vector3.UP, 0.7), Vector3(3.0, 1.0, -2.0))
+	collision.transform = Transform3D(
+		Basis(Vector3.UP, 0.4).scaled_local(Vector3(2.0, 1.0, 0.5)),
+		Vector3(0.4, 0.2, 0.1),
+	)
+	var pose: Transform3D = collision.global_transform
+	var origin: Vector3 = pose * Vector3(0.7, 0.5, 0.6)
+	var expected: Vector3 = pose * Vector3(0.2, 0.2, 0.2)
+	assert_almost_eq(
+		CustomerHandoffGeometry.closest_point(body, origin), expected, Vector3.ONE * 0.0001,
+	)
+
+
+func test_native_packaging_families_have_supported_physical_surfaces() -> void:
+	var names: Array[String] = [
+		"package", "package_a", "package_b", "package_big", "package_barrel", "package_long",
+	]
+	for family_name: String in names:
+		var source: RigidBody3D = (
+			load("res://content/domains/packages/entities/" + family_name + ".tscn") as PackedScene
+		).instantiate() as RigidBody3D
+		var collision: CollisionShape3D = source.get_node("CollisionShape3D") as CollisionShape3D
+		assert_true(collision.shape is BoxShape3D, family_name)
+		var sample: RigidBody3D = RigidBody3D.new()
+		sample.freeze = true
+		sample.collision_layer = 0
+		sample.transform = source.transform
+		var actual: CollisionShape3D = collision.duplicate() as CollisionShape3D
+		sample.add_child(actual)
+		add_child_autofree(sample)
+		var box: BoxShape3D = actual.shape as BoxShape3D
+		var pose: Transform3D = actual.global_transform
+		var expected: Vector3 = pose * Vector3(box.size.x * 0.5, 0.0, 0.0)
+		var origin: Vector3 = expected + pose.basis.x.normalized() * 0.5
+		assert_almost_eq(
+			CustomerHandoffGeometry.closest_point(sample, origin), expected, Vector3.ONE * 0.0001,
+		)
+		source.free()
+
+
+func test_missing_anchor_invalid_distance_and_unsupported_shape_never_use_centre_fallback() -> void:
+	for distance: float in [NAN, INF, 0.0, -1.0]:
+		_visit.definition.automatic_handoff_distance = distance
+		assert_false(_can_receive())
+	_visit.definition.automatic_handoff_distance = 1.0
+	var anchor: Node3D = _customer.hold_anchor
+	_customer.hold_anchor = null
+	assert_false(_can_receive())
+	_customer.hold_anchor = anchor
+	var collision: CollisionShape3D = _parcel.get_node("CollisionShape3D") as CollisionShape3D
+	collision.shape = SphereShape3D.new()
+	assert_false(_can_receive())
+	collision = _known_box()
+	collision.disabled = true
+	assert_false(_can_receive())
+	_expect_held()
+
+
+func test_grip_inside_parcel_still_rejects_an_intersecting_wall() -> void:
+	_known_box()
+	var origin: Vector3 = _customer.hold_anchor.global_position
+	var body: RigidBody3D = _parcel as Node as RigidBody3D
+	body.freeze = true
+	body.global_position = origin
+	var wall: StaticBody3D = StaticBody3D.new()
+	var collision: CollisionShape3D = CollisionShape3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3.ONE * 0.2
+	collision.shape = shape
+	wall.add_child(collision)
+	wall.position = origin
+	_world.add_child(wall)
+	await get_tree().physics_frame
+	await get_tree().process_frame
+	assert_false(_can_receive(), "Overlapping geometry must not bypass the obstacle query")
+	_expect_held()
+	wall.position.x += 10.0
+	await get_tree().physics_frame
+	await get_tree().process_frame
+	assert_true(_can_receive())
+
+
+func test_pause_or_changed_holder_rejects_before_delivery_mutation() -> void:
+	get_tree().paused = true
+	assert_false(_can_receive())
+	get_tree().paused = false
+	_expect_held()
+	_parcel.remove_relationship(GrabQueries.held_relationship(_parcel))
+	assert_false(_can_receive())
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 #endregion
 
 
