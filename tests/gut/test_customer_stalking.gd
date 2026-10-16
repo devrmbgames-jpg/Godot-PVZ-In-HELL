@@ -522,6 +522,30 @@ func test_hidden_rear_arrival_waits_for_real_detection_then_announces_own_number
 	assert_true(get_tree().get_nodes_in_group(NpcDialogueService.ACTIVE_GROUP).is_empty())
 
 
+func test_default_manual_visit_announces_number_only_after_rear_detection() -> void:
+	await _rear_fixture()
+	_rear_visit.definition = load(
+		"res://content/domains/customers/definitions/def_customer_visit_default.tres"
+	) as DEF_Customer
+	assert_false(CustomerPresentation.uses_quick_visit(_rear_visit))
+	CustomerGreetingService.announce_order(_rear_body, _rear_visit)
+	assert_false(_rear_agent.order_announced, "Ordinary manual arrival still requires dialogue")
+	_reach_rear()
+	CustomerGreetingService.announce_order(_rear_body, _rear_visit)
+	assert_false(_rear_agent.order_announced, "The hidden contact must not disclose the number")
+	_look_at_rear_contact()
+	_sense(0.1)
+	assert_true(_rear_agent.order_announced)
+	assert_false(_rear_agent.rear_contact_pending)
+	assert_string_contains((_rear_body.get_node("Message") as Label3D).text, "003")
+	var message: String = (_rear_body.get_node("Message") as Label3D).text
+	_sense(0.2)
+	CustomerGreetingService.announce_order(_rear_body, _rear_visit)
+	assert_eq((_rear_body.get_node("Message") as Label3D).text, message)
+	assert_eq(_rear_person.memories.size(), 1)
+	assert_true(get_tree().get_nodes_in_group(NpcDialogueService.ACTIVE_GROUP).is_empty())
+
+
 func test_rear_arrival_does_not_invent_an_unregistered_number() -> void:
 	await _rear_fixture()
 	(PackageQueries.ledger().records[0] as PackageRegistrationRecord).number = 0

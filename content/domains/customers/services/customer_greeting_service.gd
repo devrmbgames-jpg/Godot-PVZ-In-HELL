@@ -4,9 +4,9 @@ class_name CustomerGreetingService
 
 
 #region Знакомство
-## Сообщает зарегистрированный номер однократно для быстрого знакомства.
+## Сообщает номер однократно при быстром знакомстве либо обнаруженном заднем контакте.
 static func announce_order(customer: E_NpcCharacter, visit: CustomerVisit) -> void:
-	if visit == null or visit.finished or not CustomerPresentation.uses_quick_visit(visit):
+	if visit == null or visit.finished:
 		return
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -18,6 +18,13 @@ static func announce_order(customer: E_NpcCharacter, visit: CustomerVisit) -> vo
 			C_CustomerAgent.Phase.WAITING,
 			C_CustomerAgent.Phase.WAITING_FOR_PACKAGE,
 		]
+	):
+		return
+	# A detected rear contact announces its order even for an ordinary manual visit.
+	# rear_contact_pending above keeps the hidden arrival silent until actual observation.
+	if (
+		not CustomerPresentation.uses_quick_visit(visit)
+		and not agent.service_contact_position.is_finite()
 	):
 		return
 	if CustomerPresentation.registered_number(visit) < 0:
