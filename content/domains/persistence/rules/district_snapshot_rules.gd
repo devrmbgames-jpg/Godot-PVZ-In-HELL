@@ -64,18 +64,40 @@ static func valid(
 	var locals: int = 0
 	var visitors: int = 0
 	var sequence: int = 0
+	var authored: bool = not district.definition.authored_people.is_empty()
+	if (
+		authored
+		and (
+			not NpcAuthoredPersonRules.valid_cards(
+				district.definition.authored_people,
+				district.definition,
+			)
+			or district.people.size() != district.definition.authored_people.size()
+			or district.replacement_morning != 0
+		)
+	):
+		return false
 	for person: NpcRecord in district.people:
 		if (
 			person == null or person.npc_id.is_empty() or people.has(person.npc_id)
-			or person.profile == null or not district.definition.profiles.has(person.profile)
-			or not person.profile.valid_rules()
+			or person.profile == null or not person.profile.valid_rules()
+			or person.variation == null or person.variation.creation_day > morning_day
+		):
+			return false
+		if authored:
+			if not NpcAuthoredPersonRules.matches(
+				district.definition.person_for(person.npc_id),
+				person,
+			):
+				return false
+		elif (
+			not district.definition.profiles.has(person.profile)
 			or not NpcVariationRules.valid_variation(
 				person.profile,
 				person.variation,
 				calendar.clock.world_seed,
 				person.npc_id,
 			)
-			or person.variation.creation_day > morning_day
 		):
 			return false
 		if (

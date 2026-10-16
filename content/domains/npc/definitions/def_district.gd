@@ -48,6 +48,8 @@ class_name DEF_District
 
 ## Начальные личности и пул профилей для заселения.
 @export var profiles: Array[DEF_NpcArchetype] = []
+## Авторские личности; непустой набор целиком заменяет начальное распределение profiles.
+@export var authored_people: Array[DEF_NpcPerson] = []
 ## Постоянные дома, проходы, занятия и узлы маршрутов.
 @export var places: Array[DEF_DistrictPlace] = []
 ## Целевое количество местных жителей.
@@ -124,6 +126,14 @@ class_name DEF_District
 
 
 #region Place queries
+## Находит неизменную карточку по ID; записи и историю хранит только C_District.people.
+func person_for(npc_id: StringName) -> DEF_NpcPerson:
+	for card: DEF_NpcPerson in authored_people:
+		if card != null and card.key == npc_id:
+			return card
+	return null
+
+
 ## Находит авторское место по постоянному ID.
 func place_for(place_key: StringName) -> DEF_DistrictPlace:
 	for place: DEF_DistrictPlace in places:

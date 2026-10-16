@@ -19,25 +19,29 @@ Source: [полное исходное ТЗ и доказательства](ref
 
 ## Current
 
-R1a реализован как изолированный контракт авторской личности: DEF_NpcPerson
-(key = постоянный npc/N, profile/scene/variation/recipient/home/entry/exit) и
-NpcAuthoredPersonRules (атомарная проверка набора, detached allocation, immutable match).
-Три native .tres Карга–Цепной дьявол–Скромник явно prototype=true; имена не объявлены каноном.
-Chain Devil использует локальный resident-profile внутри пилотной карточки: действующий
-visitor archetype ещё не изменён. Получатели/дома заданы явно, общий район пока не переключён.
-Авторское имя допускается вне RNG-пула; совместимость выделена в valid_selection,
-прежний generated API сохраняет проверку seed/имён. C_District.people остаётся владельцем
-записей, C_NpcIdentity — связи тела; второго roster нет.
+R1a `d143a897bcb0c508de1caa50f3eb4a9835d4723e` reviewed без findings
+(BASE `92da28ef275ff4e6331bb171251eb8e5ca9e2c41`). DEF_NpcPerson и pure Rules
+проверяют постоянную личность; три native карточки Карга–Дьявол–Скромник prototype=true.
+R1b подключает authored_people к existing initial allocation/construction, scene selector
+и closed snapshot/preflight. Карточка находится по ID в DEF_District, нового saved record
+или второго roster нет; NpcRecord variation/name/home/recipient строго сопоставляются ей.
+Sparse IDs резервируют next_person по максимуму, не числу карточек. Авторский состав
+не создаёт случайного преемника; return+2 ещё не реализован и принадлежит R2.
+Pilot DEF_District с тремя карточками проверен через реальные native тела и disk restore.
+Schema 28, native golden/manifest обновлены; старая схема отклоняется с сохранением файла.
 
-R1a не завершает R1: live initial roster/construction/scene selector, closed snapshot/
-current schema и retained+fresh restore ещё используют прежний контракт. Переключить их
-следующим согласованным пакетом; постоянную двойную resident-модель не оставлять.
-D2 provider `45cb14b55fddea92bf6d1bbc694c856b24fb2b64` reviewed, native tests+restart CLEAN.
-Предыдущий docs review BASE `89b2611097648fb4eb4d3a504b2323b42fcd4f66` →
-TARGET `92da28ef275ff4e6331bb171251eb8e5ca9e2c41`: PASS, findings нет.
-Смерть/return+2/loot принадлежат R2, полный nine/lost/content — R3, scope Source сохранён.
-Авторские имена, образы, личные сюжеты и часть tuning ещё не утверждены; R1/R2 разрешены
-на явно прототипных данных без объявления канона и финальной приёмки R3.
+R1 остаётся IN_PROGRESS: основной район пока использует прежний profiles initial path;
+это временная граница миграции R1c, не принятая постоянная двойная модель жителей.
+Нужно перевести live состав/isolated rooms, сохранить отдельно guest/fixture generation.
+Chain Devil имеет локальный resident-profile внутри пилотной карточки; глобальный guest
+archetype пока не менялся. Полные nine/lost/девятый физический дом и контент Source обязательны.
+D2 provider `45cb14b55fddea92bf6d1bbc694c856b24fb2b64` reviewed и native restart CLEAN.
+Имена, образы, личные сюжеты и часть tuning не утверждены; прототип не финальный канон R3.
+
+R2 inspected independently during R1a review: O_DistrictLifecycle._prepare_morning вызывает
+replace_vacancies; mark_dead не должен освобождать home/ID. NpcRemainsService/C_NpcRemains
+сейчас имеют body-lifetime released bool и batch key по body.id; заменить контрактом одной
+партии на (person ID, death sequence), сохраняя предметы/память и retained body.
 
 ## Work packages
 
@@ -62,29 +66,34 @@ API диалогов и социальный граф потребляются �
 
 ## Next
 
-После review R1a переключить existing initial allocation/construction/scene selector и
-closed codec/preflight на authored residents; проверить seed/reorder independence,
-guest separation, retained+fresh restore и защиту старого файла. При новых saved fields
-повысить фактическую schema и обновить native golden. Replacement-ветка и
-смерть/return+2/loot — R2; не объявлять R1 закрытым до его save/load checks.
-Недостающие авторские поля R3 собрать в конкретный перечень, продолжая независимую работу.
+Собрать review R1b, исправить принятые findings. Затем R1c: перевести основной authored
+состав и rooms на постоянные карточки, удалить генерацию именно live residents, не ломая
+guest/isolated fixtures. Проверить native construction/placed merchant, текущий schema round-trip
+и отдельный process restart. Потом R2: календарный возврат +2, повторная смерть/добыча,
+сохранение памяти/заказов. Отсутствующее утверждённое наполнение R3 остаётся открытым.
 
 ## Validation / review
 
-R1a native GUT: authored people **8/89 PASS/CLEAN**, archetype catalog **4/934 PASS/CLEAN**,
-variation regression **6/360 PASS/CLEAN**. Логи .artifacts/godot_agent/:
-`gut-20261016-214733220.*`, `gut-20261016-214625233.*`, `gut-20261016-214658548.*`.
-MCP diagnostics трёх production scripts: checked, пусто. Formatter/lint, strict architecture,
-structure PASS; staged validation и review перед commit. Rendered **0/8**.
-Первый guest fixture пропустил обязательный dialogue_path: GUT 7/8 FAIL; исправлено.
-Первичный MCP compile до filesystem scan не видел новый global class; итоговый checked CLEAN.
-Native ResourceSaver сохранил три карточки, но offline wrapper **FAIL** после save:
-`offlinescript-20261016-214450592.*` содержит ECS compile error в editor initialization/shutdown,
-aborted scan и mixed shutdown diagnostics. Этот запуск не PASS. Сохранённые карточки отдельно
-загружены/проверены чистым native GUT; одноразовый authoring script в .artifacts/.
+R1a: native authored cards **8/89**, archetype catalog **4/934**, variation **6/360**
+PASS/CLEAN; MCP diagnostics 3 scripts checked/empty, static PASS, immutable review PASS.
+Логи .artifacts/godot_agent/gut-20261016-{214733220,214625233,214658548}.*.
+R1b: authored population **6/74 PASS/CLEAN** (creation, seed/reorder, death without successor,
+retained+recreated body disk restore with HP/memory, tamper preflight, old-file preservation).
+District snapshot **17/215**, world snapshot **47/642**, native baseline **15/802** PASS/CLEAN.
+Логи .artifacts/godot_agent/gut-20261016-{215436864,215443782,215504869,215519055}.*.
+Golden generation `215411757` PASS/CLEAN, затем обычный baseline read `215519055` PASS/CLEAN.
+Formatter/lint, strict architecture, structure, persistence baseline PASS; staged gate перед commit.
+R1b review пока REVIEW_PENDING; весь R1 не COMPLETE/DONE. Rendered **0/8**.
 
-R1b save/load/runtime/visual NOT_RUN. R2 проверки: day 1 → day 3, повторный death callback,
-две реальные смерти, существующие заказы/награды, отсутствующее тело, свежая загрузка,
+Native ResourceSaver сохранил cards/pilot, но оба offline wrapper **FAIL** после save:
+`offlinescript-20261016-{214450592,215150462}.*` сохранены. Первый содержит ECS compile
+в editor initialization/shutdown; оба aborted scan и mixed RID/ObjectDB/PagedAllocator shutdown.
+Эти процессы не PASS, исключения не расширялись, standalone retention investigation не начато.
+Их output отдельно загружен и проверен чистыми native runtime GUT; одноразовые scripts в .artifacts/.
+Первый guest fixture GUT 7/8 FAIL (не задан dialogue_path) исправлен до R1a checkpoint.
+
+R1c/process restart/visual и R2 NOT_RUN. R2 обязательные случаи: day 1 → day 3,
+повторный callback, две реальные смерти, старые заказы/награды, отсутствующее тело,
 гость и защита старого файла. Документный PASS не runtime PASS.
 
 ## Owner QA / blockers

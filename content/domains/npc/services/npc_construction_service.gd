@@ -89,8 +89,13 @@ static func configure_placed(
 	var next_person: int = (
 		saved_district.next_person
 		if saved_district != null
-		else district_recipe.next_person + people.size()
+		else NpcPopulationRules.next_person_after(people, district_recipe.next_person)
 	)
+	if (
+		saved_district == null and not district_recipe.definition.authored_people.is_empty()
+		and people.is_empty()
+	):
+		return PackedStringArray(["Invalid authored district roster"])
 	district_context.initial_fields[C_District as Script] = {
 		&"people": people,
 		&"next_person": next_person,

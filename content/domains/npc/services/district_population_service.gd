@@ -164,6 +164,8 @@ static func initialize() -> bool:
 		else district.people
 	)
 	var build: PopulationBuild = PopulationBuild.new()
+	if fresh_roster and not district.definition.authored_people.is_empty() and people.is_empty():
+		return false
 	_prepare_addresses(district, build)
 	if not _prepare_bodies(district, people, build) or not _validate_build(build):
 		build.discard()
@@ -172,7 +174,7 @@ static func initialize() -> bool:
 	# Published NPC identities resolve to the accepted authoritative roster immediately.
 	if fresh_roster:
 		district.people = people
-		district.next_person += people.size()
+		district.next_person = NpcPopulationRules.next_person_after(people, district.next_person)
 	_commit_build(build)
 	_bind_bodies(people, build)
 	prepare_morning(1)
@@ -209,13 +211,16 @@ static func _prepare_bodies(
 			build.bodies[person.npc_id] = body
 			continue
 
-		# The declared Profile remains the sole scene selector; invalid roots are never published.
-		if (
-			person.profile == null
-			or not ResourceLoader.exists(person.profile.npc_scene_path, "PackedScene")
-		):
+		# Authored cards select their body; generated fixtures retain the Profile selector.
+		if person.profile == null:
 			return false
-		var prefab: PackedScene = load(person.profile.npc_scene_path) as PackedScene
+		var card: DEF_NpcPerson = district.definition.person_for(person.npc_id)
+		var scene_path: String = (
+			card.npc_scene_path if card != null else person.profile.npc_scene_path
+		)
+		if not ResourceLoader.exists(scene_path, "PackedScene"):
+			return false
+		var prefab: PackedScene = load(scene_path) as PackedScene
 		var instance: Node = prefab.instantiate()
 		body = instance as E_DistrictNpc
 		if body == null:
@@ -427,6 +432,8 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 	person.phase_complete = true
 	set_placement(person, body, NpcRecord.Placement.DEAD)
 	var district: C_District = NpcPopulationQueries.current()
+	if not district.definition.authored_people.is_empty():
+		return
 	var living_residents: int = 0
 	for other: NpcRecord in district.people:
 		if other.profile.resident and other.death_day == 0:
@@ -441,6 +448,9 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 
 ## Materializes one bounded replacement wave for an explicitly supplied future morning.
 static func replace_vacancies(district: C_District, morning_day: int) -> void:
+	# Авторскому составу нельзя создавать случайного преемника; календарный возврат — R2.
+	if not district.definition.authored_people.is_empty():
+		return
 	var locals_alive: int = 0
 	var outside_alive: int = 0
 	var vacant: NpcRecord = null

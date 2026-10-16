@@ -14,6 +14,8 @@ static func initial_records(
 	var people: Array[NpcRecord] = []
 	if definition == null or next_person < 1 or creation_day < 1:
 		return people
+	if not definition.authored_people.is_empty():
+		return NpcAuthoredPersonRules.initial_records(definition.authored_people, definition)
 	var homes: Array[StringName] = []
 	var portals: Array[StringName] = []
 	for place: DEF_DistrictPlace in definition.places:
@@ -44,4 +46,12 @@ static func initial_records(
 			home_index += 1
 		people.append(person)
 	return people
+
+
+## Резервирует только свободные числовые ID; авторские номера не обязаны быть последовательными.
+static func next_person_after(people: Array[NpcRecord], first_available: int) -> int:
+	var next_person: int = first_available
+	for person: NpcRecord in people:
+		next_person = maxi(next_person, String(person.npc_id).trim_prefix("npc/").to_int() + 1)
+	return next_person
 #endregion

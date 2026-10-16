@@ -51,6 +51,14 @@ key before S_NightSave replaces the slot. Explicit null remains a present key.
 Prior schemas are rejected and their files protected; PVZH1 storage is unchanged.
 The author API and compiled examples are documented in [dialogue memory](dialogue_memory.md).
 
+Schema 28 adds authored-person roster validation through `DEF_District.authored_people`.
+The district definition resolves each immutable card by permanent NPC ID; no second saved
+card/name/home registry is introduced. Preflight rejects modified fixed variation, home,
+recipient, missing/extra people and replacement waves for an authored roster. Creation uses
+explicit IDs and reserves the next free number. The three-person pilot exercises this path;
+the main district migration and resurrection remain unfinished in the owning resident task.
+Previous schemas are rejected without conversion or replacement of their files.
+
 ## Refactoring v2 identity contract
 
 This heading retains incoming historical links; the rules below describe the implemented runtime.

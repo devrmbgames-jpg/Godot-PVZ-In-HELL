@@ -1,0 +1,328 @@
+[gd_resource type="Resource" script_class="DEF_District" format=3 uid="uid://ch4gyedlbxmb7"]
+
+[ext_resource type="Script" uid="uid://c560octi1xf2f" path="res://content/domains/npc/definitions/def_npc_person.gd" id="1_7rnxm"]
+[ext_resource type="Resource" uid="uid://ctslrrj46uod2" path="res://content/domains/npc/definitions/def_npc_person_hag_prototype.tres" id="2_bcyw2"]
+[ext_resource type="Resource" uid="uid://cbcdgb3d3k5su" path="res://content/domains/npc/definitions/def_npc_person_chain_devil_prototype.tres" id="3_crbtb"]
+[ext_resource type="Resource" uid="uid://bqhui2fa7lt1r" path="res://content/domains/npc/definitions/def_npc_person_shy_prototype.tres" id="4_1beoj"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_delivery_door_ambush.tres" id="5_2gp73"]
+[ext_resource type="Script" uid="uid://3jqx0cuvmvqq" path="res://content/domains/npc/definitions/def_district_place.gd" id="6_hamhk"]
+[ext_resource type="Script" uid="uid://dbo0o68itefyv" path="res://content/domains/npc/definitions/def_npc_archetype.gd" id="7_6nmju"]
+[ext_resource type="Resource" uid="uid://crb14sp8dt46a" path="res://content/domains/npc/definitions/def_npc_archetype_hag.tres" id="8_32i8v"]
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="9_h0exk"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="10_uc0ui"]
+[ext_resource type="Script" uid="uid://oikli5hnpisi" path="res://content/domains/npc/definitions/def_npc_trait_option.gd" id="11_g8rmd"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_6.tres" id="12_4od7w"]
+[ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="13_e3tsk"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_5.tres" id="14_noekl"]
+[ext_resource type="Resource" uid="uid://b7d3tf2o4qxlu" path="res://content/domains/npc/definitions/def_npc_soul_trade.tres" id="15_mqywu"]
+[ext_resource type="Resource" uid="uid://b5gi7f3x7e3fg" path="res://content/domains/npc/definitions/def_npc_parcel_reaction_chain_devil.tres" id="16_8codr"]
+[ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="17_cunma"]
+[ext_resource type="Resource" uid="uid://cwkl1pwij70o7" path="res://content/domains/npc/definitions/def_npc_archetype_shy.tres" id="18_tdr5c"]
+[ext_resource type="Script" uid="uid://hvheqqr7idk0" path="res://content/domains/npc/definitions/def_district.gd" id="19_tllje"]
+
+[sub_resource type="Resource" id="Resource_41ajp"]
+script = ExtResource("6_hamhk")
+display_name = "Дом 1"
+kind = 0
+position = Vector3(36, 0, -8)
+neighbours = PackedStringArray()
+key = &"home_1"
+
+[sub_resource type="Resource" id="Resource_nrqmx"]
+script = ExtResource("6_hamhk")
+display_name = "Дом 2"
+kind = 0
+position = Vector3(44, 0, -8)
+neighbours = PackedStringArray()
+key = &"home_2"
+
+[sub_resource type="Resource" id="Resource_yiw8n"]
+script = ExtResource("6_hamhk")
+display_name = "Дом 3"
+kind = 0
+position = Vector3(52, 0, -8)
+neighbours = PackedStringArray()
+key = &"home_3"
+
+[sub_resource type="Resource" id="Resource_ouo3p"]
+script = ExtResource("6_hamhk")
+display_name = "Дом 4"
+kind = 0
+position = Vector3(60, 0, -8)
+neighbours = PackedStringArray()
+key = &"home_4"
+
+[sub_resource type="Resource" id="Resource_ulw18"]
+script = ExtResource("6_hamhk")
+display_name = "Дом 5"
+kind = 0
+position = Vector3(36, 0, 24)
+neighbours = PackedStringArray()
+key = &"home_5"
+
+[sub_resource type="Resource" id="Resource_y75xp"]
+script = ExtResource("6_hamhk")
+display_name = "Дом 6"
+kind = 0
+position = Vector3(44, 0, 24)
+neighbours = PackedStringArray()
+key = &"home_6"
+
+[sub_resource type="Resource" id="Resource_0ljim"]
+script = ExtResource("6_hamhk")
+display_name = "Дом 7"
+kind = 0
+position = Vector3(52, 0, 24)
+neighbours = PackedStringArray()
+key = &"home_7"
+
+[sub_resource type="Resource" id="Resource_32p23"]
+script = ExtResource("6_hamhk")
+display_name = "Дом 8"
+kind = 0
+position = Vector3(60, 0, 24)
+neighbours = PackedStringArray()
+key = &"home_8"
+
+[sub_resource type="Resource" id="Resource_fvfmh"]
+script = ExtResource("6_hamhk")
+kind = 1
+position = Vector3(66, 0, 8)
+neighbours = PackedStringArray()
+key = &"portal_east"
+
+[sub_resource type="Resource" id="Resource_rm2lr"]
+script = ExtResource("6_hamhk")
+kind = 1
+position = Vector3(56, 0, -12)
+neighbours = PackedStringArray()
+key = &"portal_north"
+
+[sub_resource type="Resource" id="Resource_8vajv"]
+script = ExtResource("6_hamhk")
+kind = 1
+position = Vector3(40, 0, 28)
+neighbours = PackedStringArray()
+key = &"portal_south"
+
+[sub_resource type="Resource" id="Resource_eqa8t"]
+script = ExtResource("6_hamhk")
+activity = 1
+focus_path = NodePath("DebugMarkers/RoomClient")
+display_name = "Окно ПВЗ"
+position = Vector3(28, 0, 4)
+anchor_path = NodePath("DebugMarkers/MarkerNPCSpawnPoint")
+neighbours = PackedStringArray()
+key = &"activity_0"
+
+[sub_resource type="Resource" id="Resource_s15uw"]
+script = ExtResource("6_hamhk")
+activity = 2
+display_name = "Наблюдать за улицей"
+position = Vector3(38, 0, 12)
+neighbours = PackedStringArray()
+key = &"activity_1"
+
+[sub_resource type="Resource" id="Resource_p34nc"]
+script = ExtResource("6_hamhk")
+position = Vector3(48, 0, 4)
+neighbours = PackedStringArray()
+key = &"activity_2"
+
+[sub_resource type="Resource" id="Resource_m4x64"]
+script = ExtResource("6_hamhk")
+position = Vector3(58, 0, 12)
+neighbours = PackedStringArray()
+key = &"activity_3"
+
+[sub_resource type="Resource" id="Resource_a0cue"]
+script = ExtResource("6_hamhk")
+activity = 3
+activity_offset = Vector3(-1.5, 0, 1)
+kind = 3
+position = Vector3(30, 0, 0)
+anchor_path = NodePath("DebugMarkers/TraderClientZone")
+neighbours = PackedStringArray()
+key = &"shop"
+
+[sub_resource type="Resource" id="Resource_cul27"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(15, 0, 2.6)
+anchor_path = NodePath("DebugMarkers/MarkerNPCSpawnPoint")
+neighbours = PackedStringArray()
+key = &"pvz_entry"
+
+[sub_resource type="Resource" id="Resource_73ceu"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(30, 0, 8)
+neighbours = PackedStringArray()
+key = &"street_0"
+
+[sub_resource type="Resource" id="Resource_k7fqm"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(40, 0, 8)
+neighbours = PackedStringArray()
+key = &"street_1"
+
+[sub_resource type="Resource" id="Resource_y6k6r"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(50, 0, 8)
+neighbours = PackedStringArray()
+key = &"street_2"
+
+[sub_resource type="Resource" id="Resource_yq0jd"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(60, 0, 8)
+neighbours = PackedStringArray()
+key = &"street_3"
+
+[sub_resource type="Resource" id="Resource_v08a7"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(30, 0, -4)
+neighbours = PackedStringArray()
+key = &"north_0"
+
+[sub_resource type="Resource" id="Resource_bv1s5"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(40, 0, -4)
+neighbours = PackedStringArray()
+key = &"north_1"
+
+[sub_resource type="Resource" id="Resource_ws6yt"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(50, 0, -4)
+neighbours = PackedStringArray()
+key = &"north_2"
+
+[sub_resource type="Resource" id="Resource_g3e2f"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(60, 0, -4)
+neighbours = PackedStringArray()
+key = &"north_3"
+
+[sub_resource type="Resource" id="Resource_5n4ka"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(30, 0, 18)
+neighbours = PackedStringArray()
+key = &"south_0"
+
+[sub_resource type="Resource" id="Resource_xm7pm"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(40, 0, 18)
+neighbours = PackedStringArray()
+key = &"south_1"
+
+[sub_resource type="Resource" id="Resource_v3boq"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(50, 0, 18)
+neighbours = PackedStringArray()
+key = &"south_2"
+
+[sub_resource type="Resource" id="Resource_wys6a"]
+script = ExtResource("6_hamhk")
+kind = 4
+position = Vector3(60, 0, 18)
+neighbours = PackedStringArray()
+key = &"south_3"
+
+[sub_resource type="Resource" id="Resource_jtscu"]
+script = ExtResource("6_hamhk")
+kind = 5
+position = Vector3(15, 0, 3.5)
+anchor_path = NodePath("DebugMarkers/MainDoor")
+neighbours = PackedStringArray()
+key = &"cover_pvz_east"
+
+[sub_resource type="Resource" id="Resource_vmu75"]
+script = ExtResource("6_hamhk")
+kind = 5
+position = Vector3(15, 0, -4)
+anchor_path = NodePath("DebugMarkers/BackDoor")
+neighbours = PackedStringArray()
+key = &"cover_pvz_back"
+
+[sub_resource type="Resource" id="Resource_7ss4k"]
+script = ExtResource("6_hamhk")
+kind = 5
+position = Vector3(40, 0, 17)
+neighbours = PackedStringArray()
+key = &"cover_0"
+
+[sub_resource type="Resource" id="Resource_gp8kk"]
+script = ExtResource("6_hamhk")
+kind = 5
+position = Vector3(48, 0, 17)
+neighbours = PackedStringArray()
+key = &"cover_1"
+
+[sub_resource type="Resource" id="Resource_o66np"]
+script = ExtResource("6_hamhk")
+kind = 5
+position = Vector3(56, 0, 17)
+neighbours = PackedStringArray()
+key = &"cover_2"
+
+[sub_resource type="Resource" id="Resource_f3bsm"]
+script = ExtResource("11_g8rmd")
+rule = ExtResource("12_4od7w")
+
+[sub_resource type="Resource" id="Resource_tbjbv"]
+script = ExtResource("17_cunma")
+weekdays = PackedInt32Array(0)
+morning = 2
+day = 0
+evening = 2
+key = &"schedule/chain_devil"
+
+[sub_resource type="Resource" id="Resource_8gsqw"]
+script = ExtResource("7_6nmju")
+name_variants = PackedStringArray("Азгар", "Мальх")
+dialogue_variants = PackedStringArray("res://content/domains/npc/dialogue/archetypes/chain_devil/variant_a.dialogue", "res://content/domains/npc/dialogue/archetypes/chain_devil/variant_b.dialogue")
+optional_traits = Array[ExtResource("11_g8rmd")]([SubResource("Resource_f3bsm")])
+maximum_optional_traits = 1
+item_category_weights = Dictionary[int, float]({
+1: 4.0,
+2: 1.0,
+4: 4.0
+})
+receiver_traits = 11
+damage_multipliers = Dictionary[int, float]({
+7: 0.0
+})
+presentation_cues = PackedStringArray()
+display_name = "Цепной дьявол"
+recipient_key = &"visitor_1"
+personality = 1
+schedule = SubResource("Resource_tbjbv")
+rules = Array[ExtResource("13_e3tsk")]([ExtResource("14_noekl"), ExtResource("15_mqywu"), ExtResource("16_8codr")])
+interests = PackedStringArray()
+preferred_activities = PackedInt32Array(0, 1, 2, 3)
+body_color = Color(0.4745098, 0.27058825, 0.30588236, 1)
+key = &"archetype/chain_devil"
+
+[resource]
+script = ExtResource("19_tllje")
+replacement_names = PackedStringArray("Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник")
+shade_route = PackedStringArray()
+shade_refuge = &"south_1"
+profiles = Array[ExtResource("7_6nmju")]([ExtResource("8_32i8v"), SubResource("Resource_8gsqw"), ExtResource("18_tdr5c")])
+authored_people = Array[ExtResource("1_7rnxm")]([ExtResource("2_bcyw2"), ExtResource("3_crbtb"), ExtResource("4_1beoj")])
+places = Array[ExtResource("6_hamhk")]([SubResource("Resource_41ajp"), SubResource("Resource_nrqmx"), SubResource("Resource_yiw8n"), SubResource("Resource_ouo3p"), SubResource("Resource_ulw18"), SubResource("Resource_y75xp"), SubResource("Resource_0ljim"), SubResource("Resource_32p23"), SubResource("Resource_fvfmh"), SubResource("Resource_rm2lr"), SubResource("Resource_8vajv"), SubResource("Resource_eqa8t"), SubResource("Resource_s15uw"), SubResource("Resource_p34nc"), SubResource("Resource_m4x64"), SubResource("Resource_a0cue"), SubResource("Resource_cul27"), SubResource("Resource_73ceu"), SubResource("Resource_k7fqm"), SubResource("Resource_y6k6r"), SubResource("Resource_yq0jd"), SubResource("Resource_v08a7"), SubResource("Resource_bv1s5"), SubResource("Resource_ws6yt"), SubResource("Resource_g3e2f"), SubResource("Resource_5n4ka"), SubResource("Resource_xm7pm"), SubResource("Resource_v3boq"), SubResource("Resource_wys6a"), SubResource("Resource_jtscu"), SubResource("Resource_vmu75"), SubResource("Resource_7ss4k"), SubResource("Resource_gp8kk"), SubResource("Resource_o66np")])
+resident_count = 3
+visitor_count = 0
+personal_delivery_probability = 0.0
+personal_delivery_daily_minimum = 0
+personal_delivery_scenario = ExtResource("5_2gp73")
+key = &"authored_pilot"

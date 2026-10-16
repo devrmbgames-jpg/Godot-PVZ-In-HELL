@@ -66,6 +66,21 @@
       "purpose": "Validate committed archetype choices before restore; no reroll or live writes."
     },
     {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "NpcAuthoredPersonRules",
+      "path": "content/domains/npc/rules/npc_authored_person_rules.gd",
+      "rights": ["query"],
+      "public_methods": ["valid_cards", "matches"],
+      "public_instance_methods": [],
+      "method_rights": {
+        "valid_cards": "query",
+        "matches": "query"
+      },
+      "sources": ["content/services/persistence/district_snapshot_rules.gd"],
+      "purpose": "Validate authored identity and roster membership before live restore; no allocation or writes."
+    },
+    {
       "source_owner": "challenges",
       "target_owner": "combat",
       "symbol": "C_Death",
