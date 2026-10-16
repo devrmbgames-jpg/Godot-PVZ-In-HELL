@@ -2,6 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `ee8c23b2c3f4140ff2749fb7dcffa55c6c2c7100`
+TARGET_SHA: `82e6ea5a6ad7b2ba91dbd98fef8c8ff104fb09b9`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
@@ -42,13 +43,14 @@ package compiler, Box_C/Marks/Condition и исходные сцены. Native-�
 plan/quantity/cargo properties. M2a review PASS, material findings нет, triage завершён без
 требуемых исправлений; исходный gameplay-дефект ещё не исправлен, общая задача IN_PROGRESS.
 
-M2b подготовлен: 16 native .tres cargo-профилей привязаны к immutable DEF_InventoryItem через
+M2b завершён после verification/review: 16 native .tres cargo-профилей привязаны к immutable DEF_InventoryItem через
 editor/MCP. Массы/габариты совпадают с native телами; rupture_hazard совпадает с их реальным
 C_HazardEmitter, включая разные blood_spill у колбы и blood_pool у бочки. Максимальное количество
 единиц — авторский cap перед выбором оболочки, не увеличение количества после выбора. Capacity
 Rules проверяет этот cap. Все 224 прежних native свойства и 16 UID item definitions сохранены.
 Receiving/история/codec ещё не подключены к новому cargo contract; исходный дефект пока не закрыт.
-M2b review REVIEW_PENDING. Вопрос обработки несовместимых schema19 задан владельцу; до решения
+M2b review PASS, material findings нет, triage завершён без требуемых исправлений.
+Вопрос обработки несовместимых schema19 задан владельцу; до решения
 load/schema не меняются. Независимая подготовка и проверки cargo завершены.
 ## Установленная поверхность и гипотеза причины
 
@@ -134,7 +136,8 @@ load/schema не меняются. Независимая подготовка �
   с `.artifacts/cargo_native_baseline.json`. Отдельно 16 прежних resource UID сохранены.
 - PASS M2b MCP6 checked/empty, scripts_instantiated=0; native parser6/0
   (`parsefiles-20261016-001436777`), formatter6, role3, strict architecture0 и structure PASS.
-  M2b immutable-SHA review REVIEW_PENDING.
+  M2b immutable-SHA review по BASE_SHA/TARGET_SHA PASS: no material findings, architecture/style
+  PASS; reviewer validation NOT_RUN, native проверки выполнены Main.
 - Rendered/visual QA NOT_RUN,0/8.
 
 ## План проверки будущей реализации
@@ -158,8 +161,11 @@ load/schema не меняются. Независимая подготовка �
 
 ### Next
 
-M2b commit/review/triage. M2c: once-committed shipment plan/quantity до compiler, подключение
+M2c: once-committed shipment plan/quantity до compiler, подключение
 receiving/contents/physics/history/UI и явная save-совместимость после решения владельца о schema19.
 При restore compiler сейчас запускается до saved overlay; construction
 context должен получить выбранный plan заранее, а preflight — проверить его до мутации World.
+В UI мигрировать также weight sort/detail терминала, stickers PackageConditionView, debug HUD и
+hazard icons: они пока читают старые mass/tags/hazard hooks из DEF_Package. Компонент состава и
+неизменяемая arrival projection должны быть единственными источниками новых физических фактов.
 Затем профильные native регрессии и обязательный owner QA. До закрытия всех acceptance задача не DONE.
