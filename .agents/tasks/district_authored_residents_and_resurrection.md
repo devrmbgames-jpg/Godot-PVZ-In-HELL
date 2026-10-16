@@ -80,7 +80,7 @@ R2a текущие native проверки **PASS/CLEAN**, raw .artifacts/godot_
 
 | Gate | Tests/assertions | gut-20261016 timestamp |
 | --- | --- | --- |
-| authored life cycle | 16/292 | 225608003 |
+| authored life cycle, review repair | 16/310 | 230350002 |
 | schema29 baseline ordinary read | 15/805 | 224349068 |
 | schema29 golden generation | 15/804 | 224324109 |
 | district snapshot | 17/215 | 224413815 |
@@ -104,7 +104,16 @@ Cold life restores день 2/death 1, возвращает в 3, снова у�
 сохраняет ID/дом/scene/clock/HP/visited/quest_stage и две партии. Guest использует отдельный
 слот и не получает дом. Это manual snapshot/disk cold smoke; scheduled Night retry проверен GUT.
 Formatter/lint, strict architecture, structure, persistence baseline PASS; staged gate перед commit.
-R2a **REVIEW_PENDING**, repair **0/2**; rendered **0/8**, Windows QA build этого пакета NOT_RUN.
+R2a review BASE `2c0be0eae47131f0a3b41bcc23f1a5eced4ed015` →
+TARGET `30e6716aa696311581cd1be4145dbd1466d080cd`: два P2 приняты.
+RV-002: NpcDeathRecord не требовал exact fields; пропуски подменялись defaults.
+RV-003: pending authored death не сверялась с body.death/enabled.
+Оба исправлены в текущем repair: exact SAVE_FIELDS и terminal/disabled gate.
+Red `gut-20261016-230318246` воспроизвёл все шесть вариантов; green `230350002`
+16/310 PASS/CLEAN, live record/body не меняются. Targeted re-review **REVIEW_PENDING**, cycle **1/2**.
+MCP test edit diagnostics clean; production anonymous reload fallback code 43, editor log
+не содержит ошибки этих файлов. Actual native GUT загружает их CLEAN; live reload не объявлен PASS.
+Rendered **0/8**, Windows QA build этого внутреннего checkpoint NOT_RUN.
 
 Принятый R1 RV-001 **FIXED**: production/test `83873c575b0db5cb6684b7ff90cdc6d1085fa0fd`,
 точный DEF_NpcPerson read edge `0b86da5ba79f028f62c77d34991472e74956ab95` (structure PASS).

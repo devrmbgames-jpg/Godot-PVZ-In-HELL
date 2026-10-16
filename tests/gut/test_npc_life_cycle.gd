@@ -214,7 +214,12 @@ func test_invalid_death_history_or_missing_retained_body_rejects_without_live_mu
 	var body: E_DistrictNpc = _kill(person)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
-	for invalid: String in ["sequence", "day", "early_return", "missing_body"]:
+	var invalid_cases: Array[String] = [
+		"sequence", "day", "early_return", "missing_body",
+		"missing_sequence", "missing_day", "missing_returned_day", "empty_fields",
+		"living_body", "enabled_body",
+	]
+	for invalid: String in invalid_cases:
 		var malformed: Dictionary = snapshot.duplicate(true)
 		var body_record: Dictionary = { }
 		for record: Dictionary in malformed.entities:
@@ -234,8 +239,21 @@ func test_invalid_death_history_or_missing_retained_body_rejects_without_live_mu
 							fields.day = 0
 						"early_return":
 							fields.returned_day = 2
-		if invalid == "missing_body":
-			(malformed.entities as Array).erase(body_record)
+						"missing_sequence":
+							fields.erase("sequence")
+						"missing_day":
+							fields.erase("day")
+						"missing_returned_day":
+							fields.erase("returned_day")
+						"empty_fields":
+							fields.clear()
+		match invalid:
+			"missing_body":
+				(malformed.entities as Array).erase(body_record)
+			"living_body":
+				body_record.death = false
+			"enabled_body":
+				body_record.enabled = true
 		assert_false(WorldSnapshotService.restore(malformed, _root), invalid)
 		assert_same(NpcPopulationQueries.person_for(person.npc_id), person)
 		assert_same(NpcPopulationQueries.body_for(person.npc_id), body)

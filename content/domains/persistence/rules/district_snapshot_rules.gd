@@ -95,6 +95,11 @@ static func valid(
 				return false
 			if identities.has(person.npc_id):
 				var body_record: Dictionary = records[identities[person.npc_id]]
+				if (
+					person.death_day > 0
+					and (not bool(body_record.death) or bool(body_record.enabled))
+				):
+					return false
 				# У размещённого актёра сцена принадлежит native уровню через authored_id.
 				if (
 					String(body_record.authored_id).is_empty()

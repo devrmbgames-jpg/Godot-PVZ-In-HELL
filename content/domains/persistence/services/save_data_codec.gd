@@ -212,6 +212,7 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		GameClock,
 		NpcVariation,
 		NpcRecord,
+		NpcDeathRecord,
 		ReceivingBatch,
 		CustomerParcelIncident,
 		PackageRegistrationRecord,
@@ -223,6 +224,8 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			exact_fields = NpcVariation.SAVE_FIELDS
 		elif script == NpcRecord:
 			exact_fields = NpcRecord.SAVE_FIELDS
+		elif script == NpcDeathRecord:
+			exact_fields = NpcDeathRecord.SAVE_FIELDS
 		elif script == ReceivingBatch:
 			exact_fields = ReceivingBatch.SAVE_FIELDS
 		elif script == CustomerParcelIncident:
