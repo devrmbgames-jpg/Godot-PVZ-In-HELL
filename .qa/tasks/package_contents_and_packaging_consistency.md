@@ -1,6 +1,7 @@
 # Посылки — фактический состав, упаковка, история и UI
 
-Результат: **NOT_RUN / ожидает визуальной приёмки**. Выполнено 0/8 проверок milestone.
+Результат: **NOT_RUN / подготовка разрешённой визуальной приёмки**. Выполнено 0/8 проверок milestone.
+Владелец разрешил до **6** проверок по этой карточке; выполнено **0/6**. Разрешение не охватывает визуальную приёмку реакций NPC.
 Программный checkpoint: `b0bee51b3a9c7c6dbacd59de1a304554f42a99a7`, независимое review PASS.
 Owning task: [package_contents_and_packaging_consistency](../../.agents/tasks/package_contents_and_packaging_consistency.md).
 
