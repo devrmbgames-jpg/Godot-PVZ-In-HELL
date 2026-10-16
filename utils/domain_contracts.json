@@ -19461,16 +19461,18 @@
         "read"
       ],
       "public_methods": [
-        "valid_memory"
+        "valid_memory",
+        "valid_history"
       ],
       "public_instance_methods": [],
       "method_rights": {
-        "valid_memory": "query"
+        "valid_memory": "query",
+        "valid_history": "query"
       },
       "sources": [
         "content/domains/persistence/rules/district_snapshot_rules.gd"
       ],
-      "purpose": "Validate fixed neutral detection receipts before snapshot publication."
+      "purpose": "Validate historical neutral receipts and the personal episode clock before snapshot publication."
     },
     {
       "source_owner": "global",

@@ -1,9 +1,10 @@
 # Жуткий — скрытное сближение и неожиданный испуг без поломки выдачи
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
+BASE_SHA: `738767d150923d868c3090387f85609c2bbc1185`
+TARGET_SHA: M1 contract checkpoint pending commit/review
 
-Created: 2026-10-15. Автор: запрос владельца. Related: [R26.2](completed/r26_2_npc_archetypes_and_variation.md),
-[R26.3](completed/r26_3_npc_behavior_trees.md), [R27.5](completed/r27_test_lab_and_npc_rooms.md).
+Created: 2026-10-15. Автор: запрос владельца. Related: [R26.2](completed/r26_2_npc_archetypes_and_variation.md), [R26.3](completed/r26_3_npc_behavior_trees.md), [R27.5](completed/r27_test_lab_and_npc_rooms.md).
 
 ## Task state
 
@@ -22,9 +23,10 @@ Created: 2026-10-15. Автор: запрос владельца. Related: [R26.
 
 ### Current / authorization
 
-Задача создана до исследования по прямому указанию владельца. Текущий этап — исследование и план.
-**Реализация не начата и этой задачей автоматически не разрешена.** Игровые файлы не изменялись.
-Ни тесты, ни gameplay/visual QA не запускались. Предлагаемые ниже числа, кроме 2.5 м и минимума 30 с, являются гипотезами для прототипа, а не согласованным балансом или подтверждённой практикой проекта.
+Активный `/goal` разрешает реализацию задач и предшествующее ограничение «только план» больше не действует.
+M1 implemented: NpcRecord owns sequence/decision/last-success timestamps/captured eligibility deadline; pure strict2.5m/30active-second/overflow/episode-ID contracts, closed schema25/native golden. Post-success deadline cannot be shortened below30s in a valid snapshot. Historical fixed memories remain valid for dialogue; new episode receipts are bounded by the committed sequence. Runtime opportunity/notice/approach wiring remains open; M1 review pending.
+Save/load/reset preserves these durable fields; unsupported schema24 is rejected with original bytes retained, no migration. Existing permanent-memory runtime gate remains until M2 replaces it with the episode contract; this is not completed behavioral acceptance.
+Gameplay/visual QA NOT_RUN,0/8. Prototype numbers below, except owner-defined2.5m/minimum30s, remain authored tuning hypotheses.
 
 ## Что установлено в коде
 
@@ -156,9 +158,7 @@ Grip подчёркивает окружение, звук и выводы иг�
 - DEF_NpcStalking/.tres хранит настройки; существующий нативный BT выбирает намерение.
   Witness/выделенный System владеет наблюдаемостью и регулярным временем, Service — фиксацией событий.
   Solver считает кандидаты/пути, NpcIntentArbiter и текущие владельцы маршрута/физики исполняют движение.
-- Краткоживущая попытка/токены остаются в C_NpcStalking; долговечные next_eligible/номер эпизода
-  принадлежат одному typed-состоянию в NPC aggregate. Живая цель — Relationship/существующее связывание,
-  не сохранённая ссылка на Node. Не заводить параллельные таймеры в BT и Service.
+- Краткоживущая попытка/токены остаются в C_NpcStalking; долговечные next_eligible/номер эпизода принадлежат одному typed-состоянию в NPC aggregate. Живая цель — Relationship/существующее связывание, не сохранённая ссылка на Node. Не заводить параллельные таймеры в BT и Service.
 - STALKING_NOTICED сохранить как исторический факт для диалога и старых сохранений, убрать его
   роль вечного запрета. Новые события имеют идентичность эпизода; старый фиксированный incident_id
   не должен поглощать все будущие испуги. Не удалять старую память для «сброса» поведения.
@@ -172,6 +172,7 @@ Grip подчёркивает окружение, звук и выводы иг�
   Native сцены/деревья и ресурсы редактировать по editor-ownership; сторонние addons не менять.
 
 ### Validation
+- M1 native GUT71/71,1925 assertions/stderr0/PASS: rules8/54 (`074357096`), baseline13/748 (`074400372`), stalking14/111 (`073531451`), creepy_dialogue36/1012 (`074441039`); prefix `gut-20261016-` in `.artifacts/godot_agent/`. Native ParseFiles5/0/PASS (`20261016-074546279`); heavy baseline isolated parser1/0/exit0 (`creepy_m1_isolated_parser.{stdout,stderr}.log`), shutdown-only retention KNOWN_ENGINE_LIMITATION/DEFERRED; combined6 wrapper had FAIL only warning classification (`20261016-073708383`). MCP6 checked/empty/scripts0; formatter6/strict architecture0/structure/persistence inventory/agent changes PASS. Rendered0/8. Inherited home fixture corrected separately in BASE above, reviewed PASS/no findings; see parcel QA card for red/green evidence.
 
 ## План проверки будущей реализации
 
@@ -195,6 +196,5 @@ Grip подчёркивает окружение, звук и выводы иг�
 
 ### Next
 
-Обсудить план при необходимости. При отдельной команде на реализацию: сначала регрессии и контракт
-эпизода/cooldown, затем свободное поведение, сервисная стратегия и проверка сохранений/выдачи.
-До такой команды статус остаётся **PLANNED**; не отмечать реализацию или приёмку выполненной.
+Collect M1 immutable-SHA review/triage, then M2: wire captured opportunities and bounded free hidden episodes, replace permanent recognition veto, preserve physical/intent ownership and interruption. Follow with service approach/arrival/number announcement and real handoff integration.
+Gameplay QA requires task-specific authorization and remains open; parcel-handover QA permission is separately pending. Do not mark this task DONE before runtime/service/save acceptance and required owner QA.

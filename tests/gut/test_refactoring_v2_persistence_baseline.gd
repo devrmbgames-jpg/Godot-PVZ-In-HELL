@@ -79,6 +79,16 @@ func before_each() -> void:
 	_district.people[0].activity_sequence = 19
 	_district.people[0].cadence_elapsed_ticks = 12_345
 	_district.people[0].cadence_sample_tick = calendar.clock.elapsed_ticks
+	_district.people[0].stalking_sequence = 3
+	_district.people[0].stalking_decision_tick = calendar.clock.elapsed_ticks - 10_000_000
+	_district.people[0].stalking_notice_tick = calendar.clock.elapsed_ticks - 5_000_000
+	_district.people[0].stalking_next_eligible_tick = calendar.clock.elapsed_ticks + 35_000_000
+	var noticed: NpcMemory = NpcMemory.new()
+	noticed.kind = NpcMemory.Kind.STALKING_NOTICED
+	noticed.actor_id = &"player"
+	noticed.victim_id = _district.people[0].npc_id
+	noticed.incident_id = NpcStalkingRules.episode_incident(_district.people[0], &"player", 3)
+	_district.people[0].memories.append(noticed)
 
 	_active_id = _district.people[0].npc_id
 	_dormant_id = _district.people[1].npc_id
@@ -295,6 +305,14 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_eq(restored_person.activity_sequence, 19)
 	assert_eq(restored_person.cadence_elapsed_ticks, 12_345)
 	assert_eq(restored_person.cadence_sample_tick, restored_calendar.clock.elapsed_ticks)
+	assert_eq(restored_person.stalking_sequence, 3)
+	assert_eq(restored_person.stalking_decision_tick, 113_456_789)
+	assert_eq(restored_person.stalking_notice_tick, 118_456_789)
+	assert_eq(restored_person.stalking_next_eligible_tick, 158_456_789)
+	assert_false(
+		NpcStalkingRules.opportunity_due(restored_person, restored_calendar.clock.elapsed_ticks),
+	)
+	assert_true(NpcStalkingRules.noticed(restored_person, &"player"))
 	var restored_random: RandomNumberGenerator = GameTimeQueries.decision(
 		String(_active_id),
 		MORNING_DAY,
@@ -637,6 +655,80 @@ func test_manifest_covers_runtime_codec_script_paths() -> void:
 
 
 #region Time snapshot rejection
+## Disk restoration and brain reset retain eligibility, even when the physical NPC is recreated.
+func test_stalking_clock_survives_reset_and_fresh_body_disk_restore() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	assert_eq(AutosaveStore.write(snapshot, SLOT_PATH), OK)
+	var loaded: Dictionary = AutosaveStore.read(SLOT_PATH)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+	var original_incarnation: int = body.get_instance_id()
+	(body.get_component(C_NpcDecision) as C_NpcDecision).reset_transient_state()
+	(body.get_component(C_NpcStalking) as C_NpcStalking).reset_transient_state()
+	assert_eq(NpcPopulationQueries.person_for(_active_id).stalking_next_eligible_tick, 158_456_789)
+	assert_true(WorldSnapshotService.restore(loaded, _fixture_root))
+	assert_same(NpcPopulationQueries.body_for(_active_id), body)
+	_fixture_world.remove_entity(body)
+	await get_tree().process_frame
+	assert_true(WorldSnapshotService.restore(loaded, _fixture_root))
+	body = NpcPopulationQueries.body_for(_active_id)
+	assert_ne(body.get_instance_id(), original_incarnation)
+	var restored: NpcRecord = NpcPopulationQueries.person_for(_active_id)
+	assert_eq(restored.stalking_sequence, 3)
+	assert_eq(restored.stalking_decision_tick, 113_456_789)
+	assert_eq(restored.stalking_notice_tick, 118_456_789)
+	assert_eq(restored.stalking_next_eligible_tick, 158_456_789)
+	assert_false(
+		NpcStalkingRules.opportunity_due(restored, DayPhaseQueries.current().clock.elapsed_ticks),
+	)
+	assert_true(NpcStalkingRules.opportunity_due(restored, 158_456_789))
+	assert_true(NpcStalkingRules.noticed(restored, &"player"))
+	assert_eq(
+		restored.memories[0].incident_id,
+		NpcStalkingRules.episode_incident(restored, &"player", 3),
+	)
+	var state: C_NpcStalking = body.get_component(C_NpcStalking) as C_NpcStalking
+	assert_false(state.observed)
+	assert_eq(state.exposure_seconds, 0.0)
+	assert_eq(state.approach_task_id, 0)
+
+
+## The episode clock is closed and validated before any retained body or record is changed.
+func test_invalid_stalking_history_rejects_before_live_mutation() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+	var retained: NpcRecord = NpcPopulationQueries.person_for(_active_id)
+	for mutation: String in [
+		"missing", "negative", "future", "reversed", "zero_sequence", "memory",
+		"future_notice", "short_success",
+	]:
+		var malformed: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in malformed.entities:
+			for component: Dictionary in record.components:
+				if String(component.type) != (C_District as Script).resource_path:
+					continue
+				var fields: Dictionary = component.fields.people[0].fields as Dictionary
+				match mutation:
+					"missing": fields.erase("stalking_next_eligible_tick")
+					"negative": fields.stalking_sequence = -1
+					"future": fields.stalking_decision_tick = 123_456_790
+					"future_notice": fields.stalking_notice_tick = 123_456_790
+					"short_success":
+						fields.stalking_next_eligible_tick = (
+							fields.stalking_notice_tick + 29_999_999
+						)
+					"reversed":
+						fields.stalking_next_eligible_tick = fields.stalking_decision_tick
+					"zero_sequence": fields.stalking_sequence = 0
+					"memory": fields.memories[0].fields.incident_id = (
+						NpcStalkingRules.episode_incident(retained, &"player", 4)
+					)
+		assert_false(WorldSnapshotService.restore(malformed, _fixture_root), mutation)
+		assert_same(NpcPopulationQueries.body_for(_active_id), body)
+		assert_same(NpcPopulationQueries.person_for(_active_id), retained)
+		assert_eq(retained.stalking_sequence, 3)
+		assert_eq(retained.stalking_next_eligible_tick, 158_456_789)
+
+
 ## Malformed elapsed time or future NPC samples reject before changing the live clock/body state.
 func test_invalid_time_snapshot_rejects_before_live_mutation() -> void:
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)

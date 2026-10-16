@@ -23,6 +23,10 @@ const SAVE_FIELDS: Array[String] = [
 	"activity_sequence",
 	"cadence_sample_tick",
 	"cadence_elapsed_ticks",
+	"stalking_sequence",
+	"stalking_decision_tick",
+	"stalking_notice_tick",
+	"stalking_next_eligible_tick",
 ]
 
 enum Placement {
@@ -76,6 +80,18 @@ var display_name: String:
 @export var cadence_sample_tick: int = -1
 ## Retained active AI interval in microsecond ticks; S_NpcCadence owns accumulation/consumption.
 @export var cadence_elapsed_ticks: int = 0
+#endregion
+
+
+#region Durable stalking opportunities
+## Last committed opportunity, including skipped/interrupted attempts; never reset by the brain.
+@export var stalking_sequence: int = 0
+## GameClock timestamp of that opportunity; -1 only before the first decision.
+@export var stalking_decision_tick: int = -1
+## Last successful close observation timestamp; -1 until the first episode success.
+@export var stalking_notice_tick: int = -1
+## Captured eligibility deadline, retained across participation/reset/load; zero before first use.
+@export var stalking_next_eligible_tick: int = 0
 #endregion
 
 

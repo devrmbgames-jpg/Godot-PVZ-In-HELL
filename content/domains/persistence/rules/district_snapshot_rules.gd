@@ -88,6 +88,7 @@ static func valid(
 			person.activity_sequence < 0 or person.cadence_elapsed_ticks < 0
 			or person.cadence_sample_tick < -1
 			or person.cadence_sample_tick > calendar.clock.elapsed_ticks
+			or not NpcStalkingRules.valid_history(person, calendar.clock.elapsed_ticks)
 		):
 			return false
 

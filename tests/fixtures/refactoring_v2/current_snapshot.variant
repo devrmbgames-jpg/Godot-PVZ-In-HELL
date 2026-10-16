@@ -26,7 +26,17 @@
 "exit_id": &"portal_north",
 "goal_id": &"activity_2",
 "home_id": &"home_1",
-"memories": [],
+"memories": [{
+"fields": {
+"actor_id": &"player",
+"day": 1,
+"incident_id": &"stalking/noticed/npc/1/player/3",
+"kind": 9,
+"reaction": 0,
+"victim_id": &"npc/1"
+},
+"type": "res://content/domains/npc/contracts/npc_memory.gd"
+}],
 "npc_id": &"npc/1",
 "phase_complete": false,
 "placement": 0,
@@ -37,6 +47,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_night_hunter.tres"
 },
 "recipient_key": &"customer_01",
+"stalking_decision_tick": 113456789,
+"stalking_next_eligible_tick": 158456789,
+"stalking_notice_tick": 118456789,
+"stalking_sequence": 3,
 "variation": {
 "fields": {
 "aggression_multiplier": 0.9313319,
@@ -84,6 +98,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_fire_elemental.tres"
 },
 "recipient_key": &"customer_02",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 1.0161899,
@@ -121,6 +139,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_shy.tres"
 },
 "recipient_key": &"customer_03",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 1.0001242,
@@ -158,6 +180,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_creepy.tres"
 },
 "recipient_key": &"customer_04",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 1.0107149,
@@ -195,6 +221,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_brute.tres"
 },
 "recipient_key": &"customer_05",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 0.9309645,
@@ -232,6 +262,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_hag.tres"
 },
 "recipient_key": &"customer_06",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 0.9983849,
@@ -269,6 +303,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_weeping_angel.tres"
 },
 "recipient_key": &"customer_07",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 1.0195861,
@@ -306,6 +344,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_lost.tres"
 },
 "recipient_key": &"customer_08",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 0.93677825,
@@ -343,6 +385,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_chain_devil.tres"
 },
 "recipient_key": &"visitor_1",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 1.0788532,
@@ -380,6 +426,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_vampire.tres"
 },
 "recipient_key": &"visitor_2",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 1.0704947,
@@ -417,6 +467,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_lost_visitor.tres"
 },
 "recipient_key": &"visitor_3",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 0.9348723,
@@ -454,6 +508,10 @@
 "definition": "res://content/domains/npc/definitions/def_npc_archetype_shy_visitor.tres"
 },
 "recipient_key": &"visitor_4",
+"stalking_decision_tick": -1,
+"stalking_next_eligible_tick": 0,
+"stalking_notice_tick": -1,
+"stalking_sequence": 0,
 "variation": {
 "fields": {
 "aggression_multiplier": 0.93362695,
@@ -1564,5 +1622,5 @@
 }]),
 "morning_day": 2,
 "raw_actors": Array[Dictionary]([]),
-"version": 24
+"version": 25
 }
