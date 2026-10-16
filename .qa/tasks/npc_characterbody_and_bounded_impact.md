@@ -1,7 +1,7 @@
 # NPC CharacterBody — короткое отбрасывание и удерживаемый предмет
 
 Owning task: [.agents/tasks/npc_characterbody_and_bounded_impact.md](../../.agents/tasks/npc_characterbody_and_bounded_impact.md).
-Status: **NOT_RUN**. Разрешение на rendered/gameplay QA этой задачи: **NOT_GRANTED**.
+Status: **NOT_RUN**. Разрешение на rendered/gameplay QA этой задачи: **GRANTED: до 6 случаев**, явный ответ владельца 2026-10-17.
 Бюджет milestone: максимум **8** проверок; использовано **0/8**, подготовлено **6** случаев.
 Другие QA-разрешения и исчерпанные бюджеты сюда не переносятся.
 Reviewed runtime SHA: `d6f599dafc85af4d25f2b788a94aa75f5540a6ea`.

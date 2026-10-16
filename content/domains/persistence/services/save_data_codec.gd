@@ -102,7 +102,13 @@ static func encode(value: Variant, depth: int = 0) -> Variant:
 				and name
 				not in ["script", "resource_name", "resource_local_to_scene", "resource_path"]
 			):
-				fields[name] = encode(resource.get(name), depth + 1)
+				if resource is NpcRecord and name in ["dialogue_tags", "dialogue_values"]:
+					fields[name] = DialogueValueCodec.encode(
+						resource.get(name), "%s.%s" % [(resource as NpcRecord).npc_id, name],
+						MAX_DEPTH,
+					)
+				else:
+					fields[name] = encode(resource.get(name), depth + 1)
 		return { "type": script.resource_path, "fields": fields }
 	if value is Array:
 		var encoded_collection: Array = []
@@ -247,7 +253,14 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		if not field is String or field not in allowed or depth > MAX_DEPTH:
 			return false
 
-		var decoded: Variant = decode(fields[field], depth + 1)
+		var decoded: Variant = null
+		if resource is NpcRecord and field in ["dialogue_tags", "dialogue_values"]:
+			var author_value: Dictionary = DialogueValueCodec.decode(fields[field], MAX_DEPTH)
+			if not author_value.ok:
+				return false
+			decoded = author_value.value
+		else:
+			decoded = decode(fields[field], depth + 1)
 		var current: Variant = resource.get(field)
 		if fields[field] != null and decoded == null:
 			return false
@@ -288,8 +301,11 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			if target.is_typed():
 				for key: Variant in values:
 					if (
-						typeof(key) != target.get_typed_key_builtin()
-						or typeof(values[key]) != target.get_typed_value_builtin()
+						(target.is_typed_key() and typeof(key) != target.get_typed_key_builtin())
+						or (
+							target.is_typed_value()
+							and typeof(values[key]) != target.get_typed_value_builtin()
+						)
 					):
 						return false
 

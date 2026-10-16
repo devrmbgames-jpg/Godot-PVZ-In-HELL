@@ -262,6 +262,20 @@ func _retry_due_replacement(level: Node3D) -> void:
 
 #region Representative district state through real operation boundaries
 func _prepare_domains(level: Node3D, actor: Entity) -> void:
+	for index: int in 2:
+		var person: NpcRecord = NpcPopulationQueries.current().people[index]
+		_check(
+			person.dialogue_tags.is_empty() and person.dialogue_values.is_empty(),
+			"new game begins with empty author memory",
+		)
+		var numbers: Array[int] = [index, index + 1]
+		NpcDialogueMemoryService.set_tag(person, &"visited")
+		NpcDialogueMemoryService.set_val(person, &"count", index + 1)
+		NpcDialogueMemoryService.set_val(person, &"nullable", null)
+		NpcDialogueMemoryService.set_val(person, &"typed", numbers)
+		NpcDialogueMemoryService.set_val(
+			person, &"literal", { "type": "author", "definition": true, "invalid": false },
+		)
 	var zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
 	ReceivingDeliveryService.prepare_batch(zone.supply, receiving, 1)
@@ -401,6 +415,28 @@ func _prepare_domains(level: Node3D, actor: Entity) -> void:
 
 
 func _verify_domains(level: Node3D, snapshot: Dictionary, after_ready: bool = false) -> void:
+	for index: int in 2:
+		var person: NpcRecord = NpcPopulationQueries.person_for(StringName("npc/%d" % (index + 1)))
+		_check(person.dialogue_tags.get(&"visited", false), "author tag survives Night/restart")
+		_check(person.dialogue_values.get(&"count") == index + 1, "NPC counters stay independent")
+		_check(
+			person.dialogue_values.has(&"nullable") and person.dialogue_values[&"nullable"] == null,
+			"explicit null remains present after restart",
+		)
+		_check(not person.dialogue_values.has(&"missing"), "missing key remains absent")
+		var numbers: Variant = person.dialogue_values.get(&"typed")
+		_check(numbers is Array, "compound value restores as Array")
+		if numbers is Array:
+			_check(
+				(numbers as Array).get_typed_builtin() == TYPE_INT
+				and numbers == [index, index + 1],
+				"typed Array preserves builtin and contents",
+			)
+		_check(
+			person.dialogue_values.get(&"literal")
+			== { "type": "author", "definition": true, "invalid": false },
+			"reserved envelope keys remain author data",
+		)
 	var domains: Array[Script] = [
 		C_PackageLedger,
 		C_CustomerFlow,

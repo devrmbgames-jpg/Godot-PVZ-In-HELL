@@ -375,7 +375,7 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_same(dormant_body, retained_body)
 	assert_true(active_body.enabled)
 	assert_false(dormant_body.enabled)
-	assert_true((dormant_body as Node) is RigidBody3D)
+	assert_true((dormant_body as Node) is CharacterBody3D)
 	assert_eq((dormant_body.get_component(C_Health) as C_Health).current, 41.0)
 	DistrictPopulationService.set_placement(
 		NpcPopulationQueries.person_for(_dormant_id),

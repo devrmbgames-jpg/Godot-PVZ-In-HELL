@@ -114,6 +114,53 @@ func speaks_with(_npc: Entity) -> bool:
 #endregion
 
 
+#region Авторская память постоянной личности
+## Устанавливает флаг в true; повтор безопасен, закрытый ctx не выполняет запись.
+func set_tag(tag_name: StringName) -> void:
+	var person: NpcRecord = _dialogue_person()
+	if person != null:
+		NpcDialogueMemoryService.set_tag(person, tag_name)
+
+
+## Отсутствующий флаг даёт false без создания ключа или личности.
+func get_tag(tag_name: StringName) -> bool:
+	var person: NpcRecord = _dialogue_person()
+	return person != null and NpcDialogueMemoryService.get_tag(person, tag_name)
+
+
+## Сохраняет исходный Variant, включая явный null; закрытый ctx не выполняет запись.
+## Непредставимые на диске runtime-значения отклоняет preflight сохранения.
+func set_val(value_name: StringName, value: Variant) -> void:
+	var person: NpcRecord = _dialogue_person()
+	if person != null:
+		NpcDialogueMemoryService.set_val(person, value_name, value)
+
+
+## Читает сохранённый тип; отсутствие ключа даёт null без записи.
+func get_val(value_name: StringName) -> Variant:
+	var person: NpcRecord = _dialogue_person()
+	return NpcDialogueMemoryService.get_val(person, value_name) if person != null else null
+
+
+## Складывает только int/float; отсутствие начинает с нуля, int + int остаётся int.
+## bool, null и другие нечисловые значения дают диагностику без изменения памяти.
+## Каждый новый авторский вызов прибавляет снова; закрытый ctx не выполняет запись.
+func add_val(value_name: StringName, value: Variant) -> void:
+	var person: NpcRecord = _dialogue_person()
+	if person == null:
+		return
+	var diagnostic: String = NpcDialogueMemoryService.add_val(person, value_name, value)
+	if not diagnostic.is_empty():
+		push_warning(diagnostic)
+
+
+func _dialogue_person() -> NpcRecord:
+	if _closed or not is_valid():
+		return null
+	return NpcPopulationQueries.person_for(NpcSocialService.identity_for(_delivery_npc()))
+#endregion
+
+
 #region Явное подтверждение сделки с душой
 ## Проверяет доступность сделки и срок предложения без создания подтверждения.
 ## Закрытый контекст или уже разрешённое предложение дают false.

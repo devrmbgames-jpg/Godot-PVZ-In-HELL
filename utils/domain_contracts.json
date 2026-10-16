@@ -20872,6 +20872,35 @@
         "content/domains/npc/entities/e_npc_character.gd"
       ],
       "purpose": "NPC physical callback applies the existing independent look calculation to its native pose."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcDialogueMemoryService",
+      "path": "content/domains/npc/services/npc_dialogue_memory_service.gd",
+      "rights": [
+        "query",
+        "request"
+      ],
+      "public_methods": [
+        "set_tag",
+        "get_tag",
+        "set_val",
+        "get_val",
+        "add_val"
+      ],
+      "sources": [
+        "content/ui/npc_dialogue_context.gd"
+      ],
+      "method_rights": {
+        "set_tag": "request",
+        "get_tag": "query",
+        "set_val": "request",
+        "get_val": "query",
+        "add_val": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Common dialogue context reads and requests author parameters on the existing persistent NpcRecord; no UI-owned memory or social-state replacement."
     }
   ],
   "legacy_decomposition": []

@@ -151,5 +151,10 @@ exporter shutdown diagnostics are not evidence of a runtime Source-contract fail
 ## Owner QA / blockers
 
 Числа ограничений/затухания — обратимые Inspector-настройки прототипа, не утверждённый баланс.
-Rendered QA требует отдельного разрешения. Технически готовый пакет может разблокировать
+Разрешение владельца 2026-10-17 получено: до6 rendered случаев по QA-карточке,
+использовано0/6 (общий milestone ceiling8). Повторно спрашивать внутри лимита не требуется.
+После D2 review выполнить эти шесть случаев на reviewed source.
+Последний handoff review BASE `d6f599dafc85af4d25f2b788a94aa75f5540a6ea`,
+TARGET `4c91c7137806be85cddb42059a38d144397d5bb6`: no findings,
+ARCHITECTURE/STYLE PASS; reviewer execution NOT_RUN. Технически готовый пакет может разблокировать
 потребителя до субъективной приёмки, но незавершённая миграция не становится DONE.

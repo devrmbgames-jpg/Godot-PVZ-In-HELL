@@ -109,6 +109,9 @@ func _advance(
 		var root: Node = _world.get_parent()
 		var snapshot: Dictionary = WorldSnapshotService.capture(root, night_day + 1, true)
 		if not WorldSnapshotService.can_restore(snapshot, root):
+			var diagnostic: String = DialogueValueCodec.snapshot_error(snapshot)
+			if state.last_error != ERR_INVALID_DATA and not diagnostic.is_empty():
+				print("SAVE_PREFLIGHT_REJECTED: " + diagnostic)
 			_retry(state, ERR_INVALID_DATA)
 			return
 		state.prepared_snapshot = snapshot.duplicate(true)

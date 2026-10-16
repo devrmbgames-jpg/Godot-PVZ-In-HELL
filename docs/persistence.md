@@ -42,6 +42,15 @@ Schema 24 persists `C_CustomerFlow.parcel_incident_sequence` and typed pair inci
 
 The chosen wrong-parcel outcome and active-gameplay deadline commit before physical effects; capture refuses an in-progress reaction. Semantic preflight rejects malformed sequences, duplicate pairs/deadlines and impossible held endpoints before mutation. Accepted restore retires previous stolen grips and rebuilds only committed NPC ownership through the common grab owner while observers are suspended; it never repeats RNG, speech, impulses or damage. Unsupported schema23 and earlier files are rejected and preserved, without conversion or PVZH1 changes.
 
+Schema 27 adds `NpcRecord.dialogue_tags` and `dialogue_values`, owned by the permanent
+NPC aggregate and written through NpcDialogueMemoryService. SaveDataCodec uses
+DialogueValueCodec for both collections: literal Dictionary keys cannot become
+record/Definition envelopes, and typed builtin containers keep their metadata.
+Runtime Object/RID/Callable/Signal values and cycles reject preflight with the author
+key before S_NightSave replaces the slot. Explicit null remains a present key.
+Prior schemas are rejected and their files protected; PVZH1 storage is unchanged.
+The author API and compiled examples are documented in [dialogue memory](dialogue_memory.md).
+
 ## Refactoring v2 identity contract
 
 This heading retains incoming historical links; the rules below describe the implemented runtime.

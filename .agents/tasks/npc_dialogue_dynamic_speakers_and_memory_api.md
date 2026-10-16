@@ -4,91 +4,104 @@ Status: **IN_PROGRESS**
 Technical: **IN_PROGRESS**
 Execution order: **60**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
-Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/npc_dialogue_dynamic_speakers_and_memory_api.md.txt).
+Source: [полное исходное ТЗ](references/task-refactor-2026-10-17/npc_dialogue_dynamic_speakers_and_memory_api.md.txt).
 
-Эта карточка владеет текущим исполнением. Полный объём требований сохранён в Source;
-правила чтения и автономного продолжения — в [README](README.md).
-
+Полный объём требований сохранён в Source; эта карточка владеет Current/Next и evidence.
+Правила автономного продолжения — в [README](README.md).
 
 ## Goal / acceptance
 
-Имя говорящего берётся из актуальной личности street/service. Комментарии общего ctx —
-на русском, включая точное объяснение holds_grudge(). Ровно пять новых операций:
-set_tag, get_tag, set_val, get_val(value_name), add_val; get_val отсутствующего ключа
-возвращает null без записи, add_val только числовой. Полный Variant/codec и lifecycle
-контракт Source сохраняется, включая запрет тихой потери непредставимых значений.
+Актуальное имя личности в street/service; русские комментарии общего ctx с точной
+семантикой holds_grudge. Ровно пять новых операций: set_tag, get_tag, set_val,
+get_val(value_name), add_val. Отсутствие читается без записи; null остаётся явным
+значением; числовое сложение не принимает bool/нечисловые данные.
+Параметры принадлежат NpcRecord/npc_id, переживают роль/день/сон/пересоздание/save-load,
+не перетекают к соседу. Непредставимые persistent значения отклоняются до замены файла.
+Авторские коллекции не заменяют деньги, HP, quests, typed-отношения или NpcMemory.
+Закрытый ctx не пишет; технический повтор advance не выполняет mutation дважды.
+Обязательные ручные UI проверки остаются отдельным gate.
 
 ## Current
 
-Документационная часть D3 reviewed PASS на `6665e0dc26a76f58b3e2b4e88146c2b487475f1c`
-от BASE `23e26a2541dab773a2a4db3cdc29e234c7ce657b`: русские комментарии/регионы общего ctx,
-точная семантика holds_grudge, исполняемые строки не менялись. Reviewer execution NOT_RUN.
-D1 реализован: общий read-only speaker_name разрешает имя NpcRecord,
-service legacy fallback читает DEF_Customer.display_name. Street sn сохранён; закрытый ctx
-возвращает пустое имя. Специальный parcel-demand context использует того же собеседника.
-246 статических NPC-заголовков в 21 ресурсе заменены native Dialogue Manager подстановкой;
-две Angel-таблички, реплики/choices/cues/tags/условия сохранены. UI/аддон не менялись.
-Native imports обновлены, focused GUT прошли. D1 reviewed PASS, D2 не начат.
+D1 reviewed PASS: общий speaker_name читает личность, legacy customer — авторское имя;
+sn сохранён. 246 NPC headers в21 ресурсе используют native подстановки Dialogue Manager.
+Две Angel-таблички и все cues/choices/tags/условия сохранены.
+D1 review BASE `41243ae7956505d6fceb008500e84403fc2b220a`,
+TARGET `f7dd1812540e9bfbba0bfdb7d95341743b188b44`: no findings.
+Русские комментарии общего ctx reviewed в
+`6665e0dc26a76f58b3e2b4e88146c2b487475f1c`
+от BASE `23e26a2541dab773a2a4db3cdc29e234c7ce657b`; executable lines не менялись.
 
-## Work packages
+D2 реализован: NpcRecord.dialogue_tags/dialogue_values, один writer
+NpcDialogueMemoryService, пять thin ctx adapters. Закрытые/непривязанные ctx не создают
+личность или ключи. Панель сохраняет существующий guard до await; реальный async-тест
+проверяет технический повтор и поздний возврат после закрытия.
+SaveDataCodec явно кодирует обе коллекции через DialogueValueCodec: reserved keys —
+данные, typed builtin containers сохраняются, Object/RID/Callable/Signal и циклы дают
+invalid с путём к ключу. S_NightSave сообщает причину preflight и сохраняет прежний файл.
+Схема27, native golden и inventory обновлены; прежние схемы отклоняются/файл сохраняется.
+PVZH1 и DEFERRED ConfigFile B01 не менялись.
+D3 авторская документация/пример в [docs/dialogue_memory.md](../../docs/dialogue_memory.md)
+компилируется/исполняется native DMCompiler/runtime; пример денег предполагает
+подтверждённую передачу, не выполняет списание и не вводит cost_mone.
 
-| Пакет | Проверяемый результат |
+D2/D3 технический checkpoint ожидает immutable-SHA review: **REVIEW_PENDING**.
+Technical не COMPLETE, задача не DONE.
+
+## Work packages / boundaries
+
+| Пакет | Результат |
 | --- | --- |
-| D1 | Общий read-only speaker_name и миграция только NPC-заголовков; реплики игрока/рассказчика, cues и sign mode сохранены. |
-| D2 | Пять операций, единый writer в NpcRecord, codec/preflight и fresh/retained restore; два NPC не делят память. |
-| D3 | Русская документация ctx, holds_grudge и авторские примеры, скомпилированные установленным Dialogue Manager; интеграционная приёмка. |
+| D1 | Динамические NPC headers и сохранённые player/narrator/sign cues — reviewed. |
+| D2 | Единая постоянная память, пять операций, codec/preflight/schema, retained/fresh restore — реализован, review pending. |
+| D3 | Русская документация/compiled examples готовы; обязательный rendered UI gate открыт. |
 
-Перевод комментариев новых методов делается сразу в D2, не откладывает понятность API.
-D3 закрывает оставшийся файл и примеры, не создаёт ещё один API для каждого флага.
-
-## Entry points / dependency gates
-
-content/ui/npc_dialogue_context.gd, npc_street_dialogue_context.gd,
-customer_dialogue_panel.gd, NpcRecord/SAVE_FIELDS и существующие archetype .dialogue.
-D1/D2 не ждут полной новой агрессии: holds_grudge читает действующий NpcGrudgeRules.
-Авторские tags/values не заменяют typed-граф отношений, HP, деньги, quests или NpcMemory.
-[Постоянные жители](district_authored_residents_and_resurrection.md) переиспользуют D2,
-но не требуют заранее законченных персональных сюжетов для самого API.
-
-## Next
-
-Продолжить D2 целиком:
-владелец NpcRecord, пять адаптеров, closed ctx/repeated callback, codec/preflight/schema и
-fresh/retained roundtrip. Непредставимые persistent значения отклонять до замены save.
-Не считать завершённой всю задачу или интеграционную часть D3 до её обязательной приёмки.
+[Постоянные жители](district_authored_residents_and_resurrection.md) используют проверенный D2,
+не требуют заранее готового личного канона. holds_grudge читает существующий NpcGrudgeRules;
+авторский одноимённый тег не меняет социальную память.
 
 ## Validation / review
 
-Перевод комментариев: native MCP checked/empty, formatter/lint, executable-line equivalence,
-diff-check PASS; runtime для docs-only не запускался. D1: MCP7 checked/empty, formatter/lint7,
-architecture(strict), structure PASS. Native DMCompiler компилирует 23 реальных источника;
-два source imports зарегистрированы через public DMCache.add_file для headless fixture.
-GUT logs: `.artifacts/godot_agent/gut-20261016-<timestamp>.*.log`, все ниже PASS/CLEAN, stderr0:
+Native `utils/godot_agent.ps1 -Action GUT -TestPath res://tests/gut/<suite>.gd`;
+логи `.artifacts/godot_agent/gut-20261016-<timestamp>.*.log`.
+Текущие проверки ниже реально выполнены: **PASS/CLEAN**, stderr0.
 
 | Suite | Tests/assertions | Timestamp |
 | --- | --- | --- |
-| npc_dialogue_variants (две личности, street/service, текущая смена имени, compile23) | 34/726 | 202208405 |
-| customer_dialogue (legacy имя, закрытый ctx, modal/lifecycle/tags) | 16/275 | 202220445 |
-| npc_angel_dialogue (режим таблички и lifecycle) | 46/850 | 202305258 |
-| customer_parcel_incidents (диалоговая demand-ветка, receipt, carry/modal) | 48/614 | 202317604 |
+| dialogue_value_codec: все data Variant, typed/wildcard containers, reserved keys, cycles/runtime rejection | 6/151 | 205945159 |
+| npc_dialogue_memory: 34 inherited role/branch checks +6 memory/compiled/await cases | 40/804 | 210704532 |
+| npc_dialogue_memory_snapshot: retained/fresh disk, malformed data, Night rejection, previous schema | 11/114 | 210703088 |
+| refactoring_v2_persistence_baseline: actual golden read, retained/fresh grips/time/history | 15/802 | 210702143 |
+| world_snapshot | 47/642 | 210703156 |
+| district_snapshot | 17/215 | 210702885 |
+| customer_dialogue | 16/275 | 210806812 |
 
-Статическая сверка 21 dialogue diff: меняются только объявленные NPC speaker headers;
-cues, response tags/условия/тексты и окончания веток идентичны. Две sign resources не изменены.
-Native Import обновил compiled headers, но общий gate FAIL из-за shutdown ObjectDB/resources,
-PagedAllocator и dummy RID diagnostics (`import-20261016-202114387.*.log`); это не PASS.
-MCP reimport вызывает update_file и оставил stale compiled headers; native Import выполнен
-после штатного закрытия clean editor, затем guarded launcher восстановил редактор.
-Красные pre-import/fixture/cache-precondition прогоны сохранены, не засчитаны как приёмка.
-D1 review BASE `41243ae7956505d6fceb008500e84403fc2b220a`,
-TARGET `f7dd1812540e9bfbba0bfdb7d95341743b188b44`: no material findings,
-ARCHITECTURE/STYLE PASS, reviewer execution NOT_RUN. Accepted P0/P1/P2: none.
-D2 runtime/parser/review NOT_RUN.
-Границы: отсутствие ключа против явного null,
-int/float/bool/составные значения, нечисловой add без мутации, запрещённые persistent Objects,
-смена street/service/дня/тела, закрытый ctx и технический повтор callback.
-Изменение схемы покрывать в D2 целиком, со строгим отказом до записи неподдерживаемого save.
+Hag regression **PASS/CLEAN**,41/1071, timestamp210804729, stderr0.
+Two-process native `run_smoke -Name night_persistence` **PASS**:
+`tests/artifacts/night_persistence-write-20261017-070554707.log`,
+`tests/artifacts/night_persistence-restore-20261017-070608878.log`.
+Проверяет новую игру с пустыми коллекциями, Night и реальный restart с null/typed values
+и независимыми счётчиками двух NPC. Это не rendered QA.
+Formatter/lint13, architecture(strict), project structure, persistence baseline PASS.
+Staged agent validator и diff-check PASS; read-only review — после commit.
+Ранние красные fixture-прогоны сохранены, не считаются приёмкой. Full snapshot tests
+используют реальный district fixture; dialogue-only fixture имеет inline duplicated Definition.
+Старый baseline assertion RigidBody исправлен на текущий CharacterBody контракт.
 
+D1 отдельные native Angel46/850 (202305258) и parcel-incidents48/614 (202317604)
+проходили до D2; эти suites на D2 не повторялись. Их результат не объявляется новым PASS.
+D1 Import wrapper FAIL из-за mixed shutdown diagnostics сохранён; accepted D1 compiler/GUT
+имеют отдельную CLEAN evidence. Никакого расширения engine exception policy нет.
+
+## Next
+
+Зафиксировать D2/D3 и запустить reviewer
+от BASE `4c91c7137806be85cddb42059a38d144397d5bb6` на точный TARGET_SHA.
+После triage и исправления принятых P0/P1/P2 выполнить разрешённые шесть случаев NPC
+CharacterBody, затем подготовить и выполнить bounded dialogue UI acceptance.
+Не объявлять milestone DONE при pending review или открытой обязательной приёмке.
 ## Owner QA / blockers
 
-Не требуются новые имена/сюжеты для проверки API. Авторские примеры не становятся каноном.
-Rendered QA отдельно; нет разрешения менять addon или заменять панель демонстрационным balloon.
+Владелец 2026-10-17 разрешил дальнейшие проверки без повторных вопросов при
+неисчерпанном соответствующем лимите; максимум8 на milestone, уже меньшие лимиты сохранены.
+Имена/реплики примеров не становятся каноном; addon/панель не заменяются.

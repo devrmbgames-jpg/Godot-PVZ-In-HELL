@@ -141,6 +141,9 @@ static func valid(
 			if exit_place == null or exit_place.kind != DEF_DistrictPlace.Kind.PORTAL:
 				return false
 
+		for tag_name: StringName in person.dialogue_tags:
+			if not person.dialogue_tags[tag_name]:
+				return false
 		if not BloodConsentRules.valid(person):
 			return false
 

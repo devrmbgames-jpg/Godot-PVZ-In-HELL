@@ -17,6 +17,8 @@ const SAVE_FIELDS: Array[String] = [
 	"planned_phase",
 	"phase_complete",
 	"memories",
+	"dialogue_tags",
+	"dialogue_values",
 	"blood_offer_sequence",
 	"blood_offers",
 	"death_day",
@@ -66,6 +68,10 @@ var display_name: String:
 @export var phase_complete: bool = false
 ## Воспринятые личностью социальные инциденты.
 @export var memories: Array[NpcMemory] = []
+## Постоянные авторские флаги; gameplay writer — NpcDialogueMemoryService.
+@export var dialogue_tags: Dictionary[StringName, bool] = { }
+## Авторские Variant-значения; runtime-типы разрешены в памяти, но требуют save preflight.
+@export var dialogue_values: Dictionary[StringName, Variant] = { }
 ## Next never-reused personal blood confirmation; BloodConsentService is the sole gameplay writer.
 @export var blood_offer_sequence: int = 1
 ## Personal durable blood offers/receipts; no live participant references or duplicate HP state.
