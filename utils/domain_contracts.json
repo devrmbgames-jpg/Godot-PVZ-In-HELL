@@ -20407,13 +20407,17 @@
         "read",
         "query"
       ],
-      "public_methods": [],
+      "public_methods": [
+        "choose_demand"
+      ],
       "public_instance_methods": [],
-      "method_rights": {},
+      "method_rights": {
+        "choose_demand": "query"
+      },
       "sources": [
         "content/domains/persistence/rules/customer_parcel_incident_snapshot_rules.gd"
       ],
-      "purpose": "Read the closed committed-outcome enum without executing or rerolling a reaction."
+      "purpose": "Validate closed outcome enums and captured intimidation facts through the pure chooser; never execute or reroll a reaction."
     }
   ],
   "legacy_decomposition": []

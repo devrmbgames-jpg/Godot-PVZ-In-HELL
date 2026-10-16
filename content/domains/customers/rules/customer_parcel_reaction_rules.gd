@@ -12,6 +12,19 @@ enum Outcome {
 	DAMAGE,
 }
 
+## NONE is an unattempted demand; INVALID is rejected input and must never be committed.
+enum DemandOutcome {
+	NONE,
+	ATTACK,
+	RETURN,
+	INVALID,
+}
+
+const DEMAND_BASE_ATTACK: float = 0.5
+const DEMAND_ATTACK_PER_STRENGTH: float = 0.05
+const DEMAND_MIN_ATTACK: float = 0.05
+const DEMAND_MAX_ATTACK: float = 0.95
+
 
 #region Explicit probability model
 ## Rolls are finite values in [0, 1], including native RNG endpoint values.
@@ -58,4 +71,20 @@ static func choose(
 static func _wins(roll: float, probability: float) -> bool:
 	# A probability of one always succeeds, even if a native generator returns its upper endpoint.
 	return probability > 0.0 and (roll < probability or probability == 1.0)
+#endregion
+
+
+#region Explicit intimidation choice
+## One attack-or-return choice from effective Strength and one captured native roll in [0, 1].
+## Strength is finite and signed; the owner's clamp applies to both ends without rounding.
+## Eligibility, capturing Strength/RNG and committing the result belong to the incident owner.
+static func choose_demand(strength: float, roll: float) -> DemandOutcome:
+	if not is_finite(strength) or not is_finite(roll) or roll < 0.0 or roll > 1.0:
+		return DemandOutcome.INVALID
+	var attack_probability: float = clampf(
+		DEMAND_BASE_ATTACK - DEMAND_ATTACK_PER_STRENGTH * strength,
+		DEMAND_MIN_ATTACK,
+		DEMAND_MAX_ATTACK,
+	)
+	return DemandOutcome.ATTACK if _wins(roll, attack_probability) else DemandOutcome.RETURN
 #endregion

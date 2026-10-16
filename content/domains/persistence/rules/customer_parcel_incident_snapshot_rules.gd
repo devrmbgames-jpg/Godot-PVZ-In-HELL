@@ -2,6 +2,9 @@ extends RefCounted
 ## Closed incident semantics and native held endpoints; rejects before passive World mutation.
 class_name CustomerParcelIncidentSnapshotRules
 
+const REACTIONS = preload("res://content/domains/customers/rules/customer_parcel_reaction_rules.gd")
+const DEMAND = REACTIONS.DemandOutcome
+
 
 #region Durable pair semantics
 static func valid(
@@ -64,6 +67,8 @@ static func valid(
 			)
 		):
 			return false
+		if not _valid_demand(incident, now):
+			return false
 		var package_pairs: Dictionary = pairs.get(incident.npc_id, { }) as Dictionary
 		if package_pairs.has(incident.package_id):
 			return false
@@ -104,6 +109,29 @@ static func valid(
 		held_npcs[incident.npc_id] = true
 		held_packages[incident.package_id] = true
 	return true
+
+
+static func _valid_demand(incident: CustomerParcelIncident, now: int) -> bool:
+	if incident.demand_outcome == DEMAND.NONE:
+		return (
+			incident.demand_strength == 0.0 and incident.demand_roll == 0.0
+			and incident.demand_tick == -1
+		)
+	if (
+		incident.demand_outcome not in [DEMAND.ATTACK, DEMAND.RETURN]
+		or incident.outcome != REACTIONS.Outcome.KEEP
+		or incident.demand_tick < incident.created_tick or incident.demand_tick > now
+		or (
+			incident.phase == CustomerParcelIncident.Phase.COMPLETED
+			and incident.next_eligible_tick - incident.demand_tick
+			< CustomerParcelIncidentService.BLOCK_TICKS
+		)
+	):
+		return false
+	# Validate the captured facts, never current Strength or a new RNG sample.
+	return REACTIONS.choose_demand(incident.demand_strength, incident.demand_roll) == (
+		incident.demand_outcome
+	)
 #endregion
 
 

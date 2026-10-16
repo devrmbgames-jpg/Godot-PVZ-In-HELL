@@ -3,6 +3,7 @@ extends GutTest
 
 const ROOT: String = "res://content/domains/npc/definitions/"
 const OUTCOME: Dictionary = CustomerParcelReactionRules.Outcome
+const DEMAND: Dictionary = CustomerParcelReactionRules.DemandOutcome
 
 
 #region Native capability and probability boundaries
@@ -127,6 +128,30 @@ func test_nonfinite_out_of_range_or_incompatible_models_are_invalid_without_a_ch
 	assert_true(fire.valid_configuration())
 	fire.kind = DEF_NpcTrait.Kind.FIRE_AURA
 	assert_false(fire.valid_configuration())
+#endregion
+
+
+#region Intimidation uses one captured roll
+func test_demand_probability_uses_percentage_points_and_both_clamps() -> void:
+	var strengths: Array[float] = [-100.0, -9.0, -1.0, 0.0, 1.0, 5.0, 9.0, 100.0]
+	var attack_chances: Array[float] = [0.95, 0.95, 0.55, 0.5, 0.45, 0.25, 0.05, 0.05]
+	for index: int in strengths.size():
+		var strength: float = strengths[index]
+		var boundary: float = attack_chances[index]
+		assert_eq(CustomerParcelReactionRules.choose_demand(strength, 0.0), DEMAND.ATTACK)
+		assert_eq(
+			CustomerParcelReactionRules.choose_demand(strength, boundary - 0.000001),
+			DEMAND.ATTACK,
+		)
+		assert_eq(CustomerParcelReactionRules.choose_demand(strength, boundary), DEMAND.RETURN)
+		assert_eq(CustomerParcelReactionRules.choose_demand(strength, 1.0), DEMAND.RETURN)
+
+
+func test_demand_invalid_inputs_never_become_a_committable_choice() -> void:
+	for strength: float in [NAN, INF, -INF]:
+		assert_eq(CustomerParcelReactionRules.choose_demand(strength, 0.5), DEMAND.INVALID)
+	for roll: float in [NAN, INF, -INF, -0.000001, 1.000001]:
+		assert_eq(CustomerParcelReactionRules.choose_demand(5.0, roll), DEMAND.INVALID)
 #endregion
 
 

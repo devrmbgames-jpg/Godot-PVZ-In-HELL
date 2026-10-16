@@ -5,6 +5,8 @@ const SLOT_PATH: String = "user://gut_refactoring_v2_phase1.pvzh"
 const SNAPSHOT_PATH: String = "res://tests/fixtures/refactoring_v2/current_snapshot.variant"
 const MANIFEST_PATH: String = "res://tests/fixtures/refactoring_v2/save_visible_paths.json"
 const MORNING_DAY: int = 2
+const REACTIONS = preload("res://content/domains/customers/rules/customer_parcel_reaction_rules.gd")
+const DEMAND = REACTIONS.DemandOutcome
 
 var _fixture_root: Node3D
 var _fixture_world: World
@@ -355,6 +357,18 @@ func test_incompatible_and_unresolved_data_reject_before_live_mutation() -> void
 #region Closed codec path inventory
 ## A held incident reconstructs native ownership without replaying the recognition transaction.
 func test_stolen_parcel_disk_roundtrip_restores_one_grip_on_retained_and_fresh_bodies() -> void:
+	await _assert_stolen_parcel_roundtrip(DEMAND.NONE)
+
+
+func test_pending_return_disk_roundtrip_preserves_choice_without_returning_the_body() -> void:
+	await _assert_stolen_parcel_roundtrip(DEMAND.RETURN)
+
+
+func test_attack_disk_roundtrip_preserves_captured_choice_without_replaying_combat() -> void:
+	await _assert_stolen_parcel_roundtrip(DEMAND.ATTACK)
+
+
+func _assert_stolen_parcel_roundtrip(demand: REACTIONS.DemandOutcome) -> void:
 	_fixture_world.add_observer(O_GrabLifecycle.new())
 	_fixture_world.add_observer(O_CustomerParcelIncidents.new())
 	var session: Entity = _fixture_world.query.with_all([C_DayCycle]).execute_one()
@@ -375,6 +389,11 @@ func test_stolen_parcel_disk_roundtrip_restores_one_grip_on_retained_and_fresh_b
 	incident.phase = CustomerParcelIncident.Phase.HELD
 	incident.created_tick = GameTimeQueries.current().elapsed_ticks
 	incident.next_eligible_tick = incident.created_tick + CustomerParcelIncidentService.BLOCK_TICKS
+	incident.demand_outcome = demand
+	if demand != DEMAND.NONE:
+		incident.demand_strength = 5.0
+		incident.demand_roll = 0.1 if demand == DEMAND.ATTACK else 0.8
+		incident.demand_tick = incident.created_tick
 	flow.parcel_incident_sequence = 2
 	flow.parcel_incidents.append(incident)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
@@ -389,7 +408,9 @@ func test_stolen_parcel_disk_roundtrip_restores_one_grip_on_retained_and_fresh_b
 		assert_eq(restored.parcel_incident_sequence, 2)
 		assert_eq(restored.parcel_incidents[0].phase, CustomerParcelIncident.Phase.HELD)
 		assert_eq(restored.parcel_incidents[0].next_eligible_tick, incident.next_eligible_tick)
+		_assert_demand_data(restored.parcel_incidents[0], incident)
 		assert_null(ThrowContext.relationship(parcel))
+		assert_null(CombatQueries.target_for(holder))
 	_fixture_world.remove_entity(holder)
 	_fixture_world.remove_entity(parcel)
 	await get_tree().process_frame
@@ -402,6 +423,53 @@ func test_stolen_parcel_disk_roundtrip_restores_one_grip_on_retained_and_fresh_b
 	assert_eq(load_state.mass_kg, GrabQueries.physical_body(parcel).mass)
 	assert_eq(CustomerFlowQueries.current().parcel_incident_sequence, 2)
 	assert_false(CustomerFlowQueries.current().parcel_reaction_in_progress)
+	_assert_demand_data(CustomerFlowQueries.current().parcel_incidents[0], incident)
+	assert_null(CombatQueries.target_for(holder))
+
+
+func _assert_demand_data(actual: CustomerParcelIncident, expected: CustomerParcelIncident) -> void:
+	assert_eq(actual.demand_outcome, expected.demand_outcome)
+	assert_eq(actual.demand_strength, expected.demand_strength)
+	assert_eq(actual.demand_roll, expected.demand_roll)
+	assert_eq(actual.demand_tick, expected.demand_tick)
+
+
+func test_completed_demand_history_survives_disk_restore_without_live_endpoints() -> void:
+	var session: Entity = _fixture_world.query.with_all([C_DayCycle]).execute_one()
+	var flow: C_CustomerFlow = C_CustomerFlow.new()
+	session.add_component(flow)
+	var now: int = GameTimeQueries.current().elapsed_ticks
+	for demand: REACTIONS.DemandOutcome in [DEMAND.ATTACK, DEMAND.RETURN]:
+		var incident: CustomerParcelIncident = CustomerParcelIncident.new()
+		incident.sequence = flow.parcel_incident_sequence
+		incident.npc_id = StringName("departed/receiver/%d" % incident.sequence)
+		incident.package_id = "retired/parcel/%d" % incident.sequence
+		incident.visit_id = &"previous/contact"
+		incident.outcome = REACTIONS.Outcome.KEEP
+		incident.created_tick = now - GameTimeRules.TICKS_PER_SECOND
+		incident.next_eligible_tick = now + CustomerParcelIncidentService.BLOCK_TICKS
+		incident.demand_outcome = demand
+		incident.demand_strength = 5.0
+		incident.demand_roll = 0.1 if demand == DEMAND.ATTACK else 0.8
+		incident.demand_tick = now
+		flow.parcel_incidents.append(incident)
+		flow.parcel_incident_sequence += 1
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
+	assert_eq(AutosaveStore.write(snapshot, SLOT_PATH), OK)
+	var loaded: Dictionary = AutosaveStore.read(SLOT_PATH)
+	var entity_count: int = _fixture_world.entities.size()
+	for attempt: int in 2:
+		assert_true(WorldSnapshotService.restore(loaded, _fixture_root, true))
+		assert_eq(_fixture_world.entities.size(), entity_count)
+		var restored: C_CustomerFlow = CustomerFlowQueries.current()
+		assert_eq(restored.parcel_incident_sequence, 3)
+		for index: int in 2:
+			_assert_demand_data(restored.parcel_incidents[index], flow.parcel_incidents[index])
+			assert_eq(
+				restored.parcel_incidents[index].phase,
+				CustomerParcelIncident.Phase.COMPLETED,
+			)
 
 
 ## Invalid incident data rejects before touching the actual World or the current pair journal.
@@ -421,7 +489,13 @@ func test_invalid_incident_shape_deadline_pair_and_held_endpoints_reject_before_
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _fixture_root))
 	var entity_count: int = _fixture_world.entities.size()
-	for mutation: String in ["sequence", "future", "short", "duplicate", "missing", "held"]:
+	for mutation: String in [
+		"sequence", "future", "short", "duplicate", "missing", "held",
+		"unattempted_strength", "unattempted_roll", "unattempted_tick", "demand_invalid",
+		"demand_without_keep", "demand_future", "demand_before", "demand_wrong_choice",
+		"demand_strength_nan", "demand_roll_nan", "demand_roll_low", "demand_roll_high",
+		"demand_short_block", "demand_missing_roll",
+	]:
 		var invalid: Dictionary = snapshot.duplicate(true)
 		for record: Dictionary in invalid.entities:
 			for saved: Dictionary in record.components:
@@ -430,6 +504,12 @@ func test_invalid_incident_shape_deadline_pair_and_held_endpoints_reject_before_
 				var fields: Dictionary = saved.fields as Dictionary
 				var cases: Array = fields.parcel_incidents as Array
 				var entry: Dictionary = (cases[0] as Dictionary).fields as Dictionary
+				if mutation.begins_with("demand_"):
+					entry.outcome = REACTIONS.Outcome.KEEP
+					entry.demand_outcome = DEMAND.ATTACK
+					entry.demand_strength = 5.0
+					entry.demand_roll = 0.1
+					entry.demand_tick = incident.created_tick
 				match mutation:
 					"sequence": entry.sequence = 0
 					"future": entry.created_tick = incident.created_tick + 1
@@ -443,6 +523,22 @@ func test_invalid_incident_shape_deadline_pair_and_held_endpoints_reject_before_
 					"held":
 						entry.phase = CustomerParcelIncident.Phase.HELD
 						entry.outcome = CustomerParcelReactionRules.Outcome.KEEP
+					"unattempted_strength": entry.demand_strength = 1.0
+					"unattempted_roll": entry.demand_roll = 0.5
+					"unattempted_tick": entry.demand_tick = incident.created_tick
+					"demand_invalid": entry.demand_outcome = DEMAND.INVALID
+					"demand_without_keep": entry.outcome = REACTIONS.Outcome.REFUSE
+					"demand_future": entry.demand_tick = incident.created_tick + 1
+					"demand_before": entry.demand_tick = incident.created_tick - 1
+					"demand_wrong_choice": entry.demand_outcome = DEMAND.RETURN
+					"demand_strength_nan": entry.demand_strength = NAN
+					"demand_roll_nan": entry.demand_roll = NAN
+					"demand_roll_low": entry.demand_roll = -0.000001
+					"demand_roll_high": entry.demand_roll = 1.000001
+					"demand_short_block":
+						entry.created_tick -= 1
+						entry.next_eligible_tick -= 1
+					"demand_missing_roll": entry.erase("demand_roll")
 		assert_false(WorldSnapshotService.restore(invalid, _fixture_root), mutation)
 		assert_same(flow.parcel_incidents[0], incident)
 		assert_eq(_fixture_world.entities.size(), entity_count)
