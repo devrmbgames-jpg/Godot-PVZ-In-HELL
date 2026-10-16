@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `f7cbd1e6cca18f9dd52f58b7697fcb87b43bb02c`
-TARGET_SHA: pending occupied-hands LOS checkpoint/review; task IN_PROGRESS
+TARGET_SHA: `91d5e63a06baf7d0987e6532c3b041f83cfd24c2` - occupied-hands LOS review PASS; task IN_PROGRESS
 
 Created: 2026-10-15. Related: [согласованность посылок](completed/package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
@@ -29,7 +29,7 @@ M2c1 carry reviewed, RV-002/003 fixed; fresh C_GrabControl/C_CarryLoad/C_Strengt
 M2c2 fire reviewed: actual remaining item metadata, one-shot consumption/mass before debris, native hazard retained without repeat from empty shells; catalog quantity/history/schema22 unchanged. Unknown legacy stubs remain unknown. No material findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
 M2d runtime reviewed: common wrong-offer commit, native KEEP/throw/fire, GameClock pair180s block, closed incident codec/schema23 and held reconstruction. RV-004/005 fixed in `fd0dda76885715ec13d1a27a96c70c631f5394b1`; targeted architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Intimidation remains open.
 M2e1 review PASS `905db54ec1cd99c60dbf58eca0f568634a984668` (BASE `d6ac88d3aca65756d651af5aff96149802fbc6ea`): pure single-roll chooser and closed captured outcome/Strength/roll/tick, schema24/native golden; completed history and pending RETURN/ATTACK preserve data without replay. No findings; architecture/style PASS, reviewer validation NOT_RUN, repair0/2. Independent lifecycle regressions review PASS `411598f5a71f9c2b756ca0f2256c3ac2bf328d49`: disable/remove thief preserves physical parcel, closes pair once, no false order settlement; no findings, architecture/style PASS, reviewer validation NOT_RUN, repair0/2.
-M2e2 runtime `6ded6ad04670e07f653f5ceea6f798343aeae8cb` reviewed; RV-006 fixed/targeted review PASS in BASE above, architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Native demand/committed attack/physical return and unchanged phase clocks/schema24 are implemented. M2e3 scoped occupied-hands LOS parity: confirmed own held body blocked demand despite native targeting exclusion; reach now excludes own hand/Carry bodies while placement retains them as obstacles. Review pending; visual0/8.
+M2e2 runtime `6ded6ad04670e07f653f5ceea6f798343aeae8cb` reviewed; RV-006 fixed/targeted review PASS in BASE above, architecture/style PASS, reviewer execution NOT_RUN, repair1/2. Native demand/committed attack/physical return and unchanged phase clocks/schema24 are implemented. M2e3 scoped occupied-hands LOS parity: confirmed own held body blocked demand despite native targeting exclusion; reach now excludes own hand/Carry bodies while placement retains them as obstacles. M2e3 review PASS in TARGET above: no findings, architecture/style PASS, reviewer execution NOT_RUN, repair0/2; visual0/8.
 Holy precedence/абсолютные огненные исходы — выбранные авторские defaults с Inspector overrides; отдельного подтверждения владельца по двум пересечениям не было.
 RV-002 [P1] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): source `68832a6ba5543fdc1a8eb4f0541bf2a291b5d78f`, persisted NPC Strength needs schema22; updated native golden/manifest, schema21 rejected with unchanged bytes.
 RV-003 [P2] FIXED(`6c7e9778124c63bb5432e02a0bcdf88dde203016`, targeted re-review PASS): same source, authored Strength0 conflicts with save preflight; positive export/validation, invalid-value regression and fresh/reused Strength0.1 round-trip.
@@ -197,4 +197,4 @@ Native default holy_rejection_first=true даёт приоритет свято�
   Субъективная удобность/физика требуют отдельного разрешённого gameplay QA; сейчас **NOT_RUN**.
 
 ### Next
-Collect occupied-hands LOS immutable review/triage. Then M2f final loss/complaint integration and separately authorized NPC gameplay QA. Receipt/manual-loss independently verified15/154 (`gut-20261016-065659875`); [QA card](../../.qa/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md) has8 NOT_RUN cases. Cargo QA6/6 PASS/task archived; NPC visual0/8; task IN_PROGRESS.
+M2f: final theft/destruction/loss/complaint integration, preserving the existing manual LOST declaration contract, then runnable QA build and separately authorized NPC gameplay checks. Receipt/manual-loss independently verified15/154 (`gut-20261016-065659875`); [QA card](../../.qa/tasks/automatic_parcel_handover_and_wrong_recipient_reactions.md) has8 NOT_RUN cases. M2e2/RV-006 and M2e3 reviews terminal PASS; cargo QA6/6 PASS/task archived; NPC visual0/8; task IN_PROGRESS.
