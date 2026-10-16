@@ -1,5 +1,5 @@
 {
-  "schema": 21,
+  "schema": 22,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -409,6 +409,7 @@
     "res://content/domains/inventory/components/c_inventory.gd",
     "res://content/domains/inventory/components/c_inventory_item.gd",
     "res://content/domains/inventory/definitions/def_item_npc_meat.tres",
+    "res://content/domains/motion/components/c_strength.gd",
     "res://content/domains/needs/components/c_hunger.gd",
     "res://content/domains/npc/components/c_district.gd",
     "res://content/domains/npc/components/c_npc_address.gd",

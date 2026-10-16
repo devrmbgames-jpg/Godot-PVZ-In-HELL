@@ -46,6 +46,18 @@ func _grip(holder: Entity) -> Relationship:
 
 
 #region Authored capability and live ownership
+func test_authored_carry_strength_rejects_nonpositive_and_nonfinite_values() -> void:
+	var capability: ET_NpcParcelHolder = ET_NpcParcelHolder.new()
+	for invalid: float in [0.0, -1.0, NAN, INF]:
+		capability.carry_strength = invalid
+		assert_false(capability.configuration_issues(null).is_empty())
+	capability.carry_strength = 0.1
+	assert_true(capability.configuration_issues(null).is_empty())
+	var recipes: Array[Component] = capability.recipes_for(null)
+	assert_eq((recipes[2] as C_Strength).base, 0.1)
+	assert_eq((recipes[2] as C_Strength).value, 0.1)
+
+
 func test_native_npc_has_isolated_carry_data_and_the_authored_physical_anchor() -> void:
 	var other: E_NpcCharacter = _holder(Vector3(3, 0, 0))
 	assert_true(_npc.has_component(C_GrabControl))

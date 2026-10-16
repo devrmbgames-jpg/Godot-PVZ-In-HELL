@@ -36,6 +36,8 @@ Changes to persisted identity, type/resource paths, field shape or interpretatio
 
 Schema 21 retains the frozen catalog quantity/packing on `C_PackageContents` and `ReceivingBatch` introduced in schema 20, and adds `ordered_quantity` and `packing_profile` to the immutable `PackageRegistrationRecord` arrival projection. Archive views derive full mass, handling tags and hazards from those definitions after the physical body has left or its contents have been consumed. Preflight validates capacity, native scene, live/archive agreement and diagnostic ID mass/hazard before changing the World. Fresh compilation receives the saved composition before publication; fresh and reused bodies restore full or empty mass. Unsupported earlier schemas are rejected and protected from automatic replacement, following the owner's decision to preserve the old file. PVZH1 storage is unchanged; there is no conversion of earlier inconsistent boxes.
 
+Schema 22 adds persisted `C_Strength` to native NPCs through `ET_NpcParcelHolder`. Fresh and retained district bodies restore the saved positive Strength rather than the authored default. Schema21 NPC records without that component are unsupported: startup rejects them before mutation and preserves the original file. The PVZH1 envelope is unchanged.
+
 ## Refactoring v2 identity contract
 
 This heading retains incoming historical links; the rules below describe the implemented runtime.

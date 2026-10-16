@@ -3,8 +3,8 @@ extends EntityTrait
 ## Authored NPC carry data; common grab owners retain live ownership and body integration.
 class_name ET_NpcParcelHolder
 
-## Initial carry Strength; ordinary movement/throw scaling reads the resulting C_Strength.
-@export_range(0.0, 100.0, 0.1) var carry_strength: float = 6.0
+## Positive initial carry Strength; movement/throw scaling reads the resulting C_Strength.
+@export_range(0.1, 100.0, 0.1) var carry_strength: float = 6.0
 ## Carry offset ahead of the native HandoffAnchor, in metres.
 @export_range(0.1, 2.0, 0.05) var carry_distance_m: float = 0.35
 
@@ -18,8 +18,8 @@ func _init() -> void:
 
 
 func configuration_issues(_context: EntitySpawnContext) -> PackedStringArray:
-	if not is_finite(carry_strength) or carry_strength < 0.0:
-		return PackedStringArray(["NPC carry Strength must be finite and nonnegative"])
+	if not is_finite(carry_strength) or carry_strength <= 0.0:
+		return PackedStringArray(["NPC carry Strength must be finite and positive"])
 	if not is_finite(carry_distance_m) or carry_distance_m <= 0.0:
 		return PackedStringArray(["NPC carry distance must be finite and positive"])
 	return PackedStringArray()

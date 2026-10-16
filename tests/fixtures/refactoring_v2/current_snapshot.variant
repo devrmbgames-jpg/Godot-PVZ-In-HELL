@@ -538,8 +538,8 @@
 "number": 0,
 "ordered_item": null,
 "ordered_quantity": 0,
-"packing_profile": null,
 "package_id": "fixture/shipment/1",
+"packing_profile": null,
 "read_event_ids": PackedStringArray(),
 "received_day": 1
 },
@@ -771,6 +771,12 @@
 "type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
+}, {
+"fields": {
 "value": 20.0
 },
 "type": "res://content/domains/needs/components/c_hunger.gd"
@@ -822,6 +828,12 @@
 "type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
+}, {
+"fields": {
 "value": 20.0
 },
 "type": "res://content/domains/needs/components/c_hunger.gd"
@@ -869,6 +881,12 @@
 "maximum_stacks": 8
 },
 "type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
 }, {
 "fields": {
 "value": 20.0
@@ -920,6 +938,12 @@
 "type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
+}, {
+"fields": {
 "value": 20.0
 },
 "type": "res://content/domains/needs/components/c_hunger.gd"
@@ -969,6 +993,12 @@
 "type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
+}, {
+"fields": {
 "value": 20.0
 },
 "type": "res://content/domains/needs/components/c_hunger.gd"
@@ -1016,6 +1046,12 @@
 "maximum_stacks": 8
 },
 "type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
 }, {
 "fields": {
 "value": 20.0
@@ -1079,6 +1115,12 @@
 "type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
+}, {
+"fields": {
 "value": 20.0
 },
 "type": "res://content/domains/needs/components/c_hunger.gd"
@@ -1126,6 +1168,12 @@
 "maximum_stacks": 8
 },
 "type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
 }, {
 "fields": {
 "value": 20.0
@@ -1179,6 +1227,12 @@
 "type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
+}, {
+"fields": {
 "value": 20.0
 },
 "type": "res://content/domains/needs/components/c_hunger.gd"
@@ -1226,6 +1280,12 @@
 "maximum_stacks": 8
 },
 "type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
 }, {
 "fields": {
 "value": 20.0
@@ -1277,6 +1337,12 @@
 "type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
+}, {
+"fields": {
 "value": 20.0
 },
 "type": "res://content/domains/needs/components/c_hunger.gd"
@@ -1324,6 +1390,12 @@
 "maximum_stacks": 8
 },
 "type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"base": 6.0,
+"value": 6.0
+},
+"type": "res://content/domains/motion/components/c_strength.gd"
 }, {
 "fields": {
 "value": 20.0
@@ -1407,10 +1479,10 @@
 "type": "res://content/domains/packages/components/c_package.gd"
 }, {
 "fields": {
-"released": false,
-"selected_item": null,
+"packing_profile": null,
 "quantity": 0,
-"packing_profile": null
+"released": false,
+"selected_item": null
 },
 "type": "res://content/domains/packages/components/c_package_contents.gd"
 }, {
@@ -1492,5 +1564,5 @@
 }]),
 "morning_day": 2,
 "raw_actors": Array[Dictionary]([]),
-"version": 21
+"version": 22
 }
