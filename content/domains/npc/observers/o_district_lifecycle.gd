@@ -98,8 +98,20 @@ func _on_reconstruction(_event: Variant, _session: Entity, _payload: Variant = n
 
 
 func _on_death(_event: Variant, body: Entity, _payload: Variant = null) -> void:
+	if ECS.world != _world:
+		return
 	var death: C_Death = body.get_component(C_Death) as C_Death
-	cmd.add_custom(_reconcile_death.bind(weakref(body), death))
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
+	var episode: NpcDeathRecord = null
+	if person != null and person.death_day == 0:
+		var district: C_District = NpcPopulationQueries.current()
+		if district.definition.person_for(person.npc_id) != null:
+			# Снять знание и день сейчас: queued команда позже не переизмеряет зрение погибшего.
+			episode = NpcSocialService.observe_death(
+				person, body as E_DistrictNpc, DayPhaseQueries.current().day_index,
+			)
+	cmd.add_custom(_reconcile_death.bind(weakref(body), death, episode))
 
 
 func _on_morning(_event: Variant, session: Entity, payload: Variant = null) -> void:
@@ -172,7 +184,11 @@ func _reconcile_day(
 	district.lifecycle_phase = int(phase)
 
 
-func _reconcile_death(entity_reference: WeakRef, captured_death: C_Death) -> void:
+func _reconcile_death(
+	entity_reference: WeakRef,
+	captured_death: C_Death,
+	captured_episode: NpcDeathRecord,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var entity: Entity = entity_reference.get_ref() as Entity
 
@@ -188,7 +204,10 @@ func _reconcile_death(entity_reference: WeakRef, captured_death: C_Death) -> voi
 	var identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity
 	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
 	if person != null:
-		DistrictPopulationService.mark_dead(person, entity as E_DistrictNpc, cycle.day_index)
+		var death_day: int = captured_episode.day if captured_episode != null else cycle.day_index
+		DistrictPopulationService.mark_dead(
+			person, entity as E_DistrictNpc, death_day, captured_episode,
+		)
 #endregion
 
 

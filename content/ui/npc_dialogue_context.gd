@@ -116,20 +116,20 @@ func speaks_with(_npc: Entity) -> bool:
 
 
 
-#region First meaningful conversation after return
-## Reads the earliest unresolved personal episode without consuming it.
+#region Первый уместный разговор после возвращения
+## Читает первый нерассказанный личный эпизод, не изменяя историю.
 func has_return_response() -> bool:
 	var person: NpcRecord = _dialogue_person()
 	return person != null and NpcLifeRules.pending_response(person) != null
 
 
-## Only the live panel calls this after rendering a tagged line; cancelled async reads do not count.
+## Панель вызывает после показа строки с тегом; отменённое async чтение показом не считается.
 func note_line_presented(tags: PackedStringArray) -> void:
 	if tags.has("return_memory") and is_valid() and _return_sequence > 0:
 		NpcSocialService.note_return_response(_delivery_npc(), _return_sequence)
 
 
-## Reads belief only; factual damage attribution is never a dialogue accusation.
+## Читает только знание личности; фактический скрытый источник не становится обвинением.
 func return_blame() -> String:
 	var episode: NpcDeathRecord = _return_episode()
 	if episode == null:
@@ -143,7 +143,7 @@ func return_blame() -> String:
 	return "suspected_npc" if not episode.suspected_actor_id.is_empty() else "unknown"
 
 
-## Reads the already recognized person's name; unknown damage does not reveal a hidden identity.
+## Читает имя уже распознанного лица; неизвестный урон не раскрывает скрытую личность.
 func return_actor_name() -> String:
 	var episode: NpcDeathRecord = _return_episode()
 	if episode == null:
@@ -156,7 +156,7 @@ func return_actor_name() -> String:
 	return other.display_name if other != null else ""
 
 
-## Existing authored personality selects expression, without assigning a new character type.
+## Выражение реакции выбирает существующий авторский характер; новый тип не назначается.
 func return_style() -> String:
 	var person: NpcRecord = _dialogue_person()
 	if person == null:

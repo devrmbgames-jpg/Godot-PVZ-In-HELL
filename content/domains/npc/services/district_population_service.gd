@@ -422,19 +422,24 @@ static func set_placement(
 
 
 ## Один раз фиксирует смерть; будущие заказы не используют погибшую личность.
-static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
+## captured_episode — detached наблюдение на C_Death; прямой синхронный caller снимает его здесь.
+static func mark_dead(
+	person: NpcRecord,
+	body: E_DistrictNpc,
+	day_index: int,
+	captured_episode: NpcDeathRecord = null,
+) -> void:
 	if person.death_day != 0:
 		return
 
 	var district: C_District = NpcPopulationQueries.current()
 	if not district.definition.authored_people.is_empty():
-		var episode: NpcDeathRecord = NpcDeathRecord.new()
-		episode.sequence = person.deaths.size() + 1
-		episode.day = day_index
+		var episode: NpcDeathRecord = captured_episode
+		if episode == null:
+			episode = NpcSocialService.observe_death(person, body, day_index)
 		person.deaths.append(episode)
 		# Guard предшествует callback добычи/cleanup, чтобы одна смерть не создала два эпизода.
 		person.death_day = day_index
-		NpcSocialService.remember_death(person, body, episode)
 	NpcRemainsService.release(body)
 	body.request_role_cleanup(NpcRoleCleanupRequest.Kind.DEATH, day_index)
 	person.death_day = day_index

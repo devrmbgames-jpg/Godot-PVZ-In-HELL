@@ -296,19 +296,22 @@ static func threaten_passage(body: E_DistrictNpc, opponent: E_DistrictNpc) -> vo
 
 #region Personal death and finite return response
 ## Снимок собственной смерти до cleanup; факты урона не становятся знанием о скрытом лице.
-static func remember_death(
+static func observe_death(
 	person: NpcRecord,
 	body: E_DistrictNpc,
-	episode: NpcDeathRecord,
-) -> void:
+	day_index: int,
+) -> NpcDeathRecord:
+	var episode: NpcDeathRecord = NpcDeathRecord.new()
+	episode.sequence = person.deaths.size() + 1
+	episode.day = day_index
 	episode.position = body.global_position
 	var death: C_Death = body.get_component(C_Death) as C_Death
 	if death == null or death.cause == null or death.cause.request == null:
-		return
+		return episode
 	var result: DamageResult = death.cause
 	var request: DamageRequest = result.request
 	if result.outcome != DamageResult.Outcome.HEALTH_DEPLETED or request.target != body:
-		return
+		return episode
 	episode.position = result.world_pose.origin
 	episode.damage_type = request.damage_type
 	var actor: Entity = (
@@ -316,7 +319,7 @@ static func remember_death(
 	)
 	episode.actual_actor_id = identity_for(actor)
 	if request.combat_context == null:
-		return
+		return episode
 	if (
 		not episode.actual_actor_id.is_empty()
 		and NpcPerceptionService.can_see_at_death(body, actor, person, death)
@@ -329,11 +332,12 @@ static func remember_death(
 			person, NpcMemory.Kind.KILLING, reaction_random.randf(), true,
 			episode.known_actor_id,
 		)
-		return
+		return episode
 	var opponent: Entity = CombatQueries.target_for(body)
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	if awareness.has_last_seen and awareness.search_elapsed <= person.profile.search_seconds:
 		episode.suspected_actor_id = identity_for(opponent)
+	return episode
 
 
 ## Подтверждает одну показанную реплику exact эпизода; UI не владеет once состоянием.

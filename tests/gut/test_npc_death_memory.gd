@@ -354,4 +354,72 @@ func test_closed_episode_fields_and_unknown_authored_actor_reject_before_live_mu
 	assert_same(NpcPopulationQueries.person_for(person.npc_id), person)
 	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 
+
+func _manual_death_observer() -> O_DistrictLifecycle:
+	for observer: Observer in _world.observers:
+		if observer is O_DistrictLifecycle:
+			var lifecycle: O_DistrictLifecycle = observer as O_DistrictLifecycle
+			lifecycle.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+			return lifecycle
+	fail_test("Production district death observer is required")
+	return null
+
+
+func test_hidden_terminal_attacker_cannot_become_known_before_deferred_commit() -> void:
+	var lifecycle: O_DistrictLifecycle = _manual_death_observer()
+	var person: NpcRecord = NpcPopulationQueries.person_for(&"npc/3")
+	var body: E_DistrictNpc = _street(person)
+	var player: Entity = _player_actor()
+	(player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD * 1.5
+	var wall: StaticBody3D = _wall_between(body)
+	await _synchronize_geometry()
+	assert_false(NpcPerceptionService.can_see(body, player, person))
+	_damage(body, player)
+	assert_true(person.deaths.is_empty(), "History is not published before command reconciliation")
+	wall.free()
+	await _synchronize_geometry()
+	assert_true(
+		NpcPerceptionService.can_see_at_death(
+			body,
+			player,
+			person,
+			body.get_component(C_Death) as C_Death,
+		)
+	)
+	DayPhaseQueries.current().day_index = 2
+	lifecycle.cmd.execute()
+	lifecycle.command_buffer_flush_mode = Observer.FlushMode.PER_CALLBACK
+	assert_eq(person.deaths.size(), 1)
+	assert_eq(person.deaths[0].known_actor_id, &"")
+	assert_eq(person.deaths[0].suspected_actor_id, &"")
+	assert_eq(person.deaths[0].day, 1)
+	assert_eq(person.death_day, 1)
+
+
+func test_recognized_terminal_attacker_is_not_forgotten_before_deferred_commit() -> void:
+	var lifecycle: O_DistrictLifecycle = _manual_death_observer()
+	var person: NpcRecord = NpcPopulationQueries.person_for(&"npc/3")
+	var body: E_DistrictNpc = _street(person)
+	var player: Entity = _player_actor()
+	(player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD * 1.5
+	await _synchronize_geometry()
+	assert_true(NpcPerceptionService.can_see(body, player, person))
+	_damage(body, player)
+	assert_true(person.deaths.is_empty())
+	_wall_between(body)
+	await _synchronize_geometry()
+	assert_false(
+		NpcPerceptionService.can_see_at_death(
+			body,
+			player,
+			person,
+			body.get_component(C_Death) as C_Death,
+		)
+	)
+	lifecycle.cmd.execute()
+	lifecycle.command_buffer_flush_mode = Observer.FlushMode.PER_CALLBACK
+	assert_eq(person.deaths.size(), 1)
+	assert_eq(person.deaths[0].known_actor_id, &"player")
+	assert_eq(person.deaths[0].day, 1)
+
 #endregion

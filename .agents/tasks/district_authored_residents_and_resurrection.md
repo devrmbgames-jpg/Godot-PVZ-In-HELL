@@ -26,7 +26,8 @@ R2a reviewed: calendar +2, retained body, separate per-death loot receipts, stal
 identity, blocked-space retry, Night write retry и strict restore. R2b реализован и проверен,
 **REVIEW_PENDING**: NpcDeathRecord хранит actual actor/type/position отдельно от known/suspected
 actor, выбранную реакцию и два once guards. Источник фактического урона не обвиняет скрытое
-лицо. Exact terminal C_Death снимает собственное знание до cleanup по общему LOS/FOV/light.
+лицо. O_DistrictLifecycle снимает detached знание/день непосредственно на C_Death до cleanup;
+queued commit проверяет exact marker, не пересчитывая LOS/FOV/light позднее.
 Первая уместная добровольная беседа street/service использует общий npc_return.dialogue;
 только показанная строка подтверждает response_given, cancelled async read не считается показом.
 Авторский idle BT subtree запрашивает разовую реакцию после возврата; бой/опасность/роли выше,
@@ -68,8 +69,8 @@ API диалогов и социальный граф потребляются �
 
 ## Next
 
-Зафиксировать R2b coherent checkpoint; review exact BASE
-`5deafb36b509cb675f5144e4201c828e8fd5d9f0` → новый TARGET, triage/fix P0/P1/P2.
+Зафиксировать RV-004/RV-005 repair; targeted re-review exact BASE
+`6ec18d7f1b962aa8cabe2b7f47ff521e92d9a503` → новый TARGET; collect/triage до R2c кода.
 Пока pending — только независимый анализ Source §§6–7 и действующих owners обещаний/вещей.
 Затем R2c: source-required перенос личных сроков при временной смерти, реальные сохранённые
 предметы/деньги/заказы и отсутствие повторной награды. Без нового roster/Service tick.
@@ -83,7 +84,7 @@ R2b текущие actual native gates **PASS/CLEAN**, .artifacts/godot_agent/:
 
 | Gate | Tests/assertions | gut-20261016 timestamp |
 | --- | --- | --- |
-| death knowledge + real terminal/calendar + native BT + street panel | 25/464 | 232016876 |
+| death knowledge + real terminal/calendar + native BT + street panel | 27/488 | 233003727 |
 | real service return + existing dialogue memory/variants/delivery | 41/812 | 232356332 |
 | common geometry/FOV/light/hearing | 8/27 | 232211292 |
 | existing grudge/ranged contracts | 16/153 | 232248961 |
@@ -109,7 +110,16 @@ without invented blame, days 1→3→5, two distinct batches, same body/identity
 Known-player disk restore and actual presentation are GUT evidence, not claimed cold/rendered QA.
 First smoke launch without explicit -GodotPath failed before engine start because runner reads
 JSONC as JSON; explicit verified .bin Godot console path succeeded. Runner scope not expanded.
-R2b **REVIEW_PENDING**, repair **0/2**; rendered **0/8**, Windows build for this internal step NOT_RUN.
+R2b review BASE `5deafb36b509cb675f5144e4201c828e8fd5d9f0` →
+TARGET `6ec18d7f1b962aa8cabe2b7f47ff521e92d9a503`: два P2 приняты.
+RV-004: queued geometry/calendar changed what the dead person supposedly saw. Repair captures
+unpublished observation/day synchronously at C_Death, then commits after exact marker/World gate.
+Red `gut-20261016-232906671`: 25/27, hidden→visible invented blame/day2, visible→hidden lost
+recognition. Green `233003727`: 27/488 CLEAN. Existing stale-marker guard still tested.
+RV-005: new NpcDialogueContext documentation was English against its Source contract;
+translated, executable lines exactly equal TARGET (actual Python comparison PASS).
+Current targeted repair **REVIEW_PENDING**, cycle **1/2**; native path diagnostics four files CLEAN.
+Rendered **0/8**, Windows build for this internal checkpoint NOT_RUN.
 
 R2a review BASE `2c0be0eae47131f0a3b41bcc23f1a5eced4ed015` →
 TARGET `30e6716aa696311581cd1be4145dbd1466d080cd`: два P2 приняты.
@@ -133,10 +143,9 @@ TARGET `2c0be0eae47131f0a3b41bcc23f1a5eced4ed015`: PASS, findings нет.
 R1a BASE `92da28ef275ff4e6331bb171251eb8e5ca9e2c41` →
 TARGET `d143a897bcb0c508de1caa50f3eb4a9835d4723e`: PASS, native cards 8/89.
 
-Старые offline authoring wrappers `offlinescript-20261016-{214450592,215150462}.*` — **FAIL**,
-сохранены: первый ECS compile при editor initialization/shutdown, оба aborted scan и mixed
-RID/ObjectDB/PagedAllocator shutdown. Output отдельно проверен CLEAN GUT, исключения не
-расширялись, standalone retention investigation не начато. Новые Guest assets/scenes — live MCP.
+Old offline authoring wrappers `offlinescript-20261016-{214450592,215150462}.*` remain FAIL:
+ECS startup compile/aborted scan/mixed shutdown. Output independently loaded CLEAN GUT;
+no expanded engine waiver or standalone retention investigation. New assets use live MCP.
 R1c/authored placed merchant, R2c/full obligations, полный R3 и visual acceptance NOT_RUN.
 
 ## Owner QA / blockers
