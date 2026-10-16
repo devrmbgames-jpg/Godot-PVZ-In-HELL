@@ -6,7 +6,7 @@ Baseline: `dev` / `6aac58da7f03943aa62614ee3dbb1ad317747748`
 Owner decision: запись содержимого сохранения выполняется через **ConfigFile**, не ручной FileAccess.
 Implementation BASE_SHA: `01af39e1a126e0d1326e474e164efe10d24bfe1b`
 
-Final owner decision 2026-10-16: нужен простой storage финального Dictionary как ConfigFile value; если корректная конвертация не получается, вернуть прежний формат. Владелец не одобрил предложенный cleanup Nodes. По этому fallback все незакоммиченные изменения production adapter, schema и fixtures откачены целевым inverse patch; поддерживается прежний binary PVZH1 / schema 19. Новая сериализация Float64 или иной обход поверх ConfigFile не внедряется. Требования миграции ниже сохраняются как отложенный scope, а не выполненная приёмка.
+Final owner decision 2026-10-16: нужен простой storage финального Dictionary как ConfigFile value; если корректная конвертация не получается, вернуть прежний формат. Владелец не одобрил предложенный cleanup Nodes. По этому fallback все незакоммиченные изменения production adapter, schema и fixtures откачены целевым inverse patch; поддерживается binary PVZH1. На момент отката gameplay schema была 19; её текущий источник — AutosaveStore.SCHEMA_VERSION, независимые изменения gameplay не возобновляют B01. Новая сериализация Float64 или иной обход поверх ConfigFile не внедряется. Требования миграции ниже сохраняются как отложенный scope, а не выполненная приёмка.
 
 Owner decision 2026-10-16: ConfigFile остаётся обязательным контейнером; данные могут предварительно сериализоваться в Dictionary/Array. Владелец явно принял ограничение native parser: запрет создания Objects самим ConfigFile.load снят, но после load требуется строгий отказ для любых Object в контейнере и запрет их передачи/использования в live World. Этот ответ заменяет прежний запрет parse-time Object construction ниже; безопасность parser до post-load gate не обещается.
 
@@ -71,7 +71,7 @@ Focused native GUT на AutosaveStore/ConfigFile и существующий per
 
 
 ### Current
-Выполнен разрешённый владельцем fallback: production AutosaveStore восстановлен в точности к HEAD (PVZH1, bytes_to_var без Objects, schema 19), current snapshot/manifest и WorldSnapshot tests восстановлены. Собственный незакоммиченный ConfigFile GUT удалён из активных тестов. Исследование и точный rollback patch сохранены в `.artifacts/configfile_attempt/` и `.artifacts/configfile_attempt_owned_changes.patch`; пользовательские правки не затронуты. ConfigFile migration **DEFERRED**, не DONE.
+Выполнен разрешённый владельцем fallback: production AutosaveStore, current snapshot/manifest и WorldSnapshot tests возвращены к binary baseline на момент отката (PVZH1, bytes_to_var без Objects). Это исторический rollback, не фиксация текущей gameplay schema на 19. Собственный незакоммиченный ConfigFile GUT удалён из активных тестов. Исследование и точный rollback patch сохранены в `.artifacts/configfile_attempt/` и `.artifacts/configfile_attempt_owned_changes.patch`; пользовательские правки не затронуты. ConfigFile migration **DEFERRED**, не DONE.
 
 ### Next
 Продолжить независимые задачи с фактически поддерживаемым binary контрактом. Не возобновлять усложнение ConfigFile без нового решения владельца. Несогласованный предел полного файла старого adapter остаётся открытой частью отложенного scope, а не объявляется исправленным.
