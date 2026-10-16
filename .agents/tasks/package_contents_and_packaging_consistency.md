@@ -189,8 +189,9 @@ M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac
 
 ### Owner QA / blockers
 
-- Owner QA: осмотреть/вскрыть артефакт, жидкость, бочку и партию мелких; сравнить фактическую
-  коробку, маркировку и запись истории. Точные runtime/visual результаты пока **NOT_RUN**.
+- Owner QA: [шесть сценариев](../../.qa/tasks/package_contents_and_packaging_consistency.md), **NOT_RUN**,0/8.
+- Windows QA `20261016-021143Z-5018724c-cargo_history_ui`: export/menu120/level120 PASS, dirty=true.
+  Первая попытка `20261016-020921Z-5018724c-cargo_history_ui` FAIL: LimboAI DLL lock; логи в `.export/windows/`, повтор после graceful editor quit PASS.
 
 ### Next
 
