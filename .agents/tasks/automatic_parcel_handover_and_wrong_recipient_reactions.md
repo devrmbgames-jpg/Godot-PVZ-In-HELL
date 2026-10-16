@@ -4,7 +4,7 @@ Status: **IN_PROGRESS**
 BASE_SHA: `308b32ee913b73d4b73d50f44166619984e0892f`
 TARGET_SHA: `fd0dda76885715ec13d1a27a96c70c631f5394b1` — targeted review PASS
 
-Created: 2026-10-15. Related: [согласованность посылок](package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
+Created: 2026-10-15. Related: [согласованность посылок](completed/package_contents_and_packaging_consistency.md), [Жуткий](creepy_npc_unpredictable_stalking.md), [Скромник](shy_npc_gaze_discomfort_and_wall_order.md).
 
 ## Task state
 
@@ -197,4 +197,4 @@ Native default holy_rejection_first=true даёт приоритет свято�
 
 ### Next
 
-M2e: intimidation action, committed attack/return and safe return; final lifecycle/complaints regressions and separately authorized NPC gameplay QA. M2d review closed after cycle1/2. Cargo QA separately approved6, executed0/6; NPC visual0/8. Task remains IN_PROGRESS.
+M2e: intimidation action, committed attack/return and safe return; final lifecycle/complaints regressions and separately authorized NPC gameplay QA. M2d review closed after cycle1/2. Separate cargo QA6/6 PASS/task archived; NPC visual0/8. Task remains IN_PROGRESS.

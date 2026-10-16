@@ -1,11 +1,11 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 BASE_SHA: `5694fab2edd8d1fb5976acd7b85ac9c06f5002fd`
-TARGET_SHA: pending native blood-spill visual fix — REVIEW_PENDING
+TARGET_SHA: `594639d706c47edeffda8d9ff5b82e353fbd54b5` — review PASS, cargo QA6/6 PASS
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
-Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26_1_physical_items_and_effects.md).
+Related: [R27.5](r27_test_lab_and_npc_rooms.md), [R26.1](r26_1_physical_items_and_effects.md).
 
 ## Task state
 
@@ -19,7 +19,7 @@ Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26
 
 ### Current
 
-Cargo QA-001/P2 FIXED: title visibility `865db6c21469e9b4475a54c1fd5e89f701018247`, height180 BASE above; both review architecture/style PASS, reviewer execution NOT_RUN. Native terminal7/28 (`054013512`), cargo presentation5/101 (`054748440`); visual names/containment/sorting PASS. All6 native opening counts1/1/1/1/8/1, repeat0, empty mass/labels and disk restore PASS; old schema rejected/bytes+World unchanged. QA-002/P2: blood disc at body_y=-0.01429 has top_y=-0.00429, hidden below floor0. Native Visual-only +0.03m fix/review pending; physical-payload GUT PASS (`055548519`), strict architecture/structure/agent PASS. Evidence `.artifacts/cargo-qa-fd0dda76/observations.json`; isolated QA slots only.
+Cargo QA6/6 PASS (authorized six named cases; no NPC visual acceptance). QA-001/P2 FIXED: title visibility `865db6c21469e9b4475a54c1fd5e89f701018247`, height180 BASE above. QA-002/P2 FIXED in TARGET: Visual-only blood offset+0.03m, verified visible above floor with unchanged collision sphere. All three checkpoints reviewed architecture/style PASS, reviewer execution NOT_RUN. Main GUT24/24,656 assertions/stderr0: terminal7/28 (`054013512`), cargo5/101 (`054748440`), physical_payloads12/527 (`055548519`); strict architecture/structure/agent/staged PASS. Opening counts1/1/1/1/8/1, repeat0, no empty-shell hazards; full/empty slot restore and old-schema rejection/bytes+World preservation PASS. Evidence `.artifacts/cargo-qa-fd0dda76/observations.json`; isolated QA slots only.
 
 Выполнение авторизовано текущим `/goal` по `.agents/tasks`; прежняя пометка «ждать отдельную
 команду» относилась к исходному планированию до этого goal. UID-1-TL08C — пример владельца;
@@ -27,7 +27,7 @@ Cargo QA-001/P2 FIXED: title visibility `865db6c21469e9b4475a54c1fd5e89f70101824
 
 M1/M2a/M2b завершены после независимых review/triage: typed cargo/capacity Rules, шесть native
 packing .tres, сцены barrel/long и cargo references всех 16 catalog items. Уникальные SHA и native
-evidence сохранены ниже; item UID и 224 прежних свойства сохранены. Общая задача IN_PROGRESS.
+evidence сохранены ниже; item UID и 224 прежних свойства сохранены. Финальная приёмка6/6 завершена.
 
 M2c завершён: RV-001/P1 FIXED; cargo phase определяет C_LiquidTilt, rupture однократно расходует
 payload через released. Passive restore получает selected_item до compilation; evidence ниже.
@@ -43,17 +43,17 @@ Schema21/PVZH1: решение владельца 2026-10-16 — «Отклон�
 M2d.3 завершён после review: arrival projection фиксирует количество/packing; PackageCargoRules дают
 массу/теги/hazards для history ID, terminal detail/sort/icons, stickers и debug HUD.
 Preflight проверяет capacity/live agreement/ID mass и hazard, в том числе без физического тела.
-Native/static проверки и review ниже; owner QA обязателен, задача IN_PROGRESS.
+Native/static проверки, immutable review и разрешённая cargo QA завершены; доказательства ниже.
 ## Установленная поверхность и гипотеза причины
 
-- [ReceivingDeliveryService](../../content/domains/packages/services/receiving_delivery_service.gd)
+- [ReceivingDeliveryService](../../../content/domains/packages/services/receiving_delivery_service.gd)
   в baseline выбирал коробку и selected_item независимо. M2d.2 теперь подбирает сцену по грузу;
   arrival projection сохраняет фактические item/quantity/packing.
-- [ET_PackageState](../../content/domains/packages/authoring/et_package_state.gd) теперь создаёт
+- [ET_PackageState](../../../content/domains/packages/authoring/et_package_state.gd) теперь создаёт
   жидкостную capability по фактическому selected cargo; прежний shell tag больше её не определяет.
-- [PackageHistoryService](../../content/domains/packages/services/package_history_service.gd)
+- [PackageHistoryService](../../../content/domains/packages/services/package_history_service.gd)
   формирует новый ID из actual full mass/hazard и native bounds; прежние ID не переписывает.
-- Baseline расхождение подтверждено; точная UID-1-TL08C остаётся критерием воспроизведения, не PASS.
+- Baseline class regression confirmed by native artifact-over-legacy-liquid tests. Historical UID-1-TL08C file was not recovered or migrated; unsupported schemas are rejected/preserved by the owner's decision, verified again in runtime QA. Acceptance covers newly committed supported-schema composition, not a retroactive old-file correction.
 - Не путать признак LIQUID с буквами диагностического ID: по текущему PackageHistoryId
   T — токсичный класс, следующая L — большой размер. Сам этот фрагмент не доказывает жидкое содержимое.
 
@@ -147,7 +147,7 @@ M2d.1 checks:
   formatter3, role2, strict architecture0 и structure. Native materialization здесь не запускается.
 - PASS immutable-SHA review `1562b58a6df0dbb00e8d6d3f1a742de425c89d28` →
   `cc696412a8cf43ca4c88028719ce60cb42e15521`: no material findings, architecture/style PASS,
-  reviewer validation NOT_RUN. Triage: новых кандидатов нет. Visual QA NOT_RUN,0/8.
+  reviewer validation NOT_RUN. Triage: новых кандидатов нет. Visual QA на том checkpoint NOT_RUN; финальная6/6 выше.
 
 M2d.2 validation: GUT149/149,4234 assertions across11 focused files; targeted review PASS.
 - entity_traits9/79 (`011602662`), contents21/305 (`014029406`), snapshot44/598 (`013924781`),
@@ -174,7 +174,7 @@ M2d.3 native:112/112,1629 assertions; prefix `gut-20261016-`:
 ### Review triage
 
 M2d.3 `58b3e2a7fc7cdad7cabb774161aa6654a7e96463` → `b0bee51b3a9c7c6dbacd59de1a304554f42a99a7`: no material findings, architecture/style PASS; reviewer validation
-NOT_RUN. Main triage: новых кандидатов/открытых принятых P0/P1/P2 нет; repair0/2. Owner QA NOT_RUN.
+NOT_RUN. Main triage: новых кандидатов/открытых принятых P0/P1/P2 нет; repair0/2. Owner QA на том checkpoint NOT_RUN; финальная6/6 выше.
 M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`.
 - RV-001 — **FIXED**, P1 source `ca0e1409eaca761988f8913cb242953baac36a4e`:
   native baseline2 FAIL/20 (`gut-20261016-003927943`): повторный rupture damage→destroy/leak→open.
@@ -191,10 +191,9 @@ M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac
 
 ### Owner QA / blockers
 
-- Owner QA: [шесть сценариев](../../.qa/tasks/package_contents_and_packaging_consistency.md), **IN_PROGRESS**, case1 title defect fixed/review pending; remaining cases NOT_RUN.
-- Windows QA `20261016-021143Z-5018724c-cargo_history_ui`: export/menu120/level120 PASS, dirty=true.
-  Первая попытка `20261016-020921Z-5018724c-cargo_history_ui` FAIL: LimboAI DLL lock; логи в `.export/windows/`, повтор после graceful editor quit PASS.
+- Owner-authorized cargo QA6/6 PASS: [карточка](../../../.qa/tasks/package_contents_and_packaging_consistency.md), native fixtures/real owners, rendered1920×1080. No further visual cases; NPC feel/visual remains outside this task's acceptance.
+- Windows QA `20261016-060031Z-594639d7-cargo_acceptance`: export/menu120/level120 PASS, dirty=true from preserved preexisting edits; `.export/LATEST.cmd`. Rendered acceptance used live MCP source, exported binary player QA remains NOT_RUN as stated in build_info. Earlier export evidence stays in Git/artifacts; Editor gracefully closed before current export.
 
 ### Next
 
-Собрать immutable review QA-002 и закончить blood визуал внутри разрешённого case2; остальные5 случаев проверены. Все6 начаты, дополнительных случаев не запускать; до финальной приёмки задача IN_PROGRESS. Разрешение не относится к реакциям NPC.
+Задача завершена и архивирована после всех6 разрешённых cargo случаев, review/triage и актуального Windows QA export. Продолжать выдачу/реакции и запугивание в отдельной owning task; здесь открытых принятых P0/P1/P2 и pending review нет.

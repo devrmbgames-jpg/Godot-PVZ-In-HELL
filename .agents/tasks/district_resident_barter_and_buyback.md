@@ -3,7 +3,7 @@
 Status: **PLANNED**
 
 Created: 2026-10-15. Основание: запрос владельца описать назначение торговли семи жителям и механику скупки.
-Related: [постоянные жители](district_authored_residents_and_resurrection.md), [содержимое посылок](package_contents_and_packaging_consistency.md).
+Related: [постоянные жители](district_authored_residents_and_resurrection.md), [содержимое посылок](completed/package_contents_and_packaging_consistency.md).
 
 ## Task state
 
