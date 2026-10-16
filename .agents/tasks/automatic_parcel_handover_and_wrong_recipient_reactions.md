@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `64b6c4eb57ee483a205a835afbeefd5fb64e2e8e`
-TARGET_SHA: pending M1a checkpoint; review NOT_RUN
+TARGET_SHA: `9ee5a479848d5adeed91c3e4d14627374ccae232` — M1a review PASS
 
 Created: 2026-10-15. Основание: прямой запрос владельца на планирование. Related: [согласованность посылок](package_contents_and_packaging_consistency.md),
 [Жуткий](creepy_npc_unpredictable_stalking.md),
@@ -26,9 +26,9 @@ Created: 2026-10-15. Основание: прямой запрос владел�
 ### Current / authorization
 
 Активный `/goal` авторизует выполнение задач; прежнее «только планирование» предшествует ему.
-M1a implemented: authored NPC HandoffAnchor → native box surface, строгий<1 м, LOS/overlap gate.
-Реальный holder и pause проверяются до выдачи; старые большие policy distance не расширяют предел.
-Native reach13/118 PASS; целевые integration/parser/review ниже. Marker создан/сохранён через MCP.
+M1a завершён: HandoffAnchor → box surface, строгий<1 м, LOS/overlap/holder/pause; policy>1 м ограничены.
+BASE_SHA→TARGET_SHA review: no material findings, architecture/style PASS; reviewer validation NOT_RUN.
+Main triage: нет открытых принятых P0/P1/P2; repair0/2. Native evidence ниже, visual NOT_RUN,0/8.
 M1b ещё открыт: стол без F и общий выбор кандидатов; руки используют прежний _resolve_delivery.
 Владелец подтвердил: Бугай сначала проверяет25% присвоения, затем50% броска при неприсвоении;
 запугивание меняет шансы атаки/возврата на5 процентных пунктов за Strength; блок персонален для пары.
@@ -196,5 +196,5 @@ M1b ещё открыт: стол без F и общий выбор кандид
 
 ### Next
 
-M1a native reach → commit/review/triage; M1b единый кандидат рук/стола и автоматический стол;
+M1b: единый кандидат рук/стола и автоматический стол, повторная проверка перед общим commit;
 затем typed-реакции/эпизоды -> присвоение/запугивание/физика -> saves/регрессии -> owner QA.
