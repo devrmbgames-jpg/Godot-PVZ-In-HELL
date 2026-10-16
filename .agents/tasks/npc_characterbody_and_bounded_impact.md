@@ -1,7 +1,7 @@
 # НПЦ — CharacterBody3D и ограниченное отбрасывание
 
-Status: **PLANNED**
-Technical: **NOT_STARTED**
+Status: **IN_PROGRESS**
+Technical: **IN_PROGRESS**
 Execution order: **50**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/npc_characterbody_and_bounded_impact.md.txt).
@@ -20,8 +20,17 @@ Source: [полное исходное ТЗ и доказательства](ref
 
 ## Current
 
-Есть план и чтение owners, но новая реализация/физическое воспроизведение не выполнены.
-Подозрение о накоплении pending_rebound_velocity не считать доказанной причиной RigidBody-симптома.
+Начата P1 подготовка: общий player callback/solver и NPC lifecycle/authoring owners прочитаны;
+production migration ещё NOT_IMPLEMENTED. Нативный baseline actual HEAD
+`97ff746acc84576a3be98dc8102565d31c391230` подтвердил реальную сильную реакцию RigidBody NPC:
+куб-прокси80кг/20м/с дал peak10.977м/с и displacement7.716м за120physics frames; NPC mass60кг,
+реальный contact_seen=true, HP100→75 через S_Impact/O_Damage. Лёгкий proxy2кг/30м/с:
+peak0.660м/с, displacement0.019м, HP100→75. Это baseline, не PASS будущего clamp.
+Подозрение о pending_rebound_velocity остаётся отдельным риском кинематического пути,
+а не установленной причиной текущего RigidBody-симптома. Held/support/corner baseline ещё NOT_RUN.
+Новая focused regression `test_npc_impact_motion.gd` использует настоящую NPC scene/native Jolt;
+контакт копируется из inbox до consumption владельцем S_Impact. Она пока фиксирует старый body type,
+который должен быть заменён вместе с миграцией; это не постоянный второй runtime-путь.
 Историческое «реализация не запрошена» относится к созданию ТЗ; при команде выполнить
 backlog действует общий execution-контракт README, а не повторный запрос на каждый этап.
 
@@ -46,13 +55,22 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-Инвентаризировать только живые NPC-сцены и callers указанных owners, зафиксировать
-исходные contact/impact гарантии и выполнить P1. До scene-edit проверить editor/MCP capability;
-при необходимости применять разрешённый offline путь, не разворачивать инструментальный проект.
+Дособрать focused held/support/corner baseline, затем обобщить существующий CharacterBody callback
+для E_PhysicalCharacter, сохранив player input и отдельный независимый NPC look/intent.
+`E_CharacterBodyPlayer` сейчас владеет общим callback и ground_ray; solver typed к player только
+в step/update_support/_push_support. NPC/trader наследуют rigid foundation; legacy rigid player
+тоже использует её, поэтому не менять общий native root вслепую. Сохранить scene paths/UID/anchors.
+MCP node_manage не поддерживает смену root type. Для согласованной массовой миграции использовать
+разрешённый native offline SceneTree/ResourceSaver путь после проверки unsaved scenes и штатного
+закрытия редактора; не расширять MCP и не переписывать открытые сцены. P1/P3 lifecycle должен
+собираться согласованно, без отдельного скопированного NPC solver или постоянно двух живых путей.
 
 ## Validation / review
 
-Новые parser/GUT/runtime/review: NOT_RUN. Проверять total clamp, повторные контакты,
+Baseline focused native GUT2/2,4 assertions, stderr0 PASS:
+`.artifacts/godot_agent/gut-20261016-181848280.{stdout,stderr}.log`, measured JSON lines retained there.
+MCP new/changed script checked/empty. Implementation parser/GUT/runtime/review ещё NOT_RUN.
+Проверять total clamp, повторные контакты,
 held/free переход, неподвижного/замороженного NPC, стены/опоры, player regression и fresh restore.
 Один согласованный набор evidence на пакет; общий migration check на P3, не после каждого cast.
 
