@@ -1,12 +1,11 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `ca0e1409eaca761988f8913cb242953baac36a4e`
-TARGET_SHA: `f893cb3395dd3b86572009c58f55a558424e31cb`
+BASE_SHA: `1562b58a6df0dbb00e8d6d3f1a742de425c89d28`
+TARGET_SHA: `cc696412a8cf43ca4c88028719ce60cb42e15521`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
-Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
-[R26.1](completed/r26_1_physical_items_and_effects.md).
+Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26_1_physical_items_and_effects.md).
 
 ## Task state
 
@@ -33,11 +32,11 @@ phase определяет C_LiquidTilt; rupture расходует payload од
 Passive restore получает selected_item до compilation и восстанавливает derived capability.
 Schema19/PVZH1 сохранены; native регрессии, headless smoke и architecture/style review PASS.
 
-M2d.1 подготовлен: PackageShipmentRules возвращает detached PackageShipmentPlan до создания Entity.
+M2d.1 завершён после review/triage: PackageShipmentRules возвращает detached PackageShipmentPlan.
 План включает выбранный item, допустимое количество, минимальную подходящую packing, её variant
 и массу shell+payload; explicit quantity не изменяется, auto quantity выбирается только среди
 физически допустимых значений. Независимые RNG purpose и canonical ordering обеспечивают retry.
-Это подготовка M2d, runtime receiving/Components/save/history/UI ещё не подключены. Review pending.
+Это подготовка M2d, runtime receiving/Components/save/history/UI ещё не подключены. Review PASS.
 
 Полный once-committed plan количества/массы/упаковки и UI/history ещё не подключён. Вопрос
 несовместимых старых коробок при будущем изменении схемы задан владельцу и остаётся открытым;
@@ -129,8 +128,6 @@ M2d.1 подготовлен: PackageShipmentRules возвращает detached
   M2b immutable-SHA review `ee8c23b2c3f4140ff2749fb7dcffa55c6c2c7100` →
   `82e6ea5a6ad7b2ba91dbd98fef8c8ff104fb09b9` PASS: no material findings, architecture/style PASS;
   reviewer validation NOT_RUN, native проверки выполнены Main.
-- Rendered/visual QA NOT_RUN,0/8.
-
 M2c checks:
 - PASS GUT84/84,1124 assertions: entity_package_traits8/70 (`gut-20261016-002823692`),
   package_contents20/280 (`004655871`), world_snapshot41/520 (`004330104`),
@@ -146,15 +143,17 @@ M2c checks:
   assertions (`004330104`); native parser8/0 (`parsechanged-20261016-004531866`), MCP8 checked/empty,
   formatter8/role6/strict architecture0/structure/persistence baseline PASS. Schema19 fields intact.
 - PASS fix headless receiving_scan `tests/artifacts/receiving_scan-20261016-104548265.log`, exit0.
-- PASS targeted re-review BASE_SHA → TARGET_SHA: RV-001 FIXED, no material findings,
-  architecture/style PASS, reviewer validation NOT_RUN. Цикл repair/re-review1/2 завершён.
+- PASS targeted re-review `ca0e1409eaca761988f8913cb242953baac36a4e` →
+  `f893cb3395dd3b86572009c58f55a558424e31cb`: RV-001 FIXED, no material findings,
+  architecture/style PASS, reviewer validation NOT_RUN; repair/re-review1/2 завершён.
 
 M2d.1 checks:
 - PASS GUT7/7,141 assertions (`gut-20261016-010014338`), stderr empty: actual quantities/mass,
   barrel/scythe, incompatible counts, capacity gaps, retry/order/global RNG, invalid inputs.
-- PASS MCP3 checked/empty, scripts_instantiated=0; native ParseChanged (`20261016-010018806`),
+- PASS MCP3 checked/empty, scripts_instantiated=0; native ParseChanged3/0 (`20261016-010018806`),
   formatter3, role2, strict architecture0 и structure. Native materialization здесь не запускается.
-- Immutable-SHA review pending до отдельного implementation commit; visual QA NOT_RUN,0/8.
+- PASS immutable-SHA review BASE_SHA → TARGET_SHA: no material findings, architecture/style PASS,
+  reviewer validation NOT_RUN. Triage: новых кандидатов нет. Visual QA NOT_RUN,0/8.
 
 ### Review triage
 
@@ -188,10 +187,11 @@ M2d.1 checks:
 
 ### Next
 
-M2d: once-committed shipment plan/quantity до compiler, подключение
+M2d.2: commit рассчитанного shipment plan/quantity до compiler, подключение
 receiving/contents/physics/history/UI и явная save-совместимость после решения владельца о schema19.
 При restore compiler сейчас запускается до saved overlay; construction
-context должен получить выбранный plan заранее, а preflight — проверить его до мутации World.
+context должен получить plan заранее, а preflight — проверить его до мутации World. Factory и
+ReceivingSnapshotRules сейчас разрешают только DEF_Package.scene_variants; менять их согласованно.
 В UI мигрировать также weight sort/detail терминала, stickers PackageConditionView, debug HUD и
 hazard icons: они пока читают старые mass/tags/hazard hooks из DEF_Package. Компонент состава и
 неизменяемая arrival projection должны быть единственными источниками новых физических фактов.
