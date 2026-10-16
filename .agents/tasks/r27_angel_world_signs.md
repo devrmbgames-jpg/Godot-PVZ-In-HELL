@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `fb1c3d5b4081a2c2b4f5e99d490c31b2df460b07`
-TARGET_SHA: pending checkpoint commit; review NOT_RUN
+TARGET_SHA: `c66bff73e70d88fb7c0d9eeb245c3adc859310bd` — review PASS
 
 Parent: [R27](completed/r27_qa_followup.md).
 
@@ -100,6 +100,8 @@ Follow-up native PASS:73/73 tests,1130 assertions; stderr empty:
   Native scene tuning saved via editor/MCP; UID/nodes/geometry preserved. Visual NOT_RUN,0/8.
 - Earlier incomplete run41/43 (`022121752`) and intermediate42/43 (`022300134`) are FAIL,
   superseded by final native evidence; stale source retirement and ordinary-role fixture fixed.
+- Immutable BASE_SHA→TARGET_SHA review: no material findings, architecture/style PASS;
+  reviewer validation NOT_RUN. Main triage: no open accepted P0/P1/P2, repair0/2; code checkpoint closed.
 
 ### Prior validation
 
@@ -120,10 +122,10 @@ Architecture/style PASS; reviewer validation NOT_RUN. UTC2026-10-13 08:51:49?08:
 
 ### Owner QA / blockers
 
-Follow-up validation/review must finish before its code checkpoint closes. Owner visual acceptance
-remains open: observe writing and look-away/look-back without moving the frozen actor; idle hides
+Follow-up code checkpoint is validated/reviewed. Owner visual acceptance remains open:
+observe writing and look-away/look-back without moving the frozen actor; idle hides
 the whole board. No rendered test is authorized for this follow-up; visual0/8.
 
 ### Next
 
-Finish focused native checks, commit and immutable-SHA review/triage, then owner visual acceptance.
+Owner visual acceptance; до неё задача остаётся IN_PROGRESS, visual0/8.
