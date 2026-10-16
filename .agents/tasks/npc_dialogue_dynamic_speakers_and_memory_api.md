@@ -1,7 +1,7 @@
 # Диалоги — динамический говорящий и пять операций памяти
 
-Status: **PLANNED**
-Technical: **NOT_STARTED**
+Status: **IN_PROGRESS**
+Technical: **IN_PROGRESS**
 Execution order: **60**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/npc_dialogue_dynamic_speakers_and_memory_api.md.txt).
@@ -20,9 +20,12 @@ set_tag, get_tag, set_val, get_val(value_name), add_val; get_val отсутст�
 
 ## Current
 
-Реализация этой задачи не начата. Подстановки speaker уже частично существуют;
-переиспользовать их, не заменять UI/adдон. Историческая запись о чужом dirty street ctx
-требует сверки actual worktree, а не предположения, что изменение всё ещё незакоммичено.
+Независимая документационная часть D3 выполнена: комментарии и регионы общего ctx
+переведены на русский, holds_grudge описывает личные сохранённые обиды и false для
+невалидного контекста. Исполняемые строки не изменены. D1/D2 ещё не реализованы.
+Street ctx на actual HEAD уже содержит speaker_name/sn; это committed код, сохранить API.
+Service adapter пока не имеет speaker_name; legacy имя принадлежит DEF_Customer.display_name,
+районное — NpcRecord. Подстановки заголовков есть частично; UI/аддон переиспользуются.
 
 ## Work packages
 
@@ -51,7 +54,10 @@ D1/D2 не ждут полной новой агрессии: holds_grudge чи�
 
 ## Validation / review
 
-Новые runtime/parser/review NOT_RUN. Границы: отсутствие ключа против явного null,
+Перевод комментариев: native MCP diagnostics checked/empty, formatter/lint PASS,
+проверка идентичности исполняемых строк и diff-check PASS. Runtime не запускался для
+документационного изменения; функциональные D1/D2 и их review NOT_RUN.
+Границы: отсутствие ключа против явного null,
 int/float/bool/составные значения, нечисловой add без мутации, запрещённые persistent Objects,
 смена street/service/дня/тела, закрытый ctx и технический повтор callback.
 Изменение схемы покрывать в D2 целиком, со строгим отказом до записи неподдерживаемого save.

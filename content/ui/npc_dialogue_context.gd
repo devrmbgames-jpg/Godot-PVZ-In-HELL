@@ -26,7 +26,7 @@ func end() -> void:
 	invalidate()
 
 
-## Seals a session during tree teardown without returning participants to gameplay.
+## Закрывает контекст при удалении дерева, не возвращая участников к игровым действиям.
 func invalidate() -> void:
 	_closed = true
 
@@ -46,37 +46,46 @@ func perceived_text(actual_text: String) -> String:
 	return actual_text
 
 
-## Shared variants select the existing role-specific flow through this read-only adapter.
+## Возвращает true для обслуживания заказа; общие диалоги выбирают ветку без изменения роли.
 func is_customer_service() -> bool:
 	return false
 
 
-## Adapts the current trait warning for both roles without advancing exposure or changing memory.
+## Читает уже выданное предупреждение о взгляде; не продвигает таймер и не меняет память.
+## Для невалидного контекста возвращает false.
 func gaze_warning_given() -> bool:
 	return is_valid() and NpcDialogueService.gaze_warning_given(_delivery_npc())
 
 
-## Reads perceived darkness without sampling light or changing combat, memory or trait clocks.
+## Читает воспринятую темноту игрока без нового замера света и изменения боя или таймеров.
+## Для невалидного контекста возвращает false.
 func player_in_hunting_darkness() -> bool:
 	return is_valid() and NpcDarknessQueries.player_in_hunting_darkness(_delivery_npc())
 
 
-## Written communication reads an authored cue; both role adapters retain their gameplay owners.
+## Проверяет авторский режим общения через табличку, не меняя состояние собеседника.
+## Для невалидного контекста возвращает false.
 func uses_signboard() -> bool:
 	return is_valid() and NpcDialogueService.uses_signboard(_delivery_npc())
 
 
-## Shares the existing persistent personal memory view between street and service roles.
+## Проверяет, помнит ли этот НПЦ с чертой злопамятности личную обиду на текущего игрока.
+## Читает сохранённые инциденты; отношение и бой не изменяет.
+## Учитывает личные угрозы, ложь, нарушенное обещание, нападение и другие обиды по
+## NpcGrudgeRules; увиденный вред другому НПЦ сам по себе личной обидой не считается.
+## Невалидный контекст или отсутствие подходящей памяти дают false.
 func holds_grudge() -> bool:
 	return is_valid() and NpcDialogueService.has_grudge_against(_delivery_npc(), _delivery_player())
 
 
-## Both roles read personal strength memory without changing social or combat state.
+## Проверяет сохранённое уважение к силе игрока без изменения отношений или боя.
+## Для невалидного контекста возвращает false.
 func respects_player() -> bool:
 	return is_valid() and NpcDialogueService.has_respect_for(_delivery_npc(), _delivery_player())
 
 
-## Both roles read durable actor-specific notice without sampling gaze or creating recognition.
+## Читает личную память о замеченной слежке; не замеряет взгляд и не создаёт узнавание.
+## Для невалидного контекста возвращает false.
 func stalking_noticed() -> bool:
 	return (
 		is_valid() and NpcDialogueService.has_stalking_notice(_delivery_npc(), _delivery_player())
@@ -94,8 +103,9 @@ func speaks_with(_npc: Entity) -> bool:
 #endregion
 
 
-#region Explicit soul confirmation adapter
-## Observes the current offer/deadline; one context never allocates a second confirmation.
+#region Явное подтверждение сделки с душой
+## Проверяет доступность сделки и срок предложения без создания подтверждения.
+## Закрытый контекст или уже разрешённое предложение дают false.
 func can_offer_soul() -> bool:
 	if not is_valid():
 		return false
@@ -106,7 +116,8 @@ func can_offer_soul() -> bool:
 	return SoulTradeService.available(_delivery_player(), _delivery_npc())
 
 
-## Captures one durable offer only at an authored mutation cue; reopening retains its saved key.
+## Запрашивает одно сохраняемое предложение в авторском шаге действия.
+## Повтор использует сохранённый ключ; при недоступной сделке возвращает false.
 func request_soul_offer() -> bool:
 	if not can_offer_soul():
 		return false
@@ -119,7 +130,7 @@ func request_soul_offer() -> bool:
 	return true
 
 
-## Presents only a still-valid unresolved offer, without changing its captured terms.
+## Возвращает true только для доступного неразрешённого предложения; условия не меняет.
 func has_soul_offer() -> bool:
 	var record: SoulTradeRecord = _soul_receipt()
 	return (
@@ -128,45 +139,49 @@ func has_soul_offer() -> bool:
 	)
 
 
-## Requests acceptance through the authoritative ledger and permanent stat transaction.
+## Запрашивает принятие через владельца реестра и постоянных характеристик.
+## Возвращает true при подтверждённом принятии, включая повтор того же подтверждения.
 func accept_soul_offer() -> bool:
 	return _resolve_soul_offer(true)
 
 
-## Requests refusal of this exact offer; previously accepted deals remain counted.
+## Запрашивает отказ от показанного предложения; ранее принятые сделки остаются учтены.
+## Возвращает true при подтверждённом отказе.
 func decline_soul_offer() -> bool:
 	return _resolve_soul_offer(false)
 
 
-## Reads the actual committed result, including an idempotent replay.
+## Проверяет фактически подтверждённое принятие, включая безопасный повтор.
 func soul_offer_accepted() -> bool:
 	return _soul_result != null and _soul_result.reason == &"accepted"
 
 
-## Reads an actual committed refusal; accepting a key cannot be undone by a later refusal.
+## Проверяет подтверждённый отказ; поздний отказ не отменяет принятие того же ключа.
 func soul_offer_declined() -> bool:
 	return _soul_result != null and _soul_result.reason == &"declined"
 
 
-## Reads the immutable captured Strength gain for the displayed confirmation.
+## Читает зафиксированный прирост силы показанного предложения; без него возвращает 0.
 func soul_strength_gain() -> float:
 	var record: SoulTradeRecord = _soul_receipt()
 	return record.strength_gain if record != null else 0.0
 
 
-## Reads the immutable maximum-Health cost; it is never damage guessed by dialogue.
+## Читает зафиксированную цену максимального здоровья; без предложения возвращает 0.
+## Сам диалог не рассчитывает и не применяет урон.
 func soul_health_cost() -> float:
 	var record: SoulTradeRecord = _soul_receipt()
 	return record.maximum_health_cost if record != null else 0.0
 
 
-## Reads the authored captured total acceptance threshold for forfeiting life.
+## Читает зафиксированный порог числа сделок для потери жизни; без предложения даёт 0.
 func soul_fatal_count() -> int:
 	var record: SoulTradeRecord = _soul_receipt()
 	return record.fatal_deal_count if record != null else 0
 
 
-## Reads the current authoritative total before confirmation without creating an offer.
+## Читает число принятых сделок из реестра без создания предложения.
+## После закрытия доступно число из полученной квитанции; без неё возвращает 0.
 func soul_accepted_count() -> int:
 	if not is_valid():
 		if _soul_result != null and _soul_result.receipt != null:
@@ -198,8 +213,9 @@ func _soul_receipt() -> SoulTradeRecord:
 #endregion
 
 
-#region Explicit blood confirmation adapter
-## Observes eligibility without allocating offers; a context retains one displayed confirmation.
+#region Явное подтверждение передачи крови
+## Проверяет доступность передачи крови без создания предложения.
+## Закрытый контекст или уже разрешённое предложение дают false.
 func can_offer_blood() -> bool:
 	if not is_valid():
 		return false
@@ -210,7 +226,8 @@ func can_offer_blood() -> bool:
 	return BloodConsentService.available(_delivery_player(), _delivery_npc())
 
 
-## Captures terms only at an authored cue; reopening retains the durable pending key.
+## Запрашивает сохраняемое предложение в авторском шаге действия.
+## Повтор использует прежний ключ; при недоступном предложении возвращает false.
 func request_blood_offer() -> bool:
 	if not can_offer_blood():
 		return false
@@ -223,7 +240,7 @@ func request_blood_offer() -> bool:
 	return true
 
 
-## Presents a currently eligible unresolved offer without changing its captured percentage.
+## Проверяет доступное неразрешённое предложение, не меняя зафиксированный процент.
 func has_blood_offer() -> bool:
 	var record: BloodConsentRecord = _blood_receipt()
 	return (
@@ -232,26 +249,30 @@ func has_blood_offer() -> bool:
 	)
 
 
-## Requests the common Health transaction for this exact displayed offer.
+## Запрашивает общую операцию здоровья для показанного подтверждения.
+## Возвращает true при подтверждённом принятии, включая повтор того же ключа.
 func accept_blood_offer() -> bool:
 	return _resolve_blood_offer(true)
 
 
-## Records refusal through its owner without creating damage or reversing a prior acceptance.
+## Запрашивает отказ через владельца предложения, не создавая урон и не отменяя принятие.
+## Возвращает true при подтверждённом отказе.
 func decline_blood_offer() -> bool:
 	return _resolve_blood_offer(false)
 
 
-## Reads the actual committed result, including terminal replay.
+## Проверяет фактически подтверждённое принятие, включая повтор завершённой операции.
 func blood_offer_accepted() -> bool:
 	return _blood_result != null and _blood_result.reason == &"accepted"
 
 
+## Проверяет подтверждённый отказ; без результата возвращает false.
 func blood_offer_declined() -> bool:
 	return _blood_result != null and _blood_result.reason == &"declined"
 
 
-## Reads the captured percentage; the gameplay owner samples current HP when accepted.
+## Читает зафиксированный процент предложения; без него возвращает 0.
+## Текущее здоровье измеряет владелец игровой операции в момент принятия.
 func blood_percent() -> int:
 	var record: BloodConsentRecord = _blood_receipt()
 	return record.percent if record != null else 0
