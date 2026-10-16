@@ -2,6 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `ca0e1409eaca761988f8913cb242953baac36a4e`
+TARGET_SHA: `f893cb3395dd3b86572009c58f55a558424e31cb`
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md),
@@ -36,8 +37,9 @@ Passive restore получает уже сохранённый selected_item д�
 восстанавливает derived liquid capability на reused bodies, сбрасывая только transient timer.
 Новые saved поля/версия не вводятся: schema19/PVZH1 сохранены; preflight проверяет cargo profile.
 Это исправляет существующий material-phase контракт без изменения геометрии или номеров.
-M2c review нашёл RV-001/P1; исправление подготовлено, повторный review REVIEW_PENDING.
-Точные native регрессии и headless main-level smoke PASS; milestone не DONE.
+M2c завершён после repair/re-review: RV-001/P1 FIXED, новых material findings нет.
+Точные native регрессии, headless main-level smoke и architecture/style review PASS;
+вся задача остаётся IN_PROGRESS до полного плана отправления и owner QA.
 
 Полный once-committed plan количества/массы/упаковки и UI/history ещё не подключён. Вопрос
 несовместимых старых коробок при будущем изменении схемы задан владельцу и остаётся открытым;
@@ -132,13 +134,13 @@ M2c review нашёл RV-001/P1; исправление подготовлено
 - Rendered/visual QA NOT_RUN,0/8.
 
 M2c checks:
-- PASS GUT81/81,1097 assertions: entity_package_traits8/70 (`gut-20261016-002823692`),
-  package_contents18/268 (`003130104`), world_snapshot40/505 (`002616825`),
+- PASS GUT84/84,1124 assertions: entity_package_traits8/70 (`gut-20261016-002823692`),
+  package_contents20/280 (`004655871`), world_snapshot41/520 (`004330104`),
   package_order_rules7/201 (`002636252`), package_packing_rules8/53 (`002702683`); stderr empty.
 - PASS MCP15 checked/empty, scripts_instantiated=0; ParseChanged15/0 (`002941078`), final
   S_LiquidTilt ParseFiles1/0 (`003248017`). Formatter15, role12, strict architecture0,
   project structure и persistence baseline PASS. Saved fields/schema не менялись.
-- PASS headless main-level receiving_scan, `tests/artifacts/receiving_scan-20261016-103250197.log`,
+- PASS headless main-level receiving_scan, `tests/artifacts/receiving_scan-20261016-104548265.log`,
   exit0/explicit PASS/no errors. Регистрация, сканер, терминал и второе утро сохранены.
 - Первичный review `5bc785f40485f99cd1c1d0a7e7335dd254e71f11` →
   `ca0e1409eaca761988f8913cb242953baac36a4e` нашёл RV-001/P1; это не PASS milestone.
@@ -146,17 +148,19 @@ M2c checks:
   assertions (`004330104`); native parser8/0 (`parsechanged-20261016-004531866`), MCP8 checked/empty,
   formatter8/role6/strict architecture0/structure/persistence baseline PASS. Schema19 fields intact.
 - PASS fix headless receiving_scan `tests/artifacts/receiving_scan-20261016-104548265.log`, exit0.
+- PASS targeted re-review BASE_SHA → TARGET_SHA: RV-001 FIXED, no material findings,
+  architecture/style PASS, reviewer validation NOT_RUN. Цикл repair/re-review1/2 завершён.
 
 ### Review triage
 
-- RV-001 — **ACCEPTED P1**, source `ca0e1409eaca761988f8913cb242953baac36a4e`:
+- RV-001 — **FIXED**, P1 source `ca0e1409eaca761988f8913cb242953baac36a4e`:
   один payload повторно испускал native rupture при damage→destroy либо leak→open→native damage.
   Native regression baseline (`gut-20261016-003927943`) подтвердил2 FAIL/20 tests, эффект2 вместо1.
   Fix: consume_catalog_rupture фиксирует existing C_PackageContents.released до callbacks,
   переводит массу в пустую оболочку и возвращает один committed effect. Damage/destruction
   пользуются одной операцией; обычное вскрытие вместо этого передаёт payload целому native body.
   Contents20 и snapshot41 подтверждают single effect, отказ повторной extraction и consumed restore.
-  Fix commit и targeted re-review ещё не зафиксированы; DONE запрещён до их завершения.
+  Fix `f893cb3395dd3b86572009c58f55a558424e31cb`, native61/61/800 assertions и targeted review PASS.
 
 ## План проверки будущей реализации
 
@@ -179,7 +183,7 @@ M2c checks:
 
 ### Next
 
-M2c commit/review/triage. M2d: once-committed shipment plan/quantity до compiler, подключение
+M2d: once-committed shipment plan/quantity до compiler, подключение
 receiving/contents/physics/history/UI и явная save-совместимость после решения владельца о schema19.
 При restore compiler сейчас запускается до saved overlay; construction
 context должен получить выбранный plan заранее, а preflight — проверить его до мутации World.
