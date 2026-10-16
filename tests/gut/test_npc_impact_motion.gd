@@ -770,6 +770,64 @@ func test_airborne_multi_contact_corner_does_not_leave_blocked_external_motion()
 	)
 
 
+## Presentation reads native velocity even when controller intent disagrees.
+func test_authored_animation_reads_native_velocity_instead_of_intent() -> void:
+	_npc.set_physics_process(false)
+	var control: C_Controller = _npc.get_component(C_Controller) as C_Controller
+	control.direction_motion = Vector3.ZERO
+	_body.velocity = Vector3.RIGHT * 2.0
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(_npc.animation_player.current_animation, String(_npc.walk_animation))
+	control.direction_motion = Vector3.RIGHT
+	_body.velocity = Vector3.ZERO
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(_npc.animation_player.current_animation, String(_npc.idle_animation))
+
+
+## Real passage geometry bounds the capsule during repeated diagonal/upward external pressure.
+func test_narrow_native_passage_stays_solid_and_releases_without_a_stored_launch() -> void:
+	var walls: Array[StaticBody3D] = []
+	for side: float in [-1.0, 1.0]:
+		var wall: StaticBody3D = StaticBody3D.new()
+		var shape: BoxShape3D = BoxShape3D.new()
+		shape.size = Vector3(0.2, 3.0, 6.0)
+		wall.add_child(_collider(shape))
+		wall.position = Vector3(side * 0.5, 1.5, -1.0)
+		_world.add_child(wall)
+		walls.append(wall)
+	var end_wall: StaticBody3D = StaticBody3D.new()
+	var end_shape: BoxShape3D = BoxShape3D.new()
+	end_shape.size = Vector3(1.2, 3.0, 0.2)
+	end_wall.add_child(_collider(end_shape))
+	end_wall.position = Vector3(0.0, 1.5, -2.0)
+	_world.add_child(end_wall)
+	walls.append(end_wall)
+	var motion: C_Motion = _npc.get_component(C_Motion) as C_Motion
+	var config: C_CharacterBody = _npc.get_component(C_CharacterBody) as C_CharacterBody
+	var collider: CollisionShape3D = _npc.get_node("Collision") as CollisionShape3D
+	var capsule: CapsuleShape3D = collider.shape as CapsuleShape3D
+	motion.ground_deceleration = 0.0
+	motion.air_acceleration = 0.0
+	var end_contacted: bool = false
+	for frame: int in 90:
+		motion.pending_impulse = Vector3(40.0, 20.0, -40.0) * config.mass_kg
+		await _tick()
+		assert_lte(absf(_body.position.x) + capsule.radius, 0.41)
+		assert_gte(_body.position.z - capsule.radius, -1.91)
+		assert_lte(config.impulse_velocity.y, 1.0 + POSITION_EPSILON)
+		end_contacted = end_contacted or config.contact_bodies.has(end_wall.get_instance_id())
+	assert_true(end_contacted, "The actual capsule must reach the passage end collider")
+	var stopped: Vector3 = _body.position
+	for wall: StaticBody3D in walls:
+		wall.free()
+	for frame: int in 45:
+		await _tick()
+	assert_lt(Vector2(_body.position.x - stopped.x, _body.position.z - stopped.z).length(), 0.01)
+	assert_almost_eq(config.impulse_velocity.length(), 0.0, POSITION_EPSILON)
+
+
 func test_external_decay_uses_native_delta_at_60_and_120_physics_hz() -> void:
 	var motion: C_Motion = _npc.get_component(C_Motion) as C_Motion
 	var config: C_CharacterBody = _npc.get_component(C_CharacterBody) as C_CharacterBody

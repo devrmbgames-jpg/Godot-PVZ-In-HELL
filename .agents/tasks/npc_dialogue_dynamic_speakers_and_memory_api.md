@@ -28,7 +28,7 @@ service legacy fallback читает DEF_Customer.display_name. Street sn сох
 возвращает пустое имя. Специальный parcel-demand context использует того же собеседника.
 246 статических NPC-заголовков в 21 ресурсе заменены native Dialogue Manager подстановкой;
 две Angel-таблички, реплики/choices/cues/tags/условия сохранены. UI/аддон не менялись.
-Native imports обновлены, focused GUT прошли; D1 review REVIEW_PENDING. D2 не начат.
+Native imports обновлены, focused GUT прошли. D1 reviewed PASS, D2 не начат.
 
 ## Work packages
 
@@ -52,7 +52,7 @@ D1/D2 не ждут полной новой агрессии: holds_grudge чи�
 
 ## Next
 
-Пройти exact-SHA read-only review/triage D1 checkpoint; затем D2 целиком:
+Продолжить D2 целиком:
 владелец NpcRecord, пять адаптеров, closed ctx/repeated callback, codec/preflight/schema и
 fresh/retained roundtrip. Непредставимые persistent значения отклонять до замены save.
 Не считать завершённой всю задачу или интеграционную часть D3 до её обязательной приёмки.
@@ -79,7 +79,10 @@ PagedAllocator и dummy RID diagnostics (`import-20261016-202114387.*.log`); э�
 MCP reimport вызывает update_file и оставил stale compiled headers; native Import выполнен
 после штатного закрытия clean editor, затем guarded launcher восстановил редактор.
 Красные pre-import/fixture/cache-precondition прогоны сохранены, не засчитаны как приёмка.
-D1 review REVIEW_PENDING; D2 runtime/parser/review NOT_RUN.
+D1 review BASE `41243ae7956505d6fceb008500e84403fc2b220a`,
+TARGET `f7dd1812540e9bfbba0bfdb7d95341743b188b44`: no material findings,
+ARCHITECTURE/STYLE PASS, reviewer execution NOT_RUN. Accepted P0/P1/P2: none.
+D2 runtime/parser/review NOT_RUN.
 Границы: отсутствие ключа против явного null,
 int/float/bool/составные значения, нечисловой add без мутации, запрещённые persistent Objects,
 смена street/service/дня/тела, закрытый ctx и технический повтор callback.

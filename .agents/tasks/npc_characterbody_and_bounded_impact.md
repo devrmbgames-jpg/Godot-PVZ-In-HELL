@@ -21,19 +21,14 @@ Source: [полное исходное ТЗ и доказательства](ref
 ## Current
 
 P1/P2 migration committed at `23e26a2541dab773a2a4db3cdc29e234c7ce657b` from foundation
-`003af971102c4c6f40c4a478eeb9a35b63bd20f4`. Review collected; RV-001 repair in progress.
+`003af971102c4c6f40c4a478eeb9a35b63bd20f4`. RV-001 fixed and targeted cycle2 review collected PASS.
 All live NPC/customer/trader prefabs now inherit the shared native CharacterBody foundation;
 legacy rigid player/physical items keep their original bodies. Existing NPC scene UID, paths,
 head/navigation/animation/parcel anchors and identity/visit contracts are retained.
-NPC look reuses CharacterLookSolver; physics reuses the same callback/slide/push/impact/support
-composition as the authored player. Gaze/death/participation remain derived from their existing
-owners; placement, reset and restore clear transient motion/contact samples.
-Bounded external response is authored separately from own speed (prototype planar3/up1/decay10).
-Native recovery contacts and a bounded authored ShapeCast retain incoming raw-body velocity;
-proximity alone cannot create damage. S_Impact still owns pair deduplication/damage/attribution.
-Held bodies use the actual R_HeldBy, including existing raw-body proxies; the spring yields at
-bounded-character contacts. The generic adapter uses native test_move, never a borrowed body
-state outside its callback. Contact reporting settings are unchanged by pickup/release.
+Shared callback/look/contact ownership is documented in content/ARCHITECTURE.md and
+docs/damage_impact.md. External response is separate from own speed (planar3/up1/decay10).
+Native contacts remain mandatory for damage; raw proximity samples never replace native
+reporters. Held bodies use real R_HeldBy and yielding springs, including raw test_move adapter.
 Native heavy80kg/20mps response: peak2.833mps/displacement0.443m vs old10.977/7.716;
 authored barrel18kg/20mps: peak2.833/displacement0.800, HP100->75 in both cases.
 Current held-barrel press: max displacement0.0367m, zero knockback speed, grip retained;
@@ -46,7 +41,10 @@ RV-001 repair moves bounded contact reconciliation into the motion solver immedi
 native slide. Native floor response retains planar velocity; one uniform projected cap adjusts
 both body velocity and retained response. Recovery queries only report contacts. Native red/green
 proves no converted own-motion residue with zero own intent/gravity/deceleration; mixed wall
-pressure preserves gravity and recovers own8mps after release. Targeted re-review remains open.
+pressure preserves gravity and recovers own8mps after release. Final native21/1016 also proves
+solid narrow passage/end geometry and authored Walk/Idle chosen from actual velocity rather
+than intent. No remaining runtime implementation finding; final matrix/test review and QA
+handoff are open. Rendered cases have not started (0/8).
 
 ## Work packages
 
@@ -69,27 +67,23 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-RV-001 closed after cycle2 review. Reconcile remaining source-matrix coverage, then prepare
-the task QA card and Windows build;
-rendered feel QA has
-no task-specific approval yet (0/8). Do not claim P3/DONE or export QA PASS prematurely.
+Commit/review final matrix and two remaining source regressions. Prepare current Windows QA
+build and fill [.qa card](../../.qa/tasks/npc_characterbody_and_bounded_impact.md), then request
+task-specific approval for its six rendered cases (0/8). Preserve source identity/save/roles
+and explicit prototype tuning. Do not claim DONE or export QA PASS prematurely.
 
 ## Validation / review
 
 Baseline native6/17 and comparison JSON: `.artifacts/godot_agent/gut-20261016-182942880.*.log`.
-Baseline reviews PASS/no findings: BASE `97ff746acc84576a3be98dc8102565d31c391230` ->
-`c407a2d82fc55dd331c5ea240c20328ee78dd918` -> `1f54cd6dba8355ade27c38a5271e1d5fb2029afa`.
-Foundation review PASS/no findings: BASE `1f54cd6dba8355ade27c38a5271e1d5fb2029afa`,
-TARGET `003af971102c4c6f40c4a478eeb9a35b63bd20f4`; reviewer execution NOT_RUN.
+Baseline/foundation reviews PASS/no findings; full evidence retained in the committed card
+at `003af971102c4c6f40c4a478eeb9a35b63bd20f4`.
 Migration review BASE `003af971102c4c6f40c4a478eeb9a35b63bd20f4`,
 TARGET `23e26a2541dab773a2a4db3cdc29e234c7ce657b`: one P2, STYLE PASS, execution NOT_RUN.
 RV-001 FIXED (`5a2cf2a66030b53d9faed4fc9d2fcf2e966316b2`, native19/741):
 post-slide oblique projection could exceed planar/upward external caps.
 Native red reproduced cache up1.416>1 and accumulating actual planar speed, log
-`gut-20261016-200127909.*.log`. Cycle1 repair `b47c12ea029c56d13f0d2efd14bd2d0594575f18`
-re-reviewed from `6665e0dc26a76f58b3e2b4e88146c2b487475f1c`: original floor fixed,
-secondary native corner normal still leaked blocked response. Cycle2 handles every contact
-normal and retires inward blocked planar axes in both native velocity and external state.
+`gut-20261016-200127909.*.log`. Final cycle2 handles every contact normal and retires inward
+blocked planar axes in both native velocity and external state.
 Native airborne multi-normal corner red `gut-20261016-201427846.*.log`; green
 `gut-20261016-201854709.*.log` PASS19/741 CLEAN includes falling nonzero native velocity,
 distinct normals in one result, cache/body decomposition and no launch after wall removal.
@@ -103,35 +97,58 @@ All listed final runs are Functional PASS, stderr0 and CLEAN:
 
 | Suite | Tests/assertions | Log timestamp |
 | --- | --- | --- |
-| npc_impact_motion | 19/741 | 201854709 |
+| npc_impact_motion (includes native animation/narrow passage) | 21/1016 | 202915778 |
 | npc_gaze_freeze (nonimmune physical fixture; authored Angel immunity retained) | 16/122 | 192621089 |
 | characterbody_physics | 8/41 | 194831926 |
 | npc_activation | 12/119 | 191142241 |
 | district_population (actual NPC/player footsteps) | 7/64 | 194829657 |
 | npc_parcel_holder | 7/48 | 192152321 |
-| s_grab | 92/438 | 192153695 |
+| s_grab | 92/438 | 203256810 |
 | npc_remains | 7/76 | 192256831 |
 | npc_participation_snapshot | 9/162 | 192254602 |
 | customer_handoff | 14/125 | 192821106 |
 | npc_test_rooms (all ten archetypes/day transitions) | 6/1452 | 193518200 |
 | npc_traffic | 12/81 | 194100637 |
+| npc_intent | 6/22 | 202724944 |
+| contact_damage | 6/40 | 202727564 |
+| combat_attribution | 4/18 | 202759184 |
+| npc_attacks (native method-track callbacks) | 22/160 | 202801469 |
 
-Native smoke PASS: `tests/artifacts/npc_character-20261017-054534733.log` and
-`tests/artifacts/npc_navigation-20261017-054536656.log`. Ancillary migrated smoke execution NOT_RUN.
+Final native smoke PASS: `tests/artifacts/npc_character-20261017-063126445.log` and
+`tests/artifacts/npc_navigation-20261017-062928060.log`. Ancillary migrated smoke execution NOT_RUN.
 Actual physics decay after 0.1s: external speed 1.999999642 at60Hz and 2.000000954 at120Hz.
-Final production MCP scripts checked/empty; formatter/lint (67 files), architecture(strict),
-structure and staged agent validator/diff-check PASS. The final test-only duplicated-load cleanup has native
-MCP diagnostics checked/empty; previous GUT result precedes that behavior-neutral cleanup.
+Production/final test MCP checked/empty; formatter/lint, strict architecture, structure and
+staged gates PASS. Native21/1016 precedes behavior-neutral capsule local-variable cleanup.
 Inherited dialogue regressions exposed a fixture-only ambiguity: their World already contains
 a legacy player, so execute_one could sample it instead of the new CharacterBody test actor.
 Footstep test now establishes exactly one PlayerInput role before its native reader assertion;
 production role ownership is unchanged. Inherited D1 run34/726 PASS/CLEAN (`202208405`).
 Focused district_population rerun7/64 PASS/CLEAN (`202431799`) includes the final fixture
 and duplicated-load cleanup. Scene migration remains reviewed; this is test isolation only.
+Fixture checkpoint review BASE `5a2cf2a66030b53d9faed4fc9d2fcf2e966316b2`,
+TARGET `41243ae7956505d6fceb008500e84403fc2b220a`: no findings, ARCHITECTURE/STYLE PASS,
+reviewer execution NOT_RUN. Current final test-only source-coverage checkpoint review NOT_RUN.
 Initial red runs and authoring failures retained in artifacts; not counted as acceptance.
 Scene/Traits migration used native PackedScene/ResourceSaver with no-write preflight and editor
 closed; incoming ShapeCast authored/saved with live MCP. Editor restarted through guarded launcher.
 No schema change: same recipe/identity paths; active/dormant on-disk reconstruction passes.
+
+### Source matrix reconciliation
+
+| Mandatory contract | Actual technical evidence |
+| --- | --- |
+| All live NPC/customer/trader roots and Traits | Native room6/1452 across all ten archetypes, handoff14/125, remains7/76; native authoring preflight and reviewed scene diff. |
+| One shared callback; no copied player input | Foundation reviewed003af971; migration23e26a25 plus targeted5a2cf2a6; unbounded player8/41 unchanged branch. |
+| Combined caps, heavy/light/raw/barrel/throw damage | Final impact21/1016 plus contact6/40 and attribution4/18; real native impacts and committed actor receipts. |
+| Held spring, held support, release/throw | Final impact actual authored/raw grip cases, ordinary unheld platform retained; final shared carry92/438. |
+| Wall/corner/ceiling/narrow geometry; no latent launch | Final impact21/1016 checks real colliders, falling multi-normal corner, cache/body decomposition, release after blocked pressure. |
+| Freeze and stationary damage | Gaze16/122; physical hit fixture explicitly nonimmune, authored Angel immunity unchanged. |
+| Own speed, head look, terrain, delta, path/avoidance | Final impact actual12mps, independent head, step/slope, 60/120Hz; intent6/22, traffic12/81, final native navigation smoke. |
+| Actual animation/footsteps/attack callbacks | Final impact Walk/Idle against opposite intent; district7/64 and inherited fixture; attacks22/160. |
+| Dormancy/activation, death, placement/reset | Activation12/119, remains7/76, gaze transition/reset caches; no parallel mutable freeze owner. |
+| Stable identity/recipes, active/dormant restore | Disk participation snapshot9/162; no save schema change; incoming cache explicitly transient and cleared. |
+| Handoff/parcel slots/outcomes | Native handoff14/125 and parcel holder7/48; current dialogue demand48/614 independently passes. |
+| Subjective short push and held-wall stability | NOT_RUN, dedicated QA card,0/8; task-specific owner approval required. |
 
 ## Owner QA / blockers
 
