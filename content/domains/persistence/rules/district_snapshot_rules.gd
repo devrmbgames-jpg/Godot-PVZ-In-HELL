@@ -85,11 +85,17 @@ static func valid(
 		):
 			return false
 		if authored:
-			if not NpcAuthoredPersonRules.matches(
-				district.definition.person_for(person.npc_id),
-				person,
-			):
+			var card: DEF_NpcPerson = district.definition.person_for(person.npc_id)
+			if not NpcAuthoredPersonRules.matches(card, person):
 				return false
+			if identities.has(person.npc_id):
+				var body_record: Dictionary = records[identities[person.npc_id]]
+				# У размещённого актёра сцена принадлежит native уровню через authored_id.
+				if (
+					String(body_record.authored_id).is_empty()
+					and String(body_record.scene) != card.npc_scene_path
+				):
+					return false
 		elif (
 			not district.definition.profiles.has(person.profile)
 			or not NpcVariationRules.valid_variation(

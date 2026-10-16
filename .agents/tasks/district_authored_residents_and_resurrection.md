@@ -66,7 +66,7 @@ API диалогов и социальный граф потребляются �
 
 ## Next
 
-Собрать review R1b, исправить принятые findings. Затем R1c: перевести основной authored
+Собрать targeted re-review RV-001, записать fix SHA и финальный triage. Затем R1c: перевести основной authored
 состав и rooms на постоянные карточки, удалить генерацию именно live residents, не ломая
 guest/isolated fixtures. Проверить native construction/placed merchant, текущий schema round-trip
 и отдельный process restart. Потом R2: календарный возврат +2, повторная смерть/добыча,
@@ -83,7 +83,17 @@ District snapshot **17/215**, world snapshot **47/642**, native baseline **15/80
 Логи .artifacts/godot_agent/gut-20261016-{215436864,215443782,215504869,215519055}.*.
 Golden generation `215411757` PASS/CLEAN, затем обычный baseline read `215519055` PASS/CLEAN.
 Formatter/lint, strict architecture, structure, persistence baseline PASS; staged gate перед commit.
-R1b review пока REVIEW_PENDING; весь R1 не COMPLETE/DONE. Rendered **0/8**.
+R1b review BASE `d143a897bcb0c508de1caa50f3eb4a9835d4723e` →
+TARGET `11d735a284aa0b4211608735266ea597c77de338`: **P2 RV-001 ACCEPTED**, STYLE PASS.
+RV-001: dynamic body record.scene не сверялся с card.npc_scene_path; чужая сцена или alias
+обходили authored selector. Red native GUT **6/7 FAIL**, `gut-20261016-215957285.*`:
+valid/restore принимали подмену, live NpcRecord заменялся. Минимальный fix проверяет scene
+при пустом authored_id; native placed сцены остаются у своего владельца.
+Исправленный authored suite **7/87 PASS/CLEAN** (`gut-20261016-220033299.*`), существующий
+placed bootstrap **11/124 PASS/CLEAN** (`gut-20261016-220043973.*`). Последний проверяет
+общий placed contract, не отдельный authored-roster merchant case — это ещё R1c.
+Статус fix/re-review: **REVIEW_PENDING**, repair cycle **1/2**; R1 не COMPLETE/DONE.
+Rendered **0/8**.
 
 Native ResourceSaver сохранил cards/pilot, но оба offline wrapper **FAIL** после save:
 `offlinescript-20261016-{214450592,215150462}.*` сохранены. Первый содержит ECS compile

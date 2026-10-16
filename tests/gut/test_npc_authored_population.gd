@@ -147,6 +147,33 @@ func _assert_restored_person(card: DEF_NpcPerson) -> void:
 
 
 #region Preflight and old schema
+func test_dynamic_body_scene_must_match_the_authored_card_before_prefab_construction() -> void:
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	var card: DEF_NpcPerson = _district.definition.person_for(person.npc_id)
+	# Даже совместимый alias той же сцены не заменяет её канонический авторский путь.
+	var alias_path: String = card.npc_scene_path.replace("/entities/", "/entities/./")
+	var alternative: PackedScene = load(alias_path)
+	var candidate: Node = alternative.instantiate()
+	assert_true(candidate is E_DistrictNpc)
+	candidate.free()
+	for replacement_path: String in [
+		alias_path,
+		"res://content/domains/npc/entities/npc_character.tscn",
+	]:
+		var malformed: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in malformed.entities:
+			if String(record.key) == String(person.npc_id):
+				assert_eq(String(record.authored_id), "")
+				record.scene = replacement_path
+		assert_false(WorldSnapshotService.valid(malformed, _root), replacement_path)
+		assert_false(WorldSnapshotService.restore(malformed, _root), replacement_path)
+		assert_same(NpcPopulationQueries.person_for(person.npc_id), person)
+		assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
+
+
 func test_tampered_identity_or_missing_person_rejects_before_live_mutation() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
