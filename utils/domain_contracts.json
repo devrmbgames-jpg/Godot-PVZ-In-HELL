@@ -81,6 +81,18 @@
       "purpose": "Validate authored identity and roster membership before live restore; no allocation or writes."
     },
     {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "DEF_NpcPerson",
+      "path": "content/domains/npc/definitions/def_npc_person.gd",
+      "rights": ["query", "read"],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": ["content/services/persistence/district_snapshot_rules.gd"],
+      "purpose": "Read immutable authored body scene during closed snapshot validation."
+    },
+    {
       "source_owner": "challenges",
       "target_owner": "combat",
       "symbol": "C_Death",
