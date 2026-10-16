@@ -288,7 +288,6 @@ expand_icon = true
 
 [node name="LabelDescriptionShort" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer" unique_id=2083466854]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 25
 text = "Краткое описание"

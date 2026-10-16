@@ -1,8 +1,8 @@
 # Посылки — соответствие содержимого, физических свойств и размера упаковки
 
 Status: **IN_PROGRESS**
-BASE_SHA: `58b3e2a7fc7cdad7cabb774161aa6654a7e96463`
-TARGET_SHA: `b0bee51b3a9c7c6dbacd59de1a304554f42a99a7` — review PASS
+BASE_SHA: `14f4c83fd39077b74c49f5de48369dbaabdd9375`
+TARGET_SHA: pending native cargo row-title fix — REVIEW_PENDING
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26_1_physical_items_and_effects.md).
@@ -18,6 +18,8 @@ Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26
 - Ошибка устраняется в сформированном отправлении: подпись и UI не маскируют неверные gameplay-данные.
 
 ### Current
+
+Cargo QA-001/P2: case1 found authored `LabelDescriptionShort.visible=false`; native MCP enables the existing title/quantity label. Terminal GUT7/7,28 assertions/stderr0 (`gut-20261016-054013512`), structure/agent validators PASS; fix review pending. Separate QA slot `user://qa_cargo_fd0dda76_manual.pvzh` saved successfully, all6 native shipments retained; no regular-slot writes.
 
 Выполнение авторизовано текущим `/goal` по `.agents/tasks`; прежняя пометка «ждать отдельную
 команду» относилась к исходному планированию до этого goal. UID-1-TL08C — пример владельца;
@@ -171,7 +173,7 @@ M2d.3 native:112/112,1629 assertions; prefix `gut-20261016-`:
 
 ### Review triage
 
-M2d.3 BASE_SHA → TARGET_SHA: no material findings, architecture/style PASS; reviewer validation
+M2d.3 `58b3e2a7fc7cdad7cabb774161aa6654a7e96463` → `b0bee51b3a9c7c6dbacd59de1a304554f42a99a7`: no material findings, architecture/style PASS; reviewer validation
 NOT_RUN. Main triage: новых кандидатов/открытых принятых P0/P1/P2 нет; repair0/2. Owner QA NOT_RUN.
 M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`.
 - RV-001 — **FIXED**, P1 source `ca0e1409eaca761988f8913cb242953baac36a4e`:
@@ -189,11 +191,10 @@ M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac
 
 ### Owner QA / blockers
 
-- Owner QA: [шесть сценариев](../../.qa/tasks/package_contents_and_packaging_consistency.md), **NOT_RUN**,0/8.
+- Owner QA: [шесть сценариев](../../.qa/tasks/package_contents_and_packaging_consistency.md), **IN_PROGRESS**, case1 title defect fixed/review pending; remaining cases NOT_RUN.
 - Windows QA `20261016-021143Z-5018724c-cargo_history_ui`: export/menu120/level120 PASS, dirty=true.
   Первая попытка `20261016-020921Z-5018724c-cargo_history_ui` FAIL: LimboAI DLL lock; логи в `.export/windows/`, повтор после graceful editor quit PASS.
 
 ### Next
 
-Программные этапы завершены. Владелец разрешил до6 rendered/playtest проверок по связанной карточке; выполнить их через MCP, зафиксировать каждый результат и evidence.
-Выполнено0/6 разрешённых,0/8 milestone; до фактической приёмки задача остаётся IN_PROGRESS. Разрешение не относится к реакциям NPC.
+Собрать immutable review QA-001, затем продолжить6 разрешённых cargo случаев через MCP с отдельным QA-слотом; case1 начат/остальные NOT_RUN. До фактической приёмки задача IN_PROGRESS. Разрешение не относится к реакциям NPC.
