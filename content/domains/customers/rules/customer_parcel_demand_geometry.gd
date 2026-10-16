@@ -23,11 +23,19 @@ static func reachable(actor: Entity, customer: E_DistrictNpc, parcel: Entity) ->
 	var surface: Vector3 = CustomerHandoffGeometry.closest_point(body, anchor.global_position)
 	if not surface.is_finite() or anchor.global_position.distance_to(surface) > distance:
 		return false
+	# Match native interaction targeting: the player's own hands cannot hide the demand target.
+	# Placement overlap/sweeps below still treat these bodies as physical obstacles.
+	var excluded: Array[RID] = _participant_rids(actor, customer, body)
+	for slot: int in 3:
+		var held: Entity = GrabQueries.held_in_slot(actor, slot)
+		var held_body: RigidBody3D = GrabQueries.physical_body(held)
+		if held_body != null:
+			excluded.append(held_body.get_rid())
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 		anchor.global_position,
 		surface,
 		PLACEMENT.obstacle_mask,
-		_participant_rids(actor, customer, body),
+		excluded,
 	)
 	return body.get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
 

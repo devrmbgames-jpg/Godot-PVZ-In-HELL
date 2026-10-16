@@ -578,6 +578,41 @@ func test_busy_carry_returns_to_supported_clear_ground_without_replacing_the_occ
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 
 
+func test_player_own_carry_does_not_occlude_native_pending_return_action() -> void:
+	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
+	var other: Entity = SECOND_PARCEL.instantiate() as Entity
+	EntityCompositionFixture.register(_world, other)
+	other.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
+	var origin: Vector3 = GrabQueries.hold_anchor(_actor).global_position
+	var surface: Vector3 = CustomerHandoffGeometry.closest_point(
+		GrabQueries.physical_body(_parcel), origin,
+	)
+	var held_body: RigidBody3D = other as Node as RigidBody3D
+	var collision: CollisionShape3D = other.get_node("CollisionShape3D") as CollisionShape3D
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3.ONE * 0.2
+	collision.shape = shape
+	collision.transform = Transform3D.IDENTITY
+	held_body.global_position = origin.lerp(surface, 0.5)
+	held_body.freeze = true
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+		origin, surface, CustomerParcelDemandGeometry.PLACEMENT.obstacle_mask,
+		[_actor.get_rid(), (_customer as Node as PhysicsBody3D).get_rid(),
+			GrabQueries.physical_body(_parcel).get_rid()],
+	)
+	var hit: Dictionary = held_body.get_world_3d().direct_space_state.intersect_ray(ray)
+	assert_same(hit.get("collider"), held_body, "Native blocker fixture must hit own Carry")
+	assert_same(GrabQueries.held_object(_actor), other)
+	assert_true(DEMAND_ACTION.is_available(_actor, _customer, _customer))
+	assert_true(DEMAND_ACTION.complete(_actor, _customer, _customer))
+	assert_eq(incident.demand_outcome, DEMAND.RETURN)
+	assert_eq(incident.phase, CustomerParcelIncident.Phase.HELD)
+	assert_same(GrabQueries.held_object(_actor), other)
+	assert_same(GrabQueries.held_object(_customer), _parcel)
+
+
 func test_demand_rechecks_distance_and_los_without_committing_a_choice() -> void:
 	var incident: CustomerParcelIncident = _stolen_for_demand(DEMAND.RETURN)
 	var original: Vector3 = (_actor as Node as Node3D).position
