@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 BASE_SHA: `58b3e2a7fc7cdad7cabb774161aa6654a7e96463`
-TARGET_SHA: pending checkpoint commit; review NOT_RUN
+TARGET_SHA: `b0bee51b3a9c7c6dbacd59de1a304554f42a99a7` — review PASS
 
 Created: 2026-10-15. Основание: замечание владельца о **UID-1-TL08C**.
 Related: [R27.5](completed/r27_test_lab_and_npc_rooms.md), [R26.1](completed/r26_1_physical_items_and_effects.md).
@@ -38,7 +38,7 @@ ReceivingBatch фиксирует quantity/packing paths до создания �
 Compiler и saved preflight проверяют quantity/capacity/exact scene; fresh/reused restore не reroll.
 Native Trait allowlist и недостающий clothing cargo комнаты shy обновлены через editor/MCP.
 Schema21/PVZH1: решение владельца 2026-10-16 — «Отклонять старую схему, файл сохранять».
-M2d.3 implemented: arrival projection фиксирует количество/packing; общие PackageCargoRules дают
+M2d.3 завершён после review: arrival projection фиксирует количество/packing; PackageCargoRules дают
 массу/теги/hazards для history ID, terminal detail/sort/icons, stickers и debug HUD.
 Preflight проверяет capacity/live agreement/ID mass и hazard, в том числе без физического тела.
 Native/static проверки и review ниже; owner QA обязателен, задача IN_PROGRESS.
@@ -171,6 +171,8 @@ M2d.3 native:112/112,1629 assertions; prefix `gut-20261016-`:
 
 ### Review triage
 
+M2d.3 BASE_SHA → TARGET_SHA: no material findings, architecture/style PASS; reviewer validation
+NOT_RUN. Main triage: новых кандидатов/открытых принятых P0/P1/P2 нет; repair0/2. Owner QA NOT_RUN.
 M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac66ae32db12f66914413ce7f2eb2df9`.
 - RV-001 — **FIXED**, P1 source `ca0e1409eaca761988f8913cb242953baac36a4e`:
   native baseline2 FAIL/20 (`gut-20261016-003927943`): повторный rupture damage→destroy/leak→open.
@@ -192,5 +194,5 @@ M2d.2 primary review: `21748810dbdbe0fb18e2a4f94a6a5e6b478abe59` → `2c4ac66dac
 
 ### Next
 
-Закончить native/static проверки M2d.3, commit и immutable-SHA review/triage.
-Затем обязательный owner QA; до всех acceptance задача не DONE. Visual QA NOT_RUN,0/8.
+Программные этапы завершены; обязательный owner gameplay/visual QA ещё ожидается.
+Без разрешения владельца rendered playtest не запускать (AGENTS.md). До приёмки задача не DONE;0/8.
