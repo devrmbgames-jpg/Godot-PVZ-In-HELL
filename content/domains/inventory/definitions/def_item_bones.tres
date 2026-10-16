@@ -10,6 +10,7 @@ market_price = 10
 display_name = "Кости"
 world_pickup_scene = "res://content/domains/inventory/entities/bones_pickup.tscn"
 cargo_profile = ExtResource("1_5ky6a")
+destroyed_by_fire = true
 kind = 4
 maximum_stack = 20
 key = &"bones"

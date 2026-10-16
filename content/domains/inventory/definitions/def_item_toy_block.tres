@@ -10,6 +10,7 @@ market_price = 10
 display_name = "Игрушечный кубик"
 world_pickup_scene = "res://content/domains/interaction/entities/toy_block.tscn"
 cargo_profile = ExtResource("1_b07vo")
+destroyed_by_fire = true
 kind = 5
 maximum_stack = 1
 key = &"toy_block"

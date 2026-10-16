@@ -1,17 +1,14 @@
-[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3]
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://cj5rj2apk3l1c"]
 
-[ext_resource type="Script" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="Item"]
-
-[ext_resource type="Texture2D" path="res://addons/at-icons/mesh/bandages.svg" id="Icon"]
+[ext_resource type="Texture2D" uid="uid://cxsjnwupd7kg4" path="res://addons/at-icons/mesh/bandages.svg" id="Icon"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="Item"]
 
 [resource]
 script = ExtResource("Item")
-key = &"med"
 market_price = 60
 display_name = "Аптечка"
-world_pickup_scene = "res://content/domains/inventory/entities/med_pickup.tscn"
-kind = 1
-maximum_stack = 10
-healing = 35.0
-
 icon = ExtResource("Icon")
+world_pickup_scene = "res://content/domains/inventory/entities/med_pickup.tscn"
+destroyed_by_fire = true
+kind = 1
+key = &"med"

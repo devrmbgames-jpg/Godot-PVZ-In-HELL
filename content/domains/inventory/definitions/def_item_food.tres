@@ -1,18 +1,14 @@
-[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3]
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://dqc27j0al10ro"]
 
-[ext_resource type="Script" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="Item"]
 [ext_resource type="Resource" path="res://content/domains/needs/definitions/def_food_bread.tres" id="Food"]
-
-[ext_resource type="Texture2D" path="res://addons/at-icons/mesh/apple.svg" id="Icon"]
+[ext_resource type="Texture2D" uid="uid://dei8cb2upfqs5" path="res://addons/at-icons/mesh/apple.svg" id="Icon"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="Item"]
 
 [resource]
 script = ExtResource("Item")
-key = &"food"
-market_price = 25
 display_name = "Хлеб"
-world_pickup_scene = "res://content/domains/inventory/entities/food_pickup.tscn"
-kind = 0
-maximum_stack = 10
-food_effect = ExtResource("Food")
-
 icon = ExtResource("Icon")
+world_pickup_scene = "res://content/domains/inventory/entities/food_pickup.tscn"
+destroyed_by_fire = true
+food_effect = ExtResource("Food")
+key = &"food"

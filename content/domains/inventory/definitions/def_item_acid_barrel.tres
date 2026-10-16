@@ -10,6 +10,7 @@ market_price = 100
 display_name = "Бочка с кислотой"
 world_pickup_scene = "res://content/domains/hazards/entities/acid_barrel.tscn"
 cargo_profile = ExtResource("1_pdf1y")
+destroyed_by_fire = true
 kind = 5
 maximum_stack = 1
 key = &"acid_barrel"

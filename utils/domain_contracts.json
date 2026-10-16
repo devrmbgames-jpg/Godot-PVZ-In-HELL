@@ -20064,6 +20064,22 @@
         "content/domains/customers/services/customer_handoff_service.gd"
       ],
       "purpose": "Reads the live hand/carry slot to revalidate the exact physical offer; no binding mutation."
+    },
+    {
+      "source_owner": "inventory",
+      "target_owner": "combat",
+      "symbol": "DEF_ReceiverEffect",
+      "path": "content/domains/combat/definitions/def_receiver_effect.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/inventory/definitions/def_inventory_item.gd"
+      ],
+      "purpose": "Shares the native immutable receiver-effect definition with item material metadata; no effect execution or mutable combat state."
     }
   ],
   "legacy_decomposition": []

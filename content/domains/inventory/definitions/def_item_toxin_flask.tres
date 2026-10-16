@@ -9,6 +9,7 @@ categories = 8
 display_name = "Колба с токсинами"
 world_pickup_scene = "res://content/domains/hazards/entities/toxin_flask.tscn"
 cargo_profile = ExtResource("1_vpgsq")
+destroyed_by_fire = true
 kind = 5
 maximum_stack = 1
 key = &"toxin_flask"

@@ -10,6 +10,7 @@ market_price = 35
 display_name = "Колба с взрывным реагентом"
 world_pickup_scene = "res://content/domains/hazards/entities/reagent_flask.tscn"
 cargo_profile = ExtResource("1_6vyoo")
+destroyed_by_fire = true
 kind = 5
 maximum_stack = 1
 key = &"reagent_flask"

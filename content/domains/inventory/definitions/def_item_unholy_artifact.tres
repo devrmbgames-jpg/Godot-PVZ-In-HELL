@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_kxqiq"]
 [ext_resource type="Resource" uid="uid://fwots3baxdur" path="res://content/domains/inventory/definitions/def_cargo_unholy_artifact.tres" id="1_s5mg0"]
+[ext_resource type="Resource" uid="uid://dnmh7lcjo8vo" path="res://content/domains/combat/definitions/def_unholy_effect.tres" id="2_lojvy"]
 
 [resource]
 script = ExtResource("1_kxqiq")
@@ -10,6 +11,7 @@ market_price = 90
 display_name = "Нечистый артефакт"
 world_pickup_scene = "res://content/domains/combat/entities/unholy_artifact.tscn"
 cargo_profile = ExtResource("1_s5mg0")
+receiver_effect = ExtResource("2_lojvy")
 kind = 5
 maximum_stack = 1
 key = &"unholy_artifact"

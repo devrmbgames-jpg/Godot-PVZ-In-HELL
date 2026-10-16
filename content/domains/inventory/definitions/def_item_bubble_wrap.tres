@@ -1,17 +1,14 @@
-[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3]
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://ddq41itfbu0ou"]
 
-[ext_resource type="Script" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="Item"]
-
-[ext_resource type="Texture2D" path="res://addons/at-icons/mesh/layers.svg" id="Icon"]
+[ext_resource type="Texture2D" uid="uid://c1xr0rhyasg3" path="res://addons/at-icons/mesh/layers.svg" id="Icon"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="Item"]
 
 [resource]
 script = ExtResource("Item")
-key = &"bubble_wrap"
 market_price = 40
 display_name = "Пузырчатая плёнка"
-world_pickup_scene = "res://content/domains/inventory/entities/bubble_wrap_pickup.tscn"
-kind = 2
-maximum_stack = 10
-protection_tier = 2
-
 icon = ExtResource("Icon")
+world_pickup_scene = "res://content/domains/inventory/entities/bubble_wrap_pickup.tscn"
+destroyed_by_fire = true
+kind = 2
+key = &"bubble_wrap"

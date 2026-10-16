@@ -9,6 +9,7 @@ categories = 8
 display_name = "Алхимический огонь"
 world_pickup_scene = "res://content/domains/hazards/entities/fire_flask.tscn"
 cargo_profile = ExtResource("1_3j0dj")
+destroyed_by_fire = true
 kind = 5
 maximum_stack = 1
 key = &"fire_flask"

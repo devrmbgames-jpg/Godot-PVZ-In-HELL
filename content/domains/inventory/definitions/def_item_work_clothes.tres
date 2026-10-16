@@ -9,6 +9,7 @@ categories = 2
 display_name = "Рабочая одежда"
 world_pickup_scene = "res://content/domains/interaction/entities/cloth_sample.tscn"
 cargo_profile = ExtResource("1_4i0mm")
+destroyed_by_fire = true
 kind = 5
 maximum_stack = 1
 key = &"work_clothes"

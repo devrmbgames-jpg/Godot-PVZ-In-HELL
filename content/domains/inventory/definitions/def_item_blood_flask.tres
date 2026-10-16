@@ -10,6 +10,7 @@ market_price = 30
 display_name = "Колба крови"
 world_pickup_scene = "res://content/domains/hazards/entities/blood_flask.tscn"
 cargo_profile = ExtResource("1_7x6xb")
+destroyed_by_fire = true
 kind = 5
 maximum_stack = 1
 key = &"blood_flask"

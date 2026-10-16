@@ -312,6 +312,13 @@ New diagnostic IDs use actual full mass/hazard and native collision bounds. Term
 detail, quantity labels, hazard icons, physical stickers and debug HUD read these shared facts.
 Schema21/PVZH1 validates projection capacity, live agreement and diagnostic mass/hazard, rejecting
 previous schemas while preserving their files. Package IDs and recipients retain their owners.
+
+DEF_InventoryItem.receiver_effect references the same immutable DEF_ReceiverEffect used by the
+native body's C_ReceiverEffect. Holy/unholy identity comes from its typed alignment, not an item
+key or shopping category. DEF_InventoryItem.destroyed_by_fire is independent authored payload
+material eligibility, including virtual supplies; it is neither a flammability flag nor a damage
+operation. Reaction consumers must validate actual remaining contents before using these facts.
+Effect execution, damage and content consumption retain their existing domain owners.
 Market price and parcel accounting value remain separate contracts.
 
 The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances
