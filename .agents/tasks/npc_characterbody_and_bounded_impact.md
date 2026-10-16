@@ -73,9 +73,13 @@ P3 предоставляет body/eye/velocity bindings восприятию и
 
 ## Next
 
-Request task-specific approval for the six cases in the [.qa card](../../.qa/tasks/npc_characterbody_and_bounded_impact.md),
-then execute only that finite authorized budget. Preserve identity/save/roles and prototype
-tuning; no DONE until mandatory feel acceptance. Continue independent D2 while approval is pending.
+Выданные шесть rendered случаев израсходованы:3 PASS/3 INCONCLUSIVE.
+Повторных запусков этой задачи не делать. Короткий сильный толчок, полный10s press
+и ходьба/анимационный feel после удара остаются без обязательной приёмки.
+Сохранить OWNER_QA и prototype tuning; продолжить независимый authored-residents R1.
+Docs/QA review BASE `45cb14b55fddea92bf6d1bbc694c856b24fb2b64`,
+TARGET `70773bc86b348620c65bca4dd8d9689157e74d03`: no findings,
+ARCHITECTURE/STYLE PASS; execution NOT_RUN.
 
 ## Validation / review
 

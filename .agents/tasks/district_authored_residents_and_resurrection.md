@@ -1,7 +1,7 @@
 # Постоянные жители — личности, возвращение и авторское наполнение
 
-Status: **PLANNED**
-Technical: **NOT_STARTED**
+Status: **IN_PROGRESS**
+Technical: **IN_PROGRESS**
 Execution order: **70**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/district_authored_residents_and_resurrection.md.txt).
@@ -19,7 +19,18 @@ Source: [полное исходное ТЗ и доказательства](ref
 
 ## Current
 
-ТЗ/GDD согласуют состав, роли и качественные связи; игровая реализация не начата.
+R1 начат: проверены NpcPopulationRules.initial_records, NpcVariationRules,
+NpcRecord/C_District, construction/bind и DistrictSnapshotRules. Runtime пока не менялся.
+Сейчас resident ID/home/portal зависят от порядка profiles/places, variation — от seed;
+это конкретная заменяемая поверхность. Данные остаются в существующем C_District.people,
+живое тело связывается прежним C_NpcIdentity, materialization/Brain ownership сохраняется.
+D2 provider `45cb14b55fddea92bf6d1bbc694c856b24fb2b64` reviewed, native tests+restart CLEAN;
+его общий task closure не нужен для авторских параметров R1.
+R1 boundary: typed editable resident card с явными npc_id/home/recipient/profile/scene
+и фиксированной personal variation; три явно прототипные карточки Карга–Дьявол–Скромник.
+Seed/порядок массива не выбирают личность; guests остаются отдельным входом.
+Применить через existing initial roster/construction/closed codec, без второго реестра.
+Смерть/return+2/loot принадлежат R2, полный nine/lost/content — R3, scope Source сохранён.
 Авторские имена, образы, личные сюжеты и часть tuning ещё не утверждены.
 Их отсутствие не блокирует технические R1/R2: использовать явно отмеченные тестовые
 карточки/черновики, не объявляя их каноном или финальной приёмкой R3.
@@ -47,8 +58,10 @@ API диалогов и социальный граф потребляются �
 
 ## Next
 
-Зафиксировать текущий identity/recipient/save контракт и выполнить R1 с тремя
-явно прототипными карточками. Затем R2; незаполненные авторские поля R3 собрать
+Реализовать R1 единым пакетом: authored resident type/три prototype .tres,
+initial allocation и строгий current-schema preflight/retained+fresh restore;
+проверить reorder/seed independence и guest separation. При изменении saved fields
+повысить фактическую schema и обновить native golden; старые файлы сохранить. Затем R2; незаполненные авторские поля R3 собрать
 в конкретный перечень, продолжая независимые технические задачи.
 
 ## Validation / review
@@ -61,4 +74,4 @@ API диалогов и социальный граф потребляются �
 
 Утверждения чисел/имён не подменять автогенерацией. До полного авторского наполнения
 и обязательной приёмки задача не DONE; R1/R2 могут быть техническими gates для потребителей.
-Rendered QA требует отдельного разрешения. Девятый дом остаётся обязательным, не удалённым scope.
+Rendered QA выполнять в пределах неисчерпанного milestone лимита по последнему указанию владельца; пока0/8. Девятый дом остаётся обязательным, не удалённым scope.

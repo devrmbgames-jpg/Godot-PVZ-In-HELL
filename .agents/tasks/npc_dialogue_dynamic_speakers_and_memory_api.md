@@ -52,7 +52,11 @@ Technical COMPLETE. Rendered UI acceptance **3/3 PASS**, использован�
 [QA card](../../.qa/tasks/npc_dialogue_dynamic_speakers_and_memory_api.md).
 Street/service actual имя, focus и authored choices подтверждены; новый ctx помнит visited,
 закрытый ctx не пишет; Angel показывает native sign без panel/modal.
-Завершающее review и Windows artifact ещё открыты; задача не DONE.
+UI checkpoint review BASE `70773bc86b348620c65bca4dd8d9689157e74d03`,
+TARGET `89b2611097648fb4eb4d3a504b2323b42fcd4f66`: no material findings,
+ARCHITECTURE/STYLE PASS, reviewer execution NOT_RUN; accepted P0/P1/P2 нет.
+Windows artifact готов, functional startups PASS; exporter shutdown diagnostic
+**UNKNOWN/mixed** остаётся открытым gate, поэтому задача не DONE.
 
 ## Work packages / boundaries
 
@@ -99,16 +103,27 @@ D1 отдельные native Angel46/850 (202305258) и parcel-incidents48/614 (
 D1 Import wrapper FAIL из-за mixed shutdown diagnostics сохранён; accepted D1 compiler/GUT
 имеют отдельную CLEAN evidence. Никакого расширения engine exception policy нет.
 
+## Windows QA artifact
+
+Reviewed source `89b2611097648fb4eb4d3a504b2323b42fcd4f66`:
+`.export/windows/20261016-213214Z-89b26110-npc-dialogue-memory/PVZInHell.exe`;
+`.export/LATEST.cmd` указывает на него. Export command PASS, native menu/level120 frames
+each PASS, оба startup stderr0. Dirty flag — только сохранённая GECS metadata.
+Exporter shutdown: dummy texture RID12/Resource152 следуют owner DEFERRED category;
+ObjectDB422/PagedAllocator VariantPoolsBucketSmall — **UNKNOWN/mixed**, не diagnostic PASS.
+Логи в каталоге сборки сохранены. Не расширять exception classifier и не начинать
+standalone leak investigation вопреки owner policy.
+
 ## Next
 
-Собрать Windows QA artifact на reviewed source; собрать docs/QA review по точным SHAs.
-После PASS/triage и готового artifact завершить/архивировать эту карточку с исправлением
-входящих ссылок, затем продолжить district_authored_residents_and_resurrection (order70).
+Сохранить открытый exporter diagnostic gate; новые rendered проверки диалогов не нужны.
+Продолжить независимый district_authored_residents_and_resurrection R1 (order70) по
+проверенным D2 API и native CLEAN persistence evidence, без ожидания полного DONE этой карточки.
 NPC CharacterBody остаётся OWNER_QA с3 PASS/3 INCONCLUSIVE и исчерпанным6/6.
 Не объявлять milestone DONE при pending review или открытой обязательной приёмке.
 ## Owner QA / blockers
 
 Владелец 2026-10-17 разрешил дальнейшие проверки без повторных вопросов при
 неисчерпанном соответствующем лимите; максимум8 на milestone, уже меньшие лимиты сохранены.
-Dialogue UI acceptance выполнена; оставшиеся gates — review и Windows artifact.
+Dialogue UI acceptance и reviews выполнены; exporter UNKNOWN diagnostic gate остаётся открытым.
 Имена/реплики примеров не становятся каноном; addon/панель не заменяются.
