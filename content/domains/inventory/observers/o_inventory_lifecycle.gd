@@ -31,7 +31,8 @@ func _on_death(_event: Variant, owner: Entity, _payload: Variant = null) -> void
 
 
 func _on_disabled(owner: Entity) -> void:
-	if owner.has_component(C_NpcIdentity) and not owner.has_component(C_Death):
+	# Живой NPC хранит вещи дома; погибший ждёт exact-marker death cleanup, не disable cleanup.
+	if owner.has_component(C_NpcIdentity):
 		return
 
 	InventoryService.entity_unavailable(owner)

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dx053oh214a6t"]
+
+[ext_resource type="Script" uid="uid://835jo1g0jtom" path="res://tests/smoke/npc_return_belongings_smoke.gd" id="1_qqj7e"]
+
+[node name="NpcReturnBelongingsSmoke" type="Node" unique_id=1730517636]
+script = ExtResource("1_qqj7e")

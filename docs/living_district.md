@@ -18,6 +18,12 @@
 `O_DistrictLifecycle` согласует календарь, `DistrictPopulationService` выполняет операцию,
 `HealthMutationService` восстанавливает HP. Живого NPC обычный сон не лечит. Физические
 вещи остаются прежними; `C_LootDrops` хранит отдельную однократную партию каждой смерти.
+Поддержанные виртуальные стеки при смерти выпускает `O_InventoryLifecycle` через
+`InventoryDropService`, даже если terminal command исполнится после отключения тела.
+Native disable не удаляет вещи NPC до exact-marker cleanup; чтение death-drop использует
+`R_OwnedBy` зарегистрированного dormant владельца. Физическая выкладка сохраняет quantity
+и свой ID при disk/cold restore; возврат тела не создаёт прежний стек повторно.
+
 Structural tracking dormant-тела обеспечивает production `GameWorld`; базовый addon World
 при отключении отсоединяет component signals и не заменяет этот контракт.
 

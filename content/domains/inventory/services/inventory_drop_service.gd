@@ -119,7 +119,13 @@ static func release_on_death(owner: Entity) -> void:
 	if spatial == null:
 		return
 
-	for item: Entity in InventoryService.items(owner).duplicate():
+	# Terminal callback может исполниться после native disable; items(owner) требует live owner.
+	var carried: Array[Entity] = ECS.world.query.with_all([C_InventoryItem]).with_relationship([
+		Relationship.new(R_OwnedBy.new(), owner),
+	]).execute().duplicate()
+	for item: Entity in carried:
+		if InventoryService.owner_for(item) != owner:
+			continue
 		var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 		if (
 			state == null or state.definition == null
