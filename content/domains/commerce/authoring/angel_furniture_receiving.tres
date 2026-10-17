@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_OrderReceiving" format=3 uid="uid://cwbxsuvkqeqn1"]
+
+[ext_resource type="Resource" uid="uid://dtj8pdi70gey1" path="res://content/domains/commerce/definitions/def_furniture_delivery_placement.tres" id="1_uo5ej"]
+[ext_resource type="Script" uid="uid://57ickamcnobu" path="res://content/domains/commerce/components/c_order_receiving.gd" id="2_521s8"]
+
+[resource]
+script = ExtResource("2_521s8")
+furniture_anchor_path = NodePath("FurnitureDelivery")

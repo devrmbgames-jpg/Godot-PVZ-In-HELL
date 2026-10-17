@@ -1,5 +1,6 @@
+@tool
 extends DEF_InteractionAction
-## Открывает терминал склада через контекстное взаимодействие.
+## Открывает native терминал через контекстное взаимодействие.
 class_name DEF_TerminalAction
 
 

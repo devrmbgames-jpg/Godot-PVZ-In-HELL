@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://coabpubelglap"]
+
+[ext_resource type="Script" uid="uid://gdbocqvj23m" path="res://content/domains/packages/entities/e_terminal.gd" id="1_i1dds"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_1suk1"]
+[ext_resource type="Resource" uid="uid://iuuxcrtf2080" path="res://content/domains/commerce/authoring/angel_furniture_state.tres" id="3_2t4v5"]
+[ext_resource type="Resource" uid="uid://cwbxsuvkqeqn1" path="res://content/domains/commerce/authoring/angel_furniture_receiving.tres" id="4_jbm7t"]
+[ext_resource type="Resource" uid="uid://c7wsu0vhxa2y" path="res://content/domains/commerce/authoring/angel_terminal_interactable.tres" id="5_tuf51"]
+[ext_resource type="Resource" uid="uid://bb5crwbsduces" path="res://content/domains/commerce/authoring/angel_terminal_actions.tres" id="6_wti5v"]
+[ext_resource type="PackedScene" uid="uid://7gjigf0e7rhp" path="res://content/ui/angel_furniture_panel.tscn" id="7_sult6"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_iqtvq"]
+size = Vector3(1.3, 1.1, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_iwbuv"]
+size = Vector3(1.3, 1.1, 0.7)
+
+[node name="AngelFurnitureTerminal" type="StaticBody3D" unique_id=1540305744]
+script = ExtResource("1_i1dds")
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("2_1suk1")]([ExtResource("3_2t4v5"), ExtResource("4_jbm7t"), ExtResource("5_tuf51"), ExtResource("6_wti5v")])
+
+[node name="Desk" type="MeshInstance3D" parent="." unique_id=733781036]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+mesh = SubResource("BoxMesh_iqtvq")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1274707873]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+shape = SubResource("BoxShape3D_iwbuv")
+
+[node name="FurnitureDelivery" type="Marker3D" parent="." unique_id=1622271184]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, -5)
+
+[node name="Caption" type="Label3D" parent="." unique_id=1361113650]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+pixel_size = 0.003
+billboard = 1
+text = "Мебель Ангела
+Выдача на площадке у дома"
+font_size = 28
+
+[node name="AngelFurniturePanel" parent="." unique_id=827479742 instance=ExtResource("7_sult6")]

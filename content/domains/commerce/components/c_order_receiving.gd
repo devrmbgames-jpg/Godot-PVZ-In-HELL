@@ -1,6 +1,8 @@
+@tool
 extends Component
 ## S_OrderDelivery owns morning retries; OrderDeliveryService commits one paid delivery.
-## Orders/fulfilled остаются в C_Commerce; goods/reservations являются derived caches этого World.
+## Orders/fulfilled принадлежат явному владельцу терминала.
+## goods/reservations — derived caches этого World.
 class_name C_OrderReceiving
 
 ## Положительное число колонок простых pickup-кандидатов; мебель использует furniture_placement.

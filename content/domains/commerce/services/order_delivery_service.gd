@@ -176,30 +176,39 @@ static func fulfill_one(
 
 
 #region Полная форма мебели и резервы
-static func _physical_item(
-	zone: Entity, state: C_OrderReceiving, delivery: PendingDelivery,
-) -> bool:
+## Готовит конкретное тело для явной площадки/ID; вызывающий владелец хранит свой чек.
+## Возвращённый detached proposal нужно освободить или немедленно опубликовать.
+static func prepare_furniture(
+	zone: Entity,
+	state: C_OrderReceiving,
+	item: DEF_InventoryItem,
+	output_id: String,
+	output_parent: Node3D = null,
+) -> PreparedFurniture:
 	var marker: Node3D = (
 		zone.get_node_or_null(state.furniture_anchor_path) as Node3D
 		if not state.furniture_anchor_path.is_empty()
 		else null
 	)
-	if marker == null or delivery.quantity != 1 or state.furniture_placement == null:
+	if marker == null or state.furniture_placement == null:
 		state.blocked = true
-		return false
-	var parent: Node3D = marker.get_parent() as Node3D if marker != zone else marker
-	var entity: Entity = FurniturePlacement.create_validated(delivery.item)
+		return null
+	# PVZ keeps its native anchor parent; an independent terminal can hand bodies to the level.
+	var parent: Node3D = output_parent
+	if parent == null:
+		parent = marker.get_parent() as Node3D if marker != zone else marker
+	var entity: Entity = FurniturePlacement.create_validated(item)
 	if parent == null or entity == null:
 		if entity != null:
 			entity.free()
 		state.blocked = true
-		return false
+		return null
 
 	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
 	if not solver.prepare(entity as Node as PhysicsBody3D):
 		entity.free()
 		state.blocked = true
-		return false
+		return null
 	var frame: int = Engine.get_physics_frames()
 	if state.reservation_frame != frame:
 		state.reservations.clear()
@@ -218,22 +227,53 @@ static func _physical_item(
 	if not placement_result.available:
 		entity.free()
 		state.blocked = true
-		return false
+		return null
 
 	var proposal: PreparedFurniture = PreparedFurniture.new()
 	proposal.entity = entity
 	proposal.parent = parent
 	proposal.world_pose = placement_result.pose
-	entity.id = key_for(delivery)
-	if not FurniturePlacement.prepare_composition(proposal, key_for(delivery)):
+	proposal.delivery_bounds = placement_result.bounds
+	entity.id = output_id
+	if not FurniturePlacement.prepare_composition(proposal, output_id):
 		entity.free()
 		state.blocked = true
-		return false
+		return null
+	return proposal
+
+
+## Публикует подготовленное тело и обновляет только derived cache явной площадки.
+static func commit_furniture(proposal: PreparedFurniture, state: C_OrderReceiving) -> void:
+	var output_id: String = proposal.entity.id
+	var bounds: AABB = proposal.delivery_bounds
 	FurniturePlacement.commit(proposal)
-	state.goods[key_for(delivery)] = weakref(entity)
-	state.reservations.append(placement_result.bounds)
-	delivery.fulfilled = true
+	if (
+		is_instance_valid(proposal.entity)
+		and EntityAvailability.contains(proposal.entity, ECS.world)
+	):
+		state.goods[output_id] = weakref(proposal.entity)
+	state.reservations.append(bounds)
 	state.blocked = false
+
+
+static func _physical_item(
+	zone: Entity,
+	state: C_OrderReceiving,
+	delivery: PendingDelivery,
+) -> bool:
+	if delivery.quantity != 1:
+		state.blocked = true
+		return false
+	var proposal: PreparedFurniture = prepare_furniture(
+		zone,
+		state,
+		delivery.item,
+		key_for(delivery),
+	)
+	if proposal == null:
+		return false
+	delivery.fulfilled = true
+	commit_furniture(proposal, state)
 	return true
 #endregion
 

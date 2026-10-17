@@ -13,3 +13,6 @@ var world_pose: Transform3D = Transform3D.IDENTITY
 var spawn_context: EntitySpawnContext = null
 ## Validated fresh recipes; consumed in the same synchronous transaction, never cached at runtime.
 var build_plan: EntityBuildPlan = null
+
+## World-space full shape reserved by bounded delivery until the native physics step.
+var delivery_bounds: AABB = AABB()

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="C_InteractionActionSet" format=3 uid="uid://bb5crwbsduces"]
+
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="1_pyiuf"]
+[ext_resource type="Resource" uid="uid://d3rmyph8lldxc" path="res://content/domains/commerce/authoring/def_angel_terminal_action.tres" id="2_pyiuf"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="3_l25tl"]
+
+[resource]
+script = ExtResource("3_l25tl")
+actions = Array[ExtResource("1_pyiuf")]([ExtResource("2_pyiuf")])

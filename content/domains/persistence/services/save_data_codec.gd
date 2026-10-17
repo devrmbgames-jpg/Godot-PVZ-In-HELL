@@ -14,6 +14,7 @@ static var _component_fields: Dictionary = {
 	C_Commerce: C_Commerce.SAVE_FIELDS,
 	C_Buyback: C_Buyback.SAVE_FIELDS,
 	C_Crafting: C_Crafting.SAVE_FIELDS,
+	C_AngelOrders: C_AngelOrders.SAVE_FIELDS,
 	C_QuestSession: C_QuestSession.SAVE_FIELDS,
 	C_Inventory: C_Inventory.SAVE_FIELDS,
 	C_InventoryItem: C_InventoryItem.SAVE_FIELDS,
@@ -65,6 +66,7 @@ static var _record_types: Array[Script] = [
 	CraftingBatch,
 	CraftingStep,
 	CraftingIngredient,
+	AngelFurnitureOrder,
 	PendingDelivery,
 	RefusalQuestRecord,
 	ReceivingBatch,
@@ -219,6 +221,12 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 ## True подтверждает codec/type contract, не все domain invariants или готовность World.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
+	if script == C_AngelOrders:
+		if fields.size() != C_AngelOrders.SAVE_FIELDS.size():
+			return false
+		for field: String in C_AngelOrders.SAVE_FIELDS:
+			if not fields.has(field):
+				return false
 	if script == CustomerVisit and not fields.has("absence_sequence"):
 		return false
 	if script in [
@@ -239,6 +247,7 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		CraftingBatch,
 		CraftingStep,
 		CraftingIngredient,
+		AngelFurnitureOrder,
 	]:
 		var exact_fields: Array[String] = GameClock.SAVE_FIELDS
 		if script == NpcVariation:
@@ -273,6 +282,8 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			exact_fields = CraftingStep.SAVE_FIELDS
 		elif script == CraftingIngredient:
 			exact_fields = CraftingIngredient.SAVE_FIELDS
+		elif script == AngelFurnitureOrder:
+			exact_fields = AngelFurnitureOrder.SAVE_FIELDS
 		if fields.size() != exact_fields.size():
 			return false
 		for required_field: String in exact_fields:

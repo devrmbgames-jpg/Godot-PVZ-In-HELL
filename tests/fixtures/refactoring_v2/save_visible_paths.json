@@ -1,5 +1,5 @@
 {
-  "schema": 34,
+  "schema": 35,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -113,6 +113,15 @@
       "path": "res://content/domains/commerce/components/c_crafting.gd",
       "fields": [
         "profile"
+      ]
+    },
+    {
+      "symbol": "C_AngelOrders",
+      "path": "res://content/domains/commerce/components/c_angel_orders.gd",
+      "fields": [
+        "profile",
+        "orders",
+        "next_request"
       ]
     },
     {
@@ -430,6 +439,10 @@
     {
       "symbol": "CraftingIngredient",
       "path": "res://content/domains/commerce/contracts/crafting_ingredient.gd"
+    },
+    {
+      "symbol": "AngelFurnitureOrder",
+      "path": "res://content/domains/commerce/contracts/angel_furniture_order.gd"
     },
     {
       "symbol": "PendingDelivery",

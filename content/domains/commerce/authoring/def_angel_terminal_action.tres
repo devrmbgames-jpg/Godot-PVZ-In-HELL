@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_TerminalAction" format=3 uid="uid://d3rmyph8lldxc"]
+
+[ext_resource type="Script" uid="uid://e4rnao1j28i3" path="res://content/domains/packages/definitions/def_terminal_action.gd" id="1_kmxvw"]
+
+[resource]
+script = ExtResource("1_kmxvw")
+action_id = &"open_angel_furniture"
+caption = "Мебель Ангела"

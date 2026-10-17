@@ -11,7 +11,7 @@ func deps() -> Dictionary[int, Array]:
 
 ## Выбирает физические зоны выдачи оплаченных заказов.
 func query() -> QueryBuilder:
-	return q.with_all([C_OrderReceiving]).iterate([C_OrderReceiving])
+	return q.with_all([C_OrderReceiving]).with_none([C_AngelOrders]).iterate([C_OrderReceiving])
 
 
 ## Только утром ставит исполнение готового заказа каждой зоны в CommandBuffer.

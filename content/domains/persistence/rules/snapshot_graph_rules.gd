@@ -105,6 +105,25 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 				) as DEF_CraftingProfile
 				if saved_profile != authored.profile:
 					return false
+		var angel: C_AngelOrders = _component(entity, C_AngelOrders) as C_AngelOrders
+		if angel != null or saved_types.has(C_AngelOrders):
+			if not entity is E_Terminal or angel == null or not saved_types.has(C_AngelOrders):
+				return false
+			var point: C_OrderReceiving = _component(entity, C_OrderReceiving) as C_OrderReceiving
+			if (
+				point == null or point.furniture_placement == null
+				or point.furniture_anchor_path.is_empty()
+				or not entity.get_node_or_null(point.furniture_anchor_path) is Node3D
+			):
+				return false
+			for saved: Dictionary in record.components:
+				if SaveDataCodec.component_script(String(saved.type)) != C_AngelOrders:
+					continue
+				var profile: DEF_AngelFurnitureShop = SaveDataCodec.decode(
+					(saved.fields as Dictionary).profile,
+				) as DEF_AngelFurnitureShop
+				if profile == null or profile != angel.profile:
+					return false
 		if record.has("pose") and not (entity as Node) is Node3D:
 			return false
 		for required: Script in [C_Karma, C_Strength, C_SoulTrade]:
@@ -218,7 +237,9 @@ static func _saved_mass_kg(record: Dictionary, default_mass: float) -> float:
 	if definition == null:
 		return default_mass
 	return PackageShipmentRules.mass_kg(
-		definition, contents, contents != null and contents.released,
+		definition,
+		contents,
+		contents != null and contents.released,
 	)
 
 

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="C_AngelOrders" format=3 uid="uid://iuuxcrtf2080"]
+
+[ext_resource type="Script" uid="uid://cxk5v80ju5jx3" path="res://content/domains/commerce/contracts/angel_furniture_order.gd" id="1_hemuo"]
+[ext_resource type="Resource" uid="uid://b6cbcts7pg82s" path="res://content/domains/commerce/definitions/def_angel_furniture_prototype.tres" id="2_vurta"]
+[ext_resource type="Script" uid="uid://dhuhxpjqulceq" path="res://content/domains/commerce/components/c_angel_orders.gd" id="3_ardgv"]
+
+[resource]
+script = ExtResource("3_ardgv")
+profile = ExtResource("2_vurta")

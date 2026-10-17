@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://7gjigf0e7rhp"]
+
+[ext_resource type="Script" uid="uid://dc1fcd4ljfyfm" path="res://content/ui/angel_furniture_panel.gd" id="1_dqrhq"]
+
+[node name="AngelFurniturePanel" type="CanvasLayer" unique_id=827479742]
+script = ExtResource("1_dqrhq")
+
+[node name="Shop" type="Window" parent="." unique_id=34639114]
+oversampling_override = 1.0
+title = "Мебель Плачущего ангела"
+size = Vector2i(720, 570)
+visible = false
+wrap_controls = true
+min_size = Vector2i(400, 320)
+
+[node name="Contents" type="VBoxContainer" parent="Shop" unique_id=1619808618]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+
+[node name="Status" type="Label" parent="Shop/Contents" unique_id=1603913334]
+layout_mode = 2
+text = "Следующее утро · площадка у дома"
+autowrap_mode = 3
+
+[node name="CatalogScroll" type="ScrollContainer" parent="Shop/Contents" unique_id=223666997]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Catalog" type="VBoxContainer" parent="Shop/Contents/CatalogScroll" unique_id=265548122]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HistoryTitle" type="Label" parent="Shop/Contents" unique_id=1203920759]
+layout_mode = 2
+text = "Мои оплаченные заказы"
+
+[node name="History" type="RichTextLabel" parent="Shop/Contents" unique_id=505142652]
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+size_flags_vertical = 3
+text = "Оплаченных заказов пока нет."
+
+[node name="Close" type="Button" parent="Shop/Contents" unique_id=1028385423]
+layout_mode = 2
+text = "Закрыть"
+
+[node name="Confirmation" type="ConfirmationDialog" parent="." unique_id=8930960]
+title = "Подтвердить заказ мебели"
+ok_button_text = "Оплатить"
+cancel_button_text = "Отмена"

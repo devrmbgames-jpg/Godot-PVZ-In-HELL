@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dbcvh4l4ggmxp"]
+
+[ext_resource type="Script" uid="uid://b6llvy2ykd014" path="res://tests/smoke/angel_furniture_smoke.gd" id="1_jv43a"]
+
+[node name="AngelFurnitureSmoke" type="Node" unique_id=1734625963]
+script = ExtResource("1_jv43a")
