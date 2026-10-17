@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dy05esjccaw4v"]
+
+[ext_resource type="Script" path="res://tests/smoke/npc_return_orders_smoke.gd" id="1_tbnik"]
+
+[node name="NpcReturnOrdersSmoke" type="Node" unique_id=1540355089]
+script = ExtResource("1_tbnik")

@@ -180,6 +180,12 @@ func test_successful_bargain_has_one_increment_and_one_bonus_operation() -> void
 			.Phase \
 			.WAITING_FOR_PACKAGE
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
+	# Реальная выдача требует физической досягаемости; создание R_HeldBy не перемещает коробку.
+	(_player as Node as Node3D).global_position = body.global_position + Vector3(0.0, 0.0, -1.0)
+	(_player as E_RigidBodyCharacter).hold_anchor.position = Vector3(0.0, 1.3, -0.5)
+	(parcel as Node as Node3D).global_position = (
+		body.hold_anchor.global_position - body.hold_anchor.global_basis.z * 0.35
+	)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _player))
 	assert_eq(
 		CustomerFlowService.confirm_direct_delivery(_player, body),

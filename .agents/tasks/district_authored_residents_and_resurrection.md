@@ -17,7 +17,7 @@ Lost без дома. Никаких случайных преемников; re
 
 ## Current
 
-Последний reviewed provider `bdd05240b7d03037eacd76c6ed2cce8d6549b82f`:
+Последний reviewed provider `ccf91885d92fd415926ae765e4c868293403b135`:
 R1a/R1b typed DEF_NpcPerson, три явные prototype-карточки, fixed ID/home/recipient/profile/scene,
 seed/order independence, strict retained/fresh/cold restore. R2a календарь/retained body/loot
 и R2b знание/персональная реакция реализованы, reviewed. NpcDeathRecord хранит факты отдельно
@@ -27,19 +27,20 @@ Native idle subtree применяет разовую реакцию; бой/о�
 разрешения/риски/ambient budget. Память не перезапускает погоню после одного эпизода.
 Schema30/strict preflight/native golden согласованы; PVZH1 unchanged, ConfigFile DEFERRED.
 
-R2c1 реализован/проверен, **REVIEW_PENDING**: buffered inventory death после native disable
-терял carried stack. O_InventoryLifecycle теперь сохраняет NPC belongings до exact-marker
-terminal cleanup; InventoryDropService читает R_OwnedBy зарегистрированного dormant owner.
-Нет нового writer/roster/таймера/схемы. Поддержанный virtual stack становится физической
-выкладкой один раз; её quantity/ID переживают disk/cold restore и две жизни. Живой HOME
-сохраняет прежний owned item ID. Native smoke scene создана/сохранена через MCP.
-project.godot изменён штатным Dialogue Manager importer: только добавлен npc_return.dialogue
-в POT sources; set delta verified, внешнего rewrite settings не было.
+R2c1 reviewed: buffered death/drop сохраняет supported carried quantity/physical ID, включая
+native disable, disk/cold и повторную жизнь. RV-006 FIXED в ccf91885d92fd415926ae765e4c868293403b135.
+R2c2 реализован, native orders/cold/schema gates PASS; **REVIEW_PENDING** до committed immutable review.
+CustomerVisit.absence_sequence приостанавливает нерешённое появление. NpcReturnCommitted
+возобновляет тот же visit после действительного возврата; срок доставки вычисляется чистым
+HomeDeliveryDeadlineRules из исходного обещания и истории смертей, включая blocked return.
+Старые claims/declaration/settlement/память не стираются. Физическая выдача/осмотр и две once
+денежные операции проверены. UI/дверь показывают отсутствие без скрытой даты; schema31.
+Новых job/bonus/quota/roster/таймеров нет. Personal R3 quest deadlines/rewards ещё открыты.
 
 Main/rooms ещё profiles path — временная граница R1c, не постоянная dual resident модель.
 Lost main пока placed merchant: до guest-перевода нужны семь barter-ролей. Девятый физический
 дом — provider physical_homes_and_privacy. Ранние имена/образы/реплики — обратимые prototypes,
-не финальный канон. R2c2 сроки/визиты/реальные выплаты и полный R3 не реализованы.
+не финальный канон. R2c2 проходит завершающие gates; полный R3 не реализован.
 
 ## Work packages
 
@@ -59,31 +60,44 @@ Lost main пока placed merchant: до guest-перевода нужны се�
 
 ## Next
 
-Commit R2c1, immutable review от BASE `bdd05240b7d03037eacd76c6ed2cce8d6549b82f`, triage/fix.
-Пока review pending — только независимый анализ обещаний. Затем R2c2: существующий
-CustomerNpcLifecycleBinding→NpcServiceRole.mark_dead окончательно ставит customer_dead/finish,
-finish_evening делает FAILED. Сохранить job/visit/package/bonus/history и старые нарушения,
-отложить личный срок до первого вечера фактического возврата без нового слота/награды;
-мировые сроки отдельно. Учитывать blocked-space return и Night target morning, а не часы.
+Commit проверенный R2c2 от reviewed BASE
+`ccf91885d92fd415926ae765e4c868293403b135`, immutable review/triage/fix до принятия пакета.
+Пока review pending — только независимый анализ barter/home/R3 authoring, без зависимых правок.
 После R2 завершить R1c вместе с конкретными barter/home providers; проверить authored placed
 merchant, удалить старую замену live residents. Полный авторский R3 остаётся обязательным.
 
 ## Validation / review
 
-R2c1 actual **PASS/CLEAN**, .artifacts/godot_agent/:
-- `gut-20261016-233656753`: 20/413, actual damage, оба обычных observer orders + buffered
-  inventory after native disable, retained return, disk, second death, living HOME identity;
-- `gut-20261016-233816349`: existing inventory 17/135;
-- red `233619934`: 19/20, buffered path lost physical stack (0 instead of 1);
-- initial ordinary orders `233536557`: 19/19 PASS — подозрение общего отказа не подтвердилось;
-- native MCP path diagnostics three files CLEAN; formatter/lint, strict architecture,
-  structure, persistence baseline PASS; staged gate before commit.
-Two-process smoke **PASS**, combined tests/artifacts/ logs:
-`npc_return_belongings-write-20261017-093835601.log`,
-`npc_return_belongings-restore-20261017-093843728.log`.
-Own isolated slot, actual carried quantity/ID, buffered death, cold restore, day3/day5 returns;
-manual snapshot I/O, not claimed scheduled-Night or rendered QA. RV-006 buffered item-loss
-исправлен в текущем R2c1 checkpoint; **REVIEW_PENDING**, repair0/2.
+R2c2 actual, .artifacts/godot_agent/:
+- `gut-20261017-000205866`: **29/585 PASS/CLEAN** — actual damage/blocked return, two deaths,
+  carried box ID, disk, confirmed real inspection/handoff, original+bonus once, old fraud
+  world deadline/real penalty, shared Control rendering/door caption, Night immutable retry,
+  stale return event, invalid marker preflight, existing denial/reputation.
+- `000222308`: existing delivery/offers **36/312 PASS/CLEAN**; fixture now stages held box
+  in native reach (initial `000015639` 35/36 FAIL, no product reach change).
+- schema31 golden generate `gut-20261016-235923726` **15/804**, ordinary read `235949246`
+  **15/805 PASS/CLEAN**. Current golden native delta only version30→31; populated absence
+  records exercised separately by real orders disk/cold. Previous file preserved by inherited test.
+- terminal suite `gut-20261017-000640139`: 32/263 assertions PASS but wrapper **FAIL/UNKNOWN**,
+  queued detached rows reported transient orphans. Native cleanup frame в after_each исправляет
+  fixture: `000747357` **32/263 PASS/CLEAN**. Public offer fixture collection day fixed to3.
+- MCP native path diagnostics six scripts CLEAN; smoke scene created/attached/saved via MCP.
+- formatter/lint, strict architecture, structure/dependencies, persistence inventory PASS;
+  staged final gate before commit. No suppression or expanded engine waiver.
+Two-process orders smoke **PASS**, combined tests/artifacts/ logs:
+`npc_return_orders-write-20261017-100621687.log`,
+`npc_return_orders-restore-20261017-100630847.log`.
+Isolated slot; cold data/prefab preflight, same physical ID/job/bonus, two lives, deadline6,
+no payout/imagined visits. Manual I/O; scheduled Night proved separately by native GUT.
+Initial cold smoke failed because fixture omitted native customer schedule in new process;
+fixed fixture tuning, no codec/production workaround. Other early failed trials remain in logs.
+
+R2c1 **PASS/CLEAN**: gut-20261016-233656753 20/413, inventory233816349 17/135;
+red233619934 buffered drop lost stack, ordinary233536557 19/19 disproved general order failure.
+Cold belongings logs tests/artifacts/npc_return_belongings-{write/restore}-
+20261017-{093835601/093843728}.log. RV-006 FIXED `ccf91885d92fd415926ae765e4c868293403b135`.
+Review BASE `bdd05240b7d03037eacd76c6ed2cce8d6549b82f` → TARGET
+`ccf91885d92fd415926ae765e4c868293403b135`: PASS/no findings, repair0/2.
 
 R2b actual native: death/LOS/BT/street27/488 (`233003727`), service+old dialogue41/812
 (`232356332`), sight8/27 (`232211292`), grudge16/153 (`232248961`), schema30 golden read15/805
@@ -110,7 +124,7 @@ independently CLEAN GUT; no expanded waiver/investigation. Current assets use li
 
 ## Owner QA / blockers
 
-R1c/authored placed merchant, R2c2/full obligations, full R3 and owner acceptance remain open;
+R1c/authored placed merchant, R2c2 review, full R3 obligations and owner acceptance remain open;
 вся задача не DONE. Required missing authoring data не заменяется случайной генерацией.
 Rendered milestone budget **0/8**; по последнему указанию владельца не спрашивать повторно
 в пределах неиспользованного лимита. Исчерпанные physics/H4/C4 budgets не переиспользуются.

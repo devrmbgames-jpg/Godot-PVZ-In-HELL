@@ -332,8 +332,8 @@ static func release(body: Entity, visit_id: StringName) -> void:
 	CustomerStalkingBindings.release(body)
 	# Rear-binding callbacks may replace the role or retire the native actor synchronously.
 	if (
-		not is_instance_valid(body) or not is_instance_valid(world) or ECS.world != world
-		or not world.entity_to_archetype.has(body)
+		not is_instance_valid(body) or not is_instance_valid(world)
+		or ECS.world != world or not world.entity_to_archetype.has(body)
 		or body.get_component(C_CustomerAgent) != captured_agent
 	):
 		return
@@ -374,10 +374,27 @@ static func _restore_walk_speed(body: Entity, agent: C_CustomerAgent) -> void:
 		agent.original_walk_speed = -1.0
 
 
-## Применяет окончательную смерть ко всем заказам без переназначения владельца.
+## Авторская смерть приостанавливает личные появления; legacy смерть остаётся окончательной.
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null:
+		return
+	var district: C_District = NpcPopulationQueries.current()
+	if district.definition.person_for(person.npc_id) != null:
+		for visit: CustomerVisit in flow.visits:
+			if visit.customer_id == person.npc_id:
+				CustomerVisitLifecycle.suspend_for_absence(
+					visit,
+					day_index,
+					NpcLifeRules.death_sequence_for(person),
+				)
+				if not visit.finished:
+					CustomerVisitLifecycle.finish(visit, day_index)
+		var active: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+		CustomerInspectionService.end(body)
+		HomeMeetingBindings.release_meeting(body)
+		if active != null:
+			release(body, active.visit_id)
 		return
 
 	var death: C_Death = body.get_component(C_Death) as C_Death

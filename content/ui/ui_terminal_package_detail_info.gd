@@ -190,12 +190,16 @@ static func _complaint_lines(visit: CustomerVisit) -> PackedStringArray:
 static func _delivery_lines(delivery: TerminalDeliveryInfo) -> PackedStringArray:
 	if delivery == null or not delivery.published:
 		return []
-	if delivery.address.is_empty() or delivery.bonus < 0 or delivery.deadline_day < 1:
+	if delivery.address.is_empty() or delivery.bonus < 0 or delivery.deadline_day < 0:
 		return []
 	var lines: PackedStringArray = [
 		"Доставка: " + delivery.address,
 		"Доплата за доставку: %d" % delivery.bonus,
-		"Срок доставки: до утра дня %d" % delivery.deadline_day,
+		(
+			"Срок доставки: после возвращения получателя"
+			if delivery.deadline_day == 0
+			else "Срок доставки: до утра дня %d" % delivery.deadline_day
+		),
 	]
 	if not delivery.status_text.is_empty():
 		lines.append("Статус доставки: " + delivery.status_text)

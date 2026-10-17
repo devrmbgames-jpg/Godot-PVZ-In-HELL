@@ -106,14 +106,15 @@ static func waiting_customer(station: E_DeliveryCounter = null) -> E_NpcCharacte
 			isolated.append(customer)
 	if reserved != null:
 		return reserved if _ready_counter_customer(reserved) else null
-	isolated.sort_custom(func(first: E_NpcCharacter, second: E_NpcCharacter) -> bool:
-		var first_visit: CustomerVisit = visit_for(first)
-		var second_visit: CustomerVisit = visit_for(second)
-		return (
-			first_visit.queue_order < second_visit.queue_order
-			if first_visit.queue_order != second_visit.queue_order
-			else String(first_visit.visit_id) < String(second_visit.visit_id)
-		)
+	isolated.sort_custom(
+		func(first: E_NpcCharacter, second: E_NpcCharacter) -> bool:
+			var first_visit: CustomerVisit = visit_for(first)
+			var second_visit: CustomerVisit = visit_for(second)
+			return (
+				first_visit.queue_order < second_visit.queue_order
+				if first_visit.queue_order != second_visit.queue_order
+				else String(first_visit.visit_id) < String(second_visit.visit_id)
+			),
 	)
 	return isolated[0] if not isolated.is_empty() else null
 
@@ -151,9 +152,13 @@ static func actionable_remaining(flow: C_CustomerFlow, day: int) -> int:
 
 ## Проверяет календарную доступность одинаково для очереди и окончания смены.
 static func visit_due(visit: CustomerVisit, day: int) -> bool:
+	if visit != null:
+		var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
+		if person != null and person.death_day > 0:
+			return false
 	return (
 		visit != null and not visit.finished and not visit.customer_dead
-		and visit.arrival_day <= day and visit.deferred_day != day
+		and visit.absence_sequence == 0 and visit.arrival_day <= day and visit.deferred_day != day
 	)
 
 

@@ -38,6 +38,15 @@ func _cleanup(customer_reference: WeakRef, captured_agent: C_CustomerAgent) -> v
 	var death: C_Death = customer.get_component(C_Death) as C_Death
 	if visit != null and death == null:
 		return
+	if customer is E_DistrictNpc and death != null:
+		var identity: C_NpcIdentity = customer.get_component(C_NpcIdentity) as C_NpcIdentity
+		var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
+		NpcServiceRole.mark_dead(
+			person,
+			customer as E_DistrictNpc,
+			DayPhaseQueries.current().day_index,
+		)
+		return
 
 	CustomerInspectionService.end(customer)
 	if visit != null:

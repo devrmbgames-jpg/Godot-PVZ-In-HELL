@@ -4,7 +4,7 @@ class_name HomeMeetingQueries
 
 
 #region Доступность встречи
-## Доставка доступна у адреса только своим вечером и не переходит новому жителю.
+## Принятое обещание доступно вечером до действительного срока, включая сообщение об отсутствии.
 static func job_for_address(address_id: StringName) -> NpcHomeDelivery:
 	var district: C_District = NpcPopulationQueries.current()
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -12,9 +12,14 @@ static func job_for_address(address_id: StringName) -> NpcHomeDelivery:
 		return null
 
 	for job: NpcHomeDelivery in district.home_deliveries:
+		var deadline: int = HomeDeliveryDeadlineRules.active_deadline_day(
+			job,
+			NpcPopulationQueries.person_for(job.npc_id),
+		)
 		if (
-			job.address_id == address_id and job.day_index == cycle.day_index
+			job.address_id == address_id and job.day_index <= cycle.day_index
 			and job.status == NpcHomeDelivery.Status.ACCEPTED
+			and (deadline == 0 or deadline > cycle.day_index)
 		):
 			return job
 	return null

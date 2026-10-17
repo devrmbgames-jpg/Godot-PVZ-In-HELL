@@ -208,6 +208,8 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 ## True подтверждает codec/type contract, не все domain invariants или готовность World.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
+	if script == CustomerVisit and not fields.has("absence_sequence"):
+		return false
 	if script in [
 		GameClock,
 		NpcVariation,

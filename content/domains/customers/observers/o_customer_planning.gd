@@ -16,6 +16,7 @@ func sub_observers() -> Array[Array]:
 		[q.on_event(WorldReconstructionStarted.EVENT), _on_reconstruction],
 		[q.on_event(PackageScanResult.EVENT), _on_registered],
 		[q.on_event(DistrictMorningPrepared.EVENT), _on_district_prepared],
+		[q.on_event(NpcReturnCommitted.EVENT), _on_returned],
 	]
 
 
@@ -244,10 +245,13 @@ func _reactivate(flow: C_CustomerFlow, day: int) -> int:
 	var reactivated: int = 0
 	for visit: CustomerVisit in flow.visits:
 		if (
-			not visit.finished or visit.next_followup_day <= 0
+			not visit.finished or visit.next_followup_day <= 0 or visit.absence_sequence > 0
 			or visit.next_followup_day > day or visit.declaration != CustomerVisit.Declaration.NONE
 			or visit.complaint != null or visit.customer_dead
 		):
+			continue
+		var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
+		if person != null and person.death_day > 0:
 			continue
 		if visit.requires_registered_package and not CustomerFlowQueries.arrival_allowed(visit):
 			continue
@@ -265,6 +269,27 @@ func _reactivate(flow: C_CustomerFlow, day: int) -> int:
 
 
 #region Dependent morning preparation
+func _on_returned(_event: Variant, body: Entity, payload: Variant = null) -> void:
+	var fact: NpcReturnCommitted = payload as NpcReturnCommitted
+	assert(fact != null)
+	cmd.add_custom(_resume_returned.bind(weakref(body), fact))
+
+
+func _resume_returned(body_reference: WeakRef, fact: NpcReturnCommitted) -> void:
+	var body: E_DistrictNpc = body_reference.get_ref() as E_DistrictNpc
+	if (
+		ECS.world != _world or body == null or not _world.entity_to_archetype.has(body)
+		or NpcPopulationQueries.current() != fact.district
+		or NpcPopulationQueries.body_for(fact.npc_id) != body
+	):
+		return
+	var person: NpcRecord = NpcPopulationQueries.person_for(fact.npc_id)
+	var episode: NpcDeathRecord = NpcLifeRules.episode_for(person, fact.sequence)
+	if person.death_day != 0 or episode == null or episode.returned_day != fact.day_index:
+		return
+	CustomerVisitLifecycle.resume_after_return(fact.npc_id, fact.sequence, fact.day_index)
+
+
 func _on_district_prepared(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var fact: DistrictMorningPrepared = payload as DistrictMorningPrepared
 	assert(fact != null)

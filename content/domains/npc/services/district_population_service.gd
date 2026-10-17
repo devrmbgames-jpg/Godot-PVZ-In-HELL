@@ -512,6 +512,14 @@ static func return_due(district: C_District, day_index: int) -> Array[NpcRecord]
 		set_placement(person, body, placement, &"calendar_return", false, position)
 		NpcBrainService.bind_engine(body)
 		returned.append(person)
+		world.emit_event(
+			NpcReturnCommitted.EVENT,
+			body,
+			NpcReturnCommitted.new(district, person, day_index),
+		)
+		# Синхронные реакции на committed факт могут заменить World/район.
+		if ECS.world != world or NpcPopulationQueries.current() != district:
+			return returned
 	return returned
 
 

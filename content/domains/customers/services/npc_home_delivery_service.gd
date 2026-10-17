@@ -106,7 +106,7 @@ static func knock(player: Entity, door: Entity) -> bool:
 	visit.started = true
 	visit.finished = false
 	visit.visit_count += 1
-	visit.last_visit_day = job.day_index
+	visit.last_visit_day = DayPhaseQueries.current().day_index
 	CustomerParcelAssignment.bind_parcel(body, visit)
 	NpcIntentService.move_to(
 		body,
@@ -178,7 +178,7 @@ static func finish_evening(day_index: int) -> bool:
 
 	for job: NpcHomeDelivery in district.home_deliveries:
 		if (
-			job.day_index != day_index
+			job.status != NpcHomeDelivery.Status.ACCEPTED and job.day_index != day_index
 			and not (
 				job.day_index < day_index and job.source == NpcHomeDelivery.Source.TERMINAL
 				and job.status == NpcHomeDelivery.Status.OFFERED
@@ -204,6 +204,9 @@ static func finish_evening(day_index: int) -> bool:
 		):
 			if not complete(job):
 				settled = false
+			continue
+		var deadline: int = HomeDeliveryQueries.active_deadline_day(job)
+		if deadline == 0 or deadline > day_index + 1:
 			continue
 
 		job.status = NpcHomeDelivery.Status.FAILED
@@ -251,7 +254,10 @@ static func status_text() -> String:
 
 	var lines: PackedStringArray = []
 	for job: NpcHomeDelivery in district.home_deliveries:
-		if job.day_index == cycle.day_index and job.status <= NpcHomeDelivery.Status.FAILED:
+		if (
+			(job.day_index == cycle.day_index or job.status == NpcHomeDelivery.Status.ACCEPTED)
+			and job.status <= NpcHomeDelivery.Status.FAILED
+		):
 			var person: NpcRecord = NpcPopulationQueries.person_for(job.npc_id)
 			var states: PackedStringArray = [
 				"до сна",
@@ -259,6 +265,12 @@ static func status_text() -> String:
 				"получатель отказался",
 				"не выполнено",
 			]
+			if job.status == NpcHomeDelivery.Status.ACCEPTED:
+				var deadline: int = HomeDeliveryQueries.active_deadline_day(job)
+				states[0] = (
+					"получатель временно недоступен; срок после возвращения"
+					if deadline == 0 else "до утра дня %d" % deadline
+				)
 			lines.append(
 				"%s · %s · №%03d · +%d · %s"
 				% [

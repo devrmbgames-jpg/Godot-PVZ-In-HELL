@@ -125,9 +125,13 @@ func _present_delivery(delivery: TerminalDeliveryInfo, actions_enabled: bool) ->
 	if not _control_delivery.visible:
 		return
 	_label_delivery_bonus.text = "+%d" % delivery.bonus
+	var deadline: String = (
+		"срок после возвращения"
+		if delivery.deadline_day == 0
+		else "до утра дня %d" % delivery.deadline_day
+	)
 	_control_delivery.tooltip_text = (
-		"%s\n%s · +%d$ · до утра дня %d"
-		% [delivery.status_text, delivery.address, delivery.bonus, delivery.deadline_day]
+		"%s\n%s · +%d$ · %s" % [delivery.status_text, delivery.address, delivery.bonus, deadline]
 	)
 	_button_body.tooltip_text = _control_delivery.tooltip_text
 	var offered: bool = delivery.status == NpcHomeDelivery.Status.OFFERED
@@ -246,8 +250,7 @@ func _set_status_icons(record: PackageRegistrationRecord) -> void:
 	_icons_statuses_container.visible = (
 		_icon_status_explotion.visible or _icon_status_toxic.visible
 		or _icon_status_weight.visible or _icon_status_anomaly.visible
-		or _icon_status_fragile.visible or _icon_status_fluid.visible
-		or _icon_status_fire.visible
+		or _icon_status_fragile.visible or _icon_status_fluid.visible or _icon_status_fire.visible
 	)
 
 

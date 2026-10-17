@@ -247,6 +247,17 @@ static func _deliveries_valid(
 		for visit: CustomerVisit in flow.visits:
 			if visit.stalking_visit_count < 0 or visit.stalking_visit_count > visit.visit_count:
 				return false
+			if visit.absence_sequence < 0:
+				return false
+			if visit.absence_sequence > 0:
+				var person: NpcRecord = people.get(visit.customer_id) as NpcRecord
+				if (
+					person == null or person.death_day == 0 or visit.customer_dead
+					or visit.started or not visit.finished or not visit.followup_committed
+					or visit.next_followup_day < 1 or person.deaths.is_empty()
+					or person.deaths.back().sequence != visit.absence_sequence
+				):
+					return false
 			visits[visit.visit_id] = visit
 	var considered: Dictionary[String, bool] = { }
 	for visit_id: String in district.delivery_considered:

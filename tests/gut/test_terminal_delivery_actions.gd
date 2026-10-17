@@ -10,12 +10,15 @@ func after_each() -> void:
 	if is_instance_valid(_panel):
 		_panel.free()
 		_panel = null
+	# Перестроенные строки уже queue_free: завершаем native cleanup до снимка orphans в GUT.
+	await get_tree().process_frame
 	super.after_each()
 
 
 func _terminal_visit() -> CustomerVisit:
 	_delivery_case(_district.people[0], "private_minimum")
-	return _delivery_case(_district.people[3], "terminal")
+	# Терминал предлагает доставку до авторского дня самостоятельного получения.
+	return _delivery_case(_district.people[3], "terminal", 3)
 
 
 func _create_panel() -> void:

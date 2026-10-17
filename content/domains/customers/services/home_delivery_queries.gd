@@ -82,10 +82,12 @@ static func published_by_package(
 			cycle.day_index + 1
 			if job.status == NpcHomeDelivery.Status.OFFERED
 			and job.source == NpcHomeDelivery.Source.TERMINAL
-			else job.deadline_day
+			else active_deadline_day(job)
 		)
 		info.status = job.status
 		info.status_text = _STATUS_TEXT[job.status]
+		if job.status == NpcHomeDelivery.Status.ACCEPTED and info.deadline_day == 0:
+			info.status_text = "Получатель временно недоступен"
 		var visit: CustomerVisit = visits.get(job.package_id) as CustomerVisit
 		if (
 			job.status == NpcHomeDelivery.Status.OFFERED
@@ -108,6 +110,14 @@ static func published_by_package(
 			)
 		deliveries_by_package[job.package_id] = info
 	return deliveries_by_package
+
+
+## Читает действительный личный срок; ноль означает временную недоступность получателя.
+static func active_deadline_day(job: NpcHomeDelivery) -> int:
+	return HomeDeliveryDeadlineRules.active_deadline_day(
+		job,
+		NpcPopulationQueries.person_for(job.npc_id),
+	)
 
 
 ## Проверяет текущий день и нерешённый заказ предложения.

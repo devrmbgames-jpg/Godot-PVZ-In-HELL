@@ -4,6 +4,49 @@ class_name CustomerVisitLifecycle
 
 
 #region Visit closure and followups
+## Приостанавливает нерешённый личный приход без жалобы, броска follow-up или нового заказа.
+## Прошлые исходы, нарушения и мировые расчёты этим отсутствием не переписываются.
+static func suspend_for_absence(visit: CustomerVisit, day: int, sequence: int) -> void:
+	if (
+		visit.absence_sequence == sequence or visit.customer_dead
+		or visit.settlement_committed or visit.complaint != null
+		or visit.declaration != CustomerVisit.Declaration.NONE
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or (
+			visit.finished and visit.next_followup_day == 0
+		)
+	):
+		return
+	visit.absence_sequence = sequence
+	visit.next_followup_day = maxi(visit.arrival_day, visit.next_followup_day)
+	visit.followup_committed = true
+	visit.started = false
+	visit.finished = true
+	visit.finished_day = day
+	CustomerOutcomeService.publish_change(visit, &"recipient_unavailable")
+
+
+## Возобновляет тот же приход после committed возврата; не расходует счётчик повторных визитов.
+static func resume_after_return(npc_id: StringName, sequence: int, day: int) -> void:
+	var world: World = ECS.world
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	if flow == null:
+		return
+	for visit: CustomerVisit in flow.visits:
+		if visit.customer_id != npc_id or visit.absence_sequence != sequence:
+			continue
+		visit.absence_sequence = 0
+		var deadline: int = day
+		var district: C_District = NpcPopulationQueries.current()
+		for job: NpcHomeDelivery in district.home_deliveries:
+			if job.visit_id == visit.visit_id and job.status == NpcHomeDelivery.Status.ACCEPTED:
+				deadline = HomeDeliveryQueries.active_deadline_day(job)
+				break
+		visit.next_followup_day = maxi(visit.next_followup_day, deadline)
+		CustomerOutcomeService.publish_change(visit, &"recipient_returned")
+		if ECS.world != world or CustomerFlowQueries.current() != flow:
+			return
+
+
 ## Закрывает приход однократно и планирует допустимый повтор, сохраняя заказ и личность.
 ## Finished — завершение появления, не settlement/actual; сначала жалоба, затем случайный follow-up.
 static func finish(visit: CustomerVisit, day: int) -> void:
