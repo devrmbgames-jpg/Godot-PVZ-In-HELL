@@ -83,8 +83,13 @@ BASE `2ba6993392232d31bded11a4a7c59e0692983802` → TARGET `28f7d0270bb7f57129a7
   actual HealthMutationService.apply depletion до terminal publication не даёт full blood.
 T2a остаётся IN_PROGRESS:
 cold diagnostic gate FAIL/UNKNOWN PagedAllocator, Windows QA/rendered NOT_RUN.
-T3a prototype реализован, подготовить coherent commit и immutable review BASE
-`28f7d0270bb7f57129a76dba81f5b4dcbdf1441f` → новый TARGET. ET_NpcRoles выбирает
+T3a original `172b9d45d79cee3f341cc0a30131b2ffdc998df2`, review BASE
+`28f7d0270bb7f57129a76dba81f5b4dcbdf1441f` → TARGET `172b9d45d79cee3f341cc0a30131b2ffdc998df2`:
+/root/review_c3 ARCHITECTURE FAIL / STYLE PASS / runtime NOT_RUN, один P2 принят.
+RV-005 FIXED(code/test; fix SHA после commit): Source §1, role_profiles теперь keyed
+permanent npc/6 из captured C_NpcIdentity.initial_fields; archetype не раздаёт магазин
+другой личности. Legacy merchant fallback/SCENE provider сохраняются, live World lookup нет.
+Подготовить scoped repair commit и targeted re-review1/2. ET_NpcRoles выбирает
 C_Trader по immutable role_profiles/role_trade_action, merchant job не меняется.
 Карга получает evening-only аптечку/лечебное зелье/печенье/мясной пирог, реальные
 отдельные Definitions/native pickups/food effects и существующее MED_ITEM лечение.
@@ -113,7 +118,11 @@ Prefab correction `025146272`38/824 CLEAN; финальный `025525478` CLEAN.
 `025446963` FAIL нового provider test: scene path принадлежит DEF_NpcPerson,
 не NpcRecord; fixture исправлен. Orphan failed prefab test не waived.
 Native scene/resource authoring через MCP, исходный food_pickup не изменён.
-T3a Windows/rendered NOT_RUN, бюджет0/8; review ещё NOT_RUN до commit/SHA.
+T3a RV-005 RED39/40 `030010100`: лишние C_Trader/action у npc/106, один shared Profile.
+GREEN40/845 `030113498` PASS/CLEAN, прежние39 cases сохранены. `025917895` FAIL нового
+preview fixture: registration_plan требует World; исправлен на native pure build_plan.
+MCP fresh2/2 CLEAN; formatter2/architecture/structure/diffcheck PASS для repair.
+T3a Windows/rendered NOT_RUN, бюджет0/8; targeted repair review REVIEW_PENDING.
 
 T2a original staged gate PASS38; repair gate PASS10; targeted review PASS1/2, не DONE.
 Repair native RED `023119341`:43/46 tests,990/998 asserts (три новых regression failures).

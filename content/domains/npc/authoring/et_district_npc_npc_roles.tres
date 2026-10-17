@@ -24,7 +24,7 @@ trade_action = ExtResource("Trade_action")
 additional_actions = Array[ExtResource("11_t1rwp")]([ExtResource("Customer_request"), ExtResource("Customer_handoff"), ExtResource("4_81y36")])
 trader_profile = ExtResource("Trader_profile")
 role_profiles = Dictionary[StringName, ExtResource("9_4qkgp")]({
-&"archetype/hag": ExtResource("10_jc1lq")
+&"npc/6": ExtResource("10_jc1lq")
 })
 role_trade_action = ExtResource("11_jc1lq")
 trait_id = &"npc_roles"

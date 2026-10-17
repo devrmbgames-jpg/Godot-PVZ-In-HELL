@@ -316,3 +316,40 @@ func test_scene_provider_requires_its_authored_trader_and_cannot_fall_back_to_ro
 	assert_false(_world.entity_to_archetype.has(body))
 	body.free()
 #endregion
+
+
+#region Stable public-shop identity regression
+func test_shared_hag_archetype_does_not_grant_another_person_the_public_shop() -> void:
+	var person: NpcRecord = NpcPopulationQueries.person_for(&"npc/6")
+	var card: DEF_NpcPerson = _district.definition.person_for(person.npc_id)
+	for npc_id: StringName in [&"npc/6", &"npc/106"]:
+		var candidate: NpcRecord = person.duplicate() as NpcRecord
+		candidate.npc_id = npc_id
+		assert_same(candidate.profile, person.profile)
+		var body: E_DistrictNpc = (
+			(load(card.npc_scene_path) as PackedScene).instantiate() as E_DistrictNpc
+		)
+		# Pure native compilation needs no registration or live roster/World mutation.
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			body,
+			null,
+			String(npc_id),
+		)
+		NpcConstructionService.configure_context(context, candidate, _district.definition)
+		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+		assert_true(plan.valid())
+		var shops: int = 0
+		var entries: int = 0
+		for component: Component in plan.component_recipes:
+			if component is C_Trader:
+				shops += 1
+				assert_same((component as C_Trader).profile, HAG_PROFILE)
+			if component is C_InteractionActionSet:
+				for action: DEF_InteractionAction in (component as C_InteractionActionSet).actions:
+					if action is DEF_TraderAction:
+						entries += 1
+		var expected: int = 1 if npc_id == &"npc/6" else 0
+		assert_eq(shops, expected, String(npc_id))
+		assert_eq(entries, expected, String(npc_id))
+		body.free()
+#endregion
