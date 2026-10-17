@@ -183,8 +183,12 @@ func _write_hag_sale() -> void:
 	var hag: E_DistrictNpc = NpcPopulationQueries.body_for(&"npc/6")
 	_check(
 		DistrictPopulationService.set_placement(
-			NpcPopulationQueries.person_for(&"npc/6"), hag, NpcRecord.Placement.STREET,
-			&"hag_buyback_smoke", false, Vector3(28, 0, 8),
+			NpcPopulationQueries.person_for(&"npc/6"),
+			hag,
+			NpcRecord.Placement.STREET,
+			&"hag_buyback_smoke",
+			false,
+			Vector3(28, 0, 8),
 		),
 		"actual evening buyer available",
 	)
@@ -262,7 +266,8 @@ func _write_crafting_batch() -> void:
 	)
 	var batch: CraftingBatch = CommerceService.current().crafting_batches[0]
 	_check(
-		batch.outputs.size() == 2 and not batch.first_failure, "two promised clothes, grace intact",
+		batch.outputs.size() == 2 and not batch.first_failure,
+		"two promised clothes, grace intact",
 	)
 	_check(WalletService.current().balance == 20, "crafting never changes the wallet")
 
@@ -275,6 +280,12 @@ func _restore_crafting_batch() -> void:
 	if point == null:
 		return
 	var batch: CraftingBatch = CommerceService.current().crafting_batches[0]
+	_check(batch.outputs.size() == 2, "cold promise keeps its original output count")
+	_check(batch.outputs[0].definition.key == &"work_clothes", "cold promise keeps its item type")
+	_check(
+		batch.recipes[0].ingredients[0].quantity == 1,
+		"cold expense keeps its accepted quantity",
+	)
 	for input: CraftingInput in batch.inputs:
 		_check(not _world.entity_id_registry.has(input.entity_id), "consumed material stays absent")
 	_check(batch.gifts.size() == 1 and batch.gifts[0].definition == ITEM, "gift remains historical")
@@ -322,6 +333,14 @@ func _restore_crafting_batch() -> void:
 func _restore() -> void:
 	_check(_world.entity_id_registry.get(CONTAINER_ID) == null, "fresh process has no container")
 	var snapshot: Dictionary = AutosaveStore.read(BUYBACK_SLOT)
+	# Этот отдельный процесс получил обновлённый каталог по тем же authored путям.
+	# История первого процесса должна исполнить прежнее обещание без нового выбора.
+	var profile: DEF_CraftingProfile = load(
+		"res://content/domains/commerce/definitions/def_crafting_shy_prototype.tres",
+	) as DEF_CraftingProfile
+	profile.recipes[1].output_quantity = 3
+	profile.recipes[1].output = ITEM
+	profile.recipes[1].ingredients[0].quantity = 2
 	_check(WorldSnapshotService.can_restore(snapshot, _root), "cold prefab preflight")
 	_check(WorldSnapshotService.restore(snapshot, _root), "cold snapshot restore")
 	if _failed:

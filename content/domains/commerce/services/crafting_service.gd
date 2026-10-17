@@ -159,12 +159,19 @@ static func _commit(
 	batch.accepted_day = cycle.day_index
 	batch.ready_day = cycle.day_index + 1
 	batch.inputs = fresh.inputs
-	batch.recipes = plan.recipes
 	batch.gifts = plan.gifts
 	batch.first_failure = plan.recipes.is_empty() and not CraftingQueries.grace_used(state.profile)
 	for recipe: DEF_CraftingRecipe in plan.recipes:
+		batch.recipes.append(CraftingStep.capture(recipe))
 		_append_outputs(batch, recipe.output, recipe.output_quantity)
+	if batch.first_failure:
+		var ingredients: PackedStringArray = []
+		for ingredient: CraftingIngredient in state.profile.hint_recipe.ingredients:
+			ingredients.append("%s ×%d" % [ingredient.definition.display_name, ingredient.quantity])
+		batch.hint_text = "Спасибо за подарок. Принеси " + ", ".join(ingredients) + "."
 	if plan.recipes.is_empty() and not batch.first_failure:
+		batch.trash_definition = state.profile.trash
+		batch.trash_quantity = state.profile.trash_quantity
 		_append_outputs(batch, state.profile.trash, state.profile.trash_quantity)
 	# Обещание и первая льгота становятся видимыми до структурных callbacks выбытия.
 	commerce.crafting_batches.append(batch)

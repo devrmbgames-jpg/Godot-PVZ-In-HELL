@@ -63,6 +63,8 @@ static var _record_types: Array[Script] = [
 	CraftingInput,
 	CraftingOutput,
 	CraftingBatch,
+	CraftingStep,
+	CraftingIngredient,
 	PendingDelivery,
 	RefusalQuestRecord,
 	ReceivingBatch,
@@ -113,7 +115,8 @@ static func encode(value: Variant, depth: int = 0) -> Variant:
 			):
 				if resource is NpcRecord and name in ["dialogue_tags", "dialogue_values"]:
 					fields[name] = DialogueValueCodec.encode(
-						resource.get(name), "%s.%s" % [(resource as NpcRecord).npc_id, name],
+						resource.get(name),
+						"%s.%s" % [(resource as NpcRecord).npc_id, name],
 						MAX_DEPTH,
 					)
 				else:
@@ -231,9 +234,11 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		BuybackItemPrice,
 		BuybackSaleItem,
 		BuybackSale,
-	CraftingInput,
-	CraftingOutput,
-	CraftingBatch,
+		CraftingInput,
+		CraftingOutput,
+		CraftingBatch,
+		CraftingStep,
+		CraftingIngredient,
 	]:
 		var exact_fields: Array[String] = GameClock.SAVE_FIELDS
 		if script == NpcVariation:
@@ -264,6 +269,10 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			exact_fields = CraftingOutput.SAVE_FIELDS
 		elif script == CraftingBatch:
 			exact_fields = CraftingBatch.SAVE_FIELDS
+		elif script == CraftingStep:
+			exact_fields = CraftingStep.SAVE_FIELDS
+		elif script == CraftingIngredient:
+			exact_fields = CraftingIngredient.SAVE_FIELDS
 		if fields.size() != exact_fields.size():
 			return false
 		for required_field: String in exact_fields:

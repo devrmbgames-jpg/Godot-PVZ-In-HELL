@@ -93,6 +93,32 @@ static func plan(inputs: Array[CraftingInput], recipes: Array[DEF_CraftingRecipe
 	return result
 
 
+## Проверяет уже выбранные исторические шаги; текущий каталог и его ранги не участвуют.
+static func replay(inputs: Array[CraftingInput], steps: Array[CraftingStep]) -> CraftingPlan:
+	var result: CraftingPlan = CraftingPlan.new()
+	var remaining: Array[CraftingInput] = []
+	for item: CraftingInput in inputs:
+		remaining.append(item.duplicate() as CraftingInput)
+	for step: CraftingStep in steps:
+		if step == null:
+			result.reason = "Отсутствует принятый шаг"
+			return result
+		var recipe: DEF_CraftingRecipe = step.recipe()
+		result.reason = catalog_error([recipe])
+		if not result.reason.is_empty():
+			return result
+		var allocation: PackedInt32Array = _allocate(remaining, recipe, false)
+		if allocation.is_empty():
+			result.reason = "Принятый шаг не обеспечен материалами"
+			return result
+		for index: int in remaining.size():
+			remaining[index].quantity -= allocation[index]
+	for item: CraftingInput in remaining:
+		if item.quantity > 0:
+			result.gifts.append(item)
+	return result
+
+
 static func _allocate(
 	remaining: Array[CraftingInput],
 	recipe: DEF_CraftingRecipe,

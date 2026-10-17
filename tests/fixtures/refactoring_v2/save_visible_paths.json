@@ -1,5 +1,5 @@
 {
-  "schema": 33,
+  "schema": 34,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -422,6 +422,14 @@
     {
       "symbol": "CraftingBatch",
       "path": "res://content/domains/commerce/contracts/crafting_batch.gd"
+    },
+    {
+      "symbol": "CraftingStep",
+      "path": "res://content/domains/commerce/contracts/crafting_step.gd"
+    },
+    {
+      "symbol": "CraftingIngredient",
+      "path": "res://content/domains/commerce/contracts/crafting_ingredient.gd"
     },
     {
       "symbol": "PendingDelivery",

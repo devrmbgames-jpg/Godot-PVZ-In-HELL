@@ -121,7 +121,13 @@ static func input_for(item: Entity) -> CraftingInput:
 	result.source_package_id = stack.source_package_id
 	result.source_history_id = stack.source_history_id
 	var health: C_Health = item.get_component(C_Health) as C_Health
-	result.intact = (health == null or health.value > 0.0) and not item.has_component(C_Death)
+	result.intact = (
+		(
+			health == null
+			or (is_finite(health.current) and health.current > 0.0 and not health.depleted)
+		)
+		and not item.has_component(C_Death)
+	)
 	var emitter: C_HazardEmitter = item.get_component(C_HazardEmitter) as C_HazardEmitter
 	result.full_blood = (
 		stack.definition.key == &"blood_flask" and result.intact and emitter != null

@@ -93,14 +93,16 @@ static func valid(
 			batch.inputs,
 		):
 			return false
-		var plan: CraftingPlan = CraftingRecipeRules.plan(batch.inputs, batch.profile.recipes)
-		if not plan.reason.is_empty() or batch.recipes != plan.recipes:
+		var plan: CraftingPlan = CraftingRecipeRules.replay(batch.inputs, batch.recipes)
+		if not plan.reason.is_empty():
 			return false
 		for gift: CraftingInput in plan.gifts:
 			gift.removed = true
 		if SaveDataCodec.encode(batch.gifts) != SaveDataCodec.encode(plan.gifts):
 			return false
-		if batch.first_failure != (plan.recipes.is_empty() and not grace_before):
+		if batch.first_failure != (batch.recipes.is_empty() and not grace_before):
+			return false
+		if batch.first_failure == batch.hint_text.is_empty():
 			return false
 		grace[npc_id] = grace_before or batch.first_failure
 		if not _outputs_valid(batch, cycle.day_index, live, components, output_ids):
@@ -113,12 +115,11 @@ static func valid(
 
 
 static func _profile_valid(profile: DEF_CraftingProfile) -> bool:
+	# Исторический долг требует личность/размещение, а не доступность нынешних рецептов.
+	# Каталог для новой передачи проверяет CraftingQueries.available_reason.
 	return (
-		profile != null and not profile.resource_path.is_empty() and not profile.npc_id.is_empty()
-		and CraftingRecipeRules.catalog_error(profile.recipes).is_empty()
-		and profile.hint_recipe in profile.recipes and profile.trash != null
-		and not profile.trash.world_pickup_scene.is_empty() and profile.trash_quantity > 0
-		and profile.trash_quantity <= 99 and profile.placement != null
+		profile != null and not profile.resource_path.is_empty()
+		and not profile.npc_id.is_empty() and profile.placement != null
 	)
 
 
@@ -147,12 +148,19 @@ static func _outputs_valid(
 	ids: Dictionary[String, bool],
 ) -> bool:
 	var definitions: Array[DEF_InventoryItem] = []
-	for recipe: DEF_CraftingRecipe in batch.recipes:
+	for recipe: CraftingStep in batch.recipes:
 		for index: int in recipe.output_quantity:
 			definitions.append(recipe.output)
 	if batch.recipes.is_empty() and not batch.first_failure:
-		for index: int in batch.profile.trash_quantity:
-			definitions.append(batch.profile.trash)
+		if (
+			batch.trash_definition == null or batch.trash_definition.world_pickup_scene.is_empty()
+			or batch.trash_quantity < 1 or batch.trash_quantity > 99
+		):
+			return false
+		for index: int in batch.trash_quantity:
+			definitions.append(batch.trash_definition)
+	elif batch.trash_definition != null or batch.trash_quantity != 0:
+		return false
 	if batch.outputs.size() != definitions.size() or (batch.completed and day < batch.ready_day):
 		return false
 	var all_taken: bool = true

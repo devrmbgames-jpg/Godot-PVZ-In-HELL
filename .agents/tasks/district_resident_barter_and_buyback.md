@@ -42,7 +42,8 @@ S_Crafting исполняет ready_day=accepted+1: bounded native placement в�
 blocked debt сохраняется, каждый output ID выдаётся один раз, следующая партия после pickup.
 Смерть/возврат NPC не отменяют очередь. Новый ID ящика не сбрасывает кампанию;
 отсутствие точки сохраняет долг, возвращение прежнего ID позволяет продолжить.
-Schema33/closed records/native profile preflight/canonical facts/restore tickets включены;
+Schema34/closed frozen steps + requirements/trash/hint/native profile identity preflight
+и restore tickets включены; accepted plan не зависит от текущего каталога;
 старые схемы отклоняются, файл сохраняется. Денежных операций у изготовления нет.
 
 ## Work packages
@@ -68,16 +69,42 @@ Schema33/closed records/native profile preflight/canonical facts/restore tickets
 
 ## Next
 
-Закончить staged gates и отдельный T2a commit; BASE для review
-`dcfbc440220c38560423d821e10370ff1227caf4`, TARGET фиксируется после commit.
-T2a review NOT_RUN до запуска; repair0/2. Затем собрать/triage read-only отзыв,
-исправить принятые P0/P1/P2, максимум два targeted repair/re-review cycles.
-Пока review pending — только независимые Source §5–7/catalog requirements T3.
+T2a original checkpoint `2ba6993392232d31bded11a4a7c59e0692983802`;
+review BASE `dcfbc440220c38560423d821e10370ff1227caf4` → TARGET `2ba6993392232d31bded11a4a7c59e0692983802`,
+/root/review_c3: ARCHITECTURE FAIL, STYLE PASS, runtime NOT_RUN. Оба P2 приняты и
+ремонтированы в следующем scoped commit; targeted re-review1/2 ещё REVIEW_PENDING.
+- RV-003 FIXED(code/test; fix SHA после commit): frozen CraftingStep/копии requirements,
+  output quantities/definitions, trash и hint_text. Source §9: preflight проверяет расход
+  принятой последовательности без выбора по текущему каталогу; отключённый каталог не
+  отменяет долг, но новые сделки недоступны. Schema34, old reject/preserve без миграции.
+- RV-004 FIXED(code/test; тот же fix commit): finite health.current>0/not depleted/C_Death,
+  actual HealthMutationService.apply depletion до terminal publication не даёт full blood.
+Закончить scoped commit и targeted immutable review. T2a остаётся IN_PROGRESS:
+cold diagnostic gate FAIL/UNKNOWN PagedAllocator, Windows QA/rendered NOT_RUN.
 После reviewed checkpoint продолжить T3; финальные цены/рецепты/площадки и T4 открыты.
 
 ## Validation / review
 
-T2a native PASS/CLEAN, .artifacts/godot_agent/gut-20261017-*:
+T2a original staged gate PASS38; repair targeted review REVIEW_PENDING, не DONE.
+Repair native RED `023119341`:43/46 tests,990/998 asserts (три новых regression failures).
+GREEN lifecycle46/1019 `023416051` PASS/CLEAN: изменение quantity/output/ingredients/priority,
+отключение каталога, новая передача с обновлённым рецептом, frozen hint/trash,
+actual depleted blood и 12 premutation corruptions; прежние43 cases сохранены.
+Schema34 golden generation15/838 `023448871`, normal reader15/839 `023523623` PASS/CLEAN.
+MCP fresh checked8 + ранее5 reports CLEAN, scripts_instantiated0; formatter12,
+strict architecture/structure/persistence inventory/diffcheck PASS.
+Cold repair functional write+restore PASS, **overall gate FAIL/UNKNOWN**:
+`tests/artifacts/buyback-write-20261017-123608751.log` и
+`.artifacts/crafting-review-cold-restore.{stdout,stderr}.log` (native exit0).
+Во втором процессе обновлены recipe output/count/requirement по тем же путям;
+выданы прежние2 clothes/расход1, подарки/IDs/grace/день/once money неизменны.
+Verbose `.artifacts/crafting-review-cold-verbose.log`: retained151 GDScript,
+35 GDScriptNativeClass,4 Resource; surviving Nodes не перечислены. Эта shutdown-категория
+DEFERRED по owner policy; mixed PagedAllocator не waived, runner FAIL сохранён.
+Самостоятельная engine leak investigation/изменение typing ради shutdown не открыты.
+
+Original T2a native PASS/CLEAN, .artifacts/godot_agent/gut-20261017-*:
+Native PASS/CLEAN, .artifacts/godot_agent/gut-20261017-*:
 - recipes6/34 `014844963`: exact, complexity, quantity/order, gifts, actual typed recipes, invalid ranks.
 - lifecycle43/941 `021003187`: full blood/raw chain, multi outputs, gifts/grace/hint/trash,
   actual death/return, partial disk restore, blocked placement, native UI cancel/new click,

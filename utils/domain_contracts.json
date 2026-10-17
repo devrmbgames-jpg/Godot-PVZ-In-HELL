@@ -21894,22 +21894,6 @@
     {
       "source_owner": "persistence",
       "target_owner": "commerce",
-      "symbol": "DEF_CraftingRecipe",
-      "path": "content/domains/commerce/definitions/def_crafting_recipe.gd",
-      "rights": [
-        "read"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/domains/persistence/rules/crafting_snapshot_rules.gd"
-      ],
-      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "commerce",
       "symbol": "CraftingPlan",
       "path": "content/domains/commerce/contracts/crafting_plan.gd",
       "rights": [
@@ -21933,14 +21917,12 @@
         "query"
       ],
       "public_methods": [
-        "catalog_error",
-        "plan",
+        "replay",
         "signature"
       ],
       "public_instance_methods": [],
       "method_rights": {
-        "catalog_error": "query",
-        "plan": "query",
+        "replay": "query",
         "signature": "query"
       },
       "sources": [
@@ -22116,6 +22098,41 @@
         "content/ui/o_gameplay_panel_request.gd"
       ],
       "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "CraftingStep",
+      "path": "content/domains/commerce/contracts/crafting_step.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "purpose": "Closed historical crafting record restore and read-only promise preflight; no live catalog replay or foreign gameplay writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "CraftingIngredient",
+      "path": "content/domains/commerce/contracts/crafting_ingredient.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "purpose": "Closed historical crafting record restore and read-only promise preflight; no live catalog replay or foreign gameplay writes."
     }
   ],
   "legacy_decomposition": []

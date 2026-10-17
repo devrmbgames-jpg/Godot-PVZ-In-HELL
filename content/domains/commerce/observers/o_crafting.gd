@@ -40,12 +40,7 @@ func _show(reference: WeakRef, state: C_Crafting) -> void:
 		if (
 			batch.profile.npc_id == state.profile.npc_id and batch.first_failure and batch.completed
 		):
-			var ingredients: PackedStringArray = []
-			for ingredient: CraftingIngredient in batch.profile.hint_recipe.ingredients:
-				ingredients.append(
-					"%s ×%d" % [ingredient.definition.display_name, ingredient.quantity],
-				)
-			hint = "Спасибо за подарок. Принеси " + ", ".join(ingredients) + "."
+			hint = batch.hint_text
 			break
 	container.show_state("\n".join(lines), hint)
 #endregion

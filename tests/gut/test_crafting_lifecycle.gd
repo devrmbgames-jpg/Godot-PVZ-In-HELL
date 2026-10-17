@@ -159,8 +159,8 @@ func test_actual_full_blood_and_raw_chain_produce_chain_clothes_before_simple_re
 	await _accept()
 	var batch: CraftingBatch = _batch()
 	assert_eq(batch.recipes.size(), 2)
-	assert_eq(batch.recipes[0], _craft_state.profile.recipes[0])
-	assert_eq(batch.recipes[1], _craft_state.profile.recipes[1])
+	assert_eq(batch.recipes[0].recipe_key, _craft_state.profile.recipes[0].key)
+	assert_eq(batch.recipes[1].recipe_key, _craft_state.profile.recipes[1].key)
 	assert_true(batch.gifts.is_empty())
 	assert_eq(batch.outputs[0].definition.key, &"chain_clothes")
 	assert_true(WorldSnapshotService.can_restore(WorldSnapshotService.capture(_root, 1), _root))
@@ -183,7 +183,7 @@ func test_spent_real_blood_is_a_gift_and_changed_native_contents_need_new_confir
 	assert_true(_world.entity_to_archetype.has(extra))
 	await _accept()
 	assert_eq(_batch().recipes.size(), 1)
-	assert_eq(_batch().recipes[0], _craft_state.profile.recipes[1])
+	assert_eq(_batch().recipes[0].recipe_key, _craft_state.profile.recipes[1].key)
 	assert_eq(_batch().gifts.size(), 3)
 
 
@@ -308,7 +308,20 @@ func test_reserve_rejects_other_consumers_and_incomplete_or_forged_snapshot_reje
 	_world.flush_command_buffers()
 	var valid: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.can_restore(valid, _root))
-	for defect: String in ["missing", "unconsumed", "retained", "early", "gift", "grace", "day"]:
+	for defect: String in [
+		"missing",
+		"unconsumed",
+		"retained",
+		"early",
+		"gift",
+		"grace",
+		"day",
+		"step_fields",
+		"step_consumption",
+		"step_output",
+		"hint",
+		"trash",
+	]:
 		var invalid: Dictionary = valid.duplicate(true)
 		var commerce: Dictionary = _saved_fields(invalid, C_Commerce)
 		var fields: Dictionary = commerce.crafting_batches[0].fields as Dictionary
@@ -327,6 +340,16 @@ func test_reserve_rejects_other_consumers_and_incomplete_or_forged_snapshot_reje
 				fields.first_failure = true
 			"day":
 				fields.ready_day += 1
+			"step_fields":
+				fields.recipes[0].fields.ingredients[0].fields.erase("require_intact")
+			"step_consumption":
+				fields.recipes[0].fields.ingredients[0].fields.quantity += 1
+			"step_output":
+				fields.recipes[0].fields.output_quantity += 1
+			"hint":
+				fields.hint_text = "Несуществующая первая подсказка"
+			"trash":
+				fields.trash_quantity = 1
 		assert_false(WorldSnapshotService.can_restore(invalid, _root), defect)
 		assert_false(WorldSnapshotService.restore(invalid, _root), defect)
 		assert_eq(CommerceService.current().crafting_batches.size(), 1)
@@ -454,4 +477,106 @@ func test_missing_workshop_keeps_promise_and_a_new_id_cannot_reset_its_campaign(
 	assert_not_null(_world.entity_id_registry.get(_batch().outputs[0].entity_id))
 	assert_true(_money.operations.is_empty())
 	assert_true(WorldSnapshotService.can_restore(WorldSnapshotService.capture(_root, 2), _root))
+#endregion
+
+
+#region Review regressions
+func test_accepted_success_survives_catalog_changes_and_new_batch_uses_new_recipe() -> void:
+	_material(BONES, Vector3(-0.7, 0, 0), 2)
+	_material(BUYBACK_ITEM, Vector3(0.7, 0, 0))
+	await _accept()
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+	var first_id: String = _batch().outputs[0].entity_id
+	var old_output: DEF_InventoryItem = _batch().outputs[0].definition
+	var recipe: DEF_CraftingRecipe = _craft_state.profile.recipes[1]
+	var quantity: int = recipe.output_quantity
+	var priority: int = recipe.priority
+	var material_quantity: int = recipe.ingredients[0].quantity
+	recipe.ingredients[0].quantity = 2
+	recipe.output_quantity = quantity + 1
+	recipe.priority += 1
+	recipe.output = RAW_CHAIN
+	var catalog: Array[DEF_CraftingRecipe] = _craft_state.profile.recipes
+	_craft_state.profile.recipes = []
+	assert_true(WorldSnapshotService.can_restore(AutosaveStore.read(SAVE_PATH), _root))
+	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
+	assert_eq(_batch().outputs.size(), 2)
+	assert_eq(_batch().outputs[0].entity_id, first_id)
+	assert_eq(_batch().outputs[0].definition, old_output)
+	assert_eq(_batch().gifts.size(), 1)
+	assert_false(CraftingQueries.grace_used(_craft_state.profile))
+	_morning(2)
+	await _tick_crafting()
+	await _take_outputs(_batch())
+	assert_false(CraftingQueries.available_reason(_workshop, _seller).is_empty())
+	_craft_state.profile.recipes = catalog
+	_material(BONES, Vector3.ZERO, 2)
+	await _accept()
+	assert_eq(_batch().outputs.size(), quantity + 1)
+	assert_eq(_batch().outputs[0].definition, RAW_CHAIN)
+	recipe.output_quantity = quantity
+	recipe.priority = priority
+	recipe.ingredients[0].quantity = material_quantity
+	recipe.output = old_output
+
+
+func test_failure_hint_and_trash_are_frozen_before_catalog_edit() -> void:
+	_material(BUYBACK_ITEM)
+	await _accept()
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	var profile: DEF_CraftingProfile = _craft_state.profile
+	var previous_hint: DEF_CraftingRecipe = profile.hint_recipe
+	profile.hint_recipe = profile.recipes[0]
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	_morning(2)
+	await _tick_crafting()
+	var hint: String = (_workshop.get_node("HintWall/Text") as Label3D).text
+	assert_true(hint.contains("Кости ×1"))
+	assert_false(hint.contains("Сырая цепь"))
+	_material(BUYBACK_ITEM)
+	await _accept()
+	snapshot = WorldSnapshotService.capture(_root, 2)
+	var old_trash: DEF_InventoryItem = profile.trash
+	var old_quantity: int = profile.trash_quantity
+	profile.trash = RAW_CHAIN
+	profile.trash_quantity = old_quantity + 1
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(_batch().outputs.size(), old_quantity)
+	assert_eq(_batch().outputs[0].definition, old_trash)
+	assert_true(CraftingQueries.grace_used(profile))
+	_morning(3)
+	await _tick_crafting()
+	assert_eq((_workshop.get_node("HintWall/Text") as Label3D).text, hint)
+	await _take_outputs(_batch())
+	_material(BUYBACK_ITEM)
+	await _accept()
+	assert_eq(_batch().outputs.size(), old_quantity + 1)
+	assert_eq(_batch().outputs[0].definition, RAW_CHAIN)
+	profile.hint_recipe = previous_hint
+	profile.trash = old_trash
+	profile.trash_quantity = old_quantity
+
+
+func test_depleted_actual_blood_cannot_satisfy_recipe_before_terminal_publication() -> void:
+	_material(BONES, Vector3(-0.7, 0, 0))
+	_material(RAW_CHAIN)
+	var blood: Entity = _material(BLOOD_FLASK, Vector3(0.7, 0, 0))
+	var health: C_Health = blood.get_component(C_Health) as C_Health
+	assert_true(CraftingQueries.input_for(blood).full_blood)
+	var request: DamageRequest = DamageRequest.new()
+	request.target = blood
+	request.amount = health.value
+	var result: DamageResult = DamageResult.new()
+	HealthMutationService.apply(request, health, result, _world)
+	assert_eq(result.outcome, DamageResult.Outcome.HEALTH_DEPLETED)
+	assert_eq(health.current, 0.0)
+	assert_true(health.depleted)
+	assert_false(blood.has_component(C_Death), "Terminal publication has not run")
+	assert_false(CraftingQueries.input_for(blood).intact)
+	assert_false(CraftingQueries.input_for(blood).full_blood)
+	await _accept()
+	assert_eq(_batch().recipes.size(), 1)
+	assert_eq(_batch().outputs[0].definition.key, &"work_clothes")
+	assert_eq(_batch().gifts.size(), 2)
 #endregion
