@@ -7,138 +7,115 @@ Reference baseline: `4c8a846f288fc2d0aa2296089bcb3bc517206630` (dev, 2026-10-17)
 
 ## Goal / acceptance
 
-Устранить подтверждённые лишние GUT-прогоны и уменьшить повторные переделки при
-автономной реализации игровых механик. Не сокращать игровую приёмку и не превращать
-ускорение в новые обязательные отчёты, согласования или глобальные тестовые запуски.
+Устранить повторные GUT-прогоны и снизить число переделок в автономной разработке,
+**не** сокращая игровые гарантии, обязательное ревью и релевантные проверки.
 
-Результат:
-1. Самостоятельный запуск конкретного GUT-файла выполняет его собственные `test_*`,
-   а не унаследованные тесты соседних подсистем; прежние проверки доступны отдельными
-   наборами и не потеряны. Общая подготовка переиспользуется без наследования test suites.
-2. Перед **существенной** игровой реализацией агент применяет короткий contract preflight:
-   игровой результат, state owner, неизменяемые гарантии потребителей, реальные
-   provider-зависимости, исключения и проверка результата. Мелкие fixes не получают новый gate.
-3. Неожиданное разрастание затрагиваемых подсистем вызывает локальный scope triage:
-   использовать имеющийся контракт / минимально расширить необходимый provider /
-   выделить самостоятельный evidenced дефект; не переписывать соседние системы «на будущее».
-4. На 2–3 репрезентативных checkpoint получены реальные, ограниченные по стоимости
-   измерения времени и повторных проверок; результат/недоступность данных зафиксированы
-   без выдуманного «ускорения в N раз».
+- Самостоятельные `test_*.gd` запускают собственные тесты, не наследуют
+  тестовые методы других suites; общие setup/teardown вынесены в helpers.
+- Перед крупной механикой агент кратко фиксирует результат, state owner,
+  неизменяемые гарантии, реальные зависимости/потребителей, исключения и
+  focused acceptance. Мелкие fixes — без нового формального gate.
+- При разрастании затрагиваемых подсистем — scope triage: существующий контракт,
+  минимальное расширение provider для реального consumer или отдельный
+  подтверждённый дефект, без спекулятивного переписывания соседей.
+- На 2–3 checkpoint измерены реальные затраты, лишние тестовые вызовы и
+  repair cycles. Недоступные данные — NOT_MEASURED, не выдуманное ускорение.
 
-## Current / confirmed baseline
+## Current / baseline
 
-- **Реализация этого ТЗ не начата.** Здесь результаты анализа исходников, не отметки
-  о выполненной новой native validation.
-- Цепочка `test_pvz_tool_orders.gd` (5 собственных тестов) → `test_hag_direct_shop.gd`
-  (9) → `test_buyback_lifecycle.gd` (15) → `test_npc_life_cycle.gd` (9) →
-  `test_npc_authored_population.gd` (7): потенциально 45 test methods при выборе
-  5 тестов инструментов ПВЗ из-за наследования конкретных suites.
-- `test_crafting_lifecycle.gd` (15) наследует buyback/lifecycle/population:
-  потенциально 46 test methods вместо 15. Фактические native totals и elapsed
-  подтвердить на доступной среде, не считать подсчёт исходников измерением времени.
-- В [торговой задаче](district_resident_barter_and_buyback.md) ревью T2a/T3a/T3b
-  исправляло уже известные гарантии: frozen crafting plan, постоянную личность
-  торговца и сохранность старого ассортимента. Это основание для preflight,
-  **не** доказательство конкретного расхода часов агентом.
-- Уже существуют [modular-gameplay-design](../skills/modular-gameplay-design/SKILL.md),
-  [validation-workflow](../skills/validation-workflow/SKILL.md) и
-  [review-orchestration](../skills/review-orchestration/SKILL.md); новый параллельный
-  процесс или переписывание `AGENTS.md` не требуются.
-- [Runner-классификация](completed/godot_validation_result_classification.md) завершена;
-  отсутствие доказанной изоляции ECS/save/physics не позволяет объявить универсальный
-  batch-run оптимизацией. Текущую shutdown-only engine policy не пересматривать.
+**Implementation NOT_STARTED.** Подсчёт исходников, не actual native PASS:
 
-## Work packages / проверяемые результаты
+- `test_pvz_tool_orders.gd`: **5** собственных тестов, но цепочка через
+  `test_hag_direct_shop.gd` (9) → `test_buyback_lifecycle.gd` (15) →
+  `test_npc_life_cycle.gd` (9) → `test_npc_authored_population.gd` (7)
+  даёт до **45** методов при выборе PVZ-suite.
+- `test_crafting_lifecycle.gd`: **15** собственных и ещё 15+9+7
+  унаследованных — до **46** методов. Числа/длительность подтвердить GUT.
+- В [торговой задаче](district_resident_barter_and_buyback.md) ревью
+  исправляло frozen crafting plan, постоянную личность NPC и сохранение
+  старого ассортимента. Потраченные часы по ним **не измерены**.
+- [Runner Q1/Q2](completed/godot_validation_result_classification.md)
+  уже завершён: batch API без доказанной изоляции ECS/save/physics
+  не вводить. Нынешние правила modularity/validation/review сохраняются.
 
-| Пакет | Что сделать | Acceptance |
-| --- | --- | --- |
-| E1 — audit | Зафиксировать фактическую цепочку `extends`, собственные/унаследованные tests, существующие fixture hooks и baseline elapsed на доступном Godot. Найти аналогичные конкретные test-suite chains в `tests/gut/`, не сканировать весь репозиторий без необходимости. | Список затронутых suites и измеренный baseline либо явный NOT_MEASURED; сохранённые test names/инварианты. |
-| E2 — fixture isolation | Для обнаруженных commerce/NPC цепочек вынести общий setup/teardown в небольшие composable helpers под `tests/helpers/` либо в base fixture **без** `test_*`. Каждый самостоятельный тестовый класс наследует `GutTest`, а не другой рабочий `test_*.gd`. | Точечный запуск PVZ tools исполняет его 5 собственных тестов, crafting — 15; исходные NPC, buyback и Hag suites доступны отдельно; все прежние checks проходят. |
-| E3 — contract preflight | В существующем [modular-gameplay-design](../skills/modular-gameplay-design/SKILL.md) уточнить только при необходимости краткий preflight *до кода* для крупных игровых пакетов; в [gut-testing](../skills/gut-testing/SKILL.md) закрепить запрет наследовать concrete test suites. Никаких новых обязательных документов. | Существующий working plan/task позволяет найти owner, frozen guarantees, touched consumers, exclusions, focused checks; мелкие fixes не требуют отдельного плана. |
-| E4 — scope control | Проверить на следующей значимой механике, что неожиданный выход за state-owner boundaries разбирается по существующему modular skill. Указать минимальный provider change и первого реального consumer; не создавать второй authority. | Есть конкретный пример triage: локальное расширение или мотивированная зависимость/отдельная задача; при отсутствии такого случая — NOT_OBSERVED, без искусственной переделки. |
-| E5 — bounded measurement | Снять показатели для E2 и ещё 1–2 следующих доступных существенных checkpoint (всего 2–3), включая сравнение GUT до/после на сопоставимом наборе. Завершить пилот краткими выводами и NO_CHANGE, где дальнейшая автоматизация не окупается. | Таблица actual измерений и источников; отсутствующие величины — NOT_MEASURED, повторы тестов не выполнены ради статистики. |
+## Work packages
 
-## Implementation constraints / critical contracts
+| Пакет | Исполнение и критерии |
+| --- | --- |
+| E1 — audit | Проверить цепочки `extends`, setup/teardown и аналогичные проблемы в `tests/gut/`. Снять baseline native counts/elapsed либо явно NOT_RUN/NOT_MEASURED. |
+| E2 — isolation | Изолировать commerce/NPC suites: общая подготовка — composable `tests/helpers/` или fixture без `test_*`; отдельные suites наследуют `GutTest`. PVZ tools исполняет 5 собственных тестов, crafting — 15; NPC, buyback, Hag доступны отдельно; исходные тесты не потеряны. |
+| E3 — preflight | Применить до существенного кода действующий [modular-gameplay-design](../skills/modular-gameplay-design/SKILL.md); при необходимости минимально уточнить checklist в этом skill. В [gut-testing](../skills/gut-testing/SKILL.md) запретить наследование конкретных test suites. Новых обязательных документов нет. |
+| E4 — scope | На следующем крупном пакете проверить один реальный случай выхода за ownership/contract; сохранить мотивированное решение об узкой интеграции/зависимости. Если случая нет — NOT_OBSERVED, не создавать искусственный refactor. |
+| E5 — measurement | Снять данные на E2 и ещё 1–2 следующих доступных существенных checkpoint (всего 2–3), сравнить сопоставимые GUT runs до/после и расходы на review/repair/tools. Краткий вывод или обоснованное NO_CHANGE. |
 
-- Изменять только тестовую инфраструктуру, узкие относящиеся скиллы и необходимый
-  локальный validation guard. Не рефакторить production GECS, commerce, NPC, save
-  или сцены ради переиспользования тестов. Реальный независимый defect оформить в
-  своём owning task с воспроизведением, не присваивать его этому ускорению.
-- Сохранить исходные имена и смысл test cases, `before_each/after_each`, async
-  ожидания, `ECS.world`, native World/Entity lifecycle, сигналы и очистку `user://`
-  файлов. Не превращать реальные интеграционные проверки в mock-only green.
-- Helpers не владеют игровым состоянием; не вводить общий mutable singleton, который
-  загрязняет другой тест. Не добавлять abstract framework или «универсальный»
-  runner без доказанной необходимости. Изолировать тестовые данные/Resource mutations.
-- Точечная проверка одного нового сценария — свой suite. Если изменён общий provider,
-  проверить его затронутые consumer suites отдельно один раз перед checkpoint;
-  не дублировать все родительские тесты при каждом вызове.
-- Не вводить фиксированный предел файлов или систем как блокирующее правило:
-  сигналом к scope triage служат чужой state owner, конкурирующее authority,
-  непредусмотренная миграция либо отклонение от заявленного игрового поведения.
-- Не менять `AGENTS.md`, task-manager архитектуру, статусы соседних задач,
-  Godot/GUT версию, сторонние `addons/` или GitHub Actions. Main — единственный
-  writer; reviewers проверяют immutable SHA; не запускать rendered QA.
+## Implementation constraints
 
-## Verification / evidence protocol
+- Только `tests/gut/`, `tests/helpers/`, маленький guard при необходимости
+  и относящиеся skills. **Не менять** production GECS/NPC/commerce/save/сцены,
+  `AGENTS.md`, версию Godot/GUT, сторонние addons, GitHub Actions или backlog.
+  Независимые gameplay дефекты оформлять у их owner с воспроизведением.
+- Сохранить все исходные `test_*` и их смысл, `before_each/after_each`,
+  native World/Entity lifecycle, `ECS.world`, async ожидания, реальные
+  save/restore, `user://` cleanup и resource/physics isolation.
+  Mock-only PASS не заменяет интеграцию; helpers не создают shared mutable state.
+- Локальный fix → нарушенная гарантия; законченная механика → связанные
+  consumers. Не запускать полный suite после каждой правки и не создавать
+  универсальный test framework ради этого пакета.
+- Scope triage не вводит лимит строк или файлов. Триггеры: чужой state owner,
+  второе mutable authority, непредусмотренная миграция/широкая зависимость.
+  Атомарную механику (оплата + выдача + cleanup/restore) не делить на
+  неработающие части ради формально мелких коммитов.
 
-1. Для E2 сохранить до/после фактические **числа test cases и elapsed** по
-   `test_pvz_tool_orders.gd`, `test_crafting_lifecycle.gd`, отдельно
+## Verification / evidence
+
+1. До/после E2 реально проверить 6 suites:
+   `test_pvz_tool_orders.gd`, `test_crafting_lifecycle.gd`,
    `test_hag_direct_shop.gd`, `test_buyback_lifecycle.gd`,
    `test_npc_life_cycle.gd`, `test_npc_authored_population.gd`.
-   Проверить не только суммарный PASS, но и что каждый прежний `test_*` по-прежнему
-   выполняется в своём suite. При недоступном runner — NOT_RUN, не подменять static PASS.
-2. Показать отсутствие test-suite inheritance в исправленных цепочках (например
-   точечным source check) и сохранность setup/teardown и save cleanup; при необходимости
-   добавить маленький guard в существующую проверку, не создавать дорогой full-scan.
-3. После одного логически цельного изменения выполнить focused native GUT, актуальные
-   `utils/validate_agent_changes.py`, architecture/structure checks и formatter
-   согласно [validation-workflow](../skills/validation-workflow/SKILL.md).
-   Повторять только проваленные/затронутые guarantees. Парсер/статический анализ
-   не заменяют настоящий Godot.
-4. Для 2–3 checkpoint записать: `BASE_SHA..TARGET_SHA`, собственные/фактически
-   запущенные tests, GUT elapsed и число запусков, длительность main implementation,
-   review/repair и tool troubleshooting **только если доступны реальные timestamps**,
-   количество принятых findings и repair cycles. Отмечать overlap, неизвестные
-   величины `NOT_MEASURED` и условность сравнения. Не требовать platform token usage.
-5. Хранить **одну компактную текущую сводку пилота здесь** и ссылки на штатные
-   result manifests/logs в `tests/artifacts/` или `.artifacts/`; не плодить
-   ежедневные журналы, дубли задач, daemon, автоматические watchers, CI или
-   отдельные менеджерские очереди.
-6. По завершении E2/E3 — coherent commit и read-only exact-SHA review/triage;
-   E4/E5 допускается проверить на следующих разрешённых checkpoints без задержки
-   независимых игровых задач. Не объявлять всё ТЗ DONE до обязательных evidence.
+   Снять test cases + wall elapsed. Каждый собственный `test_*` остаётся
+   доступен; в исправленной цепочке больше нет наследования test suites.
+2. Focused native Godot GUT через `utils/godot_agent.ps1` и соразмерные
+   formatter/agent/architecture/structure gates по
+   [validation-workflow](../skills/validation-workflow/SKILL.md).
+   Если Godot недоступен — NOT_RUN, а не static PASS.
+3. Для E2/E3: coherent commit → read-only review точных SHA → triage →
+   не более двух targeted repair/re-review циклов. Не выдавать pending review
+   за PASS. Не делать rendered QA.
+4. Для 2–3 checkpoint фиксировать `BASE_SHA..TARGET_SHA`, количество
+   собственных/фактически выполненных tests, GUT elapsed и число запусков,
+   accepted findings и repair cycles. Implementation/review/tool durations
+   учитывать **только по реальным timestamps**, обозначать overlap,
+   NOT_MEASURED и несопоставимость выборок; токены без telemetry не выдумывать.
+5. **Одна компактная сводка здесь** + ссылки на обычные logs/result.json.
+   Не создавать activity log, новый менеджер, daemon, watcher, CI или
+   обязательные повторы тестов ради статистики.
 
 ## Entry points / dependencies
 
-- `tests/gut/test_npc_authored_population.gd`,
-  `test_npc_life_cycle.gd`, `test_buyback_lifecycle.gd`,
-  `test_hag_direct_shop.gd`, `test_pvz_tool_orders.gd`,
-  `test_crafting_lifecycle.gd`; `tests/helpers/`.
-- `utils/godot_agent.ps1`, `utils/godot_agent.md`,
-  [gut-testing](../skills/gut-testing/SKILL.md),
-  [modular-gameplay-design](../skills/modular-gameplay-design/SKILL.md),
-  [task-lifecycle](../skills/task-lifecycle/SKILL.md),
-  [task README](README.md). Не дублировать завершённую runner-задачу.
-- Это вспомогательный пакет, **не prerequisite** всего gameplay backlog.
-  Уже начатую безопасную работу не прерывать в середине checkpoint. После
-  технических изменений продолжать независимые задачи автономно.
+`tests/gut/test_npc_authored_population.gd`,
+`test_npc_life_cycle.gd`, `test_buyback_lifecycle.gd`,
+`test_hag_direct_shop.gd`, `test_pvz_tool_orders.gd`,
+`test_crafting_lifecycle.gd`, `tests/helpers/`, `utils/godot_agent.ps1`;
+[gut-testing](../skills/gut-testing/SKILL.md),
+[modular-gameplay-design](../skills/modular-gameplay-design/SKILL.md),
+[task-lifecycle](../skills/task-lifecycle/SKILL.md) и [task README](README.md).
+
+Это самостоятельная оптимизация, **не** blocker остального backlog.
+Уже начатый coherent checkpoint не прерывать; E4/E5 выполнять на следующих
+доступных пакетах без остановки независимых игровых задач.
 
 ## Next
 
-E1: снять inventory/базовые native числа и проанализировать hooks указанных
-GUT-chain файлов. Затем E2 → E3; при следующих релевантных checkpoint выполнить
-E4/E5 без дополнительных согласований в пределах действующей политики.
+E1: инвентаризация inheritance/hooks, затем native baseline.
+Далее E2 → E3; E4/E5 собирать на следующих разрешённых checkpoint.
 
 ## Validation / review
 
-ТЗ создано как план: implementation, native GUT, timing pilot, review — **NOT_RUN**.
-Для docs-only создания проверять структуру task/ссылки и отсутствие изменения
-исходного gameplay scope; Godot запускать только при выполнении реализации.
+Создание ТЗ — docs-only; implementation/Godot/GUT/review **NOT_RUN**.
+Сведения E1–E5 не считать реализованными до их фактической проверки.
 
 ## Owner QA / blockers
 
-Rendered/visual QA не нужна; ручная gameplay QA прежних игровых задач остаётся
-в их собственных карточках. Не обещать конкретного процента ускорения без измерений.
-Если доступного Godot/таймингов/подходящих новых checkpoint нет, записать точный
-недоступный gate и продолжать независимые задачи; не изобретать фиктивные результаты.
+Rendered/visual QA не нужна. Нет Godot/таймингов/новых checkpoint — указать
+точный NOT_RUN/NOT_MEASURED, продолжить независимую работу.
+DONE только после обязательных пакетов, проверок и review/triage.
