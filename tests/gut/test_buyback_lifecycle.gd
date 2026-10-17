@@ -64,10 +64,12 @@ func after_each() -> void:
 	await get_tree().process_frame
 
 
-func _arrived_cargo() -> E_Package:
+func _arrived_cargo(
+	package_id: String = "buyback/actual/toy", with_history: bool = true, quantity: int = 1,
+) -> E_Package:
 	var shipment: PackageShipmentPlan = PackageShipmentRules.for_quantity(
 		BUYBACK_ITEM,
-		1,
+		quantity,
 		SUPPLY.packing_profiles,
 		17,
 		"buyback/provenance",
@@ -79,7 +81,7 @@ func _arrived_cargo() -> E_Package:
 		ReceivingPackageFactory.configure_recipe(
 			parcel,
 			SUPPLY.packages[0],
-			"buyback/actual/toy",
+			package_id,
 			shipment,
 		)
 	)
@@ -88,19 +90,21 @@ func _arrived_cargo() -> E_Package:
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		parcel,
 		_world,
-		"buyback/actual/shell",
+		package_id + "/shell",
 	)
 	context.initial_fields[C_PackageContents as Script] = shipment.contents_fields()
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	assert_true(plan.valid())
 	assert_true(EntityCompositionService.register_plan(context, plan))
-	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
 	# Fixture начинается с открытой оболочки; извлечение и placement исполняются production owners.
 	(parcel.get_component(C_PackageState) as C_PackageState).opening = C_PackageState.Opening.OPENED
+	if not with_history:
+		return parcel
+	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
 	var receiving: C_Receiving = C_Receiving.new()
 	receiving.batch_id = "buyback/actual"
 	receiving.last_started_day = 1
-	receiving.incoming_package_ids = ["buyback/actual/toy"]
+	receiving.incoming_package_ids = [package_id]
 	BuybackMarketService.accept_supply(
 		_market,
 		ReceivingSupplyCompleted.new(receiving, PackageQueries.ledger()),
@@ -108,9 +112,10 @@ func _arrived_cargo() -> E_Package:
 	return parcel
 
 
-func _free_cargo() -> Entity:
+func _free_cargo(entity_id: String = "") -> Entity:
 	var prefab: PackedScene = load(BUYBACK_ITEM.world_pickup_scene) as PackedScene
 	var item: Entity = prefab.instantiate() as Entity
+	item.id = entity_id
 	EntityCompositionFixture.register(_world, item)
 	(item.get_component(C_InventoryItem) as C_InventoryItem).quantity = 1
 	var body: RigidBody3D = item as Node as RigidBody3D
@@ -505,4 +510,136 @@ func test_real_receiving_opens_market_only_after_last_physical_arrival() -> void
 	ReceivingDeliveryService.deliver_one(zone, receiving, 1)
 	_world.flush_command_buffers()
 	assert_eq(SaveDataCodec.component_data(_market), before)
+#endregion
+
+
+#region RV-001 exact endpoints after payment and RV-002 historical unknown provenance
+func test_paid_removal_preserves_replacement_with_reused_id() -> void:
+	_arrived_cargo()
+	_free_cargo()
+	var another: Entity = _free_cargo()
+	(another as Node as Node3D).global_position.x = 13
+	await _physics_settled()
+	var offer: BuybackQuote = BuybackTradeService.quote(_seller, _buyer)
+	assert_eq(offer.items.size(), 2)
+	var first_id: String = offer.items[0].entity_id
+	var second_id: String = offer.items[1].entity_id
+	var second_reference: WeakRef = weakref(_world.entity_id_registry.get(second_id))
+	var replacements: Array[WeakRef] = []
+	_world.entity_removed.connect(func(removed: Entity) -> void:
+		if removed.id != first_id:
+			return
+		assert_eq(
+			BuybackTradeService.confirm(_seller, _buyer, offer),
+			BuybackTradeService.Status.UNAVAILABLE,
+			"A paid transaction still retiring items is not a completed duplicate",
+		)
+		_world.remove_entity(second_reference.get_ref() as Entity)
+		replacements.append(weakref(_free_cargo(second_id)))
+	)
+	assert_eq(
+		BuybackTradeService.confirm(_seller, _buyer, offer), BuybackTradeService.Status.COMMITTED,
+	)
+	assert_eq(replacements.size(), 1)
+	var replacement: Entity = replacements[0].get_ref() as Entity
+	assert_true(
+		_world.entity_to_archetype.has(replacement), "Replacement was never accepted or reserved",
+	)
+	assert_eq(_world.entity_id_registry.get(second_id), replacement)
+	assert_eq(_money.balance, offer.amount)
+	assert_eq(_money.operations.size(), 1)
+	assert_eq(
+		BuybackTradeService.confirm(_seller, _buyer, offer), BuybackTradeService.Status.DUPLICATE,
+	)
+	assert_true(_world.entity_to_archetype.has(replacement))
+	assert_eq(_money.operations.size(), 1)
+
+
+func test_paid_removal_finishes_captured_world_after_current_world_switch() -> void:
+	_arrived_cargo()
+	_free_cargo()
+	var another: Entity = _free_cargo()
+	(another as Node as Node3D).global_position.x = 13
+	await _physics_settled()
+	var offer: BuybackQuote = BuybackTradeService.quote(_seller, _buyer)
+	assert_eq(offer.items.size(), 2)
+	var first_id: String = offer.items[0].entity_id
+	var alternate_world: World = World.new()
+	add_child(alternate_world)
+	var alternate_reference: WeakRef = weakref(alternate_world)
+	_world.entity_removed.connect(func(removed: Entity) -> void:
+		if removed.id == first_id:
+			ECS.world = alternate_reference.get_ref() as World
+	)
+	var result: BuybackTradeService.Status = BuybackTradeService.confirm(_seller, _buyer, offer)
+	assert_eq(ECS.world, alternate_world)
+	assert_true(alternate_world.entities.is_empty(), "The new World is untouched")
+	ECS.world = _world
+	assert_eq(result, BuybackTradeService.Status.COMMITTED)
+	for line: BuybackSaleItem in offer.items:
+		assert_false(_world.entity_id_registry.has(line.entity_id), line.entity_id)
+	assert_eq(_money.operations.size(), 1)
+	assert_eq(_money.balance, offer.amount)
+	assert_eq(
+		BuybackTradeService.confirm(_seller, _buyer, offer), BuybackTradeService.Status.DUPLICATE,
+	)
+	_world.flush_command_buffers()
+	assert_true(WorldSnapshotService.can_restore(WorldSnapshotService.capture(_root, 1), _root))
+	alternate_world.purge(false)
+	alternate_world.free()
+
+
+func test_late_shell_registration_keeps_unknown_extraction_and_sale_provenance() -> void:
+	var parcel: E_Package = _arrived_cargo("buyback/untracked/toy", false, 2)
+	var extracted: Array[Entity] = PackageContentsService.release(parcel, _seller)
+	assert_eq(extracted.size(), 2)
+	if extracted.size() != 2:
+		return
+	_arrived_cargo()
+	var item: Entity = extracted[0]
+	var survivor: Entity = extracted[1]
+	for entry: Entity in extracted:
+		var stack: C_InventoryItem = entry.get_component(C_InventoryItem) as C_InventoryItem
+		assert_eq(stack.source_package_id, "buyback/untracked/toy")
+		assert_true(stack.source_history_id.is_empty())
+	var body: RigidBody3D = item as Node as RigidBody3D
+	body.gravity_scale = 0.0
+	body.global_position = Vector3(12, 1.2, 0)
+	body.linear_velocity = Vector3.ZERO
+	await _physics_settled()
+	var offer: BuybackQuote = BuybackTradeService.quote(_seller, _buyer)
+	assert_eq(offer.items.size(), 1)
+	assert_eq(
+		BuybackTradeService.confirm(_seller, _buyer, offer), BuybackTradeService.Status.COMMITTED,
+	)
+	_world.flush_command_buffers()
+	var sale: BuybackSale = CommerceService.current().buyback_sales[0]
+	var signature: String = sale.signature
+	var before: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(before, _root))
+	assert_eq(
+		PackageRegistrationService.register_package(parcel).outcome,
+		PackageScanResult.Outcome.REGISTERED,
+	)
+	assert_false((parcel.get_component(C_Package) as C_Package).history_id.is_empty())
+	var survivor_id: String = survivor.id
+	var survivor_stack: C_InventoryItem = survivor.get_component(C_InventoryItem) as C_InventoryItem
+	assert_true(survivor_stack.source_history_id.is_empty())
+	assert_true(sale.items[0].source_history_id.is_empty())
+	assert_eq(sale.signature, signature)
+	_world.flush_command_buffers()
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(
+		WorldSnapshotService.can_restore(snapshot, _root),
+		"Late arrival cannot rewrite earlier facts",
+	)
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
+	var restored: Entity = _world.entity_id_registry.get(survivor_id) as Entity
+	assert_not_null(restored)
+	var restored_stack: C_InventoryItem = restored.get_component(C_InventoryItem) as C_InventoryItem
+	assert_true(restored_stack.source_history_id.is_empty())
+	assert_eq(CommerceService.current().buyback_sales[0].signature, signature)
+	assert_eq(WalletService.current().operations.size(), 1)
+	assert_eq(WalletService.current().balance, offer.amount)
 #endregion

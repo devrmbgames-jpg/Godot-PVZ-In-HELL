@@ -97,10 +97,9 @@ static func _origin_valid(
 	if package_id.is_empty():
 		return history_id.is_empty()
 	var arrival: PackageRegistrationRecord = arrivals.get(package_id) as PackageRegistrationRecord
-	# Изолированная/ещё не учтённая коробка сохраняет ID без выдуманного архивного факта.
-	# У известного arrival отсутствие history уже не допускается.
 	if history_id.is_empty():
-		return arrival == null
+		# Unknown at extraction remains historical fact after a later arrival.
+		return true
 	return (
 		not history_id.is_empty() and PackageHistoryId.parse(history_id) != null
 		and arrival != null and arrival.history_id == history_id

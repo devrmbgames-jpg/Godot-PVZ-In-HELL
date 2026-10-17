@@ -163,14 +163,22 @@ static func confirm(actor: Entity, trader: Entity, offer: BuybackQuote) -> Statu
 		return Status.UNAVAILABLE
 	var state: C_Buyback = offer.state
 	var commerce: C_Commerce = CommerceService.current()
-	if commerce == null:
+	if commerce == null or commerce.transaction_in_progress:
 		return Status.UNAVAILABLE
 	for previous: BuybackSale in commerce.buyback_sales:
-		if previous.operation_id == offer.operation_id:
-			return Status.DUPLICATE if previous.signature == offer.signature else Status.CONFLICT
+		if previous.operation_id != offer.operation_id:
+			continue
+		if previous.signature != offer.signature:
+			return Status.CONFLICT
+		if not previous.settled:
+			return Status.UNAVAILABLE
+		for line: BuybackSaleItem in previous.items:
+			if not line.removed:
+				return Status.UNAVAILABLE
+		return Status.DUPLICATE
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if (
-		commerce == null or commerce.transaction_in_progress
+		commerce.transaction_in_progress
 		or not GrabQueries.holder_available(actor) or actor.has_component(C_Death)
 		or not EntityAvailability.contains(trader, world) or trader.id != offer.trader_id
 		or BuybackQueries.container_for(trader) != container
@@ -184,14 +192,15 @@ static func confirm(actor: Entity, trader: Entity, offer: BuybackQuote) -> Statu
 		return Status.CHANGED
 	commerce.transaction_in_progress = true
 	state.transaction_in_progress = true
-	var reserved: Array[Entity] = []
+	var reserved: Array[WeakRef] = []
 	# Callback не переписывает исходное UI-предложение внутри принятой транзакции.
 	fresh.operation_id = offer.operation_id
 	var status: Status = _commit(world, actor, trader, container, commerce, state, fresh, reserved)
 	# Резерв живёт только внутри подтверждения, включая отказ до оплаты.
-	for item: Entity in reserved:
+	for reference: WeakRef in reserved:
 		if not is_instance_valid(world):
 			break
+		var item: Entity = reference.get_ref() as Entity
 		if not is_instance_valid(item) or not world.entity_to_archetype.has(item):
 			continue
 		for link: Relationship in item.relationships.duplicate():
@@ -216,13 +225,13 @@ static func _commit(
 	commerce: C_Commerce,
 	state: C_Buyback,
 	offer: BuybackQuote,
-	reserved: Array[Entity],
+	reserved: Array[WeakRef],
 ) -> Status:
 	for line: BuybackSaleItem in offer.items:
 		var item: Entity = world.entity_id_registry.get(line.entity_id) as Entity
 		if not EntityAvailability.contains(item, world):
 			return Status.CHANGED
-		reserved.append(item)
+		reserved.append(weakref(item))
 		item.add_relationship(Relationship.new(R_BuybackReserved.new(), container))
 		if (
 			not is_instance_valid(world) or ECS.world != world
@@ -275,13 +284,16 @@ static func _commit(
 	for line: BuybackSaleItem in sale.items:
 		if line.premium_quantity > 0:
 			state.premium_spent_keys.append(String(line.definition.key))
-	for line: BuybackSaleItem in sale.items:
+	# Retire the captured endpoints: callbacks may reuse IDs or switch the current World.
+	# A destroyed World purges its own entities; never resolve replacements in another World.
+	for index: int in sale.items.size():
+		var line: BuybackSaleItem = sale.items[index]
 		line.removed = true
-		var item: Entity = world.entity_id_registry.get(line.entity_id) as Entity
+		if not is_instance_valid(world):
+			continue
+		var item: Entity = reserved[index].get_ref() as Entity
 		if is_instance_valid(item) and world.entity_to_archetype.has(item):
 			world.remove_entity(item)
-		if not is_instance_valid(world) or ECS.world != world:
-			return Status.UNAVAILABLE
 	return Status.COMMITTED
 
 

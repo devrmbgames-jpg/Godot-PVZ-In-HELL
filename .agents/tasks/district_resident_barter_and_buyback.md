@@ -30,7 +30,8 @@ R_BuybackReserved — краткий live резерв, WalletService — еди
 MORNING; demand выбирается из immutable ledger projection, не manifest/count/catalog.
 Provenance живёт в C_InventoryItem и pending loot, сохраняется transfer/drop и receipt;
 исторические actual/declaration/recipient не подменяются продажей. Неучтённая коробка
-сохраняет package ID без выдуманного archive ID; известный arrival обязан совпадать.
+сохраняет package ID без выдуманного archive ID даже после поздней регистрации;
+непустой historical archive ID обязан совпадать с arrival.
 Встречные synchronous commerce/truck guards закрывают callback admission; live item reserve
 блокирует pickup/inventory/truck. Snapshot/restore запрещены внутри транзакции.
 Schema32: closed records, native prefab/profile preflight, actual source/price/once-payment,
@@ -64,15 +65,35 @@ Native container/panel/action/role assets созданы/сохранены че
 
 ## Next
 
-Завершить T1a static/native gates и immutable review от
-BASE `927fd5ab7c321505f229be80b8797794680a4daa`; checkpoint ещё не DONE.
+Получить targeted re-review T1a RV-001/RV-002 после repair cycle 1/2 по точным SHA.
+До результата checkpoint REVIEW_PENDING; принятые дефекты исправлены и проверены ниже.
 Затем T1b Карга (EVENING, только кости/артефакты, prototype явные цены) и полный T1
 integration/QA. До T4 нельзя выдавать prototype цены, holy mapping или площадки за канон.
 T2–T3 остаются обязательными пакетами, не заменяются универсальным магазином.
+Независимое чтение Source §8 во время review: есть bones, blood_flask, work_clothes;
+сырой цепи, одежды из цепей и мусора нет. spiked_chains — отдельное физическое оружие,
+не допустимый alias сырой цепи. Нужны отдельные reversible prototype assets/recipe.
+Полная колба требует actual condition/emitter проверки (C_HazardEmitter.fired), не только key.
+Первый failed непустой набор — один раз за кампанию; successful leftovers как подарок
+не расходуют льготу; exact remaining match идёт перед complexity/priority subset.
+Это входы T2, реализации/канона ещё нет; девять физических домов отдельного provider PLANNED.
+
 
 ## Validation / review
 
-T1a review **NOT_RUN** до coherent commit; target SHA будет зафиксирован после коммита.
+T1a original review: BASE `927fd5ab7c321505f229be80b8797794680a4daa` →
+TARGET `f13078ecf28d0af35480c8eba4306d140ecbaef5`, read-only reviewer /root/review_c3.
+Main triage: оба P2 приняты; scoped repair cycle **1/2**, targeted re-review **REVIEW_PENDING**.
+- RV-001 (R1) FIXED in repair commit: exact WeakRef reservation endpoints вместо повторного
+  разрешения ID; завершение retirement в captured World при смене ECS.world; busy/incomplete
+  receipt не DUPLICATE. Native callback replacement и World switch регрессии.
+- RV-002 (R2) FIXED in repair commit: пустой history сохраняет unknown-at-extraction после
+  позднего arrival; непустой history проверяется строго. Survivor + signed sale disk roundtrip.
+RED before repair: `gut-20261017-011729405` — 25/28, только три новых случая FAIL.
+GREEN repair: lifecycle28/602 `gut-20261017-012047927` PASS/CLEAN; cold write/restore
+`tests/artifacts/buyback-write-20261017-112133372.log`, `buyback-restore-20261017-112141492.log`
+PASS. MCP three exact paths CLEAN; formatter3, strict architecture, structure/persistence PASS.
+Checkpoint не DONE, полный T1 и rendered acceptance ещё открыты.
 Native GUT PASS/CLEAN (raw .artifacts/godot_agent/gut-20261017-*):
 - buyback lifecycle25/529 `010517641`: actual extraction/provenance, wallet/disk restore,
   callbacks, death/actual return, 9 corruptions, native NPC action/confirm/cancel/focus,
