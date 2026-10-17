@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://cxqjuy4hpj8ey"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_2rwvd"]
+
+[resource]
+script = ExtResource("1_2rwvd")
+market_price = 20
+display_name = "Маркер"
+world_pickup_scene = "res://content/domains/interaction/entities/marker.tscn"
+kind = 5
+maximum_stack = 1
+key = &"marker"

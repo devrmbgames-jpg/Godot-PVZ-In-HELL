@@ -86,10 +86,12 @@ cold diagnostic gate FAIL/UNKNOWN PagedAllocator, Windows QA/rendered NOT_RUN.
 T3a original `172b9d45d79cee3f341cc0a30131b2ffdc998df2`, review BASE
 `28f7d0270bb7f57129a76dba81f5b4dcbdf1441f` → TARGET `172b9d45d79cee3f341cc0a30131b2ffdc998df2`:
 /root/review_c3 ARCHITECTURE FAIL / STYLE PASS / runtime NOT_RUN, один P2 принят.
-RV-005 FIXED(code/test; fix SHA после commit): Source §1, role_profiles теперь keyed
+RV-005 FIXED(`4c94c5dbd5812d2a5854b01f182e490cc823dff5`, native40/845): Source §1, role_profiles теперь keyed
 permanent npc/6 из captured C_NpcIdentity.initial_fields; archetype не раздаёт магазин
 другой личности. Legacy merchant fallback/SCENE provider сохраняются, live World lookup нет.
-Подготовить scoped repair commit и targeted re-review1/2. ET_NpcRoles выбирает
+Targeted review1/2 PASS: BASE `172b9d45d79cee3f341cc0a30131b2ffdc998df2` →
+TARGET `4c94c5dbd5812d2a5854b01f182e490cc823dff5`, /root/review_c3, no material findings,
+ARCHITECTURE/STYLE PASS, runtime NOT_RUN. ET_NpcRoles выбирает
 C_Trader по immutable role_profiles/role_trade_action, merchant job не меняется.
 Карга получает evening-only аптечку/лечебное зелье/печенье/мясной пирог, реальные
 отдельные Definitions/native pickups/food effects и существующее MED_ITEM лечение.
@@ -97,9 +99,25 @@ Prototype цены12/32/35, еда15/45, лечение20; это не фина�
 Общий вход «Торговля» priority20 доступен через actual ray/resolver; native кнопка
 панели переходит к прежней скупке с корректной передачей modal focus.
 Новая схема не нужна: только authored config/unsaved derived C_Trader, schema34 сохраняется.
-Продолжать T3; финальные цены/рецепты/площадки и T4 открыты.
+T3b реализован: собственный C_Commerce.catalog ПВЗ bubble_wrap + real physical
+scanner/marker Definitions, исходные native prefabs/actions/tuning. Prototype цены120/20.
+Order prepay проверяет prefab compatibility; прежние queued next-morning/once/block/restore
+сохраняются. Native entry «Снабжение ПВЗ», до оплаты цена/×1/утро/площадка выдачи.
+Старый оплаченный food order сохраняет владельца ПВЗ после замены нового каталога.
+Next: commit T3b и immutable review BASE `4c94c5dbd5812d2a5854b01f182e490cc823dff5`
+→ новый TARGET, repair0/2. Затем T3c — отдельный владелец терминала/очереди Ангела.
+Ангел/Охотник/Бугай/Элементаль и финальные цены/рецепты/площадки/T4 открыты.
 
 ## Validation / review
+
+T3b native45/969 `031026261` PASS/CLEAN: 5 новых cases +40 inherited role/lifetime,
+реальный terminal button→order panel, собственный ассортимент/цена/день/место до оплаты,
+unsupported prefab no payment/receipt/queue, actual S_OrderDelivery two native tools,
+old paid food after catalog update, blocked debt + disk restore, moved/deleted issued bodies
+без respawn/оплаты. Finance8/76 `030918885`, normal schema34 golden15/839 `030933789`
+PASS/CLEAN. MCP fresh5/5 native-path CLEAN, formatter5/strict architecture/structure/
+persistence inventory/diffcheck PASS. Native Definition/terminal caption edits через MCP.
+T3b review NOT_RUN до commit, Windows/rendered NOT_RUN, бюджет0/8; не DONE.
 
 T3a native GUT39/832 `025525478` PASS/CLEAN: 8 новых actual cases +31 inherited
 R2/T1, реальные эффекты еды/лечения, отдельные Defs/prefabs/цены, closed phase,
@@ -122,7 +140,7 @@ T3a RV-005 RED39/40 `030010100`: лишние C_Trader/action у npc/106, оди
 GREEN40/845 `030113498` PASS/CLEAN, прежние39 cases сохранены. `025917895` FAIL нового
 preview fixture: registration_plan требует World; исправлен на native pure build_plan.
 MCP fresh2/2 CLEAN; formatter2/architecture/structure/diffcheck PASS для repair.
-T3a Windows/rendered NOT_RUN, бюджет0/8; targeted repair review REVIEW_PENDING.
+T3a Windows/rendered NOT_RUN, бюджет0/8; targeted repair review1/2 PASS по SHA выше.
 
 T2a original staged gate PASS38; repair gate PASS10; targeted review PASS1/2, не DONE.
 Repair native RED `023119341`:43/46 tests,990/998 asserts (три новых regression failures).

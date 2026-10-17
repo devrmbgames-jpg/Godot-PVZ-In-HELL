@@ -274,6 +274,8 @@ static func order(
 		return _trace_result(Status.WRONG_PHASE, operation_id, &"commerce.order", actor, item)
 	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death):
 		return _trace_result(Status.INVALID, operation_id, &"commerce.order", actor, item)
+	if not OrderDeliveryService.can_fulfill_definition(item):
+		return _trace_result(Status.INVALID, operation_id, &"commerce.order", actor, item)
 
 	state.transaction_in_progress = true
 	var money_status: Status = _pay(item, quantity, operation_id, cycle.day_index)

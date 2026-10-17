@@ -162,7 +162,7 @@ func _refresh() -> void:
 		else TraderCatalogRules.is_open(shop_state, cycle)
 	)
 	if _order_mode:
-		_title.text = "Заказ на следующее утро"
+		_title.text = "Снабжение ПВЗ на следующее утро"
 	else:
 		if profile != null:
 			_title.text = profile.display_name
@@ -184,7 +184,7 @@ func _refresh() -> void:
 	_status.text = (
 		(
 			"День %d · деньги %d · инвентарь %s\nУсловие: %s · доставка в "
-			+ "Morning дня %d\nЗадача: подготовьтесь к следующей смене. %s"
+			+ "Morning дня %d\nВыдача: площадка утренних заказов. %s"
 		)
 		% [
 			cycle.day_index,
@@ -264,7 +264,11 @@ func _refresh() -> void:
 			]
 		)
 		button.disabled = not allowed or wallet.balance < item.market_price
-		if not _order_mode:
+		if _order_mode:
+			button.tooltip_text = "×1 · Утро дня %d · Площадка утренних заказов" % (
+				cycle.day_index + 1
+			)
+		else:
 			button.tooltip_text = (
 				"×1 · Немедленно в зоне выдачи рядом с торговцем"
 				if item.requires_world_body()

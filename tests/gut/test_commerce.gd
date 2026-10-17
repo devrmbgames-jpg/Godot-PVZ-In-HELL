@@ -41,6 +41,8 @@ func before_each() -> void:
 	_med = (
 		load("res://content/domains/inventory/definitions/def_item_med.tres") as DEF_InventoryItem
 	)
+	# Controlled finance fixture; the production PVZ tool catalog has its own integration cases.
+	_commerce.catalog = [_food, _med]
 	_actor = Entity.new()
 	_actor.component_resources = [C_Inventory.new()]
 	_world.add_entity(_actor)
