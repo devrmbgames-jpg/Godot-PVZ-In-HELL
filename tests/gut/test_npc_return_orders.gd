@@ -481,3 +481,56 @@ func test_existing_denial_followup_waits_for_living_recipient_without_erasing_re
 	assert_eq(visit.reputation, CustomerVisit.Reputation.PLAYER_DENIAL)
 	assert_false(visit.customer_dead)
 #endregion
+
+
+#region RV-007 — возврат после уже выполненного планирования DAY
+func test_due_counter_order_reactivates_on_actual_return_without_another_planning_fact() -> void:
+	var visit: CustomerVisit = _visit("already_due")
+	var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
+	_kill(person)
+	var blocker: StaticBody3D = StaticBody3D.new()
+	var collision: CollisionShape3D = CollisionShape3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3(3.0, 3.0, 3.0)
+	collision.shape = shape
+	blocker.add_child(collision)
+	_root.add_child(blocker)
+	blocker.global_position = NpcPopulationQueries.position_for(person.home_id, true) + Vector3.UP
+	await get_tree().physics_frame
+	_morning(3)
+	assert_eq(person.death_day, 1)
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	cycle.phase = C_DayCycle.Phase.DAY
+	var session: Entity = _world.query.with_all([C_District, C_DayCycle]).execute_one()
+	CustomerFlowService.reconcile_session(_world, session)
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	assert_eq(flow.planning_day, 3)
+	assert_eq(flow.planning_phase, int(C_DayCycle.Phase.DAY))
+	assert_true(visit.finished)
+	blocker.free()
+	await get_tree().physics_frame
+	# Только native возврат. Ни scan, ни DayPhaseChanged, ни explicit reactivate не посылаются.
+	assert_eq(DistrictPopulationService.return_due(_district, 3).size(), 1)
+	assert_eq(visit.absence_sequence, 0)
+	assert_false(visit.finished)
+	assert_true(CustomerFlowQueries.visit_due(visit, 3))
+	assert_eq(CustomerFlowQueries.actionable_remaining(flow, 3), 1)
+	assert_eq(visit.followup_count, 0)
+	assert_eq(visit.visit_count, 0)
+#endregion
+
+
+#region RV-007 — future Morning во время Night
+func test_due_counter_return_uses_prepared_morning_day_without_advancing_night() -> void:
+	var visit: CustomerVisit = _visit("future_morning", 3)
+	_kill(NpcPopulationQueries.person_for(visit.customer_id))
+	_morning(2)
+	_return_during_night(3)
+	assert_eq(DayPhaseQueries.current().day_index, 2)
+	assert_eq(DayPhaseQueries.current().phase, C_DayCycle.Phase.NIGHT)
+	assert_eq(visit.absence_sequence, 0)
+	assert_false(visit.finished)
+	assert_true(CustomerFlowQueries.visit_due(visit, 3))
+	assert_eq(visit.followup_count, 0)
+	assert_eq(visit.visit_count, 0)
+#endregion

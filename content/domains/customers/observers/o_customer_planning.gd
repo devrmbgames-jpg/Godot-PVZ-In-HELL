@@ -287,7 +287,16 @@ func _resume_returned(body_reference: WeakRef, fact: NpcReturnCommitted) -> void
 	var episode: NpcDeathRecord = NpcLifeRules.episode_for(person, fact.sequence)
 	if person.death_day != 0 or episode == null or episode.returned_day != fact.day_index:
 		return
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	CustomerVisitLifecycle.resume_after_return(fact.npc_id, fact.sequence, fact.day_index)
+	if (
+		ECS.world != _world or NpcPopulationQueries.current() != fact.district
+		or CustomerFlowQueries.current() != flow
+	):
+		return
+	if flow != null:
+		# Возврат после planned DAY сам открывает due визит; домашний срок остаётся будущим.
+		_reactivate(flow, fact.day_index)
 
 
 func _on_district_prepared(_event: Variant, session: Entity, payload: Variant = null) -> void:

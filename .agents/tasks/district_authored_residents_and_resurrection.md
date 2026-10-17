@@ -29,7 +29,7 @@ Schema30/strict preflight/native golden согласованы; PVZH1 unchanged,
 
 R2c1 reviewed: buffered death/drop сохраняет supported carried quantity/physical ID, включая
 native disable, disk/cold и повторную жизнь. RV-006 FIXED в ccf91885d92fd415926ae765e4c868293403b135.
-R2c2 реализован, native orders/cold/schema gates PASS; **REVIEW_PENDING** до committed immutable review.
+R2c2 native/cold/schema PASS; review7037fd0c принят с RV-007 P2, repair1/2 in progress.
 CustomerVisit.absence_sequence приостанавливает нерешённое появление. NpcReturnCommitted
 возобновляет тот же visit после действительного возврата; срок доставки вычисляется чистым
 HomeDeliveryDeadlineRules из исходного обещания и истории смертей, включая blocked return.
@@ -60,8 +60,12 @@ Lost main пока placed merchant: до guest-перевода нужны се�
 
 ## Next
 
-Commit проверенный R2c2 от reviewed BASE
-`ccf91885d92fd415926ae765e4c868293403b135`, immutable review/triage/fix до принятия пакета.
+R2c2 committed `7037fd0c73d5b1f952397e47d3d920a357d3046d`; review завершён:
+BASE `ccf91885d92fd415926ae765e4c868293403b135` → TARGET
+`7037fd0c73d5b1f952397e47d3d920a357d3046d`: RV-007 P2 принят. Due ordinary visit
+после уже planned DAY остаётся finished до следующего planning fact. Native reproducer,
+узкое _resume_returned→reactivate по actual day реализовано. Commit fix и
+запустить targeted re-review от7037fd0c, repair1/2; до результата REVIEW_PENDING.
 Пока review pending — только независимый анализ barter/home/R3 authoring, без зависимых правок.
 После R2 завершить R1c вместе с конкретными barter/home providers; проверить authored placed
 merchant, удалить старую замену live residents. Полный авторский R3 остаётся обязательным.
@@ -78,9 +82,9 @@ R2c2 actual, .artifacts/godot_agent/:
 - schema31 golden generate `gut-20261016-235923726` **15/804**, ordinary read `235949246`
   **15/805 PASS/CLEAN**. Current golden native delta only version30→31; populated absence
   records exercised separately by real orders disk/cold. Previous file preserved by inherited test.
-- terminal suite `gut-20261017-000640139`: 32/263 assertions PASS but wrapper **FAIL/UNKNOWN**,
-  queued detached rows reported transient orphans. Native cleanup frame в after_each исправляет
-  fixture: `000747357` **32/263 PASS/CLEAN**. Public offer fixture collection day fixed to3.
+- terminal `000747357`: **32/263 PASS/CLEAN**. Before native cleanup await,
+  `000640139` assertions32/263 passed but wrapper FAIL/UNKNOWN (queued detached rows).
+  Public offer fixture collection day3 and held-box reach staging preserve actual consumers.
 - MCP native path diagnostics six scripts CLEAN; smoke scene created/attached/saved via MCP.
 - formatter/lint, strict architecture, structure/dependencies, persistence inventory PASS;
   staged final gate before commit. No suppression or expanded engine waiver.
@@ -110,6 +114,7 @@ Explicit verified .bin Godot path required by smoke runner (JSONC settings resol
 
 | Canonical triage | Review / repair evidence |
 | --- | --- |
+| RV-007 due ordinary return **ACCEPTED; fix tested, RE-REVIEW_PENDING** | BASE `ccf91885d92fd415926ae765e4c868293403b135` → TARGET `7037fd0c73d5b1f952397e47d3d920a357d3046d`: P2. Native red30/603 `gut-20261017-001249894` 29 passed; green31/619 `001427188` PASS/CLEAN, including already-planned DAY and future Morning during Night; accepted-home deadlines unchanged. Repair1/2. |
 | RV-004 timing, RV-005 Russian context docs **FIXED** | R2b BASE `5deafb36b509cb675f5144e4201c828e8fd5d9f0` → TARGET `6ec18d7f1b962aa8cabe2b7f47ff521e92d9a503`: two P2 accepted. Fix/re-review TARGET `bdd05240b7d03037eacd76c6ed2cce8d6549b82f`, BASE `6ec18d7f1b962aa8cabe2b7f47ff521e92d9a503`: PASS, cycle1/2. Red25/27 `232906671`, green27/488 `233003727`, both LOS directions/calendar; executable-line docs equivalence PASS. |
 | RV-002 exact fields, RV-003 pending body **FIXED** | R2a BASE `2c0be0eae47131f0a3b41bcc23f1a5eced4ed015` → TARGET `30e6716aa696311581cd1be4145dbd1466d080cd`: two P2. Fix/re-review TARGET `5deafb36b509cb675f5144e4201c828e8fd5d9f0`, BASE `30e6716aa696311581cd1be4145dbd1466d080cd`: PASS, cycle1/2. Red `230318246`, green16/310 `230350002`, six corruptions reject before mutation. |
 | RV-001 scene/card **FIXED** | code `83873c575b0db5cb6684b7ff90cdc6d1085fa0fd` had structure FAIL; read edge `0b86da5ba79f028f62c77d34991472e74956ab95` fixes gate. Re-review BASE `11d735a284aa0b4211608735266ea597c77de338` → TARGET `0b86da5ba79f028f62c77d34991472e74956ab95`: PASS, cycle1/2. |
