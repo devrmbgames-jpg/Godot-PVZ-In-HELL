@@ -65,7 +65,10 @@ func _reconcile_container(container_reference: WeakRef, state: C_Buyback) -> voi
 func _show_market(container: E_BuybackContainer, state: C_Buyback) -> void:
 	var lines: PackedStringArray = [state.profile.display_name]
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	if state.price_day == 0 or cycle == null or state.price_day != cycle.day_index:
+	if state.profile.pricing == DEF_BuybackProfile.Pricing.FIXED:
+		lines.append("Фиксированные закупочные цены")
+		lines.append("Сумма за содержимое — при расчёте у покупателя")
+	elif state.price_day == 0 or cycle == null or state.price_day != cycle.day_index:
 		lines.append("Жду поставку")
 	elif state.premium_item_keys.is_empty():
 		lines.append("Нет дневных позиций повышенного спроса")

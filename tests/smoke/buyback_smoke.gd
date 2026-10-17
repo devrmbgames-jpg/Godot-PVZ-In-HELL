@@ -3,6 +3,7 @@ extends "res://tests/smoke/npc_authored_people_smoke.gd"
 
 const BUYBACK_SLOT: String = "user://buyback_cold_smoke.pvzh"
 const CONTAINER_ID: String = "buyback/cold/container"
+const HAG_CONTAINER_ID: String = "buyback/cold/hag"
 const ITEM: DEF_InventoryItem = preload(
 	"res://content/domains/inventory/definitions/def_item_toy_block.tres"
 )
@@ -160,10 +161,72 @@ func _write() -> void:
 		"committed physical sale",
 	)
 	_check(WalletService.current().balance == 15, "real wallet credited once")
+	await _write_hag_sale()
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	_check(WorldSnapshotService.can_restore(snapshot, _root), "closed transaction snapshot")
 	if not _failed:
 		_check(AutosaveStore.write(snapshot, BUYBACK_SLOT) == OK, "isolated disk write")
+
+
+func _write_hag_sale() -> void:
+	var point: E_BuybackContainer = (
+		load("res://content/domains/commerce/entities/buyback_hag_container.tscn") as PackedScene
+	).instantiate() as E_BuybackContainer
+	point.id = HAG_CONTAINER_ID
+	(point as Node as Node3D).position = Vector3(24, 0, 0)
+	EntityCompositionFixture.register(_world, point)
+	var hag: E_DistrictNpc = NpcPopulationQueries.body_for(&"npc/6")
+	_check(
+		DistrictPopulationService.set_placement(
+			NpcPopulationQueries.person_for(&"npc/6"), hag, NpcRecord.Placement.STREET,
+			&"hag_buyback_smoke", false, Vector3(28, 0, 8),
+		),
+		"actual evening buyer available",
+	)
+	hag.set_physics_process(false)
+	var bones: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_bones.tres"
+	) as DEF_InventoryItem
+	var item: Entity = (load(bones.world_pickup_scene) as PackedScene).instantiate() as Entity
+	EntityCompositionFixture.register(_world, item)
+	var body: RigidBody3D = item as Node as RigidBody3D
+	body.gravity_scale = 0.0
+	body.global_position = Vector3(24, 1.2, 0)
+	(item.get_component(C_InventoryItem) as C_InventoryItem).quantity = 1
+	for frame: int in 3:
+		await get_tree().physics_frame
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
+	var offer: BuybackQuote = BuybackTradeService.quote(_seller, hag)
+	_check(offer.amount == 5, "authored fixed price without supply")
+	_check(
+		BuybackTradeService.confirm(_seller, hag, offer) == BuybackTradeService.Status.COMMITTED,
+		"separate evening physical sale",
+	)
+	_check(WalletService.current().balance == 20, "both buyers pay through one wallet")
+
+
+func _restore_hag_sale(sale: BuybackSale) -> void:
+	var point: E_BuybackContainer = (
+		_world.entity_id_registry.get(HAG_CONTAINER_ID) as E_BuybackContainer
+	)
+	_check(point != null, "second native prefab reconstructed with its own profile")
+	if point == null:
+		return
+	var state: C_Buyback = point.get_component(C_Buyback) as C_Buyback
+	_check(state.profile.npc_id == &"npc/6", "authored buyer identity persists")
+	_check(state.prices[0].ordinary_price == 5, "fixed price persists")
+	_check(state.premium_item_keys.is_empty(), "no inherited demon demand")
+	var repeated: BuybackQuote = BuybackQuote.new()
+	repeated.operation_id = sale.operation_id
+	repeated.signature = sale.signature
+	repeated.container_reference = weakref(point)
+	repeated.state = state
+	_check(
+		BuybackTradeService.confirm(_seller, NpcPopulationQueries.body_for(&"npc/6"), repeated)
+		== BuybackTradeService.Status.DUPLICATE,
+		"cold evening retry remains duplicate",
+	)
+	_check(WalletService.current().balance == 20, "evening retry has no second credit")
 
 
 func _restore() -> void:
@@ -183,8 +246,8 @@ func _restore() -> void:
 	)
 	var sales: Array[BuybackSale] = CommerceService.current().buyback_sales
 	_check(
-		sales.size() == 1 and WalletService.current().balance == 15,
-		"one settled historical sale",
+		sales.size() == 2 and WalletService.current().balance == 20,
+		"two independent settled historical sales",
 	)
 	var sale: BuybackSale = sales[0]
 	_check(
@@ -203,7 +266,9 @@ func _restore() -> void:
 		== BuybackTradeService.Status.DUPLICATE,
 		"cold retry remains duplicate",
 	)
-	_check(WalletService.current().balance == 15, "cold retry has no second credit")
+	_check(WalletService.current().balance == 20, "cold retry has no second credit")
+	_restore_hag_sale(sales[1])
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.MORNING
 	var item: Entity = (load(ITEM.world_pickup_scene) as PackedScene).instantiate() as Entity
 	EntityCompositionFixture.register(_world, item)
 	var body: RigidBody3D = item as Node as RigidBody3D
@@ -222,5 +287,5 @@ func _restore() -> void:
 		== BuybackTradeService.Status.COMMITTED,
 		"next ordinary physical sale",
 	)
-	_check(WalletService.current().balance == 15 + ordinary.amount, "only ordinary second income")
+	_check(WalletService.current().balance == 20 + ordinary.amount, "only ordinary second income")
 #endregion

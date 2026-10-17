@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="DEF_BuybackProfile" format=3 uid="uid://rx2eoqkky4qy"]
+
+[ext_resource type="Script" uid="uid://dxj3bw0yiirnv" path="res://content/domains/commerce/definitions/def_buyback_profile.gd" id="1_4evj7"]
+
+[resource]
+script = ExtResource("1_4evj7")
+npc_id = &"npc/6"
+display_name = "Морана · скупка"
+pricing = 1
+open_phases = 4
+rejected_item_keys = PackedStringArray()
+fixed_prices = Dictionary[StringName, int]({
+&"bones": 5,
+&"holy_artifact": 45,
+&"unholy_artifact": 45
+})
+key = &"buyback/hag_prototype"

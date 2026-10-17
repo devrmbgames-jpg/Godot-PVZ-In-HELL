@@ -7,6 +7,18 @@ const RECEIVING_SCENE: PackedScene = preload(
 const BUYBACK_SCENE: PackedScene = preload(
 	"res://content/domains/commerce/entities/buyback_demon_container.tscn"
 )
+const HAG_SCENE: PackedScene = preload(
+	"res://content/domains/commerce/entities/buyback_hag_container.tscn"
+)
+const BONES: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_bones.tres"
+)
+const HOLY_ARTIFACT: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_holy_artifact.tres"
+)
+const UNHOLY_ARTIFACT: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_unholy_artifact.tres"
+)
 const BUYBACK_ITEM: DEF_InventoryItem = preload(
 	"res://content/domains/inventory/definitions/def_item_toy_block.tres"
 )
@@ -642,4 +654,164 @@ func test_late_shell_registration_keeps_unknown_extraction_and_sale_provenance()
 	assert_eq(CommerceService.current().buyback_sales[0].signature, signature)
 	assert_eq(WalletService.current().operations.size(), 1)
 	assert_eq(WalletService.current().balance, offer.amount)
+#endregion
+
+
+#region Authored evening buyer
+func _hag_point() -> E_BuybackContainer:
+	var hag: E_DistrictNpc = NpcPopulationQueries.body_for(&"npc/6")
+	assert_true(
+		DistrictPopulationService.set_placement(
+			NpcPopulationQueries.person_for(&"npc/6"), hag, NpcRecord.Placement.STREET,
+			&"hag_buyback_fixture", false, Vector3(28, 0, 8),
+		)
+	)
+	var point: E_BuybackContainer = HAG_SCENE.instantiate() as E_BuybackContainer
+	(point as Node as Node3D).position = Vector3(24, 0, 0)
+	EntityCompositionFixture.register(_world, point)
+	_world.flush_command_buffers()
+	return point
+
+
+func _hag_material(
+	definition: DEF_InventoryItem, position: Vector3 = Vector3(24, 1.2, 0), quantity: int = 1,
+) -> Entity:
+	var prefab: PackedScene = load(definition.world_pickup_scene) as PackedScene
+	var item: Entity = prefab.instantiate() as Entity
+	EntityCompositionFixture.register(_world, item)
+	(item.get_component(C_InventoryItem) as C_InventoryItem).quantity = quantity
+	var body: RigidBody3D = item as Node as RigidBody3D
+	body.gravity_scale = 0.0
+	body.global_position = position
+	return item
+
+
+func test_hag_native_evening_action_accepts_bones_and_both_artifacts_only() -> void:
+	var point: E_BuybackContainer = _hag_point()
+	var hag: E_DistrictNpc = NpcPopulationQueries.body_for(&"npc/6")
+	var actions: C_InteractionActionSet = hag.get_component(C_InteractionActionSet)
+	var action: DEF_BuybackAction = null
+	for candidate: DEF_InteractionAction in actions.actions:
+		if candidate is DEF_BuybackAction:
+			action = candidate as DEF_BuybackAction
+	assert_not_null(action)
+	if action == null:
+		return
+	var bones: Entity = _hag_material(BONES, Vector3(23.2, 1.2, -0.6), 2)
+	var holy: Entity = _hag_material(HOLY_ARTIFACT, Vector3(24, 1.2, -0.6))
+	var unholy: Entity = _hag_material(UNHOLY_ARTIFACT, Vector3(24.8, 1.2, -0.6))
+	var refused: Entity = _hag_material(BUYBACK_ITEM, Vector3(24, 1.2, 0.6))
+	await _physics_settled()
+	for phase: C_DayCycle.Phase in [
+		C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.NIGHT,
+	]:
+		DayPhaseQueries.current().phase = phase
+		assert_false(action.is_available(_seller, hag, hag), str(phase))
+		assert_false(BuybackTradeService.quote(_seller, hag).reason.is_empty(), str(phase))
+	assert_eq(_money.balance, 0)
+	assert_true(_world.entity_to_archetype.has(bones))
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
+	assert_true(action.is_available(_seller, hag, hag))
+	var offer: BuybackQuote = BuybackTradeService.quote(_seller, hag)
+	assert_eq(offer.items.size(), 3)
+	assert_eq(offer.rejected.size(), 1)
+	assert_eq(offer.amount, 100)
+	assert_true(offer.supply_batch_id.is_empty())
+	assert_eq(_money.balance, 0, "Neither throw nor quote sells")
+	assert_true((point.get_node("Sign") as Label3D).text.contains("Фиксированные"))
+	action.execute(_seller, hag, hag)
+	_world.flush_command_buffers()
+	var panel: BuybackPanel = _seller.find_child("BuybackPanel", false, false) as BuybackPanel
+	assert_not_null(panel)
+	if panel == null:
+		return
+	(panel.get_node("Confirmation") as ConfirmationDialog).confirmed.emit()
+	assert_eq(_money.balance, 100)
+	assert_eq(_money.operations.size(), 1)
+	for sold: Entity in [bones, holy, unholy]:
+		assert_false(_world.entity_to_archetype.has(sold))
+	assert_true(_world.entity_to_archetype.has(refused))
+	var sale: BuybackSale = CommerceService.current().buyback_sales[0]
+	assert_eq(sale.buyer_npc_id, &"npc/6")
+	assert_eq(sale.container_id, point.id)
+	for line: BuybackSaleItem in sale.items:
+		assert_eq(line.premium_quantity, 0)
+	await get_tree().process_frame
+
+
+func test_hag_receipt_and_market_restore_without_changing_demon_demand() -> void:
+	_arrived_cargo()
+	_free_cargo()
+	var demon_before: Variant = SaveDataCodec.component_data(_market)
+	var point: E_BuybackContainer = _hag_point()
+	var point_id: String = point.id
+	var hag: E_DistrictNpc = NpcPopulationQueries.body_for(&"npc/6")
+	_hag_material(BONES)
+	await _physics_settled()
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
+	var offer: BuybackQuote = BuybackTradeService.quote(_seller, hag)
+	assert_eq(offer.amount, 5)
+	assert_eq(
+		BuybackTradeService.confirm(_seller, hag, offer), BuybackTradeService.Status.COMMITTED,
+	)
+	assert_eq(SaveDataCodec.component_data(_market), demon_before)
+	_world.flush_command_buffers()
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
+	point = _world.entity_id_registry.get(point_id) as E_BuybackContainer
+	hag = NpcPopulationQueries.body_for(&"npc/6")
+	assert_eq(BuybackQueries.container_for(hag), point)
+	assert_eq(
+		BuybackTradeService.confirm(_seller, hag, offer), BuybackTradeService.Status.DUPLICATE,
+	)
+	assert_eq(WalletService.current().balance, 5)
+	assert_eq(WalletService.current().operations.size(), 1)
+	var state: C_Buyback = point.get_component(C_Buyback) as C_Buyback
+	assert_true(state.premium_item_keys.is_empty())
+	assert_true(state.premium_spent_keys.is_empty())
+	assert_eq(SaveDataCodec.component_data(_market), demon_before)
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.MORNING
+	assert_eq(BuybackTradeService.quote(_seller, _buyer).amount, 15)
+
+
+func test_hag_actual_return_keeps_fixed_prices_and_paid_history() -> void:
+	var point: E_BuybackContainer = _hag_point()
+	var hag: E_DistrictNpc = NpcPopulationQueries.body_for(&"npc/6")
+	var person: NpcRecord = NpcPopulationQueries.person_for(&"npc/6")
+	_hag_material(BONES)
+	await _physics_settled()
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
+	var offer: BuybackQuote = BuybackTradeService.quote(_seller, hag)
+	assert_eq(
+		BuybackTradeService.confirm(_seller, hag, offer), BuybackTradeService.Status.COMMITTED,
+	)
+	_kill(person)
+	assert_false(BuybackTradeService.quote(_seller, hag).reason.is_empty())
+	assert_eq(CommerceService.current().buyback_sales.size(), 1)
+	_morning(3)
+	assert_eq(person.death_day, 0)
+	assert_eq(person.deaths[0].returned_day, 3)
+	assert_eq(NpcPopulationQueries.body_for(&"npc/6"), hag)
+	assert_true(
+		DistrictPopulationService.set_placement(
+			person, hag, NpcRecord.Placement.STREET, &"hag_return_fixture",
+			false, Vector3(28, 0, 8),
+		)
+	)
+	_hag_material(BONES)
+	await _physics_settled()
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
+	var next: BuybackQuote = BuybackTradeService.quote(_seller, hag)
+	assert_eq(next.amount, 5)
+	assert_eq(
+		BuybackTradeService.confirm(_seller, hag, next), BuybackTradeService.Status.COMMITTED,
+	)
+	assert_eq(_money.balance, 10)
+	assert_eq(_money.operations.size(), 2)
+	assert_eq(CommerceService.current().buyback_sales.size(), 2)
+	assert_eq((point.get_component(C_Buyback) as C_Buyback).price_day, 3)
+	_world.flush_command_buffers()
+	assert_true(WorldSnapshotService.can_restore(WorldSnapshotService.capture(_root, 3), _root))
 #endregion

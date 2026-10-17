@@ -39,7 +39,10 @@ premium cap и отказ до live mutation. Старый файл отклон
 Native container/panel/action/role assets созданы/сохранены через MCP. Companion resave
 расширен только для двух точных fingerprinted NPC role providers, UID сохранены.
 Это технический prototype: holy_artifact — явно временное сопоставление святого символа;
-финальное размещение/канон, Карга и полное T1–T4 acceptance остаются открыты.
+T1b добавляет Каргу npc/6 через тот же явный контракт: EVENING, только bones/holy_artifact/
+unholy_artifact с prototype ценами 5/45/45, независимый native container/profile/state.
+Утренний supply/demand Дьявола не меняется; святой артефакт Карге не запрещён.
+Финальные цены/размещение/канон и полное T1–T4 acceptance остаются открыты.
 
 ## Work packages
 
@@ -65,10 +68,11 @@ Native container/panel/action/role assets созданы/сохранены че
 
 ## Next
 
-Получить targeted re-review T1a RV-001/RV-002 после repair cycle 1/2 по точным SHA.
-До результата checkpoint REVIEW_PENDING; принятые дефекты исправлены и проверены ниже.
-Затем T1b Карга (EVENING, только кости/артефакты, prototype явные цены) и полный T1
-integration/QA. До T4 нельзя выдавать prototype цены, holy mapping или площадки за канон.
+Получить read-only review T1b: BASE `370020fcf796c211eaf341940befc71ddd17b206`,
+TARGET — commit этого checkpoint. REVIEW_PENDING, repair cycles 0/2.
+Затем полный T1 integration/QA и T2. До T4 нельзя выдавать prototype цены,
+holy mapping или площадки за канон. Во время review допустима независимая T2
+recipe authoring: typed состав/состояния, exact-first и deterministic complexity/priority.
 T2–T3 остаются обязательными пакетами, не заменяются универсальным магазином.
 Независимое чтение Source §8 во время review: есть bones, blood_flask, work_clothes;
 сырой цепи, одежды из цепей и мусора нет. spiked_chains — отдельное физическое оружие,
@@ -81,19 +85,32 @@ T2–T3 остаются обязательными пакетами, не за�
 
 ## Validation / review
 
+T1b **REVIEW_PENDING**; native lifecycle31/682 `gut-20261017-012726127` PASS/CLEAN:
+реальные npc/6 action/confirmation, EVENING-only, 3 принятых типа/отказ Toy,
+независимый Demon market, disk restore/duplicate и actual death+return day3.
+Cold обе точки/два receipts PASS: `tests/artifacts/buyback-write-20261017-112805993.log`,
+`buyback-restore-20261017-112814113.log`; fresh prefabs/price/once payment/ordinary next.
+MCP three exact paths CLEAN; formatter3, strict architecture, structure/persistence PASS.
+Initial T1b `012605621` failed only fixture snapshot day1 after return day3; исправлен day3.
+Native asset creation через MCP, исходный Demon asset не изменён; phase/market presentation
+разделены. Visual/Windows build NOT_RUN; rendered T1 budget остаётся 0/8.
+
 T1a original review: BASE `927fd5ab7c321505f229be80b8797794680a4daa` →
 TARGET `f13078ecf28d0af35480c8eba4306d140ecbaef5`, read-only reviewer /root/review_c3.
-Main triage: оба P2 приняты; scoped repair cycle **1/2**, targeted re-review **REVIEW_PENDING**.
-- RV-001 (R1) FIXED in repair commit: exact WeakRef reservation endpoints вместо повторного
+Main triage: оба P2 исправлены в `370020fcf796c211eaf341940befc71ddd17b206`.
+Targeted re-review cycle **1/2 PASS**, BASE `f13078ecf28d0af35480c8eba4306d140ecbaef5` →
+TARGET `370020fcf796c211eaf341940befc71ddd17b206`; /root/review_c3: no material findings,
+ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN. T1a технический checkpoint reviewed.
+- RV-001 (R1) FIXED `370020fc`: exact WeakRef reservation endpoints вместо повторного
   разрешения ID; завершение retirement в captured World при смене ECS.world; busy/incomplete
   receipt не DUPLICATE. Native callback replacement и World switch регрессии.
-- RV-002 (R2) FIXED in repair commit: пустой history сохраняет unknown-at-extraction после
+- RV-002 (R2) FIXED `370020fc`: пустой history сохраняет unknown-at-extraction после
   позднего arrival; непустой history проверяется строго. Survivor + signed sale disk roundtrip.
 RED before repair: `gut-20261017-011729405` — 25/28, только три новых случая FAIL.
 GREEN repair: lifecycle28/602 `gut-20261017-012047927` PASS/CLEAN; cold write/restore
 `tests/artifacts/buyback-write-20261017-112133372.log`, `buyback-restore-20261017-112141492.log`
 PASS. MCP three exact paths CLEAN; formatter3, strict architecture, structure/persistence PASS.
-Checkpoint не DONE, полный T1 и rendered acceptance ещё открыты.
+Полный T1 и rendered acceptance ещё открыты; review T1a завершён.
 Native GUT PASS/CLEAN (raw .artifacts/godot_agent/gut-20261017-*):
 - buyback lifecycle25/529 `010517641`: actual extraction/provenance, wallet/disk restore,
   callbacks, death/actual return, 9 corruptions, native NPC action/confirm/cancel/focus,
