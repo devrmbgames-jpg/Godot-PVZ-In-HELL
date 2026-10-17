@@ -41,7 +41,7 @@ func test_pvz_native_terminal_shows_its_own_tools_day_price_and_place_before_pay
 			func(item: DEF_InventoryItem) -> StringName:
 				return item.key,
 		),
-		[&"bubble_wrap", &"scanner", &"marker"],
+		[&"food", &"med", &"bubble_wrap", &"scanner", &"marker"],
 	)
 	assert_false(PVZ_SCANNER in HAG_PROFILE.catalog)
 	assert_false(PVZ_MARKER in HAG_PROFILE.catalog)
@@ -72,7 +72,7 @@ func test_pvz_native_terminal_shows_its_own_tools_day_price_and_place_before_pay
 	assert_true((panel.get_node(root + "Title") as Label).text.contains("ПВЗ"))
 	assert_true((panel.get_node(root + "Status") as Label).text.contains("площадка"))
 	var offers: VBoxContainer = panel.get_node(root + "OffersScroll/Offers") as VBoxContainer
-	assert_eq(offers.get_child_count(), 3)
+	assert_eq(offers.get_child_count(), 5)
 	for index: int in catalog.size():
 		var button: Button = offers.get_child(index).get_child(0) as Button
 		assert_true(button.text.contains(catalog[index].display_name))
@@ -217,7 +217,7 @@ func test_blocked_tool_debt_survives_restore_and_retries_without_another_payment
 
 
 #region Existing paid PVZ promises
-func test_old_paid_food_order_keeps_its_pvz_owner_after_the_new_tool_catalog() -> void:
+func test_old_paid_food_order_keeps_its_pvz_owner_when_tool_offers_are_added() -> void:
 	_tool_zone()
 	var commerce: C_Commerce = CommerceService.current()
 	var production_catalog: Array[DEF_InventoryItem] = commerce.catalog
@@ -230,12 +230,12 @@ func test_old_paid_food_order_keeps_its_pvz_owner_after_the_new_tool_catalog() -
 		CommerceService.Status.COMMITTED,
 	)
 	commerce.catalog = production_catalog
-	assert_false(food in commerce.catalog)
+	assert_true(food in commerce.catalog)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
 	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
 	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
-	assert_false(food in CommerceService.current().catalog)
+	assert_true(food in CommerceService.current().catalog)
 	var delivery: PendingDelivery = CommerceService.current().pending_deliveries[0]
 	assert_same(delivery.item, food)
 	assert_eq(delivery.quantity, 2)

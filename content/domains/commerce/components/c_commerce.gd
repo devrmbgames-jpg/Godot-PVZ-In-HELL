@@ -24,6 +24,8 @@ const SAVE_FIELDS: Array[String] = [
 @export var pending_deliveries: Array[PendingDelivery] = []
 ## Неизменяемый runtime ассортимент терминала; ассортимент торговца задаёт отдельный Profile.
 @export var catalog: Array[DEF_InventoryItem] = [
+	preload("res://content/domains/inventory/definitions/def_item_food.tres"),
+	preload("res://content/domains/inventory/definitions/def_item_med.tres"),
 	preload("res://content/domains/inventory/definitions/def_item_bubble_wrap.tres"),
 	preload("res://content/domains/inventory/definitions/def_item_scanner.tres"),
 	preload("res://content/domains/inventory/definitions/def_item_marker.tres"),
