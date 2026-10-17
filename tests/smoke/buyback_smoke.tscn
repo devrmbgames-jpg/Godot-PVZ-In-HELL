@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dr32de7t7xxhm"]
+
+[ext_resource type="Script" uid="uid://bosqswwxi8wgb" path="res://tests/smoke/buyback_smoke.gd" id="1_742pc"]
+
+[node name="BuybackSmoke" type="Node" unique_id=1395755718]
+script = ExtResource("1_742pc")

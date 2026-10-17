@@ -4,6 +4,10 @@ extends RefCounted
 
 const ROOT: String = "res://content/domains/npc/definitions/"
 const MAXIMUM_PATHS: int = 8
+const ROLE_TARGETS: PackedStringArray = [
+	"res://content/domains/npc/authoring/et_district_npc_npc_roles.tres",
+	"res://content/domains/npc/definitions/def_entity_district_npc.tres",
+]
 
 
 #region Editor transaction
@@ -18,7 +22,8 @@ func resave(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var pools: Dictionary = params.get("dialogue_pools", { })
 	var additions: Dictionary = params.get("trait_additions", { })
 	var inspected: Resource = EditorInterface.get_inspector().get_edited_object() as Resource
-	var prepared: Dictionary = preflight(hashes, inspected, pools, additions)
+	var action_path: String = String(params.get("role_action", ""))
+	var prepared: Dictionary = preflight(hashes, inspected, pools, additions, action_path)
 	if prepared.has("error"):
 		return prepared
 	var resources: Array[Resource] = prepared.resources
@@ -44,6 +49,7 @@ static func preflight(
 	inspected: Resource = null,
 	dialogue_pools: Dictionary = { },
 	trait_additions: Dictionary = { },
+	role_action: String = "",
 ) -> Dictionary:
 	if fingerprints.is_empty() or fingerprints.size() > MAXIMUM_PATHS:
 		return { "error": "Expected one to eight fingerprinted NPC definitions." }
@@ -97,13 +103,26 @@ static func preflight(
 				return { "error": "Expected a valid native NPC trait definition." }
 			traits[target].append(rule)
 			seen[path] = true
+	var action: DEF_InteractionAction = null
+	if not role_action.is_empty():
+		if (
+			role_action != "res://content/domains/commerce/definitions/def_action_npc_buyback.tres"
+			or not ResourceLoader.exists(role_action)
+		):
+			return { "error": "Expected the existing native buyback action." }
+		action = ResourceLoader.load(
+			role_action, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP,
+		) as DEF_InteractionAction
+		if action == null or action.action_id.is_empty():
+			return { "error": "Role action requires a native action Definition." }
 	var resources: Array[Resource] = []
 	for key: Variant in fingerprints:
 		if not key is String:
 			return { "error": "Resource paths must be strings." }
 		var path: String = key
 		if (
-			path.get_base_dir() != ROOT.trim_suffix("/") or not path.ends_with(".tres")
+			(path.get_base_dir() != ROOT.trim_suffix("/") and path not in ROLE_TARGETS)
+			or not path.ends_with(".tres")
 			or path.contains("..") or path.contains("::")
 			or path.contains("\\") or not ResourceLoader.exists(path)
 		):
@@ -118,6 +137,28 @@ static func preflight(
 			ResourceLoader.CACHE_MODE_IGNORE_DEEP,
 		)
 		var resource_script: Script = resource.get_script() as Script if resource != null else null
+		if path in ROLE_TARGETS:
+			if action == null or dialogue_pools.has(path) or trait_additions.has(path):
+				return { "error": "Role targets require only an explicit role action." }
+			var roles: ET_NpcRoles = resource as ET_NpcRoles
+			if resource is DEF_EntityTemplate:
+				for role_trait: EntityTrait in (resource as DEF_EntityTemplate).traits:
+					if role_trait is ET_NpcRoles:
+						if roles != null:
+							return { "error": "Expected one resident roles provider." }
+						roles = role_trait as ET_NpcRoles
+			if roles == null:
+				return { "error": "Expected a resident roles provider." }
+			var already_present: bool = false
+			for existing: DEF_InteractionAction in roles.additional_actions:
+				if existing.action_id == action.action_id:
+					if existing.resource_path != role_action:
+						return { "error": "Role action ID conflicts with another Definition." }
+					already_present = true
+			if not already_present:
+				roles.additional_actions.append(action)
+			resources.append(resource)
+			continue
 		if resource_script == null or resource_script != (DEF_NpcArchetype as Script):
 			return { "error": "Only DEF_NpcArchetype definitions may be resaved.", "path": path }
 		var declared_default: Variant = resource_script.get_property_default_value(

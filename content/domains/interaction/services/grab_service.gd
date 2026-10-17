@@ -48,6 +48,9 @@ static func can_pickup_body(
 			return false
 		if CustomerInspectionQueries.owner_for(resolved_handle) != null:
 			return false
+		for link: Relationship in resolved_handle.relationships:
+			if link.relation is R_BuybackReserved:
+				return false
 		# Физическое тело не обязательно является предметом; живого персонажа нельзя переносить.
 		if resolved_handle.has_component(C_Living) and not resolved_handle.has_component(C_Death):
 			return false
@@ -231,8 +234,7 @@ static func throw_in_direction(holder: Entity, held: Entity, direction: Vector3)
 	# Release notifies observers; a retired body, replacement owner or World cannot be thrown.
 	if (
 		ECS.world != world or not EntityAvailability.contains(held, world)
-		or not GrabQueries.holder_available(holder)
-		or GrabQueries.physical_body(held) != body
+		or not GrabQueries.holder_available(holder) or GrabQueries.physical_body(held) != body
 		or GrabQueries.held_relationship(held) != null
 	):
 		return

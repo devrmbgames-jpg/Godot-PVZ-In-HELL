@@ -6,7 +6,7 @@ extends EditorPlugin
 const SOURCE_CFG: String = "res://addons/pvz_ai_tools/plugin.cfg"
 const HANDLER_PATH: String = "res://addons/pvz_ai_tools/gecs_tools.gd"
 const RETRY_SECONDS: float = 1.0
-const REGISTRATION_REVISION: int = 6
+const REGISTRATION_REVISION: int = 7
 const DebuggerBridgeScript := preload("res://addons/pvz_ai_tools/debugger_bridge.gd")
 
 var _registry: McpToolRegistry = null
@@ -448,6 +448,7 @@ func _npc_archetype_resave_spec() -> McpCustomToolSpec:
 			"fingerprints": { "type": "object", "maxProperties": 8 },
 			"dialogue_pools": { "type": "object", "maxProperties": 8 },
 			"trait_additions": { "type": "object", "maxProperties": 8 },
+			"role_action": { "type": "string" },
 		},
 		"required": ["fingerprints"],
 		"additionalProperties": false,

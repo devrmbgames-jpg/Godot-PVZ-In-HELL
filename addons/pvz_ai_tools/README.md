@@ -194,6 +194,14 @@ duplicate or incompatible traits refuse the complete batch before any save.
 Preflight loads definitions and all external dependencies from disk with
 `CACHE_MODE_IGNORE_DEEP`; unsaved cached trait edits cannot enter compatibility checks
 or the saved graph, and the editor's cached values remain unchanged.
+Optional `role_action` appends the existing commerce `def_action_npc_buyback.tres`
+to the two exact fingerprinted resident role providers: external
+`npc/authoring/et_district_npc_npc_roles.tres` and the inline Roles in
+`npc/definitions/def_entity_district_npc.tres`. Other paths/actions/types are refused.
+It preserves the complete separate native graph and root UID; an existing identical
+ID/path stays single, while a conflicting action ID refuses the batch. Example:
+`params={"fingerprints":{"res://content/domains/npc/definitions/def_entity_district_npc.tres":"<SHA-256>"},"role_action":"res://content/domains/commerce/definitions/def_action_npc_buyback.tres"}`.
+Plugin revision 7 refreshes registration automatically; exit still unregisters all tools.
 An anonymous global script reload error43 does not refresh exported layouts: confirm
 the actual exported properties or restart before saving authored resources.
 

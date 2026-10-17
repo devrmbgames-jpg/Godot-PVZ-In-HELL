@@ -45,7 +45,8 @@ static func handling_tags(package: Entity) -> int:
 	if contents != null and contents.released:
 		return 0
 	return PackageCargoRules.tags(
-		identity.definition, contents.selected_item if contents != null else null,
+		identity.definition,
+		contents.selected_item if contents != null else null,
 		contents.quantity if contents != null else 0,
 		contents.packing_profile if contents != null else null,
 	)
@@ -58,7 +59,9 @@ static func rupture_scene(package: Entity, destroyed: bool) -> PackedScene:
 	if contents != null and contents.released:
 		return null
 	return PackageCargoRules.rupture_scene(
-		identity.definition, contents.selected_item if contents != null else null, destroyed,
+		identity.definition,
+		contents.selected_item if contents != null else null,
+		destroyed,
 	)
 
 
@@ -67,7 +70,8 @@ static func is_liquid(package: Entity) -> bool:
 	var identity: C_Package = package.get_component(C_Package) as C_Package
 	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
 	return PackageLiquidRules.is_liquid(
-		identity.definition, contents.selected_item if contents != null else null
+		identity.definition,
+		contents.selected_item if contents != null else null,
 	)
 
 
@@ -108,7 +112,8 @@ static func restore_liquid_capability(package: Entity) -> void:
 	var identity: C_Package = package.get_component(C_Package) as C_Package
 	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
 	var recipe: C_LiquidTilt = PackageLiquidRules.recipe_for(
-		identity.definition, contents.selected_item if contents != null else null
+		identity.definition,
+		contents.selected_item if contents != null else null,
 	)
 	var tilt: C_LiquidTilt = package.get_component(C_LiquidTilt) as C_LiquidTilt
 	if recipe == null:
@@ -161,9 +166,7 @@ static func release(
 			return []
 		content_scene = load(state.selected_item.world_pickup_scene) as PackedScene
 		quantity = state.quantity
-	if (
-		content_scene == null or quantity < 1 or quantity > DEF_Package.MAX_CONTENT_QUANTITY
-	):
+	if (content_scene == null or quantity < 1 or quantity > DEF_Package.MAX_CONTENT_QUANTITY):
 		return []
 	var queue: C_LootDrops = LootDropService.current()
 	if queue == null:
@@ -184,6 +187,7 @@ static func release(
 		else (actor.id if is_instance_valid(actor) else "")
 	)
 	template.package_id = identity.package_id
+	template.source_history_id = identity.history_id
 	template.airborne = definition.spill_contents
 	template.activate_hazard = state.selected_item == null and definition.activate_contents_hazard
 	template.opening_hazard_path = (

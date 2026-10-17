@@ -199,6 +199,19 @@ static func _place(queue: C_LootDrops, record: PendingLootDrop, item: Entity) ->
 	components.append(identity)
 	item.component_resources = components
 	item.id = record.drop_id
+	# Копия authored stack задаётся до регистрации, как при штатном inventory drop.
+	# Context.initial_fields допускает только явно объявленные Trait поля.
+	if not record.package_id.is_empty():
+		var item_components: Array[Component] = item.component_resources.duplicate()
+		for index: int in item_components.size():
+			var stack: C_InventoryItem = item_components[index] as C_InventoryItem
+			if stack == null:
+				continue
+			var copy: C_InventoryItem = stack.duplicate() as C_InventoryItem
+			copy.source_package_id = record.package_id
+			copy.source_history_id = record.source_history_id
+			item_components[index] = copy
+		item.component_resources = item_components
 
 	# Позу задаём до входа в дерево: физический сервер впервые видит уже проверенную позицию.
 	body.transform = parent.global_transform.affine_inverse() * placement_result.pose

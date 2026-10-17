@@ -48,3 +48,6 @@ var last_spawn_tick: int = -1
 
 ## Transient delivery context revision; explicit restore invalidates pre-load requests.
 var context_revision: int = 0
+## Transient guard доставки committed факта; actual manifest/ledger остаются источником истины.
+## reset_context разрешает повтор факта после restore, consumer фиксирует batch_id идемпотентно.
+var completion_published_batch: String = ""

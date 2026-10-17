@@ -37,7 +37,9 @@ func _accepted(suffix: String) -> NpcHomeDelivery:
 		load("res://content/domains/packages/entities/package_a.tscn") as PackedScene
 	).instantiate() as E_Package
 	parcel.package_id = visit.package_id
-	parcel.package_definition = ORDER_SCHEDULE.supply.packages[0]
+	# Schedule._init загружает supply в runtime; editor parser не исполняет этот non-tool init.
+	var supply: DEF_Delivery = ORDER_SCHEDULE.supply
+	parcel.package_definition = supply.packages[0]
 	EntityCompositionFixture.register(_world, parcel)
 	assert_eq(
 		PackageRegistrationService.register_package(parcel).outcome,

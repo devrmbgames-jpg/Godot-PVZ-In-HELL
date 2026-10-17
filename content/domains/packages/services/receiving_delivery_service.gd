@@ -16,6 +16,7 @@ static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_inde
 	receiving.batch_id = "%s:%d" % [supply.key, day_index]
 	receiving.incoming_package_ids.clear()
 	receiving.last_started_day = day_index
+	receiving.completion_published_batch = ""
 	receiving.blocked = false
 	var available: int = maxi(0, supply.maximum_waiting_packages - waiting_count())
 	var limit: int = mini(supply.maximum_batch_packages, available)
@@ -31,9 +32,7 @@ static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_inde
 		var definition: DEF_Package = (
 			supply.packages[(start_index + offset) % supply.packages.size()]
 		)
-		if (
-			definition == null or not _has_recipient(definition)
-		):
+		if (definition == null or not _has_recipient(definition)):
 			continue
 		var package_id: String = "%s:%s" % [receiving.batch_id, definition.key]
 		var ordered_item: DEF_InventoryItem = _order_item(supply, definition, package_id, day_index)
@@ -41,8 +40,11 @@ static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_inde
 		var scene_path: String = ""
 		if ordered_item != null:
 			shipment = PackageShipmentRules.choose(
-				ordered_item, supply.packing_profiles, GameTimeQueries.current().world_seed,
-				package_id, day_index,
+				ordered_item,
+				supply.packing_profiles,
+				GameTimeQueries.current().world_seed,
+				package_id,
+				day_index,
 			)
 			if shipment == null:
 				continue
@@ -165,6 +167,7 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 			receiving.blocked = truck == null
 			return
 	if receiving.pending.is_empty():
+		_publish_completion(zone, receiving, day_index)
 		return
 	if receiving.last_spawn_tick == Engine.get_physics_frames():
 		return
@@ -173,6 +176,7 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 	if batch.next_package >= batch.package_keys.size():
 		receiving.pending.pop_front()
 		receiving.blocked = false
+		_publish_completion(zone, receiving, day_index)
 		return
 	if waiting_count() >= zone.supply.maximum_waiting_packages:
 		receiving.blocked = true
@@ -185,14 +189,14 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 			definition = candidate
 			break
 	if definition == null:
-		_advance(receiving, batch)
+		_advance(zone, receiving, batch)
 		return
 	var package_id: String = "%s:%d:%s" % [zone.supply.key, batch.day_index, definition.key]
 	if (
 		ReceivingPackageFactory.exists(package_id)
 		or PackageHistoryService.record_for(package_id) != null
 	):
-		_advance(receiving, batch)
+		_advance(zone, receiving, batch)
 		return
 
 	var package_scene: String = ""
@@ -238,10 +242,19 @@ static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index
 		return
 
 	receiving.last_spawn_tick = Engine.get_physics_frames()
-	_advance(receiving, batch)
-	# Commit manifest and registration before planning/registration callbacks can re-enter.
 	var world: World = ECS.world
 	var parcel_reference: WeakRef = weakref(parcel)
+	_advance(zone, receiving, batch)
+	# Факт полного прибытия тоже допускает синхронные callbacks с реальной сменой lifetime.
+	parcel = parcel_reference.get_ref() as E_Package
+	if (
+		ECS.world != world or not EntityAvailability.contains(zone, world)
+		or zone.get_component(C_Receiving) != receiving
+		or not EntityAvailability.contains(parcel, world)
+		or parcel.get_component(C_Package) != identity
+	):
+		return
+	# Commit manifest and registration before planning/registration callbacks can re-enter.
 	CustomerFlowService.plan_delivered_package(identity)
 	parcel = parcel_reference.get_ref() as E_Package
 	if (
@@ -259,6 +272,7 @@ static func reset_context(receiving: C_Receiving) -> void:
 	receiving.last_spawn_tick = -1
 	receiving.reservation_frame = -1
 	receiving.reservations.clear()
+	receiving.completion_published_batch = ""
 
 
 ## Rehydrates committed values only; catalog/preferences and decision RNG are not consulted.
@@ -286,8 +300,26 @@ static func _retained_shipment(batch: ReceivingBatch) -> PackageShipmentPlan:
 	return PackageShipmentPlan.new(item, quantity, packing, path)
 
 
-static func _advance(receiving: C_Receiving, batch: ReceivingBatch) -> void:
+static func _advance(zone: E_ReceivingZone, receiving: C_Receiving, batch: ReceivingBatch) -> void:
 	batch.next_package += 1
 	receiving.delivered_counts[batch.day_index] = batch.next_package
 	receiving.blocked = false
+	if batch.next_package >= batch.package_keys.size():
+		receiving.pending.erase(batch)
+		_publish_completion(zone, receiving, batch.day_index)
+
+
+static func _publish_completion(zone: E_ReceivingZone, receiving: C_Receiving, day: int) -> void:
+	if (
+		not receiving.pending.is_empty() or receiving.batch_id.is_empty()
+		or receiving.last_started_day != day
+		or receiving.completion_published_batch == receiving.batch_id
+	):
+		return
+	receiving.completion_published_batch = receiving.batch_id
+	var fact: ReceivingSupplyCompleted = ReceivingSupplyCompleted.new(
+		receiving,
+		PackageQueries.ledger(),
+	)
+	ECS.world.emit_event(ReceivingSupplyCompleted.EVENT, zone, fact)
 #endregion

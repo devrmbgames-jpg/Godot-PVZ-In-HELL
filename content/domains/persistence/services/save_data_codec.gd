@@ -12,6 +12,7 @@ static var _component_fields: Dictionary = {
 	C_NpcAddress: C_NpcAddress.SAVE_FIELDS,
 	C_DamageResistance: C_DamageResistance.SAVE_FIELDS,
 	C_Commerce: C_Commerce.SAVE_FIELDS,
+	C_Buyback: C_Buyback.SAVE_FIELDS,
 	C_QuestSession: C_QuestSession.SAVE_FIELDS,
 	C_Inventory: C_Inventory.SAVE_FIELDS,
 	C_InventoryItem: C_InventoryItem.SAVE_FIELDS,
@@ -55,6 +56,9 @@ static var _record_types: Array[Script] = [
 	DailyMoneyResult,
 	PackageRegistrationRecord,
 	PurchaseReceipt,
+	BuybackItemPrice,
+	BuybackSaleItem,
+	BuybackSale,
 	PendingDelivery,
 	RefusalQuestRecord,
 	ReceivingBatch,
@@ -220,6 +224,9 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		PackageRegistrationRecord,
 		SoulTradeRecord,
 		BloodConsentRecord,
+		BuybackItemPrice,
+		BuybackSaleItem,
+		BuybackSale,
 	]:
 		var exact_fields: Array[String] = GameClock.SAVE_FIELDS
 		if script == NpcVariation:
@@ -238,6 +245,12 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			exact_fields = SoulTradeRecord.SAVE_FIELDS
 		elif script == BloodConsentRecord:
 			exact_fields = BloodConsentRecord.SAVE_FIELDS
+		elif script == BuybackItemPrice:
+			exact_fields = BuybackItemPrice.SAVE_FIELDS
+		elif script == BuybackSaleItem:
+			exact_fields = BuybackSaleItem.SAVE_FIELDS
+		elif script == BuybackSale:
+			exact_fields = BuybackSale.SAVE_FIELDS
 		if fields.size() != exact_fields.size():
 			return false
 		for required_field: String in exact_fields:

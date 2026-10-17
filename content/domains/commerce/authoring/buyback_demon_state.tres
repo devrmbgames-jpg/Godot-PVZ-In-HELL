@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="C_Buyback" format=3 uid="uid://btu1jke4ywo3q"]
+
+[ext_resource type="Script" uid="uid://bqrcqpsn3fdit" path="res://content/domains/commerce/contracts/buyback_item_price.gd" id="1_jy283"]
+[ext_resource type="Resource" uid="uid://b7tc0jolq2im7" path="res://content/domains/commerce/definitions/def_buyback_demon_prototype.tres" id="2_6ke47"]
+[ext_resource type="Script" uid="uid://ekppc6a5f4wx" path="res://content/domains/commerce/contracts/buyback_sale.gd" id="3_mxgsj"]
+[ext_resource type="Script" uid="uid://hi7wrl2grvrs" path="res://content/domains/commerce/components/c_buyback.gd" id="4_dp0dr"]
+
+[resource]
+script = ExtResource("4_dp0dr")
+profile = ExtResource("2_6ke47")
+source_package_ids = PackedStringArray()
+premium_item_keys = PackedStringArray()
+premium_spent_keys = PackedStringArray()

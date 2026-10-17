@@ -17,7 +17,7 @@ Lost без дома. Никаких случайных преемников; re
 
 ## Current
 
-Последний reviewed provider `ccf91885d92fd415926ae765e4c868293403b135`:
+Последний reviewed provider `927fd5ab7c321505f229be80b8797794680a4daa`:
 R1a/R1b typed DEF_NpcPerson, три явные prototype-карточки, fixed ID/home/recipient/profile/scene,
 seed/order independence, strict retained/fresh/cold restore. R2a календарь/retained body/loot
 и R2b знание/персональная реакция реализованы, reviewed. NpcDeathRecord хранит факты отдельно
@@ -25,11 +25,11 @@ seed/order independence, strict retained/fresh/cold restore. R2a календа�
 UI хранит borrowed номер эпизода; показ строки, не async чтение, подтверждает response_given.
 Native idle subtree применяет разовую реакцию; бой/опасность/роли выше, NPC-конфликт сохраняет
 разрешения/риски/ambient budget. Память не перезапускает погоню после одного эпизода.
-Schema30/strict preflight/native golden согласованы; PVZH1 unchanged, ConfigFile DEFERRED.
+Schema31/strict preflight/native golden согласованы; PVZH1 unchanged, ConfigFile DEFERRED.
 
 R2c1 reviewed: buffered death/drop сохраняет supported carried quantity/physical ID, включая
 native disable, disk/cold и повторную жизнь. RV-006 FIXED в ccf91885d92fd415926ae765e4c868293403b135.
-R2c2 native/cold/schema PASS; review7037fd0c принят с RV-007 P2, repair1/2 in progress.
+R2c2 native/cold/schema/review PASS; RV-007 FIXED, repair1/2.
 CustomerVisit.absence_sequence приостанавливает нерешённое появление. NpcReturnCommitted
 возобновляет тот же visit после действительного возврата; срок доставки вычисляется чистым
 HomeDeliveryDeadlineRules из исходного обещания и истории смертей, включая blocked return.
@@ -40,7 +40,7 @@ HomeDeliveryDeadlineRules из исходного обещания и истор
 Main/rooms ещё profiles path — временная граница R1c, не постоянная dual resident модель.
 Lost main пока placed merchant: до guest-перевода нужны семь barter-ролей. Девятый физический
 дом — provider physical_homes_and_privacy. Ранние имена/образы/реплики — обратимые prototypes,
-не финальный канон. R2c2 проходит завершающие gates; полный R3 не реализован.
+не финальный канон. R2c2 reviewed; полный R3 не реализован.
 
 ## Work packages
 
@@ -60,13 +60,11 @@ Lost main пока placed merchant: до guest-перевода нужны се�
 
 ## Next
 
-R2c2 committed `7037fd0c73d5b1f952397e47d3d920a357d3046d`; review завершён:
-BASE `ccf91885d92fd415926ae765e4c868293403b135` → TARGET
-`7037fd0c73d5b1f952397e47d3d920a357d3046d`: RV-007 P2 принят. Due ordinary visit
-после уже planned DAY остаётся finished до следующего planning fact. Native reproducer,
-узкое _resume_returned→reactivate по actual day реализовано. Commit fix и
-запустить targeted re-review от7037fd0c, repair1/2; до результата REVIEW_PENDING.
-Пока review pending — только независимый анализ barter/home/R3 authoring, без зависимых правок.
+R2c2 принят: BASE `ccf91885d92fd415926ae765e4c868293403b135` → TARGET
+`7037fd0c73d5b1f952397e47d3d920a357d3046d`; targeted repair/re-review BASE7037fd0c →
+TARGET `927fd5ab7c321505f229be80b8797794680a4daa`: PASS/no findings.
+Перейти к конкретному provider [barter T1](district_resident_barter_and_buyback.md), затем
+оставшимся seven trade roles/home contracts для R1c; у жителей не создавать второй магазин.
 После R2 завершить R1c вместе с конкретными barter/home providers; проверить authored placed
 merchant, удалить старую замену live residents. Полный авторский R3 остаётся обязательным.
 
@@ -114,7 +112,7 @@ Explicit verified .bin Godot path required by smoke runner (JSONC settings resol
 
 | Canonical triage | Review / repair evidence |
 | --- | --- |
-| RV-007 due ordinary return **ACCEPTED; fix tested, RE-REVIEW_PENDING** | BASE `ccf91885d92fd415926ae765e4c868293403b135` → TARGET `7037fd0c73d5b1f952397e47d3d920a357d3046d`: P2. Native red30/603 `gut-20261017-001249894` 29 passed; green31/619 `001427188` PASS/CLEAN, including already-planned DAY and future Morning during Night; accepted-home deadlines unchanged. Repair1/2. |
+| RV-007 due ordinary return **FIXED** | Fix/re-review `927fd5ab7c321505f229be80b8797794680a4daa`, BASE `7037fd0c73d5b1f952397e47d3d920a357d3046d`: PASS/no findings, cycle1/2. Red29/30 `gut-20261017-001249894`, green31/619 `001427188` PASS/CLEAN: planned DAY, future Morning during Night, accepted-home dates. |
 | RV-004 timing, RV-005 Russian context docs **FIXED** | R2b BASE `5deafb36b509cb675f5144e4201c828e8fd5d9f0` → TARGET `6ec18d7f1b962aa8cabe2b7f47ff521e92d9a503`: two P2 accepted. Fix/re-review TARGET `bdd05240b7d03037eacd76c6ed2cce8d6549b82f`, BASE `6ec18d7f1b962aa8cabe2b7f47ff521e92d9a503`: PASS, cycle1/2. Red25/27 `232906671`, green27/488 `233003727`, both LOS directions/calendar; executable-line docs equivalence PASS. |
 | RV-002 exact fields, RV-003 pending body **FIXED** | R2a BASE `2c0be0eae47131f0a3b41bcc23f1a5eced4ed015` → TARGET `30e6716aa696311581cd1be4145dbd1466d080cd`: two P2. Fix/re-review TARGET `5deafb36b509cb675f5144e4201c828e8fd5d9f0`, BASE `30e6716aa696311581cd1be4145dbd1466d080cd`: PASS, cycle1/2. Red `230318246`, green16/310 `230350002`, six corruptions reject before mutation. |
 | RV-001 scene/card **FIXED** | code `83873c575b0db5cb6684b7ff90cdc6d1085fa0fd` had structure FAIL; read edge `0b86da5ba79f028f62c77d34991472e74956ab95` fixes gate. Re-review BASE `11d735a284aa0b4211608735266ea597c77de338` → TARGET `0b86da5ba79f028f62c77d34991472e74956ab95`: PASS, cycle1/2. |
@@ -123,13 +121,12 @@ R1 cold-smoke review BASE `0b86da5ba79f028f62c77d34991472e74956ab95` →
 TARGET `2c0be0eae47131f0a3b41bcc23f1a5eced4ed015`: PASS.
 R1a BASE `92da28ef275ff4e6331bb171251eb8e5ca9e2c41` →
 TARGET `d143a897bcb0c508de1caa50f3eb4a9835d4723e`: PASS, cards8/89.
-Raw early trial failures remain in artifacts; not engine-waived. Old offline authoring
-`offlinescript-20261016-{214450592,215150462}.*` FAIL (ECS/scan/mixed shutdown), output
-independently CLEAN GUT; no expanded waiver/investigation. Current assets use live MCP.
+Raw failed trials preserved; no expanded engine waiver. Old offline authoring failures
+remain independently corrected by CLEAN native output/MCP; not treated as PASS commands.
 
 ## Owner QA / blockers
 
-R1c/authored placed merchant, R2c2 review, full R3 obligations and owner acceptance remain open;
+R1c/authored placed merchant, full R3 obligations and owner acceptance remain open;
 вся задача не DONE. Required missing authoring data не заменяется случайной генерацией.
 Rendered milestone budget **0/8**; по последнему указанию владельца не спрашивать повторно
 в пределах неиспользованного лимита. Исчерпанные physics/H4/C4 budgets не переиспользуются.

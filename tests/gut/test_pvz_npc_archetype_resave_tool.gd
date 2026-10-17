@@ -3,6 +3,42 @@ extends GutTest
 
 const TOOL: Script = preload("res://addons/pvz_ai_tools/npc_archetype_resave_tool.gd")
 const PROFILE: String = "res://content/domains/npc/definitions/def_npc_archetype_shy.tres"
+const BUYBACK_ACTION: String = (
+	"res://content/domains/commerce/definitions/def_action_npc_buyback.tres"
+)
+
+
+## Native action addition changes only detached roles; fingerprints and UID stay owned by editor.
+func test_role_action_preserves_graph_and_refuses_stale_or_inspected_target() -> void:
+	for path: String in TOOL.ROLE_TARGETS:
+		var checksum: String = FileAccess.get_sha256(path)
+		var cached: Resource = load(path) as Resource
+		var result: Dictionary = TOOL.preflight({path: checksum}, null, {}, {}, BUYBACK_ACTION)
+		assert_false(result.has("error"))
+		var prepared: Resource = result.resources[0] as Resource
+		assert_not_same(prepared, cached)
+		var roles: ET_NpcRoles = prepared as ET_NpcRoles
+		if prepared is DEF_EntityTemplate:
+			for role_trait: EntityTrait in (prepared as DEF_EntityTemplate).traits:
+				if role_trait is ET_NpcRoles:
+					roles = role_trait as ET_NpcRoles
+		assert_not_null(roles)
+		var count: int = 0
+		for action: DEF_InteractionAction in roles.additional_actions:
+			if action.action_id == &"buyback":
+				count += 1
+		assert_eq(count, 1)
+		assert_eq(roles.street_action.action_id, &"npc_street_dialogue")
+		assert_not_null(roles.hunger_policy)
+		assert_not_null(roles.trader_profile)
+		assert_eq(FileAccess.get_sha256(path), checksum)
+		assert_true(TOOL.preflight({path: "stale"}, null, {}, {}, BUYBACK_ACTION).has("error"))
+		assert_true(TOOL.preflight({path: checksum}, cached, {}, {}, BUYBACK_ACTION).has("error"))
+		assert_true(TOOL.preflight({path: checksum}).has("error"))
+		assert_true(TOOL.preflight(
+			{path: checksum}, null, {}, {}, BUYBACK_ACTION + "::escape",
+		).has("error"))
+
 
 
 func test_unsaved_trait_kind_cannot_bypass_disk_compatibility_or_change_cached_values() -> void:

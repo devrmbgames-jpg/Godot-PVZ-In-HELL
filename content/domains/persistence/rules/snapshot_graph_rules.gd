@@ -77,6 +77,20 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 					return false
 				if not ReceivingSnapshotRules.valid(receiving, entity):
 					return false
+		if entity is E_BuybackContainer or saved_types.has(C_Buyback):
+			if not entity is E_BuybackContainer or not saved_types.has(C_Buyback):
+				return false
+			var authored: C_Buyback = _component(entity, C_Buyback) as C_Buyback
+			if authored == null or authored.profile == null:
+				return false
+			for saved: Dictionary in record.components:
+				if SaveDataCodec.component_script(String(saved.type)) != C_Buyback:
+					continue
+				var saved_profile: DEF_BuybackProfile = SaveDataCodec.decode(
+					(saved.fields as Dictionary).profile
+				) as DEF_BuybackProfile
+				if saved_profile != authored.profile:
+					return false
 		if record.has("pose") and not (entity as Node) is Node3D:
 			return false
 		for required: Script in [C_Karma, C_Strength, C_SoulTrade]:

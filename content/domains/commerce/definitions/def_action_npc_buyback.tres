@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_BuybackAction" format=3 uid="uid://76ilf5esfdgp"]
+
+[ext_resource type="Script" uid="uid://dfgl6gvlnapsx" path="res://content/domains/commerce/definitions/def_buyback_action.gd" id="1_vtgrw"]
+
+[resource]
+script = ExtResource("1_vtgrw")
+action_id = &"buyback"
+caption = "Продать содержимое контейнера"
+priority = 10

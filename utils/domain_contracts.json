@@ -1972,16 +1972,19 @@
         "new"
       ],
       "sources": [
-        "content/services/commerce/order_delivery_service.gd"
+        "content/services/commerce/order_delivery_service.gd",
+        "content/domains/commerce/entities/e_buyback_container.gd"
       ],
       "method_rights": {
         "new": "read",
         "find": "request",
-        "prepare": "request"
+        "prepare": "request",
+        "bounds_at": "query"
       },
       "public_instance_methods": [
         "find",
-        "prepare"
+        "prepare",
+        "bounds_at"
       ]
     },
     {
@@ -21094,6 +21097,612 @@
         "content/domains/customers/rules/home_delivery_deadline_rules.gd"
       ],
       "purpose": "Resume existing customer obligations from committed authored absence history; no NPC writes."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/entities/e_buyback_container.gd"
+      ],
+      "purpose": "Buyback uses existing immutable time, native authoring and actual arrival facts; no second owner."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "time",
+      "symbol": "DecisionRandomRules",
+      "path": "content/domains/time/rules/decision_random_rules.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "generator"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "generator": "query"
+      },
+      "sources": [
+        "content/domains/commerce/rules/buyback_price_rules.gd"
+      ],
+      "purpose": "Buyback uses existing immutable time, native authoring and actual arrival facts; no second owner."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "time",
+      "symbol": "GameTimeQueries",
+      "path": "content/domains/time/services/game_time_queries.gd",
+      "rights": [
+        "query"
+      ],
+      "public_methods": [
+        "current",
+        "decision"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "current": "query",
+        "decision": "query"
+      },
+      "sources": [
+        "content/domains/commerce/services/buyback_market_service.gd"
+      ],
+      "purpose": "Buyback uses existing immutable time, native authoring and actual arrival facts; no second owner."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "packages",
+      "symbol": "ReceivingSupplyCompleted",
+      "path": "content/domains/packages/contracts/receiving_supply_completed.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_market_service.gd"
+      ],
+      "purpose": "Buyback uses existing immutable time, native authoring and actual arrival facts; no second owner."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "interaction",
+      "symbol": "R_StoredIn",
+      "path": "content/domains/interaction/relationships/r_stored_in.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "interaction",
+      "symbol": "C_PlayerAnchored",
+      "path": "content/domains/interaction/components/c_player_anchored.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "combat",
+      "symbol": "C_Living",
+      "path": "content/domains/combat/components/c_living.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "interaction",
+      "symbol": "R_HeldBy",
+      "path": "content/domains/interaction/relationships/r_held_by.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "inventory",
+      "symbol": "R_OwnedBy",
+      "path": "content/domains/inventory/relationships/r_owned_by.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "interaction",
+      "symbol": "R_CartCargo",
+      "path": "content/domains/interaction/relationships/r_cart_cargo.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "customers",
+      "symbol": "R_InspectionCargo",
+      "path": "content/domains/customers/relationships/r_inspection_cargo.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "packages",
+      "symbol": "C_Package",
+      "path": "content/domains/packages/components/c_package.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "npc",
+      "symbol": "C_NpcIdentity",
+      "path": "content/domains/npc/components/c_npc_identity.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "packages",
+      "symbol": "PackageQueries",
+      "path": "content/domains/packages/services/package_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "ledger"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "ledger": "query"
+      },
+      "sources": [
+        "content/domains/commerce/observers/o_buyback_market.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "packages",
+      "symbol": "C_Receiving",
+      "path": "content/domains/packages/components/c_receiving.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/observers/o_buyback_market.gd",
+        "content/domains/commerce/services/buyback_queries.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "commerce",
+      "symbol": "R_BuybackReserved",
+      "path": "content/domains/commerce/relationships/r_buyback_reserved.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/interaction/grab_service.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "inventory",
+      "target_owner": "commerce",
+      "symbol": "R_BuybackReserved",
+      "path": "content/domains/commerce/relationships/r_buyback_reserved.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/inventory/inventory_service.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "commerce",
+      "symbol": "R_BuybackReserved",
+      "path": "content/domains/commerce/relationships/r_buyback_reserved.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "C_Buyback",
+      "path": "content/domains/commerce/components/c_buyback.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/buyback_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd",
+        "content/services/persistence/snapshot_graph_rules.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "BuybackSale",
+      "path": "content/domains/commerce/contracts/buyback_sale.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/buyback_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "BuybackSaleItem",
+      "path": "content/domains/commerce/contracts/buyback_sale_item.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/buyback_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "BuybackItemPrice",
+      "path": "content/domains/commerce/contracts/buyback_item_price.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/buyback_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "DEF_BuybackProfile",
+      "path": "content/domains/commerce/definitions/def_buyback_profile.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/buyback_snapshot_rules.gd",
+        "content/services/persistence/snapshot_graph_rules.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "E_BuybackContainer",
+      "path": "content/domains/commerce/entities/e_buyback_container.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/persistence/snapshot_graph_rules.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "BuybackPriceRules",
+      "path": "content/domains/commerce/rules/buyback_price_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "ordinary_price",
+        "premium_price",
+        "demand_keys"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "ordinary_price": "query",
+        "premium_price": "query",
+        "demand_keys": "query"
+      },
+      "sources": [
+        "content/domains/persistence/rules/buyback_snapshot_rules.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "C_Buyback",
+      "path": "content/domains/commerce/components/c_buyback.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/buyback_panel.gd",
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "E_BuybackContainer",
+      "path": "content/domains/commerce/entities/e_buyback_container.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/buyback_panel.gd",
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "BuybackQuote",
+      "path": "content/domains/commerce/contracts/buyback_quote.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/buyback_panel.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "BuybackSaleItem",
+      "path": "content/domains/commerce/contracts/buyback_sale_item.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/buyback_panel.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "BuybackQueries",
+      "path": "content/domains/commerce/services/buyback_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "container_for",
+        "unavailable_reason"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "container_for": "query",
+        "unavailable_reason": "query"
+      },
+      "sources": [
+        "content/ui/buyback_panel.gd",
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "BuybackTradeService",
+      "path": "content/domains/commerce/services/buyback_trade_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "quote",
+        "confirm"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "quote": "request",
+        "confirm": "request"
+      },
+      "sources": [
+        "content/ui/buyback_panel.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "BuybackPanelOpenRequest",
+      "path": "content/domains/commerce/contracts/buyback_panel_open_request.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "O_BuybackMarket",
+      "path": "content/domains/commerce/observers/o_buyback_market.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "request"
+      },
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Explicit buyback integration: read captured state/identity or enter the owning synchronous operation; no foreign mutable authority."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "commerce",
+      "symbol": "C_Commerce",
+      "path": "content/domains/commerce/components/c_commerce.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "purpose": "Read synchronous commerce busy guard before the truck manifest can admit another transaction during native callbacks; no foreign state writes."
     }
   ],
   "legacy_decomposition": []

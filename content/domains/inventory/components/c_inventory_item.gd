@@ -5,12 +5,22 @@ extends Component
 class_name C_InventoryItem
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
-const SAVE_FIELDS: Array[String] = ["definition", "quantity"]
+const SAVE_FIELDS: Array[String] = [
+	"definition",
+	"quantity",
+	"source_package_id",
+	"source_history_id",
+]
 
 ## Immutable авторское описание вида предмета/maximum_stack; runtime его не изменяет.
 @export var definition: DEF_InventoryItem = null
 ## InventoryService пишет количество: живой стек содержит 1..maximum_stack, нулевой удаляется.
 @export var quantity: int = 1
+## Исходная посылка извлечённого товара; пусто у обычного имущества и покупок.
+## Loot construction задаёт происхождение, inventory transfer/drop сохраняет его.
+@export var source_package_id: String = ""
+## Архивный ID исходной посылки; скупка не меняет её получателя или результат выдачи.
+@export var source_history_id: String = ""
 ## InventoryService/InventoryDropService удерживают при переносе/drop: снятие связи не удаляет стек.
 var transfer_in_progress: bool = false
 ## Transient correlation ID InventoryService; pending лечение ждёт совпавший DamageResult.

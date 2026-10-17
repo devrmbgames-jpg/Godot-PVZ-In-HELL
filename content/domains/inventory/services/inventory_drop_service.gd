@@ -69,6 +69,8 @@ static func drop(actor: Entity, item: Entity) -> bool:
 			var stack: C_InventoryItem = C_InventoryItem.new()
 			stack.definition = state.definition
 			stack.quantity = state.quantity
+			stack.source_package_id = state.source_package_id
+			stack.source_history_id = state.source_history_id
 			components[index] = stack
 			replaced = true
 	if not replaced:
@@ -120,9 +122,13 @@ static func release_on_death(owner: Entity) -> void:
 		return
 
 	# Terminal callback может исполниться после native disable; items(owner) требует live owner.
-	var carried: Array[Entity] = ECS.world.query.with_all([C_InventoryItem]).with_relationship([
-		Relationship.new(R_OwnedBy.new(), owner),
-	]).execute().duplicate()
+	var carried: Array[Entity] = ECS \
+			.world \
+			.query \
+			.with_all([C_InventoryItem]) \
+			.with_relationship([Relationship.new(R_OwnedBy.new(), owner)]) \
+			.execute() \
+			.duplicate()
 	for item: Entity in carried:
 		if InventoryService.owner_for(item) != owner:
 			continue
@@ -156,6 +162,8 @@ static func release_on_death(owner: Entity) -> void:
 				var stack: C_InventoryItem = C_InventoryItem.new()
 				stack.definition = state.definition
 				stack.quantity = state.quantity
+				stack.source_package_id = state.source_package_id
+				stack.source_history_id = state.source_history_id
 				components[index] = stack
 				replaced = true
 		if not replaced:

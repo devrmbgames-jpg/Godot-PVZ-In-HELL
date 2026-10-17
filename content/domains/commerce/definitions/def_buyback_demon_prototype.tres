@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_BuybackProfile" format=3 uid="uid://b7tc0jolq2im7"]
+
+[ext_resource type="Script" uid="uid://dxj3bw0yiirnv" path="res://content/domains/commerce/definitions/def_buyback_profile.gd" id="1_nbjq5"]
+
+[resource]
+script = ExtResource("1_nbjq5")
+npc_id = &"npc/9"
+display_name = "Азгар · скупка"
+rejected_item_keys = PackedStringArray("holy_artifact")
+key = &"buyback/demon_prototype"

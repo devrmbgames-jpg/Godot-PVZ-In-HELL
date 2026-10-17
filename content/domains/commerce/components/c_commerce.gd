@@ -4,10 +4,18 @@ extends Component
 class_name C_Commerce
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
-const SAVE_FIELDS: Array[String] = ["receipts", "pending_deliveries", "next_request"]
+const SAVE_FIELDS: Array[String] = [
+	"receipts",
+	"buyback_sales",
+	"pending_deliveries",
+	"next_request",
+]
 
 ## Журнал оплаченных покупок; ID защищают от повторного списания.
 @export var receipts: Array[PurchaseReceipt] = []
+## История принятых продаж контейнеров; переживает отсутствие NPC и удаление самой точки.
+## BuybackTradeService фиксирует receipt и деньги одной синхронной операцией.
+@export var buyback_sales: Array[BuybackSale] = []
 ## Оплаченные доставки, включая уже исполненные для защиты от повтора.
 @export var pending_deliveries: Array[PendingDelivery] = []
 ## Неизменяемый runtime ассортимент терминала; ассортимент торговца задаёт отдельный Profile.

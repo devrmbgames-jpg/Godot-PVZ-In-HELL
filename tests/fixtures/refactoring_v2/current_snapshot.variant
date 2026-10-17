@@ -799,6 +799,7 @@
 "type": "res://content/domains/packages/components/c_receiving.gd"
 }, {
 "fields": {
+"buyback_sales": [],
 "next_request": 0,
 "pending_deliveries": [{
 "fields": {
@@ -1646,7 +1647,9 @@
 "definition": {
 "definition": "res://content/domains/inventory/definitions/def_item_npc_meat.tres"
 },
-"quantity": 3
+"quantity": 3,
+"source_history_id": "",
+"source_package_id": ""
 },
 "type": "res://content/domains/inventory/components/c_inventory_item.gd"
 }, {
@@ -1778,5 +1781,5 @@
 }]),
 "morning_day": 2,
 "raw_actors": Array[Dictionary]([]),
-"version": 31
+"version": 32
 }

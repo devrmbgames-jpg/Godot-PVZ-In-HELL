@@ -47,6 +47,7 @@ func _ready() -> void:
 		O_CustomerInspectionCargo,
 		O_DialoguePanelRequest,
 		O_GameplayPanelRequest,
+		O_BuybackMarket,
 		O_NightPreparationRequirement,
 	]):
 		var composition_observer: Observer = observer_type.new() as Observer

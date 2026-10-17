@@ -1,5 +1,5 @@
 {
-  "schema": 31,
+  "schema": 32,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -88,8 +88,23 @@
       "path": "res://content/domains/commerce/components/c_commerce.gd",
       "fields": [
         "receipts",
+        "buyback_sales",
         "pending_deliveries",
         "next_request"
+      ]
+    },
+    {
+      "symbol": "C_Buyback",
+      "path": "res://content/domains/commerce/components/c_buyback.gd",
+      "fields": [
+        "profile",
+        "price_day",
+        "price_seed",
+        "supply_batch_id",
+        "source_package_ids",
+        "premium_item_keys",
+        "premium_spent_keys",
+        "prices"
       ]
     },
     {
@@ -111,7 +126,9 @@
       "path": "res://content/domains/inventory/components/c_inventory_item.gd",
       "fields": [
         "definition",
-        "quantity"
+        "quantity",
+        "source_package_id",
+        "source_history_id"
       ]
     },
     {
@@ -373,6 +390,18 @@
     {
       "symbol": "PurchaseReceipt",
       "path": "res://content/domains/commerce/contracts/purchase_receipt.gd"
+    },
+    {
+      "symbol": "BuybackItemPrice",
+      "path": "res://content/domains/commerce/contracts/buyback_item_price.gd"
+    },
+    {
+      "symbol": "BuybackSaleItem",
+      "path": "res://content/domains/commerce/contracts/buyback_sale_item.gd"
+    },
+    {
+      "symbol": "BuybackSale",
+      "path": "res://content/domains/commerce/contracts/buyback_sale.gd"
     },
     {
       "symbol": "PendingDelivery",

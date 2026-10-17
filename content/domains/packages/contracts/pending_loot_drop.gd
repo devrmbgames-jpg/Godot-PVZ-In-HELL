@@ -20,6 +20,8 @@ class_name PendingLootDrop
 @export var actor_id: String = ""
 ## ID посылки для осмотра и исходных опасностей; пустой для останков.
 @export var package_id: String = ""
+## Архивная история исходной посылки, снятая до удаления оболочки и сохранённая в pending retry.
+@export var source_history_id: String = ""
 ## Выпадение над коробкой сохраняет высоту вместо прижатия к полу.
 @export var airborne: bool = false
 ## Исключать отключаемое мёртвое тело из физической проверки.

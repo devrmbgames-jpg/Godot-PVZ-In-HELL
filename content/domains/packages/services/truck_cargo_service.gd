@@ -11,6 +11,11 @@ const PERCENT_BASE: int = 100
 ## false после начала исполнения не откатывает удаление: receipts сохраняют оставшийся расчёт.
 ## Повтор использует ту же партию и wallet operation IDs; COMMITTED/DUPLICATE завершают оплату.
 static func commit(zone: E_ReceivingZoneBody, cycle: C_DayCycle) -> bool:
+	# Синхронная commerce операция резервирует всю партию последовательно: callback первого
+	# резерва не должен отгрузить ещё не связанный следующий предмет.
+	for owner: Entity in ECS.world.query.with_all([C_Commerce]).execute():
+		if (owner.get_component(C_Commerce) as C_Commerce).transaction_in_progress:
+			return false
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
 	if receiving.cargo_commit_in_progress or receiving.batch_id.is_empty():
 		return false
@@ -122,7 +127,7 @@ static func _is_free_raw(body: RigidBody3D, truck: E_MorningTruck) -> bool:
 	for link: Relationship in proxy.relationships:
 		if (
 			link.relation is R_OwnedBy or link.relation is R_CartCargo
-			or link.relation is R_StoredIn
+			or link.relation is R_StoredIn or link.relation is R_BuybackReserved
 		):
 			return false
 	return true
@@ -141,7 +146,7 @@ static func _is_free_cargo(item: Entity, truck: E_MorningTruck) -> bool:
 	for link: Relationship in item.relationships:
 		if (
 			link.relation is R_OwnedBy or link.relation is R_CartCargo
-			or link.relation is R_StoredIn
+			or link.relation is R_StoredIn or link.relation is R_BuybackReserved
 		):
 			return false
 	var character: bool = (

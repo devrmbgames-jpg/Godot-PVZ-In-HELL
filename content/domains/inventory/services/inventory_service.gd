@@ -47,8 +47,7 @@ static func item_by_id(owner: Entity, item_id: String) -> Entity:
 ## Создаёт виртуальный стек через обычный контракт вместимости и переноса; отказ удаляет заготовку.
 static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -> bool:
 	if (
-		not _owner_available(owner) or definition == null
-		or definition.requires_world_body()
+		not _owner_available(owner) or definition == null or definition.requires_world_body()
 		or quantity < 1 or quantity > definition.maximum_stack
 	):
 		return false
@@ -86,6 +85,9 @@ static func can_transfer(item: Entity, destination: Entity, expected_owner: Enti
 		return false
 
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
+	for link: Relationship in item.relationships:
+		if link.relation is R_BuybackReserved:
+			return false
 	if (
 		not _valid_item(state) or state.definition.requires_world_body()
 		or state.transfer_in_progress or not state.pending_use_id.is_empty()
@@ -363,8 +365,9 @@ static func _valid_item(state: C_InventoryItem) -> bool:
 
 static func _compatible(a: C_InventoryItem, b: C_InventoryItem) -> bool:
 	return (
-		_valid_item(a) and _valid_item(b)
-		and a.definition == b.definition and not b.transfer_in_progress
+		_valid_item(a) and _valid_item(b) and a.definition == b.definition
+		and not b.transfer_in_progress and a.source_package_id == b.source_package_id
+		and a.source_history_id == b.source_history_id
 	)
 
 

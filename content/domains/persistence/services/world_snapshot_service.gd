@@ -5,6 +5,10 @@ class_name WorldSnapshotService
 
 #region Ключи и снимок
 static func _snapshot_transaction_in_progress() -> bool:
+	for owner: Entity in ECS.world.query.with_all([C_Commerce]).execute():
+		var commerce: C_Commerce = owner.get_component(C_Commerce) as C_Commerce
+		if commerce.transaction_in_progress:
+			return true
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow != null and flow.parcel_reaction_in_progress:
 		return true
@@ -359,6 +363,7 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 		and DistrictSnapshotRules.valid(records, all_components, int(snapshot.morning_day))
 		and LootSnapshotRules.valid(records, all_components)
 		and PackageOrderSnapshotRules.valid(all_components, records)
+		and BuybackSnapshotRules.valid(all_components, records)
 		and CustomerParcelIncidentSnapshotRules.valid(all_components, records)
 	)
 

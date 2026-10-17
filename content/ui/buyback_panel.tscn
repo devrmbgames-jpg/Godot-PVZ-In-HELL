@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://bujlloak00wdc"]
+
+[ext_resource type="Script" uid="uid://ddkm6ihf00h44" path="res://content/ui/buyback_panel.gd" id="1_wta2n"]
+
+[node name="BuybackPanel" type="CanvasLayer" unique_id=1501185953]
+script = ExtResource("1_wta2n")
+
+[node name="Confirmation" type="ConfirmationDialog" parent="." unique_id=556180419]
+title = "Продать содержимое контейнера"
+size = Vector2i(360, 320)
+min_size = Vector2i(360, 320)
+ok_button_text = "Продать"
+dialog_hide_on_ok = false
+cancel_button_text = "Отмена"
+
+[node name="Contents" type="VBoxContainer" parent="Confirmation" unique_id=74391361]
+
+[node name="Summary" type="Label" parent="Confirmation/Contents" unique_id=1423133223]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Scroll" type="ScrollContainer" parent="Confirmation/Contents" unique_id=1386228332]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Items" type="RichTextLabel" parent="Confirmation/Contents/Scroll" unique_id=1442045617]
+layout_mode = 2
+size_flags_horizontal = 3
+fit_content = true
+scroll_active = false
