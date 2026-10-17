@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://w8owyoyg7vpn"]
+
+[ext_resource type="Resource" uid="uid://beedfhvvvs2r3" path="res://content/domains/needs/definitions/def_food_cookie.tres" id="1_phfmn"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="2_ds4ba"]
+
+[resource]
+script = ExtResource("2_ds4ba")
+market_price = 12
+display_name = "Печенье"
+world_pickup_scene = "res://content/domains/inventory/entities/cookie_pickup.tscn"
+destroyed_by_fire = true
+food_effect = ExtResource("1_phfmn")
+key = &"cookie"

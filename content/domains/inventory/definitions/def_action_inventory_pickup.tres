@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_InventoryPickupAction" format=3 uid="uid://ba2umxi4bfrlv"]
+
+[ext_resource type="Script" uid="uid://chf6cei5kamcq" path="res://content/domains/inventory/definitions/def_inventory_pickup_action.gd" id="1_1ah75"]
+
+[resource]
+script = ExtResource("1_1ah75")
+action_id = &"inventory_pickup"
+slot = 0
+caption = "В инвентарь"

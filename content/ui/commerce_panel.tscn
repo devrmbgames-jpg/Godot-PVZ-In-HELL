@@ -47,6 +47,11 @@ size_flags_horizontal = 3
 [node name="Quest" type="VBoxContainer" parent="Root/Center/Panel/Content" unique_id=1549117677]
 layout_mode = 2
 
+[node name="BuybackButton" type="Button" parent="Root/Center/Panel/Content" unique_id=822216103]
+visible = false
+layout_mode = 2
+text = "Продать содержимое контейнера"
+
 [node name="CloseButton" type="Button" parent="Root/Center/Panel/Content" unique_id=1219853499]
 layout_mode = 2
 text = "Закрыть"

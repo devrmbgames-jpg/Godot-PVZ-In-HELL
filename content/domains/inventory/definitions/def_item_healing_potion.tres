@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://dm0ui3m5omyp0"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_qal7c"]
+
+[resource]
+script = ExtResource("1_qal7c")
+market_price = 35
+display_name = "Лечебное зелье"
+world_pickup_scene = "res://content/domains/inventory/entities/healing_potion_pickup.tscn"
+destroyed_by_fire = true
+kind = 1
+maximum_stack = 5
+healing = 20.0
+key = &"healing_potion"

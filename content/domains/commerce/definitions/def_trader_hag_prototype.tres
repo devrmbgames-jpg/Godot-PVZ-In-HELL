@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DEF_TraderProfile" format=3 uid="uid://cmxgth3urp52q"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_ip07o"]
+[ext_resource type="Resource" uid="uid://cj5rj2apk3l1c" path="res://content/domains/inventory/definitions/def_item_med.tres" id="2_n7fr7"]
+[ext_resource type="Resource" uid="uid://dm0ui3m5omyp0" path="res://content/domains/inventory/definitions/def_item_healing_potion.tres" id="3_mcmjf"]
+[ext_resource type="Resource" uid="uid://w8owyoyg7vpn" path="res://content/domains/inventory/definitions/def_item_cookie.tres" id="4_b1v4c"]
+[ext_resource type="Resource" uid="uid://c4od77day1udy" path="res://content/domains/inventory/definitions/def_item_meat_pie.tres" id="5_ik2q4"]
+[ext_resource type="Script" uid="uid://bey2qdx0m1auc" path="res://content/domains/commerce/definitions/def_trader_profile.gd" id="6_xufff"]
+
+[resource]
+script = ExtResource("6_xufff")
+display_name = "Карга · вечерняя лавка"
+catalog = Array[ExtResource("1_ip07o")]([ExtResource("2_n7fr7"), ExtResource("3_mcmjf"), ExtResource("4_b1v4c"), ExtResource("5_ik2q4")])
+open_phases = 4
+home_delivery_enabled = false
+key = &"trader/hag_prototype"

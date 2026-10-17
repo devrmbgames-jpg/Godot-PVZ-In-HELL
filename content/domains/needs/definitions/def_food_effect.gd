@@ -1,5 +1,6 @@
+@tool
 extends GameDefinition
-## Immutable food Definition; HungerService уменьшает голод, inventory решает расход единицы.
+## Authored food Definition; HungerService уменьшает голод, inventory решает расход единицы.
 class_name DEF_FoodEffect
 
 ## Положительное уменьшение голода при принятом использовании еды.

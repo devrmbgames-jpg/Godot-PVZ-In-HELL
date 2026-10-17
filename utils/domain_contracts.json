@@ -6729,8 +6729,12 @@
         "content/debug/developer_console_gameplay.gd",
         "content/ui/commerce_panel.gd"
       ],
-      "method_rights": {},
-      "public_instance_methods": []
+      "method_rights": {
+        "requires_world_body": "query"
+      },
+      "public_instance_methods": [
+        "requires_world_body"
+      ]
     },
     {
       "source_owner": "global",
@@ -22133,6 +22137,30 @@
         "content/services/persistence/save_data_codec.gd"
       ],
       "purpose": "Closed historical crafting record restore and read-only promise preflight; no live catalog replay or foreign gameplay writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "DEF_BuybackAction",
+      "path": "content/domains/commerce/definitions/def_buyback_action.gd",
+      "rights": [
+        "read",
+        "query",
+        "request"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "is_available",
+        "execute"
+      ],
+      "method_rights": {
+        "is_available": "query",
+        "execute": "request"
+      },
+      "sources": [
+        "content/ui/commerce_panel.gd"
+      ],
+      "purpose": "Native shop panel reads availability and dispatches the existing explicit buyback confirmation after releasing its modal; no sale/payment writes."
     }
   ],
   "legacy_decomposition": []

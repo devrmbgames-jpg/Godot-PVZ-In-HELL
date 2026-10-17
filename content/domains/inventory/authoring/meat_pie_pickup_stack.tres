@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_InventoryItem" format=3 uid="uid://fogf7tyi1f5e"]
+
+[ext_resource type="Resource" uid="uid://c4od77day1udy" path="res://content/domains/inventory/definitions/def_item_meat_pie.tres" id="1_b86vq"]
+[ext_resource type="Script" uid="uid://cfpg1tq1aldu0" path="res://content/domains/inventory/components/c_inventory_item.gd" id="2_jql0j"]
+
+[resource]
+script = ExtResource("2_jql0j")
+definition = ExtResource("1_b86vq")

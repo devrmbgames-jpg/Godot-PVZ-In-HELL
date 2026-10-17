@@ -47,7 +47,8 @@ func before_each() -> void:
 		(load("res://content/domains/commerce/entities/trader.tscn") as PackedScene).instantiate()
 		as E_NpcCharacter
 	)
-	(_trader as Node as RigidBody3D).freeze = true
+	# The authored trader now owns a CharacterBody3D; this fixture keeps it stationary.
+	_trader.set_physics_process(false)
 	_root.add_child(_trader)
 	_trader.owner = _root
 	FixturePlacedIdentity.assign(_root, _trader, &"trader")

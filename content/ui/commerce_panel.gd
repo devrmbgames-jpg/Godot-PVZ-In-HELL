@@ -2,6 +2,9 @@ extends CanvasLayer
 ## Торговый интерфейс: запрашивает покупки и задания через сервисы, освобождает модальный ввод.
 class_name CommercePanel
 
+const BUYBACK_ACTION: DEF_BuybackAction = preload(
+	"res://content/domains/commerce/definitions/def_action_npc_buyback.tres"
+)
 const REFRESH_SECONDS: float = 0.2
 const RESULT_TEXT: Array[String] = [
 	"Готово",
@@ -34,6 +37,7 @@ var _purchase_focus: WeakRef = null
 @onready var _offers: VBoxContainer = $Root/Center/Panel/Content/OffersScroll/Offers
 @onready var _quest: VBoxContainer = $Root/Center/Panel/Content/Quest
 @onready var _close: Button = $Root/Center/Panel/Content/CloseButton
+@onready var _buyback: Button = $Root/Center/Panel/Content/BuybackButton
 @onready var _purchase_dialog: ConfirmationDialog = $FurniturePurchase
 @onready var _delivery_button: Button = $FurniturePurchase/DeliveryButton
 @onready var _delivery_spacer: Control = $FurniturePurchase/DeliverySpacer
@@ -42,6 +46,7 @@ var _purchase_focus: WeakRef = null
 #region Создание и жизненный цикл
 func _ready() -> void:
 	_close.pressed.connect(close_panel)
+	_buyback.pressed.connect(_open_buyback)
 	_close.grab_focus()
 	_bind_purchase_dialog()
 
@@ -148,6 +153,9 @@ func _refresh() -> void:
 	var shop: Entity = _shop()
 	var shop_state: C_Trader = shop.get_component(C_Trader) as C_Trader if shop != null else null
 	var profile: DEF_TraderProfile = shop_state.profile if shop_state != null else null
+	_buyback.visible = (
+		not _order_mode and shop != null and BUYBACK_ACTION.is_available(_actor, shop, null)
+	)
 	var allowed: bool = (
 		cycle.phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
 		if _order_mode
@@ -190,8 +198,8 @@ func _refresh() -> void:
 	if not _order_mode and shop_state != null:
 		_status.text = (
 			(
-				"День %d · деньги %d · инвентарь %s\n%s · %s\nМебель: забрать "
-				+ "в зоне возле торговца, перенести и закрепить молотком. %s"
+				"День %d · деньги %d · инвентарь %s\n%s · %s\n"
+				+ "Расходники: сразу в инвентарь. Физические товары: рядом с торговцем. %s"
 			)
 			% [
 				cycle.day_index,
@@ -256,6 +264,12 @@ func _refresh() -> void:
 			]
 		)
 		button.disabled = not allowed or wallet.balance < item.market_price
+		if not _order_mode:
+			button.tooltip_text = (
+				"×1 · Немедленно в зоне выдачи рядом с торговцем"
+				if item.requires_world_body()
+				else "×1 · Немедленно в инвентарь"
+			)
 		button.pressed.connect(_buy.bind(item))
 		row.add_child(button)
 
@@ -308,6 +322,15 @@ func _show_quest(record: RefusalQuestRecord, cycle: C_DayCycle) -> void:
 
 
 #region Сервисные запросы
+func _open_buyback() -> void:
+	var trader: Entity = _shop()
+	if not _can_click() or trader == null or not BUYBACK_ACTION.is_available(_actor, trader, null):
+		return
+	var actor: Entity = _actor
+	close_panel()
+	BUYBACK_ACTION.execute(actor, trader, trader)
+
+
 func _buy(item: DEF_InventoryItem) -> void:
 	if _purchase_item != null or not _can_click():
 		return

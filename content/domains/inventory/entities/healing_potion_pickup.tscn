@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://d178744mb5gei"]
+
+[ext_resource type="Script" uid="uid://cro5fuhqyttha" path="res://content/domains/inventory/entities/e_inventory_pickup.gd" id="1_0yl4g"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_27eaf"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_cnqix"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_8tumy"]
+[ext_resource type="Resource" uid="uid://py8hcj41u55c" path="res://content/domains/inventory/authoring/healing_potion_pickup_stack.tres" id="5_kt6mm"]
+[ext_resource type="Resource" uid="uid://c4em4ly54kbhw" path="res://content/domains/inventory/authoring/pickup_interactable.tres" id="6_jdqks"]
+[ext_resource type="Resource" uid="uid://bforjtrnndysg" path="res://content/domains/inventory/authoring/pickup_actions.tres" id="7_8giim"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4savn"]
+albedo_color = Color(0.36862746, 0.6745098, 0.47843137, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_yc6ho"]
+material = SubResource("StandardMaterial3D_4savn")
+top_radius = 0.1
+bottom_radius = 0.1
+height = 0.32
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_pobvn"]
+height = 0.32
+radius = 0.1
+
+[node name="HealingPotionPickup" type="RigidBody3D" unique_id=1590452662]
+collision_layer = 8
+collision_mask = 29
+mass = 0.25
+continuous_cd = true
+script = ExtResource("1_0yl4g")
+traits = Array[ExtResource("2_27eaf")]([ExtResource("3_cnqix")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("4_8tumy")]([ExtResource("5_kt6mm"), ExtResource("6_jdqks"), ExtResource("7_8giim")])
+
+[node name="Visual" type="Node3D" parent="." unique_id=1555884515]
+
+[node name="Mesh" type="MeshInstance3D" parent="Visual" unique_id=1987423637]
+mesh = SubResource("CylinderMesh_yc6ho")
+
+[node name="Caption" type="Label3D" parent="Visual" unique_id=898103820]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, 0)
+text = "Лечебное зелье ×1"
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=836078933]
+shape = SubResource("CylinderShape3D_pobvn")

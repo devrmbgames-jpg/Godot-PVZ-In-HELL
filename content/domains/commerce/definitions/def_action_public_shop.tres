@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_TraderAction" format=3 uid="uid://dlw1rrbg301go"]
+
+[ext_resource type="Script" uid="uid://b4miil035qw62" path="res://content/domains/commerce/definitions/def_trader_action.gd" id="1_crp6b"]
+
+[resource]
+script = ExtResource("1_crp6b")
+action_id = &"trade"
+caption = "Торговля"
+priority = 20

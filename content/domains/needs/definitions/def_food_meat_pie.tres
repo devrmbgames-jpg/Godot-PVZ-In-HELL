@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_FoodEffect" format=3 uid="uid://diyt5snbohvlw"]
+
+[ext_resource type="Script" uid="uid://3dlxs2gwo8ur" path="res://content/domains/needs/definitions/def_food_effect.gd" id="1_4x44i"]
+
+[resource]
+script = ExtResource("1_4x44i")
+hunger_relief = 45.0
+key = &"meat_pie_food"

@@ -72,20 +72,50 @@ Schema34/closed frozen steps + requirements/trash/hint/native profile identity p
 T2a original checkpoint `2ba6993392232d31bded11a4a7c59e0692983802`;
 review BASE `dcfbc440220c38560423d821e10370ff1227caf4` → TARGET `2ba6993392232d31bded11a4a7c59e0692983802`,
 /root/review_c3: ARCHITECTURE FAIL, STYLE PASS, runtime NOT_RUN. Оба P2 приняты и
-ремонтированы в следующем scoped commit; targeted re-review1/2 ещё REVIEW_PENDING.
-- RV-003 FIXED(code/test; fix SHA после commit): frozen CraftingStep/копии requirements,
+FIXED в `28f7d0270bb7f57129a76dba81f5b4dcbdf1441f`. Targeted re-review1/2 PASS:
+BASE `2ba6993392232d31bded11a4a7c59e0692983802` → TARGET `28f7d0270bb7f57129a76dba81f5b4dcbdf1441f`,
+/root/review_c3: no material findings, ARCHITECTURE/STYLE PASS, runtime NOT_RUN.
+- RV-003 FIXED(`28f7d027`, lifecycle46/1019): frozen CraftingStep/копии requirements,
   output quantities/definitions, trash и hint_text. Source §9: preflight проверяет расход
   принятой последовательности без выбора по текущему каталогу; отключённый каталог не
   отменяет долг, но новые сделки недоступны. Schema34, old reject/preserve без миграции.
-- RV-004 FIXED(code/test; тот же fix commit): finite health.current>0/not depleted/C_Death,
+- RV-004 FIXED(`28f7d027`, actual depletion regression): finite health.current>0/not depleted/C_Death,
   actual HealthMutationService.apply depletion до terminal publication не даёт full blood.
-Закончить scoped commit и targeted immutable review. T2a остаётся IN_PROGRESS:
+T2a остаётся IN_PROGRESS:
 cold diagnostic gate FAIL/UNKNOWN PagedAllocator, Windows QA/rendered NOT_RUN.
-После reviewed checkpoint продолжить T3; финальные цены/рецепты/площадки и T4 открыты.
+T3a prototype реализован, подготовить coherent commit и immutable review BASE
+`28f7d0270bb7f57129a76dba81f5b4dcbdf1441f` → новый TARGET. ET_NpcRoles выбирает
+C_Trader по immutable role_profiles/role_trade_action, merchant job не меняется.
+Карга получает evening-only аптечку/лечебное зелье/печенье/мясной пирог, реальные
+отдельные Definitions/native pickups/food effects и существующее MED_ITEM лечение.
+Prototype цены12/32/35, еда15/45, лечение20; это не финальный баланс.
+Общий вход «Торговля» priority20 доступен через actual ray/resolver; native кнопка
+панели переходит к прежней скупке с корректной передачей modal focus.
+Новая схема не нужна: только authored config/unsaved derived C_Trader, schema34 сохраняется.
+Продолжать T3; финальные цены/рецепты/площадки и T4 открыты.
 
 ## Validation / review
 
-T2a original staged gate PASS38; repair targeted review REVIEW_PENDING, не DONE.
+T3a native GUT39/832 `025525478` PASS/CLEAN: 8 новых actual cases +31 inherited
+R2/T1, реальные эффекты еды/лечения, отдельные Defs/prefabs/цены, closed phase,
+full/poor no payment, stable owned ID/receipt disk/death/return, реальный луч игрока
+→ resolver → магазин → native кнопка скупки → release focus, без денег за навигацию;
+actual SCENE compiler rejects conflicting role map/missing authored C_Trader без World writes.
+Shared panel consumer29/386 `025254581` PASS/CLEAN; normal schema34 golden15/839
+`025328180` PASS/CLEAN, неизменённый fixture читается с новым public-shop authoring. Его прежний fixture обращался
+к CharacterBody как RigidBody.freeze: `025225354` FAIL, test-only pause исправлен.
+MCP fresh7/7 native-path diagnostics CLEAN, scripts_instantiated0. Formatter8,
+strict architecture/structure/persistence inventory/diffcheck PASS.
+`024514458` FAIL: новый test cast + physical-only inventory fixture; исправлены.
+`024954140` FAIL: два native prefab остались пустыми после остановки MCP batch;
+новый batch проверяет stopped_at/results, standalone pickup configs и native save.
+Prefab correction `025146272`38/824 CLEAN; финальный `025525478` CLEAN.
+`025446963` FAIL нового provider test: scene path принадлежит DEF_NpcPerson,
+не NpcRecord; fixture исправлен. Orphan failed prefab test не waived.
+Native scene/resource authoring через MCP, исходный food_pickup не изменён.
+T3a Windows/rendered NOT_RUN, бюджет0/8; review ещё NOT_RUN до commit/SHA.
+
+T2a original staged gate PASS38; repair gate PASS10; targeted review PASS1/2, не DONE.
 Repair native RED `023119341`:43/46 tests,990/998 asserts (три новых regression failures).
 GREEN lifecycle46/1019 `023416051` PASS/CLEAN: изменение quantity/output/ingredients/priority,
 отключение каталога, новая передача с обновлённым рецептом, frozen hint/trash,
@@ -103,26 +133,11 @@ Verbose `.artifacts/crafting-review-cold-verbose.log`: retained151 GDScript,
 DEFERRED по owner policy; mixed PagedAllocator не waived, runner FAIL сохранён.
 Самостоятельная engine leak investigation/изменение typing ради shutdown не открыты.
 
-Original T2a native PASS/CLEAN, .artifacts/godot_agent/gut-20261017-*:
-Native PASS/CLEAN, .artifacts/godot_agent/gut-20261017-*:
-- recipes6/34 `014844963`: exact, complexity, quantity/order, gifts, actual typed recipes, invalid ranks.
-- lifecycle43/941 `021003187`: full blood/raw chain, multi outputs, gifts/grace/hint/trash,
-  actual death/return, partial disk restore, blocked placement, native UI cancel/new click,
-  reserve/7 corruptions, queued restore, foreign extraction/late archive, nested payload,
-  missing/recreated point. Inherited reviewed T1/R2 consumer cases включены.
-- pickup93/444 `020221616`; truck23/156 `020603222` — реальные consumers нового резерва.
-- schema33 golden generation15/832 `015726132`, normal reader `021529327` PASS/CLEAN.
-Cold write/restore PASS: `tests/artifacts/buyback-write-20261017-121338345.log`,
-`buyback-restore-20261017-121346447.log`: оба покупателя + pending crafting, fresh native
-точки/ID, следующий день/2 реальные вещи, повторы без денег/копий, готовое состояние saves.
-MCP 38/38 exact paths CLEAN; formatter38 PASS; strict architecture/structure/persistence PASS.
-Native сцены/ресурсы через MCP. После move нового ingredient script в contracts два recipes
-пересохранены native ResourceSaver при штатно закрытом editor; UIDs сохранены, editor restarted.
-Offline wrapper `offlinescript-20261017-015511306` остаётся FAIL: оба resave в stdout,
-но late editor-autoload ECS compile + mixed shutdown diagnostics; waiver не расширен.
-Обычные runtime GUT/cold после resave CLEAN. Temporary authoring script удалён.
-`020752050` — FAIL нового fixture, пытавшегося capture при pending commands;
-исправлен snapshot до очереди, запрет pending capture отдельно проверен в `021003187`.
+Original T2a evidence сохранено в `2ba6993392232d31bded11a4a7c59e0692983802`:
+recipes6/34, lifecycle43/941, pickup93/444, truck23/156, schema33 golden/reader,
+MCP38/38 и cold write/restore PASS. Это historical evidence, не новая schema34 проверка.
+Offline authoring wrapper `offlinescript-20261017-015511306` остаётся FAIL: native
+resave выполнен, но late autoload compile/mixed shutdown; waiver не расширен.
 
 T1b review PASS: BASE `370020fcf796c211eaf341940befc71ddd17b206` →
 TARGET `dcfbc440220c38560423d821e10370ff1227caf4`; /root/review_c3: no material findings,

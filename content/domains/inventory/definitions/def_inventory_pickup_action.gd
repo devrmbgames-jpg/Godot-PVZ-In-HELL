@@ -1,3 +1,4 @@
+@tool
 extends DEF_InteractionAction
 ## Переносит доступный предмет с карты в инвентарь действующего участника.
 class_name DEF_InventoryPickupAction

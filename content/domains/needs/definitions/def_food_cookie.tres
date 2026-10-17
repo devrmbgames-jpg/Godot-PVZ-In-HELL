@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_FoodEffect" format=3 uid="uid://beedfhvvvs2r3"]
+
+[ext_resource type="Script" uid="uid://3dlxs2gwo8ur" path="res://content/domains/needs/definitions/def_food_effect.gd" id="1_btne3"]
+
+[resource]
+script = ExtResource("1_btne3")
+hunger_relief = 15.0
+key = &"cookie_food"

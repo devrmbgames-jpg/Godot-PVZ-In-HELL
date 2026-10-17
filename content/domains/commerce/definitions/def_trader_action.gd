@@ -1,5 +1,6 @@
+@tool
 extends DEF_InteractionAction
-## Неизменяемая action Definition: запрашивает native UI у доступного торговца вне Night.
+## Авторская action Definition: запрашивает native UI живого торговца в часы работы.
 class_name DEF_TraderAction
 
 
@@ -8,8 +9,10 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	return (
 		GrabQueries.holder_available(actor) and GrabQueries.holder_available(source)
+		and not actor.has_component(C_Death) and not source.has_component(C_Death)
 		and source.has_component(C_Trader) and cycle != null
-		and cycle.phase != C_DayCycle.Phase.NIGHT and CommerceService.current() != null
+		and TraderCatalogRules.is_open(source.get_component(C_Trader) as C_Trader, cycle)
+		and CommerceService.current() != null
 	)
 
 
