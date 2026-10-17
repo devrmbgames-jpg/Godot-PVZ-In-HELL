@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_InventoryItem" format=3 uid="uid://dd2vp2rdh2vci"]
+
+[ext_resource type="Resource" uid="uid://b4nk58xj7qnyv" path="res://content/domains/inventory/definitions/def_item_crafting_trash_prototype.tres" id="1_17u7i"]
+[ext_resource type="Script" uid="uid://cfpg1tq1aldu0" path="res://content/domains/inventory/components/c_inventory_item.gd" id="2_w6cwj"]
+
+[resource]
+script = ExtResource("2_w6cwj")
+definition = ExtResource("1_17u7i")

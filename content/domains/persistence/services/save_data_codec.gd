@@ -13,6 +13,7 @@ static var _component_fields: Dictionary = {
 	C_DamageResistance: C_DamageResistance.SAVE_FIELDS,
 	C_Commerce: C_Commerce.SAVE_FIELDS,
 	C_Buyback: C_Buyback.SAVE_FIELDS,
+	C_Crafting: C_Crafting.SAVE_FIELDS,
 	C_QuestSession: C_QuestSession.SAVE_FIELDS,
 	C_Inventory: C_Inventory.SAVE_FIELDS,
 	C_InventoryItem: C_InventoryItem.SAVE_FIELDS,
@@ -59,6 +60,9 @@ static var _record_types: Array[Script] = [
 	BuybackItemPrice,
 	BuybackSaleItem,
 	BuybackSale,
+	CraftingInput,
+	CraftingOutput,
+	CraftingBatch,
 	PendingDelivery,
 	RefusalQuestRecord,
 	ReceivingBatch,
@@ -227,6 +231,9 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		BuybackItemPrice,
 		BuybackSaleItem,
 		BuybackSale,
+	CraftingInput,
+	CraftingOutput,
+	CraftingBatch,
 	]:
 		var exact_fields: Array[String] = GameClock.SAVE_FIELDS
 		if script == NpcVariation:
@@ -251,6 +258,12 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			exact_fields = BuybackSaleItem.SAVE_FIELDS
 		elif script == BuybackSale:
 			exact_fields = BuybackSale.SAVE_FIELDS
+		elif script == CraftingInput:
+			exact_fields = CraftingInput.SAVE_FIELDS
+		elif script == CraftingOutput:
+			exact_fields = CraftingOutput.SAVE_FIELDS
+		elif script == CraftingBatch:
+			exact_fields = CraftingBatch.SAVE_FIELDS
 		if fields.size() != exact_fields.size():
 			return false
 		for required_field: String in exact_fields:

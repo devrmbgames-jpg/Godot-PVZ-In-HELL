@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://utsevnhtqgey"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_24d44"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_grfv5"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_oij7j"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_41etl"]
+[ext_resource type="Resource" uid="uid://bxegptcs0veum" path="res://content/domains/commerce/authoring/crafting_grabbable.tres" id="5_3j88t"]
+[ext_resource type="Resource" uid="uid://2po68dnkfwfp" path="res://content/domains/commerce/authoring/crafting_interactable.tres" id="6_goy3s"]
+[ext_resource type="Resource" uid="uid://dd2vp2rdh2vci" path="res://content/domains/commerce/authoring/crafting_trash_prototype_stack.tres" id="7_sound"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gkd6k"]
+albedo_color = Color(0.35, 0.22, 0.11, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3ufny"]
+material = SubResource("StandardMaterial3D_gkd6k")
+size = Vector3(0.45, 0.12, 0.35)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e34h3"]
+size = Vector3(0.45, 0.12, 0.35)
+
+[node name="CraftingTrashPrototype" type="RigidBody3D" unique_id=277735391]
+collision_layer = 8
+collision_mask = 31
+mass = 0.5
+continuous_cd = true
+script = ExtResource("1_24d44")
+traits = Array[ExtResource("2_grfv5")]([ExtResource("3_oij7j")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("4_41etl")]([ExtResource("5_3j88t"), ExtResource("6_goy3s"), ExtResource("7_sound")])
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=414734053]
+mesh = SubResource("BoxMesh_3ufny")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1820106899]
+shape = SubResource("BoxShape3D_e34h3")
+
+[node name="Caption" type="Label3D" parent="." unique_id=1661727790]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+pixel_size = 0.002
+billboard = 1
+text = "Неудачное изделие
+Прототип"

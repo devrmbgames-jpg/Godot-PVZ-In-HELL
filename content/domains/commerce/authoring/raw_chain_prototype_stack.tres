@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_InventoryItem" format=3 uid="uid://dme4012w77bt8"]
+
+[ext_resource type="Resource" uid="uid://dep55tao7xgpk" path="res://content/domains/inventory/definitions/def_item_raw_chain_prototype.tres" id="1_gcq2o"]
+[ext_resource type="Script" uid="uid://cfpg1tq1aldu0" path="res://content/domains/inventory/components/c_inventory_item.gd" id="2_w78fk"]
+
+[resource]
+script = ExtResource("2_w78fk")
+definition = ExtResource("1_gcq2o")

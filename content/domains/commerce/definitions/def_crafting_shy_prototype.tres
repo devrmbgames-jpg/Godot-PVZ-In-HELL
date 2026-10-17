@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DEF_CraftingProfile" format=3 uid="uid://81ag3d53s6xa"]
+
+[ext_resource type="Resource" uid="uid://b5yoo4f7n7d78" path="res://content/domains/commerce/definitions/def_crafting_simple_prototype.tres" id="1_mtqa1"]
+[ext_resource type="Resource" path="res://content/shared/definitions/def_item_placement_default.tres" id="2_hg5nw"]
+[ext_resource type="Script" uid="uid://bo5t71yc6lcl" path="res://content/domains/commerce/definitions/def_crafting_recipe.gd" id="3_17aaw"]
+[ext_resource type="Resource" uid="uid://bepu0w6clujfd" path="res://content/domains/commerce/definitions/def_crafting_chain_prototype.tres" id="4_56sqk"]
+[ext_resource type="Script" uid="uid://c3dhmq5b56rjd" path="res://content/domains/commerce/definitions/def_crafting_profile.gd" id="5_8lt1b"]
+[ext_resource type="Resource" uid="uid://b4nk58xj7qnyv" path="res://content/domains/inventory/definitions/def_item_crafting_trash_prototype.tres" id="6_llo5i"]
+
+[resource]
+script = ExtResource("5_8lt1b")
+recipes = Array[ExtResource("3_17aaw")]([ExtResource("4_56sqk"), ExtResource("1_mtqa1")])
+hint_recipe = ExtResource("1_mtqa1")
+trash = ExtResource("6_llo5i")
+key = &"crafting/shy_prototype"

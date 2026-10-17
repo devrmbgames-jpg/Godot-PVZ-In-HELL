@@ -800,6 +800,7 @@
 }, {
 "fields": {
 "buyback_sales": [],
+"crafting_batches": [],
 "next_request": 0,
 "pending_deliveries": [{
 "fields": {
@@ -1781,5 +1782,5 @@
 }]),
 "morning_day": 2,
 "raw_actors": Array[Dictionary]([]),
-"version": 32
+"version": 33
 }

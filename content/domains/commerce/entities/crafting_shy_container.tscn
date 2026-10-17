@@ -1,0 +1,121 @@
+[gd_scene format=3 uid="uid://pirw31ogi7ao"]
+
+[ext_resource type="Script" uid="uid://dnsvujxcrrr2j" path="res://content/domains/commerce/entities/e_crafting_container.gd" id="1_m4j12"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_o2s88"]
+[ext_resource type="Resource" uid="uid://cdvxwji4urovg" path="res://content/domains/commerce/authoring/crafting_shy_state.tres" id="3_6iiju"]
+[ext_resource type="Resource" uid="uid://2po68dnkfwfp" path="res://content/domains/commerce/authoring/crafting_interactable.tres" id="4_3utu3"]
+[ext_resource type="Resource" uid="uid://dt6mnopp6tk65" path="res://content/domains/commerce/authoring/crafting_actions.tres" id="5_8cscq"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_2ytp6"]
+size = Vector3(4.4, 0.2, 3.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e2p6b"]
+size = Vector3(4.4, 0.2, 3.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6cck0"]
+size = Vector3(0.2, 1, 3.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7ogut"]
+size = Vector3(0.2, 1, 3.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_60b4c"]
+size = Vector3(0.2, 1, 3.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1f1hw"]
+size = Vector3(0.2, 1, 3.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ptei7"]
+size = Vector3(4.4, 1, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mfssg"]
+size = Vector3(4.4, 1, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_du1in"]
+size = Vector3(4.4, 0.25, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_eqn0x"]
+size = Vector3(4.4, 0.25, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_a0jvg"]
+size = Vector3(3.9, 3, 2.9)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dtuev"]
+albedo_color = Color(0.2, 0.12, 0.08, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_a6juk"]
+material = SubResource("StandardMaterial3D_dtuev")
+size = Vector3(4.2, 0.8, 0.15)
+
+[node name="CraftingShyContainer" type="Node3D" unique_id=777326155]
+script = ExtResource("1_m4j12")
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("2_o2s88")]([ExtResource("3_6iiju"), ExtResource("4_3utu3"), ExtResource("5_8cscq")])
+
+[node name="Frame" type="StaticBody3D" parent="." unique_id=1470174687]
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Frame" unique_id=1852740056]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh = SubResource("BoxMesh_2ytp6")
+
+[node name="FloorCollision" type="CollisionShape3D" parent="Frame" unique_id=434195269]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+shape = SubResource("BoxShape3D_e2p6b")
+
+[node name="LeftWallMesh" type="MeshInstance3D" parent="Frame" unique_id=1511806659]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 0.7, 0)
+mesh = SubResource("BoxMesh_6cck0")
+
+[node name="LeftWallCollision" type="CollisionShape3D" parent="Frame" unique_id=57095384]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 0.7, 0)
+shape = SubResource("BoxShape3D_7ogut")
+
+[node name="RightWallMesh" type="MeshInstance3D" parent="Frame" unique_id=791978438]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, 0.7, 0)
+mesh = SubResource("BoxMesh_60b4c")
+
+[node name="RightWallCollision" type="CollisionShape3D" parent="Frame" unique_id=1623141370]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, 0.7, 0)
+shape = SubResource("BoxShape3D_1f1hw")
+
+[node name="BackWallMesh" type="MeshInstance3D" parent="Frame" unique_id=1935925715]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, -1.6)
+mesh = SubResource("BoxMesh_ptei7")
+
+[node name="BackWallCollision" type="CollisionShape3D" parent="Frame" unique_id=1070429277]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, -1.6)
+shape = SubResource("BoxShape3D_mfssg")
+
+[node name="FrontWallMesh" type="MeshInstance3D" parent="Frame" unique_id=484506366]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.325, 1.6)
+mesh = SubResource("BoxMesh_du1in")
+
+[node name="FrontWallCollision" type="CollisionShape3D" parent="Frame" unique_id=1294634605]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.325, 1.6)
+shape = SubResource("BoxShape3D_eqn0x")
+
+[node name="ContentsArea" type="Area3D" parent="." unique_id=1228502774]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+collision_layer = 0
+collision_mask = 31
+
+[node name="Collision" type="CollisionShape3D" parent="ContentsArea" unique_id=1013167378]
+shape = SubResource("BoxShape3D_a0jvg")
+
+[node name="Sign" type="Label3D" parent="." unique_id=611018810]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 1.8)
+billboard = 1
+text = "Мастерская Тихона
+Передайте весь набор после подтверждения"
+
+[node name="Output" type="Marker3D" parent="." unique_id=1559980961]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+
+[node name="HintWall" type="Node3D" parent="." unique_id=1659868066]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, -1.7)
+
+[node name="Panel" type="MeshInstance3D" parent="HintWall" unique_id=871644188]
+mesh = SubResource("BoxMesh_a6juk")
+
+[node name="Text" type="Label3D" parent="HintWall" unique_id=1977294388]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.1)
+font_size = 26

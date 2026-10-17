@@ -6,131 +6,119 @@ Execution order: **120**
 Reference baseline: `d6ea70fe8a00071ee9a5b57aa4a7e647e108ea27`
 Source: [полное исходное ТЗ и доказательства](references/task-refactor-2026-10-17/district_resident_barter_and_buyback.md.txt).
 
-Эта карточка владеет текущим исполнением. Полный объём требований сохранён в Source;
-правила чтения и автономного продолжения — в [README](README.md).
-
+Карточка владеет текущим исполнением; Source сохраняет полный обязательный объём,
+включая B1–B15. Процесс — [README](README.md), prototype не заменяет полный acceptance.
 
 ## Goal / acceptance
 
-Семь торговых ролей и снабжение ПВЗ по полному Source/GDD. Дьявол: MORNING,
-30–70%, запрет святого символа, по одной единице 1–2 выбранных типов за 150% после
-грузовика. Скромник: сложные рецепты/точные совпадения, несколько изделий, первый
-неудачный набор за кампанию как подарок/подсказка, дальнейший мусор и подаренное лишнее.
-Все каталоги, время, реальные вещи/деньги, последствия чужого содержимого, независимый
-терминал Ангела и отложенные результаты остаются требованиями, не сокращены этим резюме.
+Семь торговых ролей и снабжение ПВЗ по Source/GDD. Дьявол: MORNING, 30–70%,
+запрет святого символа, одна premium единица каждого из 1–2 реальных типов за 150%
+после грузовика. Карга — EVENING, кости/артефакты по явной таблице.
+Скромник: exact-first, сложность/приоритет, несколько изделий, первая неудача как
+подарок/подсказка за кампанию, последующий мусор, успешные остатки — подарок.
+Все каталоги, реальные вещи/деньги, чужое происхождение/посылочные последствия,
+сроки, независимый терминал Ангела и отложенные заказы остаются обязательными.
 
 ## Current
 
-T1a — обратимый native prototype Дьявола npc/9: физический контейнер, действие у
-реального NPC, native confirmation с отдельным новым нажатием после CHANGED, ordinary
-30–70% и один premium unit/type/day по 150% BASE. Бросок/quote не продают вещи.
-C_Buyback хранит дневной прайс/источники/остатки, C_Commerce — durable receipts,
-R_BuybackReserved — краткий live резерв, WalletService — единственное начисление.
-Факт ReceivingSupplyCompleted публикуется после последнего фактического arrival до конца
-MORNING; demand выбирается из immutable ledger projection, не manifest/count/catalog.
-Provenance живёт в C_InventoryItem и pending loot, сохраняется transfer/drop и receipt;
-исторические actual/declaration/recipient не подменяются продажей. Неучтённая коробка
-сохраняет package ID без выдуманного archive ID даже после поздней регистрации;
-непустой historical archive ID обязан совпадать с arrival.
-Встречные synchronous commerce/truck guards закрывают callback admission; live item reserve
-блокирует pickup/inventory/truck. Snapshot/restore запрещены внутри транзакции.
-Schema32: closed records, native prefab/profile preflight, actual source/price/once-payment,
-premium cap и отказ до live mutation. Старый файл отклоняется, миграции нет.
-Native container/panel/action/role assets созданы/сохранены через MCP. Companion resave
-расширен только для двух точных fingerprinted NPC role providers, UID сохранены.
-Это технический prototype: holy_artifact — явно временное сопоставление святого символа;
-T1b добавляет Каргу npc/6 через тот же явный контракт: EVENING, только bones/holy_artifact/
-unholy_artifact с prototype ценами 5/45/45, независимый native container/profile/state.
-Утренний supply/demand Дьявола не меняется; святой артефакт Карге не запрещён.
-Финальные цены/размещение/канон и полное T1–T4 acceptance остаются открыты.
+T1a/T1b технические prototypes reviewed: native отдельные контейнеры Дьявола npc/9
+и Карги npc/6, NPC action → confirmation → повторная проверка → резерв/оплата/выбытие.
+Дьявольский спрос основан на завершённом фактическом BASE_SUPPLY/ledger, не плане;
+цена/лимит сохраняются. Карга EVENING-only, без зависимости от утреннего supply.
+C_Buyback владеет прайсом, C_Commerce — receipts, WalletService — единственные деньги.
+Prototype цены Карги 5/45/45 (bones/holy_artifact/unholy_artifact), святой mapping Дьявола
+holy_artifact и размещение не объявляются каноном.
+
+T2a IN_PROGRESS — native prototype мастерской npc/3. C_Commerce.crafting_batches —
+единственная история расхода/подарков/льготы/обещаний. C_Crafting — immutable profile
+и transient retry/reservations; R_CraftingReserved — короткий live резерв.
+Локальное подтверждение всего состава без взгляда/диалога с NPC. Чистый planner:
+exact whole remainder → полностью выполнимые complexity/priority → повтор на остатке.
+Сырая цепь/одежда из цепей/мусор — отдельные явно prototype Definitions и native тела;
+spiked_chains не alias. Full blood проверяет actual health/emitter, не имя.
+Первый failed непустой набор — подарок и надпись следующим утром, без мусора;
+успех с подарком grace не тратит. Позже failed даёт authored trash.
+S_Crafting исполняет ready_day=accepted+1: bounded native placement внутри ящика,
+blocked debt сохраняется, каждый output ID выдаётся один раз, следующая партия после pickup.
+Смерть/возврат NPC не отменяют очередь. Новый ID ящика не сбрасывает кампанию;
+отсутствие точки сохраняет долг, возвращение прежнего ID позволяет продолжить.
+Schema33/closed records/native profile preflight/canonical facts/restore tickets включены;
+старые схемы отклоняются, файл сохраняется. Денежных операций у изготовления нет.
 
 ## Work packages
 
 | Пакет | Проверяемый результат |
 | --- | --- |
-| T1 | Контейнерная скупка: фактический состав → подтверждение → revalidation → однократная оплата/выбытие; сохранённые дневные цены/спрос/лимиты. |
-| T2 | Производство Скромника: полный набор, несколько изделий/приоритеты, первая льгота, подарок/мусор и результат следующим утром. |
-| T3 | Публичные магазины и независимые отложенные заказы Ангела/Охотника/ПВЗ, штатные часы, кошелёк и единственная выдача. |
-| T4 | Полное авторское наполнение семи ролей, реальные площадки и интеграционная матрица Source. |
+| T1 | Контейнерная скупка, явное подтверждение, once money/removal, реальные дневные цены/спрос/лимиты. |
+| T2 | Полная партия Скромника, несколько изделий/приоритеты, первая льгота, подарки/мусор, следующее утро. |
+| T3 | Прямые магазины, независимые отложенные заказы Ангела/Охотника/ПВЗ, часы/оплата/once выдача. |
+| T4 | Полное авторское наполнение семи ролей, реальные площадки и матрица B1–B15 Source. |
 
-Каждая сделка/заказ уже в своём пакете проходит restore/failure/retry. Не переносить
-идемпотентность или защиту чужих заказов в отдельную «финальную» техническую задачу.
+Каждый пакет включает свой restore/failure/retry; обязательства не откладываются
+в отдельную финальную техническую задачу. Полные T1–T4 и owner acceptance не DONE.
 
 ## Entry points / dependency gates
 
-Начать с исследованных commerce/container/catalog/wallet/recipe/night owners в Source,
-готовой CommercePanel, package contents и typed-персональных ролей.
-[Жители R1/R2](district_authored_residents_and_resurrection.md) предоставляют stable trader ID;
-[A01](pvz_a01_commerce_panel_scene_first.md) уже технически принят, его owner QA не блокирует T1.
-[Закупки общества](npc_living_society/procurement_and_intermediaries.md) используют эти
-транзакции/запасы, не создают конкурирующий публичный магазин и не меняют 30–70%/150%.
-Торговля не ждёт завершения всей социальной симуляции или отложенного B01.
+[Жители R1/R2](district_authored_residents_and_resurrection.md) дают stable личности/реальные
+смерть и возврат. [A01](pvz_a01_commerce_panel_scene_first.md) технически принят;
+его owner QA не блокирует производителей. [Внутренние закупки](npc_living_society/procurement_and_intermediaries.md)
+используют эти владельцы, не создают конкурирующий публичный магазин/кошелёк.
+Финальные комнаты/площадки — provider physical_homes_and_privacy, PLANNED; prototypes
+не заменяют его и не телепортируют NPC. B01 ConfigFile остаётся DEFERRED, PVZH1 сохранён.
 
 ## Next
 
-Получить read-only review T1b: BASE `370020fcf796c211eaf341940befc71ddd17b206`,
-TARGET — commit этого checkpoint. REVIEW_PENDING, repair cycles 0/2.
-Затем полный T1 integration/QA и T2. До T4 нельзя выдавать prototype цены,
-holy mapping или площадки за канон. Во время review допустима независимая T2
-recipe authoring: typed состав/состояния, exact-first и deterministic complexity/priority.
-T2–T3 остаются обязательными пакетами, не заменяются универсальным магазином.
-Независимое чтение Source §8 во время review: есть bones, blood_flask, work_clothes;
-сырой цепи, одежды из цепей и мусора нет. spiked_chains — отдельное физическое оружие,
-не допустимый alias сырой цепи. Нужны отдельные reversible prototype assets/recipe.
-Полная колба требует actual condition/emitter проверки (C_HazardEmitter.fired), не только key.
-Первый failed непустой набор — один раз за кампанию; successful leftovers как подарок
-не расходуют льготу; exact remaining match идёт перед complexity/priority subset.
-Это входы T2, реализации/канона ещё нет; девять физических домов отдельного provider PLANNED.
-
+Закончить staged gates и отдельный T2a commit; BASE для review
+`dcfbc440220c38560423d821e10370ff1227caf4`, TARGET фиксируется после commit.
+T2a review NOT_RUN до запуска; repair0/2. Затем собрать/triage read-only отзыв,
+исправить принятые P0/P1/P2, максимум два targeted repair/re-review cycles.
+Пока review pending — только независимые Source §5–7/catalog requirements T3.
+После reviewed checkpoint продолжить T3; финальные цены/рецепты/площадки и T4 открыты.
 
 ## Validation / review
 
-T1b **REVIEW_PENDING**; native lifecycle31/682 `gut-20261017-012726127` PASS/CLEAN:
-реальные npc/6 action/confirmation, EVENING-only, 3 принятых типа/отказ Toy,
-независимый Demon market, disk restore/duplicate и actual death+return day3.
-Cold обе точки/два receipts PASS: `tests/artifacts/buyback-write-20261017-112805993.log`,
-`buyback-restore-20261017-112814113.log`; fresh prefabs/price/once payment/ordinary next.
-MCP three exact paths CLEAN; formatter3, strict architecture, structure/persistence PASS.
-Initial T1b `012605621` failed only fixture snapshot day1 after return day3; исправлен day3.
-Native asset creation через MCP, исходный Demon asset не изменён; phase/market presentation
-разделены. Visual/Windows build NOT_RUN; rendered T1 budget остаётся 0/8.
+T2a native PASS/CLEAN, .artifacts/godot_agent/gut-20261017-*:
+- recipes6/34 `014844963`: exact, complexity, quantity/order, gifts, actual typed recipes, invalid ranks.
+- lifecycle43/941 `021003187`: full blood/raw chain, multi outputs, gifts/grace/hint/trash,
+  actual death/return, partial disk restore, blocked placement, native UI cancel/new click,
+  reserve/7 corruptions, queued restore, foreign extraction/late archive, nested payload,
+  missing/recreated point. Inherited reviewed T1/R2 consumer cases включены.
+- pickup93/444 `020221616`; truck23/156 `020603222` — реальные consumers нового резерва.
+- schema33 golden generation15/832 `015726132`, normal reader `021529327` PASS/CLEAN.
+Cold write/restore PASS: `tests/artifacts/buyback-write-20261017-121338345.log`,
+`buyback-restore-20261017-121346447.log`: оба покупателя + pending crafting, fresh native
+точки/ID, следующий день/2 реальные вещи, повторы без денег/копий, готовое состояние saves.
+MCP 38/38 exact paths CLEAN; formatter38 PASS; strict architecture/structure/persistence PASS.
+Native сцены/ресурсы через MCP. После move нового ingredient script в contracts два recipes
+пересохранены native ResourceSaver при штатно закрытом editor; UIDs сохранены, editor restarted.
+Offline wrapper `offlinescript-20261017-015511306` остаётся FAIL: оба resave в stdout,
+но late editor-autoload ECS compile + mixed shutdown diagnostics; waiver не расширен.
+Обычные runtime GUT/cold после resave CLEAN. Temporary authoring script удалён.
+`020752050` — FAIL нового fixture, пытавшегося capture при pending commands;
+исправлен snapshot до очереди, запрет pending capture отдельно проверен в `021003187`.
 
-T1a original review: BASE `927fd5ab7c321505f229be80b8797794680a4daa` →
-TARGET `f13078ecf28d0af35480c8eba4306d140ecbaef5`, read-only reviewer /root/review_c3.
-Main triage: оба P2 исправлены в `370020fcf796c211eaf341940befc71ddd17b206`.
-Targeted re-review cycle **1/2 PASS**, BASE `f13078ecf28d0af35480c8eba4306d140ecbaef5` →
-TARGET `370020fcf796c211eaf341940befc71ddd17b206`; /root/review_c3: no material findings,
-ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN. T1a технический checkpoint reviewed.
-- RV-001 (R1) FIXED `370020fc`: exact WeakRef reservation endpoints вместо повторного
-  разрешения ID; завершение retirement в captured World при смене ECS.world; busy/incomplete
-  receipt не DUPLICATE. Native callback replacement и World switch регрессии.
-- RV-002 (R2) FIXED `370020fc`: пустой history сохраняет unknown-at-extraction после
-  позднего arrival; непустой history проверяется строго. Survivor + signed sale disk roundtrip.
-RED before repair: `gut-20261017-011729405` — 25/28, только три новых случая FAIL.
-GREEN repair: lifecycle28/602 `gut-20261017-012047927` PASS/CLEAN; cold write/restore
-`tests/artifacts/buyback-write-20261017-112133372.log`, `buyback-restore-20261017-112141492.log`
-PASS. MCP three exact paths CLEAN; formatter3, strict architecture, structure/persistence PASS.
-Полный T1 и rendered acceptance ещё открыты; review T1a завершён.
-Native GUT PASS/CLEAN (raw .artifacts/godot_agent/gut-20261017-*):
-- buyback lifecycle25/529 `010517641`: actual extraction/provenance, wallet/disk restore,
-  callbacks, death/actual return, 9 corruptions, native NPC action/confirm/cancel/focus,
-  actual two-arrival BASE_SUPPLY, встречные truck/buyback callbacks.
-- package contents29/356 `010046815`; MCP authoring8/80 `004716786`.
-- schema32 golden generation15/818 `010125573`, normal read15/819 `010152103`.
-- basic buyback7/46 `010824357`; truck cargo22/149 `010546580`;
-  принятый R2 return/orders31/619 `010714476` на schema32 — PASS/CLEAN.
-Cold two-process PASS: `tests/artifacts/buyback-write-20261017-105915099.log`, restore
-`buyback-restore-20261017-105923219.log`: fresh prefab ID, saved seed/prices/limit,
-foreign history, duplicate retry, следующая ordinary продажа. Slot isolated/удалён.
-MCP fresh path diagnostics46/46 CLEAN; fallback reload43 сам по себе PASS не считался.
-Formatter/lint46 files, strict architecture, structure, schema inventory и staged gate PASS.
-Raw failed fixture/provenance trials сохранены; engine waiver не расширялся.
+T1b review PASS: BASE `370020fcf796c211eaf341940befc71ddd17b206` →
+TARGET `dcfbc440220c38560423d821e10370ff1227caf4`; /root/review_c3: no material findings,
+ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN, repair0/2. Native31/682 `012726127`;
+двухпроцессные artifacts `buyback-write-20261017-112805993` / restore `112814113` PASS.
+T1a original BASE `927fd5ab7c321505f229be80b8797794680a4daa` →
+TARGET `f13078ecf28d0af35480c8eba4306d140ecbaef5`; оба P2 приняты и FIXED:
+- RV-001 `370020fcf796c211eaf341940befc71ddd17b206`: exact WeakRef endpoints,
+  retirement в captured World, busy/incomplete receipt не DUPLICATE.
+- RV-002 тот же fix SHA: historical unknown сохраняется после late arrival,
+  непустой history строго проверяется. RED25/28 `011729405` → GREEN28/602 `012047927`.
+Targeted re-review1/2 PASS: BASE `f13078ecf28d0af35480c8eba4306d140ecbaef5` →
+TARGET `370020fcf796c211eaf341940befc71ddd17b206`; /root/review_c3 no material findings,
+ARCHITECTURE/STYLE PASS, reviewer runtime NOT_RUN. Sold-ID spoof snapshot остаётся запрещён.
+Полный исходный набор T1 schema32/contents/truck/golden/runtime evidence — commit f13078ec.
 
 ## Owner QA / blockers
 
-Каталоги/цены/баланс не считать утверждёнными автоматически. Огнестрел и эффекты
-экипировки остаются исходным out-of-scope, не новыми недоделками этой задачи.
-Финальная авторская/визуальная приёмка открыта; технические T1–T3 разблокируют потребителей отдельно.
-
-Rendered/playtest T1a **0/8**; проверять в оставшемся бюджете без повторного запроса
-по указанию владельца. Windows QA build/ручная визуальная приёмка T1a NOT_RUN.
+Канон/баланс/полные каталоги/физические площадки и B12 визуальная приёмка открыты;
+эффекты одежды/огнестрел — исходный out-of-scope, не объявлены реализованными.
+Первая prototype подсказка достижима: bones ×1 → физическая work_clothes; пример владельца
+bones+raw_chain+полная blood_flask → chain_clothes реализован отдельным рецептом.
+Raw chain ещё не финальная позиция снабжения; T4 обязан дать реальные пути получения.
+Windows QA build/rendered T1 и T2 NOT_RUN. Бюджеты T1 **0/8**, T2a **0/8**;
+в пределах milestone выполнять без повторного вопроса по последнему указанию владельца.
+Соседние исчерпанные NPC budgets не возобновляются. REVIEW_PENDING/QA не выдавать за DONE.

@@ -48,6 +48,7 @@ func _ready() -> void:
 		O_DialoguePanelRequest,
 		O_GameplayPanelRequest,
 		O_BuybackMarket,
+		O_Crafting,
 		O_NightPreparationRequirement,
 	]):
 		var composition_observer: Observer = observer_type.new() as Observer
@@ -84,6 +85,7 @@ func _ready() -> void:
 		npc_owner.group = "GamePlay"
 		world.add_system(npc_owner)
 	world.add_system(S_LootDrops.new(), true)
+	world.add_system(S_Crafting.new(), true)
 	_bind_furniture_delivery()
 	var reconstructing: bool = authored_world != null and authored_world.restoring_startup()
 	if not reconstructing:

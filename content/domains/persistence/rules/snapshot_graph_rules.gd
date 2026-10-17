@@ -91,6 +91,20 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 				) as DEF_BuybackProfile
 				if saved_profile != authored.profile:
 					return false
+		if entity is E_CraftingContainer or saved_types.has(C_Crafting):
+			if not entity is E_CraftingContainer or not saved_types.has(C_Crafting):
+				return false
+			var authored: C_Crafting = _component(entity, C_Crafting) as C_Crafting
+			if authored == null or authored.profile == null:
+				return false
+			for saved: Dictionary in record.components:
+				if SaveDataCodec.component_script(String(saved.type)) != C_Crafting:
+					continue
+				var saved_profile: DEF_CraftingProfile = SaveDataCodec.decode(
+					(saved.fields as Dictionary).profile,
+				) as DEF_CraftingProfile
+				if saved_profile != authored.profile:
+					return false
 		if record.has("pose") and not (entity as Node) is Node3D:
 			return false
 		for required: Script in [C_Karma, C_Strength, C_SoulTrade]:

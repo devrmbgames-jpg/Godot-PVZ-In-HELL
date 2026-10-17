@@ -2270,3 +2270,25 @@ func test_push_rejects_occupied_cart_and_wall_occluded_start() -> void:
 	assert_false(PushService.try_begin(holder_entity, cart))
 	wall.free()
 #endregion
+
+
+#region Материалы принятой партии
+## Реальный pickup доступен до резерва и после снятия; transient reserve не создаёт хват.
+func test_crafting_material_reservation_blocks_actual_pickup_until_release() -> void:
+	var point: E_CraftingContainer = (
+		load("res://content/domains/commerce/entities/crafting_shy_container.tscn") as PackedScene
+	).instantiate() as E_CraftingContainer
+	(point as Node as Node3D).position = Vector3(20, 0, 0)
+	EntityCompositionFixture.register(grab_world, point)
+	for frame: int in 2:
+		await get_tree().physics_frame
+	assert_true(GrabService.can_pickup_body(holder_entity, box_body, C_Grabbable.HoldSlot.CARRY))
+	var reservation: Relationship = Relationship.new(R_CraftingReserved.new(), point)
+	box_entity.add_relationship(reservation)
+	assert_false(GrabService.can_pickup_body(holder_entity, box_body, C_Grabbable.HoldSlot.CARRY))
+	assert_false(GrabService.try_pickup(holder_entity, box_entity))
+	assert_null(GrabQueries.held_relationship(box_entity))
+	box_entity.remove_relationship(reservation)
+	assert_true(GrabService.try_pickup(holder_entity, box_entity))
+	assert_not_null(GrabQueries.held_relationship(box_entity))
+#endregion

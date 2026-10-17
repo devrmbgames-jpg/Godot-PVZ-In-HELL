@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="C_Crafting" format=3 uid="uid://cdvxwji4urovg"]
+
+[ext_resource type="Resource" uid="uid://81ag3d53s6xa" path="res://content/domains/commerce/definitions/def_crafting_shy_prototype.tres" id="1_in583"]
+[ext_resource type="Script" uid="uid://cmio8im6jhbrd" path="res://content/domains/commerce/components/c_crafting.gd" id="2_8770h"]
+
+[resource]
+script = ExtResource("2_8770h")
+profile = ExtResource("1_in583")

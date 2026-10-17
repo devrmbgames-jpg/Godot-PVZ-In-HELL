@@ -7,6 +7,7 @@ class_name C_Commerce
 const SAVE_FIELDS: Array[String] = [
 	"receipts",
 	"buyback_sales",
+	"crafting_batches",
 	"pending_deliveries",
 	"next_request",
 ]
@@ -16,6 +17,9 @@ const SAVE_FIELDS: Array[String] = [
 ## История принятых продаж контейнеров; переживает отсутствие NPC и удаление самой точки.
 ## BuybackTradeService фиксирует receipt и деньги одной синхронной операцией.
 @export var buyback_sales: Array[BuybackSale] = []
+## Принятые партии мастерских, включая подарки/льготу и исполненные результаты.
+## CraftingService пишет приём/выдачу; удаление точки не уничтожает обязательство.
+@export var crafting_batches: Array[CraftingBatch] = []
 ## Оплаченные доставки, включая уже исполненные для защиты от повтора.
 @export var pending_deliveries: Array[PendingDelivery] = []
 ## Неизменяемый runtime ассортимент терминала; ассортимент торговца задаёт отдельный Profile.

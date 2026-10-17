@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="DEF_CraftingRecipe" format=3 uid="uid://bepu0w6clujfd"]
+
+[ext_resource type="Script" uid="uid://uq7jpnf7pn0i" path="res://content/domains/commerce/contracts/crafting_ingredient.gd" id="1_4hflv"]
+[ext_resource type="Resource" uid="uid://bw6rmoogxemf6" path="res://content/domains/commerce/authoring/crafting_bones_ingredient.tres" id="2_e5rtq"]
+[ext_resource type="Resource" uid="uid://bft1txku13ph3" path="res://content/domains/commerce/authoring/crafting_raw_chain_ingredient.tres" id="3_0u0jb"]
+[ext_resource type="Resource" uid="uid://dbglmwp674n58" path="res://content/domains/commerce/authoring/crafting_blood_ingredient.tres" id="4_cgf6h"]
+[ext_resource type="Resource" uid="uid://dbmq15d1qld8q" path="res://content/domains/inventory/definitions/def_item_chain_clothes_prototype.tres" id="5_bjevh"]
+[ext_resource type="Script" uid="uid://bo5t71yc6lcl" path="res://content/domains/commerce/definitions/def_crafting_recipe.gd" id="6_w3vog"]
+
+[resource]
+script = ExtResource("6_w3vog")
+display_name = "Одежда из цепей · прототип"
+ingredients = Array[ExtResource("1_4hflv")]([ExtResource("2_e5rtq"), ExtResource("3_0u0jb"), ExtResource("4_cgf6h")])
+complexity = 30
+priority = 0
+output = ExtResource("5_bjevh")
+output_quantity = 1
+key = &"crafting/chain_clothes_prototype"

@@ -72,7 +72,8 @@ static func item_reason(
 			if link.target != reservation_owner:
 				return "Предмет уже зарезервирован"
 		elif (
-			link.relation is R_OwnedBy or link.relation is R_HeldBy or link.relation is R_StoredIn
+			link.relation is R_CraftingReserved or link.relation is R_OwnedBy
+			or link.relation is R_HeldBy or link.relation is R_StoredIn
 			or link.relation is R_CartCargo or link.relation is R_InspectionCargo
 		):
 			return "Сначала освободите предмет"

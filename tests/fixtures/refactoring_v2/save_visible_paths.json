@@ -1,5 +1,5 @@
 {
-  "schema": 32,
+  "schema": 33,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -89,6 +89,7 @@
       "fields": [
         "receipts",
         "buyback_sales",
+        "crafting_batches",
         "pending_deliveries",
         "next_request"
       ]
@@ -105,6 +106,13 @@
         "premium_item_keys",
         "premium_spent_keys",
         "prices"
+      ]
+    },
+    {
+      "symbol": "C_Crafting",
+      "path": "res://content/domains/commerce/components/c_crafting.gd",
+      "fields": [
+        "profile"
       ]
     },
     {
@@ -402,6 +410,18 @@
     {
       "symbol": "BuybackSale",
       "path": "res://content/domains/commerce/contracts/buyback_sale.gd"
+    },
+    {
+      "symbol": "CraftingInput",
+      "path": "res://content/domains/commerce/contracts/crafting_input.gd"
+    },
+    {
+      "symbol": "CraftingOutput",
+      "path": "res://content/domains/commerce/contracts/crafting_output.gd"
+    },
+    {
+      "symbol": "CraftingBatch",
+      "path": "res://content/domains/commerce/contracts/crafting_batch.gd"
     },
     {
       "symbol": "PendingDelivery",

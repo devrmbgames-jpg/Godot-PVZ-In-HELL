@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DEF_CraftingRecipe" format=3 uid="uid://b5yoo4f7n7d78"]
+
+[ext_resource type="Script" uid="uid://uq7jpnf7pn0i" path="res://content/domains/commerce/contracts/crafting_ingredient.gd" id="1_yisdv"]
+[ext_resource type="Resource" uid="uid://bw6rmoogxemf6" path="res://content/domains/commerce/authoring/crafting_bones_ingredient.tres" id="2_t3wow"]
+[ext_resource type="Resource" uid="uid://dj2ypo2l583ac" path="res://content/domains/inventory/definitions/def_item_work_clothes.tres" id="3_qve2o"]
+[ext_resource type="Script" uid="uid://bo5t71yc6lcl" path="res://content/domains/commerce/definitions/def_crafting_recipe.gd" id="4_3od8g"]
+
+[resource]
+script = ExtResource("4_3od8g")
+display_name = "Одежда из костей · прототип"
+ingredients = Array[ExtResource("1_yisdv")]([ExtResource("2_t3wow")])
+complexity = 10
+priority = 0
+output = ExtResource("3_qve2o")
+output_quantity = 1
+key = &"crafting/simple_bones_prototype"

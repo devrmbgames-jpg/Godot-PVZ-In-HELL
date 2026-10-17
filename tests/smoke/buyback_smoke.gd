@@ -1,9 +1,13 @@
 extends "res://tests/smoke/npc_authored_people_smoke.gd"
-## Два процесса: реальная продажа чужого содержимого и fresh контейнер без повторной выручки.
+## Два процесса: независимая скупка и принятая мастерской партия без повторной выручки/выдачи.
 
 const BUYBACK_SLOT: String = "user://buyback_cold_smoke.pvzh"
 const CONTAINER_ID: String = "buyback/cold/container"
 const HAG_CONTAINER_ID: String = "buyback/cold/hag"
+const CRAFT_CONTAINER_ID: String = "crafting/cold/container"
+const BONES: DEF_InventoryItem = preload(
+	"res://content/domains/inventory/definitions/def_item_bones.tres"
+)
 const ITEM: DEF_InventoryItem = preload(
 	"res://content/domains/inventory/definitions/def_item_toy_block.tres"
 )
@@ -162,6 +166,7 @@ func _write() -> void:
 	)
 	_check(WalletService.current().balance == 15, "real wallet credited once")
 	await _write_hag_sale()
+	await _write_crafting_batch()
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	_check(WorldSnapshotService.can_restore(snapshot, _root), "closed transaction snapshot")
 	if not _failed:
@@ -184,9 +189,7 @@ func _write_hag_sale() -> void:
 		"actual evening buyer available",
 	)
 	hag.set_physics_process(false)
-	var bones: DEF_InventoryItem = load(
-		"res://content/domains/inventory/definitions/def_item_bones.tres"
-	) as DEF_InventoryItem
+	var bones: DEF_InventoryItem = BONES
 	var item: Entity = (load(bones.world_pickup_scene) as PackedScene).instantiate() as Entity
 	EntityCompositionFixture.register(_world, item)
 	var body: RigidBody3D = item as Node as RigidBody3D
@@ -227,6 +230,93 @@ func _restore_hag_sale(sale: BuybackSale) -> void:
 		"cold evening retry remains duplicate",
 	)
 	_check(WalletService.current().balance == 20, "evening retry has no second credit")
+
+
+func _write_crafting_batch() -> void:
+	var point: E_CraftingContainer = (
+		load("res://content/domains/commerce/entities/crafting_shy_container.tscn") as PackedScene
+	).instantiate() as E_CraftingContainer
+	point.id = CRAFT_CONTAINER_ID
+	(point as Node as Node3D).position = Vector3(36, 0, 0)
+	EntityCompositionFixture.register(_world, point)
+	var bones: DEF_InventoryItem = BONES
+	var material: Entity = (load(bones.world_pickup_scene) as PackedScene).instantiate() as Entity
+	EntityCompositionFixture.register(_world, material)
+	(material.get_component(C_InventoryItem) as C_InventoryItem).quantity = 2
+	var body: RigidBody3D = material as Node as RigidBody3D
+	body.gravity_scale = 0.0
+	body.global_position = Vector3(35.3, 1.2, 0)
+	var gift: Entity = (load(ITEM.world_pickup_scene) as PackedScene).instantiate() as Entity
+	EntityCompositionFixture.register(_world, gift)
+	(gift.get_component(C_InventoryItem) as C_InventoryItem).quantity = 1
+	var gift_body: RigidBody3D = gift as Node as RigidBody3D
+	gift_body.gravity_scale = 0.0
+	gift_body.global_position = Vector3(36.7, 1.2, 0)
+	for frame: int in 3:
+		await get_tree().physics_frame
+	var offer: CraftingQuote = CraftingService.quote(_seller, point)
+	_check(offer.reason.is_empty() and offer.inputs.size() == 2, "real full crafting composition")
+	_check(
+		CraftingService.confirm(_seller, offer) == CraftingService.Status.COMMITTED,
+		"materials and gift accepted once before disk write",
+	)
+	var batch: CraftingBatch = CommerceService.current().crafting_batches[0]
+	_check(
+		batch.outputs.size() == 2 and not batch.first_failure, "two promised clothes, grace intact",
+	)
+	_check(WalletService.current().balance == 20, "crafting never changes the wallet")
+
+
+func _restore_crafting_batch() -> void:
+	var point: E_CraftingContainer = (
+		_world.entity_id_registry.get(CRAFT_CONTAINER_ID) as E_CraftingContainer
+	)
+	_check(point != null, "cold native workshop reconstructed by stable ID")
+	if point == null:
+		return
+	var batch: CraftingBatch = CommerceService.current().crafting_batches[0]
+	for input: CraftingInput in batch.inputs:
+		_check(not _world.entity_id_registry.has(input.entity_id), "consumed material stays absent")
+	_check(batch.gifts.size() == 1 and batch.gifts[0].definition == ITEM, "gift remains historical")
+	var repeated: CraftingQuote = CraftingQuote.new()
+	repeated.container_reference = weakref(point)
+	repeated.state = point.get_component(C_Crafting) as C_Crafting
+	repeated.operation_id = batch.operation_id
+	repeated.signature = batch.signature
+	_check(
+		CraftingService.confirm(_seller, repeated) == CraftingService.Status.DUPLICATE,
+		"cold batch retry",
+	)
+	var balance: int = WalletService.current().balance
+	var owner: S_Crafting = S_Crafting.new()
+	owner.group = "ColdCrafting"
+	_world.add_system(owner)
+	_world.process(2.0, "ColdCrafting")
+	_world.flush_command_buffers()
+	_check(not batch.outputs[0].emitted, "same-day cold retry cannot issue early")
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	cycle.day_index = 2
+	cycle.phase = C_DayCycle.Phase.MORNING
+	var prepared: DistrictMorningPreparationRequest = DistrictPopulationService.prepare_morning(2)
+	_check(prepared.completed and prepared.succeeded, "real next calendar morning")
+	_world.process(2.0, "ColdCrafting")
+	_world.flush_command_buffers()
+	for output: CraftingOutput in batch.outputs:
+		_check(output.emitted, "promised output issued next morning")
+		_check(_world.entity_id_registry.has(output.entity_id), "actual output has saved ID")
+		_check(
+			point.contains(_world.entity_id_registry.get(output.entity_id) as Entity),
+			"inside workshop",
+		)
+	var count: int = _world.entities.size()
+	_world.process(2.0, "ColdCrafting")
+	_world.flush_command_buffers()
+	_check(_world.entities.size() == count, "morning retry creates no copies")
+	_check(WalletService.current().balance == balance, "fulfillment never changes the wallet")
+	_check(
+		WorldSnapshotService.can_restore(WorldSnapshotService.capture(_root, 2), _root),
+		"fulfilled state saves",
+	)
 
 
 func _restore() -> void:
@@ -288,4 +378,5 @@ func _restore() -> void:
 		"next ordinary physical sale",
 	)
 	_check(WalletService.current().balance == 20 + ordinary.amount, "only ordinary second income")
+	_restore_crafting_batch()
 #endregion

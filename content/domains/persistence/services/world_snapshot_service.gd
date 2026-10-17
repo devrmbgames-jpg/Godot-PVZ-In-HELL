@@ -364,6 +364,7 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 		and LootSnapshotRules.valid(records, all_components)
 		and PackageOrderSnapshotRules.valid(all_components, records)
 		and BuybackSnapshotRules.valid(all_components, records)
+		and CraftingSnapshotRules.valid(all_components, records)
 		and CustomerParcelIncidentSnapshotRules.valid(all_components, records)
 	)
 
@@ -569,6 +570,13 @@ static func restore(
 				district.lifecycle_phase = -1
 			if target is C_Package:
 				(target as C_Package).condition_initialized = true
+			if target is C_Crafting:
+				var crafting: C_Crafting = target as C_Crafting
+				crafting.retry_revision += 1
+				crafting.retry_queued = false
+				crafting.retry_remaining = 0.0
+				crafting.reservations.clear()
+				crafting.reservation_frame = -1
 			if target is C_LootDrops:
 				var queue: C_LootDrops = target as C_LootDrops
 				queue.retry_revision += 1

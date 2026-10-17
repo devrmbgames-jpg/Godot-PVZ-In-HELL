@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CraftingIngredient" format=3 uid="uid://bw6rmoogxemf6"]
+
+[ext_resource type="Resource" uid="uid://bhmjsqk8birom" path="res://content/domains/inventory/definitions/def_item_bones.tres" id="1_nqqqn"]
+[ext_resource type="Script" uid="uid://uq7jpnf7pn0i" path="res://content/domains/commerce/contracts/crafting_ingredient.gd" id="2_nqqqn"]
+
+[resource]
+script = ExtResource("2_nqqqn")
+definition = ExtResource("1_nqqqn")

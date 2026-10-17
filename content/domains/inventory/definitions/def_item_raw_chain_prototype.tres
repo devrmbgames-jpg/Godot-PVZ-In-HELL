@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://dep55tao7xgpk"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_tddps"]
+
+[resource]
+script = ExtResource("1_tddps")
+categories = 8
+market_price = 10
+display_name = "Сырая цепь · прототип"
+world_pickup_scene = "res://content/domains/commerce/entities/raw_chain_prototype.tscn"
+kind = 5
+maximum_stack = 1
+key = &"raw_chain"

@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://qkxmakkhthrq"]
+
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="1_siy84"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_fcsrm"]
+[ext_resource type="Resource" uid="uid://cxi2q17pyr72l" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="3_aejuu"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_xickf"]
+[ext_resource type="Resource" uid="uid://bxegptcs0veum" path="res://content/domains/commerce/authoring/crafting_grabbable.tres" id="5_m24aq"]
+[ext_resource type="Resource" uid="uid://2po68dnkfwfp" path="res://content/domains/commerce/authoring/crafting_interactable.tres" id="6_s7vvj"]
+[ext_resource type="Resource" uid="uid://ceh8fvvtbj565" path="res://content/domains/commerce/authoring/chain_clothes_prototype_stack.tres" id="7_u6gfl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a8gtk"]
+albedo_color = Color(0.25, 0.28, 0.34, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6uxhr"]
+material = SubResource("StandardMaterial3D_a8gtk")
+size = Vector3(0.45, 0.12, 0.35)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bu84k"]
+size = Vector3(0.45, 0.12, 0.35)
+
+[node name="ChainClothesPrototype" type="RigidBody3D" unique_id=1117008888]
+collision_layer = 8
+collision_mask = 31
+mass = 0.5
+continuous_cd = true
+script = ExtResource("1_siy84")
+traits = Array[ExtResource("2_fcsrm")]([ExtResource("3_aejuu")])
+ancestor_entity_bindings = PackedStringArray()
+component_resources = Array[ExtResource("4_xickf")]([ExtResource("5_m24aq"), ExtResource("6_s7vvj"), ExtResource("7_u6gfl")])
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=1716213372]
+mesh = SubResource("BoxMesh_6uxhr")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1270605540]
+shape = SubResource("BoxShape3D_bu84k")
+
+[node name="Caption" type="Label3D" parent="." unique_id=1607848120]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+pixel_size = 0.002
+billboard = 1
+text = "Одежда из цепей
+Прототип"

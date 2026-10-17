@@ -127,7 +127,8 @@ static func _is_free_raw(body: RigidBody3D, truck: E_MorningTruck) -> bool:
 	for link: Relationship in proxy.relationships:
 		if (
 			link.relation is R_OwnedBy or link.relation is R_CartCargo
-			or link.relation is R_StoredIn or link.relation is R_BuybackReserved
+			or link.relation is R_StoredIn
+			or link.relation is R_BuybackReserved or link.relation is R_CraftingReserved
 		):
 			return false
 	return true
@@ -146,7 +147,8 @@ static func _is_free_cargo(item: Entity, truck: E_MorningTruck) -> bool:
 	for link: Relationship in item.relationships:
 		if (
 			link.relation is R_OwnedBy or link.relation is R_CartCargo
-			or link.relation is R_StoredIn or link.relation is R_BuybackReserved
+			or link.relation is R_StoredIn
+			or link.relation is R_BuybackReserved or link.relation is R_CraftingReserved
 		):
 			return false
 	var character: bool = (

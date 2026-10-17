@@ -525,3 +525,29 @@ func test_invalid_saved_receipt_is_rejected_before_live_mutations() -> void:
 	assert_eq(_wallet.balance, 0)
 	assert_eq(_state.dispatched_batch_id, "")
 #endregion
+
+
+#region Shared material reservation
+func test_crafting_reserve_excludes_actual_cargo_until_the_next_manifest() -> void:
+	var truck: E_MorningTruck = await _ready_truck()
+	var item: Entity = _item(truck, 100)
+	var point: E_CraftingContainer = (
+		load("res://content/domains/commerce/entities/crafting_shy_container.tscn") as PackedScene
+	).instantiate() as E_CraftingContainer
+	(point as Node as Node3D).position = Vector3(40, 0, 0)
+	EntityCompositionFixture.register(_world, point)
+	var reserve: Relationship = Relationship.new(R_CraftingReserved.new(), point)
+	item.add_relationship(reserve)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(truck.overlaps_cargo(item as Node as RigidBody3D))
+	assert_true(TruckCargoService.commit(_zone, DayPhaseQueries.current()))
+	assert_true(_world.entity_to_archetype.has(item))
+	var receiving: C_Receiving = _zone.get_component(C_Receiving) as C_Receiving
+	assert_true(receiving.cargo_receipts.is_empty())
+	item.remove_relationship(reserve)
+	receiving.batch_id = "crafting/next-manifest"
+	assert_true(TruckCargoService.commit(_zone, DayPhaseQueries.current()))
+	assert_false(_world.entity_to_archetype.has(item))
+	assert_eq(receiving.cargo_receipts.size(), 1)
+#endregion

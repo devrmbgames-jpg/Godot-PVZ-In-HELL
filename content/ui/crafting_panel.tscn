@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://fwhfs13eiau7"]
+
+[ext_resource type="Script" path="res://content/ui/crafting_panel.gd" id="1_curh7"]
+
+[node name="CraftingPanel" type="CanvasLayer" unique_id=581202684]
+script = ExtResource("1_curh7")
+
+[node name="Confirmation" type="ConfirmationDialog" parent="." unique_id=2111611060]
+title = "Передать содержимое мастерской"
+size = Vector2i(360, 320)
+min_size = Vector2i(360, 320)
+ok_button_text = "Передать весь набор"
+dialog_hide_on_ok = false
+cancel_button_text = "Отмена"
+
+[node name="Contents" type="VBoxContainer" parent="Confirmation" unique_id=1808615486]
+
+[node name="Summary" type="Label" parent="Confirmation/Contents" unique_id=252942078]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Scroll" type="ScrollContainer" parent="Confirmation/Contents" unique_id=376955306]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Items" type="RichTextLabel" parent="Confirmation/Contents/Scroll" unique_id=1697323034]
+layout_mode = 2
+size_flags_horizontal = 3
+fit_content = true
+scroll_active = false

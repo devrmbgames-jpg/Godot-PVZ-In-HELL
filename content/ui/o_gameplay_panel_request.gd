@@ -10,6 +10,7 @@ func sub_observers() -> Array[Array]:
 	return [
 		[q.on_event(CommercePanelOpenRequest.EVENT), _open_commerce],
 		[q.on_event(BuybackPanelOpenRequest.EVENT), _open_buyback],
+		[q.on_event(CraftingPanelOpenRequest.EVENT), _open_crafting],
 		[q.on_event(NightUiResetRequest.EVENT), _reset_night_panels],
 	]
 
@@ -43,6 +44,22 @@ func _open_buyback(_event: Variant, source: Entity, payload: Variant = null) -> 
 	request.opened = BuybackPanelFactory.open(actor, source) != null
 
 
+func _open_crafting(_event: Variant, source: Entity, payload: Variant = null) -> void:
+	var request: CraftingPanelOpenRequest = payload as CraftingPanelOpenRequest
+	assert(request != null)
+	var actor: Entity = request.actor_reference.get_ref() as Entity
+	var container: E_CraftingContainer = (
+		request.container_reference.get_ref() as E_CraftingContainer
+	)
+	if (
+		not EntityAvailability.contains(actor, _world) or actor.id != request.actor_id
+		or not EntityAvailability.contains(container, _world) or source != container
+		or container.get_component(C_Crafting) != request.state
+	):
+		return
+	request.opened = CraftingPanelFactory.open(actor, container) != null
+
+
 func _reset_night_panels(_event: Variant, _source: Entity, payload: Variant = null) -> void:
 	var request: NightUiResetRequest = payload as NightUiResetRequest
 	assert(request != null)
@@ -59,6 +76,8 @@ func _reset_night_panels(_event: Variant, _source: Entity, payload: Variant = nu
 			(node as CustomerDialoguePanel).close_dialogue()
 		elif node is CommercePanel:
 			(node as CommercePanel).close_panel()
+		elif node is CraftingPanel:
+			(node as CraftingPanel).close_panel()
 		elif node is BuybackPanel:
 			(node as BuybackPanel).close_panel()
 #endregion

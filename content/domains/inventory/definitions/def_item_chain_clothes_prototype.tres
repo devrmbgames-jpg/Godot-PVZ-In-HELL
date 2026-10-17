@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://dbmq15d1qld8q"]
+
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="1_a74jx"]
+
+[resource]
+script = ExtResource("1_a74jx")
+categories = 2
+market_price = 30
+display_name = "Одежда из цепей · прототип"
+world_pickup_scene = "res://content/domains/commerce/entities/chain_clothes_prototype.tscn"
+kind = 5
+maximum_stack = 1
+key = &"chain_clothes"

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_CraftingAction" format=3 uid="uid://dr6c0tpfx48qy"]
+
+[ext_resource type="Script" uid="uid://bgpbg23r2clom" path="res://content/domains/commerce/definitions/def_crafting_action.gd" id="1_t033y"]
+
+[resource]
+script = ExtResource("1_t033y")
+action_id = &"crafting_submit"
+caption = "Передать содержимое"
+priority = 10

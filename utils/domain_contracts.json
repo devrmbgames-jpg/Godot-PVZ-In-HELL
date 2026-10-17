@@ -21703,6 +21703,419 @@
       "public_instance_methods": [],
       "method_rights": {},
       "purpose": "Read synchronous commerce busy guard before the truck manifest can admit another transaction during native callbacks; no foreign state writes."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "combat",
+      "symbol": "C_Health",
+      "path": "content/domains/combat/components/c_health.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/crafting_queries.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "hazards",
+      "symbol": "C_HazardEmitter",
+      "path": "content/domains/hazards/components/c_hazard_emitter.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/commerce/services/crafting_queries.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "commerce",
+      "symbol": "R_CraftingReserved",
+      "path": "content/domains/commerce/relationships/r_crafting_reserved.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/interaction/grab_service.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "inventory",
+      "target_owner": "commerce",
+      "symbol": "R_CraftingReserved",
+      "path": "content/domains/commerce/relationships/r_crafting_reserved.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/inventory/inventory_service.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "commerce",
+      "symbol": "R_CraftingReserved",
+      "path": "content/domains/commerce/relationships/r_crafting_reserved.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "CraftingInput",
+      "path": "content/domains/commerce/contracts/crafting_input.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "CraftingOutput",
+      "path": "content/domains/commerce/contracts/crafting_output.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "CraftingBatch",
+      "path": "content/domains/commerce/contracts/crafting_batch.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "C_Crafting",
+      "path": "content/domains/commerce/components/c_crafting.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd",
+        "content/services/persistence/snapshot_graph_rules.gd",
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "DEF_CraftingProfile",
+      "path": "content/domains/commerce/definitions/def_crafting_profile.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd",
+        "content/services/persistence/snapshot_graph_rules.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "E_CraftingContainer",
+      "path": "content/domains/commerce/entities/e_crafting_container.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/persistence/snapshot_graph_rules.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "DEF_CraftingRecipe",
+      "path": "content/domains/commerce/definitions/def_crafting_recipe.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "CraftingPlan",
+      "path": "content/domains/commerce/contracts/crafting_plan.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "commerce",
+      "symbol": "CraftingRecipeRules",
+      "path": "content/domains/commerce/rules/crafting_recipe_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "catalog_error",
+        "plan",
+        "signature"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "catalog_error": "query",
+        "plan": "query",
+        "signature": "query"
+      },
+      "sources": [
+        "content/domains/persistence/rules/crafting_snapshot_rules.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "O_Crafting",
+      "path": "content/domains/commerce/observers/o_crafting.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "request"
+      },
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "S_Crafting",
+      "path": "content/domains/commerce/systems/s_crafting.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "new": "request"
+      },
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "E_CraftingContainer",
+      "path": "content/domains/commerce/entities/e_crafting_container.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/crafting_panel.gd",
+        "content/ui/crafting_panel_factory.gd",
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "C_Crafting",
+      "path": "content/domains/commerce/components/c_crafting.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/crafting_panel.gd",
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "CraftingQuote",
+      "path": "content/domains/commerce/contracts/crafting_quote.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/crafting_panel.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "CraftingInput",
+      "path": "content/domains/commerce/contracts/crafting_input.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/crafting_panel.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "CraftingService",
+      "path": "content/domains/commerce/services/crafting_service.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "quote",
+        "confirm"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "quote": "request",
+        "confirm": "request"
+      },
+      "sources": [
+        "content/ui/crafting_panel.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "CraftingQueries",
+      "path": "content/domains/commerce/services/crafting_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "available_reason"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "available_reason": "query"
+      },
+      "sources": [
+        "content/ui/crafting_panel.gd",
+        "content/ui/crafting_panel_factory.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
+      "symbol": "CraftingPanelOpenRequest",
+      "path": "content/domains/commerce/contracts/crafting_panel_open_request.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "purpose": "Crafting prototype boundary: captured material facts, passive restore or explicit owner operation only; no foreign gameplay-state writes."
     }
   ],
   "legacy_decomposition": []

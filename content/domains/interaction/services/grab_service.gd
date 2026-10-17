@@ -49,7 +49,7 @@ static func can_pickup_body(
 		if CustomerInspectionQueries.owner_for(resolved_handle) != null:
 			return false
 		for link: Relationship in resolved_handle.relationships:
-			if link.relation is R_BuybackReserved:
+			if (link.relation is R_BuybackReserved or link.relation is R_CraftingReserved):
 				return false
 		# Физическое тело не обязательно является предметом; живого персонажа нельзя переносить.
 		if resolved_handle.has_component(C_Living) and not resolved_handle.has_component(C_Death):

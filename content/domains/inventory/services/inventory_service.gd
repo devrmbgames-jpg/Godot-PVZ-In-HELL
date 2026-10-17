@@ -86,7 +86,7 @@ static func can_transfer(item: Entity, destination: Entity, expected_owner: Enti
 
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 	for link: Relationship in item.relationships:
-		if link.relation is R_BuybackReserved:
+		if (link.relation is R_BuybackReserved or link.relation is R_CraftingReserved):
 			return false
 	if (
 		not _valid_item(state) or state.definition.requires_world_body()
