@@ -20,10 +20,9 @@ premium150% за одну единицу каждого из 1–2 фактич�
 
 ## Current / authority
 
-T1a/T1b reviewed technical prototypes: отдельные контейнеры npc/9 Дьявола и npc/6 Карги.
-C_Buyback — прайс; C_Commerce — receipts; WalletService — деньги. Спрос лишь после
-ReceivingSupplyCompleted фактического BASE_SUPPLY/ledger, не плана. Карга EVENING-only
-без supply-зависимости, prototype ставки5/45/45 не объявляются каноном.
+T1a/T1b reviewed prototypes: npc/9 Дьявол / npc/6 Карга. C_Buyback — прайс,
+C_Commerce — receipts, WalletService — деньги. Спрос после реального BASE_SUPPLY/ledger.
+Карга EVENING-only без supply-зависимости; prototype ставки5/45/45 не канон.
 T2a reviewed prototype npc/3: C_Commerce.crafting_batches — единственная durable история,
 C_Crafting — native profile/transient retry/reservations, R_CraftingReserved — live резерв.
 Frozen CraftingStep/requirements/output/trash/hint, replay расхода без нынешнего каталога;
@@ -65,9 +64,14 @@ B01 ConfigFile DEFERRED, PVZH1 сохранён; миграции старых �
 
 ## Next
 
-T3c: staged gate и отдельный commit от BASE `adbb708b93347c55880234702a3291fda6168a7e`.
-Затем read-only exact-SHA review/triage; пока review pending — только независимая работа.
-Т3d Охотник, Бугай/Элементаль и полное T4 остаются открыты. Не добавлять неготовое gunplay.
+T3c committed `4c8a846f288fc2d0aa2296089bcb3bc517206630`, **REVIEW_PENDING**.
+Read-only /root/review_c3 BASE `adbb708b93347c55880234702a3291fda6168a7e` →
+TARGET `4c8a846f288fc2d0aa2296089bcb3bc517206630`, cycle0/2. Collect/triage before dependent edits.
+Independent T3d research: existing native throwing_knife/toxin_flask; voluntary entry through
+NpcStreetDialogueContext, paid hint/date/place must remain rereadable, no immediate shop alias.
+Own native stash queue must survive NPC death and protect unclaimed goods at actual acquisition gate
+(GrabService.can_pickup_body plus inventory consumers). No Hunter code/scene changes yet.
+Бугай/Элементаль/full T4 remain OPEN; no new gunplay/effects hidden in trading.
 
 ## Validation / current review
 
@@ -80,7 +84,7 @@ scripts_instantiated0; final4 native paths CLEAN. Editor4 historical errors от
 к intentional authoring_cycle_* invalid fixtures, не изменённым Angel paths.
 Shared native placement consumer11/204 `gut-20261017-034458600` PASS/CLEAN;
 schema35 golden generation15/846 `034143410` PASS/CLEAN, normal reader15/847 `034256397` PASS/CLEAN.
-Formatter19/strict architecture/structure/inventory/diffcheck PASS; staged/review ещё NOT_RUN.
+Formatter19/strict architecture/structure/inventory/diffcheck/staged20 PASS; review pending above.
 Cold functional write+restore PASS, **overall FAIL/UNKNOWN** mixed shutdown:
 `tests/artifacts/angel_furniture-write-20261017-133751654.log`,
 `.artifacts/angel-cold-restore.{stdout,stderr}.log` (native exit0). Partial2/3 issued,
